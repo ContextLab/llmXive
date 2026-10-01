@@ -986,3 +986,319 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T01:59:29Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Observed power 0.30 and MDES 0.25 for N=100 d=0.2 synthetic input
+  claim_id: c_f25184a5
+  context: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Using synthetic input N=100, d=0.2, the observed power is approximately\
+    \ 0.30 (\xB10.05) and MDES is approximately 0.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:35:49Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: synthetic input N=100 d=0.2 yields observed power 0.30 and MDES 0.25
+  claim_id: c_57bc0c70
+  context: 'Phase 5, T029: Unit test requirements for sensitivity calculations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:37:27Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: observed power is a monotone function of the p-value per Hoenig and Heisey
+  claim_id: c_6e942932
+  context: 'Phase 5, T035: Mandatory disclaimer for the audit report.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Observed_power_is_a_monotone_function_of_the_p-value_per_Hoe
+  kind: entity_fact
+  raw_text: "Observed power is a monotone function of the p\u2011value and should\
+    \ not be used for post\u2011hoc validation (Hoenig & Heisey)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:38:05Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: pipeline memory limit 7 GB
+  claim_id: c_8b6c0c7f
+  context: 'Phase 6, T044: Performance constraint defined in spec assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must keep memory usage under 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:38:26Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_1472b5cc
+  context: 'Phase 6, T045: Performance constraint defined in spec assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:38:56Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: synthetic input N=100 d=0.2 yields observed power 0.30 and MDES 0.25
+  claim_id: c_99adc9d6
+  context: 'Phase 5, T029: Unit test description for sensitivity analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:41:23Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: observed power is a monotone function of the p-value
+  claim_id: c_47d25585
+  context: 'Phase 5, T035: Mandatory disclaimer text for the audit report citing Hoenig
+    & Heisey.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Observed_power_is_a_monotone_function_of_the_p-value
+  kind: entity_fact
+  raw_text: "Disclaimer: Observed power is a monotone function of the p\u2011value\
+    \ and should not be used for post\u2011hoc validation (Hoenig & Heisey)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:42:04Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: project dependencies include pandas 2.0.3 and scipy 1.11.4
+  claim_id: c_4644761d
+  context: 'Phase 1, T002: Requirements.txt specification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas==2.0.3, scipy==1.11.4, statsmodels==0.14.1,
+    requests==2.31.0, matplotlib==3.8.0, pytest==7.4.0, beautifulsoup4==4.12.2, and
+    numpy==1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:42:25Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: API client handles HTTP 429 with exponential backoff
+  claim_id: c_91bbadc8
+  context: 'Phase 2, T007: Implementation of api_client.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must handle HTTP 429 errors with exponential backoff retry
+    logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:42:50Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: limit for top classification datasets is 50
+  claim_id: c_a8febbd5
+  context: 'Phase 3, T012: fetch_top_classification_datasets function limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of top classification datasets to retrieve is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:43:25Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: success metric is fraction of observed power below 0.8
+  claim_id: c_07eeb7fc
+  context: 'Phase 5, T039.0: Calculation of success metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The success metric for observed power is the fraction of entries with
+    observed_power < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:43:25Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: success metric is fraction of MDES above 0.2
+  claim_id: c_0baf8ebb
+  context: 'Phase 5, T039.0: Calculation of success metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The success metric for MDES is the fraction of entries with mdes > 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:43:26Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: observed power 0.30 and MDES 0.25 for N=100 d=0.2
+  claim_id: c_0384be62
+  context: Phase 5, User Story 3, Task T029 unit test definition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:47:14Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: project dependencies versions pandas 2.0.3 scipy 1.11.4 statsmodels 0.14.1
+    requests 2.31.0 matplotlib 3.8.0 pytest 7.4.0 beautifulsoup4 4.12.2 numpy 1.26.0
+  claim_id: c_c07a62d0
+  context: Phase 1, Task T002 requirements.txt specification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas==2.0.3, scipy==1.11.4, statsmodels==0.14.1,
+    requests==2.31.0, matplotlib==3.8.0, pytest==7.4.0, beautifulsoup4==4.12.2, and
+    numpy==1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:47:15Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: peak RSS limit 7 GB
+  claim_id: c_0c12074b
+  context: Phase 6, Task T044 and Verification section memory constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_limit_7_GB
+  kind: magnitude
+  raw_text: The pipeline must limit peak RSS to less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:47:50Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: total runtime limit 6 hours
+  claim_id: c_afbdd994
+  context: Phase 6, Task T045 and Verification section time constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_limit_6_hours
+  kind: magnitude
+  raw_text: The pipeline must limit total runtime to less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:48:26Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: max 50 top classification datasets
+  claim_id: c_34cfdc8d
+  context: Phase 3, User Story 1, Task T012 function definition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must retrieve a maximum of 50 top classification datasets from
+    OpenML.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:48:50Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: audit report disclaimer Hoenig and Heisey observed power
+  claim_id: c_f7b0f2f0
+  context: Phase 5, Task T035 mandatory disclaimer content.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audit_report_disclaimer_Hoenig_and_Heisey_observed_power
+  kind: entity_fact
+  raw_text: The audit report must include a disclaimer citing Hoenig & Heisey regarding
+    observed power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:49:25Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: MDES histogram 20 bins
+  claim_id: c_4a3a8c7b
+  context: Phase 5, Task T034 report generation parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The histogram for MDES distribution must use 20 bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T17:49:54Z'

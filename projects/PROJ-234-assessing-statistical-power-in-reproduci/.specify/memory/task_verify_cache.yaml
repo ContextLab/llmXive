@@ -1,3 +1,9 @@
+T010b:
+  c: false
+  h: 37722074178da2410bf730db60663515858240af91abfaeba78ee7309133cc07
+  r: The test `test_dataset_metadata_schema` exists, but the required artifacts `data/raw/openml_metadata_filtered.json`
+    and the schema file `contracts/dataset_metadata.schema.yaml` are missing, so the
+    contract validation cannot be performed.
 T015:
   c: false
   h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
@@ -11,15 +17,6 @@ T016:
     \ IDs and the raising of a `ValueError` when any remain after resolution. The\
     \ required artifact (implementation of the duplicate\u2011ID validation logic)\
     \ is missing, so the task is not satisfied."
-T019:
-  c: false
-  h: 221d54a479ea4e5f5b66b2d51681bad743da942811ba5bc192ebac5cd4d03243
-  r: The required `data/processed/extracted_params.json` file does not exist, and
-    the schema `contracts/extracted_params.schema.yaml` is also missing. Moreover,
-    the provided `tests/contract/test_schemas.py` snippet is truncated and does not
-    show a `test_extracted_params_schema` implementation, so the contract test cannot
-    actually validate the missing artifacts. These essential artifacts must be created
-    and the test completed for the task to be considered done.
 T021:
   c: false
   h: 40efad785569eb38931520f38b48bb1c83b0de1750e2351146f8313d6f8a48db
@@ -62,14 +59,6 @@ T029:
   r: The required unit test file `tests/unit/test_sensitivity.py` is missing from
     the repository, so no test code or results exist to verify the expected observed
     power and MDES values. Without the test artifact, the claim cannot be validated.
-T030:
-  c: false
-  h: 5b9ffc29b70bbd4c834cea2e8fc92ca773e2d7ce39d803e5ae3dc52b510e3539
-  r: "The provided `tests/contract/test_schemas.py` validates `data/raw/openml_metadata_filtered.json`\
-    \ against `contracts/dataset_metadata.schema.yaml`, not `data/processed/audit_report.json`\
-    \ against `contracts/report.schema.yaml`. Moreover, the required `data/processed/audit_report.json`\
-    \ and `contracts/report.schema.yaml` files are missing entirely. The task\u2019\
-    s contract test and target artifacts are therefore not present."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -89,9 +78,29 @@ T037:
   r: "The required file `data/processed/audit_report.md` does not exist, so the final\
     \ audit report was not assembled as specified. The task\u2019s primary deliverable\
     \ is missing."
-T040:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `quickstart.md`, the `./run_pipeline.sh` execution, the generated
-    `audit_report.md`, or a checksum comparison is provided. The required artifacts
-    and verification steps are missing, so the task is not satisfied.
+  r: No refactored files or commit changes are present in the `code/utils/` directory;
+    the implementer provided only a feature specification unrelated to the refactoring
+    task, leaving the required code artifacts missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, JSON outputs, or audit report were supplied; the implementer
+    provided only the task description without any of the required artifacts (e.g.,
+    data ingestion script, parsing results, power calculations, or generated report).
+    Consequently, the claim that the performance harness has been run cannot be verified.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `audit_report.md` file or any logs/evidence of a successful pipeline run are
+    present; without these artifacts the claim that the full pipeline executed without
+    error cannot be verified. The required output is missing.
+T044:
+  c: false
+  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
+  r: "The required `config.yaml` file is absent, so the limit cannot be read from\
+    \ it, and no evidence of a memory\u2011profiling implementation or enforcement\
+    \ logic is provided. Without the configuration file (or a default fallback) and\
+    \ the corresponding code, the task\u2019s requirement is not met."

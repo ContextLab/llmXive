@@ -1,53 +1,47 @@
-type: array
-description: List of extracted statistical parameters from publications
-items:
-  type: object
-  required:
-    - dataset_id
-    - sample_size
-    - effect_size
-    - metric_type
-    - source_url
-    - status
-  properties:
-    dataset_id:
+$schema: http://json-schema.org/draft-07/schema#
+title: Extracted Statistical Parameters
+description: Schema for statistical parameters extracted from publication full-text or abstracts.
+type: object
+required:
+  - dataset_id
+  - sample_size
+  - effect_size
+  - metric_type
+  - source_url
+  - status
+properties:
+  dataset_id:
+    type: integer
+    description: The unique identifier of the dataset from OpenML.
+  sample_size:
+    type: integer
+    description: The total sample size (N) reported in the study.
+  effect_size:
+    type: number
+    description: The numeric value of the effect size (e.g., Cohen's d or F-statistic).
+  metric_type:
+    type: string
+    description: The type of metric extracted.
+    enum:
+      - "Cohen's d"
+      - "F"
+  degrees_of_freedom:
+    type: array
+    items:
       type: integer
-      description: Unique identifier of the OpenML dataset
-    sample_size:
-      type: integer
-      description: Number of samples (N) extracted from the publication
-    effect_size:
-      type: number
-      description: The extracted effect size value (Cohen's d or F-statistic)
-    metric_type:
-      type: string
-      description: Type of metric extracted (e.g., "Cohen's d", "F")
-      enum:
-        - "Cohen's d"
-        - "F"
-    degrees_of_freedom:
-      type: integer
-      description: Degrees of freedom (only applicable for F-statistic)
-      nullable: true
-    source_url:
-      type: string
-      description: URL of the publication or DOI where data was extracted from
-    source_type:
-      type: string
-      description: Source of the extracted text
-      enum:
-        - "full_text"
-        - "abstract"
-    status:
-      type: string
-      description: Extraction status
-      enum:
-        - "success"
-        - "paywalled"
-        - "unparseable"
-        - "insufficient data"
-        - "fetch_failed"
-    degrees_of_freedom:
-      type: integer
-      description: Degrees of freedom for F-statistic
-      nullable: true
+    description: Degrees of freedom (df1, df2) for F-statistics. Optional, null for Cohen's d.
+    nullable: true
+  source_url:
+    type: string
+    format: uri
+    description: The URL from which the publication text was retrieved.
+  status:
+    type: string
+    description: The extraction status.
+    enum:
+      - "success"
+      - "paywalled"
+      - "unparseable"
+      - "insufficient data"
+      - "skipped_pre_fetch"
+additionalProperties: false

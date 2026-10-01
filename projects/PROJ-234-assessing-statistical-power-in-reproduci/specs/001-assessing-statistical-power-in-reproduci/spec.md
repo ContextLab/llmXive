@@ -41,7 +41,7 @@ The system must parse the full-text content of associated publications (or abstr
 
 ### User Story 3 - Compute Observed Power and Generate Audit Report (Priority: P3)
 
-The system must calculate observed statistical power for each extractable dataset using the `statsmodels` library, compare results against the 0.8 threshold, and generate a summary report visualizing the distribution of power values with a mandatory disclaimer about the post-hoc power fallacy.
+The system must calculate observed statistical power for each extractable dataset using the `statsmodels` library, compare results against a standard adequacy threshold, and generate a summary report visualizing the distribution of power values with a mandatory disclaimer about the post-hoc power fallacy.
 
 **Why this priority**: This is the core analytical deliverable. It answers the primary research question by quantifying the prevalence of underpowered studies. It depends on the successful extraction of parameters from P2.
 
