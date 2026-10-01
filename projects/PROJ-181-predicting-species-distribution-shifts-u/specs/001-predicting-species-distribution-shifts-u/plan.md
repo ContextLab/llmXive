@@ -1,38 +1,33 @@
-# Implementation Plan: Predicting Species Distribution Shifts Using Historical Occurrence Records and Climate Data
+# Implementation Plan: Predicting Species Distribution Shifts
 
 **Branch**: `001-predicting-species-distribution-shifts` | **Date**: 2024-05-22 | **Spec**: `specs/001-predicting-species-distribution-shifts/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-species-distribution-shifts/spec.md`
 
 ## Summary
 
-This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pipeline to predict distribution shifts in North American birds. The system downloads historical occurrence data (mid-to-late th century) and climate rasters (WorldClim), preprocesses them (filtering, thinning, bias correction), trains three algorithms (Random Forest, Bioclim, Regularized Logistic Regression (Presence-Background)), projects them onto future climate scenarios (CMIP SSP‑4.5, 2050), and evaluates against recent records while adhering to the project constitution.
-
-**Critical Methodological Correction**: The "MaxEnt-Style" algorithm is explicitly identified as **Regularized Logistic Regression (Presence-Background)**. It is *not* the Maximum Entropy algorithm. The plan and contracts have been updated to reflect this accurately, eliminating construct validity failures.
+This project implements a Species Distribution Modeling (SDM) pipeline to predict distribution shifts of North American birds. It downloads historical (1970-2000) and recent (2005-2020) occurrence data via `pygbif`, processes climate rasters from WorldClim (historical) and CMIP6 (future), trains three CPU-only models (Random Forest, Bioclim, and Target-Group Background Logistic Regression), and evaluates them using spatial block cross-validation. The pipeline strictly adheres to CPU-only constraints for CI compatibility, handles data sufficiency checks dynamically using a power-based threshold (Cohen's h), and frames all results as associational. Crucially, it includes a **Recent-Data Baseline Control** to distinguish biological niche shifts from model transferability failures.
 
 ## Technical Context
 
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies** (pinned in `requirements.txt`): `scikit-learn==1.5.0`, `geopandas==0.14.2`, `rasterio==1.3.9`, `pandas==2.2.2`, `numpy==1.26.4`, `requests==2.32.3`, `matplotlib==3.9.0`, `seaborn==0.13.2`. All are CPU‑only wheels.  
-- **Algorithm Implementation**:
-  - **Random Forest**: `sklearn.ensemble.RandomForestClassifier`.
-  - **Bioclim**: Custom envelope method based on percentile ranges.
-  - **Regularized Logistic Regression (PB)**: `sklearn.linear_model.LogisticRegression` with L2 regularization. This is a Presence-Background method but is *distinct* from the MaxEnt algorithm. It is used for its computational efficiency and interpretability, not as a MaxEnt substitute.
-- **Storage**: Local filesystem (`data/`, `artifacts/`, `metrics/`, `logs/`).  
-- **Testing**: `pytest` for unit and integration tests.  
-- **Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, ≤6 h).  
-- **Compute Strategy**: Species list limited to common North American birds; raster reads are chunked; `n_jobs=2` for parallelism.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pygbif`, `scikit-learn`, `rasterio`, `geopandas`, `pandas`, `numpy`, `requests`, `xarray`, `shapely`, `statsmodels`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `models/`, `metrics/`)  
+**Testing**: `pytest` (unit tests for data loaders, integration tests for pipeline stages)  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Project Type**: Computational Data Analysis Pipeline  
+**Performance Goals**: Complete full workflow within 6 hours; memory usage < 7GB.  
+**Constraints**: No GPU/CUDA; no synthetic data; strict adherence to open data sources; dynamic pagination for GBIF; data subsetting for climate rasters.
 
 ## Constitution Check
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/config.py`; external datasets fetched via canonical URLs; checksums recorded in `state/`. |
-| **II. Verified Accuracy** | **PASS** | **Reference-Validator Agent** is invoked as a pre-commit hook. It fetches the dataset title from the URL metadata and compares it to the citation title string using a token-overlap score (≥ 0.7). If the check fails, the commit is blocked. This mechanism is explicitly documented in the CI pipeline. |
-| **III. Data Hygiene** | **PASS** | Raw data in `data/raw/`; all transformations write new files in `data/processed/`; checksums recorded; no PII. |
-| **IV. Single Source of Truth** | **PASS** | All metrics and figures are generated directly from files in `metrics/` and `artifacts/`; no manual transcription. **Preprocessing counts are logged to `logs/preprocess_counts.yaml`**, providing a single source for record reduction metrics. |
-| **V. Versioning Discipline** | **PASS** | Content hashes stored in `state/projects/...yaml`; any artifact change updates the hash. |
-| **VI. Ecological Data Provenance** | **PASS** | Occurrence metadata includes source, download timestamp, dataset ID; climate rasters have provenance files; **preprocessing logs `logs/preprocess_counts.yaml` (YAML format with `species`, `before_count`, `after_count`, `timestamp`) with before/after counts per species.** |
-| **VII. Model Evaluation Transparency** | **PASS** | Metrics (AUC, TSS) saved per species/model in `metrics/`; statistical test scripts output effect size, p‑value, and seed; all scripts are version‑controlled. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+1.  **Reproducibility (NON-NEGOTIABLE)**: The plan mandates pinned `requirements.txt` and random seeds in `code/`. External datasets (GBIF, WorldClim) are fetched via deterministic API calls. *Status: Compliant.*
+2.  **Verified Accuracy**: All citations in `research.md` will be restricted to the "Verified datasets" block or standard literature (e.g., Cohen's h). *Status: Compliant.*
+3.  **Data Hygiene**: The plan includes `code/download.py` to checksum raw files and `code/preprocess.py` to log derivation steps (thinning, filtering). *Status: Compliant.*
+4.  **Single Source of Truth**: All metrics (AUC, TSS) will be written to `metrics/` and referenced by ID in the final report. *Status: Compliant.*
+5.  **Versioning Discipline**: Content hashes will be recorded in `state/projects/.../artifact_hashes` for every new data file. *Status: Compliant.*
+6.  **Ecological Data Provenance**: The plan explicitly requires retaining `source`, `timestamp`, `dataset_name`, and `original_dataset_name` columns in the occurrence CSV. *Status: Compliant.*
+7.  **Model Evaluation Transparency**: The plan mandates saving `metrics/` with test set versions and random seeds. *Status: Compliant.*
 
 ## Project Structure
 
@@ -41,114 +36,142 @@ This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pi
 ```text
 specs/001-predicting-species-distribution-shifts/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (design artifacts, NOT source code)
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── data_sufficiency.schema.yaml
 │   ├── model_metrics.schema.yaml
+│   ├── niche_stability.schema.yaml
 │   └── occurrence.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-predicting-species-distribution-shifts-u/
-├── data/
-│   ├── raw/                 # Immutable downloads (GBIF, WorldClim, CMIP6)
-│   ├── processed/           # Thinned, bias‑corrected CSVs; bias raster
-│   └── artifacts/           # Trained models (.pkl), future projections
+projects/PROJ-181-predicting-species-distribution-shifts-u/
 ├── code/
-│   ├── config.py            # Paths, thresholds, random seeds
-│   ├── download.py          # Data acquisition (FR‑001)
-│   ├── bias_correction.py   # Generates `bias_layer.tif` from effort data
-│   ├── preprocess.py        # Filtering, deduplication, spatial thinning (FR‑002)
-│   ├── train.py             # Model training (RF, Bioclim, RegLogReg-PB) (FR‑003‑004, FR‑007)
-│   ├── baseline.py          # Null model for baseline expectation (SC‑001)
-│   ├── bias_null.py         # Null model for bias-only degradation (Scientific Soundness)
-│   ├── project.py           # Future climate projection (US‑3)
-│   ├── evaluate.py          # Metrics, permutation tests, fixed-threshold eval (FR‑005, FR‑009‑010)
-│   ├── sensitivity.py       # Threshold sweep & headline rates (FR‑005, SC‑003)
-│   ├── power_analysis.py    # Power calculation for sample size (Methodology)
-│   └── utils/               # Helpers (spatial blocks, VIF, logging)
-├── logs/
-│   └── preprocess_counts.yaml   # Provenance log (YAML format: species, before, after, timestamp)
-├── tests/
-│   ├── unit/                # Unit tests for each module
-│   └── integration/         # End‑to‑end test on a tiny subset
-├── metrics/
-│   ├── training_metrics.csv
-│   ├── baseline_performance.csv   # Baseline AUC/TSS (SC‑001)
-│   ├── bias_null_metrics.csv      # Bias-only null model metrics
-│   ├── sensitivity_report.csv     # Swept thresholds & headline rates (SC‑003)
-│   ├── final_results.csv
-│   └── power_analysis_report.json # Power analysis results
-├── reports/
-│   └── associational_disclaimer.txt   # FR‑008 required wording
-├── requirements.txt
-└── README.md
+│   ├── __init__.py
+│   ├── config.py            # Species list, API keys, paths
+│   ├── download.py          # GBIF pagination, WorldClim/CMIP download (with subsetting)
+│   ├── preprocess.py        # Thinning, filtering, sufficiency check (dynamic threshold)
+│   ├── train.py             # Model training, spatial CV, GPU check
+│   ├── evaluate.py          # Future projection, niche stability, stats (permutation tests)
+│   └── utils/
+│       ├── gpu_check.py     # CUDA detection and exit logic
+│       └── io_helpers.py    # CSV/JSON loaders
+├── data/
+│   ├── raw/                 # Downloaded CSVs and Rasters
+│   │   ├── occurrence_1970_2000.csv
+│   │   ├── occurrence_2005_2020.csv
+│   │   └── climate/
+│   ├── processed/           # Thinned, joined data
+│   └── metrics/             # data_sufficiency.json, model_metrics.json, niche_stability.json
+├── models/                  # Serialized model artifacts
+├── logs/                    # Execution logs
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-**Design Artifacts** (`contracts/`): contain JSON‑Schema files used by the Implementer Agent for validation. These are Phase 1 outputs, not source code.
+**Structure Decision**: The single-project structure is selected to maintain a tight coupling between data processing and modeling, ensuring the 6-hour CI limit is respected by minimizing overhead. The `utils/` directory isolates hardware checks and I/O logic to facilitate testing.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected |
-| :--- | :--- | :--- |
-| **Spatial Block CV** | Required by FR‑007 to avoid spatial leakage. | Standard K‑Fold would inflate AUC. |
-| **Regularized Logistic Regression (PB)** | CPU-tractable Presence-Background method. | Original MaxEnt (Java) breaks CI constraints; GLM is not MaxEnt. |
-| **Bias‑Correction Layer** | Addresses sampling bias (methodology concern) and satisfies robust evaluation. | Ignoring bias would confound performance degradation signals. |
-| **Baseline Null Model** | Needed to define a baseline expectation for SC‑001. | No baseline would leave SC‑001 unmeasurable. |
-| **Bias-Only Null Model** | Needed to distinguish model failure from sampling bias shift. | Without it, degradation metrics are uninterpretable. |
-| **Power Analysis** | Replaces arbitrary threshold with statistical justification. | Arbitrary thresholds risk Type II errors. |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Spatial Block CV | Required to prevent spatial autocorrelation bias in AUC/TSS. | Standard K-fold splits data randomly, violating spatial independence assumptions. |
+| Dynamic Pagination | GBIF API requires offset handling for >300 records. | Hardcoded `limit=300` fails to capture full historical baselines for common species. |
+| CPU-Only Enforcement | CI runners lack GPUs; CUDA errors crash jobs. | Relying on GPU fallback is impossible on free-tier; must fail fast or run on CPU. |
+| Data Subsetting | Downloading multiple full-continent rasters exceeds the 6h limit.. | Full download is infeasible; subsetting by species bounding box is required. |
+| Dynamic Threshold | Fixed 100-record threshold lacks statistical power justification. | Arbitrary thresholds risk Type II errors; Cohen's h provides a rigorous power basis. |
+| **Niche Stability Control** | Distinguishing model failure from biological niche shift. | Simple projection comparison conflates transferability limits with niche instability. |
 
-## Phase‑wise Task Mapping (covers all FRs & SCs)
+## Implementation Phases
 
-| Phase | Tasks (script) | FRs addressed | Artifacts produced |
-| :--- | :--- | :--- | :--- |
-| **0 – Data Acquisition** | `download.py` | FR‑001 | `data/raw/occurrence_20th_century.csv
+### Phase 0: Data Acquisition & Subsetting (Data Feasibility)
 
-The specific value to remove/generalize: '20th century'
+**Goal**: Download occurrence data and *subset* climate rasters to species-specific bounding boxes to ensure feasibility.
 
-Rewritten passage:`, `data/raw/occurrence_early_21st_century.csv
+1.  **Download Occurrences**:
+    *   `code/download.py` implements dynamic pagination (offset loop) for GBIF.
+    *   Fetches records for 1970-2000 (historical) and 2005-2020 (recent) for species in `config.py`.
+    *   **Output**: `data/raw/occurrence_1970_2000.csv`, `data/raw/occurrence_2005_2020.csv`.
+    *   **Metadata**: Includes `source`, `download_timestamp`, `dataset_name` (per Constitution Principle VI).
 
-The specific value to remove/generalize: 'early 21st century'
+2.  **Subset Climate Rasters**:
+    *   Calculate bounding box for each species from historical occurrences.
+    *   Download WorldClim v2 (historical) and CMIP6 (future) rasters *only* for the bounding box.
+    *   **Output**: `data/raw/climate/{species}_historical.tif`, `data/raw/climate/{species}_future.tif`.
+    *   **Validation**: Checksums recorded in `state/.../artifact_hashes`.
 
-Rewritten passage:
-The study investigates [Research Question] using [Method] (Citation).`, `data/raw/climate_historical.tif`, `data/raw/cmip6_future.tif` |
-| **1 – Preprocessing** | `bias_correction.py` → `preprocess.py` | FR‑002, FR‑006, FR‑007, FR‑008 | `data/processed/occurrence_clean.csv`, `data/processed/bias_layer.tif`, **`logs/preprocess_counts.yaml`** |
-| **2 – Baseline Computation** | `baseline.py` | SC‑001 (baseline) | `metrics/baseline_performance.csv` |
-| **2b – Bias Null Model** | `bias_null.py` | Scientific Soundness | `metrics/bias_null_metrics.csv` |
-| **3 – Power Analysis** | `power_analysis.py` | Methodology (Power) | `metrics/power_analysis_report.json` |
-| **4 – Model Training** | `train.py` | FR‑003, FR‑004, FR‑007 | `data/artifacts/model_{species}_{algo}.pkl`, `metrics/training_metrics.csv` |
-| **5 – Future Projection** | `project.py` | FR‑009 | `data/artifacts/projection_{species}_{algo}_{future_year}.tif` |
-| **6 – Evaluation** | `evaluate.py` (fixed threshold, bias-corrected background) | FR‑005, FR‑009, FR‑010, FR‑008 | `metrics/final_results.csv` |
-| **7 – Sensitivity Analysis** | `sensitivity.py` | FR‑005, SC‑003 | `metrics/sensitivity_report.csv` |
-| **8 – Reporting** | Assemble `final_results.csv`, copy `reports/associational_disclaimer.txt` into manuscript generation step. | FR‑008 | `reports/associational_disclaimer.txt` |
+### Phase 1: Preprocessing & Data Sufficiency
 
-All phases are ordered so that data is downloaded before any downstream task, models are trained before projection/evaluation, and figures are generated before manuscript assembly.
+**Goal**: Clean data, thin spatially, and determine statistical power.
+
+1.  **Filter & Thin**:
+    *   Filter by breeding season (month).
+    *   Spatial thinning: Remove points within `min_distance` (computed dynamically, not hardcoded).
+    *   **Metric**: Log the *actual* minimum distance achieved between remaining points.
+
+2.  **Dynamic Sufficiency Check**:
+    *   Calculate minimum sample size ($N_{min}$) required to detect effect size $h=0.50$ (Cohen's h) with 80% power (alpha=0.05).
+    *   If `count < N_min`, flag species as `INSUFFICIENT_DATA`.
+    *   **Output**: `metrics/data_sufficiency.json` (schema compliant).
+
+### Phase 2: Model Training (CPU-Only)
+
+**Goal**: Train models using spatial block cross-validation.
+
+1.  **Model Selection**:
+    *   **Random Forest**: `scikit-learn`.
+    *   **Bioclim**: Rule-based (percentile envelope).
+    *   **Target-Group Background Logistic Regression**: Uses co-occurring species as background points to mimic MaxEnt's sampling strategy (replacing "MaxEnt-style" for construct validity).
+
+2.  **Training**:
+    *   Spatial Block CV (K=5).
+    *   **GPU Check**: `code/utils/gpu_check.py` runs before training; exits with code 1 if CUDA detected.
+    *   **Output**: `models/{species}_{algorithm}_historical.pkl`.
+
+### Phase 3: Evaluation, Projection & Niche Stability
+
+**Goal**: Validate against observed data, project to future, and rigorously test niche stability.
+
+1.  **Hindcasting (Validation)**:
+    *   Project 1970-2000 models onto **2005-2020 observed climate** (WorldClim v2.1 or equivalent historical proxy for that period).
+    *   Compare predictions against **2005-2020 observed occurrences**.
+    *   **Metric**: $AUC_{hist\_to\_recent}$ (Performance of Historical Model on Recent Data).
+
+2.  **Recent-Data Baseline Control (NEW - Addresses Methodology Concern)**:
+    *   Train a **Recent Model** using the *same* algorithms on **2005-2020 data**.
+    *   Project this Recent Model onto **2005-2020 observed climate** (self-validation).
+    *   **Metric**: $AUC_{recent\_to\_recent}$ (Performance of Recent Model on Recent Data).
+    *   **Logic**: This establishes the "ceiling" performance. If the Historical Model's drop in performance is comparable to the inherent noise of the Recent Model, the drop is due to **model transferability limits**, not niche shift.
+
+3.  **Niche Stability Test (FR-009)**:
+    *   Calculate **Niche Non-Stationarity Metric**:
+        $$ NonStationarity = (AUC_{hist\_to\_recent} - AUC_{recent\_to\_recent}) $$
+        *Note: Since $AUC_{recent\_to\_recent}$ is the optimal performance on recent data, a negative value indicates the Historical Model performed worse than the Recent Model, implying degradation. The magnitude of this difference is the metric.*
+    *   **Interpretation**:
+        *   If $NonStationarity \approx 0$: The Historical Model's performance on recent data is as good as a model trained on recent data. The niche is likely **stable**; any degradation in future projections is likely due to model limitations, not biological shift.
+        *   If $NonStationarity \ll 0$ (significant drop): The Historical Model performs significantly worse than the Recent Model on recent data. This indicates **Niche Non-Stationarity** (biological shift).
+    *   **Statistical Test**: Use paired permutation tests (FR-010) to determine if $NonStationarity$ is significantly different from zero.
+
+4.  **Forecasting**:
+    *   Project both Historical and Recent models onto **2050 CMIP6 SSP2-4.5** climate.
+    *   **Output**: Suitability maps for 2050.
+
+5.  **Sensitivity & Correction (FR-005)**:
+    *   Sweep suitability thresholds (low, medium, high).
+    *   Apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons.
+
+6.  **Cross-Species Comparison (FR-010)**:
+    *   Perform non-parametric permutation tests to compare AUC/TSS across algorithms and species.
 
 ## Compute Feasibility
 
-- **Memory**: Raster reads are streamed; species subset limited to keep RAM < 6 GB.  
-- **Runtime**: Empirical benchmark on a GitHub Actions runner shows a multi-hour total for multiple species.  
-- **No GPU**: All libraries are CPU‑only; `n_jobs` limited to 2.
-
-## Decision Rationale
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Regularized Logistic Regression (PB)** | CPU-tractable Presence-Background method. Explicitly *not* MaxEnt. |
-| **Target‑Group Bias Layer** | Corrects for uneven observer effort, satisfying methodological rigor. |
-| **Dynamic Power Threshold** | Replaces arbitrary fixed values with a calculated minimum sample size for [deferred] power. |
-| **Baseline Null Model** | Provides a concrete reference for SC‑001; simple prevalence predictor. |
-| **Bias-Only Null Model** | Distinguishes model degradation from sampling bias shift. |
-| **Fixed Threshold from Training** | Prevents data leakage; ensures degradation metric reflects true predictive failure. |
-| **Explicit Associational Disclaimer** | Directly satisfies FR‑008 and ensures transparent communication. |
-| **Sensitivity Report CSV** | Guarantees SC‑003 measurement of headline rates across swept thresholds. |
-| **Reference-Validator Agent** | Ensures Verified Accuracy via pre-commit hook and title-token-overlap check. |
-| **Preprocessing Log (YAML)** | Satisfies Constitution Principle VI by providing a machine-readable, single-source-of-truth record of data reduction counts per species. |
-
-### Contract Traceability
-- The algorithm `Regularized Logistic Regression (PB)` in the plan corresponds to the `Regularized Logistic Regression (PB)` enum value in `contracts/model_metrics.schema.yaml`.
-- The `logs/preprocess_counts.yaml` artifact format is explicitly defined in the plan and matches the schema requirements for Principle VI.
+- **CPU-First**: All models run on CPU. `torch` is not used; `scikit-learn` is the primary engine.
+- **Memory Management**: Climate rasters are downloaded *per species* (subset) to fit in RAM.
+- **Time Budget**: The pipeline processes a subset of species (e.g., common birds) with subsetting to fit within the CI limit.
+- **GPU Escape Hatch**: Not applicable. The plan explicitly avoids GPU dependencies. If a CUDA call is detected, the process exits with code 1.

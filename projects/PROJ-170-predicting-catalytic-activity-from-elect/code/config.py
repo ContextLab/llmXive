@@ -4,34 +4,37 @@ from pathlib import Path
 from typing import Any, Dict, Optional, List
 
 def get_project_root() -> Path:
-    """Returns the root directory of the project."""
+    """Get the project root directory."""
+    # Assume project root is two levels up from this file
     return Path(__file__).resolve().parent.parent
 
 def get_data_path() -> Path:
-    """Returns the path to the data directory."""
+    """Get the data directory path."""
     return get_project_root() / "data"
 
 def get_output_path() -> Path:
-    """Returns the path to the outputs directory."""
+    """Get the outputs directory path."""
     return get_project_root() / "outputs"
 
 class Configuration:
-    """Configuration holder for the project."""
-    def __init__(self):
-        self.project_root = get_project_root()
-        self.data_path = get_data_path()
-        self.output_path = get_output_path()
+    """Base configuration class."""
+    
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        self.config = config_dict or {}
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.config.get(key, default)
 
 def get_config() -> Configuration:
-    """Returns a Configuration instance."""
+    """Get the global configuration instance."""
+    # Load from environment or default
     return Configuration()
 
 def main():
-    """Entry point for config module."""
-    config = get_config()
-    print(f"Project Root: {config.project_root}")
-    print(f"Data Path: {config.data_path}")
-    print(f"Output Path: {config.output_path}")
+    """Main entry point for config module."""
+    print(f"Project root: {get_project_root()}")
+    print(f"Data path: {get_data_path()}")
+    print(f"Output path: {get_output_path()}")
 
 if __name__ == "__main__":
     main()

@@ -21,7 +21,7 @@ This project implements a computational pipeline to investigate the association 
 **Constraints**: 
 - **Dataset Fit**: The spec requires "years of musical training" and "resting-state fMRI" from ABCD/HCP. The verified datasets block contains *no* verified source for HCP-Adolescents and only generic/unrelated files for "ABCD". 
 - **Compute**: No CUDA, no large model loading. Connectivity computed via Pearson correlation on CPU.
-- **Data Volume**: Data must be sampled/subsetted to fit 7GB RAM.
+- **Data Volume**: Data must be sampled/subsetted to fit available system memory.
 - **Execution Modes**: 
   - `Verification Mode` (Default): Uses synthetic data to verify code execution and statistical logic. **No scientific claims.**
   - `Analysis Mode`: Requires a verified real dataset path. Halts with `Data Source Missing` if path is invalid or data is absent.

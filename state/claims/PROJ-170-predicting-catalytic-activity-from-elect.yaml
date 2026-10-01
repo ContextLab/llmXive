@@ -726,22 +726,6 @@
   updated_at: '2026-08-06T07:52:25Z'
 - artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
   attempts: 1
-  canonical: Reduced model uses top 5 SHAP descriptors
-  claim_id: c_67460899
-  context: Train a reduced model using exactly the top 5 SHAP-ranked descriptors (no
-    other features).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The reduced model uses exactly the top 5 SHAP-ranked descriptors.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-06T07:52:25Z'
-- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
-  attempts: 1
   canonical: Feasibility duration limit 6 hours
   claim_id: c_629eb2fd
   context: 'If duration > 6 hours, set feasibility_status: FAIL in outputs/feasibility_verification.json.
@@ -756,3 +740,146 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T07:52:39Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost n_estimators grid search limit is 200
+  claim_id: c_165f79ce
+  context: "Inner loop: Grid search max_depth across a range of low to moderate depths.,\
+    \ learning_rate \u2208 {0.01, 0.1}, n_estimators \u2264 200 (Fixed grid per FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The grid search for n_estimators is constrained to values \u2264 200."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:31:07Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Random seed for XGBoost training is 42
+  claim_id: c_f147f787
+  context: 'Seed: 42. Save best model to code/models/best_xgboost.json (FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed used for model training and hyperparameter tuning is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:31:29Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Statistical test alpha level is 0.05
+  claim_id: c_7924789b
+  context: 'Perform Shapiro-Wilk test on the distribution of paired differences to
+    satisfy FR-005. Alpha: 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test alpha level for normality check is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:31:47Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: KNN imputation uses 5 neighbors
+  claim_id: c_d1df9721
+  context: Implement k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry
+    space as required by FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The k-nearest-neighbors imputation uses k=5 neighbors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:33:37Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost nested cross-validation outer loop uses 5 folds
+  claim_id: c_a66ca34c
+  context: 'Train XGBoost with nested cross-validation. Outer loop: 5-fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The outer loop of the nested cross-validation uses 5 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:34:11Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 2
+  canonical: Reduced model uses top 5 SHAP descriptors
+  claim_id: c_67460899
+  context: Train a reduced model using exactly the top 5 SHAP-ranked descriptors (no
+    other features).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reduced model uses exactly the top 5 SHAP-ranked descriptors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:34:57Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Pipeline feasibility threshold is 6 hours
+  claim_id: c_931753a7
+  context: 'If duration > 6 hours, set feasibility_status: FAIL in outputs/feasibility_verification.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility verification fails if the pipeline duration exceeds 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:35:20Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: "N\xF8rskov 2005 descriptors list contains d_band_center, reaction_energy,\
+    \ activation_barrier"
+  claim_id: c_5eb7dc1c
+  context: 'Hardcode these three strings exactly as the reference set: {"descriptors":
+    ["d_band_center", "reaction_energy", "activation_barrier"]}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The N\xF8rskov reference list contains three descriptors: d_band_center,\
+    \ reaction_energy, and activation_barrier."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:35:20Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_a97304c2
+  context: Initialize Python 3.11 project with requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version used for the project is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T10:35:45Z'

@@ -1,9 +1,10 @@
-'|alpha analysi cohen effect power sample size test two type use':
-  quote: 'The table shown on the right can be used in a two-sample t-test to estimate
-    the sample sizes of an experimental group and a control group that are of equal
-    size, that is, the total number of individuals in the trial is twice that of the
-    number given, and the desired significance level is 0.05. The parameters used
-    are:'
-  source_id: Sample size determination
-  url: https://en.wikipedia.org/wiki/Sample_size_determination
-  value: '0.05'
+'|asymmetry calculated conselice definition metric using':
+  quote: selice 2003). The clumpiness parameter is more sensitive to
+  source_id: '0712.1316'
+  url: https://arxiv.org/abs/0712.1316
+  value: '2003'
+'|hst image ngc preferred real target validation':
+  quote: "NGC 7009 observed with MUSE\u22C6"
+  source_id: '1602.06788'
+  url: https://arxiv.org/abs/1602.06788
+  value: NGC 7009

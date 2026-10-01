@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[project]
+name = "llmXive-catalysis"
+version = "0.1.0"
+description = "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features"
+requires-python = ">=3.11"

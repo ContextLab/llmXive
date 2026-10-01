@@ -22,12 +22,12 @@ T002:
     \ is not satisfied."
 T010:
   c: false
-  h: b71b1c1715a9ffd027cae751b248137a31643fde216a3a81553ce8de249570ea
-  r: "The required output file `data/raw/oc20_sample.h5` does not exist, and the provided\
-    \ `code/download_data.py` is incomplete (truncated) with no evidence that it actually\
-    \ performs the streaming download, stratifies by `composition_family`, and writes\
-    \ the sample to the specified path. The task\u2019s core deliverable is therefore\
-    \ missing."
+  h: f7cbe1dc71e6f16fba75212620796c784cc70117a90f00f6982522eb83f59615
+  r: "The repository contains `code/download_data.py`, but the file is truncated and\
+    \ does not show any logic that actually downloads the dataset, performs stratified\
+    \ sampling, or writes `data/raw/oc20_sample.h5`. Moreover, the required output\
+    \ file `data/raw/oc20_sample.h5` is missing from the project. The task\u2019s\
+    \ core deliverable is therefore not present."
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

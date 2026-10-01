@@ -1,3 +1,4 @@
 """
-Code package for the Predicting Catalytic Activity project.
+llmXive Project: Predicting Catalytic Activity
+Core package for data processing and model training.
 """

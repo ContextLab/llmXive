@@ -1,2 +1,1 @@
-# Tests module
-# Contains all test suites
+# Tests Module

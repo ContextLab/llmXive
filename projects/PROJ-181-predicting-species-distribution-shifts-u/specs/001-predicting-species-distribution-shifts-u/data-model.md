@@ -1,77 +1,73 @@
 # Data Model: Predicting Species Distribution Shifts
 
-## 1. Entity Definitions
+## Entity Definitions
 
-### 1.1 Occurrence Record
-Represents a single species sighting.
-* **Attributes**:
-  * `species_name` (string): Scientific name.
-  * `latitude` (float): Decimal degrees.
-  * `longitude` (float): Decimal degrees.
-  * `event_date` (date): ISO 8601.
-  * `source` (string): "GBIF" or "eBird".
-  * `dataset_id` (string): Source dataset identifier.
-  * `breeding_season` (boolean): True if date falls within breeding months.
-  * `thinned` (boolean): True if record survived spatial thinning.
-  * `bias_weight` (float): Relative sampling effort weight from bias raster (≥ 0).
+### Occurrence Record
+Represents a single sighting of a species.
+- **Attributes**:
+  - `gbif_key` (str): Unique GBIF identifier.
+  - `scientific_name` (str): Species name.
+  - `decimalLatitude` (float): Latitude in WGS84.
+  - `decimalLongitude` (float): Longitude in WGS84.
+  - `eventDate` (str): ISO 8601 date (YYYY-MM-DD).
+  - `year` (int): Extracted year.
+  - `month` (int): Extracted month.
+  - `basisOfRecord` (str): Source type (e.g., "OBSERVATION").
+  - `source` (str): "GBIF" or "eBird".
+  - `download_timestamp` (str): ISO 8601 timestamp of fetch.
+  - `dataset_name` (str): **Original dataset name** from GBIF (Constitution Principle VI).
 
-### 1.2 Climate Variable
-Environmental data at a grid cell.
-* **Attributes**:
-  * `variable_code` (string): e.g., "bio1" (Annual Mean Temp).
-  * `value` (float): Scaled value (e.g., temp × 10).
-  * `resolution` (string): "2.5 arc‑min".
-  * `source` (string): "WorldClim v2" or "CMIP6".
-  * `time_period` (string): "1970‑2000" or "2050‑SSP2‑4.5".
+### Climate Point
+Represents climate variables at a specific occurrence location.
+- **Attributes**:
+  - `gbif_key` (str): Link to Occurrence Record.
+  - `bio1` ... `bio19` (float): WorldClim bioclimatic variables.
+  - `temp_mean` (float): Mean annual temperature.
+  - `precip_total` (float): Annual precipitation.
 
-### 1.3 Model Artifact
-Trained model instance.
-* **Attributes**:
-  * `algorithm` (string): "Random Forest", "Bioclim", **"Regularized Logistic Regression (PB)"**.
-  * `species` (string).
-  * `training_data_version` (string): Checksum of processed data.
-  * `hyperparams` (json): Dictionary of parameters.
-  * `metrics` (json): AUC, TSS, CV scores.
+### Model Artifact
+Represents a trained SDM.
+- **Attributes**:
+  - `model_id` (str): Unique identifier (e.g., `rf_species_2024`).
+  - `algorithm` (str): "RandomForest", "Bioclim", "TargetGroupLogisticRegression".
+  - `species` (str): Target species.
+  - `train_period` (str): "1970-2000" or "2005-2020".
+  - `metrics` (dict): AUC, TSS, and standard deviations.
+  - `file_path` (str): Path to serialized model (`.pkl`).
 
-### 1.4 Bias Layer (new)
-Raster representing spatial sampling effort.
-* **Attributes**:
-  * `layer_path` (string): File path to `.tif`.
-  * `resolution` (string): Same as climate rasters.
-  * `source` (string): Derived from eBird/GBIF effort records.
-  * `creation_timestamp` (string, ISO 8601).
+### Metric Record
+Aggregated performance statistics.
+- **Attributes**:
+  - `species` (str).
+  - `algorithm` (str).
+  - `metric_name` (str): "AUC", "TSS".
+  - `value` (float).
+  - `cv_fold` (int): Fold number (1-5).
+  - `data_sufficiency` (bool): True if records >= calculated $N_{min}$.
 
-### 1.5 Preprocess Log (new)
-Machine‑readable log of thinning counts.
-* **Attributes**:
-  * `species` (string)
-  * `before_count` (integer): Count of records before thinning/filtering.
-  * `after_count` (integer): Count of records after thinning/filtering.
-  * `timestamp` (string, ISO 8601)
-* **Location**: `logs/preprocess_counts.yaml`
-* **Format**: YAML list of objects.
+### Niche Stability Record
+Represents the result of the niche stability test (FR-009).
+- **Attributes**:
+  - `species` (str).
+  - `algorithm` (str).
+  - `auc_hist_to_recent` (float): Performance of Historical Model on Recent Data.
+  - `auc_recent_to_recent` (float): Performance of Recent Model on Recent Data.
+  - `non_stationarity_metric` (float): $AUC_{hist\_to\_recent} - AUC_{recent\_to\_recent}$.
+  - `p_value` (float): From permutation test.
+  - `significance` (bool): True if p < 0.05.
+  - `interpretation` (str): "Niche Stable" or "Niche Shift".
 
-## 2. Data Flow
+## Data Flow
 
-1. **Raw Ingestion**: `data/raw/occurrence_*.csv`, `data/raw/climate_*.tif`.  
-2. **Bias Generation**: `bias_correction.py` → `data/processed/bias_layer.tif`.  
-3. **Processed**: `data/processed/filtered_thinned.csv` (joined with climate + bias weights).  
-4. **Artifacts**: `data/artifacts/model_{species}_{algo}.pkl`.  
-5. **Metrics**: `metrics/performance_summary.csv`, `metrics/baseline_performance.csv`, `metrics/sensitivity_report.csv`.  
-6. **Logs**: `logs/preprocess_counts.yaml`.
+1.  **Ingestion**: `download.py` fetches raw GBIF records -> `data/raw/occurrence_YYYY_YYYY.csv`.
+2.  **Preprocessing**: `preprocess.py` reads raw CSV, filters by breeding month, thins spatially -> `data/processed/thinned_YYYY_YYYY.csv`.
+3.  **Enrichment**: Climate values extracted from rasters and joined to occurrence points.
+4.  **Training**: `train.py` reads processed data, splits spatially, trains models (Historical and Recent) -> `models/`.
+5.  **Evaluation**: `evaluate.py` projects models, computes metrics, runs permutation tests -> `metrics/model_metrics.json`, `metrics/niche_stability.json`.
 
-## 3. Constraints & Validation Rules
+## Constraints
 
-* **Coordinate Range**: Lat [-90, 90], Lon [-180, 180].  
-* **Date Range**: 1970‑01‑01 to 2020‑12‑31.  
-* **Null Handling**: No nulls in `latitude`, `longitude`, `species_name`, or climate predictors. Rows with nulls are dropped and logged.  
-* **Thinning**: Minimum Euclidean distance ≥ 10 km between any two retained points (FR‑002).  
-* **Record Count**: Species with < 100 records after thinning are excluded from training/evaluation (FR‑006).  
-* **Bias Weights**: Must be ≥ 0; a weight of 0 indicates exclusion from background sampling.  
-* **Preprocess Log**: Every species processed MUST have an entry in `logs/preprocess_counts.yaml` with `before_count` ≥ `after_count`.
-
-## 4. Schema Versioning
-
-* **v1.0**: Initial schema for occurrence, climate, and model artifacts.  
-* **v1.1**: Added `bias_weight` to occurrence, `Bias Layer` entity, and `Preprocess Log`.  
-
+- **Spatial Thinning**: Minimum distance must be respected (computed dynamically, not hardcoded).
+- **Data Sufficiency**: Species with < calculated $N_{min}$ records in the test period are excluded from aggregation.
+- **Null Handling**: Occurrences with null climate values are dropped.
+- **Niche Stability Logic**: The `non_stationarity_metric` is calculated as $AUC_{hist\_to\_recent} - AUC_{recent\_to\_recent}$. A significant negative value indicates niche shift.

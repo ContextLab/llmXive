@@ -1,97 +1,95 @@
 # Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
 
-This project investigates how common data artifacts (noise, saturation) bias the measurement of planetary nebula morphology parameters (ellipticity, asymmetry). Using synthetic data with known ground truth, we quantify these biases and derive calibration functions to correct them.
+This project quantifies how data artifacts (noise and saturation) bias measurements of planetary nebula morphology (ellipticity and asymmetry). It uses synthetic data with known ground truth to derive calibration functions that correct for these biases.
 
 ## Project Structure
 
 ```
 .
 ├── code/ # Source code
-│ ├── analysis/ # Statistical analysis, regression, validation
-│ ├── io/ # I/O utilities (loading, saving, manifests)
-│ ├── metrics/ # Ellipticity and asymmetry calculations
-│ ├── synthetic/ # Data generation and artifact injection
-│ ├── config.py # Configuration and project paths
-│ ├── main.py # CLI entry point
-│ └── setup_*.py # Project setup scripts
+│ ├── analysis/ # Statistical analysis and regression
+│ ├── io/ # I/O utilities (loading/saving)
+│ ├── metrics/ # Morphology metrics (ellipticity, asymmetry)
+│ ├── synthetic/ # Synthetic data generation and artifact injection
+│ ├── config.py # Configuration and project root
+│ └── main.py # CLI entry point
 ├── data/ # Data artifacts
-│ ├── raw/ # Raw input data (e.g., HST images)
+│ ├── raw/ # Raw input data (if any)
 │ ├── synthetic/ # Generated synthetic nebulae
-│ ├── processed/ # Processed data, metrics, sweep results
-│ └── validation/ # Validation data and reports
-├── docs/ # Documentation
-│ ├── decisions/ # Architecture and design decisions
-│ └── reports/ # Final research reports
-├── logs/ # Execution logs
+│ ├── processed/ # Processed data, metrics, and statistics
+│ ├── validation/ # Real HST validation data
+│ └── validation_results/ # Validation outputs
 ├── tests/ # Test suite
 │ ├── unit/ # Unit tests
 │ ├── contract/ # Contract tests
 │ └── integration/ # Integration tests
-├──.gitignore
-├── README.md
-├── quickstart.md
-├── research.md
-└── requirements.txt
+├── docs/ # Documentation
+│ ├── decisions/ # Architecture decisions
+│ └── reports/ # Final research reports
+├── logs/ # Execution logs
+├── requirements.txt # Python dependencies
+├── quickstart.md # Quick start guide
+└── research.md # Research findings
 ```
 
-## Quickstart
+## Quick Start
 
-1. **Environment Setup**:
+1. **Install Dependencies**:
  ```bash
- python -m venv venv
- source venv/bin/activate
  pip install -r requirements.txt
  ```
 
-2. **Project Initialization**:
- ```bash
- python code/setup_dirs.py
- python code/setup_linting.py
- ```
-
-3. **Run the Full Pipeline**:
+2. **Run the Full Pipeline**:
  ```bash
  python code/main.py --run-all
  ```
+ This command:
+ - Generates synthetic planetary nebulae with known ground truth.
+ - Injects noise and saturation artifacts.
+ - Measures ellipticity and asymmetry.
+ - Computes bias and fits calibration models.
+ - Validates results and generates reports.
 
- This executes:
- - **US1**: Noise injection and ellipticity bias analysis
- - **US2**: Saturation injection and asymmetry bias analysis
- - **US3**: Calibration model fitting and validation
+3. **Run Specific Modes**:
+ ```bash
+ # Generate synthetic data
+ python code/main.py --mode generate --n-images 50 --output data/synthetic
 
-4. **View Results**:
- - Processed data: `data/processed/`
- - Validation reports: `data/validation/`
- - Final report: `docs/reports/001-final-bias-analysis.md`
- - Logs: `logs/research.log`
+ # Process artifacts (noise/saturation sweeps)
+ python code/main.py --mode process --input data/synthetic --output data/processed
 
-## User Stories
+ # Calibrate models
+ python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json
 
-- **US1**: Evaluate noise-induced bias on ellipticity.
-- **US2**: Quantify saturation-induced bias on asymmetry.
-- **US3**: Derive calibration functions to correct bias.
+ # Validate results
+ python code/main.py --mode validate --input data/processed/models.json --test-set data/synthetic/validation --output data/processed/validation_results.csv
+
+ # Verify pipeline state
+ python code/main.py --mode verify --output logs/verification.log
+ ```
 
 ## Key Artifacts
 
-- `data/synthetic/gt_metadata.json`: Ground truth for synthetic images.
-- `data/processed/noise_sweep_data.csv`: Noise bias measurements.
-- `data/processed/saturation_sweep.csv`: Saturation bias measurements.
-- `data/processed/calibration_functions.json`: Derived correction models.
-- `data/processed/run_manifest.json`: Reproducibility audit trail.
+- **Synthetic Data**: `data/synthetic/synth_*.fits` and `data/synthetic/gt_metadata.json`
+- **Bias Data**: `data/processed/noise_sweep_data.csv`, `data/processed/saturation_sweep.csv`
+- **Statistics**: `data/processed/noise_stats.csv`, `data/processed/saturation_stats.csv`
+- **Calibration**: `data/processed/calibration_functions.json`
+- **Reports**: `docs/reports/001-final-bias-analysis.md`, `data/validation/power_analysis_report.md`
 
 ## Configuration
 
-See `code/config.py` for pinned seeds, paths, and artifact parameters:
-- Noise levels: `{0.01, 0.05, 0.10}`
-- Saturation range: `0.0` to `0.5` in `0.05` increments.
+Edit `code/config.py` to adjust:
+- Random seeds
+- Default paths
+- Artifact parameters (noise levels, saturation range)
 
 ## Testing
 
-Run tests with:
+Run the test suite:
 ```bash
-pytest tests/ -v
+pytest tests/
 ```
 
 ## License
 
-This project is part of the llmXive automated science pipeline.
+This project is for research purposes.

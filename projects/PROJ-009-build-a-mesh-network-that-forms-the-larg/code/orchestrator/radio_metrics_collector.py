@@ -1,24 +1,22 @@
 """
 Radio Metrics Collector for Mesh Network Supercomputer.
 
-This module measures SNR (Signal-to-Noise Ratio) and bandwidth (Mbps) on remote nodes
-to validate theoretical bounds (FR-006). It attempts multiple fallback methods for SNR
-measurement and uses iperf3 for bandwidth measurement.
+Measures Signal-to-Noise Ratio (SNR) and Bandwidth for theoretical bound validation.
+Implements strict fallback logic and fails loudly on critical bandwidth failures.
 """
 from __future__ import annotations
 
-import json
 import logging
 import re
 import subprocess
 import sys
-import time
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List, Tuple
+import json
+from dataclasses import dataclass, asdict
+from typing import Optional, Dict, Any, List
+from pathlib import Path
 
-# Import from local orchestrator modules as per API surface
 from orchestrator.logger import get_logger
-from orchestrator.remote_tools_manager import RemoteToolManager, create_tool_manager
+from orchestrator.remote_tools_manager import RemoteToolManager, create_tool_manager, ToolMissingError, RemoteExecutionError
 
 logger = get_logger(__name__)
 
@@ -29,303 +27,297 @@ class RadioMetricsCollectorError(Exception):
 
 
 class SNRMeasurementError(RadioMetricsCollectorError):
-    """Raised when SNR measurement fails completely (all methods exhausted)."""
+    """Raised when SNR measurement fails completely (all fallbacks exhausted)."""
     pass
 
 
 class BandwidthMeasurementError(RadioMetricsCollectorError):
-    """Raised when bandwidth measurement fails."""
+    """Raised when bandwidth measurement fails (critical for theoretical bounds)."""
     pass
 
 
 @dataclass
 class RadioMetrics:
-    """Container for radio metrics."""
-    snr_db: Optional[float] = None
-    bandwidth_Mbps: Optional[float] = None
-    measurement_time: str = field(default_factory=lambda: time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
-    interface: str = "wlan0"
+    """Container for radio metric measurements."""
+    snr_db: Optional[float]
+    bandwidth_Mbps: float
+    measurement_method: str
+    interface: str
     peer_ip: Optional[str] = None
+    errors: List[str] = None
+
+    def __post_init__(self):
+        if self.errors is None:
+            self.errors = []
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "snr_db": self.snr_db,
-            "bandwidth_Mbps": self.bandwidth_Mbps,
-            "measurement_time": self.measurement_time,
-            "interface": self.interface,
-            "peer_ip": self.peer_ip
-        }
+        return asdict(self)
 
 
-def _run_local_command(cmd: List[str], timeout: int = 10) -> Tuple[int, str, str]:
-    """
-    Run a local command and return (returncode, stdout, stderr).
-    This is used for local interface detection or fallback checks.
-    """
+def _run_ssh_command(ssh_client, command: str, timeout: int = 30) -> str:
+    """Execute a command on the remote node via SSH."""
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
-        return result.returncode, result.stdout, result.stderr
-    except subprocess.TimeoutExpired:
-        return -1, "", "Command timed out"
+        stdin, stdout, stderr = ssh_client.exec_command(command, timeout=timeout)
+        exit_status = stdout.channel.recv_exit_status()
+        output = stdout.read().decode('utf-8', errors='replace')
+        error_output = stderr.read().decode('utf-8', errors='replace')
+        
+        if exit_status != 0:
+            logger.warning(f"Command failed with exit code {exit_status}: {command}")
+            logger.debug(f"Error output: {error_output}")
+            raise RemoteExecutionError(f"Command failed: {command} (exit {exit_status})")
+        
+        return output
     except Exception as e:
-        return -1, "", str(e)
+        raise RemoteExecutionError(f"SSH execution failed: {str(e)}")
 
 
-def _run_remote_command(ssh_client, cmd: str, timeout: int = 30) -> Tuple[int, str, str]:
+def measure_snr(ssh_client, interface: str = "wlan0") -> Optional[float]:
     """
-    Execute a command on a remote node via SSH.
-    Returns (returncode, stdout, stderr).
-    """
-    try:
-        logger.debug(f"Executing remote command: {cmd}")
-        stdin, stdout, stderr = ssh_client.exec_command(cmd, timeout=timeout)
-        return_code = stdout.channel.recv_exit_status()
-        out = stdout.read().decode('utf-8', errors='ignore')
-        err = stderr.read().decode('utf-8', errors='ignore')
-        return return_code, out, err
-    except Exception as e:
-        logger.error(f"Remote command execution failed: {e}")
-        return -1, "", str(e)
-
-
-def _detect_primary_interface(ssh_client) -> str:
-    """
-    Detect the primary network interface on the remote node.
-    Tries 'ip route', 'iwconfig', 'iw dev' in order.
-    """
-    # Try Linux 'ip route'
-    rc, out, _ = _run_remote_command(ssh_client, "ip route | grep default | awk '{print $5}'")
-    if rc == 0 and out.strip():
-        return out.strip().split('\n')[0]
-
-    # Fallback: try to find a wireless interface
-    rc, out, _ = _run_remote_command(ssh_client, "iwconfig 2>/dev/null | grep -oE '^[^ ]+' | head -1")
-    if rc == 0 and out.strip():
-        return out.strip()
-
-    # Fallback: check /proc/net/wireless
-    rc, out, _ = _run_remote_command(ssh_client, "ls /sys/class/net/ | grep -E 'wlan|wifi' | head -1")
-    if rc == 0 and out.strip():
-        return out.strip()
-
-    logger.warning("Could not detect primary interface, defaulting to wlan0")
-    return "wlan0"
-
-
-def measure_snr(ssh_client, interface: Optional[str] = None) -> Optional[float]:
-    """
-    Measure SNR (Signal-to-Noise Ratio) in dB.
-    Implements fallback strategy:
-    1. iwlist scan (Signal level - Noise level)
-    2. iw dev link (signal field)
-    3. /proc/net/wireless
-
+    Measure Signal-to-Noise Ratio (SNR) using multiple fallback strategies.
+    
+    Strategy 1: iwlist scan
+    Strategy 2: iw dev link
+    Strategy 3: /proc/net/wireless
+    
     Returns None if all methods fail (non-critical per SC-006).
     """
-    if interface is None:
-        interface = _detect_primary_interface(ssh_client)
+    methods_tried = []
+    
+    # Method 1: iwlist
+    try:
+        logger.info(f"Attempting SNR measurement via iwlist on {interface}")
+        cmd = f"iwlist {interface} scan | grep -E 'Signal level|Noise level'"
+        output = _run_ssh_command(ssh_client, cmd)
+        
+        signal_match = re.search(r'Signal level=(-?\d+)dBm', output)
+        noise_match = re.search(r'Noise level=(-?\d+)dBm', output)
+        
+        if signal_match and noise_match:
+            signal = float(signal_match.group(1))
+            noise = float(noise_match.group(2))
+            snr = signal - noise
+            logger.info(f"SNR measured via iwlist: {snr:.2f} dB (Signal: {signal}, Noise: {noise})")
+            return snr
+        else:
+            methods_tried.append("iwlist (no match)")
+    except Exception as e:
+        logger.warning(f"iwlist failed: {str(e)}")
+        methods_tried.append(f"iwlist: {str(e)}")
 
-    logger.info(f"Attempting SNR measurement on interface: {interface}")
-
-    # Method 1: iwlist scan
-    logger.debug("Trying iwlist scan...")
-    cmd = f"iwlist {interface} scan 2>/dev/null | grep -E 'Signal level|Noise level' | head -4"
-    rc, out, err = _run_remote_command(ssh_client, cmd, timeout=15)
-
-    if rc == 0 and out:
-        try:
-            lines = out.strip().split('\n')
-            signal = None
-            noise = None
-            for line in lines:
-                if 'Signal level' in line:
-                    # Format: "Signal level=-45 dBm"
-                    match = re.search(r'Signal level=(-?\d+)', line)
-                    if match:
-                        signal = int(match.group(1))
-                elif 'Noise level' in line:
-                    # Format: "Noise level=-90 dBm"
-                    match = re.search(r'Noise level=(-?\d+)', line)
-                    if match:
-                        noise = int(match.group(1))
-
-            if signal is not None and noise is not None:
-                snr = signal - noise
-                logger.info(f"SNR measured via iwlist: {snr} dB (Signal: {signal}, Noise: {noise})")
-                return float(snr)
-        except Exception as e:
-            logger.warning(f"Failed to parse iwlist output: {e}")
-
-    # Method 2: iw dev link
-    logger.debug("Trying iw dev link...")
-    cmd = f"iw dev {interface} link 2>/dev/null | grep signal"
-    rc, out, err = _run_remote_command(ssh_client, cmd, timeout=10)
-
-    if rc == 0 and out:
-        try:
-            # Format: "signal: -45.00 dBm"
-            match = re.search(r'signal:\s*(-?\d+(?:\.\d+)?)', out)
-            if match:
-                signal = float(match.group(1))
-                # Estimate noise as -90 dBm if not available (common baseline)
-                # This is a heuristic; real noise varies
-                noise = -90.0
-                snr = signal - noise
-                logger.info(f"SNR estimated via iw dev link: {snr} dB (Signal: {signal}, Noise: {noise})")
-                return float(snr)
-        except Exception as e:
-            logger.warning(f"Failed to parse iw dev link output: {e}")
+    # Method 2: iw
+    try:
+        logger.info(f"Attempting SNR measurement via iw on {interface}")
+        cmd = f"iw dev {interface} link | grep signal"
+        output = _run_ssh_command(ssh_client, cmd)
+        
+        signal_match = re.search(r'signal:\s*(-?\d+)\s*dBm', output)
+        if signal_match:
+            signal = float(signal_match.group(1))
+            # Estimate noise as -90dBm if not available (common default)
+            noise = -90.0
+            snr = signal - noise
+            logger.info(f"SNR estimated via iw: {snr:.2f} dB (Signal: {signal}, Noise: {noise})")
+            return snr
+        else:
+            methods_tried.append("iw (no match)")
+    except Exception as e:
+        logger.warning(f"iw failed: {str(e)}")
+        methods_tried.append(f"iw: {str(e)}")
 
     # Method 3: /proc/net/wireless
-    logger.debug("Trying /proc/net/wireless...")
-    cmd = f"cat /proc/net/wireless 2>/dev/null | grep {interface}"
-    rc, out, err = _run_remote_command(ssh_client, cmd, timeout=5)
+    try:
+        logger.info(f"Attempting SNR measurement via /proc/net/wireless")
+        cmd = "cat /proc/net/wireless"
+        output = _run_ssh_command(ssh_client, cmd)
+        
+        # Format: Inter-   st   tx-   rx-   tx-   rx-   tx-   rx-   tx-   rx-   tx-   rx-   tx-   rx-
+        #           face   at   err   err   drop  drop  over  mod   crc   frame  bytes   bytes   bytes   bytes
+        #           wlan0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+        # Line 3 contains the data for wlan0 (assuming first interface)
+        lines = [l.strip() for l in output.split('\n') if l.strip() and not l.startswith('Inter')]
+        if len(lines) >= 1:
+            # Parse the line - columns are typically: 
+            # quality, level, noise, etc.
+            # Format varies by kernel, often: link quality, signal level, noise level, etc.
+            parts = lines[0].split()
+            if len(parts) >= 3:
+                # Assuming format: iface qual level noise ...
+                # Values are often in 0-100 or dBm format depending on driver
+                # For iw, values are typically dBm for level and noise
+                # Let's try to interpret as dBm if negative, or scale if positive
+                try:
+                    # If the values look like dBm (negative numbers)
+                    signal = float(parts[1]) if float(parts[1]) < 0 else float(parts[1]) - 100
+                    noise = float(parts[2]) if float(parts[2]) < 0 else float(parts[2]) - 100
+                    snr = signal - noise
+                    logger.info(f"SNR estimated via /proc/net/wireless: {snr:.2f} dB")
+                    return snr
+                except (ValueError, IndexError):
+                    pass
+        methods_tried.append("/proc/net/wireless (parse failed)")
+    except Exception as e:
+        logger.warning(f"/proc/net/wireless failed: {str(e)}")
+        methods_tried.append(f"/proc/net/wireless: {str(e)}")
 
-    if rc == 0 and out:
-        try:
-            # Format: "wlan0: 0000 -45.00 -90.00 0.00 ..."
-            # Columns: count, status, quality, level, noise, ...
-            parts = out.split()
-            if len(parts) >= 5:
-                # Index 2: quality, 3: level, 4: noise (depending on kernel version)
-                # Usually: level is index 3, noise is index 4
-                # Values are often in dBm * 256 or similar, but modern kernels use dBm
-                # Let's try direct parsing first
-                level = float(parts[3])
-                noise = float(parts[4])
-                # If values are large (e.g. -11520), they might be scaled
-                if abs(level) > 1000:
-                    level = level / 256.0
-                    noise = noise / 256.0
-                snr = level - noise
-                logger.info(f"SNR measured via /proc/net/wireless: {snr} dB")
-                return float(snr)
-        except Exception as e:
-            logger.warning(f"Failed to parse /proc/net/wireless: {e}")
-
-    # All methods failed
-    logger.warning(f"Failed to measure SNR on {interface} after all fallback attempts. Setting to null.")
+    logger.warning(f"All SNR measurement methods failed: {methods_tried}")
     return None
 
 
-def measure_bandwidth(ssh_client, peer_ip: str, interface: Optional[str] = None, duration: int = 10) -> float:
+def measure_bandwidth(ssh_client, peer_ip: str, interface: str = "wlan0", duration: int = 5) -> float:
     """
-    Measure bandwidth in Mbps using iperf3.
-    Runs iperf3 client on the remote node connecting to peer_ip.
-
-    Raises BandwidthMeasurementError if measurement fails.
+    Measure bandwidth using iperf3.
+    
+    This is a critical measurement for theoretical bound validation (FR-006).
+    Raises BandwidthMeasurementError if iperf3 is missing or fails.
     """
-    if interface is None:
-        interface = _detect_primary_interface(ssh_client)
-
-    logger.info(f"Measuring bandwidth to {peer_ip} via {interface} for {duration}s")
-
-    # Ensure iperf3 is available (should be checked by T012, but verify)
-    rc, _, _ = _run_remote_command(ssh_client, "which iperf3")
-    if rc != 0:
-        raise BandwidthMeasurementError("iperf3 not found on remote node. Ensure T012 ran successfully.")
-
-    # Run iperf3 client
-    # -c: client mode, -t: time, -J: JSON output, -i: interval (0 for summary only)
-    cmd = f"iperf3 -c {peer_ip} -t {duration} -J -i 0"
-    rc, out, err = _run_remote_command(ssh_client, cmd, timeout=duration + 15)
-
-    if rc != 0:
-        raise BandwidthMeasurementError(f"iperf3 failed with code {rc}: {err}")
+    # Ensure iperf3 is available (T012 should have handled this, but double-check)
+    try:
+        _run_ssh_command(ssh_client, "which iperf3")
+    except RemoteExecutionError:
+        raise BandwidthMeasurementError("iperf3 not found on remote node. Ensure T012 tool verification passed.")
 
     try:
-        data = json.loads(out)
-        # Extract summary bandwidth from JSON
-        # Structure: {"end": {"sum": {"bits_per_second": ...}}}
-        if "end" in data and "sum" in data["end"]:
-            bps = data["end"]["sum"]["bits_per_second"]
-            mbps = bps / 1_000_000.0
-            logger.info(f"Bandwidth measured: {mbps:.2f} Mbps ({bps} bps)")
-            return float(mbps)
-        else:
-            raise ValueError("Unexpected iperf3 JSON structure")
-    except json.JSONDecodeError as e:
-        raise BandwidthMeasurementError(f"Failed to parse iperf3 JSON output: {e}")
-    except KeyError as e:
-        raise BandwidthMeasurementError(f"Missing expected field in iperf3 output: {e}")
+        logger.info(f"Starting bandwidth measurement to {peer_ip} on {interface} for {duration}s")
+        
+        # Run iperf3 as client, JSON output
+        # -c: client mode, -t: time, -J: JSON output, -i: interval (0 for summary only)
+        cmd = f"iperf3 -c {peer_ip} -t {duration} -J -i 0"
+        output = _run_ssh_command(ssh_client, cmd, timeout=duration + 10)
+        
+        # Parse JSON output
+        try:
+            data = json.loads(output)
+            # Extract sum of all intervals or just the summary
+            if 'end' in data and 'sum_sent' in data['end']:
+                # Get bits per second from summary
+                bits_per_second = data['end']['sum_sent']['bits_per_second']
+                mbps = bits_per_second / 1_000_000.0
+                logger.info(f"Bandwidth measured: {mbps:.2f} Mbps")
+                return mbps
+            elif 'intervals' in data and len(data['intervals']) > 0:
+                # Sum up all intervals
+                total_bits = 0
+                for interval in data['intervals']:
+                    total_bits += interval['sum']['bits_per_second']
+                avg_mbps = (total_bits / len(data['intervals'])) / 1_000_000.0
+                logger.info(f"Average bandwidth measured: {avg_mbps:.2f} Mbps")
+                return avg_mbps
+            else:
+                raise ValueError("Unexpected iperf3 JSON structure")
+        except json.JSONDecodeError as e:
+            raise BandwidthMeasurementError(f"Failed to parse iperf3 JSON output: {str(e)}")
+        
+    except RemoteExecutionError as e:
+        raise BandwidthMeasurementError(f"iperf3 execution failed: {str(e)}")
+    except Exception as e:
+        raise BandwidthMeasurementError(f"Bandwidth measurement failed: {str(e)}")
 
 
 def collect_radio_metrics(
     ssh_client,
     peer_ip: str,
-    interface: Optional[str] = None
+    interface: str = "wlan0"
 ) -> RadioMetrics:
     """
-    Collect both SNR and bandwidth metrics.
+    Main entry point to collect all radio metrics for a node.
+    
+    Args:
+        ssh_client: Paramiko SSHClient instance
+        peer_ip: IP address of the peer node for bandwidth test
+        interface: Network interface to measure (default: wlan0)
+        
+    Returns:
+        RadioMetrics object with measured values.
     """
-    metrics = RadioMetrics(interface=interface or "wlan0", peer_ip=peer_ip)
+    errors = []
+    snr = None
+    bandwidth = None
+    method = "none"
 
-    # Measure SNR (non-critical, may return None)
+    # Measure SNR (non-critical, can be null)
     try:
-        metrics.snr_db = measure_snr(ssh_client, interface)
+        snr = measure_snr(ssh_client, interface)
+        if snr is not None:
+            method = "snr_primary"
+    except SNRMeasurementError as e:
+        errors.append(f"SNR error: {str(e)}")
     except Exception as e:
-        logger.error(f"SNR measurement failed: {e}")
-        metrics.snr_db = None
+        errors.append(f"SNR unexpected error: {str(e)}")
 
-    # Measure Bandwidth (critical for FR-006)
+    # Measure Bandwidth (critical)
     try:
-        metrics.bandwidth_Mbps = measure_bandwidth(ssh_client, peer_ip, interface)
+        bandwidth = measure_bandwidth(ssh_client, peer_ip, interface)
+        if bandwidth is not None:
+            if snr is None:
+                method = "bandwidth_only"
+            else:
+                method = "complete"
+    except BandwidthMeasurementError as e:
+        errors.append(f"Bandwidth error: {str(e)}")
+        # Re-raise as it's critical for theoretical bounds
+        raise e
     except Exception as e:
-        logger.error(f"Bandwidth measurement failed: {e}")
-        raise BandwidthMeasurementError(f"Bandwidth measurement failed: {e}")
+        errors.append(f"Bandwidth unexpected error: {str(e)}")
+        raise BandwidthMeasurementError(f"Bandwidth measurement failed: {str(e)}")
 
-    return metrics
+    if snr is None and bandwidth is None:
+        raise RadioMetricsCollectorError("Both SNR and bandwidth measurements failed.")
+
+    return RadioMetrics(
+        snr_db=snr,
+        bandwidth_Mbps=bandwidth,
+        measurement_method=method,
+        interface=interface,
+        peer_ip=peer_ip,
+        errors=errors
+    )
 
 
 def main():
     """
-    Standalone CLI for testing radio metrics collection.
-    Usage: python -m orchestrator.radio_metrics_collector --ip <node_ip> --peer <peer_ip>
+    CLI entry point for testing radio metrics collection.
+    
+    Usage:
+        python -m orchestrator.radio_metrics_collector --ip 192.168.1.10 --peer 192.168.1.11
     """
     import argparse
+    from orchestrator.node_manager import create_node_manager
 
-    parser = argparse.ArgumentParser(description="Collect radio metrics from a node")
+    parser = argparse.ArgumentParser(description="Collect radio metrics from a mesh node")
     parser.add_argument("--ip", required=True, help="IP address of the target node")
-    parser.add_argument("--peer", required=True, help="IP address of the iperf3 server peer")
-    parser.add_argument("--interface", default=None, help="Network interface to use (default: auto-detect)")
-    parser.add_argument("--duration", type=int, default=10, help="iperf3 duration in seconds")
-    parser.add_argument("--user", default="root", help="SSH user")
-    parser.add_argument("--key", default=None, help="Path to SSH private key")
-
+    parser.add_argument("--peer", required=True, help="IP address of the peer node for bandwidth test")
+    parser.add_argument("--interface", default="wlan0", help="Network interface to measure")
+    parser.add_argument("--config", default="config/testbed.yaml", help="Path to testbed config")
+    
     args = parser.parse_args()
 
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-    # Create SSH client (simplified for CLI)
+    # Load config
     try:
-        import paramiko
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if args.key:
-            ssh.connect(args.ip, username=args.user, key_filename=args.key, timeout=10)
+        from orchestrator.config import get_config
+        config = get_config(args.config)
+    except Exception as e:
+        logger.error(f"Failed to load config: {str(e)}")
+        sys.exit(1)
+
+    # Connect to node
+    try:
+        node_manager = create_node_manager(config)
+        # For this test, we assume single node connection
+        ssh_client = node_manager.connect(args.ip)
+        
+        if ssh_client:
+            logger.info(f"Connected to {args.ip}")
+            metrics = collect_radio_metrics(ssh_client, args.peer, args.interface)
+            print(json.dumps(metrics.to_dict(), indent=2))
+            ssh_client.close()
         else:
-            ssh.connect(args.ip, username=args.user, timeout=10)
+            logger.error(f"Failed to connect to {args.ip}")
+            sys.exit(1)
+            
     except Exception as e:
-        logger.error(f"Failed to connect to {args.ip}: {e}")
+        logger.error(f"Radio metrics collection failed: {str(e)}")
         sys.exit(1)
-
-    try:
-        metrics = collect_radio_metrics(ssh, args.peer, args.interface)
-        print(json.dumps(metrics.to_dict(), indent=2))
-    except BandwidthMeasurementError as e:
-        logger.error(f"Critical failure: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
-    finally:
-        ssh.close()
 
 
 if __name__ == "__main__":

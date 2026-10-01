@@ -1,5 +1,5 @@
 """
-Regression module for calibration functions.
+Regression models for calibration functions.
 """
 import json
 import logging
@@ -8,123 +8,135 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 from scipy import stats
 
-def fit_calibration_models(root: Path) -> None:
+def fit_calibration_models(input_csv: Path, output_json: Path) -> None:
     """
-    Fit calibration models (linear/polynomial) linking artifact intensity to bias.
+    Fit calibration models (linear/polynomial) to aggregated bias data.
     Uses AIC for model selection.
-    Outputs data/processed/calibration_functions.json.
+    Output: data/processed/calibration_functions.json
     """
-    logger = logging.getLogger("regression")
-    logger.info("Fitting Calibration Models...")
-
-    noise_stats_path = root / "data" / "processed" / "noise_stats.csv"
-    sat_stats_path = root / "data" / "processed" / "saturation_stats.csv"
-    output_path = root / "data" / "processed" / "calibration_functions.json"
-
+    import csv
+    input_csv = Path(input_csv)
+    output_json = Path(output_json)
+    
+    # Read aggregated data
+    # Expected columns: artifact_type, artifact_value, bias
+    data = []
+    with open(input_csv, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    
+    # Group by artifact type
+    ellipticity_data = []
+    asymmetry_data = []
+    
+    for row in data:
+        if row.get('artifact_type') == 'noise':
+            ellipticity_data.append((float(row['artifact_value']), float(row['bias'])))
+        elif row.get('artifact_type') == 'saturation':
+            asymmetry_data.append((float(row['artifact_value']), float(row['bias'])))
+    
     models = {}
-
-    # Fit Noise Model
-    if noise_stats_path.exists():
-        # Read data
-        data = []
-        with open(noise_stats_path, 'r') as f:
-            import csv
-            reader = csv.DictReader(f)
-            for row in reader:
-                data.append(row)
-
-        x = np.array([float(row['sigma']) for row in data])
-        y = np.array([float(row['mean_bias']) for row in data])
-
-        if len(x) > 1:
-            # Linear fit
-            slope, intercept, r, p, std_err = stats.linregress(x, y)
-            y_pred = slope * x + intercept
-            rss = np.sum((y - y_pred)**2)
-            n = len(x)
-            k = 2 # slope, intercept
-            aic_linear = n * np.log(rss/n) + 2*k
-
-            # Quadratic fit
+    
+    # Fit ellipticity model (noise -> bias)
+    if ellipticity_data:
+        x, y = zip(*ellipticity_data)
+        x, y = np.array(x), np.array(y)
+        
+        # Linear fit
+        slope, intercept, r, p, std_err = stats.linregress(x, y)
+        residuals = y - (slope * x + intercept)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((y - np.mean(y))**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+        n = len(x)
+        k = 2 # slope + intercept
+        aic_linear = n * np.log(ss_res / n) + 2 * k
+        
+        # Quadratic fit (if n is large enough)
+        if n >= 3:
             coeffs = np.polyfit(x, y, 2)
-            p = np.poly1d(coeffs)
-            y_pred_q = p(x)
-            rss_q = np.sum((y - y_pred_q)**2)
-            k_q = 3
-            aic_quad = n * np.log(rss_q/n) + 2*k_q
-
-            if aic_linear < aic_quad:
+            p2 = np.poly1d(coeffs)
+            residuals2 = y - p2(x)
+            ss_res2 = np.sum(residuals2**2)
+            k2 = 3
+            aic_quad = n * np.log(ss_res2 / n) + 2 * k2
+            
+            if aic_quad < aic_linear:
                 models['ellipticity_model'] = {
-                    "type": "linear",
-                    "slope": slope,
-                    "intercept": intercept,
-                    "aic": aic_linear
+                    'type': 'quadratic',
+                    'coefficients': coeffs.tolist(),
+                    'r_squared': float(1 - (ss_res2 / ss_tot)) if ss_tot != 0 else 0
                 }
             else:
                 models['ellipticity_model'] = {
-                    "type": "quadratic",
-                    "coefficients": coeffs.tolist(),
-                    "aic": aic_quad
+                    'type': 'linear',
+                    'slope': float(slope),
+                    'intercept': float(intercept),
+                    'r_squared': float(r_squared)
                 }
         else:
-            models['ellipticity_model'] = {"type": "insufficient_data"}
-
-    # Fit Saturation Model
-    if sat_stats_path.exists():
-        data = []
-        with open(sat_stats_path, 'r') as f:
-            import csv
-            reader = csv.DictReader(f)
-            for row in reader:
-                data.append(row)
-
-        x = np.array([float(row['saturation_fraction']) for row in data])
-        y = np.array([float(row['mean_bias']) for row in data])
-
-        if len(x) > 1:
-            slope, intercept, r, p, std_err = stats.linregress(x, y)
-            y_pred = slope * x + intercept
-            rss = np.sum((y - y_pred)**2)
-            n = len(x)
-            k = 2
-            aic_linear = n * np.log(rss/n) + 2*k
-
+            models['ellipticity_model'] = {
+                'type': 'linear',
+                'slope': float(slope),
+                'intercept': float(intercept),
+                'r_squared': float(r_squared)
+            }
+    
+    # Fit asymmetry model (saturation -> bias)
+    if asymmetry_data:
+        x, y = zip(*asymmetry_data)
+        x, y = np.array(x), np.array(y)
+        
+        slope, intercept, r, p, std_err = stats.linregress(x, y)
+        residuals = y - (slope * x + intercept)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((y - np.mean(y))**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+        n = len(x)
+        k = 2
+        aic_linear = n * np.log(ss_res / n) + 2 * k
+        
+        if n >= 3:
             coeffs = np.polyfit(x, y, 2)
-            p = np.poly1d(coeffs)
-            y_pred_q = p(x)
-            rss_q = np.sum((y - y_pred_q)**2)
-            k_q = 3
-            aic_quad = n * np.log(rss_q/n) + 2*k_q
-
-            if aic_linear < aic_quad:
+            p2 = np.poly1d(coeffs)
+            residuals2 = y - p2(x)
+            ss_res2 = np.sum(residuals2**2)
+            k2 = 3
+            aic_quad = n * np.log(ss_res2 / n) + 2 * k2
+            
+            if aic_quad < aic_linear:
                 models['asymmetry_model'] = {
-                    "type": "linear",
-                    "slope": slope,
-                    "intercept": intercept,
-                    "aic": aic_linear
+                    'type': 'quadratic',
+                    'coefficients': coeffs.tolist(),
+                    'r_squared': float(1 - (ss_res2 / ss_tot)) if ss_tot != 0 else 0
                 }
             else:
                 models['asymmetry_model'] = {
-                    "type": "quadratic",
-                    "coefficients": coeffs.tolist(),
-                    "aic": aic_quad
+                    'type': 'linear',
+                    'slope': float(slope),
+                    'intercept': float(intercept),
+                    'r_squared': float(r_squared)
                 }
         else:
-            models['asymmetry_model'] = {"type": "insufficient_data"}
-
-    # Save
-    with open(output_path, 'w') as f:
+            models['asymmetry_model'] = {
+                'type': 'linear',
+                'slope': float(slope),
+                'intercept': float(intercept),
+                'r_squared': float(r_squared)
+            }
+    
+    output_json.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_json, 'w') as f:
         json.dump(models, f, indent=2)
-
-    logger.info(f"Calibration models saved to {output_path}")
+    
+    logging.info(f"Calibration models written to {output_json}")
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=str, required=True)
-    args = parser.parse_args()
-    root = Path(args.root)
-    fit_calibration_models(root)
+    root = Path(__file__).resolve().parent.parent.parent
+    input_csv = root / "data" / "processed" / "aggregated_bias.csv"
+    output_json = root / "data" / "processed" / "calibration_functions.json"
+    fit_calibration_models(input_csv, output_json)
 
 if __name__ == "__main__":
     main()

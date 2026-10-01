@@ -1,55 +1,51 @@
 """
-Verification script for T001b: Initialize Python packages.
-
-This script ensures that __init__.py files exist in all required package directories
+Verification script for task T001b: Initialize Python packages.
+Ensures __init__.py files exist in all required package directories
 and that the 'code' package is importable.
 """
 import os
 import sys
-import subprocess
+from pathlib import Path
 
 def main():
-    # Define the required package directories relative to the project root
-    # Assuming the script is run from the project root or code/
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    project_root = Path(__file__).resolve().parent.parent
     packages = [
         "code",
         "tests",
         "code/utils",
         "code/models"
     ]
-    
-    missing_init = []
-    
+
+    missing = []
     for pkg in packages:
-        init_path = os.path.join(project_root, pkg, "__init__.py")
-        if not os.path.isfile(init_path):
-            missing_init.append(init_path)
-    
-    if missing_init:
-        print("ERROR: Missing __init__.py files in the following packages:", file=sys.stderr)
-        for path in missing_init:
-            print(f"  - {path}", file=sys.stderr)
-        sys.exit(1)
-    
-    # Change to project root to ensure import works correctly
-    os.chdir(project_root)
-    
-    # Verify importability
-    try:
-        # Attempt to import the code package
-        import code
-        print("SUCCESS: 'code' package imported successfully.")
+        pkg_path = project_root / pkg
+        init_file = pkg_path / "__init__.py"
         
-        # Optional: Verify sub-packages if they are intended to be top-level imports
-        # Note: code/utils and code/models are sub-packages, usually imported as code.utils
-        # The task specifically asks to verify `import code`
+        if not pkg_path.exists():
+            missing.append(f"Directory missing: {pkg_path}")
+        elif not init_file.exists():
+            missing.append(f"__init__.py missing: {init_file}")
+
+    if missing:
+        for msg in missing:
+            print(f"ERROR: {msg}", file=sys.stderr)
+        print("Directory/Package initialization failed.", file=sys.stderr)
+        sys.exit(1)
+
+    # Verification: Ensure 'code' is importable
+    try:
+        # Add project root to path temporarily if not already there
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
+        
+        import code
+        print("Verification successful: 'code' package is importable.")
     except ImportError as e:
         print(f"ERROR: Failed to import 'code' package: {e}", file=sys.stderr)
         sys.exit(1)
-    
-    print("Verification passed: All required __init__.py files exist and 'code' is importable.")
-    return 0
+
+    print("All package initializations verified.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

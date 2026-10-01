@@ -1,3 +1,3 @@
 """
-Tests package for the Predicting Catalytic Activity project.
+Test suite for the catalytic activity prediction pipeline.
 """

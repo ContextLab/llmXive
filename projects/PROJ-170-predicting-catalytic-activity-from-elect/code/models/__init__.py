@@ -1,3 +1,3 @@
 """
-Models package.
+Model storage and loading utilities.
 """

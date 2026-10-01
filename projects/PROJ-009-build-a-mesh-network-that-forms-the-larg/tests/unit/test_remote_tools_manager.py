@@ -1,122 +1,148 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
+import sys
+import os
+
+# Add code to path
+sys.path.insert(0, os.path.join(os.dirname(__file__), '..', '..', 'code'))
+
 from orchestrator.remote_tools_manager import (
     RemoteToolManager,
-    ToolMissingError,
-    RemoteExecutionError,
     ToolCheckResult,
     NodeToolStatus,
+    ToolMissingError,
+    RemoteExecutionError,
     create_tool_manager
 )
 
 
-class TestRemoteToolManager:
-    @pytest.fixture
-    def mock_node_manager(self):
-        mock = Mock()
-        mock.get_ssh_client = Mock(return_value=Mock())
-        mock.get_node_ip = Mock(return_value="192.168.1.10")
-        return mock
+@pytest.fixture
+def mock_ssh_client():
+    """Create a mock SSH client."""
+    return MagicMock()
 
-    @pytest.fixture
-    def tool_manager(self, mock_node_manager):
-        return RemoteToolManager(mock_node_manager)
 
-    def test_init(self, mock_node_manager):
-        manager = RemoteToolManager(mock_node_manager)
-        assert manager.node_manager == mock_node_manager
+@pytest.fixture
+def tool_manager(mock_ssh_client):
+    """Create a RemoteToolManager instance."""
+    return RemoteToolManager(ssh_client=mock_ssh_client)
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_check_tool_found(self, mock_exec, tool_manager):
-        mock_exec.return_value = (0, "/usr/bin/tcpdump", "")
-        result = tool_manager.check_tool("node1", "tcpdump")
-        assert result.found is True
-        assert result.tool_name == "tcpdump"
-        assert result.version == "/usr/bin/tcpdump"
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_check_tool_not_found(self, mock_exec, tool_manager):
-        mock_exec.return_value = (1, "", "which: no tcpdump in (/usr/bin)")
-        result = tool_manager.check_tool("node1", "tcpdump")
-        assert result.found is False
-        assert "Not found" in result.error
+def test_check_tool_installed(tool_manager):
+    """Test checking for an installed tool."""
+    # Mock successful 'which' command
+    tool_manager._execute_remote_command = Mock(return_value=(0, "/usr/bin/tcpdump", ""))
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_check_tool_ssh_error(self, mock_exec, tool_manager):
-        mock_exec.side_effect = RemoteExecutionError("SSH failed")
-        result = tool_manager.check_tool("node1", "tcpdump")
-        assert result.found is False
-        assert "SSH failed" in result.error
+    result = tool_manager.check_tool("tcpdump")
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_install_tool_apt_success(self, mock_exec, tool_manager):
-        # First call: check apt-get exists
-        mock_exec.side_effect = [
-            (0, "/usr/bin/apt-get", ""), # which apt-get
-            (0, "Installing...", "") # install command
-        ]
-        success = tool_manager.install_tool("node1", "tcpdump", "tcpdump")
-        assert success is True
-        # Verify calls
-        assert mock_exec.call_count == 2
+    assert result.installed is True
+    assert result.path == "/usr/bin/tcpdump"
+    assert result.install_command is None
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_install_tool_yum_fallback(self, mock_exec, tool_manager):
-        # First call: apt-get missing
-        mock_exec.side_effect = [
-            (1, "", "not found"), # which apt-get
-            (0, "/usr/bin/yum", ""), # which yum
-            (0, "Installing...", "") # install command
-        ]
-        success = tool_manager.install_tool("node1", "tcpdump", "tcpdump")
-        assert success is True
-        assert mock_exec.call_count == 3
 
-    @patch.object(RemoteToolManager, '_execute_remote_command')
-    def test_install_tool_no_package_manager(self, mock_exec, tool_manager):
-        # Both apt and yum missing
-        mock_exec.side_effect = [
-            (1, "", ""), # apt
-            (1, "", ""), # yum
-        ]
-        success = tool_manager.install_tool("node1", "tcpdump", "tcpdump")
-        assert success is False
+def test_check_tool_missing_no_package_manager(tool_manager):
+    """Test checking for a missing tool when no package manager is found."""
+    # Mock failed 'which'
+    tool_manager._execute_remote_command = Mock(side_effect=[
+        (1, "", ""), # which failed
+        (1, "", ""), # apt failed
+        (1, "", "")  # yum failed
+    ])
 
-    @patch.object(RemoteToolManager, 'check_tool')
-    @patch.object(RemoteToolManager, 'install_tool')
-    def test_check_and_install_tools(self, mock_install, mock_check, tool_manager):
-        # Setup mocks
-        mock_check.return_value = ToolCheckResult("tcpdump", False)
-        mock_install.return_value = True
+    result = tool_manager.check_tool("tcpdump")
 
-        result = tool_manager.check_and_install_tools(["node1"])
+    assert result.installed is False
+    assert result.install_command is None
+    assert "package manager" in result.error_message
 
-        assert "node1" in result
-        assert result["node1"].checks["tcpdump"].found is False
-        assert result["node1"].installation_attempts["tcpdump"] is True
-        assert "tcpdump" in result["node1"].installed_tools
 
-    @patch.object(RemoteToolManager, 'check_and_install_tools')
-    def test_validate_all_tools_present_success(self, mock_check_install, tool_manager):
-        mock_status = NodeToolStatus(node_id="node1", ip="1.2.3.4")
-        mock_status.installed_tools = {"tcpdump", "mpstat"}
-        mock_check_install.return_value = {"node1": mock_status}
+def test_check_tool_missing_with_apt(tool_manager):
+    """Test checking for a missing tool when apt is available."""
+    # Mock failed 'which', successful apt
+    tool_manager._execute_remote_command = Mock(side_effect=[
+        (1, "", ""), # which failed
+        (0, "apt-get", "") # apt available
+    ])
 
-        success, errors = tool_manager.validate_all_tools_present(["node1"])
-        assert success is True
-        assert len(errors) == 0
+    result = tool_manager.check_tool("tcpdump")
 
-    @patch.object(RemoteToolManager, 'check_and_install_tools')
-    def test_validate_all_tools_present_failure(self, mock_check_install, tool_manager):
-        mock_status = NodeToolStatus(node_id="node1", ip="1.2.3.4")
-        mock_status.missing_tools = {"tcpdump"}
-        mock_check_install.return_value = {"node1": mock_status}
+    assert result.installed is False
+    assert "apt-get" in result.install_command
 
-        with pytest.raises(ToolMissingError) as exc_info:
-            tool_manager.validate_all_tools_present(["node1"])
-        assert "Critical tools missing" in str(exc_info.value)
 
-    def test_create_tool_manager(self, mock_node_manager):
-        manager = create_tool_manager(mock_node_manager)
-        assert isinstance(manager, RemoteToolManager)
-        assert manager.node_manager == mock_node_manager
+def test_install_tool_success(tool_manager):
+    """Test successful tool installation."""
+    tool_manager._execute_remote_command = Mock(return_value=(0, "Installing...", ""))
+
+    result = tool_manager.install_tool("tcpdump", "sudo apt-get install -y tcpdump")
+
+    assert result.install_success is True
+    assert result.installed is True
+
+
+def test_install_tool_failure(tool_manager):
+    """Test failed tool installation."""
+    tool_manager._execute_remote_command = Mock(return_value=(1, "", "Error: Package not found"))
+
+    result = tool_manager.install_tool("tcpdump", "sudo apt-get install -y tcpdump")
+
+    assert result.install_success is False
+    assert result.installed is False
+    assert "Error: Package not found" in result.error_message
+
+
+def test_verify_and_install_tools_all_success(tool_manager, mock_ssh_client):
+    """Test verifying and installing tools where all succeed."""
+    # Mock check_tool to return installed=True for all
+    with patch.object(tool_manager, 'check_tool') as mock_check:
+        mock_check.return_value = ToolCheckResult(tool_name="tcpdump", installed=True, path="/usr/bin/tcpdump")
+        
+        # Mock SSH client connection check
+        with patch.object(tool_manager, '_execute_remote_command') as mock_exec:
+            mock_exec.return_value = (0, "apt-get", "") # Just for package manager detection logic inside check_tool if needed, but we mock check_tool directly here
+            
+            # We need to mock the internal flow because verify_and_install_tools calls check_tool
+            # Let's mock the internal flow more accurately
+            pass
+
+    # Simpler test: mock the entire verify_and_install_tools flow
+    with patch.object(tool_manager, 'check_tool') as mock_check:
+        mock_check.return_value = ToolCheckResult(tool_name="tcpdump", installed=True, path="/usr/bin/tcpdump")
+        with patch.object(tool_manager, '_execute_remote_command') as mock_exec:
+            # We need to ensure the internal logic doesn't fail
+            # For simplicity, we assume check_tool returns installed=True
+            pass
+
+    # Actual test logic
+    mock_ips = ["192.168.1.10"]
+    # Mock the internal check_tool and install_tool calls
+    with patch.object(tool_manager, 'check_tool') as mock_check:
+        mock_check.return_value = ToolCheckResult(tool_name="tcpdump", installed=True, path="/usr/bin/tcpdump")
+        with patch.object(tool_manager, 'install_tool') as mock_install:
+            mock_install.return_value = ToolCheckResult(tool_name="tcpdump", installed=True, install_success=True)
+            
+            status = tool_manager.verify_and_install_tools(mock_ips[0])
+            
+            assert status.all_tools_ready is True
+            assert len(status.results) > 0
+
+
+def test_verify_all_tools_raises_missing(tool_manager):
+    """Test that verify_all_tools raises ToolMissingError if tools are missing."""
+    mock_ips = ["192.168.1.10"]
+    
+    # Mock check_tool to return missing and install_tool to fail
+    with patch.object(tool_manager, 'check_tool') as mock_check:
+        mock_check.return_value = ToolCheckResult(tool_name="tcpdump", installed=False, error_message="Not found")
+        with patch.object(tool_manager, 'install_tool') as mock_install:
+            mock_install.return_value = ToolCheckResult(tool_name="tcpdump", installed=False, install_success=False)
+            
+            with pytest.raises(ToolMissingError):
+                tool_manager.verify_all_tools(mock_ips)
+
+
+def test_remote_execution_error(tool_manager):
+    """Test that RemoteExecutionError is raised on SSH failure."""
+    tool_manager.ssh_client = None
+    with pytest.raises(RemoteExecutionError):
+        tool_manager._execute_remote_command("ls")

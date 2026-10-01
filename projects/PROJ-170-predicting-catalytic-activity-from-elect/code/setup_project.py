@@ -5,95 +5,89 @@ from pathlib import Path
 from config import get_project_root
 
 def setup_verification_logging():
-    """Configure basic logging for verification scripts."""
+    """Initialize logging for verification steps."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
+    return logging.getLogger(__name__)
 
-def create_directories():
+def create_directories(project_root: Path, logger: logging.Logger):
     """Create the required project directory structure."""
-    project_root = get_project_root()
-    directories = [
-        'data/raw',
-        'data/processed',
-        'code',
-        'outputs',
-        'tests',
-        'state/projects',
-        'code/models'
+    dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "code",
+        project_root / "outputs",
+        project_root / "tests",
+        project_root / "state" / "projects",
+        project_root / "code" / "models"
     ]
 
-    created_paths = []
-    for dir_name in directories:
-        dir_path = project_root / dir_name
+    for dir_path in dirs:
         dir_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(dir_path)
-        logging.info(f"Created directory: {dir_path}")
+        logger.info(f"Created directory: {dir_path}")
 
-    return created_paths
-
-def verify_directories():
-    """Verify that all required directories exist. Exit with error if any are missing."""
-    project_root = get_project_root()
+def verify_directories(project_root: Path, logger: logging.Logger) -> bool:
+    """Verify that all required directories exist."""
     required_dirs = [
-        'data/raw',
-        'data/processed',
-        'code',
-        'outputs',
-        'tests',
-        'state/projects',
-        'code/models'
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "code",
+        project_root / "outputs",
+        project_root / "tests",
+        project_root / "state" / "projects",
+        project_root / "code" / "models"
     ]
 
-    missing_dirs = []
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
+    all_exist = True
+    for dir_path in required_dirs:
         if not os.path.isdir(dir_path):
-            missing_dirs.append(dir_path)
+            logger.error(f"Directory missing: {dir_path}")
+            all_exist = False
+        else:
+            logger.info(f"Verified directory exists: {dir_path}")
 
-    if missing_dirs:
-        error_msg = "Directory initialization failed. Missing directories: " + ", ".join(str(p) for p in missing_dirs)
-        logging.error(error_msg)
-        sys.exit(1)
-    
-    logging.info("All required directories verified successfully.")
-    return True
+    return all_exist
 
-def create_init_files():
-    """Create __init__.py files in all Python package directories."""
-    project_root = get_project_root()
+def create_init_files(project_root: Path, logger: logging.Logger):
+    """Create __init__.py files in Python package directories."""
     package_dirs = [
-        'code',
-        'tests',
-        'code/utils',
-        'code/models'
+        project_root / "code",
+        project_root / "tests",
+        project_root / "code" / "utils",
+        project_root / "code" / "models"
     ]
 
-    for dir_name in package_dirs:
-        dir_path = project_root / dir_name
-        init_file = dir_path / '__init__.py'
+    for dir_path in package_dirs:
+        init_file = dir_path / "__init__.py"
         if not init_file.exists():
             init_file.touch()
-            logging.info(f"Created __init__.py in {dir_path}")
-        else:
-            logging.info(f"__init__.py already exists in {dir_path}")
+            logger.info(f"Created __init__.py: {init_file}")
 
 def main():
-    """Main entry point for project setup and verification."""
-    setup_verification_logging()
-    logging.info("Starting project directory setup and verification.")
-    
+    """Main entry point for project setup."""
+    logger = setup_verification_logging()
+    logger.info("Starting project directory setup...")
+
+    project_root = get_project_root()
+    logger.info(f"Project root: {project_root}")
+
     # Create directories
-    create_directories()
-    
-    # Verify directories exist
-    verify_directories()
-    
+    create_directories(project_root, logger)
+
+    # Verify directories
+    if not verify_directories(project_root, logger):
+        logger.error("Directory initialization failed")
+        sys.exit(1)
+
     # Create __init__.py files
-    create_init_files()
-    
-    logging.info("Project setup completed successfully.")
+    create_init_files(project_root, logger)
+
+    logger.info("Project setup completed successfully")
 
 if __name__ == "__main__":
     main()

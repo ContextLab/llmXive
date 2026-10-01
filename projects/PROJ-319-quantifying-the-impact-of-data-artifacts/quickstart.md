@@ -1,100 +1,96 @@
-# Quickstart Guide
-
-This guide walks you through setting up and running the full pipeline for quantifying data artifact bias.
+# Quick Start Guide
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- git (for reproducibility manifest)
+- pip (Python package manager)
 
-## Step 1: Environment Setup
+## Installation
+
+1. Clone the repository and navigate to the project directory.
+2. Create a virtual environment (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Running the Pipeline
+
+The pipeline is executed via `code/main.py`. Use the `--run-all` flag to execute the full workflow:
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/main.py --run-all
 ```
 
-## Step 2: Project Initialization
+This will:
+1. **Generate** synthetic planetary nebulae with known ground-truth ellipticity and asymmetry.
+2. **Inject** noise and saturation artifacts across defined ranges.
+3. **Measure** ellipticity and asymmetry for each artifact level.
+4. **Compute** bias relative to ground truth.
+5. **Fit** calibration models to correct for bias.
+6. **Validate** results and generate reports.
 
-```bash
-# Create directory structure
-python code/setup_dirs.py
+### Output Locations
 
-# Setup linting configuration
-python code/setup_linting.py
-```
+- **Synthetic Images**: `data/synthetic/`
+- **Ground Truth**: `data/synthetic/gt_metadata.json`
+- **Processed Data**: `data/processed/` (CSVs, models, stats)
+- **Validation**: `data/validation/`
+- **Logs**: `logs/research.log`
+- **Reports**: `docs/reports/001-final-bias-analysis.md`
 
-## Step 3: Generate Synthetic Data
+## Manual Step-by-Step Execution
 
+If you prefer to run steps individually:
+
+### 1. Generate Synthetic Data
 ```bash
 python code/main.py --mode generate --n-images 50 --output data/synthetic
 ```
 
-This creates:
-- `data/synthetic/synth_XXX.fits`: Synthetic nebula images.
-- `data/synthetic/gt_metadata.json`: Ground truth ellipticity and asymmetry.
-
-## Step 4: Run Full Pipeline
-
-The single command to execute all user stories:
-
+### 2. Process Artifacts (Noise & Saturation Sweeps)
 ```bash
-python code/main.py --run-all
-```
-
-This sequentially runs:
-1. **US1**: Inject noise, measure ellipticity bias, run regression.
-2. **US2**: Inject saturation, measure asymmetry bias, run regression.
-3. **US3**: Aggregate data, fit calibration models, validate, generate report.
-
-Alternatively, run individual modes:
-
-```bash
-# Process artifacts and compute metrics (US1 & US2)
 python code/main.py --mode process --input data/synthetic --output data/processed
+```
+This step:
+- Injects noise levels (0.01, 0.05, 0.10)
+- Injects saturation fractions (0.00 to 0.50 in 0.05 increments)
+- Outputs: `data/processed/noise_sweep_data.csv`, `data/processed/saturation_sweep.csv`
 
-# Calibrate models (US3)
+### 3. Calibrate Models
+```bash
 python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json
+```
+This fits regression models and outputs: `data/processed/calibration_functions.json`
 
-# Validate results
+### 4. Validate Results
+```bash
 python code/main.py --mode validate --input data/processed/models.json --test-set data/synthetic/validation --output data/processed/validation_results.csv
 ```
 
-## Step 5: Verify Results
-
-Check that the following files exist:
-
-- `data/processed/noise_sweep_data.csv`
-- `data/processed/saturation_sweep.csv`
-- `data/processed/noise_stats.csv`
-- `data/processed/saturation_stats.csv`
-- `data/processed/aggregated_bias.csv`
-- `data/processed/calibration_functions.json`
-- `data/processed/run_manifest.json`
-- `data/validation/power_analysis_report.md`
-- `docs/reports/001-final-bias-analysis.md`
-
-## Step 6: Reproducibility
-
-The `data/processed/run_manifest.json` file contains:
-- Git commit hash
-- Environment variables
-- Artifact parameters used
-- Timestamp
-
-To reproduce exactly:
+### 5. Verify Pipeline State
 ```bash
-git checkout <commit-hash-from-manifest>
-python code/main.py --run-all
+python code/main.py --mode verify --output logs/verification.log
+```
+
+## Running Tests
+
+```bash
+pytest tests/
 ```
 
 ## Troubleshooting
 
-- **Missing ground truth**: Ensure `data/synthetic/gt_metadata.json` exists. Run `--mode generate` if missing.
-- **Import errors**: Verify `PYTHONPATH` includes the project root or install the project in editable mode.
-- **File not found**: Check that `data/` directories were created by `setup_dirs.py`.
+- **Missing Ground Truth**: Ensure `data/synthetic/gt_metadata.json` exists. If not, run the `generate` mode first.
+- **Import Errors**: Verify `code/config.py` is in the Python path. Run from the project root.
+- **File Not Found**: Check that all input paths match the expected directory structure.
+
+## Next Steps
+
+- Review `research.md` for detailed analysis and findings.
+- Read `docs/reports/001-final-bias-analysis.md` for the final report.
+- Examine `data/validation/power_analysis_report.md` for power analysis limitations.

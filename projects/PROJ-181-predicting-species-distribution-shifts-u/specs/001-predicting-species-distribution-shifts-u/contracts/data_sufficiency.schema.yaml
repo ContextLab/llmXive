@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Data Sufficiency Schema"
+description: "Schema for data sufficiency check results."
+type: "object"
+properties:
+  species:
+    type: "string"
+    description: "Scientific name."
+  period:
+    type: "string"
+    enum:
+      - "1970-2000"
+      - "2005-2020"
+    description: "Time period of the dataset."
+  record_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of records after thinning."
+  min_required_count:
+    type: "integer"
+    minimum: 1
+    description: "Calculated minimum required count based on Cohen's h (0.50)."
+  status:
+    type: "string"
+    enum:
+      - "SUFFICIENT"
+      - "INSUFFICIENT_DATA"
+    description: "Status based on threshold (>= min_required_count)."
+required:
+  - species
+  - period
+  - record_count
+  - min_required_count
+  - status
+additionalProperties: false

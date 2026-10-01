@@ -76,15 +76,15 @@
 
 **Note**: The following sequence must be respected. Tasks must be executed in this order to ensure data availability and logical consistency.
 
-1.  **T013a** (Node Discovery) must run first.
-2.  **T012** (Tool Verification) depends on T013a.
-3.  **T049** (CPU Profiling) and **T048** (Radio Metrics) depend on T012 and T013a.
-4.  **T052** (Thermal Monitoring) depends on T012 and T013a.
-5.  **T014a** (Instrumentation) depends on T012 and T013a.
-6.  **T014c** (Wall Clock) depends on T012 and T013a.
-7.  **T013d** (Scheduler State) depends on T008 (Models) and T004 (Config).
-8.  **T013b** (Completion Feedback) depends on T013a and T013d.
-9.  **T013c** (Heartbeat & Re-assignment) depends on T013a, T013d, T049, T014a, T014c, T052.
+1. **T013a** (Node Discovery) must run first.
+2. **T012** (Tool Verification) depends on T013a.
+3. **T049** (CPU Profiling) and **T048** (Radio Metrics) depend on T012 and T013a.
+4. **T052** (Thermal Monitoring) depends on T012 and T013a.
+5. **T014a** (Instrumentation) depends on T012 and T013a.
+6. **T014c** (Wall Clock) depends on T012 and T013a.
+7. **T013d** (Scheduler State) depends on T008 (Models) and T004 (Config).
+8. **T013b** (Completion Feedback) depends on T013a and T013d.
+9. **T013c** (Heartbeat & Re-assignment) depends on T013a, T013d, T049, T014a, T014c, T052.
 10. **T015a** (Scheduler Setup) depends on T013a, T013b, T013d, T009.
 11. **T015b** (Scheduler Execution) depends on T013a, T013b, T013c, T012, T014a, T014c, T015a, T013d, T014b, T052.
 12. **T016** (Benchmark) depends on T013a, T013b.
@@ -365,8 +365,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -432,9 +432,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

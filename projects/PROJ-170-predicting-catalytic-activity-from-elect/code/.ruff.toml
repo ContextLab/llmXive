@@ -1,0 +1,35 @@
+# Ruff Configuration for llmXive
+# Enforces rules: E (pycodestyle), F (Pyflakes), W (Warning), I (isort)
+
+select = ["E", "F", "W", "I"]
+
+# Same line length as Black
+line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+# Exclude generated or external directories
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "venv",
+]
+
+# Allow unused imports in __init__.py files (common pattern for package surfaces)
+per-file-ignores = { "__init__.py" = ["F401"] }
+
+# Isort configuration (I rules)
+[isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = false
+lines-after-imports = 2
+combine-as-imports = true
+split-on-trailing-comma = true

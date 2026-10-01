@@ -1,2 +1,1 @@
-# Unit tests
-# Tests for individual functions and classes
+# Unit Tests Directory
