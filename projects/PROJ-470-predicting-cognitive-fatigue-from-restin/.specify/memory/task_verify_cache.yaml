@@ -9,30 +9,45 @@ T006:
     \ the specified columns\u2014is not satisfied."
 T009:
   c: false
-  h: ec0e83d2252ba9a4a0f2b94e4d1a8b945181004eaf84fa8f6a8f04e5f4151b16
-  r: "The provided `code/download.py` contains only a placeholder docstring and a\
-    \ `pass` statement, with none of the required download, validation, manifest creation,\
-    \ atomic write, or sample file logic. Consequently, `data/raw/download_manifest.json`\
-    \ and the sample EEG file are absent, violating the core functional requirements.\
-    \ The task must be re\u2011implemented to perform the dataset search, variable\
-    \ checks, download, manifest generation, and sample file handling as specified."
-T012a:
+  h: 6cbcd6cb76b67b3480116e1d4930b0a3562299b057fc3b3fb388b5c903d991c4
+  r: "The provided `code/download.py` is truncated and does not contain the full download,\
+    \ participant\u2011count, variable\u2011validation, or atomic manifest\u2011writing\
+    \ logic required by the task. Moreover, the expected output file `data/raw/download_manifest.json`\
+    \ is absent. The script therefore fails to meet the specified functional and output\
+    \ requirements."
+T011:
   c: false
-  h: 1b1d879979cdcf376220bdc1453412bc21d05111dd39bc5b87b2d5f7e199b9ac
-  r: "The required `data/raw/sample_eeg_verification.fif` file does not exist, so\
-    \ the task\u2019s core output is missing. Additionally, the manifest lists only\
-    \ an `.npz` file, not a `.fif` EEG file to copy, indicating the implementation\
-    \ did not fulfill the copy requirement. The next implementer must create the `.fif`\
-    \ sample file by copying the first appropriate EEG file listed in the manifest."
-T016:
+  h: 19405bde95c48f2ce203f174420c4bd323443c6d16f82a50b734528d2bec4716
+  r: "The repository lacks the required `data/raw/download_manifest.json` and the\
+    \ output `data/processed/fatigue_scores.csv`. Moreover, there is no `code/extract.py`\
+    \ (or equivalent extraction logic) to read the manifest and produce the CSV; the\
+    \ existing `code/download.py` only handles dataset downloading. Consequently,\
+    \ the task\u2019s core requirement\u2014extracting fatigue scores into the specified\
+    \ CSV\u2014is not fulfilled."
+T012:
   c: false
-  h: d00cfde3191d4a61a450b52c9e3d5efb32a210dedc35c86e2790e0cb186aa1cb
-  r: "The repository contains a partially shown `code/features.py` that is truncated\
-    \ and does not include a complete implementation (e.g., the `extract_lempel_ziv_complexity`\
-    \ function ends abruptly and there is no code that writes `complexity_metrics.csv`).\
-    \ Moreover, the required output file `data/analysis/complexity_metrics.csv` is\
-    \ absent. The task\u2019s core deliverable \u2013 a CSV with the specified columns\
-    \ \u2013 is missing."
+  h: 524f09ade1e3c5331a12512f03d20c14579a55e7628564520601c5a4294ba254
+  r: "The required sample file `data/raw/sample_eeg_verification.fif` is absent, so\
+    \ the script cannot be exercised as specified. Moreover, the provided `code/preprocess.py`\
+    \ is truncated and shows no implementation of a 1\u201140\u202FHz band\u2011pass\
+    \ filter or line\u2011noise removal, nor does it demonstrate reading the verification\
+    \ file. Both the artifact and the required functionality are missing."
+T013:
+  c: false
+  h: fdef00b152ac1133f7e5e245118cf692ed47495c41af365c5e505ff5a41b9c06
+  r: The required output file `data/processed/exclusion_log.csv` does not exist, so
+    the verification step cannot be satisfied. Additionally, the provided `code/preprocess.py`
+    excerpt is truncated and does not show any implementation of epoch rejection or
+    logging to the exclusion log, leaving it unclear whether the core functionality
+    was added. The missing CSV file and lack of visible rejection logic mean the task
+    is not genuinely completed.
+T014:
+  c: false
+  h: fdef00b152ac1133f7e5e245118cf692ed47495c41af365c5e505ff5a41b9c06
+  r: "The repository lacks the required `data/processed/exclusion_log.csv` file, and\
+    \ the provided excerpt of `code/preprocess.py` shows no implementation of segment\u2011\
+    length validation or logging of rejected segments. Consequently the task\u2019\
+    s verification criteria are not satisfied."
 T017:
   c: false
   h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
@@ -40,21 +55,32 @@ T017:
     \ so the task\u2019s verification step (asserting the CSV with the specified columns)\
     \ cannot be satisfied. The implementation file is present, but without the generated\
     \ CSV the requirement is unmet."
-T018:
-  c: false
-  h: fc9198373bd557d4ea73747323bf2a34ce6d6f8bb2c378b1c1bec5d613659c02
-  r: The `validate_inputs` function in `code/analysis.py` checks for `vif_valid_predictors.json`,
-    `complexity_metrics.csv`, and `delta_scores.csv` instead of the required `data/processed/cleaned_eeg.fif`,
-    `data/analysis/complexity_metrics.csv`, and `data/processed/fatigue_scores.csv`.
-    Moreover, none of the required files exist in the repository. The script therefore
-    does not implement the mandated existence check and will not fail as specified.
 T019:
   c: false
-  h: 6d164ebcc98d2823bc9f3336ab1a5d031eb3ea875dcfd181489022656e51f200
-  r: "The required input files `data/processed/fatigue_scores.csv` and `data/analysis/complexity_metrics.csv`\
-    \ are missing, and `code/analysis.py` does not contain the delta\u2011calculation\
-    \ logic (it even treats `delta_scores.csv` as an input rather than creating it).\
-    \ Consequently the script cannot verify paired data or generate the required `data/analysis/delta_scores.csv`."
+  h: c9f181cd9dd52de2a797ca0aab49d5be55376dbf2977aaf6751a7b180ebd987d
+  r: "The repository lacks the required input files (`data/processed/fatigue_scores.csv`\
+    \ and `data/analysis/complexity_metrics.csv`), and `code/analysis.py` does not\
+    \ contain any logic that loads these files, checks participant\u2011wise pairing,\
+    \ computes post\u2011minus\u2011pre deltas, or exits with code\u202F1 on missing\
+    \ pairs. The existing `delta_scores.csv` appears pre\u2011generated and is not\
+    \ produced by the script. Consequently the task\u2019s core requirements are not\
+    \ satisfied."
+T020a:
+  c: false
+  h: 5b17901a584b66e52f6340ee1a5f1524657688e836a06e51846c199cf2faaace
+  r: "The repository lacks the required `data/analysis/raw_correlation_results.csv`\
+    \ file, and the provided `code/analysis.py` does not contain any implementation\
+    \ of Pearson/Spearman raw correlation calculation or code that writes such results\
+    \ to the CSV. The task\u2019s core output is therefore missing."
+T021:
+  c: false
+  h: b818ce7ce4c4147cb408ef2856b80b9d1e10a7a53d1b56ece7f5a75dd4aabbbc
+  r: "The repository lacks the required input files (`data/analysis/vif_valid_predictors.json`\
+    \ and `data/analysis/complexity_metrics.csv`) and does not produce the expected\
+    \ output `data/analysis/ancova_results.csv`. Moreover, the provided `code/analysis.py`\
+    \ is incomplete (truncated) and does not contain the full ANCOVA implementation\
+    \ or the exit\u2011with\u2011code\u20111 behavior required when predictors are\
+    \ invalid."
 T023:
   c: false
   h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601
@@ -63,3 +89,10 @@ T023:
     \ warning logging. Additionally, the required output file `data/analysis/vif_report.csv`\
     \ is absent. Both the test and the CSV report need to be added to satisfy the\
     \ task."
+T028:
+  c: false
+  h: f7f608f4823cb6c02412ca266fc36c068642435f88797cdd09947162aa7daf0a
+  r: "The required artifact `data/analysis/resource_usage.json` is missing, so the\
+    \ verification step cannot be performed and the runtime constraint cannot be confirmed.\
+    \ The implementer must generate this file with a `total_runtime_hours` field \u2264\
+    \u202F6.0."

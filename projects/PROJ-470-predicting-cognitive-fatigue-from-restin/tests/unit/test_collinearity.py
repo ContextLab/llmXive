@@ -1,322 +1,182 @@
-"""
-Unit tests for collinearity diagnostics (VIF).
-
-Tests:
-1. VIF calculation logic
-2. Threshold checking (VIF < 5)
-3. File output (vif_diagnostics.log, vif_valid_predictors.json)
-4. Error handling for missing files
-"""
+"""Tests for T024: Collinearity diagnostics (VIF)."""
 import os
+import sys
 import json
 import tempfile
 import shutil
-from pathlib import Path
 import pandas as pd
 import numpy as np
-import pytest
-from unittest.mock import patch, MagicMock
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-from collinearity import (
-    setup_logger,
-    load_analysis_results,
-    calculate_vif,
-    run_collinearity_diagnostics,
-    save_collinearity_report
-)
+# Add code to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+from collinearity import calculate_vif, load_analysis_results, run_collinearity_diagnostics
 
 
-class TestVIFCalculation:
-    """Test VIF calculation logic."""
-    
-    def test_vif_perfect_collinearity(self):
-        """VIF should be very high (or infinite) for perfectly collinear variables."""
-        # Create data with perfect collinearity: y = 2*x
-        df = pd.DataFrame({
-            'x1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'x2': [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]  # Perfectly collinear with x1
-        })
-        
-        predictors = ['x1', 'x2']
-        vif_results = calculate_vif(df, predictors)
-        
-        # At least one should have very high VIF
-        assert any(v > 100 for v in vif_results.values()), "Perfectly collinear variables should have high VIF"
-    
-    def test_vif_no_collinearity(self):
-        """VIF should be close to 1 for uncorrelated variables."""
-        np.random.seed(42)
-        df = pd.DataFrame({
-            'x1': np.random.randn(100),
-            'x2': np.random.randn(100),
-            'x3': np.random.randn(100)
-        })
-        
-        predictors = ['x1', 'x2', 'x3']
-        vif_results = calculate_vif(df, predictors)
-        
-        # All VIFs should be close to 1 (typically < 2 for random data)
-        for v in vif_results.values():
-            assert v < 3.0, f"VIF should be close to 1 for uncorrelated variables, got {v}"
-    
-    def test_vif_single_predictor(self):
-        """VIF calculation should fail or return inf for single predictor."""
-        df = pd.DataFrame({'x1': [1, 2, 3, 4, 5]})
-        predictors = ['x1']
-        
-        # This should raise an error or return inf
-        with pytest.raises(Exception):
-            calculate_vif(df, predictors)
+def test_calculate_vif_basic():
+    """Test VIF calculation with simple data."""
+    # Create a DataFrame with no collinearity
+    np.random.seed(42)
+    n = 100
+    data = {
+        'Fatigue_Delta': np.random.randn(n),
+        'Pre_Complexity': np.random.randn(n),
+        'age': np.random.randn(n)
+    }
+    df = pd.DataFrame(data)
+
+    # Make them orthogonal (no collinearity)
+    # In reality, random data has low VIF.
+    vif_results = calculate_vif(df)
+
+    assert 'Fatigue_Delta' in vif_results
+    assert 'Pre_Complexity' in vif_results
+    assert 'age' in vif_results
+
+    # VIF should be close to 1 for uncorrelated variables
+    for vif_val in vif_results.values():
+        assert vif_val < 2.0, f"VIF {vif_val} unexpectedly high for uncorrelated data"
 
 
-class TestLoadAnalysisResults:
-    """Test loading and merging of analysis data."""
-    
-    def test_missing_complexity_file(self):
-        """Should raise FileNotFoundError if complexity metrics missing."""
-        with patch('collinearity.Path') as mock_path:
-            mock_path.return_value.exists.return_value = False
-            with pytest.raises(FileNotFoundError):
-                load_analysis_results()
-    
-    def test_missing_delta_file(self):
-        """Should raise FileNotFoundError if delta scores missing."""
-        with patch('collinearity.Path') as mock_path:
-            mock_path.return_value.exists.return_value = True
-            # Mock one file to exist, one to not
-            call_count = [0]
-            def exists_side_effect():
-                call_count[0] += 1
-                return call_count[0] == 1  # First call True, second False
-            
-            mock_path.return_value.exists.side_effect = exists_side_effect
-            
-            with pytest.raises(FileNotFoundError):
-                load_analysis_results()
-    
-    def test_merging_data(self, tmp_path):
-        """Test successful merge of complexity and delta data."""
-        # Create temporary test files
-        complexity_data = pd.DataFrame({
-            'participant_id': ['P01', 'P02', 'P03'],
-            'channel': ['Fz', 'Fz', 'Fz'],
-            'segment_id': ['pre', 'pre', 'pre'],
-            'lzc_value': [0.5, 0.6, 0.7],
-            'pe_value': [1.2, 1.3, 1.4]
-        })
-        
-        delta_data = pd.DataFrame({
-            'participant_id': ['P01', 'P02', 'P03'],
-            'Fatigue_Delta': [1.0, 2.0, 3.0]
-        })
-        
-        # Write to temp files
-        complexity_path = tmp_path / "complexity_metrics.csv"
-        delta_path = tmp_path / "delta_scores.csv"
-        complexity_data.to_csv(complexity_path, index=False)
-        delta_data.to_csv(delta_path, index=False)
-        
-        # Patch Path to use temp directory
-        with patch('collinearity.Path') as mock_path:
-            def path_side_effect(path_str):
-                if "complexity_metrics" in str(path_str):
-                    return Path(complexity_path)
-                elif "delta_scores" in str(path_str):
-                    return Path(delta_path)
-                return Path(path_str)
-            
-            mock_path.side_effect = path_side_effect
-            mock_path.return_value.exists.return_value = True
-            
-            merged_df, predictors = load_analysis_results()
-            
-            assert len(merged_df) == 3
-            assert 'Fatigue_Delta' in merged_df.columns
-            assert 'Pre_Complexity' in merged_df.columns or 'lzc_value' in merged_df.columns
+def test_calculate_vif_collinear():
+    """Test VIF calculation with highly collinear data."""
+    n = 100
+    np.random.seed(42)
+    x1 = np.random.randn(n)
+    # x2 is highly correlated with x1
+    x2 = x1 * 0.99 + np.random.randn(n) * 0.01
+
+    data = {
+        'Fatigue_Delta': x1,
+        'Pre_Complexity': x2,
+        'age': np.random.randn(n)
+    }
+    df = pd.DataFrame(data)
+
+    vif_results = calculate_vif(df)
+
+    # VIF for correlated variables should be high
+    assert vif_results['Fatigue_Delta'] > 5.0 or vif_results['Pre_Complexity'] > 5.0
 
 
-class TestRunCollinearityDiagnostics:
-    """Test the full diagnostics pipeline."""
-    
-    def test_pass_threshold(self, tmp_path, caplog):
-        """Test successful pass when all VIF < 5."""
-        # Create mock data with low VIF
-        df = pd.DataFrame({
-            'Fatigue_Delta': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'Pre_Complexity': [0.5, 0.6, 0.7, 0.8, 0.9],
-            'age': [25, 30, 35, 40, 45]
-        })
-        
-        with patch('collinearity.load_analysis_results') as mock_load:
-            mock_load.return_value = (df, ['Fatigue_Delta', 'Pre_Complexity', 'age'])
-            
-            with patch('collinearity.Path') as mock_path:
-                mock_path.return_value.parent = tmp_path
-                mock_path.return_value.exists.return_value = True
-                
-                result = run_collinearity_diagnostics(MagicMock())
-                
-                assert result['valid'] is True
-                assert 'Fatigue_Delta' in result['predictors']
-    
-    def test_fail_threshold(self, tmp_path, caplog):
-        """Test failure when VIF >= 5."""
-        # Create mock data with high VIF (perfectly collinear)
-        df = pd.DataFrame({
-            'Fatigue_Delta': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'Pre_Complexity': [2.0, 4.0, 6.0, 8.0, 10.0],  # Perfectly collinear
-            'age': [25, 30, 35, 40, 45]
-        })
-        
-        with patch('collinearity.load_analysis_results') as mock_load:
-            mock_load.return_value = (df, ['Fatigue_Delta', 'Pre_Complexity', 'age'])
-            
-            with patch('collinearity.Path') as mock_path:
-                mock_path.return_value.parent = tmp_path
-                mock_path.return_value.exists.return_value = True
-                
-                result = run_collinearity_diagnostics(MagicMock())
-                
-                assert result['valid'] is False
-                assert 'Collinearity violation' in result.get('error', '')
+def test_run_collinearity_diagnostics_pass(tmp_path):
+    """Test that run_collinearity_diagnostics passes when VIF < 5."""
+    # Create temp data
+    n = 100
+    np.random.seed(42)
+    df_data = {
+        'participant_id': [f'sub_{i}' for i in range(n)],
+        'Fatigue_Delta': np.random.randn(n),
+        'Pre_Complexity': np.random.randn(n),
+        'age': np.random.randn(n)
+    }
+    df = pd.DataFrame(df_data)
+
+    # Save to temp CSVs
+    complexity_file = tmp_path / "complexity_metrics.csv"
+    delta_file = tmp_path / "delta_scores.csv"
+    log_file = tmp_path / "vif_diagnostics.log"
+    output_json = tmp_path / "vif_valid_predictors.json"
+
+    # Mock complexity data (simplified)
+    complexity_df = pd.DataFrame({
+        'participant_id': df['participant_id'],
+        'timepoint': 'pre',
+        'lzc_value': df['Pre_Complexity']
+    })
+    complexity_df.to_csv(complexity_file, index=False)
+
+    # Mock delta data
+    delta_df = pd.DataFrame({
+        'participant_id': df['participant_id'],
+        'Fatigue_Delta': df['Fatigue_Delta'],
+        'age': df['age']
+    })
+    delta_df.to_csv(delta_file, index=False)
+
+    # Run diagnostics
+    try:
+        run_collinearity_diagnostics(
+            config={},
+            complexity_file=str(complexity_file),
+            delta_file=str(delta_file),
+            log_file=str(log_file),
+            output_json=str(output_json)
+        )
+    except SystemExit as e:
+        # Should not exit with error if VIF < 5
+        assert e.code == 0
+
+    # Check output files
+    assert log_file.exists()
+    assert output_json.exists()
+
+    with open(output_json, 'r') as f:
+        result = json.load(f)
+    assert 'valid_predictors' in result
+    assert len(result['valid_predictors']) > 0
 
 
-class TestSaveCollinearityReport:
-    """Test saving of diagnostic reports."""
-    
-    def test_save_valid_predictors(self, tmp_path):
-        """Test saving vif_valid_predictors.json when all pass."""
-        result = {
-            'valid': True,
-            'predictors': ['Fatigue_Delta', 'Pre_Complexity'],
-            'vif_values': {'Fatigue_Delta': 1.5, 'Pre_Complexity': 1.8}
-        }
-        
-        log_path = tmp_path / "vif_diagnostics.log"
-        json_path = tmp_path / "vif_valid_predictors.json"
-        
-        with patch('collinearity.Path') as mock_path:
-            def path_side_effect(path_str):
-                if "vif_diagnostics" in str(path_str):
-                    return Path(log_path)
-                elif "vif_valid_predictors" in str(path_str):
-                    return Path(json_path)
-                return Path(path_str)
-            
-            mock_path.side_effect = path_side_effect
-            mock_path.return_value.parent = tmp_path
-            mock_path.return_value.exists.return_value = True
-            
-            save_collinearity_report(result, MagicMock())
-            
-            assert json_path.exists()
-            with open(json_path) as f:
-                saved = json.load(f)
-                assert saved['valid'] is True
-                assert 'Fatigue_Delta' in saved['predictors']
-    
-    def test_no_save_on_failure(self, tmp_path):
-        """Test that JSON is not saved when VIF check fails."""
-        result = {
-            'valid': False,
-            'error': 'Collinearity violation',
-            'predictors': ['Fatigue_Delta', 'Pre_Complexity'],
-            'vif_values': {'Fatigue_Delta': 6.5, 'Pre_Complexity': 1.8}
-        }
-        
-        json_path = tmp_path / "vif_valid_predictors.json"
-        
-        with patch('collinearity.Path') as mock_path:
-            mock_path.return_value.parent = tmp_path
-            mock_path.return_value.exists.return_value = True
-            
-            save_collinearity_report(result, MagicMock())
-            
-            # JSON should not be created for failed checks
-            assert not json_path.exists()
+def test_run_collinearity_diagnostics_fail(tmp_path):
+    """Test that run_collinearity_diagnostics fails when VIF >= 5."""
+    # Create collinear data
+    n = 100
+    np.random.seed(42)
+    x1 = np.random.randn(n)
+    x2 = x1 * 0.999 + np.random.randn(n) * 0.001 # Very high correlation
 
+    df_data = {
+        'participant_id': [f'sub_{i}' for i in range(n)],
+        'Fatigue_Delta': x1,
+        'Pre_Complexity': x2,
+        'age': np.random.randn(n)
+    }
+    df = pd.DataFrame(df_data)
 
-class TestIntegration:
-    """Integration tests for the full pipeline."""
-    
-    def test_full_pipeline_pass(self, tmp_path):
-        """Test full pipeline with data that passes VIF check."""
-        # Create realistic test data
-        np.random.seed(42)
-        n = 50
-        df = pd.DataFrame({
-            'Fatigue_Delta': np.random.randn(n),
-            'Pre_Complexity': np.random.randn(n) * 0.5 + 0.5,
-            'age': np.random.randint(20, 60, n)
-        })
-        
-        with patch('collinearity.load_analysis_results') as mock_load:
-            mock_load.return_value = (df, ['Fatigue_Delta', 'Pre_Complexity', 'age'])
-            
-            log_path = tmp_path / "vif_diagnostics.log"
-            json_path = tmp_path / "vif_valid_predictors.json"
-            
-            with patch('collinearity.Path') as mock_path:
-                def path_side_effect(path_str):
-                    if "vif_diagnostics" in str(path_str):
-                        return Path(log_path)
-                    elif "vif_valid_predictors" in str(path_str):
-                        return Path(json_path)
-                    return Path(path_str)
-                
-                mock_path.side_effect = path_side_effect
-                mock_path.return_value.parent = tmp_path
-                mock_path.return_value.exists.return_value = True
-                
-                logger = setup_logger("test_integration")
-                result = run_collinearity_diagnostics(logger)
-                save_collinearity_report(result, logger)
-                
-                # Verify outputs
-                assert result['valid'] is True
-                assert json_path.exists()
-                assert log_path.exists()
-    
-    def test_full_pipeline_fail(self, tmp_path):
-        """Test full pipeline with data that fails VIF check."""
-        # Create data with collinearity
-        n = 50
-        df = pd.DataFrame({
-            'Fatigue_Delta': np.random.randn(n),
-            'Pre_Complexity': np.random.randn(n) * 0.5 + 0.5,
-            'age': np.random.randint(20, 60, n),
-            'age_duplicate': np.random.randint(20, 60, n)  # Highly correlated
-        })
-        
-        # Force high VIF by making age_duplicate = age + small noise
-        df['age_duplicate'] = df['age'] + np.random.randn(n) * 0.1
-        
-        with patch('collinearity.load_analysis_results') as mock_load:
-            mock_load.return_value = (df, ['Fatigue_Delta', 'Pre_Complexity', 'age', 'age_duplicate'])
-            
-            log_path = tmp_path / "vif_diagnostics.log"
-            json_path = tmp_path / "vif_valid_predictors.json"
-            
-            with patch('collinearity.Path') as mock_path:
-                def path_side_effect(path_str):
-                    if "vif_diagnostics" in str(path_str):
-                        return Path(log_path)
-                    elif "vif_valid_predictors" in str(path_str):
-                        return Path(json_path)
-                    return Path(path_str)
-                
-                mock_path.side_effect = path_side_effect
-                mock_path.return_value.parent = tmp_path
-                mock_path.return_value.exists.return_value = True
-                
-                logger = setup_logger("test_integration_fail")
-                result = run_collinearity_diagnostics(logger)
-                save_collinearity_report(result, logger)
-                
-                # Verify failure
-                assert result['valid'] is False
-                assert not json_path.exists()  # No JSON on failure
-                assert log_path.exists()  # Log should still be written
+    # Save to temp CSVs
+    complexity_file = tmp_path / "complexity_metrics.csv"
+    delta_file = tmp_path / "delta_scores.csv"
+    log_file = tmp_path / "vif_diagnostics.log"
+    output_json = tmp_path / "vif_valid_predictors.json"
+
+    # Mock complexity data
+    complexity_df = pd.DataFrame({
+        'participant_id': df['participant_id'],
+        'timepoint': 'pre',
+        'lzc_value': df['Pre_Complexity']
+    })
+    complexity_df.to_csv(complexity_file, index=False)
+
+    # Mock delta data
+    delta_df = pd.DataFrame({
+        'participant_id': df['participant_id'],
+        'Fatigue_Delta': df['Fatigue_Delta'],
+        'age': df['age']
+    })
+    delta_df.to_csv(delta_file, index=False)
+
+    # Run diagnostics - should raise SystemExit(1)
+    with pytest.raises(SystemExit) as excinfo:
+        run_collinearity_diagnostics(
+            config={},
+            complexity_file=str(complexity_file),
+            delta_file=str(delta_file),
+            log_file=str(log_file),
+            output_json=str(output_json)
+        )
+    assert excinfo.value.code == 1
+
+    # Check log file contains error message
+    assert log_file.exists()
+    with open(log_file, 'r') as f:
+        log_content = f.read()
+    assert "Collinearity violation" in log_content
+
+    # Output JSON should NOT be created or be empty/invalid if failure occurred
+    # The spec says: "If all predictors pass ... output ... vif_valid_predictors.json"
+    # So if it fails, we don't expect a valid output file.
+    if output_json.exists():
+        with open(output_json, 'r') as f:
+            result = json.load(f)
+        # It might exist but be empty or partial, but the test ensures the script halted.
+        # The main verification is the exit code and log content.

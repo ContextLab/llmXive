@@ -2722,3 +2722,300 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T08:45:13Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Dataset sample size must be at least 30 participants
+  claim_id: c_3a0368a6
+  context: 'T009 [S] [Depends: T009] **Extract Fatigue Scores**. ... **N-Count Check**:
+    The script MUST count participants. If N < 30, the script MUST raise an exception,
+    exit with code 1, and print a clear error message stating ''Sample size N < 30''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_must_be_at_least_30_participants
+  kind: magnitude
+  raw_text: The script MUST count participants. If N < 30, the script MUST raise an
+    exception, exit with code 1, and print a clear error message stating 'Sample size
+    N < 30'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T06:59:58Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak attenuated by more than 20dB
+  claim_id: c_4d7ec57c
+  context: 'Independent Test: Run preprocessing on a single sample EEG file; verify
+    50Hz line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_attenuated_by_more_than_20dB
+  kind: magnitude
+  raw_text: The independent test verifies that the 50Hz line noise peak is attenuated
+    by >20dB in the output spectrum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:00:35Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity values are less than 1.0
+  claim_id: c_18205ac5
+  context: T017 [US2] ... asserts that all LZC values are < 1.0
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_values_are_less_than_1.0
+  kind: magnitude
+  raw_text: All LZC values are asserted to be < 1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:06:31Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation entropy values are less than 2.585
+  claim_id: c_000c9be9
+  context: T017 [US2] ... asserts that ... all PE values are < 2.585 (log2(6)).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_entropy_values_are_less_than_2.585
+  kind: magnitude
+  raw_text: All PE values are asserted to be < 2.585 (log2(6)).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:08:47Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed at p less than or equal to 0.05 and 0.01
+  claim_id: c_ee50d8a9
+  context: "T023 [US3] [Depends: T020a] Implement sensitivity analysis at p\u2264\
+    0.05 and p\u22640.01 thresholds with result table per FR-006."
+  evidence:
+    entailment_evidence: Sensitivity analysis performed at p less than or equal to
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_performed_at_p_less_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: "The sensitivity analysis is performed at p\u22640.05 and p\u22640.01\
+    \ thresholds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-01T07:13:14Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Data source is PhysioNet Sleep-EDF Database Expanded or HuggingFace mirror
+    containing resting-state EEG and fatigue ratings
+  claim_id: c_a0211bfe
+  context: 'T009 [S] [Depends: T009] **Extract Fatigue Scores**. Implement `code/download.py`
+    to fetch the full public EEG dataset. **CRITICAL**: The script MUST identify and
+    fetch...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_source_is_PhysioNet_Sleep-EDF_Database_Expanded_or_Hugg
+  kind: entity_fact
+  raw_text: The script MUST identify and fetch the 'PhysioNet Sleep-EDF Database Expanded'
+    (or the specific HuggingFace mirror if PhysioNet is unreachable) containing BOTH
+    resting-state EEG AND paired pre/post fatigue ratings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:20Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Dataset sample size requirement is N >= 30 participants
+  claim_id: c_88ecdf24
+  context: 'T009 [S] ... **N-Count Check**: The script MUST count participants. If
+    N < 30...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 30, the script MUST raise an exception, exit with code 1, and print
+    a clear error message stating 'Sample size N < 30'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:20Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak attenuation is at least 20dB
+  claim_id: c_580b7f04
+  context: 'T012 [US1] ... **Verification**: ... Assert that the peak power at 50Hz
+    in the filtered signal is at least 20dB lower than the raw signal.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_attenuation_is_at_least_20dB
+  kind: magnitude
+  raw_text: Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the raw signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:27Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation entropy embedding dimension is 3 and delay is 1
+  claim_id: c_2185d975
+  context: 'T016 [US2] ... **Algorithm**: Use median quantization for LZC (via `nolds`).
+    Use embedding dimension=3, delay=1 for PE...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use embedding dimension=3, delay=1 for PE (via `pyentropy`).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:30Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity values are less than 1.0
+  claim_id: c_a9354738
+  context: T017 [US2] ... asserts that all LZC values are < 1.0 and all PE values
+    are < 2.585 (log2(6)).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_values_are_less_than_1.0
+  kind: magnitude
+  raw_text: Assert that all LZC values are < 1.0 and all PE values are < 2.585 (log2(6)).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:36Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation entropy values are less than 2.585
+  claim_id: c_af95eff3
+  context: T017 [US2] ... asserts that all LZC values are < 1.0 and all PE values
+    are < 2.585 (log2(6)).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_entropy_values_are_less_than_2.585
+  kind: magnitude
+  raw_text: Assert that all PE values are < 2.585 (log2(6)).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:42Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction is applied to p-values
+  claim_id: c_4e374c4a
+  context: T020b [US3] ... Implement **Benjamini-Hochberg Correction** in `code/analysis.py`
+    for multiple comparisons across electrodes...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_is_applied_to_p-values
+  kind: entity_fact
+  raw_text: Use `statsmodels.stats.multitest.multipletests` to apply BH correction
+    to p-values from `raw_correlation_results.csv` (T020a).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:50Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Memory tracking uses psutil.Process().memory_info().rss
+  claim_id: c_b989ff7a
+  context: 'T026 [P] ... **Implementation Detail**: Use `psutil` for cross-platform
+    memory tracking (`psutil.Process().memory_info().rss`) and `time` for runtime.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_tracking_uses_psutil.Process().memory_info().rss
+  kind: entity_fact
+  raw_text: Use `psutil` for cross-platform memory tracking (`psutil.Process().memory_info().rss`)
+    and `time` for runtime.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:17:58Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclusion log is written to disk on every entry
+  claim_id: c_837af8c9
+  context: T006 [P] ... The script MUST write this file to disk on every log entry.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclusion_log_is_written_to_disk_on_every_entry
+  kind: entity_fact
+  raw_text: The script MUST write this file to disk on every log entry.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:18:11Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Full dataset must contain eeg_data and fatigue_rating variables
+  claim_id: c_0645c1a7
+  context: 'T009 [S] ... **Logic**: The script MUST fetch the FULL dataset (not a
+    sample) and validate the presence of `eeg_data` and `fatigue_rating` variables.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_dataset_must_contain_eeg_data_and_fatigue_rating_variab
+  kind: entity_fact
+  raw_text: The script MUST fetch the FULL dataset (not a sample) and validate the
+    presence of `eeg_data` and `fatigue_rating` variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:20:26Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: HTTP HEAD request is performed before downloading
+  claim_id: c_cbe6ce62
+  context: 'T009 [S] ... **Verification**: 1. Assert the script performs an HTTP HEAD
+    request to the metadata URL before downloading.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HTTP_HEAD_request_is_performed_before_downloading
+  kind: entity_fact
+  raw_text: The script MUST perform an HTTP HEAD request to the metadata URL before
+    downloading.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T07:24:37Z'

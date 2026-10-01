@@ -7,7 +7,7 @@
 
 This project implements a computational pipeline to predict cognitive fatigue by analyzing the complexity of resting-state EEG signals. The approach involves retrieving a **single public dataset** containing both resting-state EEG and paired subjective fatigue ratings (or PVT-derived proxies) from the same participants. The pipeline preprocesses signals using MNE-Python (– Hz bandpass, Hz notch, artifact rejection at ±100 µV), extracts Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE) features, and performs correlational analysis between **Delta Complexity** (Post - Pre) and **Delta Fatigue** (Post - Pre). 
 
-The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A secondary ANCOVA model (`Post_Complexity ~ Fatigue_Delta + Pre_Complexity + Covariates`) is used for robustness and confound control. The pipeline strictly enforces SC-001: if the validated dataset yields N < 30, the system halts immediately with a specific error code. Multiple-comparison correction (Benjamini-Hochberg) and collinearity diagnostics (VIF < 5) are mandatory. The pipeline is designed to run entirely on CPU within the -hour/7GB RAM constraints.
+The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A secondary ANCOVA model (`Post_Complexity ~ Fatigue_Delta + Pre_Complexity + Covariates`) is used for robustness and confound control. The pipeline strictly enforces SC-001: if the validated dataset yields N < 30, the system halts immediately with a specific error code. Multiple-comparison correction (Benjamini-Hochberg) and collinearity diagnostics (VIF < 5) are mandatory. The pipeline is designed to run entirely on CPU within the -hour/constrained RAM constraints.
 
 ## Technical Context
 
