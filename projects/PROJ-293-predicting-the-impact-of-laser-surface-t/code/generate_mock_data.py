@@ -5,75 +5,78 @@ import pandas as pd
 from pathlib import Path
 from seed import set_seed, ensure_seed_set
 
-def generate_mock_lst_data(n_records=150, seed=42):
+def generate_mock_lst_data(output_path: str, n_records: int = 150, seed: int = 42):
     """
-    Generate a deterministic, schema-compliant mock dataset for LST wear testing.
+    Generate a deterministic, schema-compliant mock dataset for LST wear resistance.
     
     Args:
-        n_records (int): Number of records to generate (minimum 150).
-        seed (int): Random seed for reproducibility.
-        
-    Returns:
-        pd.DataFrame: Mock dataset with required columns and realistic distributions.
+        output_path: Path to save the CSV file
+        n_records: Number of records to generate (minimum 150)
+        seed: Random seed for reproducibility
     """
-    set_seed(seed)
+    ensure_seed_set(seed)
     
-    # Define valid categories
-    valid_patterns = ['dot', 'line', 'grid', 'honeycomb', 'dimple']
-    valid_geometries = ['cylindrical', 'flat', 'spherical']
+    # Define valid categorical values
+    pattern_geometries = ['dot', 'line', 'grid', 'honeycomb', 'dimple']
+    geometries = ['cylindrical', 'flat', 'spherical']
     
-    # Generate base features with realistic physical ranges
-    pulse_duration = np.random.uniform(10, 500, n_records)  # ns
-    power = np.random.uniform(100, 1500, n_records)  # W
-    scanning_speed = np.random.uniform(100, 3000, n_records)  # mm/s
+    # Generate base data with physical ranges
+    data = {
+        'pulse_duration': np.random.uniform(10, 500, n_records),  # ns
+        'power': np.random.uniform(50, 1500, n_records),  # W
+        'scanning_speed': np.random.uniform(100, 3000, n_records),  # mm/s
+        'pattern_geometry': np.random.choice(pattern_geometries, n_records),
+        'hardness': np.random.uniform(200, 1500, n_records),  # HV
+        'elastic_modulus': np.random.uniform(100, 400, n_records),  # GPa
+        'wear_rate': np.random.uniform(0.001, 0.5, n_records),  # mm^3/Nm
+        'contact_load': np.random.uniform(5, 50, n_records),  # N
+        'sliding_speed': np.random.uniform(0.1, 2.0, n_records),  # m/s
+        'density': np.random.uniform(2.5, 8.0, n_records),  # g/cm^3
+        'geometry': np.random.choice(geometries, n_records)
+    }
     
-    # Categorical features
-    pattern_geometry = np.random.choice(valid_patterns, n_records)
-    geometry = np.random.choice(valid_geometries, n_records)
+    df = pd.DataFrame(data)
     
-    # Material properties
-    hardness = np.random.uniform(200, 1200, n_records)  # HV
-    elastic_modulus = np.random.uniform(50, 250, n_records)  # GPa
-    density = np.random.uniform(2.5, 8.5, n_records)  # g/cm^3
+    # Introduce missing values in contact_load and sliding_speed (~15% each)
+    # This is specifically for testing T012 logic
+    missing_indices_contact = np.random.choice(n_records, size=int(n_records * 0.15), replace=False)
+    missing_indices_sliding = np.random.choice(n_records, size=int(n_records * 0.15), replace=False)
     
-    # Derived wear rate (physically plausible relationship)
-    # Higher power/speed -> lower wear, higher hardness -> lower wear
-    base_wear = 1e-4
-    wear_rate = base_wear * (1000 / power) * (1000 / scanning_speed) * (1000 / hardness) * np.random.lognormal(0, 0.2, n_records)
-    wear_rate = np.clip(wear_rate, 1e-7, 1e-2)  # Ensure positive and reasonable range
+    # Ensure some overlap but also distinct missing values
+    df.loc[missing_indices_contact, 'contact_load'] = np.nan
+    df.loc[missing_indices_sliding, 'sliding_speed'] = np.nan
     
-    # Optional load/speed (some missing for T012 testing)
-    missing_mask = np.random.random(n_records) < 0.15  # ~15% missing
-    contact_load = np.where(missing_mask, np.nan, np.random.uniform(5, 50, n_records))  # N
-    sliding_speed = np.where(missing_mask, np.nan, np.random.uniform(0.1, 2.0, n_records))  # m/s
+    # Ensure required predictors have NO missing values (as per T012 requirements)
+    required_predictors = [
+        'pulse_duration', 'power', 'scanning_speed', 'pattern_geometry',
+        'hardness', 'elastic_modulus'
+    ]
+    for col in required_predictors:
+        df[col] = df[col].fillna(df[col].median())
     
-    df = pd.DataFrame({
-        'pulse_duration': pulse_duration,
-        'power': power,
-        'scanning_speed': scanning_speed,
-        'pattern_geometry': pattern_geometry,
-        'hardness': hardness,
-        'elastic_modulus': elastic_modulus,
-        'wear_rate': wear_rate,
-        'contact_load': contact_load,
-        'sliding_speed': sliding_speed,
-        'density': density,
-        'geometry': geometry
-    })
+    # Create output directory if it doesn't exist
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    df.to_csv(output_path, index=False)
     
     return df
 
 def main():
-    """Main entry point for mock data generation."""
-    output_path = Path("data/raw/mock_lst_data.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    """Main entry point for generating mock data."""
+    output_path = "data/raw/mock_lst_data.csv"
+    print(f"Generating mock LST data to {output_path}...")
     
-    df = generate_mock_lst_data(n_records=150, seed=42)
-    df.to_csv(output_path, index=False)
+    df = generate_mock_lst_data(output_path, n_records=150, seed=42)
     
-    print(f"Generated mock dataset with {len(df)} records at {output_path}")
+    print(f"Generated {len(df)} records")
+    print(f"Columns: {list(df.columns)}")
     print(f"Missing contact_load: {df['contact_load'].isna().sum()}")
     print(f"Missing sliding_speed: {df['sliding_speed'].isna().sum()}")
+    print(f"File saved to: {output_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

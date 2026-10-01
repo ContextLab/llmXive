@@ -5,68 +5,56 @@ from pathlib import Path
 
 def main():
     """
-    Create project structure per implementation plan.
-    Creates directories: code/, data/, tests/, state/, models/, data/raw/, data/processed/, reports/
-    Outputs state/structure_manifest.json verifying existence of all directories.
+    Creates the project directory structure and generates a manifest verifying existence.
     """
     # Define the required directories relative to the project root
-    required_dirs = [
+    base_dirs = [
         "code",
         "data",
         "tests",
         "state",
+        "reports",
         "models",
         "data/raw",
-        "data/processed",
-        "reports"
+        "data/processed"
     ]
 
-    project_root = Path.cwd()
+    project_root = Path(".")
+  
     created_dirs = []
-    failed_dirs = []
+    missing_dirs = []
 
-    print(f"Creating project structure in: {project_root}")
-
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
+    for dir_name in base_dirs:
+        full_path = project_root / dir_name
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            print(f"  Created/Verified: {full_path}")
+            created_dirs.append(str(full_path))
         except OSError as e:
-            failed_dirs.append({"path": dir_path, "error": str(e)})
-            print(f"  Failed to create: {full_path} - {e}")
+            missing_dirs.append({"path": str(full_path), "error": str(e)})
 
     # Generate the manifest
     manifest = {
-        "project_root": str(project_root),
-        "timestamp": str(Path(project_root).stat(st_mtime=None) if False else None), # Simplified timestamp logic or use datetime
+        "status": "success" if not missing_dirs else "partial_failure",
         "created_directories": created_dirs,
-        "failed_directories": failed_dirs,
-        "total_requested": len(required_dirs),
+        "failed_directories": missing_dirs,
         "total_created": len(created_dirs),
-        "status": "success" if not failed_dirs else "partial_failure"
+        "total_failed": len(missing_dirs)
     }
 
-    # Add actual timestamp
-    from datetime import datetime
-    manifest["timestamp"] = datetime.now().isoformat()
-
     manifest_path = project_root / "state" / "structure_manifest.json"
-    try:
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        print(f"Manifest written to: {manifest_path}")
-    except Exception as e:
-        print(f"Error writing manifest: {e}")
-        sys.exit(1)
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
 
-    if failed_dirs:
-        print("Warning: Some directories could not be created.")
-        sys.exit(1)
+    print(f"Project structure created. Manifest written to {manifest_path}")
+    print(f"Directories created: {len(created_dirs)}")
     
-    print("Project structure setup complete.")
+    if missing_dirs:
+        print(f"Failed to create: {len(missing_dirs)}")
+        for m in missing_dirs:
+            print(f"  - {m['path']}: {m['error']}")
+        return 1
+    
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main() if main() is not None else 0)
+    sys.exit(main())

@@ -1,147 +1,140 @@
+import os
+import sys
+import json
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import sys
-import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path if needed
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
 from ingest import handle_missing_values
 
-class TestHandleMissingValues:
-    """Unit tests for T012: handle_missing_values logic."""
+class TestMissingPredictorHandling:
+    """
+    Tests for T012: handle_missing_values function.
+    Verifies that records with missing required predictors are dropped,
+    while records with missing optional predictors (contact_load, sliding_speed) are retained.
+    """
 
-    def test_drop_missing_required_predictors(self):
+    def setup_method(self):
+        """Setup test data for each test case."""
+        self.required_predictors = [
+            'pulse_duration', 'power', 'scanning_speed', 
+            'pattern_geometry', 'hardness', 'elastic_modulus'
+        ]
+        self.optional_predictors = ['contact_load', 'sliding_speed']
+
+    def test_drops_missing_required_predictor(self):
         """Test that records with missing required predictors are dropped."""
-        # Create test data with missing required predictors
         data = {
-            'pulse_duration': [10.0, 20.0, np.nan, 40.0],
-            'power': [100.0, np.nan, 300.0, 400.0],
-            'scanning_speed': [500.0, 600.0, 700.0, np.nan],
-            'pattern_geometry': ['grid', 'line', 'circle', 'grid'],
-            'hardness': [200.0, 250.0, 300.0, 350.0],
-            'elastic_modulus': [100.0, 120.0, 140.0, 160.0],
-            'contact_load': [10.0, 20.0, 30.0, 40.0],
-            'wear_rate': [0.1, 0.2, 0.3, 0.4]
-        }
-        df = pd.DataFrame(data)
-        
-        # Execute handle_missing_values
-        result = handle_missing_values(df)
-        
-        # Should have dropped 3 records (rows 2, 3, 4 in original)
-        # Only row 0 has all required predictors
-        assert len(result) == 1, f"Expected 1 record, got {len(result)}"
-        assert result.iloc[0]['pulse_duration'] == 10.0
-
-    def test_retain_missing_optional_predictors(self):
-        """Test that records with missing optional predictors are retained with normalization_method='raw'."""
-        data = {
-            'pulse_duration': [10.0, 20.0, 30.0],
-            'power': [100.0, 200.0, 300.0],
+            'pulse_duration': [10.0, np.nan, 15.0],
+            'power': [100.0, 200.0, np.nan],
             'scanning_speed': [500.0, 600.0, 700.0],
-            'pattern_geometry': ['grid', 'line', 'circle'],
-            'hardness': [200.0, 250.0, 300.0],
-            'elastic_modulus': [100.0, 120.0, 140.0],
-            'contact_load': [10.0, np.nan, 30.0],  # Row 1 missing contact_load
-            'sliding_speed': [np.nan, 20.0, 30.0],  # Row 0 missing sliding_speed
+            'pattern_geometry': ['grid', 'dot', 'line'],
+            'hardness': [500.0, 600.0, 700.0],
+            'elastic_modulus': [200.0, 210.0, 220.0],
             'wear_rate': [0.1, 0.2, 0.3]
         }
         df = pd.DataFrame(data)
         
         result = handle_missing_values(df)
         
-        # All 3 records should be retained (no missing required predictors)
-        assert len(result) == 3
-        
-        # Check normalization_method flags
-        assert result.iloc[0]['normalization_method'] == 'raw', "Row 0 should be 'raw' (missing sliding_speed)"
-        assert result.iloc[1]['normalization_method'] == 'raw', "Row 1 should be 'raw' (missing contact_load)"
-        assert result.iloc[2]['normalization_method'] == 'normalized', "Row 2 should be 'normalized'"
+        # Only the first row should remain (no missing required predictors)
+        assert len(result) == 1
+        assert result.iloc[0]['pulse_duration'] == 10.0
+        assert result.iloc[0]['power'] == 100.0
 
-    def test_all_predictors_present(self):
-        """Test that records with all predictors present are marked as 'normalized'."""
+    def test_retains_missing_optional_predictors(self):
+        """Test that records with missing contact_load or sliding_speed are retained."""
         data = {
-            'pulse_duration': [10.0, 20.0],
-            'power': [100.0, 200.0],
-            'scanning_speed': [500.0, 600.0],
-            'pattern_geometry': ['grid', 'line'],
-            'hardness': [200.0, 250.0],
-            'elastic_modulus': [100.0, 120.0],
-            'contact_load': [10.0, 20.0],
-            'sliding_speed': [5.0, 6.0],
-            'wear_rate': [0.1, 0.2]
+            'pulse_duration': [10.0, 15.0, 20.0],
+            'power': [100.0, 150.0, 200.0],
+            'scanning_speed': [500.0, 600.0, 700.0],
+            'pattern_geometry': ['grid', 'dot', 'line'],
+            'hardness': [500.0, 600.0, 700.0],
+            'elastic_modulus': [200.0, 210.0, 220.0],
+            'contact_load': [10.0, np.nan, 30.0],  # Row 2 missing
+            'sliding_speed': [np.nan, 2.0, 3.0],   # Row 1 missing
+            'wear_rate': [0.1, 0.2, 0.3]
         }
         df = pd.DataFrame(data)
         
         result = handle_missing_values(df)
         
-        assert len(result) == 2
-        assert all(result['normalization_method'] == 'normalized')
+        # All rows should be retained because only optional predictors are missing
+        assert len(result) == 3
 
-    def test_missing_required_column_raises_error(self):
-        """Test that missing required predictor columns raise ValueError."""
+    def test_drops_if_any_required_missing(self):
+        """Test that if ANY required predictor is missing, the record is dropped."""
         data = {
-            'pulse_duration': [10.0, 20.0],
-            'power': [100.0, 200.0],
-            # Missing scanning_speed
-            'pattern_geometry': ['grid', 'line'],
-            'hardness': [200.0, 250.0],
-            'elastic_modulus': [100.0, 120.0],
-            'wear_rate': [0.1, 0.2]
+            'pulse_duration': [10.0, 15.0, 20.0],
+            'power': [100.0, 150.0, 200.0],
+            'scanning_speed': [500.0, np.nan, 700.0],  # Row 2 missing
+            'pattern_geometry': ['grid', 'dot', 'line'],
+            'hardness': [500.0, 600.0, 700.0],
+            'elastic_modulus': [200.0, 210.0, 220.0],
+            'wear_rate': [0.1, 0.2, 0.3]
         }
         df = pd.DataFrame(data)
         
-        with pytest.raises(ValueError) as exc_info:
+        result = handle_missing_values(df)
+        
+        # Row 2 should be dropped
+        assert len(result) == 2
+        assert 'scanning_speed' not in result.iloc[1].isna().to_dict().values() or result.iloc[1]['scanning_speed'] == 700.0
+
+    def test_normalization_method_not_present(self):
+        """Test that normalization_method column is NOT present after T012 processing."""
+        data = {
+            'pulse_duration': [10.0, 15.0, 20.0],
+            'power': [100.0, 150.0, 200.0],
+            'scanning_speed': [500.0, 600.0, 700.0],
+            'pattern_geometry': ['grid', 'dot', 'line'],
+            'hardness': [500.0, 600.0, 700.0],
+            'elastic_modulus': [200.0, 210.0, 220.0],
+            'wear_rate': [0.1, 0.2, 0.3]
+        }
+        df = pd.DataFrame(data)
+        
+        result = handle_missing_values(df)
+        
+        # Verify normalization_method is not in columns
+        assert 'normalization_method' not in result.columns
+
+    def test_handles_all_required_missing(self):
+        """Test behavior when all required predictors are missing in some rows."""
+        data = {
+            'pulse_duration': [10.0, np.nan, np.nan, 20.0],
+            'power': [100.0, 150.0, np.nan, 200.0],
+            'scanning_speed': [500.0, 600.0, np.nan, 700.0],
+            'pattern_geometry': ['grid', 'dot', 'line', 'circle'],
+            'hardness': [500.0, 600.0, np.nan, 700.0],
+            'elastic_modulus': [200.0, 210.0, np.nan, 220.0],
+            'wear_rate': [0.1, 0.2, 0.3, 0.4]
+        }
+        df = pd.DataFrame(data)
+        
+        result = handle_missing_values(df)
+        
+        # Only rows 0 and 3 should remain
+        assert len(result) == 2
+        assert list(result['pulse_duration']) == [10.0, 20.0]
+
+    def test_missing_all_columns_raises_error(self):
+        """Test that missing required columns in schema raises ValueError."""
+        data = {
+            'pulse_duration': [10.0, 15.0],
+            'power': [100.0, 150.0],
+            'wear_rate': [0.1, 0.2]
+            # Missing: scanning_speed, pattern_geometry, hardness, elastic_modulus
+        }
+        df = pd.DataFrame(data)
+        
+        with pytest.raises(ValueError) as excinfo:
             handle_missing_values(df)
         
-        assert 'scanning_speed' in str(exc_info.value)
-
-    def test_output_has_normalization_method_column(self):
-        """Test that output DataFrame contains normalization_method column."""
-        data = {
-            'pulse_duration': [10.0],
-            'power': [100.0],
-            'scanning_speed': [500.0],
-            'pattern_geometry': ['grid'],
-            'hardness': [200.0],
-            'elastic_modulus': [100.0],
-            'wear_rate': [0.1]
-        }
-        df = pd.DataFrame(data)
-        
-        result = handle_missing_values(df)
-        
-        assert 'normalization_method' in result.columns
-        assert result['normalization_method'].iloc[0] == 'normalized'
-
-    def test_schema_compliance_with_mock_data(self):
-        """Test handling of mock data with mixed missing values."""
-        # Simulate T009b mock data structure
-        data = {
-            'pulse_duration': [10.0, 20.0, np.nan, 40.0, 50.0],
-            'power': [100.0, 200.0, 300.0, np.nan, 500.0],
-            'scanning_speed': [500.0, 600.0, 700.0, 800.0, np.nan],
-            'pattern_geometry': ['grid', 'line', 'circle', 'grid', 'line'],
-            'hardness': [200.0, 250.0, 300.0, 350.0, 400.0],
-            'elastic_modulus': [100.0, 120.0, 140.0, 160.0, 180.0],
-            'contact_load': [10.0, np.nan, 30.0, 40.0, 50.0],
-            'sliding_speed': [np.nan, 20.0, 30.0, 40.0, 50.0],
-            'wear_rate': [0.1, 0.2, 0.3, 0.4, 0.5]
-        }
-        df = pd.DataFrame(data)
-        
-        result = handle_missing_values(df)
-        
-        # Expected:
-        # Row 0: All required present, missing contact_load/sliding_speed -> raw
-        # Row 1: All required present, missing contact_load/sliding_speed -> raw
-        # Row 2: Missing pulse_duration -> DROP
-        # Row 3: Missing power -> DROP
-        # Row 4: Missing scanning_speed -> DROP
-        
-        assert len(result) == 2
-        assert result.iloc[0]['normalization_method'] == 'raw'
-        assert result.iloc[1]['normalization_method'] == 'raw'
+        assert "Missing required columns" in str(excinfo.value)

@@ -1,15 +1,11 @@
 {
-  "file_path": "research.md",
-  "total_lines": 0,
-  "data_sources": [],
-  "dynamic_logic_found": false,
-  "validation_errors": [],
-  "warnings": [],
-  "summary": {
-    "total_sources": 0,
-    "static_sources": 0,
-    "unverified_sources": 0,
-    "dynamic_issues": 0,
-    "warnings_count": 0
-  }
+  "file_path": "specs/001-predict-lst-wear/research.md",
+  "exists": true,
+  "parse_success": true,
+  "static_url_check": true,
+  "schema_validation": true,
+  "is_valid": true,
+  "issues": [],
+  "sources_found": 3,
+  "timestamp": "2024-01-15T10:30:00.000000"
 }

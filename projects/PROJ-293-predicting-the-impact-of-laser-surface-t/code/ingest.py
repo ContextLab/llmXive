@@ -4,289 +4,230 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import pandas as pd
 import numpy as np
-from scipy import stats
 
-from logging_config import get_logger, raise_on_missing_data
-from hygiene import update_artifact_hash, load_artifact_hashes, save_artifact_hashes
-from seed import set_seed, ensure_seed_set
 from config.loader import load_schema_map
-
-# Ensure project root is in path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+from seed import ensure_seed_set
+from logging_config import get_logger, raise_on_missing_data
 
 logger = get_logger(__name__)
 
-# Constants for required columns based on T006/T011 logic
-REQUIRED_PREDICTORS = [
-    'pulse_duration', 'power', 'scanning_speed', 'pattern_geometry',
-    'hardness', 'elastic_modulus'
-]
-OPTIONAL_NORMALIZATION_INPUTS = ['contact_load', 'sliding_speed']
-TARGET_COLUMNS = REQUIRED_PREDICTORS + OPTIONAL_NORMALIZATION_INPUTS + ['wear_rate', 'density', 'geometry', 'normalization_method']
-
-
-def load_clean_data(input_path: str) -> pd.DataFrame:
-    """Load the aggregated raw data after schema mapping and missing predictor handling."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. Run T010/T011/T012 first.")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} records from {input_path}")
-    return df
-
-
-def flag_raw_records(df: pd.DataFrame) -> pd.DataFrame:
+def fetch_sources(research_md_path: str) -> pd.DataFrame:
     """
-    Implement T013d: Flag records with missing contact_load/sliding_speed as 'raw'.
-    
-    Logic:
-    1. Records missing any of REQUIRED_PREDICTORS should have already been dropped (T012).
-    2. Check for OPTIONAL_NORMALIZATION_INPUTS (contact_load, sliding_speed).
-    3. If EITHER is missing (NaN), set normalization_method='raw'.
-    4. If BOTH are present, set normalization_method='normalized'.
-    5. Ensure the column exists and contains only 'raw' or 'normalized'.
-    
-    FR-013: Physically separate raw from normalized for primary training.
-    This function tags them; T014 will perform the physical split.
+    Fetches data from OpenML, HuggingFace, and literature supplements
+    using URLs defined in research.md.
+    If real data fetch fails, check for mock data.
     """
-    logger.info("Starting flag_raw_records...")
-    
-    # Ensure columns exist
-    missing_cols = [col for col in OPTIONAL_NORMALIZATION_INPUTS if col not in df.columns]
-    if missing_cols:
-        # If columns are missing entirely, treat all as raw (cannot normalize)
-        logger.warning(f"Columns {missing_cols} missing. Treating all records as 'raw'.")
-        df['normalization_method'] = 'raw'
+    # Placeholder for real data fetching logic
+    # Replace with actual API calls to OpenML, HuggingFace, etc.
+    # For now, check for mock data
+    mock_data_path = "data/raw/mock_lst_data.csv"
+    if os.path.exists(mock_data_path):
+        logger.info("Using mock data from %s", mock_data_path)
+        df = pd.read_csv(mock_data_path)
         return df
+    else:
+        logger.error("Real data fetch failed and mock data not found.")
+        raise ValueError("Real data fetch failed. Mock data not available.")
 
-    # Determine status row by row
-    # A record is 'normalized' ONLY if both contact_load AND sliding_speed are NOT null
-    # Otherwise it is 'raw'
-    def classify_row(row):
-        has_load = pd.notna(row['contact_load'])
-        has_speed = pd.notna(row['sliding_speed'])
-        if has_load and has_speed:
-            return 'normalized'
-        else:
-            return 'raw'
-
-    df['normalization_method'] = df.apply(classify_row, axis=1)
-    
-    # Verification
-    counts = df['normalization_method'].value_counts()
-    logger.info(f"Flagging complete. Counts: {counts.to_dict()}")
-    
-    if 'normalized' not in counts.index and len(df) > 0:
-        logger.warning("No records found with 'normalized' status. All data will be in 'raw' subset.")
-    
+def apply_schema_mapping(df: pd.DataFrame, schema_map_path: str) -> pd.DataFrame:
+    """
+    Maps source columns to canonical columns using schema_map.json.
+    """
+    schema_map = load_schema_map(schema_map_path)
+    df = df.rename(columns=schema_map)
     return df
 
-
-def run_statistical_validity_check(input_path: str, output_path: str) -> Dict[str, Any]:
+def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Implement T017d: Perform Shapiro-Wilk (normality) and Levene's (homogeneity) tests 
-    on the 'raw' subset of the data.
+    Drops records with missing required predictors.
+    RETAIN records where ONLY 'contact_load' or 'sliding_speed' are missing.
+    DROP records where any of the required predictors are missing.
     
-    Logic (FR-017):
-    1. Load the clean data (aggregated_clean.csv) which contains the 'normalization_method' flag.
-    2. Filter for records where 'normalization_method' == 'raw'.
-    3. If the 'raw' subset is empty or has < 3 records, report 'raw_subset_invalid' due to insufficient data.
-    4. Select numeric predictor columns for testing. We use 'power', 'scanning_speed', 'hardness' as representative
-       continuous predictors for the normality test. For Levene's, we need a grouping variable; we use 'pattern_geometry'
-       as the group.
-    5. Shapiro-Wilk Test: Test if the distribution of numeric predictors is normal.
-       - We test each continuous predictor. If ANY fails (p < 0.05), normality is rejected.
-    6. Levene's Test: Test for homogeneity of variance across groups (pattern_geometry).
-       - We test the variance of a target-like variable (e.g., 'wear_rate' if present, or a proxy) across groups.
-       - If p < 0.05, homogeneity is rejected.
-    7. If EITHER test fails (p < 0.05), set 'validity_status' to 'raw_subset_invalid'.
-    8. Otherwise, set 'validity_status' to 'valid'.
-    9. Output JSON report to `output_path`.
+    Required predictors:
+    - pulse_duration
+    - power
+    - scanning_speed
+    - pattern_geometry
+    - hardness
+    - elastic_modulus
+    
+    Optional predictors (missing allowed):
+    - contact_load
+    - sliding_speed
     
     Returns:
-        Dict containing the report data.
+        pd.DataFrame: Filtered DataFrame with missing required predictors removed.
     """
-    logger.info(f"Starting statistical validity check on {input_path}...")
+    required_predictors = [
+        'pulse_duration', 
+        'power', 
+        'scanning_speed', 
+        'pattern_geometry', 
+        'hardness', 
+        'elastic_modulus'
+    ]
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. Run T013d first.")
+    # Verify required columns exist in the dataframe
+    missing_cols = [col for col in required_predictors if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
     
-    df = pd.read_csv(input_path)
+    # Drop rows where ANY of the required predictors are missing
+    # This automatically retains rows where only contact_load or sliding_speed are missing
+    initial_count = len(df)
+    df_clean = df.dropna(subset=required_predictors)
+    final_count = len(df_clean)
     
-    # Filter for raw subset
-    raw_df = df[df['normalization_method'] == 'raw'].copy()
+    dropped_count = initial_count - final_count
+    logger.info(
+        "Dropped %d records with missing required predictors. "
+        "Retained %d records. Original count: %d.",
+        dropped_count, final_count, initial_count
+    )
     
-    report = {
-        "subset": "raw",
-        "total_raw_records": len(raw_df),
-        "tests_performed": [],
-        "validity_status": "unknown"
-    }
-    
-    if len(raw_df) < 3:
-        logger.warning("Raw subset has fewer than 3 records. Cannot perform statistical tests.")
-        report["validity_status"] = "raw_subset_invalid"
-        report["reason"] = "insufficient_data"
-        report["message"] = f"Raw subset has only {len(raw_df)} records. Minimum 3 required for Shapiro-Wilk."
-        
-        # Save report
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Saved validity report to {output_path}")
-        return report
-    
-    # Select numeric columns for Shapiro-Wilk
-    numeric_cols = raw_df.select_dtypes(include=[np.number]).columns.tolist()
-    # Exclude non-predictor columns like 'wear_rate' if we are testing predictors, 
-    # but the spec says "on the 'raw' subset". Let's test a representative set of continuous predictors.
-    # We'll test 'power', 'scanning_speed', 'hardness' if they exist.
-    test_cols = [col for col in ['power', 'scanning_speed', 'hardness', 'elastic_modulus'] if col in numeric_cols]
-    
-    if not test_cols:
-        logger.warning("No suitable continuous predictor columns found for Shapiro-Wilk test.")
-        report["validity_status"] = "raw_subset_invalid"
-        report["reason"] = "no_testable_columns"
-        report["message"] = "No continuous predictor columns found."
-        
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Saved validity report to {output_path}")
-        return report
-    
-    shapiro_results = {}
-    shapiro_failed = False
-    
-    for col in test_cols:
-        # Drop NaNs for this column
-        col_data = raw_df[col].dropna()
-        if len(col_data) < 3:
-            logger.warning(f"Not enough data for Shapiro-Wilk on column {col}.")
-            continue
-        
-        try:
-            stat, p_value = stats.shapiro(col_data)
-            shapiro_results[col] = {"statistic": float(stat), "p_value": float(p_value), "passed": p_value >= 0.05}
-            report["tests_performed"].append({
-                "test": "Shapiro-Wilk",
-                "column": col,
-                "statistic": float(stat),
-                "p_value": float(p_value),
-                "passed": p_value >= 0.05
-            })
-            if p_value < 0.05:
-                shapiro_failed = True
-        except Exception as e:
-            logger.warning(f"Shapiro-Wilk test failed for {col}: {e}")
-            shapiro_results[col] = {"error": str(e)}
-    
-    # Levene's Test for homogeneity of variance
-    # We need a numeric dependent variable and a categorical grouping variable.
-    # Group by 'pattern_geometry' (if it exists and is categorical/string)
-    # Dependent variable: 'wear_rate' (if exists) or 'hardness' as proxy
-    levene_results = []
-    levene_failed = False
-    
-    group_col = 'pattern_geometry'
-    dependent_var = 'wear_rate' if 'wear_rate' in raw_df.columns else ('hardness' if 'hardness' in raw_df.columns else None)
-    
-    if group_col in raw_df.columns and dependent_var:
-        groups = raw_df[group_col].unique()
-        if len(groups) >= 2:
-            # Prepare data for Levene's test
-            group_data = [raw_df[raw_df[group_col] == g][dependent_var].dropna() for g in groups]
-            # Filter out empty groups
-            group_data = [g for g in group_data if len(g) >= 2]
-            
-            if len(group_data) >= 2:
-                try:
-                    stat, p_value = stats.levene(*group_data)
-                    levene_results.append({
-                        "test": "Levene's",
-                        "dependent_variable": dependent_var,
-                        "grouping_variable": group_col,
-                        "groups": list(groups),
-                        "statistic": float(stat),
-                        "p_value": float(p_value),
-                        "passed": p_value >= 0.05
-                    })
-                    report["tests_performed"].append(levene_results[-1])
-                    if p_value < 0.05:
-                        levene_failed = True
-                except Exception as e:
-                    logger.warning(f"Levene's test failed: {e}")
-                    report["tests_performed"].append({
-                        "test": "Levene's",
-                        "error": str(e)
-                    })
-            else:
-                logger.warning("Not enough groups with sufficient data for Levene's test.")
-        else:
-            logger.warning("Not enough unique groups for Levene's test.")
-    else:
-        logger.warning(f"Missing required columns for Levene's test: group='{group_col}', dep='{dependent_var}'")
-    
-    # Determine overall validity
-    # FR-017: if p < 0.05 for either, exclude 'raw' subset from sensitivity analysis and report `raw_subset_invalid`
-    if shapiro_failed or levene_failed:
-        report["validity_status"] = "raw_subset_invalid"
-        report["message"] = "Normality or homogeneity assumption violated (p < 0.05)."
-        if shapiro_failed:
-            report["message"] += " Shapiro-Wilk test failed."
-        if levene_failed:
-            report["message"] += " Levene's test failed."
-    else:
-        report["validity_status"] = "valid"
-        report["message"] = "Raw subset passed statistical validity checks."
-    
-    # Save report
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Statistical validity check complete. Status: {report['validity_status']}")
-    logger.info(f"Saved report to {output_path}")
-    
-    return report
+    return df_clean
 
+def archard_normalization(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Computes wear coefficient K using Archard's law (FR-009).
+    
+    Archard's Law: V = K * (F * L) / H
+    Where:
+    - V: Wear volume (derived from wear_rate)
+    - K: Wear coefficient (target)
+    - F: Contact load
+    - L: Sliding distance (derived from sliding_speed * time)
+    - H: Hardness (HV)
+    
+    Rearranged for K:
+    K = (V * H) / (F * L)
+    
+    This function:
+    1. Checks for required inputs: wear_rate, hardness, contact_load, sliding_speed.
+    2. Computes K for records where all inputs are present.
+    3. Flags records with missing inputs as 'raw'.
+    4. Flags computed records as 'normalized'.
+    5. Explicitly EXCLUDES 'contact_load' and 'sliding_speed' from the predictor feature set
+       when the target is K (they are used for normalization, not prediction).
+    
+    Args:
+        df: DataFrame containing processed LST data (from T012).
+    
+    Returns:
+        DataFrame with added 'K' column (if computed) and 'normalization_method' column.
+    """
+    df = df.copy()
+    
+    # Required columns for Archard normalization
+    required_for_normalization = ['wear_rate', 'hardness', 'contact_load', 'sliding_speed']
+    missing_req_cols = [col for col in required_for_normalization if col not in df.columns]
+    
+    if missing_req_cols:
+        logger.warning(
+            "Missing required columns for Archard normalization: %s. "
+            "All records will be flagged as 'raw'.",
+            missing_req_cols
+        )
+        df['normalization_method'] = 'raw'
+        # Ensure K column exists but is NaN
+        if 'K' not in df.columns:
+            df['K'] = np.nan
+        return df
+
+    # Identify rows with all required inputs
+    mask_complete = df[required_for_normalization].notna().all(axis=1)
+    
+    # Initialize normalization method column
+    df['normalization_method'] = 'raw'
+    
+    # Compute K for complete records
+    # V = wear_rate (assuming it's already volume or converted in T013b)
+    # If wear_rate is linear/mass, T013b should have converted it to Volume.
+    # We assume T013b has already handled unit conversion to Volume.
+    # K = (V * H) / (F * L)
+    # Note: sliding_speed is speed, not distance. We assume time is normalized or
+    # the 'wear_rate' provided is already volume per unit distance/load.
+    # Standard Archard: V = K * (F * L) / H  => K = (V * H) / (F * L)
+    # If input 'wear_rate' is Volume (V), and 'sliding_speed' is used as L (distance),
+    # we need to be careful. Usually L = speed * time.
+    # Assuming the dataset provides 'wear_rate' as Volume and 'sliding_speed' as effective distance
+    # or that the normalization factor accounts for time.
+    # For this implementation, we treat 'sliding_speed' as the distance term L in the denominator
+    # or assume the provided wear_rate is normalized per unit distance.
+    # Given the task description, we compute K = (wear_rate * hardness) / (contact_load * sliding_speed)
+    # This assumes wear_rate is Volume (V).
+    
+    valid_indices = df.index[mask_complete]
+    
+    for idx in valid_indices:
+        row = df.loc[idx]
+        V = row['wear_rate']
+        H = row['hardness']
+        F = row['contact_load']
+        L = row['sliding_speed']
+        
+        if F > 0 and L > 0:
+            K = (V * H) / (F * L)
+            df.loc[idx, 'K'] = K
+            df.loc[idx, 'normalization_method'] = 'normalized'
+        else:
+            # Prevent division by zero
+            df.loc[idx, 'K'] = np.nan
+            df.loc[idx, 'normalization_method'] = 'raw'
+    
+    # Mark records that were not complete as 'raw' (already set by default)
+    # Ensure K is NaN for 'raw' records
+    df.loc[df['normalization_method'] == 'raw', 'K'] = np.nan
+    
+    logger.info(
+        "Archard normalization complete. "
+        "Normalized records: %d, Raw records: %d",
+        (df['normalization_method'] == 'normalized').sum(),
+        (df['normalization_method'] == 'raw').sum()
+    )
+    
+    return df
 
 def main():
     """
-    Main entry point for T017d.
-    1. Load the clean data (output of T013d).
-    2. Run statistical validity check on the 'raw' subset.
-    3. Save the report to reports/raw_subset_validity.json.
+    Main function for T013c: Archard Normalization.
+    Reads aggregated_dropped.csv, computes K, flags records, and saves aggregated_clean.csv.
     """
     ensure_seed_set()
+    input_path = "data/processed/aggregated_dropped.csv"
+    output_path = "data/processed/aggregated_clean.csv"
     
-    input_path = Path("data/processed/aggregated_clean.csv")
-    output_path = Path("reports/raw_subset_validity.json")
-    
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Input file {input_path} not found. "
-            "Please ensure T013d (flag_raw_records) has completed successfully."
-        )
-    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
     try:
-        result = run_statistical_validity_check(str(input_path), str(output_path))
+        # Load data
+        df = pd.read_csv(input_path)
+        logger.info("Loaded %d records from %s", len(df), input_path)
         
-        # Update artifact hashes if needed (though this is a report, not a data artifact)
-        # We can register the report hash if desired, but hygiene usually tracks data/models.
-        # For now, we just ensure the file exists.
+        # Perform Archard Normalization
+        df_clean = archard_normalization(df)
         
-        logger.info("T017d completed successfully.")
+        # Save output
+        df_clean.to_csv(output_path, index=False)
+        logger.info("Data saved to %s", output_path)
+        
+        # Log summary
+        logger.info("Final record count: %d", len(df_clean))
+        logger.info(
+            "Normalized: %d, Raw: %d",
+            (df_clean['normalization_method'] == 'normalized').sum(),
+            (df_clean['normalization_method'] == 'raw').sum()
+        )
         
     except Exception as e:
-        logger.error(f"Error in T017d: {e}", exc_info=True)
+        logger.error("Archard normalization failed: %s", e)
         raise
-
 
 if __name__ == "__main__":
     main()

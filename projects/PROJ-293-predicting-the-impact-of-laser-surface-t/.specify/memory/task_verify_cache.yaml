@@ -1,10 +1,10 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or `state/structure_manifest.json` file was provided in the
-    evidence; without these artifacts we cannot confirm that the required folders
-    were created or that a manifest verifying their existence was generated. The implementer
-    must supply the actual filesystem structure and the JSON manifest.
+  r: No evidence of the required directories or the `state/structure_manifest.json`
+    file is provided; the implementer did not supply the manifest verifying the existence
+    of `code/`, `data/`, `tests/`, `state/`, `models/`, `data/raw/`, `data/processed/`,
+    and `reports/`. The task therefore remains unfinished.
 T005:
   c: false
   h: 517ac7584a382a3fbfbd9e07c4d22bc9faf446699601018f6f8214ee6b040c59
@@ -21,20 +21,22 @@ T009b:
     \ mock dataset to satisfy the schema, record count, or missing\u2011value requirements,\
     \ and the unit test cannot be executed. The implementer must create the CSV with\
     \ the specified columns, at least 150 rows, and appropriate missing values."
-T010:
+T012:
   c: false
-  h: d46e2e174b2f97faa9a7a4e7003a8bf1750efd2aa87c4b1e350fdb44efcb182f
-  r: The repository lacks a `fetch_sources` function in `code/ingest.py` (the provided
-    code shows unrelated utilities and is truncated before any such implementation).
-    Moreover, the required output file `data/raw/aggregated_raw.csv` does not exist.
-    Both the core functionality and its expected artifact are missing.
-T013d:
+  h: aa27b47f769a7a1e7b70140ae0b613fbe5df39febba61ecacb69022fbd1ebad0
+  r: The `handle_missing_values` function is implemented and matches the test expectations,
+    but the pipeline never writes the filtered DataFrame to `data/processed/aggregated_dropped.csv`,
+    the required output file is absent, and there is no code or test confirming that
+    the `normalization_method` column is not present. These missing artifacts mean
+    the task is not fully satisfied.
+T013c:
   c: false
-  h: 32e8e8a49dcb67404270a65be180b7ef3df5f152a5697fec0cee3942ef901792
-  r: "The `flag_raw_records` function in `code/ingest.py` is cut off mid\u2011line\
-    \ (`df['normalization_me\u2026`) and thus not fully implemented, and the required\
-    \ output file `data/processed/aggregated_clean.csv` is absent. Both the core logic\
-    \ and the final CSV generation are missing, so the task is not satisfied."
+  h: 5667fac55acbd1e8faf4ea957a79627b9ec02d90b5d7ac6137c1ec14ee06d327
+  r: The `archard_normalization` function in `code/ingest.py` is truncated and not
+    fully implemented, so it does not compute K, set the `normalization_method` flag,
+    or write the required `data/processed/aggregated_clean.csv`. Additionally, the
+    input file `data/processed/aggregated_dropped.csv` and the expected output CSV
+    are absent. The task therefore remains unfinished.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,12 +50,6 @@ T021:
   r: "No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out)\
     \ logic was provided; there is no evidence of class\u2011size checks, fallback\
     \ to K\u2011Fold, or warning logging, so the task is not satisfied."
-T039a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file or its contents were provided, so we cannot confirm that
-    it contains only verified static URLs/IDs and lacks any dynamic search logic.
-    The required artifact and its verification evidence are missing.
 T040:
   c: false
   h: ed2668a268d2742da9b1556607b44f69c05e3080bd88c8393e4791b6ef9f8b9d
@@ -61,10 +57,3 @@ T040:
     \ (only helper utilities are shown and the file is truncated), and the required\
     \ output `reports/power_analysis.json` is absent. Consequently the task\u2019\
     s core functionality and expected report are not delivered."
-T041:
-  c: false
-  h: becffbb11e74ad695dfd2f502de3175f8f2b4cc096c14fd116744873a6dca4be
-  r: The `log_source_warning` function in `code/ingest.py` contains only a placeholder
-    (`pass`) and does not count distinct sources or generate any warning. Additionally,
-    the required output file `reports/source_validation.json` does not exist. Both
-    the implementation and the expected artifact are missing.
