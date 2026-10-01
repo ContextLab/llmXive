@@ -1,8 +1,56 @@
+# Schema for the input dataset used in the social media and cognitive flexibility study.
+# This defines the expected columns and their types/data constraints.
+schema_name: "social_media_cognitive_flexibility_input"
+version: "1.0"
+description: "Defines the required columns for the raw/processed dataset before modeling."
+
 columns:
-  switching_index: float
-  cognitive_flexibility_score: float
-  age: float
-  total_screen_time: float
-  num_platforms: int
-  switching_frequency: float
-  participant_id: int
+  - name: switching_index
+    type: float
+    description: "Derived metric: num_platforms * switching_frequency"
+    constraints:
+      min: 0.0
+      nullable: false
+  - name: cognitive_flexibility_score
+    type: float
+    description: "Outcome variable (e.g., WCST score or validated proxy)"
+    constraints:
+      min: 0.0
+      nullable: false
+  - name: age
+    type: float
+    description: "Participant age in years"
+    constraints:
+      min: 18.0
+      nullable: false
+  - name: total_screen_time
+    type: float
+    description: "Total daily screen time in hours"
+    constraints:
+      min: 0.0
+      nullable: false
+  - name: num_platforms
+    type: int
+    description: "Number of social media platforms used"
+    constraints:
+      min: 1
+      nullable: false
+  - name: switching_frequency
+    type: float
+    description: "Self-reported frequency of switching between apps"
+    constraints:
+      min: 0.0
+      nullable: false
+  - name: participant_id
+    type: int
+    description: "Unique identifier for the participant"
+    constraints:
+      nullable: false
+
+required_variables:
+  - self_reported_switching_frequency
+  - cognitive_flexibility_score
+
+notes: |
+  This schema is used by T001 (Feasibility Check) and T015 (Ingestion) to validate
+  that the downloaded dataset contains the necessary fields before processing.

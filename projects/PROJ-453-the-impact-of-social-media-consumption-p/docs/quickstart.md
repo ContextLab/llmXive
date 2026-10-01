@@ -1,59 +1,48 @@
 # Quickstart Guide
 
-This guide outlines the steps to run the full analysis pipeline.
+## Prerequisites
+- Python 3.11+
+- pip
 
-## 1. Setup
-
-Ensure all directories are created and dependencies are installed:
-
+## Installation
 ```bash
-python code/setup_directories.py
 pip install -r code/requirements.txt
 ```
 
-## 2. Feasibility Check
+## Execution Pipeline
+Run the following commands in order to execute the full analysis:
 
-Verify dataset availability and schema:
+1. **Setup Directories**:
+ ```bash
+ python code/setup_directories.py
+ ```
 
-```bash
-python code/00_feasibility_check.py
-```
+2. **Feasibility Check**:
+ ```bash
+ python code/00_feasibility_check.py
+ ```
 
-## 3. Data Ingestion
+3. **Data Ingestion**:
+ ```bash
+ python code/01_ingest.py
+ ```
 
-Download and validate raw data:
+4. **Variable Engineering**:
+ ```bash
+ python code/02_engineer.py
+ ```
 
-```bash
-python code/01_ingest.py
-```
+5. **Model Fitting**:
+ ```bash
+ python code/03_model.py
+ ```
 
-## 4. Variable Engineering
+6. **Visualization**:
+ ```bash
+ python code/04_visualize.py
+ ```
 
-Compute derived variables and clean data:
-
-```bash
-python code/02_engineer.py
-```
-
-## 5. Model Fitting
-
-Run regression analysis and sensitivity checks:
-
-```bash
-python code/03_model.py
-```
-
-## 6. Visualization
-
-Generate plots and final report:
-
-```bash
-python code/04_visualize.py
-```
-
-## Expected Outputs
-
-- `data/processed/participants_cleaned.csv`
-- `results/models/regression_summary.json`
-- `results/figures/regression_plot.png`
-- `results/final_report.json`
+## Output
+- `data/processed/participants_cleaned.csv`: Cleaned dataset
+- `results/models/regression_summary.json`: Model results
+- `results/figures/`: Generated plots

@@ -1,48 +1,53 @@
-"""
-Logging configuration module.
-"""
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None) -> None:
     """
-    Configure logging for the application.
-
+    Configure the root logger with a standard format and destination.
+    
     Args:
-        log_file: Optional path to a log file. If None, logs to stdout only.
+        log_file: Optional path to a log file. If None, logs go to stdout.
     """
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    # Clear existing handlers
-    logger.handlers = []
-
-    # Console Handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File Handler (if specified)
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    
+    handlers = []
+    
+    # Console handler (stdout)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    handlers.append(console_handler)
+    
+    # File handler (optional)
     if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.INFO)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.DEBUG)
+        handlers.append(file_handler)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=handlers,
+        force=True
+    )
 
-    return logger
-
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance with the specified name.
-
+    Retrieve a logger instance.
+    
     Args:
-        name: Logger name (usually __name__).
-
+        name: Logger name. If None, returns the root logger.
+    
     Returns:
-        logging.Logger: Configured logger.
+        Configured logging.Logger instance.
     """
+    if name is None:
+        return logging.getLogger()
     return logging.getLogger(name)

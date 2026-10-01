@@ -1,4 +1,3 @@
 """
-Test package initialization.
+Test package for llmXive project.
 """
-pass

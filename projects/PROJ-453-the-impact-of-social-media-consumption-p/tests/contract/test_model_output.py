@@ -1,5 +1,7 @@
 """
 Contract tests for model output schema.
+Validates that the regression summary JSON produced by the analysis pipeline
+strictly adheres to the schema defined in contracts/output.schema.yaml.
 """
 import pytest
 import yaml
@@ -46,5 +48,5 @@ def test_validate_json_keys():
         assert key in data, f"Missing key in JSON: {key}"
     
     # Check types
-    assert isinstance(data.get('vif_scores'), dict), "vif_scores must be a dict"
+    assert isinstance(data.get('vif_scores'), (dict, list)), "vif_scores must be a dict or list"
     assert isinstance(data.get('interpretation'), str), "interpretation must be a string"

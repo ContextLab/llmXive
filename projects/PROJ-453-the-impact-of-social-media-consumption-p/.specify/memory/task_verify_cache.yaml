@@ -1,24 +1,3 @@
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project directories or configuration files were provided; the only content
-    shown is a feature specification and user stories, with no actual filesystem artifacts
-    or code establishing the required project structure. The implementer did not supply
-    the requested setup files.
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No core utility modules or logging configuration files are present in the provided
-    evidence; the artifacts required for task T010 (foundational utilities & logging)
-    are missing entirely. The only artifacts described relate to data ingestion and
-    analysis, not to the requested utility or logging code.
-T013:
-  c: true
-  h: e666c11651b829aa8f6719c328efc31128a16267a6c6521e3e1b29f94e9642ff
-  r: "The `tests/contract/test_dataset_schema.py` file exists, is non\u2011empty,\
-    \ and implements the required `test_schema_matches_yaml` function that checks\
-    \ for the presence of `contracts/dataset.schema.yaml` and validates required fields.\
-    \ No further artifacts are needed for this task."
 T016a:
   c: false
   h: 3057029a22df0dd2419370bde3daefea027225ae8ba12900ef4e665d69544f32
@@ -26,6 +5,13 @@ T016a:
     \ `code/01_ingest.py` snippet shows no logic that writes such a YAML file after\
     \ data download. Without the generated YAML artifact, the task\u2019s core requirement\
     \ is unmet."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation for the \u201CLogging\u201D feature is present;\
+    \ the task was marked as deleted/merged and no artifact was provided to verify\
+    \ that logging functionality was implemented or integrated into T010. The required\
+    \ logging implementation is therefore missing."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,3 +19,29 @@ T041:
     were provided; the only evidence is the task description itself, which does not
     include any actual documentation artifact. The required final documentation is
     missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files or documentation were provided, and there is no evidence that\
+    \ any docstrings were added to the project's source code. The required artifact\u2014\
+    a set of source files with appropriate docstrings\u2014is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code or other artifact for \u201CTest Empty DataFrame\u201D is present;\
+    \ the claim cannot be verified because there is no file, function, or test suite\
+    \ demonstrating edge\u2011case handling of an empty DataFrame. The required test\
+    \ implementation is missing."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no artifact such as a pydocstyle run log, report, or any evidence
+    that documentation style was checked; the task required a concrete validation
+    output, which is missing.
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or performance\u2011focused refactoring artifacts are present;\
+    \ the only evidence supplied is the original feature specification, which does\
+    \ not include any refactored implementation, benchmarks, or documentation confirming\
+    \ improved performance. The required performance\u2011refactored code is missing."
