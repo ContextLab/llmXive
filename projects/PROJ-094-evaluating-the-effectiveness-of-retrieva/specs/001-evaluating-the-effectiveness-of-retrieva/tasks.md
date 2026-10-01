@@ -52,7 +52,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -89,9 +89,7 @@
 
 - [ ] T016 [P] [US1] Contract test for CSV output schema in `tests/contract/test_output_schema.py`
 - [ ] T017 [P] [US1] Integration test for full pipeline execution on 50 queries in `tests/integration/test_pipeline_e2e.py`
-- [ ] T018 [P] [US1] Unit test for nDCG calculation logic
-
-The research question is to evaluate the ranking effectiveness of the proposed algorithm. The method involves computing the normalized discounted cumulative gain at a standard cutoff depth. This approach aligns with established retrieval evaluation protocols [DOI:10.1145/1321440.1321442]. in `tests/unit/test_metrics.py`
+- [ ] T018 [P] [US1] Unit test for nDCG calculation logic in `tests/unit/test_metrics.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -128,9 +126,7 @@ The research question is to evaluate the ranking effectiveness of the proposed a
 ### Implementation for User Story 3
 
 - [ ] T027 [P] [US3] Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP` and memory cap (limited capacity) via `psutil` monitoring [UNRESOLVED-CLAIM: c_54edb23f — status=not_enough_info]
-- [ ] T028 [US3] Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale parameter model
-
-The research question, method, and references remain unchanged as no specific values or citations were present in the original text to alter.) when `--strict-resources` flag is set. MUST include a programmatic check to verify the loaded model has approximately 150M parameters (±20%) before proceeding. [UNRESOLVED-CLAIM: c_8a32550e — status=not_enough_info]
+- [ ] T028 [US3] Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale parameter model) when `--strict-resources` flag is set. MUST include a programmatic check to verify the loaded model has approximately 150M parameters (±20%) before proceeding. [UNRESOLVED-CLAIM: c_8a32550e — status=not_enough_info]
 - [ ] T029 [US3] Implement logic to enforce GB RAM limit by subsampling dataset or using a quantized index type if memory cap is approached [UNRESOLVED-CLAIM: c_f9688f2d — status=not_enough_info] (PREREQUISITE for T030). MUST depend on T006/T007 for dataset loading logic.
 - [ ] T030 [US3] Update `src/cli/main.py` to support `--strict-resources` mode, run both standard and constrained pipelines, and output `degradation_report.json` with absolute percentage point drops [UNRESOLVED-CLAIM: c_bb3560fb — status=not_enough_info]
 
@@ -174,8 +170,8 @@ The research question, method, and references remain unchanged as no specific va
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Verification (Phase 7)**: Depends on the completion of all corresponding implementation tasks in Phases 3-6
 
@@ -245,9 +241,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
