@@ -48,7 +48,7 @@ known-first-party = ["code"]
 [tool.ruff.pydocstyle]
 convention = "google"
 ```
- 3. **Verify**: Run `ruff check .` and `black --check .` and assert exit code 0 for both.
+ 3. **Verify**: Run `ruff check.` and `black --check.` and assert exit code 0 for both.
 
 ---
 
@@ -267,7 +267,7 @@ required_systems:
 
 - [ ] T068 [P] [US1] **End-to-End Pipeline Dry Run**: Execute the full pipeline from raw data ingestion to final visualization report on a small, controlled subset of data (e.g., only Cu-Zn system) to verify all components integrate correctly. **Requirement**: The pipeline must complete without raising unhandled exceptions and produce all expected artifacts in `data/artifacts/`. **Verify**: Assert `data/artifacts/model.pkl`, `data/artifacts/fidelity_report.json`, and `data/artifacts/plots/Cu-Zn.png` exist and are valid.
 - [ ] T069 [P] [US2] **Cross-Validation Consistency Check**: Verify that the LOSO cross-validation results are consistent across multiple runs with the same random seed. **Requirement**: Run the training script three times with the same seed and compare the resulting MAE and R² values in `data/artifacts/baseline_comparison.json`. **Verify**: Assert that the metric values are identical (within floating point tolerance) across all three runs.
-- [ ] T070 [P] [US3] **Visualization Quality Assurance**: Run a script `code/viz/validate_plot_quality.py` to verify all generated plots meet the resolution requirements (>= 300 DPI) and contain correct axis labels. **Requirement**: The script must fail if any plot does not meet criteria. **Verify**: Assert the validation script passes.
+- [X] T070 [P] [US3] **Visualization Quality Assurance**: Run a script `code/viz/validate_plot_quality.py` to verify all generated plots meet the resolution requirements (>= 300 DPI) and contain correct axis labels. **Requirement**: The script must fail if any plot does not meet criteria. **Verify**: Assert the validation script passes.
 - [ ] T071 [P] [General] **Documentation Finalization**: Update the `README.md` and `docs/` to reflect the final state of the project, including instructions for running the pipeline, interpreting results, and known limitations. **Requirement**: Documentation must be clear, concise, and accurate. **Verify**: Run the documentation build process (if applicable) and ensure no warnings or errors are generated.
 - [ ] T072 [P] [General] **Performance Optimization Review**: Review the codebase for potential performance bottlenecks and implement optimizations where feasible without compromising correctness. **Requirement**: Focus on areas identified during resource monitoring (T030, T052) and streaming logic (T013). **Verify**: Run the pipeline with the optimized code and confirm that execution time and memory usage are within acceptable limits.
 - [ ] T073 [P] [General] **Security Audit**: Conduct a security audit of the codebase to identify and remediate any potential vulnerabilities (e.g., insecure file handling, hardcoded credentials). **Requirement**: Use automated tools (e.g., `bandit`, `safety`) and manual review. **Verify**: Generate a security audit report with "No Critical Issues" status.

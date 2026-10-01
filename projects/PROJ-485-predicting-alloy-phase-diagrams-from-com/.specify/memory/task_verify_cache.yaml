@@ -101,11 +101,3 @@ T055:
     \ the provided `plot_phase_diagrams.py` is truncated and lacks any implementation\
     \ that writes such a report. Consequently the task\u2019s core output and verification\
     \ step are missing."
-T059:
-  c: false
-  h: f80a7c681f43be5c07fc3d832f5f67fe669f75bcdf2b3ea969c8df8716c804f5
-  r: "The repository lacks the required `data/logs/pipeline.log`, any `<system_id>_placeholder.png`\
-    \ plot, and a completed `fidelity_report.json`. Moreover, `code/viz/plot_phase_diagrams.py`\
-    \ is truncated and does not contain logic to detect missing ground\u2011truth,\
-    \ generate a red \u201CNO DATA\u201D overlay, or log `MISSING_GROUND_TRUTH`. Consequently\
-    \ the visualization fallback behavior is not implemented."

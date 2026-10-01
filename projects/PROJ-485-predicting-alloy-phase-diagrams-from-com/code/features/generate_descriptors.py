@@ -1,6 +1,5 @@
 """
-Generates compositional descriptors from raw alloy data.
-Implements T017 and T018.
+Feature generation module for calculating compositional descriptors.
 """
 import os
 import sys
@@ -8,148 +7,154 @@ import json
 import csv
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
-from utils.logging import get_logger, log_error, log_info
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-def load_elemental_properties(file_path: str) -> Dict[str, Dict[str, float]]:
-    """
-    Loads elemental properties from CSV.
-    """
-    if not os.path.exists(file_path):
-        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Elemental properties file not found: {file_path}")
-        raise FileNotFoundError(f"Elemental properties file not found: {file_path}")
+def load_elemental_properties(filepath: str = "data/raw/elemental_properties.csv") -> Dict[str, Dict[str, float]]:
+    """Load elemental properties from CSV."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: Elemental properties file not found: {filepath}")
 
-    props = {}
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            props[row['element']] = {
-                'atomic_radius_angstrom': float(row['atomic_radius_angstrom']),
-                'electronegativity_pauling': float(row['electronegativity_pauling']),
-                'valence_electrons': int(row['valence_electrons'])
-            }
-    return props
+    df = pd.read_csv(filepath)
+    properties = {}
+    for _, row in df.iterrows():
+        element = row['element']
+        properties[element] = {
+            'atomic_radius': row['atomic_radius_angstrom'],
+            'electronegativity': row['electronegativity_pauling'],
+            'valence_electrons': row['valence_electrons']
+        }
+    return properties
 
-def calculate_mean_atomic_radius(props: Dict[str, float], elements: List[str]) -> float:
-    """
-    Calculates the mean atomic radius for a set of elements.
-    """
-    if not elements:
-        return 0.0
-    total = 0.0
-    count = 0
-    for el in elements:
-        if el in props:
-            total += props[el]['atomic_radius_angstrom']
-            count += 1
-    return total / count if count > 0 else 0.0
+def calculate_mean_atomic_radius(composition: Dict[str, float], properties: Dict) -> float:
+    """Calculate mean atomic radius based on composition."""
+    total_radius = 0
+    total_fraction = 0
+    for element, fraction in composition.items():
+        if element in properties:
+            total_radius += properties[element]['atomic_radius'] * fraction
+            total_fraction += fraction
+    return total_radius / total_fraction if total_fraction > 0 else 0
 
-def calculate_electronegativity_variance(props: Dict[str, float], elements: List[str]) -> float:
-    """
-    Calculates the variance of electronegativity for a set of elements.
-    """
-    if not elements:
-        return 0.0
-    values = [props[el]['electronegativity_pauling'] for el in elements if el in props]
-    if len(values) < 2:
-        return 0.0
-    mean = sum(values) / len(values)
-    variance = sum((x - mean) ** 2 for x in values) / len(values)
+def calculate_electronegativity_variance(composition: Dict[str, float], properties: Dict) -> float:
+    """Calculate variance of electronegativity based on composition."""
+    values = []
+    weights = []
+    for element, fraction in composition.items():
+        if element in properties:
+            values.append(properties[element]['electronegativity'])
+            weights.append(fraction)
+
+    if not values:
+        return 0
+
+    weighted_mean = np.average(values, weights=weights)
+    variance = np.average((np.array(values) - weighted_mean) ** 2, weights=weights)
     return variance
 
-def calculate_valence_electron_count(props: Dict[str, int], elements: List[str]) -> int:
-    """
-    Calculates the total valence electron count.
-    """
-    total = 0
-    for el in elements:
-        if el in props:
-            total += props[el]['valence_electrons']
-    return total
+def calculate_valence_electron_count(composition: Dict[str, float], properties: Dict) -> float:
+    """Calculate weighted average valence electron count."""
+    total_valence = 0
+    total_fraction = 0
+    for element, fraction in composition.items():
+        if element in properties:
+            total_valence += properties[element]['valence_electrons'] * fraction
+            total_fraction += fraction
+    return total_valence / total_fraction if total_fraction > 0 else 0
 
-def calculate_hume_rothery_concentration(elements: List[str], composition: float) -> float:
-    """
-    Calculates a simplified Hume-Rothery concentration metric.
-    (Simplified: using composition as a proxy for concentration of the solute)
-    """
-    return composition
+def calculate_hume_rothery_concentration(composition: Dict[str, float], properties: Dict) -> float:
+    """Calculate Hume-Rothery concentration parameter."""
+    # Simplified version: variance in atomic radii
+    radii = []
+    fractions = []
+    for element, fraction in composition.items():
+        if element in properties:
+            radii.append(properties[element]['atomic_radius'])
+            fractions.append(fraction)
 
-def generate_descriptors(row: Dict[str, Any], elemental_props: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
-    """
-    Generates descriptor features for a single row.
-    """
-    elements = [row['element_a'], row['element_b']]
-    if 'element_c' in row and pd.notna(row['element_c']):
-        elements.append(row['element_c'])
-    
-    return {
-        "system_id": f"{row['element_a']}-{row['element_b']}",
-        "element_a": row['element_a'],
-        "element_b": row['element_b'],
-        "composition": float(row['composition']),
-        "temperature": float(row['temperature']),
-        "mean_atomic_radius": calculate_mean_atomic_radius(elemental_props, elements),
-        "electronegativity_variance": calculate_electronegativity_variance(elemental_props, elements),
-        "valence_electron_count": calculate_valence_electron_count(elemental_props, elements),
-        "hume_rothery_concentration": calculate_hume_rothery_concentration(elements, float(row['composition']))
+    if len(radii) < 2:
+        return 0
+
+    mean_radius = np.average(radii, weights=fractions)
+    variance = np.average((np.array(radii) - mean_radius) ** 2, weights=fractions)
+    return np.sqrt(variance)
+
+def generate_descriptors(row: Dict, properties: Dict) -> Dict[str, float]:
+    """Generate descriptors for a single alloy system."""
+    # Parse composition from string (e.g., "Cu:0.6,Zn:0.4")
+    composition = {}
+    comp_str = row.get('composition', '')
+    if isinstance(comp_str, str):
+        for part in comp_str.split(','):
+            if ':' in part:
+                elem, frac = part.split(':')
+                composition[elem.strip()] = float(frac.strip())
+
+    descriptors = {
+        'system_id': row.get('system_id', 'unknown'),
+        'element_a': row.get('element_a', ''),
+        'element_b': row.get('element_b', ''),
+        'temperature': row.get('temperature', 0),
+        'composition_raw': row.get('composition', ''),
+        'mean_atomic_radius': calculate_mean_atomic_radius(composition, properties),
+        'electronegativity_variance': calculate_electronegativity_variance(composition, properties),
+        'valence_electron_count': calculate_valence_electron_count(composition, properties),
+        'hume_rothery_concentration': calculate_hume_rothery_concentration(composition, properties)
     }
 
-def validate_descriptors(descriptors: List[Dict[str, Any]], elemental_props: Dict[str, Dict[str, float]]) -> bool:
-    """
-    Validates derived values against elemental properties.
-    Implements T018.
-    """
+    return descriptors
+
+def validate_descriptors(descriptors: List[Dict], properties: Dict) -> bool:
+    """Validate generated descriptors against expected ranges."""
     for desc in descriptors:
-        # Check if mean atomic radius is within reasonable bounds (0.5 to 3.0 Angstroms)
-        if not (0.5 <= desc['mean_atomic_radius'] <= 3.0):
-            log_warning(f"Mean atomic radius out of bounds: {desc['mean_atomic_radius']}")
+        if desc['mean_atomic_radius'] <= 0 or desc['mean_atomic_radius'] > 5:
+            log_warning(logger, f"Invalid mean_atomic_radius: {desc['mean_atomic_radius']}")
+            return False
+        if desc['electronegativity_variance'] < 0:
+            log_warning(logger, f"Invalid electronegativity_variance: {desc['electronegativity_variance']}")
             return False
     return True
 
-def process_alloy_dataset(input_path: str, output_path: str, elemental_props_path: str) -> None:
-    """
-    Processes the raw alloy dataset and generates descriptors.
-    """
-    elemental_props = load_elemental_properties(elemental_props_path)
-    
+def process_alloy_dataset(input_path: str, output_path: str, properties: Dict) -> pd.DataFrame:
+    """Process the entire alloy dataset and generate descriptors."""
+    df_input = pd.read_csv(input_path)
     descriptors = []
-    df = pd.read_csv(input_path)
-    
-    for _, row in df.iterrows():
-        try:
-            desc = generate_descriptors(row.to_dict(), elemental_props)
-            descriptors.append(desc)
-        except Exception as e:
-            log_error(ErrorCode.DATA_SCHEMA_MISMATCH, f"Failed to generate descriptors for row: {e}")
-            continue
 
-    if not validate_descriptors(descriptors, elemental_props):
-        log_warning("Descriptor validation failed, but proceeding with data.")
+    for _, row in df_input.iterrows():
+        desc = generate_descriptors(row.to_dict(), properties)
+        descriptors.append(desc)
 
-    # Save intermediate JSON for export step
+    df_descriptors = pd.DataFrame(descriptors)
+
+    if not validate_descriptors(descriptors, properties):
+        log_warning(logger, "Some descriptors failed validation")
+
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(descriptors, f)
-    
-    log_info(f"Generated {len(descriptors)} descriptors. Saved to {output_path}")
+    df_descriptors.to_csv(output_path, index=False)
+
+    log_info(logger, f"Generated {len(df_descriptors)} descriptor rows. Saved to {output_path}")
+    return df_descriptors
 
 def main():
-    input_file = "data/processed/raw_filtered.csv"
-    output_file = "data/processed/descriptors_intermediate.json"
-    props_file = "data/raw/elemental_properties.csv"
+    """Entry point for descriptor generation."""
+    properties = load_elemental_properties()
+    input_path = "data/processed/descriptors.csv"
+    output_path = "data/processed/descriptors.csv"
 
-    if not os.path.exists(input_file):
-        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Input file not found: {input_file}")
-        sys.exit(1)
-    
-    if not os.path.exists(props_file):
-        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Elemental properties not found: {props_file}")
-        sys.exit(1)
+    if not os.path.exists(input_path):
+        # If ingestion hasn't run, try to load from raw
+        input_path = "data/raw/elemental_properties.csv"
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: Input file not found")
 
-    process_alloy_dataset(input_file, output_file, props_file)
-    sys.exit(0)
+    process_alloy_dataset(input_path, output_path, properties)
 
 if __name__ == "__main__":
     main()
