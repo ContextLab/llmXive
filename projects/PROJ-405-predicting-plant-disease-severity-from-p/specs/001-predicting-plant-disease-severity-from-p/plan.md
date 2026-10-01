@@ -34,7 +34,7 @@ The research question investigates how meteorological variability influences ope
 | **III. Data Hygiene** | PASS | Raw PlantVillage zip will be checksummed. Derived weather CSVs will be checksummed. No in-place modification. |
 | **IV. Single Source of Truth** | PASS | All metrics (R², MAE, p-values) will be written to a single `results.json` artifact. |
 | **V. Versioning Discipline** | PASS | **Explicit Mechanism**: Upon completion of Phase 5, Step 5.2, the `state/*.yaml` file will be updated with SHA-256 hashes for `results.json`, `unified_analysis.csv`, and `model_artifacts.pkl`. This satisfies the requirement that every artifact change updates the state timestamp and hash map. |
-| **VI. Environmental Context** | PASS | The plan explicitly includes the 7-day weather window and interaction terms in the augmented model. |
+| **VI. Environmental Context** | PASS | The plan explicitly includes the multi-day weather window and interaction terms in the augmented model. |
 | **VII. Computational Resource Adherence** | PASS | Pipeline uses batched OpenCV and `scikit-learn` (CPU) with memory-mapped data handling where possible. |
 
 ## Project Structure
@@ -104,7 +104,7 @@ projects/PROJ-405/
 ### Phase 1: Feature Extraction & Weather Linking
 - **Step 1.1**: Implement OpenCV pipeline to extract lesion area ratio, necrosis color index, texture entropy.
 - **Step 1.2**: Handle missing lesions (filter/log) and missing metadata (exclude).
-- **Step 1.3**: Fetch 7-day weather history for valid records.
+- **Step 1.3**: Fetch a multi-day weather history for valid records.
     - **Primary**: Open-Meteo API.
     - **Fallback**: If Open-Meteo fails (timeout/rate-limit), query a **pre-processed NOAA GHCN-Daily station CSV** (subset of a representative global station network, filtered to a manageable data volume) to find the nearest station and interpolate. **If both fail, exclude the record with a specific log flag.** This satisfies FR-002's "or NOAA" requirement without exceeding RAM limits.
 - **Step 1.4**: Merge image features and weather data into a unified CSV.

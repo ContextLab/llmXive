@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-405-predicting-plant-disease-severity-from-p",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/weather_linker.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026f\"Aborting to prevent synthetic data fallback.\"     )   def _\u2026\u201d; 3 command(s) failed: python code/main.py --mode full (rc=1); python code/main.py --mode dry-run --limit 50 (rc=1); python code/main.py --stage extract_features (rc=1); 1 declared deliverable(s) absent: data/processed/unified_analysis.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode full -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/main.py\", line 25, in <module>\n    from utils.logging_config import setup_logging, get_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/utils/logging_config.py\", line 29, in <module>\n    LOG_DIR = get_path(\"artifacts/logs\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-s",
+    "python code/main.py --mode dry-run --limit 50 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/main.py\", line 25, in <module>\n    from utils.logging_config import setup_logging, get_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/utils/logging_config.py\", line 29, in <module>\n    LOG_DIR = get_path(\"artifacts/logs\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-p",
+    "python code/main.py --stage extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/main.py\", line 25, in <module>\n    from utils.logging_config import setup_logging, get_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-plant-disease-severity-from-p/code/utils/logging_config.py\", line 29, in <module>\n    LOG_DIR = get_path(\"artifacts/logs\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-405-predicting-pl"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-01T02:54:17Z"
+}

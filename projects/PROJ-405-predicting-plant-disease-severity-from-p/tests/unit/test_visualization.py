@@ -1,146 +1,205 @@
 """
-Unit tests for sensitivity analysis threshold sweeping logic.
-Tests T035, T036 from User Story 3.
+Unit tests for visualization module sensitivity analysis threshold sweeping logic.
+
+This module tests the threshold sweeping logic in `code/visualization.py`,
+specifically the `perform_sensitivity_analysis` function which sweeps thresholds
+at absolute deviations {0.01, 0.05, 0.1} from a baseline.
 """
 import pytest
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from unittest.mock import patch, MagicMock
+from pathlib import Path
+import json
+import sys
+import os
 
-# Import the function to test. 
-# Note: The actual implementation logic is expected to be in code/visualization.py.
-# We are testing the logic that calculates metrics across thresholds.
-# Since visualization.py is not yet implemented, we mock the expected interface 
-# or implement a minimal local version of the logic to test the algorithm.
-# However, per constraints, we must test the real implementation.
-# We will assume code/visualization.py will contain `calculate_sensitivity_metrics`.
+# Add the project root to the path to allow imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root / "code"))
 
-try:
-    from code.visualization import calculate_sensitivity_metrics, sweep_thresholds
-except ImportError:
-    # Fallback for testing if implementation is not yet present, 
-    # but per T032 we are implementing the TEST for it.
-    # The test must fail if the implementation is missing or wrong.
-    # We define a stub to allow pytest to discover the test, 
-    # but the test body will assert the real function exists and works.
-    calculate_sensitivity_metrics = None
-    sweep_thresholds = None
+from visualization import perform_sensitivity_analysis
+from config import get_path
 
 
-class TestSensitivityAnalysisThresholdSweeping:
-    """
-    Tests for the sensitivity analysis logic described in T035 and T036.
-    Verifies:
-    1. Thresholds are generated correctly around the 90th percentile.
-    2. F1 scores and False Positive Rates are calculated for each threshold.
-    3. The output structure matches expectations.
-    """
+class TestSensitivityAnalysisThresholdSweep:
+    """Tests for the threshold sweeping logic in sensitivity analysis."""
 
-    def test_threshold_generation_logic(self):
-        """
-        Verify that thresholds are swept at absolute deviations 
-        {0, 0.05, 0.1} from the 90th percentile baseline.
-        """
-        # Mock data: residuals or predicted severity scores
-        # We expect the function to calculate the 90th percentile and add offsets.
-        # Since the implementation is not yet in code/visualization.py, 
-        # we test the expected behavior by mocking the inputs and checking the output structure
-        # if the function exists, or assert failure if it doesn't.
-        
-        if sweep_thresholds is None:
-            # If implementation is missing, this test documents the expected behavior
-            # and will fail until T035 is implemented.
-            pytest.skip("Implementation of sweep_thresholds not yet present in code/visualization.py")
+    @pytest.fixture
+    def mock_results_data(self):
+        """Create mock results data for sensitivity analysis."""
+        return {
+            "hypothesis_test": {
+                "baseline_r2": 0.45,
+                "augmented_r2": 0.52,
+                "p_value": 0.03,
+                "r2_improvement": 0.07
+            },
+            "model_metrics": {
+                "baseline": {"r2": 0.45, "mae": 0.15},
+                "augmented": {"r2": 0.52, "mae": 0.12}
+            }
+        }
 
-        # Generate synthetic residuals for testing the logic
+    @pytest.fixture
+    def mock_sensitivity_input(self):
+        """Create mock input data for sensitivity analysis."""
+        # Simulate a small dataset of predicted residuals and actual residuals
         np.random.seed(42)
-        residuals = np.random.normal(loc=0.0, scale=1.0, size=1000)
-        
-        # Define expected offsets
-        offsets = [0.0, 0.05, 0.1]
-        
-        # Calculate expected baseline
-        baseline = np.percentile(residuals, 90)
-        expected_thresholds = [baseline + off for off in offsets]
-        
-        # Call the function
-        # Assuming signature: sweep_thresholds(residuals, offsets=[0, 0.05, 0.1])
-        # We need to verify the implementation matches this.
-        # For now, we assert the function exists and returns a structured result.
-        result = sweep_thresholds(residuals, offsets=offsets)
-        
-        assert isinstance(result, list), "Result should be a list of metrics per threshold"
-        assert len(result) == len(expected_thresholds), "Should have metrics for each threshold"
-        
-        for i, res in enumerate(result):
-            assert "threshold" in res, f"Missing 'threshold' in result {i}"
-            assert abs(res["threshold"] - expected_thresholds[i]) < 1e-6, f"Threshold mismatch at {i}"
-            assert "f1_score" in res, f"Missing 'f1_score' in result {i}"
-            assert "false_positive_rate" in res, f"Missing 'false_positive_rate' in result {i}"
+        n_samples = 100
+        return pd.DataFrame({
+            "predicted_residual": np.random.normal(0, 0.1, n_samples),
+            "actual_residual": np.random.normal(0, 0.1, n_samples)
+        })
 
-    def test_metrics_calculation(self):
-        """
-        Verify that F1 and FPR are calculated correctly for a known threshold.
-        """
-        if calculate_sensitivity_metrics is None:
-            pytest.skip("Implementation of calculate_sensitivity_metrics not yet present")
+    def test_threshold_sweep_values(self, mock_sensitivity_input):
+        """Verify that the sweep uses the correct threshold deviations: {0.01, 0.05, 0.1}."""
+        # We mock the calculation logic to capture the thresholds used
+        captured_thresholds = []
 
-        # Create a simple scenario
-        # True labels: 1 if residual > 0.5, else 0
-        # Predictions: residuals themselves (as score)
-        residuals = np.array([0.1, 0.4, 0.6, 0.9, -0.2, -0.5])
-        true_labels = (residuals > 0.5).astype(int)
-        
-        threshold = 0.5
-        
-        # Expected:
-        # Preds > 0.5: [0.6, 0.9] -> indices 2, 3
-        # True Positives (TP): True label 1 AND Pred > 0.5 -> index 2 (0.6) is TP, index 3 (0.9) is TP. 
-        # Wait, true_labels at 2 is 1, at 3 is 1.
-        # False Positives (FP): True label 0 AND Pred > 0.5 -> None.
-        # False Negatives (FN): True label 1 AND Pred <= 0.5 -> None.
-        # True Negatives (TN): True label 0 AND Pred <= 0.5 -> indices 0, 1, 4, 5.
-        
-        # TP=2, FP=0, FN=0, TN=4
-        # Precision = 2/2 = 1.0
-        # Recall = 2/2 = 1.0
-        # F1 = 1.0
-        # FPR = FP / (FP + TN) = 0 / 4 = 0.0
-        
-        metrics = calculate_sensitivity_metrics(residuals, true_labels, threshold)
-        
-        assert abs(metrics["f1_score"] - 1.0) < 1e-6, "F1 score calculation incorrect"
-        assert abs(metrics["false_positive_rate"] - 0.0) < 1e-6, "FPR calculation incorrect"
+        def mock_calculate_metrics(df, threshold):
+            captured_thresholds.append(threshold)
+            return {"f1": 0.5, "fpr": 0.1}
 
-    def test_sensitivity_report_structure(self):
-        """
-        Verify the structure of the sensitivity report generated by the sweep.
-        """
-        if sweep_thresholds is None:
-            pytest.skip("Implementation of sweep_thresholds not yet present")
+        with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+            # Run the analysis
+            result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
 
-        residuals = np.random.normal(0, 1, 500)
-        # Create dummy true labels for the sake of the test
-        true_labels = (residuals > 0).astype(int)
+        # Verify the expected thresholds were used
+        expected_deviations = {0.01, 0.05, 0.1}
+        actual_deviations = set(captured_thresholds)
         
-        # Mock the internal call to calculate_sensitivity_metrics if needed, 
-        # but here we assume the function handles it.
-        # We need to pass true_labels or have the function generate them?
-        # The task T035 says "sweeping thresholds... calculate and report F1...".
-        # Usually, this requires a ground truth. Since the study is observational,
-        # we might be evaluating against a "severe" definition.
-        # Let's assume the function takes (residuals, ground_truth_labels).
-        
-        # If the implementation uses a fixed definition of 'severe' (e.g., > 90th percentile),
-        # we test that logic.
-        
-        result = sweep_thresholds(residuals, offsets=[0.0, 0.05, 0.1])
-        
-        # Check for required keys in the summary
-        assert "thresholds" in result or all("threshold" in r for r in result), "Missing thresholds"
-        assert "f1_scores" in result or all("f1_score" in r for r in result), "Missing F1 scores"
-        assert "false_positive_rates" in result or all("false_positive_rate" in r for r in result), "Missing FPR"
+        assert expected_deviations == actual_deviations, (
+            f"Expected thresholds {expected_deviations} but got {actual_deviations}. "
+            "The sweep logic must use exactly {0.01, 0.05, 0.1} deviations."
+        )
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_baseline_calculation_logic(self, mock_sensitivity_input):
+        """Verify that the baseline is calculated as the 90th percentile of absolute residuals."""
+        expected_baseline = np.percentile(mock_sensitivity_input["actual_residual"].abs(), 90)
+        
+        # We verify the logic by checking the internal behavior or mocking the baseline calculation
+        # Since the function is internal, we test the output structure which depends on the baseline
+        def mock_calculate_metrics(df, threshold):
+            # Just return a dummy metric
+            return {"f1": 0.5, "fpr": 0.1}
+
+        with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+            result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
+
+        # The result should contain the baseline used
+        assert "baseline" in result, "Result must contain the baseline threshold."
+        assert np.isclose(result["baseline"], expected_baseline, rtol=1e-5), (
+            f"Baseline {result['baseline']} does not match expected 90th percentile {expected_baseline}"
+        )
+
+    def test_metric_calculation_for_each_threshold(self, mock_sensitivity_input):
+        """Verify that metrics are calculated and returned for each swept threshold."""
+        def mock_calculate_metrics(df, threshold):
+            # Return a deterministic metric based on threshold to ensure it's called
+            return {
+                "f1": 0.5 + threshold,
+                "fpr": 0.1 + threshold,
+                "threshold": threshold
+            }
+
+        with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+            result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
+
+        # Check that sensitivity data exists and has entries for each threshold
+        assert "sensitivity_analysis" in result, "Result must contain 'sensitivity_analysis' key."
+        sensitivity_data = result["sensitivity_analysis"]
+        
+        assert "thresholds" in sensitivity_data, "Sensitivity data must contain 'thresholds' list."
+        assert len(sensitivity_data["thresholds"]) == 3, (
+            f"Expected 3 threshold entries, got {len(sensitivity_data['thresholds'])}"
+        )
+
+        # Verify each threshold entry has the required metrics
+        for entry in sensitivity_data["thresholds"]:
+            assert "threshold" in entry, "Each entry must have 'threshold'."
+            assert "f1_score" in entry, "Each entry must have 'f1_score'."
+            assert "false_positive_rate" in entry, "Each entry must have 'false_positive_rate'."
+
+    def test_robustness_report_generation(self, mock_sensitivity_input):
+        """Verify that the robustness report is generated correctly."""
+        def mock_calculate_metrics(df, threshold):
+            return {"f1": 0.5, "fpr": 0.1}
+
+        with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+            result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
+
+        # Verify the robustness flag logic
+        assert "robustness_assessment" in result, "Result must contain 'robustness_assessment'."
+        robustness = result["robustness_assessment"]
+        
+        assert "headline_holds" in robustness, "Robustness assessment must indicate if headline holds."
+        assert isinstance(robustness["headline_holds"], bool), "headline_holds must be a boolean."
+
+    def test_integration_with_mocked_data(self, mock_sensitivity_input):
+        """Integration test to ensure the full flow works without errors."""
+        # Ensure no exceptions are raised during the full flow
+        def mock_calculate_metrics(df, threshold):
+            return {"f1": 0.5, "fpr": 0.1}
+
+        try:
+            with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+                result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
+            
+            # Verify the result structure is complete
+            assert "baseline" in result
+            assert "sensitivity_analysis" in result
+            assert "robustness_assessment" in result
+            assert "thresholds" in result["sensitivity_analysis"]
+            
+        except Exception as e:
+            pytest.fail(f"Sensitivity analysis flow failed: {str(e)}")
+
+    def test_handles_empty_dataframe(self):
+        """Verify that the function handles empty input gracefully."""
+        empty_df = pd.DataFrame(columns=["predicted_residual", "actual_residual"])
+        
+        # The function should either raise a clear error or handle it
+        # We expect it to raise an error if the data is insufficient for percentile calculation
+        with pytest.raises((ValueError, IndexError)):
+            perform_sensitivity_analysis(empty_df, empty_df)
+
+    def test_handles_non_numeric_columns(self):
+        """Verify that the function handles non-numeric data gracefully."""
+        df = pd.DataFrame({
+            "predicted_residual": ["a", "b", "c"],
+            "actual_residual": ["x", "y", "z"]
+        })
+        
+        # Should raise TypeError or similar when trying to compute percentiles on strings
+        with pytest.raises((TypeError, ValueError)):
+            perform_sensitivity_analysis(df, df)
+
+    def test_output_format_matches_spec(self, mock_sensitivity_input):
+        """Verify that the output format matches the specification for results.json."""
+        def mock_calculate_metrics(df, threshold):
+            return {"f1": 0.5, "fpr": 0.1}
+
+        with patch("visualization.calculate_metrics", side_effect=mock_calculate_metrics):
+            result = perform_sensitivity_analysis(mock_sensitivity_input, mock_sensitivity_input)
+
+        # Check top-level keys required by spec
+        required_keys = ["baseline", "sensitivity_analysis", "robustness_assessment"]
+        for key in required_keys:
+            assert key in result, f"Missing required key '{key}' in output."
+
+        # Check sensitivity analysis structure
+        sens = result["sensitivity_analysis"]
+        assert "thresholds" in sens
+        assert isinstance(sens["thresholds"], list)
+        
+        # Check each threshold entry
+        for entry in sens["thresholds"]:
+            assert "threshold" in entry
+            assert "f1_score" in entry
+            assert "false_positive_rate" in entry
+
+        # Check robustness assessment
+        robust = result["robustness_assessment"]
+        assert "headline_holds" in robust
+        assert "variance" in robust

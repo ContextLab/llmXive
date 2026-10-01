@@ -7,3 +7,5 @@ datasets
 matplotlib
 seaborn
 pyyaml
+colorama  # auto-added: imported by run-book but missing from venv
+joblib  # auto-added: imported by run-book but missing from venv

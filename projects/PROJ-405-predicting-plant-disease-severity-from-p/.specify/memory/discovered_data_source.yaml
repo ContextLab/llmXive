@@ -1,18 +1,19 @@
 status: none
-intent: PlantVillage image dataset NOAA Integrated Surface Database weather python
-  package dataset
+intent: PlantVillage image dataset and NOAA Integrated Surface Database NASA POWER
+  ERA5 Meteostat historical weather python package dataset
 required_fields:
 - image_id
 - plant_species
+- disease_label
 - capture_date
-- latitude
-- longitude
+- capture_latitude
+- capture_longitude
 - lesion_area_ratio
 - necrosis_color_index
 - texture_entropy
 - mean_temperature_7d
 - mean_humidity_7d
 - total_precipitation_7d
-cache_key: 1340e515e51d76f90ec979bcafb5896c349a827196a0e1252136c74db36cc628
-searched_at: '2026-09-23T09:25:47.932803+00:00'
+cache_key: 914b704dc59549e34e75ab59606d07d8ae1793907b704bfaab9c6cffa858adaa
+searched_at: '2026-10-01T02:54:57.619832+00:00'
 retry_count: 1

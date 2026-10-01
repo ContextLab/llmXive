@@ -1,12 +1,11 @@
-T020:
+T016a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, CSV outputs, model artifacts, or test results were provided;\
-    \ therefore the required ingestion script, visual feature calculations, weather\
-    \ linking, baseline and augmented models, or permutation\u2011test results cannot\
-    \ be verified. The implementer must supply the actual pipeline scripts and resulting\
-    \ output artifacts (e.g., the unified dataset CSV, model performance metrics,\
-    \ and p\u2011value from the permutation test)."
+  h: ed51aed7b8a9851df65b25380f7b9e5cdea8924c7780409c902da5307acae8b2
+  r: The repository lacks a `merge_data()` function in `code/data_ingestion.py` (the
+    shown code stops after a partial `download_plantvillage` implementation and never
+    defines the required merging logic). Moreover, the expected output file `data/processed/unified_analysis.csv`
+    is absent. Both the core function and its resulting CSV are missing, so the task
+    is not satisfied.
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,3 +13,10 @@ T040:
     empty JSON containing the required metrics (R\xB2, MAE, p\u2011value, sensitivity\
     \ data). The implementer\u2019s claim consists only of task description, not the\
     \ actual artifact."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file (or updated version) was presented, and there is no evidence\
+    \ that the document now contains the required clarification about the 7\u2011\
+    day window being a fixed parameter in `config.py`. The implementer must provide\
+    \ the updated `plan.md` with the specified sentence."

@@ -10,3 +10,5 @@ pyyaml
 pytest
 ruff
 black
+pillow
+pickle
