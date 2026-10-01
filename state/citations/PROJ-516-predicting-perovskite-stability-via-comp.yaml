@@ -9,40 +9,40 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/3a7b7d6e7a2d425aa67611a30f752cac95ea684d/BSEBENCH_SOURCE.json?%2Fdatasets%2Fbsebench-org%2Fnrel-pulse-diagnostics-2025-raw%2Fresolve%2Fmain%2FBSEBENCH_SOURCE.json=&etag=%224992767d453b219cc7d2967fa61735644b2265bd%22
   verified_at: '2026-07-05T14:22:28.440529Z'
-- artifact_hash: c094968155a5614b55ac9fe2c0345e8f9620cee18d6d0fa8843381e17144c7c0
+- artifact_hash: 18165a3a19fceaa74fbbb0cf9113ae3ca9c15f3c8906e28dca2b9594bd065624
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://developer.nrel.gov/api/perovskite/v1/data?api_key={API_KEY}&format=json`
+  value: https://developer.nrel.gov/api/pv/perovskite-stability.json`
   verification_status: unreachable
-  verified_against_url: https://developer.nrel.gov/api/perovskite/v1/data?api_key={API_KEY}&format=json
-  verified_at: '2026-09-29T09:23:35.528717Z'
-- artifact_hash: c094968155a5614b55ac9fe2c0345e8f9620cee18d6d0fa8843381e17144c7c0
+  verified_against_url: https://developer.nrel.gov/api/pv/perovskite-stability.json
+  verified_at: '2026-10-01T00:09:30.432208Z'
+- artifact_hash: 18165a3a19fceaa74fbbb0cf9113ae3ca9c15f3c8906e28dca2b9594bd065624
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Materials Project API - Swagger UI
   kind: url
-  value: https://materialsproject.org/rest/v2/materials`
+  value: https://api.materialsproject.org`
   verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials
-  verified_at: '2026-09-29T09:23:35.528717Z'
-- artifact_hash: c094968155a5614b55ac9fe2c0345e8f9620cee18d6d0fa8843381e17144c7c0
+  verified_against_url: https://api.materialsproject.org/docs
+  verified_at: '2026-10-01T00:09:30.432208Z'
+- artifact_hash: 18165a3a19fceaa74fbbb0cf9113ae3ca9c15f3c8906e28dca2b9594bd065624
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: files
   kind: url
-  value: https://zenodo.org/record/10972088/files/literature_validation.csv?download=1`
-  verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/10972088/files/literature_validation.csv
-  verified_at: '2026-09-29T09:23:35.528717Z'
-- artifact_hash: c094968155a5614b55ac9fe2c0345e8f9620cee18d6d0fa8843381e17144c7c0
+  value: https://zenodo.org/api/records/10972088/files`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/api/records/10972088/files
+  verified_at: '2026-10-01T00:09:30.432208Z'
+- artifact_hash: 18165a3a19fceaa74fbbb0cf9113ae3ca9c15f3c8906e28dca2b9594bd065624
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -52,4 +52,4 @@
   value: 10.5281/zenodo.10972088
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10972088
-  verified_at: '2026-09-29T09:23:35.528717Z'
+  verified_at: '2026-10-01T00:09:30.432208Z'

@@ -1,199 +1,123 @@
-"""
-Unit tests for write_metadata.py (Task T013b).
-"""
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 import pandas as pd
+from unittest.mock import patch, MagicMock
 
 # Import the module under test
+# Note: We need to ensure the path is set up correctly for imports
 import sys
-from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from write_metadata import (
-    load_raw_data,
-    validate_metadata_structure,
-    process_metadata_entries,
-    main
-)
-from data_ingestion_metadata import parse_uncertainty, extract_instrument_model
-
-class TestLoadRawData:
-    def test_load_raw_data_success(self, tmp_path):
-        """Test loading a valid CSV file."""
-        csv_path = tmp_path / "test.csv"
-        df_content = """formula,T_d,metadata_text
-        CsPbI3,350,TA Instruments Q500, ±5°C
-        MAPbBr3,400,Mettler Toledo TGA/DSC, precision ±10°C
-        """
-        csv_path.write_text(df_content)
-        
-        with patch("write_metadata.RAW_DATA_PATH", csv_path):
-            df = load_raw_data()
-            assert len(df) == 2
-            assert "formula" in df.columns
-            assert "T_d" in df.columns
-            assert "metadata_text" in df.columns
-
-    def test_load_raw_data_missing_file(self, tmp_path):
-        """Test loading when file does not exist."""
-        with patch("write_metadata.RAW_DATA_PATH", tmp_path / "nonexistent.csv"):
-            with pytest.raises(FileNotFoundError):
-                load_raw_data()
-
-    def test_load_raw_data_missing_columns(self, tmp_path):
-        """Test loading when required columns are missing."""
-        csv_path = tmp_path / "test.csv"
-        csv_path.write_text("formula,T_d\nCsPbI3,350\n")
-        
-        with patch("write_metadata.RAW_DATA_PATH", csv_path):
-            with pytest.raises(ValueError, match="Missing required columns"):
-                load_raw_data()
-
-class TestValidateMetadataStructure:
-    def test_valid_structure(self):
-        """Test validation with valid metadata structure."""
-        entries = [
-            {
-                "index": 0,
-                "formula": "CsPbI3",
-                "instrument_model": "TA Instruments Q500",
-                "uncertainty": {
-                    "unit": "Celsius",
-                    "type": "single",
-                    "value": 5.0
-                },
-                "raw_metadata_text": "TA Instruments Q500, ±5°C"
-            }
-        ]
-        assert validate_metadata_structure(entries) is True
-
-    def test_invalid_entry_type(self):
-        """Test validation when an entry is not a dict."""
-        entries = ["not a dict"]
-        assert validate_metadata_structure(entries) is False
-
-    def test_missing_field(self):
-        """Test validation when a required field is missing."""
-        entries = [
-            {
-                "index": 0,
-                "formula": "CsPbI3",
-                # Missing instrument_model, uncertainty, raw_metadata_text
-            }
-        ]
-        assert validate_metadata_structure(entries) is False
-
-    def test_invalid_uncertainty_type(self):
-        """Test validation when uncertainty type is invalid."""
-        entries = [
-            {
-                "index": 0,
-                "formula": "CsPbI3",
-                "instrument_model": "TA Instruments Q500",
-                "uncertainty": {
-                    "unit": "Celsius",
-                    "type": "invalid_type",
-                    "value": 5.0
-                },
-                "raw_metadata_text": "TA Instruments Q500, ±5°C"
-            }
-        ]
-        assert validate_metadata_structure(entries) is False
-
-    def test_invalid_uncertainty_unit(self):
-        """Test validation when uncertainty unit is invalid."""
-        entries = [
-            {
-                "index": 0,
-                "formula": "CsPbI3",
-                "instrument_model": "TA Instruments Q500",
-                "uncertainty": {
-                    "unit": "Kelvin",
-                    "type": "single",
-                    "value": 5.0
-                },
-                "raw_metadata_text": "TA Instruments Q500, ±5°C"
-            }
-        ]
-        assert validate_metadata_structure(entries) is False
+from write_metadata import process_metadata_entries, validate_metadata_structure, main
 
 class TestProcessMetadataEntries:
-    def test_process_entries(self):
-        """Test processing dataframe entries into metadata structure."""
-        df = pd.DataFrame({
-            "formula": ["CsPbI3", "MAPbBr3"],
-            "T_d": [350, 400],
-            "metadata_text": [
-                "TA Instruments Q500, ±5°C",
-                "Mettler Toledo TGA/DSC, precision ±10°C"
-            ]
-        })
+    def test_process_valid_records(self):
+        """Test processing records with valid instrument metadata."""
+        records = [
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments", "manufacturer": "TA Instruments", "source": "NREL"},
+            {"formula": "FAPbI3", "instrument_model": "Mettler Toledo", "manufacturer": "Mettler Toledo", "source": "MP"}
+        ]
+        result = process_metadata_entries(records)
         
-        entries = process_metadata_entries(df)
+        assert len(result) == 2
+        assert result[0]["formula"] == "CsPbI3"
+        assert result[0]["instrument_model"] == "TA Instruments"
+        assert result[0]["manufacturer"] == "TA Instruments"
+        assert result[0]["precision_source"] == "source"
         
-        assert len(entries) == 2
+        assert result[1]["formula"] == "FAPbI3"
+        assert result[1]["instrument_model"] == "Mettler Toledo"
+        assert result[1]["manufacturer"] == "Mettler Toledo"
+        assert result[1]["precision_source"] == "source"
+
+    def test_process_missing_instrumentation(self):
+        """Test processing records with missing instrument metadata."""
+        records = [
+            {"formula": "CsPbI3", "source": "NREL"},
+            {"formula": "FAPbI3", "source": "MP"}
+        ]
+        result = process_metadata_entries(records)
         
-        # Check first entry
-        assert entries[0]["formula"] == "CsPbI3"
-        assert entries[0]["index"] == 0
-        assert entries[0]["instrument_model"] == "TA Instruments Q500"
-        assert entries[0]["uncertainty"]["type"] == "single"
-        assert entries[0]["uncertainty"]["value"] == 5.0
+        assert len(result) == 2
+        # Should default to Unknown
+        assert result[0]["instrument_model"] == "Unknown"
+        assert result[0]["manufacturer"] == "Unknown"
+        assert result[0]["precision_source"] == "default"
+
+    def test_process_partial_instrumentation(self):
+        """Test processing records with partial instrument metadata."""
+        records = [
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments", "source": "NREL"},
+            {"formula": "FAPbI3", "manufacturer": "Mettler Toledo", "source": "MP"}
+        ]
+        result = process_metadata_entries(records)
         
-        # Check second entry
-        assert entries[1]["formula"] == "MAPbBr3"
-        assert entries[1]["index"] == 1
-        assert entries[1]["instrument_model"] == "Mettler Toledo TGA/DSC"
-        assert entries[1]["uncertainty"]["type"] == "single"
-        assert entries[1]["uncertainty"]["value"] == 10.0
+        # Should default to Unknown if either is missing
+        assert result[0]["instrument_model"] == "Unknown"
+        assert result[0]["manufacturer"] == "Unknown"
+        assert result[0]["precision_source"] == "default"
+
+class TestValidateMetadataStructure:
+    def test_valid_metadata(self):
+        """Test validation of correctly structured metadata."""
+        metadata = [
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments", "manufacturer": "TA Instruments", "precision_source": "source"},
+            {"formula": "FAPbI3", "instrument_model": "Unknown", "manufacturer": "Unknown", "precision_source": "default"}
+        ]
+        assert validate_metadata_structure(metadata) is True
+
+    def test_missing_keys(self):
+        """Test validation fails on missing keys."""
+        metadata = [
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments"}
+        ]
+        assert validate_metadata_structure(metadata) is False
+
+    def test_invalid_precision_source(self):
+        """Test validation fails on invalid precision_source value."""
+        metadata = [
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments", "manufacturer": "TA Instruments", "precision_source": "invalid"}
+        ]
+        assert validate_metadata_structure(metadata) is False
+
+    def test_non_dict_entry(self):
+        """Test validation fails on non-dictionary entry."""
+        metadata = [
+            "not a dict"
+        ]
+        assert validate_metadata_structure(metadata) is False
 
 class TestMain:
-    @patch("write_metadata.load_raw_data")
-    @patch("write_metadata.process_metadata_entries")
-    @patch("write_metadata.validate_metadata_structure")
-    @patch("write_metadata.METADATA_OUTPUT_PATH")
-    def test_main_success(self, mock_path, mock_validate, mock_process, mock_load, tmp_path):
-        """Test successful execution of main function."""
-        mock_load.return_value = pd.DataFrame({
-            "formula": ["CsPbI3"],
-            "T_d": [350],
-            "metadata_text": ["TA Instruments Q500, ±5°C"]
-        })
-        mock_process.return_value = [
-            {
-                "index": 0,
-                "formula": "CsPbI3",
-                "instrument_model": "TA Instruments Q500",
-                "uncertainty": {"unit": "Celsius", "type": "single", "value": 5.0},
-                "raw_metadata_text": "TA Instruments Q500, ±5°C"
-            }
-        ]
-        mock_validate.return_value = True
-        
-        # Create a temporary file for output
-        output_file = tmp_path / "metadata.json"
-        mock_path.__truediv__.return_value = output_file
-        mock_path.__fspath__.return_value = str(output_file)
-        
-        # Patch the Path.exists and stat methods
-        with patch.object(type(output_file), 'exists', return_value=True):
-            with patch.object(type(output_file), 'stat') as mock_stat:
-                mock_stat.return_value = MagicMock(st_size=100)
+    def test_main_success(self, tmp_path):
+        """Test main function executes successfully."""
+        # Create a temporary CSV file
+        csv_path = tmp_path / "perovskites_merged.csv"
+        df = pd.DataFrame([
+            {"formula": "CsPbI3", "instrument_model": "TA Instruments", "manufacturer": "TA Instruments", "source": "NREL"},
+            {"formula": "FAPbI3", "source": "MP"}
+        ])
+        df.to_csv(csv_path, index=False)
+
+        # Mock the paths
+        with patch('write_metadata.RAW_DATA_PATH', csv_path), \
+             patch('write_metadata.METADATA_OUTPUT_PATH', tmp_path / "metadata.json"), \
+             patch('write_metadata.FALLBACK_LOG_PATH', tmp_path / "instrumentation_fallbacks.log"):
+            main()
+
+            # Check output file exists
+            output_path = tmp_path / "metadata.json"
+            assert output_path.exists()
+            
+            # Check content
+            with open(output_path) as f:
+                data = json.load(f)
+            assert len(data) == 2
+
+    def test_main_missing_input(self, tmp_path):
+        """Test main function fails when input file is missing."""
+        with patch('write_metadata.RAW_DATA_PATH', tmp_path / "nonexistent.csv"):
+            with pytest.raises(SystemExit):
                 main()
-        
-        # Verify output file was created
-        assert output_file.exists()
-        
-        # Verify content
-        with open(output_file) as f:
-            data = json.load(f)
-            assert "processed_at" in data
-            assert "source_file" in data
-            assert "entries" in data
-            assert len(data["entries"]) == 1

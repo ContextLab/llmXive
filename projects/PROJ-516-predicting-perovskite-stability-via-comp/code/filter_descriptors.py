@@ -1,132 +1,165 @@
+"""
+T015a: Filter descriptor dataset by missing values.
+
+Excludes entries with >= 2 missing descriptor values and logs exclusion counts.
+Writes filtered dataset to data/processed/descriptors_filtered.csv.
+Writes exclusion log to data/processed/exclusion_log.csv.
+"""
 import logging
 import sys
 from pathlib import Path
 from typing import Tuple
+
 import pandas as pd
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
-# Define the input and output paths based on project conventions
-INPUT_PATH = Path("data/processed/descriptors.csv")
-OUTPUT_PATH = Path("data/processed/descriptors_filtered.csv")
-MISSING_THRESHOLD = 2
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors_features.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors_filtered.csv"
+LOG_PATH = PROJECT_ROOT / "data" / "processed" / "exclusion_log.csv"
 
-def load_descriptors(path: Path) -> pd.DataFrame:
-    """Load the descriptors CSV file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {path}")
-    
-    df = pd.read_csv(path)
-    logger.info(f"Loaded {len(df)} rows from {path}")
+# Columns to check for missing values (descriptor columns)
+# Based on T014b, T014c, T014e outputs:
+DESCRIPTOR_COLUMNS = [
+    "atomic_fraction_A",
+    "atomic_fraction_B",
+    "atomic_fraction_X",
+    "weighted_ionic_radius",
+    "weighted_electronegativity",
+    "weighted_formation_enthalpy",
+    "first_ionization_energy",
+    "variance_ionic_radius",
+    "variance_electronegativity",
+]
+
+# Columns that should be present but are not checked for missing values
+# (e.g., formula, T_d, perovskite_family, total_uncertainty, etc.)
+NON_DESCRIPTOR_COLUMNS = [
+    "formula",
+    "T_d",
+    "source",
+    "perovskite_family",
+    "total_uncertainty",
+    "instrument_model",
+    "manufacturer",
+    "precision_source",
+    "precision_from_registry",
+    "precision_celsius",
+    "heating_rate",
+]
+
+def load_descriptors() -> pd.DataFrame:
+    """Load the descriptors dataset."""
+    if not INPUT_PATH.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {INPUT_PATH}. "
+            "Run T014c (feature engineering) before T015a."
+        )
+    logger.info(f"Loading descriptors from {INPUT_PATH}")
+    df = pd.read_csv(INPUT_PATH)
+    logger.info(f"Loaded {len(df)} rows")
     return df
 
-def count_missing_values(df: pd.DataFrame, columns: list) -> pd.Series:
+def count_missing_values(df: pd.DataFrame) -> pd.Series:
+    """Count missing values per row for descriptor columns."""
+    return df[DESCRIPTOR_COLUMNS].isna().sum(axis=1)
+
+def filter_entries(df: pd.DataFrame, threshold: int = 2) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Count the number of missing values per row for a specific set of columns.
-    
-    Args:
-        df: The input DataFrame.
-        columns: List of column names to check for missing values.
-        
+    Filter entries with >= threshold missing descriptor values.
+
     Returns:
-        A Series with the count of missing values for each row.
+        Tuple of (filtered_df, excluded_df)
     """
-    if not columns:
-        # If no columns specified, check all numeric/object columns
-        cols_to_check = df.select_dtypes(include=['number', 'object', 'string']).columns.tolist()
-    else:
-        # Validate that requested columns exist
-        missing_cols = [c for c in columns if c not in df.columns]
-        if missing_cols:
-            logger.warning(f"Requested columns not found in DataFrame: {missing_cols}")
-            cols_to_check = [c for c in columns if c in df.columns]
-        else:
-            cols_to_check = columns
+    missing_counts = count_missing_values(df)
+    excluded_mask = missing_counts >= threshold
+    filtered_mask = ~excluded_mask
 
-    if not cols_to_check:
-        return pd.Series([0] * len(df), index=df.index)
+    filtered_df = df[filtered_mask].reset_index(drop=True)
+    excluded_df = df[excluded_mask].copy()
+    excluded_df["missing_count"] = missing_counts[excluded_mask]
 
-    return df[cols_to_check].isna().sum(axis=1)
+    logger.info(f"Total rows: {len(df)}")
+    logger.info(f"Rows with >= {threshold} missing descriptors: {excluded_mask.sum()}")
+    logger.info(f"Rows kept: {filtered_mask.sum()}")
 
-def filter_entries(df: pd.DataFrame, threshold: int = MISSING_THRESHOLD) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Filter out entries that have >= threshold missing descriptor values.
-    
-    Args:
-        df: The input DataFrame.
-        threshold: The minimum number of missing values that triggers exclusion.
-        
-    Returns:
-        A tuple of (filtered_df, excluded_df).
-    """
-    # Identify descriptor columns. Usually these are the feature columns, 
-    # excluding metadata like 'formula', 'source', 'T_d', 'perovskite_family', 'T_d_uncertainty'.
-    # We assume the target variable and metadata should not count towards "descriptor missingness"
-    # for the purpose of feature availability, but if the task implies "any data column",
-    # we adjust. Based on typical ML pipelines, we filter based on feature columns.
-    
-    exclude_from_check = {'formula', 'source', 'T_d', 'perovskite_family', 'T_d_uncertainty', 'index'}
-    feature_cols = [c for c in df.columns if c not in exclude_from_check]
-    
-    if not feature_cols:
-        logger.warning("No feature columns found to check for missing values.")
-        return df, pd.DataFrame()
-
-    missing_counts = count_missing_values(df, feature_cols)
-    
-    mask = missing_counts < threshold
-    filtered_df = df[mask].copy()
-    excluded_df = df[~mask].copy()
-    
     return filtered_df, excluded_df
 
-def save_filtered_data(filtered_df: pd.DataFrame, output_path: Path) -> None:
-    """Save the filtered DataFrame to a CSV file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(filtered_df)} rows to {output_path}")
+def save_filtered_data(df: pd.DataFrame, path: Path) -> None:
+    """Save the filtered dataset."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Saved filtered dataset to {path} ({len(df)} rows)")
 
-def log_exclusion_counts(total: int, kept: int, excluded: int, excluded_df: pd.DataFrame) -> None:
-    """Log the exclusion statistics."""
-    logger.info(f"Total entries: {total}")
-    logger.info(f"Entries kept: {kept}")
-    logger.info(f"Entries excluded (>= {MISSING_THRESHOLD} missing descriptors): {excluded}")
-    
-    if excluded > 0:
-        logger.warning(f"Excluded {excluded} entries due to excessive missing data.")
-        # Log sample of excluded formulas if available
-        if 'formula' in excluded_df.columns:
-            sample_formulas = excluded_df['formula'].head(5).tolist()
-            logger.info(f"Sample excluded formulas: {sample_formulas}")
-    else:
-        logger.info("No entries were excluded.")
+def log_exclusion_counts(excluded_df: pd.DataFrame, log_path: Path) -> None:
+    """Log exclusion counts to a CSV file."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
-def main():
-    """Main entry point for the filtering task."""
-    logger.info(f"Starting descriptor filtering. Threshold: >= {MISSING_THRESHOLD} missing values.")
-    
+    # Create a summary of exclusion counts
+    summary_data = []
+    if not excluded_df.empty:
+        missing_counts = excluded_df["missing_count"]
+        for count in sorted(missing_counts.unique()):
+            summary_data.append({
+                "missing_count": count,
+                "excluded_count": (missing_counts == count).sum(),
+            })
+
+    summary_df = pd.DataFrame(summary_data)
+
+    # Also include formula details for debugging
+    if not excluded_df.empty:
+        excluded_df["missing_count"] = excluded_df["missing_count"].astype(int)
+        details_df = excluded_df[["formula", "missing_count"]]
+        details_df.to_csv(log_path.with_name("exclusion_details.csv"), index=False)
+        logger.info(f"Saved exclusion details to {log_path.with_name('exclusion_details.csv')}")
+
+    summary_df.to_csv(log_path, index=False)
+    logger.info(f"Saved exclusion summary to {log_path}")
+
+def main() -> None:
+    """Main entry point for T015a."""
+    logger.info("Starting T015a: Filter descriptors by missing values")
+
     try:
         # Load data
-        df = load_descriptors(INPUT_PATH)
-        
-        # Filter
-        filtered_df, excluded_df = filter_entries(df, threshold=MISSING_THRESHOLD)
-        
-        # Log results
-        log_exclusion_counts(len(df), len(filtered_df), len(excluded_df), excluded_df)
-        
-        # Save
+        df = load_descriptors()
+
+        # Verify required columns exist
+        missing_cols = [col for col in DESCRIPTOR_COLUMNS if col not in df.columns]
+        if missing_cols:
+            raise ValueError(
+                f"Missing required descriptor columns: {missing_cols}. "
+                f"Available columns: {df.columns.tolist()}"
+            )
+
+        # Filter entries
+        filtered_df, excluded_df = filter_entries(df, threshold=2)
+
+        # Save filtered dataset
         save_filtered_data(filtered_df, OUTPUT_PATH)
-        
-        logger.info("Filtering completed successfully.")
-        
+
+        # Log exclusion counts
+        log_exclusion_counts(excluded_df, LOG_PATH)
+
+        logger.info("T015a completed successfully")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during filtering: {e}", exc_info=True)
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

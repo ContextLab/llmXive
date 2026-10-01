@@ -1,9 +1,25 @@
 """
-T013 Implementation: Metadata parsing and validation.
+write_metadata.py
+Implements metadata parsing, validation, and instrumentation fallback merging.
 
-Parses TGA model/precision from source metadata using T042, extracts
-instrument_model and manufacturer from source metadata or assigns default
-'Unknown' with a warning, and writes structured metadata to data/raw/metadata.json.
+This script:
+1. Loads the merged perovskite dataset from data/raw/perovskites_merged.csv.
+2. Parses source metadata to extract TGA instrument details.
+3. Uses the instrument registry to determine precision sources.
+4. Merges instrumentation fallback information into the metadata.
+5. Writes the final metadata to data/raw/metadata.json.
+
+Output Schema:
+[
+  {
+    "formula": str,
+    "instrument_model": str,
+    "manufacturer": str,
+    "precision_source": "source" | "registry" | "default",
+    "precision_from_registry": bool,
+    "precision_value": float
+  }
+]
 """
 import json
 import logging
@@ -15,158 +31,178 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from code.utils.instrument_registry import get_precision, reload_registry
 from code.utils.uncertainty_parser import parse_temperature_precision
-from code.utils.instrument_registry import get_instrument_precision, get_precision_source
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-MERGED_DATA_PATH = DATA_RAW_DIR / "perovskites_merged.csv"
-OUTPUT_METADATA_PATH = DATA_RAW_DIR / "metadata.json"
+# Paths
+MERGED_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "perovskites_merged.csv"
+METADATA_OUTPUT_PATH = PROJECT_ROOT / "data" / "raw" / "metadata.json"
+FALLBACK_LOG_PATH = PROJECT_ROOT / "data" / "raw" / "instrumentation_fallbacks.log"
 
-def load_raw_data() -> pd.DataFrame:
+def load_merged_perovskites() -> pd.DataFrame:
     """Load the merged perovskite dataset."""
     if not MERGED_DATA_PATH.exists():
-        logger.error(f"Merged data file not found: {MERGED_DATA_PATH}")
-        raise FileNotFoundError(f"Merged data file not found: {MERGED_DATA_PATH}")
-    
+        raise FileNotFoundError(
+            f"Merged data file not found: {MERGED_DATA_PATH}. "
+            "Run T012e (merge logic) first."
+        )
     df = pd.read_csv(MERGED_DATA_PATH)
-    logger.info(f"Loaded {len(df)} rows from {MERGED_DATA_PATH}")
+    logger.info(f"Loaded {len(df)} records from {MERGED_DATA_PATH}")
     return df
 
-def validate_metadata_structure(entries: List[Dict[str, Any]]) -> bool:
+def parse_source_metadata(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
-    Validate that metadata entries conform to the required schema.
-    Schema: list of objects with keys: formula, instrument_model, manufacturer, precision_source
+    Extract instrumentation metadata from source data.
+    
+    Checks for 'instrument_model', 'manufacturer', and 'temperature_precision'
+    in the dataframe columns or metadata fields.
     """
-    required_keys = {"formula", "instrument_model", "manufacturer", "precision_source"}
-    valid_sources = {"source", "registry"}
-
-    for i, entry in enumerate(entries):
-        if not isinstance(entry, dict):
-            logger.error(f"Entry {i} is not a dictionary: {type(entry)}")
-            return False
+    records = []
+    
+    # Ensure we have the necessary columns, defaulting if missing
+    if 'instrument_model' not in df.columns:
+        logger.warning("Column 'instrument_model' not found in merged data. Defaulting to 'Unknown'.")
+    if 'manufacturer' not in df.columns:
+        logger.warning("Column 'manufacturer' not found in merged data. Defaulting to 'Unknown'.")
         
-        if not required_keys.issubset(entry.keys()):
-            missing = required_keys - set(entry.keys())
-            logger.error(f"Entry {i} missing keys: {missing}")
-            return False
+    for idx, row in df.iterrows():
+        record = {
+            "formula": row.get('formula', 'Unknown'),
+            "instrument_model": str(row.get('instrument_model', 'Unknown')).strip() or 'Unknown',
+            "manufacturer": str(row.get('manufacturer', 'Unknown')).strip() or 'Unknown',
+            "precision_source": "default",
+            "precision_from_registry": False,
+            "precision_value": 10.0  # Default fallback
+        }
         
-        if entry["precision_source"] not in valid_sources:
-            logger.error(f"Entry {i} has invalid precision_source: {entry['precision_source']}")
-            return False
+        # Try to parse precision if available
+        precision_raw = row.get('temperature_precision')
+        if precision_raw is not None and precision_raw != '':
+            parsed_prec = parse_temperature_precision(precision_raw)
+            if parsed_prec is not None:
+                record["precision_value"] = parsed_prec
+        
+        records.append(record)
+        
+    return records
 
+def process_metadata_entries(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Process each metadata entry to determine precision provenance.
+    
+    Updates:
+    - precision_source: 'source' if from data, 'registry' if from registry lookup, 'default' if fallback
+    - precision_from_registry: True if the value came from instrument_registry.csv
+    """
+    # Reload registry to ensure fresh data
+    reload_registry()
+    
+    fallback_entries = []
+    
+    for record in records:
+        model = record["instrument_model"]
+        
+        if model == 'Unknown':
+            # Missing instrumentation data
+            record["precision_source"] = "default"
+            record["precision_from_registry"] = False
+            fallback_entries.append({
+                "formula": record["formula"],
+                "source": "Unknown Model",
+                "default_precision_used": True,
+                "message": "Instrument model missing"
+            })
+            continue
+        
+        # Attempt to get precision from registry
+        precision_val = get_precision(model)
+        
+        if precision_val is not None and precision_val != 10.0:
+            # Found in registry with specific value
+            record["precision_source"] = "registry"
+            record["precision_from_registry"] = True
+            record["precision_value"] = precision_val
+        elif precision_val == 10.0 and model != 'Unknown':
+            # Model exists but no specific precision in registry, or registry default used
+            # If the registry returns the default (10.0) for a known model, 
+            # we mark it as registry-derived but with default precision
+            record["precision_source"] = "registry"
+            record["precision_from_registry"] = True
+            record["precision_value"] = 10.0
+        else:
+            # Not in registry or unknown
+            record["precision_source"] = "default"
+            record["precision_from_registry"] = False
+            record["precision_value"] = 10.0
+            fallback_entries.append({
+                "formula": record["formula"],
+                "source": model,
+                "default_precision_used": True,
+                "message": f"Instrument '{model}' not in registry"
+            })
+            
+    # Log fallbacks
+    if fallback_entries:
+        logger.info(f"Found {len(fallback_entries)} entries with missing or registry-fallback instrumentation.")
+        with open(FALLBACK_LOG_PATH, 'w') as f:
+            for entry in fallback_entries:
+                f.write(json.dumps(entry) + '\n')
+        logger.info(f"Wrote fallback log to {FALLBACK_LOG_PATH}")
+        
+    return records
+
+def validate_metadata_structure(records: List[Dict[str, Any]]) -> bool:
+    """Validate that all records have required fields."""
+    required_fields = ["formula", "instrument_model", "manufacturer", "precision_source", "precision_from_registry", "precision_value"]
+    
+    for i, record in enumerate(records):
+        for field in required_fields:
+            if field not in record:
+                logger.error(f"Record {i} missing required field: {field}")
+                return False
     return True
 
-def process_metadata_entries(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Process dataframe rows to extract metadata.
-    - Parse TGA model/precision from source metadata using T042 (via uncertainty_parser).
-    - Extract instrument_model and manufacturer from source metadata or assign default 'Unknown'.
-    - Determine precision_source ("source" if found in metadata, "registry" if looked up).
-    """
-    metadata_entries = []
-    fallback_count = 0
-
-    for idx, row in df.iterrows():
-        formula = str(row.get("formula", ""))
-        
-        # Extract instrument_model and manufacturer from source metadata columns if available
-        # Assuming columns might be named 'instrument_model', 'manufacturer', or similar in source
-        # If not present, we check for generic metadata fields or default
-        instrument_model = None
-        manufacturer = None
-        precision_source = "registry" # Default to registry lookup logic
-
-        # Attempt to extract from standard columns if they exist in the merged CSV
-        # The merged CSV might have 'instrument_model' and 'manufacturer' from T012c merge logic
-        if "instrument_model" in row and pd.notna(row["instrument_model"]):
-            instrument_model = str(row["instrument_model"])
-            precision_source = "source"
-        else:
-            instrument_model = "Unknown"
-            fallback_count += 1
-            logger.warning(f"Formula {formula}: Missing instrument_model, assigning 'Unknown'")
-
-        if "manufacturer" in row and pd.notna(row["manufacturer"]):
-            manufacturer = str(row["manufacturer"])
-        else:
-            manufacturer = "Unknown"
-            if precision_source == "source": # Only warn if we found the instrument but not manufacturer
-                 logger.warning(f"Formula {formula}: Missing manufacturer, assigning 'Unknown'")
-            # If instrument was also missing, we already warned above
-
-        # If we have a specific instrument model, we might still need to look up precision if not in metadata
-        # But T013 specifically asks for metadata parsing.
-        # The task says: "parse TGA model/precision from source metadata using T042"
-        # T042 (uncertainty_parser) parses temperature_precision.
-        # We assume the source metadata (if available in the row) contains 'temperature_precision' or similar.
-        
-        # Let's assume the merged data has columns: 'temperature_precision' or 'precision'
-        # If not, we rely on the registry for the *value* of precision, but the *source* of the metadata entry
-        # is what we are logging here.
-        
-        # For T013, we just need to output the metadata record.
-        # The precision value itself is calculated in T013b/T043.
-        # Here we just record the source of the instrument info.
-
-        entry = {
-            "formula": formula,
-            "instrument_model": instrument_model,
-            "manufacturer": manufacturer,
-            "precision_source": precision_source
-        }
-        metadata_entries.append(entry)
-
-    if fallback_count > 0:
-        logger.warning(f"Total entries with missing instrument_model: {fallback_count}")
-        # Log to instrumentation_fallbacks.log as per T047a requirements (though T013 is about metadata.json)
-        fallback_log_path = DATA_RAW_DIR / "instrumentation_fallbacks.log"
-        with open(fallback_log_path, "w") as f:
-            f.write(f"Timestamp: {datetime.now().isoformat()}\n")
-            f.write(f"Count: {fallback_count}\n")
-            for entry in metadata_entries:
-                if entry["instrument_model"] == "Unknown":
-                    f.write(f"{entry['formula']}\n")
-
-    return metadata_entries
-
 def main():
-    """Main entry point for T013."""
-    logger.info("Starting T013: Metadata Parsing and Validation")
+    """Main entry point for metadata generation."""
+    logger.info("Starting metadata generation and instrumentation fallback merge...")
     
-    # Ensure output directory exists
-    OUTPUT_METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-
     try:
-        # 1. Load raw data
-        df = load_raw_data()
-
-        # 2. Process metadata entries
-        metadata_entries = process_metadata_entries(df)
-
-        # 3. Validate structure
-        if not validate_metadata_structure(metadata_entries):
-            logger.error("Metadata validation failed. Aborting.")
-            sys.exit(1)
-
-        # 4. Write to JSON
-        with open(OUTPUT_METADATA_PATH, "w", encoding="utf-8") as f:
-            json.dump(metadata_entries, f, indent=2)
-
-        logger.info(f"Successfully wrote metadata to {OUTPUT_METADATA_PATH}")
-        logger.info(f"Total entries: {len(metadata_entries)}")
-
+        # 1. Load data
+        df = load_merged_perovskites()
+        
+        # 2. Parse source metadata
+        records = parse_source_metadata(df)
+        
+        # 3. Process entries (merge fallback info)
+        processed_records = process_metadata_entries(records)
+        
+        # 4. Validate structure
+        if not validate_metadata_structure(processed_records):
+            raise ValueError("Metadata validation failed.")
+        
+        # 5. Write output
+        METADATA_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(METADATA_OUTPUT_PATH, 'w') as f:
+            json.dump(processed_records, f, indent=2)
+        
+        logger.info(f"Successfully wrote metadata to {METADATA_OUTPUT_PATH}")
+        logger.info(f"Total records processed: {len(processed_records)}")
+        
     except Exception as e:
-        logger.critical(f"Error during T013 execution: {e}", exc_info=True)
+        logger.error(f"Error during metadata generation: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

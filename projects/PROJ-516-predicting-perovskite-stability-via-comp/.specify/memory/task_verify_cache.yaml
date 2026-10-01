@@ -19,22 +19,6 @@ T008:
   r: No `.env` file, configuration script, or documentation was presented showing
     that API keys for Materials Project and NREL have been set up and managed via
     environment variables. The required artifact is missing, so the task is not satisfied.
-T012a:
-  c: false
-  h: bc28f769cdc3e2c47738a5a1f2895899cd40ea83ce40044b6f7d750c0244c11c
-  r: "The repository lacks the required `data/raw/nrel_perovskites.csv` file, and\
-    \ `code/data_ingestion.py` does not implement a `fetch_and_validate_data` function\
-    \ nor contain logic that writes the CSV with a non\u2011null `T_d` column. Consequently\
-    \ the task\u2019s core output is missing."
-T012b:
-  c: false
-  h: 7d9628431dbf5f16ff0ac92b4efc62598958fee6b3c9d9b7bd8f9903afe2e0d1
-  r: "The repository lacks a `fetch_and_validate_data` function in `code/data_ingestion.py`\
-    \ and does not contain the required `data/raw/mp_perovskites.csv` file; consequently\
-    \ the task\u2019s core behavior (fetching from the Materials Project API, validation,\
-    \ filtering for `T_d`, and writing the CSV) is not present. The missing CSV also\
-    \ means the verification condition (existence and non\u2011null `T_d` column)\
-    \ cannot be satisfied."
 T012d:
   c: false
   h: 6fcd6ad49a08c620fb9ba185b98de8cc21cbbc79fb176341585fd77572e9ce19
@@ -42,6 +26,21 @@ T012d:
     \ are missing, so the task\u2019s condition (existence and at least one row) is\
     \ not satisfied and no verification or critical error logging can have occurred.\
     \ The implementer must provide the two CSV files with data."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `metadata.json` file (or diff) showing the added `precision_from_registry`
+    flag and updated `precision_source` field is provided, nor any verification output
+    confirming that every record correctly records its provenance. The required artifact
+    and proof of its correctness are missing.
+T016a:
+  c: false
+  h: eea107deafa346035012ce2082efa41f0c69624c7befdd6505edfccb269255d8
+  r: "The `vif_calculator.py` script is truncated and contains placeholder `pass`\
+    \ statements; it never computes VIF nor writes `vif_report.csv`. Moreover, the\
+    \ required input file `data/processed/descriptors_filtered.csv` and the expected\
+    \ output `data/processed/vif_report.csv` are absent. The task\u2019s core functionality\
+    \ and artifacts are missing."
 T019:
   c: false
   h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764
@@ -79,3 +78,26 @@ T052:
     \ The next implementer should supply the complete `get_precision` function (or\
     \ equivalent) that performs the lookup, falls back to the default precision, and\
     \ appends unmapped instrument names to the specif"
+T053:
+  c: false
+  h: 0b4617145c39645e4a42fca439a7f49c1d78be8fe6a87b607575aa0b106a5f6b
+  r: "The required file `data/processed/validation_report.md` is missing, so no content\
+    \ can be verified to contain the \u201CInstrumentation Audit\u201D and \u201C\
+    Data Quality Assessment\u201D sections or the consolidated logic. The task\u2019\
+    s primary artifact is absent."
+T054:
+  c: false
+  h: 592572365e3a73367aba025a9869e54911d0bac72091d545248ab0ecf728b4d2
+  r: "The repository lacks the required `data/raw/instrumentation_fallbacks.log` and\
+    \ the generated `data/processed/missing_instrumentation_report.csv`; both are\
+    \ missing. Moreover, the `generate_missing_instrumentation_report` function is\
+    \ incomplete (truncated) and does not contain the logic to read the log and write\
+    \ the CSV. The task\u2019s core output is therefore not present."
+T061:
+  c: false
+  h: 537b5c898cf70e339520729f7d7717486cecdf74fb474b553540cb717931b315
+  r: "The `code/utils/uncertainty_calculator.py` file exists, but the required input\
+    \ file `data/raw/perovskites_merged.csv` and the output file `data/processed/descriptors_uncertainty.csv`\
+    \ are both missing, and the script does not contain logic that reads the raw data\
+    \ and writes the new CSV with a `total_uncertainty` column. The task\u2019s core\
+    \ output is therefore not present."

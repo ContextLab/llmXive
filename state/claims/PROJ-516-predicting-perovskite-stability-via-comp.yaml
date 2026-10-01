@@ -4518,3 +4518,284 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T12:54:25Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_dc4fc3d3
+  context: 'Task T057 specifies fetching the NREL Perovskite Stability Subset from
+    Zenodo (DOI: 10.5281/zenodo.10972088).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The NREL Perovskite Stability Subset is available on Zenodo with DOI 10.5281/zenodo.10972088.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:10:17Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_6b4d8d8a
+  context: 'Phase 11: Review Action: Literature Data Sourcing Strategy. Define and
+    implement a robust strategy to acquire the external validation dataset from specific,
+    verified real sources (Zenodo: 10.5281/zenodo.10972088, alternative paper CSVs)...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Zenodo: 10.5281/zenodo.10972088'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:10:47Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NIST Technical Note 1297
+  claim_id: c_705af62a
+  context: 'Phase 12: Revision: Measurement Uncertainty Propagation. Write a ''Measurement
+    Uncertainty Methodology'' document... citing ISO standards on accuracy and NIST
+    Technical Note 1297.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'The most commonly used procedure for calculating measurement uncertainty
+        is described in the "Guide to the Expression of Uncertainty in Measurement"
+        (GUM) published by ISO. A derived work is for example the National Institute
+        of Standards and Technology (NIST) Technical Note 1297, "Guidelines for Evaluating
+        and Expressing the Uncertainty of NIST Measurement Results", and the Eurachem/Citac
+        publication "Quantifying Uncertainty in Analytical Measurement". The uncertainty
+        of the result of a measurement generally consists of several components. The
+        components are regarded as random variables, and may be grouped into two categories
+        according to the method used to estimate their numerical values:'
+      source_id: Uncertainty
+      url: https://en.wikipedia.org/wiki/Uncertainty
+      value: Guidelines for Evaluating and Expressing the Uncertainty of NIST Measurement
+        Results
+    filled: true
+  kind: numeric
+  raw_text: NIST Technical Note 1297
+  resolved_value: Guidelines for Evaluating and Expressing the Uncertainty of NIST
+    Measurement Results
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T23:10:55Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Instrument registry contains entries for TA Instruments and Mettler Toledo
+    with undetermined quantities
+  claim_id: c_e672f8e4
+  context: Task T047c_init creates data/raw/instrument_registry.csv with specific
+    TGA instrument data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_contains_entries_for_TA_Instruments_and
+  kind: entity_fact
+  raw_text: 'Row: TA Instruments, TA Instruments, [quantity to be determined]; Row:
+    Mettler Toledo, Mettler Toledo, [quantity to be determined]'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:15:01Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default TGA precision is 10 degrees Celsius when instrument data is missing
+  claim_id: c_b01eee6f
+  context: Task T047c defines the instrument registry logic and fallback precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C and log a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:15:23Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default uncertainty handling uses negligible placeholder for missing
+    experimental error
+  claim_id: c_1f50dfd4
+  context: Task T043 implements uncertainty propagation with specific fallback rules.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_uncertainty_handling_uses_negligible_placeholder_for
+  kind: entity_fact
+  raw_text: If experimental error is missing, use a negligible placeholder. If precision
+    is missing, use a default temperature threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:15:43Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default precision used when missing is 10 degrees Celsius
+  claim_id: c_d419bbca
+  context: Task T043 uncertainty propagation logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If experimental error is missing, use a negligible placeholder. If precision
+    is missing, use a default temperature threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:15:44Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty calculation defaults to 10 degrees Celsius precision and
+    0 experimental error if missing
+  claim_id: c_dce2d880
+  context: Task T061 computes total uncertainty with specific default values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If either component is missing, use the documented default (\xB110\xB0\
+    C for precision, 0 for experimental error) and log a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:16:04Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime budget limit is 6 hours
+  claim_id: c_ffda4222
+  context: Task T051c implements a runtime budget enforcer.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the build fails when runtime > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:16:05Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset is available at Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_d837143b
+  context: Task T057 defines the strategy to acquire external validation data.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:16:09Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty propagation methodology treats uncertainties as known constants
+    and excludes systematic errors
+  claim_id: c_af84f818
+  context: Task T065 requires a methodology document citing ISO standards and NIST
+    Technical Note 1297.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_propagation_methodology_treats_uncertainties_as
+  kind: entity_fact
+  raw_text: Document must state that uncertainties are treated as known constants
+    and systematic errors are not accounted for.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:16:45Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.10972088 for NREL Perovskite Stability Subset
+  claim_id: c_e337af83
+  context: 'Task T057 specifies fetching the NREL Perovskite Stability Subset from
+    Zenodo (DOI: 10.5281/zenodo.10972088).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Zenodo dataset for NREL Perovskite Stability Subset has DOI 10.5281/zenodo.10972088.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:20:44Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology cites ISO standards and NIST Technical Note 1297
+  claim_id: c_aec92f3b
+  context: Task T065 requires a document citing ISO standards on accuracy and NIST
+    Technical Note 1297.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The uncertainty propagation methodology cites ISO standards on accuracy
+    and NIST Technical Note 1297.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:21:10Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default TGA instrument precision \xB110\xB0C"
+  claim_id: c_62901938
+  context: "Task T047c specifies a spec default of \xB110\xB0C if the instrument is\
+    \ not found in the registry."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The default temperature precision for unknown TGA instruments is \xB1\
+    10\xB0C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:21:26Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.10972088 for NREL Perovskite Stability Subset
+  claim_id: c_86ffa4cc
+  context: 'Phase 11: Download the NREL Perovskite Stability Subset from Zenodo (DOI:
+    10.5281/zenodo.10972088).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Zenodo dataset DOI is 10.5281/zenodo.10972088.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T23:29:11Z'

@@ -1,7 +1,14 @@
-'|document iso must reference':
-  quote: A shift in the meaning of these terms appeared with the publication of the
-    ISO 5725 series of standards in 1994, which is also reflected in the 2008 issue
-    of the BIPM International Vocabulary of Metrology (VIM), items 2.13 and 2.14.
-  source_id: Accuracy and precision
-  url: https://en.wikipedia.org/wiki/Accuracy_and_precision
-  value: '1994'
+'|nist note technical':
+  quote: 'The most commonly used procedure for calculating measurement uncertainty
+    is described in the "Guide to the Expression of Uncertainty in Measurement" (GUM)
+    published by ISO. A derived work is for example the National Institute of Standards
+    and Technology (NIST) Technical Note 1297, "Guidelines for Evaluating and Expressing
+    the Uncertainty of NIST Measurement Results", and the Eurachem/Citac publication
+    "Quantifying Uncertainty in Analytical Measurement". The uncertainty of the result
+    of a measurement generally consists of several components. The components are
+    regarded as random variables, and may be grouped into two categories according
+    to the method used to estimate their numerical values:'
+  source_id: Uncertainty
+  url: https://en.wikipedia.org/wiki/Uncertainty
+  value: Guidelines for Evaluating and Expressing the Uncertainty of NIST Measurement
+    Results

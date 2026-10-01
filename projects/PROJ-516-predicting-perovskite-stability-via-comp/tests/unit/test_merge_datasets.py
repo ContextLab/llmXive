@@ -1,128 +1,114 @@
+"""
+Unit tests for merge_datasets.py (T012c).
+"""
 import os
+import sys
 import tempfile
+import pytest
+import pandas as pd
 from pathlib import Path
 
-import pandas as pd
-import pytest
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-# Add code/ to path
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
-if str(code_dir) not in os.sys.path:
-    os.sys.path.insert(0, str(code_dir))
+from merge_datasets import load_csv_safe, merge_perovskite_datasets
 
-from merge_datasets import merge_perovskite_datasets
+def test_load_csv_safe_missing_file():
+    """Test loading a non-existent file returns None."""
+    result = load_csv_safe(Path("/nonexistent/path.csv"))
+    assert result is None
 
+def test_load_csv_safe_empty_file():
+    """Test loading an empty file returns None."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("")
+        temp_path = Path(f.name)
+    
+    try:
+        result = load_csv_safe(temp_path)
+        assert result is None
+    finally:
+        os.unlink(temp_path)
 
-class TestMergeDatasets:
-    """Tests for the dataset merging logic (T012c)."""
+def test_load_csv_safe_valid():
+    """Test loading a valid CSV returns a DataFrame."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("formula,source\nCsPbI3,NREL\n")
+        temp_path = Path(f.name)
+    
+    try:
+        result = load_csv_safe(temp_path)
+        assert result is not None
+        assert len(result) == 1
+        assert "formula" in result.columns
+    finally:
+        os.unlink(temp_path)
 
-    def test_merge_basic(self, tmp_path):
-        """Test basic merge of two non-overlapping datasets."""
-        # Create mock NREL data
-        nrel_data = pd.DataFrame({
-            "formula": ["ABX3", "ABY3"],
-            "T_d": [500, 600],
-            "source": ["NREL", "NREL"]
+def test_merge_logic_duplicate_detection():
+    """
+    Test that the merge logic correctly identifies duplicates.
+    This simulates the core logic of T012c without file I/O side effects on the real project.
+    """
+    # Create temporary files for NREL and MP
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        nrel_file = tmpdir_path / "nrel_perovskites.csv"
+        mp_file = tmpdir_path / "mp_perovskites.csv"
+        merged_file = tmpdir_path / "perovskites_merged.csv"
+
+        # Write test data with a known duplicate
+        # NREL: 2 rows
+        nrel_df = pd.DataFrame({
+            "formula": ["CsPbI3", "FAPbI3"],
+            "source": ["NREL", "NREL"],
+            "T_d": [100, 120]
         })
-        nrel_path = tmp_path / "nrel_perovskites.csv"
-        nrel_data.to_csv(nrel_path, index=False)
+        nrel_df.to_csv(nrel_file, index=False)
 
-        # Create mock MP data
-        mp_data = pd.DataFrame({
-            "formula": ["ABZ3", "ABW3"],
-            "T_d": [700, 800],
-            "source": ["MaterialsProject", "MaterialsProject"]
+        # MP: 2 rows (one duplicate formula+source with NREL, one new)
+        # Note: T012c merges based on formula AND source. 
+        # If source is different, it's not a duplicate.
+        # Let's create a scenario where source is the same to test duplicate logic if we were merging same source.
+        # But the task says "Concatenate ... based on formula and source". 
+        # If source is different (NREL vs MP), they are distinct rows.
+        # The duplicate check in T012d is "based on formula and source".
+        # So if we have CsPbI3 from NREL and CsPbI3 from MP, they are NOT duplicates.
+        # We need to simulate a case where the SAME formula+source appears in both?
+        # That would imply the fetch logic is flawed or we are merging same source twice.
+        # However, T012c's job is to concatenate. T012d removes duplicates.
+        # Let's test the concatenation and the duplicate counting logic.
+        
+        mp_df = pd.DataFrame({
+            "formula": ["CsPbI3", "MAPbBr3"],
+            "source": ["MaterialsProject", "MaterialsProject"],
+            "T_d": [110, 130]
         })
-        mp_path = tmp_path / "mp_perovskites.csv"
-        mp_data.to_csv(mp_path, index=False)
+        mp_df.to_csv(mp_file, index=False)
 
-        output_path = tmp_path / "perovskites_merged.csv"
+        # Mock the paths in the module
+        import merge_datasets
+        original_nrel = merge_datasets.NREL_PATH
+        original_mp = merge_datasets.MP_PATH
+        original_merged = merge_datasets.MERGED_PATH
 
-        df_merged, dropped_count = merge_perovskite_datasets(nrel_path, mp_path, output_path)
+        merge_datasets.NREL_PATH = nrel_file
+        merge_datasets.MP_PATH = mp_file
+        merge_datasets.MERGED_PATH = merged_file
 
-        assert len(df_merged) == 4
-        assert dropped_count == 0
-        assert "formula" in df_merged.columns
-        assert "T_d" in df_merged.columns
-        assert "source" in df_merged.columns
-        assert output_path.exists()
-
-    def test_merge_duplicates_removed(self, tmp_path):
-        """Test that duplicates based on formula and source are removed."""
-        # Create NREL data with a duplicate row
-        nrel_data = pd.DataFrame({
-            "formula": ["ABX3", "ABX3", "ABY3"],
-            "T_d": [500, 500, 600],
-            "source": ["NREL", "NREL", "NREL"]
-        })
-        nrel_path = tmp_path / "nrel_perovskites.csv"
-        nrel_data.to_csv(nrel_path, index=False)
-
-        # Create MP data
-        mp_data = pd.DataFrame({
-            "formula": ["ABZ3"],
-            "T_d": [700],
-            "source": ["MaterialsProject"]
-        })
-        mp_path = tmp_path / "mp_perovskites.csv"
-        mp_data.to_csv(mp_path, index=False)
-
-        output_path = tmp_path / "perovskites_merged.csv"
-
-        df_merged, dropped_count = merge_perovskite_datasets(nrel_path, mp_path, output_path)
-
-        # Initial combined: 3 (NREL) + 1 (MP) = 4
-        # Duplicates: 1 (the second ABX3/NREL row)
-        # Expected final: 3
-        assert len(df_merged) == 3
-        assert dropped_count == 1
-        # Verify unique formulas per source
-        assert len(df_merged[(df_merged["formula"] == "ABX3") & (df_merged["source"] == "NREL")]) == 1
-
-    def test_missing_source_column_added(self, tmp_path):
-        """Test that missing 'source' columns are added automatically."""
-        # NREL without source column
-        nrel_data = pd.DataFrame({
-            "formula": ["ABX3"],
-            "T_d": [500]
-        })
-        nrel_path = tmp_path / "nrel_perovskites.csv"
-        nrel_data.to_csv(nrel_path, index=False)
-
-        # MP without source column
-        mp_data = pd.DataFrame({
-            "formula": ["ABZ3"],
-            "T_d": [700]
-        })
-        mp_path = tmp_path / "mp_perovskites.csv"
-        mp_data.to_csv(mp_path, index=False)
-
-        output_path = tmp_path / "perovskites_merged.csv"
-
-        df_merged, _ = merge_perovskite_datasets(nrel_path, mp_path, output_path)
-
-        assert "source" in df_merged.columns
-        assert set(df_merged["source"].unique()) == {"NREL", "MaterialsProject"}
-
-    def test_file_not_found(self, tmp_path):
-        """Test that FileNotFoundError is raised if source file is missing."""
-        non_existent = tmp_path / "missing.csv"
-        output_path = tmp_path / "out.csv"
-
-        with pytest.raises(FileNotFoundError):
-            merge_perovskite_datasets(non_existent, non_existent, output_path)
-
-    def test_empty_file_error(self, tmp_path):
-        """Test that ValueError is raised if source file is empty."""
-        nrel_path = tmp_path / "nrel.csv"
-        nrel_path.touch() # Create empty file
-
-        mp_data = pd.DataFrame({"formula": ["ABX3"], "T_d": [500], "source": ["MP"]})
-        mp_path = tmp_path / "mp.csv"
-        mp_path = tmp_path / "mp.csv"
-        mp_data.to_csv(mp_path, index=False)
-
-        output_path = tmp_path / "out.csv"
-
-        with pytest.raises(ValueError, match="Source file is empty"):
-            merge_perovskite_datasets(nrel_path, mp_path, output_path)
+        try:
+            success, message = merge_perovskite_datasets()
+            assert success
+            
+            # Check output file
+            assert merged_file.exists()
+            merged_df = pd.read_csv(merged_file)
+            assert len(merged_df) == 4 # 2 NREL + 2 MP
+            
+            # Verify no duplicates were dropped yet (T012c just concatenates, T012d drops)
+            # But T012c logs the duplicate count. Since source is different, count should be 0.
+            assert "Duplicate count" in message
+            assert "0" in message or "rows to be dropped" in message
+        finally:
+            merge_datasets.NREL_PATH = original_nrel
+            merge_datasets.MP_PATH = original_mp
+            merge_datasets.MERGED_PATH = original_merged
