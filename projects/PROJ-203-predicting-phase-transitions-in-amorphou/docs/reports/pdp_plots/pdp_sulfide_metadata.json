@@ -1,0 +1,7 @@
+{
+  "family": "sulfide",
+  "features": ["rdf_peak_pos", "coordination_numbers", "rdf_peak_width"],
+  "model_type": "RandomForestRegressor",
+  "plot_path": "docs/reports/pdp_plots/pdp_sulfide.png",
+  "n_samples": 8
+}

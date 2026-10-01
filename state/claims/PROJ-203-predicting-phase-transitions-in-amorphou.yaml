@@ -2998,3 +2998,123 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T21:57:21Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: literature subset dataset contains 24 compositions
+  claim_id: c_eaa144fe
+  context: 'Required File: data/raw/literature_subset.csv. Content: Must contain 24
+    compositions with columns: composition_id, Tg_exp, Tx_exp, dsc_cooling_rate_K_s,
+    chemical_family.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Must contain 24 compositions with columns: composition_id, Tg_exp, Tx_exp,
+    dsc_cooling_rate_K_s, chemical_family.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:55:48Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: full pipeline expected runtime is 6 hours
+  claim_id: c_1813af91
+  context: 'Full Pipeline Execution. Expected Runtime: ~6 hours (limited by simulation
+    and model training).'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Expected Runtime: ~6 hours (limited by simulation and model training).'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T21:55:48Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline enforces 6-hour total wall-clock limit
+  claim_id: c_436850d2
+  context: Simulation Timeout. The pipeline enforces a 6-hour total wall-clock limit.
+    If exceeded, partial results are saved.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a 6-hour total wall-clock limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:56:13Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline optimized for 24 compositions
+  claim_id: c_4f366982
+  context: Memory Errors. Reduce batch sizes or run on a machine with more RAM. The
+    pipeline is optimized for 24 compositions but may require adjustments for larger
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is optimized for 24 compositions but may require adjustments
+    for larger datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:56:36Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: minimum disk space requirement is 20 GB
+  claim_id: c_7e857cdd
+  context: 'Disk Space: Minimum 20 GB (for MD trajectories, processed data, and model
+    artifacts)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 20 GB (for MD trajectories, processed data, and model artifacts)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:57:06Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: minimum RAM requirement is 16 GB
+  claim_id: c_55398b2b
+  context: 'RAM: Minimum 16 GB (for simulation and model training)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 16 GB (for simulation and model training)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:57:06Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: python version requirement is 3.9 or higher
+  claim_id: c_45ec3eac
+  context: 'Prerequisites. Python: Version 3.9 or higher'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Python: Version 3.9 or higher'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:57:32Z'

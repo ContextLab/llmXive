@@ -1,109 +1,96 @@
 """
-Tests for Task T023: Collinearity Analysis.
+Tests for the Collinearity Analysis module (T023).
 """
-import os
-import sys
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 import pandas as pd
 import numpy as np
+import json
+from pathlib import Path
+import tempfile
+import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Mock the config to avoid dependency on actual file structure in tests
+from unittest.mock import patch, MagicMock
+
+# Import the function to test
+# We need to import from the module, but since it's in code/models, we add path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'code'))
 
 from models.collinearity_analysis import (
     load_final_dataset,
-    identify_predictor_columns,
-    calculate_vif,
+    calculate_vif_for_features,
+    generate_collinearity_report,
     VIF_THRESHOLD
 )
 
 @pytest.fixture
-def mock_config():
-    """Mock configuration for tests."""
-    config = MagicMock()
-    config.paths.processed_dir = Path("/fake/processed")
-    config.paths.reports_dir = Path("/fake/reports")
-    return config
-
-@pytest.fixture
-def sample_dataframe():
-    """Create a sample dataframe with some collinearity."""
-    n = 50
-    np.random.seed(42)
+def mock_dataframe():
+    """Create a mock dataframe with some collinearity."""
+    data = {
+        'rdf_peak_pos': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'rdf_peak_width': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'bond_angle_variance': [10.0, 20.0, 30.0, 40.0, 50.0],
+        'coordination_numbers': [4, 5, 6, 7, 8],
+        'Tg_exp': [300, 310, 320, 330, 340]
+    }
+    # Add a highly correlated feature to test flagging
+    # rdf_peak_pos * 2 + noise
+    data['highly_correlated_feature'] = [2.0, 4.0, 6.0, 8.0, 10.0]
     
-    # Create features with some correlation
-    x1 = np.random.normal(0, 1, n)
-    x2 = x1 * 0.9 + np.random.normal(0, 0.1, n)  # Highly correlated with x1
-    x3 = np.random.normal(0, 1, n)  # Independent
-    x4 = x3 * 0.5 + np.random.normal(0, 0.5, n)  # Moderately correlated with x3
-    
-    df = pd.DataFrame({
-        'composition_id': [f'id_{i}' for i in range(n)],
-        'Tg_exp': np.random.normal(300, 20, n),
-        'Tx_exp': np.random.normal(350, 20, n),
-        'crystallization_label': np.random.randint(0, 2, n),
-        'chemical_family': np.random.choice(['oxide', 'sulfide', 'organic'], n),
-        'rdf_peak_pos': x1,
-        'rdf_peak_width': x2,
-        'bond_angle_variance': x3,
-        'coordination_numbers': x4,
-        'simulation_id': [f'sim_{i}' for i in range(n)]
-    })
+    df = pd.DataFrame(data)
     return df
 
-def test_identify_predictor_columns(sample_dataframe):
-    """Test that predictor columns are correctly identified."""
-    predictors = identify_predictor_columns(sample_dataframe)
+def test_calculate_vif_for_features_basic(mock_dataframe):
+    """Test basic VIF calculation."""
+    features = ['rdf_peak_pos', 'rdf_peak_width', 'bond_angle_variance']
+    results = calculate_vif_for_features(mock_dataframe, features)
     
-    expected_predictors = ['rdf_peak_pos', 'rdf_peak_width', 'bond_angle_variance', 'coordination_numbers']
-    
-    assert set(predictors) == set(expected_predictors)
-    assert 'Tg_exp' not in predictors
-    assert 'composition_id' not in predictors
-    assert 'chemical_family' not in predictors
-
-def test_calculate_vif_basic(sample_dataframe):
-    """Test VIF calculation on a simple dataset."""
-    predictors = ['rdf_peak_pos', 'rdf_peak_width', 'bond_angle_variance', 'coordination_numbers']
-    
-    results = calculate_vif(sample_dataframe, predictors)
-    
-    assert len(results) == len(predictors)
-    
-    # Check structure
+    assert len(results) == 3
     for res in results:
         assert 'feature' in res
         assert 'vif' in res
         assert 'flagged' in res
         assert isinstance(res['vif'], float)
-        assert isinstance(res['flagged'], bool)
-    
-    # Check that highly correlated features (x1, x2) have higher VIF
-    x1_vif = next(r['vif'] for r in results if r['feature'] == 'rdf_peak_pos')
-    x2_vif = next(r['vif'] for r in results if r['feature'] == 'rdf_peak_width')
-    
-    # They should be flagged if VIF > 5
-    # With 0.9 correlation, VIF should be significant
-    assert x1_vif > 1.0
-    assert x2_vif > 1.0
+        assert res['vif'] >= 1.0  # VIF is always >= 1
 
-def test_vif_threshold_flagging(sample_dataframe):
-    """Test that the VIF threshold correctly flags features."""
-    predictors = ['rdf_peak_pos', 'rdf_peak_width', 'bond_angle_variance', 'coordination_numbers']
+def test_calculate_vif_for_features_collinearity(mock_dataframe):
+    """Test that collinearity is detected."""
+    # Include the highly correlated feature
+    features = ['rdf_peak_pos', 'highly_correlated_feature']
+    results = calculate_vif_for_features(mock_dataframe, features)
     
-    results = calculate_vif(sample_dataframe, predictors)
+    # One of these should have a very high VIF (theoretically infinite for perfect collinearity)
+    # In practice, with 5 points, it might be large but finite
+    max_vif = max(r['vif'] for r in results)
+    assert max_vif > 5.0, f"Expected high VIF for collinear features, got {max_vif}"
+
+def test_generate_collinearity_report(mock_dataframe, tmp_path):
+    """Test report generation and file creation."""
+    output_path = tmp_path / "test_report.json"
+    report = generate_collinearity_report(mock_dataframe, output_path)
     
-    # Count flagged
-    flagged_count = sum(1 for r in results if r['flagged'])
+    # Check file exists
+    assert output_path.exists()
     
-    # At least the highly correlated pair should be flagged
-    assert flagged_count >= 0  # Depends on exact correlation, but structure must be correct
+    # Check report structure
+    assert 'analysis_params' in report
+    assert 'summary' in report
+    assert 'results' in report
+    assert report['analysis_params']['vif_threshold'] == VIF_THRESHOLD
+    assert len(report['results']) == len(mock_dataframe.columns) - 1 # Exclude Tg_exp if not in list, but we pass specific list in main
+    
+    # Check JSON validity
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == report
+
+def test_vif_threshold_logic(mock_dataframe, tmp_path):
+    """Test that the flagged boolean is correctly set based on threshold."""
+    # Create data with known VIF
+    # We can't easily force a specific VIF without complex math, 
+    # but we can check the logic: if vif > threshold, flagged=True
+    features = ['rdf_peak_pos', 'rdf_peak_width']
+    results = calculate_vif_for_features(mock_dataframe, features)
     
     for res in results:
         if res['vif'] > VIF_THRESHOLD:
@@ -111,34 +98,22 @@ def test_vif_threshold_flagging(sample_dataframe):
         else:
             assert res['flagged'] is False
 
-def test_calculate_vif_with_nans(sample_dataframe):
-    """Test VIF calculation with missing values."""
-    # Introduce NaNs
-    df_nan = sample_dataframe.copy()
-    df_nan.loc[0, 'rdf_peak_pos'] = np.nan
-    
-    predictors = ['rdf_peak_pos', 'rdf_peak_width', 'bond_angle_variance', 'coordination_numbers']
-    
-    # Should handle NaNs by dropping rows
-    results = calculate_vif(df_nan, predictors)
-    
-    assert len(results) == len(predictors)
-    assert all('vif' in r for r in results)
+def test_empty_dataframe_handling():
+    """Test handling of empty dataframe."""
+    empty_df = pd.DataFrame(columns=['A', 'B'])
+    with pytest.raises(ValueError, match="No valid data"):
+        calculate_vif_for_features(empty_df, ['A', 'B'])
 
-def test_load_final_dataset_missing_file(mock_config, tmp_path):
-    """Test that load_final_dataset raises error when file is missing."""
-    # Setup config to point to non-existent file
-    with patch('models.collinearity_analysis.get_config', return_value=mock_config):
-        with pytest.raises(FileNotFoundError, match="FATAL: Required dataset"):
-            load_final_dataset()
-
-def test_identify_predictor_columns_no_predictors():
-    """Test behavior when no predictors are found."""
-    df = pd.DataFrame({
-        'composition_id': [1, 2],
-        'Tg_exp': [300, 301],
-        'crystallization_label': [0, 1]
-    })
-    
-    with pytest.raises(ValueError, match="No numeric predictor columns found"):
-        identify_predictor_columns(df)
+def test_nan_handling():
+    """Test that NaN values are handled (dropped)."""
+    data = {
+        'A': [1.0, 2.0, np.nan, 4.0],
+        'B': [1.0, 2.0, 3.0, 4.0]
+    }
+    df = pd.DataFrame(data)
+    # Should not raise, but drop the NaN row
+    results = calculate_vif_for_features(df, ['A', 'B'])
+    assert len(results) == 2
+    # Check that calculation succeeded on remaining rows
+    for res in results:
+        assert not np.isnan(res['vif'])

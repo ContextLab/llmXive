@@ -7,49 +7,38 @@ import io
 
 logger = logging.getLogger(__name__)
 
-def load_imagenet_subset(
-    dataset_name: str = "imagenet1k",
-    split: str = "validation",
-    streaming: bool = True
-) -> Iterator[Dict[str, Any]]:
+def load_imagenet_subset(split: str = "validation", streaming: bool = True) -> Iterator[Dict[str, Any]]:
     """
-    Load ImageNet subset using HuggingFace datasets.
-    
-    Args:
-        dataset_name: Name of the dataset (e.g., "imagenet1k")
-        split: Dataset split (e.g., "validation")
-        streaming: Whether to stream the dataset
-    
-    Returns:
-        Iterator of dataset items
+    Fetches ImageNet validation subset using the datasets library.
+    CRITICAL: No synthetic fallback. Raises exception if source is unreachable.
     """
     try:
-        dataset = load_dataset(dataset_name, split=split, streaming=streaming)
-        logger.info(f"Successfully loaded dataset: {dataset_name}, split: {split}")
-        return iter(dataset)
+        # Use the canonical imagenet1k dataset
+        ds = load_dataset("imagenet1k", split=split, streaming=streaming)
+        return iter(ds)
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise e
+        logger.error(f"Failed to load ImageNet dataset: {e}")
+        raise RuntimeError(f"Real data source unreachable: {e}")
 
-def preprocess_image(image: Image.Image) -> torch.Tensor:
+def preprocess_image(pil_image: Image.Image) -> torch.Tensor:
     """
-    Preprocess an image for model input.
-    
-    Args:
-        image: PIL Image
-    
-    Returns:
-        torch.Tensor: Preprocessed image tensor
+    Preprocesses a PIL image to a torch tensor.
+    Resizes to 299x299 (standard for Inception, often used as baseline for diffusion too)
+    and normalizes.
     """
-    # Convert to RGB if necessary
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    # Resize to 299x299 as per common baseline for FID and diffusion
+    target_size = (299, 299)
+    resized = pil_image.resize(target_size, Image.LANCZOS)
     
-    # Resize to 256x256 (common for diffusion models)
-    image = image.resize((256, 256))
+    # Convert to tensor [C, H, W] in range [0, 1]
+    tensor = torch.from_numpy(resized).permute(2, 0, 1).float() / 255.0
     
-    # Convert to tensor and normalize
-    # Assuming model expects values in [-1, 1]
-    tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
-    tensor = (tensor - 0.5) * 2.0
+    # Normalize to [-1, 1] if needed, or keep [0, 1]. 
+    # Diffusion models often use [-1, 1]. Let's assume standard normalization.
+    # For this task, we just return the tensor. The model loader handles specific normalization.
+    # However, to be safe and standard:
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+    tensor = (tensor - mean) / std
+    
     return tensor

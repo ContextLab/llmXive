@@ -1,17 +1,3 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No configuration artifact (e.g., a settings file, environment variable definitions,\
-    \ or code module) that defines and manages dataset URLs and entropy\u2011threshold\
-    \ values is present. The claim provides only the broader feature specification,\
-    \ but the required environment configuration management artifact is missing."
-T010:
-  c: false
-  h: 264bf9138e9199136cf30220c47db267e50898779e4807b8f95b564710cb7e99
-  r: "The repository contains `tests/contract/test_dataset_schema.py`, but the referenced\
-    \ `dataset.schema.yaml` file does not exist, so the test\u2019s schema fixture\
-    \ will skip instead of performing validation. The required schema artifact is\
-    \ missing, preventing the contract test from actually validating anything."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,30 +5,13 @@ T013:
     \ present in `data/processed/`. The required implementation (band\u2011pass, notch,\
     \ bad\u2011channel interpolation, ICA cleaning, and 2\u2011second epoching) and\
     \ its output are missing, so the task is not satisfied."
-T014:
-  c: false
-  h: 753efc53caa9da1e9352acb1d0253586d7998bdd9815e3fb08273390bfdde257
-  r: "The `code/02_preprocess_eeg.py` file is truncated and does not contain a complete\
-    \ implementation that computes the median SNR and writes it to `data/processed/snr_metrics.json`.\
-    \ Moreover, the required `snr_metrics.json` output file is absent from the repository.\
-    \ The task\u2019s required artifact is missing and the code does not fulfill the\
-    \ specification."
 T015:
   c: false
-  h: 5ec730d5c69bec296e35c23bf20cb0eadbccf3ddcdd55fd45d466426fab93526
-  r: "The repository contains a `code/compute_entropy.py` file, but it is truncated\
-    \ and never writes the computed entropy values to `data/processed/entropy_metrics.csv`.\
-    \ Moreover, the required output CSV file is absent from the project directory.\
-    \ The task\u2019s core deliverable \u2013 a CSV with both Sample and Approximate\
-    \ Entropy for all five bands \u2013 is therefore not present."
-T016:
-  c: false
-  h: 0f1c15fcb1750dd4d237ab554a4e837e4d318d5cd16f664165b327103db971e4
-  r: "The repository lacks the required `data/processed/snr_metrics.json` and `data/processed/exclusion_log.csv`\
-    \ files, and the provided `code/02_preprocess_eeg.py` does not contain any implementation\
-    \ of the SNR\u2011based exclusion logic or CSV output (the file is truncated and\
-    \ shows no such functionality). Consequently the task\u2019s specifications are\
-    \ not met."
+  h: 428248c095067a3f1efa2fb481807bb797277b736bface6b33a4006ee8b2de88
+  r: "The `code/compute_entropy.py` file is incomplete (truncated before the core\
+    \ loop finishes and there is no code that writes `entropy_metrics.csv`). Moreover,\
+    \ the required output file `data/processed/entropy_metrics.csv` does not exist.\
+    \ The task\u2019s primary output is therefore missing."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,16 +28,20 @@ T018:
     test and the actual schema file are missing.
 T020a:
   c: false
-  h: 696a03aa6072a224e613880507fcb1da3750c3ee42ed0fd7d343a3716eae9239
-  r: The provided `code/04_regression_analysis.py` is truncated and contains a syntax
-    error (`if results e`), never writes `correlation_results_ols.csv`, and does not
-    fully implement the OLS regression loop. Moreover, the required input CSV files
-    and the expected output CSV are absent from the repository.
+  h: 776f3f7a7fbd4074640a492c216aef7ad52d66cd9f1c4b2a6aaea06414b602eb
+  r: "The repository contains a partially written `code/04_regression_analysis.py`\
+    \ that does not implement the required OLS regression (it only outlines loading\
+    \ results and VIF handling, and the file is truncated). Moreover, the essential\
+    \ input files `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`,\
+    \ and the expected output `data/processed/correlation_results_ols.csv` are all\
+    \ absent. Consequently, the task\u2019s functional and data requirements are not\
+    \ met."
 T021:
   c: false
-  h: 81b19c1a02fb304828645a41f9cdfd27b69625978dbd239d2be26ed636e7396f
-  r: "The required input `data/processed/correlation_results_ols.csv` does not exist,\
-    \ and the script `code/04_regression_analysis.py` neither calculates VIF, drops\
-    \ Approximate Entropy when VIF\u202F>\u202F5, nor applies Benjamini\u2011Hochberg\
-    \ correction to produce `data/processed/correlation_results_fdr.csv`. Consequently\
-    \ the task\u2019s core requirements are unmet."
+  h: 5579baf69340ff016a7f36ce857a00e3874450a2a473149e6691c7a3d9c0db5f
+  r: "The repository lacks the required `data/processed/correlation_results_ols.csv`\
+    \ and the resulting `data/processed/correlation_results_fdr.csv`, so the pipeline\
+    \ cannot be run or verified. Moreover, the provided `code/04_regression_analysis.py`\
+    \ is truncated and does not contain the full implementation of VIF checking, conditional\
+    \ dropping of Approximate Entropy, re\u2011running OLS, or writing the FDR\u2011\
+    corrected results. Both the necessary data files and a complete script are missing."

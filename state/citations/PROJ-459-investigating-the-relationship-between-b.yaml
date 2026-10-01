@@ -63,7 +63,7 @@
   value: https://en.wikipedia.org/wiki/Python_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Python
-  verified_at: '2026-08-23T16:58:57.993072Z'
+  verified_at: '2026-10-01T21:59:50.554290Z'
 - artifact_hash: 8ca85c680e363e442e026e1100054f5d54b314f211c5eb198943ed926f0b48e8
   artifact_path: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-002
@@ -74,4 +74,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-08-23T16:58:57.993072Z'
+  verified_at: '2026-10-01T21:59:50.554290Z'

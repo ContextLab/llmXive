@@ -89,8 +89,8 @@ The research question, method, and references remain unchanged as required.
 ### Implementation for User Story 2
 
 - [ ] T015.1 [US2] **Implement Data Loading, Splitting & Verification**: Implement `code/models/train.py` to: 1) Load `data/processed/final_dataset.parquet`. 2) Split data (stratified by chemical family) into training/test sets (standard ratio). 3) Verify split integrity (no leakage, correct stratification). **Prerequisite**: T014.3.
-- [ ] T016 [US2] Implement Random Forest regression training in `code/models/train.py` with hyperparameter grid search (capped to complete within 2 hours). Target: RMSE ≤15 K (validated via Null Model comparison). **Prerequisite**: T015.1. <!-- FAILED: unspecified -->
-- [ ] T017 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/final_dataset.parquet`. Ensure the confusion matrix is saved to `docs/reports/confusion_matrix.png` (PNG format) to verify the "low stability" labeling logic. **Prerequisite**: T014.3. <!-- FAILED: unspecified -->
+- [X] T016 [US2] Implement Random Forest regression training in `code/models/train.py` with hyperparameter grid search (capped to complete within 2 hours). Target: RMSE ≤15 K (validated via Null Model comparison). **Prerequisite**: T015.1. <!-- FAILED: unspecified -->
+- [ ] T017 [US2] Implement Random Forest classifier training in `code/models/train.py` using the pre-computed crystallization labels from `data/processed/final_dataset.parquet`. Ensure the confusion matrix is saved to `docs/reports/confusion_matrix.png` (PNG format) to verify the "low stability" labeling logic. **Prerequisite**: T014.3. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T018.1 [US2] **Implement k-fold CV Logic**: Implement separate k-fold cross-validation loops for regression (Tg) and classification (Crystallization) in `code/models/train.py`. **Prerequisite**: T016, T017.
 - [ ] T018.2 [US2] **Implement Model Serialization**: Save `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl` after training and CV. **Prerequisite**: T018.1.
 - [ ] T019 [US2] **Implement Sensitivity Analysis**: Iterate over a range of thresholds from **25K to 100K** in **5K increments**. Report FPR, Class Balance, and accuracy for each threshold. Output `data/processed/sensitivity_report.json`. **Prerequisite**: T014.3, T013.1.
@@ -113,7 +113,7 @@ The research question, method, and references remain unchanged as required.
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement SHAP value computation in `code/models/evaluate.py` for both regressor and classifier, stratified by chemical family (oxide, sulfide, organic). **Prerequisite**: T018.2, T015.2. <!-- FAILED: unspecified -->
+- [X] T024 [US3] Implement SHAP value computation in `code/models/evaluate.py` for both regressor and classifier, stratified by chemical family (oxide, sulfide, organic). **Prerequisite**: T018.2, T015.2. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [ ] T025 [US3] Generate SHAP summary plots and ranked feature importance lists for each family in `docs/reports/shap_plots/`. **Prerequisite**: T024.
 - [ ] T026 [US3] Implement partial dependence plots for top predictors per family to verify monotonic/non-linear relationships with Tg. **Prerequisite**: T024.
 - [ ] T027 [US3] **Implement Multiple-Comparison Correction**: Apply Bonferroni correction (alpha=0.05) to the statistical significance of *differences* in SHAP importance ranks across families. Input: SHAP values per family. Output: `docs/reports/corrected_p_values.json` containing the corrected p-values for family-wise error control. **Prerequisite**: T025.

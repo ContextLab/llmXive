@@ -764,3 +764,139 @@
   source_type: external
   status: refuted
   updated_at: '2026-07-31T12:57:52Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003104 fetched for EEG data
+  claim_id: c_023de2c5
+  context: 'T012 [US1] Implement code/01_download_data.py: Fetch OpenNeuro datasets
+    (ds, ds003104).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003104_fetched_for_EEG_data
+  kind: entity_fact
+  raw_text: Fetch OpenNeuro datasets (ds, ds003104).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:40:37Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Participants excluded if EEG duration < 60s, corrupted segments > 20%,
+    or SNR < 5dB
+  claim_id: c_917915a2
+  context: 'T016 [US1] Add data quality checks to code/02_preprocess_eeg.py: Exclude
+    participants with <60s valid EEG, >20% corrupted segments, OR SNR < 5dB (consuming
+    T014 output).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with <60s valid EEG, >20% corrupted segments, OR
+    SNR < 5dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:40:37Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Median SNR calculated relative to 1-45 Hz band power
+  claim_id: c_1486b6c2
+  context: 'T014 [US1] Implement SNR calculation in code/02_preprocess_eeg.py: Calculate
+    Median SNR of preprocessed data relative to 1-45 Hz band power (per SC-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Median SNR of preprocessed data relative to 1-45 Hz band power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:41:12Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: FDR correction applied to 5 frequency bands and remaining metrics
+  claim_id: c_d0bea8ce
+  context: "T021 [US2] Implement Benjamini-Hochberg FDR correction in code/04_regression_analysis.py.\
+    \ Apply FDR to remaining tests (5 bands \xD7 remaining metrics)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply FDR to remaining tests (5 bands \xD7 remaining metrics)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:41:34Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Approximate Entropy dropped if VIF > 5
+  claim_id: c_59dba22c
+  context: 'T021 [US2] Implement Benjamini-Hochberg FDR correction in code/04_regression_analysis.py.
+    Logic: 1. Calculate VIF for all predictors in OLS model first. 2. If VIF > 5,
+    drop Approximate Entropy (ApEn) and re-run OLS.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, drop Approximate Entropy (ApEn) and re-run OLS.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:41:34Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Artifact rejection threshold swept from 15% to 25%
+  claim_id: c_bd98bc18
+  context: 'T028 [US3] Implement threshold sensitivity sweep in code/04_regression_analysis.py.
+    Cutoffs to sweep: 1. Artifact rejection threshold (range: 15% to 25% amplitude
+    deviation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep artifact rejection threshold from 15% to 25% amplitude deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:41:34Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: SNR threshold swept up to 7 dB
+  claim_id: c_7a5ee56c
+  context: 'T028 [US3] Implement threshold sensitivity sweep in code/04_regression_analysis.py.
+    Cutoffs to sweep: ... 2. SNR threshold (range: dB to 7 dB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep SNR threshold from unspecified dB to 7 dB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:41:53Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Full pipeline completes within 6 hours on CI
+  claim_id: c_e8013246
+  context: T037 Run quickstart.md validation to ensure full pipeline completes within
+    6 hours on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure full pipeline completes within
+    6 hours on CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:42:13Z'

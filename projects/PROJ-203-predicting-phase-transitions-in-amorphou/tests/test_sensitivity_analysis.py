@@ -1,114 +1,147 @@
 """
-Tests for Sensitivity Analysis (T019).
+Tests for code/models/sensitivity_analysis.py
 """
-import json
 import os
+import sys
+import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
+import pytest
 import pandas as pd
 import numpy as np
 
-# Import the function to test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from models.sensitivity_analysis import calculate_metrics, main
+from models.sensitivity_analysis import compute_metrics, load_final_dataset, run_sensitivity_analysis
 
-def test_calculate_metrics_basic():
-    """Test basic metric calculation."""
-    # Create a mock dataframe
-    data = {
-        'Tg_exp': [500.0, 500.0, 500.0, 500.0],
-        'Tx_exp': [540.0, 560.0, 520.0, 510.0], # Diffs: 40, 60, 20, 10
-        'crystallization_label': [1, 0, 1, 1]   # Baseline (50K) labels: 1 if diff<=50
-    }
-    # Diffs: 40 (<=50 -> 1), 60 (>50 -> 0), 20 (<=50 -> 1), 10 (<=50 -> 1)
-    # Existing labels match the diffs for 50K.
-    
-    df = pd.DataFrame(data)
-    
-    # Test with threshold 30K
-    # New Labels (<=30): 40->0, 60->0, 20->1, 10->1 => [0, 0, 1, 1]
-    # Predictions (Baseline 50K): [1, 0, 1, 1]
-    # Comparison:
-    # Row 0: True=0, Pred=1 -> FP
-    # Row 1: True=0, Pred=0 -> TN
-    # Row 2: True=1, Pred=1 -> TP
-    # Row 3: True=1, Pred=1 -> TP
-    
-    # Accuracy: 3/4 = 0.75
-    # Class Balance: 2/4 = 0.5
-    # FPR: FP / (FP + TN) = 1 / (1 + 1) = 0.5
-    
-    metrics = calculate_metrics(df, 30.0)
-    
-    assert metrics['threshold_K'] == 30.0
-    assert metrics['class_balance'] == 0.5
-    assert metrics['accuracy_vs_baseline_50K'] == 0.75
-    assert metrics['fpr_vs_baseline_50K'] == 0.5
-    assert metrics['num_positives'] == 2
-    assert metrics['num_negatives'] == 2
+class TestComputeMetrics:
+    def test_metrics_at_standard_threshold(self):
+        """
+        If threshold == 50 (standard), then Y_pred == Y_true.
+        FPR should be 0, Accuracy should be 1.0.
+        """
+        # Create mock dataframe
+        data = {
+            'Tg_exp': [300.0, 350.0, 400.0],
+            'Tx_exp': [400.0, 420.0, 430.0], # Gaps: 100, 70, 30
+            'chemical_family': ['A', 'B', 'C']
+        }
+        df = pd.DataFrame(data)
+        
+        # Standard threshold is 50
+        # Y_true: [0, 0, 1] (Gap 100>50, 70>50, 30<=50)
+        # Y_pred (thresh=50): [0, 0, 1]
+        # Confusion: TN=2, FP=0, FN=0, TP=1
+        
+        metrics = compute_metrics(df, 50.0)
+        
+        assert metrics['fpr'] == 0.0
+        assert metrics['accuracy'] == 1.0
+        assert metrics['tp'] == 1
+        assert metrics['tn'] == 2
+        assert metrics['fp'] == 0
+        assert metrics['fn'] == 0
 
-def test_calculate_metrics_edge_case_all_positive():
-    """Test when all samples are positive at a high threshold."""
-    data = {
-        'Tg_exp': [500.0, 500.0],
-        'Tx_exp': [510.0, 520.0], # Diffs: 10, 20
-        'crystallization_label': [1, 1]
-    }
-    df = pd.DataFrame(data)
-    
-    # Threshold 100K -> All True
-    metrics = calculate_metrics(df, 100.0)
-    
-    assert metrics['class_balance'] == 1.0
-    # If all are True, and predictions are all True, Accuracy = 1.0
-    assert metrics['accuracy_vs_baseline_50K'] == 1.0
-    # FPR = FP / (FP+TN). If all True, TN=0, FP=0. FPR = 0/0 -> 0.0 (handled in code)
-    assert metrics['fpr_vs_baseline_50K'] == 0.0
+    def test_metrics_at_low_threshold(self):
+        """
+        Threshold 25.
+        Y_true (50): [0, 0, 1]
+        Y_pred (25): [0, 0, 0] (Gap 30 > 25)
+        TP=0, TN=2, FP=0, FN=1
+        FPR = 0 / (0+2) = 0
+        Accuracy = 2/3
+        """
+        data = {
+            'Tg_exp': [300.0, 350.0, 400.0],
+            'Tx_exp': [400.0, 420.0, 430.0], # Gaps: 100, 70, 30
+            'chemical_family': ['A', 'B', 'C']
+        }
+        df = pd.DataFrame(data)
+        
+        metrics = compute_metrics(df, 25.0)
+        
+        assert metrics['fpr'] == 0.0
+        assert metrics['accuracy'] == pytest.approx(2/3)
+        assert metrics['fn'] == 1
+        assert metrics['tp'] == 0
 
-def test_main_integration(tmp_path):
-    """Test the main function with a temporary dataset."""
-    # Create a temporary dataset
-    data = {
-        'Tg_exp': [500.0] * 10,
-        'Tx_exp': [510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0],
-        'crystallization_label': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0] # 50K threshold split
-    }
-    df = pd.DataFrame(data)
-    
-    input_file = tmp_path / "final_dataset.parquet"
-    df.to_parquet(input_file)
-    
-    output_file = tmp_path / "sensitivity_report.json"
-    
-    # Mock config to use our temp paths
-    with patch('models.sensitivity_analysis.get_config') as mock_config:
-        mock_config.return_value = None # Not used directly in main if we patch paths
+    def test_metrics_at_high_threshold(self):
+        """
+        Threshold 100.
+        Y_true (50): [0, 0, 1]
+        Y_pred (100): [0, 1, 1] (Gap 70 <= 100, Gap 100 <= 100)
+        TP=1, TN=1, FP=1, FN=0
+        FPR = 1 / (1+1) = 0.5
+        Accuracy = 2/3
+        """
+        data = {
+            'Tg_exp': [300.0, 350.0, 400.0],
+            'Tx_exp': [400.0, 420.0, 430.0], # Gaps: 100, 70, 30
+            'chemical_family': ['A', 'B', 'C']
+        }
+        df = pd.DataFrame(data)
+        
+        metrics = compute_metrics(df, 100.0)
+        
+        assert metrics['fpr'] == pytest.approx(0.5)
+        assert metrics['accuracy'] == pytest.approx(2/3)
+        assert metrics['fp'] == 1
+        assert metrics['tn'] == 1
+
+class TestLoadFinalDataset:
+    def test_missing_file_raises_error(self):
         with patch('models.sensitivity_analysis.get_paths') as mock_paths:
-            mock_paths.return_value = {
-                'processed_dataset': str(input_file),
-                'sensitivity_report': str(output_file)
-            }
-            
-            # Run main
-            main()
-            
-            # Verify output exists
-            assert output_file.exists()
-            
-            # Verify content
-            with open(output_file, 'r') as f:
-                report = json.load(f)
-            
-            assert len(report) == 16 # 25 to 100 in steps of 5
-            assert report[0]['threshold_K'] == 25
-            assert report[-1]['threshold_K'] == 100
+            mock_paths.return_value = {"processed_dataset": "/nonexistent/path.parquet"}
+            with pytest.raises(FileNotFoundError, match="FATAL"):
+                load_final_dataset()
 
-if __name__ == "__main__":
-    test_calculate_metrics_basic()
-    test_calculate_metrics_edge_case_all_positive()
-    test_main_integration(tempfile.mkdtemp())
-    print("All tests passed.")
+    def test_missing_columns_raises_error(self, tmp_path):
+        # Create a dummy parquet with wrong columns
+        df = pd.DataFrame({'A': [1], 'B': [2]})
+        fake_path = tmp_path / "fake.parquet"
+        df.to_parquet(fake_path)
+        
+        with patch('models.sensitivity_analysis.get_paths') as mock_paths:
+            mock_paths.return_value = {"processed_dataset": str(fake_path)}
+            with pytest.raises(ValueError, match="missing required columns"):
+                load_final_dataset()
+
+class TestRunSensitivityAnalysis:
+    def test_integration_with_mock_data(self, tmp_path):
+        # Setup fake data
+        data = {
+            'Tg_exp': [300.0, 350.0, 400.0, 450.0],
+            'Tx_exp': [400.0, 420.0, 430.0, 510.0], # Gaps: 100, 70, 30, 60
+            'chemical_family': ['A', 'B', 'C', 'D']
+        }
+        df = pd.DataFrame(data)
+        fake_data_path = tmp_path / "final_dataset.parquet"
+        df.to_parquet(fake_data_path)
+        
+        # Setup paths
+        mock_paths = {
+            "processed_dataset": str(fake_data_path),
+            "sensitivity_report": str(tmp_path / "sensitivity_report.json")
+        }
+        
+        with patch('models.sensitivity_analysis.get_paths', return_value=mock_paths):
+            with patch('models.sensitivity_analysis.setup_pipeline_logging'):
+                report = run_sensitivity_analysis()
+                
+        assert "results" in report
+        assert len(report["results"]) == 16 # (100-25)/5 + 1 = 16
+        
+        # Check specific threshold results
+        res_50 = next(r for r in report["results"] if r["threshold"] == 50.0)
+        assert res_50["accuracy"] == 1.0
+        assert res_50["fpr"] == 0.0
+        
+        # Check file was written
+        assert os.path.exists(mock_paths["sensitivity_report"])
+        with open(mock_paths["sensitivity_report"]) as f:
+            saved_report = json.load(f)
+        assert saved_report == report

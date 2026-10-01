@@ -1,11 +1,26 @@
 T011:
   c: false
-  h: 2134dfb1f4387de11f814afd1c4e4410c5f07a1a1ad2e100391fe241464f5377
-  r: The required output files (`data/routing_cache/routing_aggregated.npy`, `data/results/memory_profile_raw.jsonl`,
-    and `data/results/tracing_log.jsonl`) are absent, so the implementation does not
-    demonstrably produce the mandated aggregated routing tensor and logs. The tracing
-    script exists but without evidence that it successfully runs and generates the
-    specified artifacts.
+  h: 16e3990d9a344bd3955d216af9160447c25fb8173d8d95d7e0396a6ce80dcbbe
+  r: "The required output files (`data/routing_cache/routing_aggregated.npy`, `data/results/memory_profile_raw.jsonl`,\
+    \ `data/results/tracing_log.jsonl`) are absent, and the provided `tracing.py`\
+    \ contains placeholder logic that simulates routing weights instead of actually\
+    \ extracting them from the SiT\u2011XL/2 model. The implementation does not fulfill\
+    \ the specified data collection, batching, memory\u2011guard, and logging requirements."
+T012:
+  c: false
+  h: c9d9394f55796f89b498566626194d9cb301259dfb523f4bd2f79cdefc3dfda3
+  r: The provided `clustering.py` loads multiple `.npy` files via `load_routing_cache`
+    instead of the single `routing_aggregated.npy` as required, and it does not expose
+    the pure `compute_canonical_map(routing_tensor, distance_threshold)` function.
+    Moreover, the expected `data/routing_cache/cluster_centers.json` file is absent.
+    These missing/incorrect components prevent the task from being considered complete.
+T013:
+  c: false
+  h: 2bd2963ade32b39ebcb95c6200a81c7dadc18649485201e881d809974d888bcd
+  r: The repository contains `code/src/canonical_map.py`, but the file is truncated
+    (the `save_canonical_map` function is incomplete and no code invokes it). Moreover,
+    the required output `data/routing_cache/canonical_map.json` does not exist. Hence
+    the implementation does not produce the required JSON file with the correct schema.
 T017:
   c: false
   h: 5439a9acc7939eae102461b42ac18f65594af7ccd4a9e3017cfd8489084cd7cc
@@ -13,13 +28,23 @@ T017:
     does not exist in the repository, so no test code or FID verification is present.
     The task cannot be considered done until the specified test file is created with
     functional code that computes and asserts FID on dummy samples.
-T018:
+T019:
   c: false
-  h: cc38f2ff18af72756afdb27f632cc38ced2b8337e80410617f2d58d7ece9afff
-  r: The required `data/routing_cache/canonical_map.json` file is missing, so the
-    static routing map cannot be loaded as the task demands. Consequently the implemented
-    `static_model.py` cannot be instantiated with the needed static map, and the verification
-    condition is not satisfied.
+  h: bcd1ecf1689ca262fad109abc79ed8df79daf74482c10d9f413f057d5d99f6e4
+  r: "The repository lacks the required `data/results/dataset_metadata.json` (the\
+    \ script cannot read dataset metadata) and the output files `benchmark_results.csv`/`.json`\
+    \ are absent. Moreover, the provided `benchmark.py` is truncated and does not\
+    \ contain the full inference loop, latency/FID calculations, hypothesis evaluation,\
+    \ or result\u2011appending logic mandated by the task. These essential components\
+    \ are missing, so the task is not genuinely completed."
+T025:
+  c: false
+  h: e64e3ea8b640e9f7173e09098644e39502e01bfcfc5d8d4ed8601959d9c31319
+  r: "The required `data/results/statistical_analysis.json` file is missing, and `stats_analysis.py`\
+    \ contains placeholder/simulated logic rather than the full implementation that\
+    \ actually re\u2011runs the inference loop, computes FID scores, and produces\
+    \ the statistical results. The task\u2019s core requirements are therefore not\
+    \ satisfied."
 T031c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

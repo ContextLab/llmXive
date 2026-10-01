@@ -1,0 +1,7 @@
+{
+  "family": "oxide",
+  "features": ["rdf_peak_pos", "bond_angle_variance", "coordination_numbers"],
+  "model_type": "RandomForestRegressor",
+  "plot_path": "docs/reports/pdp_plots/pdp_oxide.png",
+  "n_samples": 8
+}

@@ -3207,3 +3207,352 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T08:11:04Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation uses frozen Inception V3 with IMAGENET1K_V1 weights
+  claim_id: c_c6167c49
+  context: Task T006 specifies the implementation of FID calculation using specific
+    weights from torchvision version 0.18.0.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation_uses_frozen_Inception_V3_with_IMAGENET1K_V1
+  kind: entity_fact
+  raw_text: The FID calculation uses a frozen, pre-trained Inception network from
+    torchvision.models.inception_v3 using Inception_V_Weights.IMAGENET1K_V1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:27:08Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 0
+  canonical: Bootstrap test n_resamples 1000
+  claim_id: c_9dd278ee
+  context: 'Task T026: Parameters: Use n_resamples=1000, a confidence interval calculated
+    using the percentile method.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The non-parametric bootstrap test uses n_resamples=1000.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T21:28:14Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID calculation uses Inception_V3 with IMAGENET1K_V1 weights
+  claim_id: c_1ecf97e8
+  context: 'Task T006: Implement src/metrics.py: Implement FID calculation using a
+    frozen, pre-trained Inception network from torchvision.models.inception_v3 using
+    Inception_V_Weights.IMAGENET1K_V1 (ensuring compatibility with pinned torchvision==0.18.0
+    and matching the canonical baseline).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation_uses_Inception_V3_with_IMAGENET1K_V1_weights
+  kind: entity_fact
+  raw_text: The FID calculation uses a frozen, pre-trained Inception network from
+    torchvision.models.inception_v3 using Inception_V_Weights.IMAGENET1K_V1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:28:18Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Inception network for FID loaded in inference-only mode with torch.no_grad
+  claim_id: c_accbcb41
+  context: 'Task T006: Constraint: MUST load the network in inference-only mode (model.eval())
+    and explicitly wrap all inference calls in torch.no_grad() to freeze weights and
+    prevent gradient computation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inception_network_for_FID_loaded_in_inference-only_mode_with
+  kind: entity_fact
+  raw_text: The Inception network for FID calculation is loaded in inference-only
+    mode with model.eval() and wrapped in torch.no_grad().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:28:34Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: SHA hash of model state dict logged to inception_model_hash.json
+  claim_id: c_966eec6f
+  context: 'Task T006: Crucial Verification Step: The implementation MUST compute
+    the SHA hash of the loaded model.state_dict() and log this hash to data/results/inception_model_hash.json
+    for transparency and reproducibility.'
+  evidence:
+    entailment_evidence: SHA hash of model state dict logged to inception model hash.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/SHA_hash_of_model_state_dict_logged_to_inception_model_hash.
+  kind: entity_fact
+  raw_text: The FID implementation computes the SHA hash of the loaded model.state_dict()
+    and logs it to data/results/inception_model_hash.json.
+  resolved_value: SHA hash of model state dict logged to inception_model_hash.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T21:28:36Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Benchmark set size 100 images indices 100-199
+  claim_id: c_c89ee260
+  context: 'Task T019: Run inference for both dynamic (original) and static models
+    on a set of 100 disjoint ImageNet validation images, starting from index 100 (to
+    ensure disjointness from T011 which uses indices 0-99).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set size is fixed at 100 images starting from index 100
+    (indices 100-199).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:29:05Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Trace set size 100 images indices 0-99
+  claim_id: c_f30345e5
+  context: 'Task T011: Iterate through $TRACE_SET_SIZE ImageNet validation images...
+    Sampling Strategy: Use the first $TRACE_SET_SIZE images in the validation split
+    to ensure reproducibility. image_id is defined as the 0-indexed position in the
+    validation split (0 to 99).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trace set uses the first 100 images in the validation split (indices
+    0-99).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:29:34Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Routing aggregated.npy shape 100 100 num_blocks history_dim
+  claim_id: c_d2c58a20
+  context: 'Task T011: Schema: The .npy file MUST contain a 5D numpy array of shape
+    [num_images=100, num_timesteps=100, num_blocks, history_dim] representing the
+    routing weights for all images, timesteps, and blocks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Routing_aggregated.npy_shape_100_100_num_blocks_history_dim
+  kind: entity_fact
+  raw_text: The routing aggregated file is a 5D numpy array of shape [100, 100, num_blocks,
+    history_dim].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:29:56Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Memory limit 7GB RAM
+  claim_id: c_6ebd4bb3
+  context: 'Task T011: Iterate through $TRACE_SET_SIZE ImageNet validation images
+    (streamed/batched to stay < 7GB RAM)... Memory Guard Logic: Invoke memory_guard(7.0)
+    before processing each batch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_7GB_RAM
+  kind: entity_fact
+  raw_text: The memory limit for processing is 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:30:25Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Clustering null hypothesis triggers if clusters < 2 or silhouette < 0.25
+  claim_id: c_a292404f
+  context: 'Task T012: Null Hypothesis Handling: If for any block the clustering identifies
+    < 2 clusters or a silhouette score < 0.25, that block MUST default to a global
+    average vector for that block.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_null_hypothesis_triggers_if_clusters_%3C_2_or_silho
+  kind: magnitude
+  raw_text: The clustering null hypothesis triggers if fewer than 2 clusters are identified
+    or if the silhouette score is less than 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:30:51Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Statistical analysis runs 5 times with seeds 42 123 456 789 1011
+  claim_id: c_6f826e8e
+  context: 'Task T025: Re-run the inference loop (T019''s generation step) 5 times
+    with different random seeds: [42, 123, 456, 789, 1011].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance analysis re-runs inference 5 times with random
+    seeds [42, 123, 456, 789, 1011].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:31:28Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Statistical analysis benchmark set 500 images
+  claim_id: c_5c786e7b
+  context: 'Task T025: Note: This task uses a benchmark set of 500 images (indices
+    -599) to ensure statistical power, distinct from the 100-image set in T019.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a benchmark set of 500 images (indices 0-499)
+    for statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:32:01Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01 0.05 0.1
+  claim_id: c_64b42b7a
+  context: 'Task T027: Sweep the clustering.distance_threshold parameter over the
+    concrete set {0.01, 0.05, 0.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the clustering distance_threshold parameter
+    over the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:32:28Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Hypothesis PASS if latency reduction >= 40% and FID difference < 0.1
+  claim_id: c_30bcf6ed
+  context: 'Task T019: Hypothesis Check: The script MUST explicitly calculate latency_reduction_percent
+    and fid_difference and set hypothesis_status to ''PASS'' if latency_reduction_percent
+    >= 40 AND fid_difference < 0.1, otherwise ''FAIL''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis status is set to PASS if latency_reduction_percent is >=
+    40 and fid_difference is < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:32:51Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep benchmark set 100 images
+  claim_id: c_0d2ad19a
+  context: 'Task T027: Note: The benchmark set size for this sensitivity sweep is
+    A set of images to reduce computational load while maintaining statistical relevance
+    for the sweep. ... Crucial: T027 now uses 100 images for the sensitivity sweep
+    to reduce computational load.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set for the sensitivity sweep uses 100 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T21:33:20Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: PyTorch version pinned to 2.3.0+cpu
+  claim_id: c_1e9ae441
+  context: 'Task T002: Initialize Python project by creating requirements.txt containing
+    pinned versions: torch==2.3.0+cpu.'
+  evidence:
+    asserted: '2.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch version is pinned to 2.3.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T21:33:20Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: Torchvision version pinned to 0.18.0
+  claim_id: c_9f0ba212
+  context: 'Task T002: Initialize Python project by creating requirements.txt containing
+    pinned versions: ... torchvision==0.18.0.'
+  evidence:
+    asserted: '0.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The torchvision version is pinned to 0.18.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T21:33:21Z'

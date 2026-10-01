@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "OpenNeuro Dataset Metadata Schema"
-description: "Schema for validating dataset metadata extracted from OpenNeuro BIDS datasets."
+description: "Schema for validating dataset metadata fetched from OpenNeuro API"
 type: object
 required:
   - id
@@ -10,7 +10,7 @@ properties:
   id:
     type: string
     description: "OpenNeuro dataset identifier (e.g., ds003104)"
-    pattern: "^ds[0-9]+$"
+    pattern: "^ds\\d+$"
   description:
     type: object
     required:
@@ -18,7 +18,7 @@ properties:
     properties:
       Name:
         type: string
-        description: "Dataset name"
+        description: "Human-readable name of the dataset"
       Authors:
         type: array
         items:
@@ -29,7 +29,7 @@ properties:
         description: "Dataset license"
       HEDVersion:
         type: string
-        description: "HED version if applicable"
+        description: "HED tag version if applicable"
   summary:
     type: object
     required:
@@ -40,11 +40,11 @@ properties:
     properties:
       subjects:
         type: integer
-        minimum: 1
+        minimum: 0
         description: "Total number of subjects"
       subjectMetadata:
         type: array
-        minItems: 1
+        description: "Metadata for individual subjects"
         items:
           type: object
           required:
@@ -56,50 +56,38 @@ properties:
             age:
               type: integer
               minimum: 0
-              description: "Subject age in years"
+              description: "Age of the participant"
             sex:
               type: string
-              enum: ["M", "F", "O"]
-              description: "Subject biological sex"
-            handedness:
+              enum: ["M", "F", "U"]
+              description: "Sex of the participant"
+            neurologicalCondition:
               type: string
-              enum: ["left", "right", "ambidextrous"]
-              description: "Subject handedness"
-            neurological_condition:
+              description: "Optional neurological condition"
+            education:
               type: string
-              description: "Any neurological condition (optional)"
+              description: "Education level"
+            medication:
+              type: array
+              items:
+                type: string
+              description: "List of medications"
       tasks:
         type: array
-        minItems: 1
+        description: "List of tasks performed in the dataset"
         items:
           type: string
-        description: "List of task names present in the dataset"
       modalities:
         type: array
-        minItems: 1
-        items:
-          type: string
         description: "List of data modalities (e.g., eeg, meg)"
-      sessions:
-        type: array
         items:
           type: string
-        description: "List of session identifiers if applicable"
-  derived:
-    type: object
-    description: "Derived metadata from processing pipeline"
-    properties:
-      variable_fit_verified:
-        type: boolean
-        description: "Whether required behavioral variables were found"
-      age_range:
-        type: object
-        properties:
-          min:
-            type: integer
-          max:
-            type: integer
-      total_records:
+      size:
         type: integer
         minimum: 0
+        description: "Total size in bytes"
+      totalFiles:
+        type: integer
+        minimum: 0
+        description: "Total number of files"
 additionalProperties: false

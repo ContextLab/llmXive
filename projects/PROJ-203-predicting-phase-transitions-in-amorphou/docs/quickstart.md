@@ -1,156 +1,168 @@
 # Quickstart Guide: Predicting Phase Transitions in Amorphous Solids
 
-This guide provides step-by-step instructions to run the full machine learning pipeline
-for predicting phase transitions in amorphous solids (Pilot Study: N=24 compositions [UNRESOLVED-CLAIM: c_f63ca216 — status=not_enough_info]).
+This guide provides instructions for setting up and running the full machine learning pipeline to predict phase transitions (glass transition temperature $T_g$ and crystallization propensity) in amorphous solids.
 
 ## Prerequisites
 
-- Python 3.9+
-- Access to a CPU environment (GPU not required for this pilot)
-- Internet connection (for downloading dependencies and real data sources)
+- **Python**: Version 3.9 or higher
+- **Operating System**: Linux (preferred for MD simulation tools), macOS, or Windows (with WSL2)
+- **Disk Space**: Minimum 20 GB (for MD trajectories, processed data, and model artifacts) [UNRESOLVED-CLAIM: c_7e857cdd — status=not_enough_info]
+- **RAM**: Minimum 16 GB (for simulation and model training) [UNRESOLVED-CLAIM: c_55398b2b — status=not_enough_info]
+- **External Tools**:
+ - **LAMMPS** or **OpenMM** installed and available in `PATH`
+ - **OpenKIM** potentials available (verified by `code/data/simulate.py`)
 
-## 1. Environment Setup
+## Project Structure
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd PROJ-203-predicting-phase-transitions-in-amorphou
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
+```
+PROJ-203-predicting-phase-transitions-in-amorphou/
+├── code/ # Source code
+│ ├── data/ # Data generation and processing
+│ ├── models/ # Model training and evaluation
+│ ├── utils/ # Utilities (logging, validation, plotting)
+│ ├── config.py # Configuration management
+│ ├── main.py # Pipeline entry point
+│ └── requirements.txt # Python dependencies
+├── data/ # Data directories
+│ ├── raw/ # Raw input data (literature_subset.csv)
+│ ├── processed/ # Processed datasets (final_dataset.parquet)
+│ └── logs/ # Simulation logs and metadata
+├── docs/ # Documentation
+│ ├── quickstart.md # This file
+│ └── reports/ # Generated reports and figures
+├── tests/ # Unit and integration tests
+├── artifacts/ # Model artifacts and figures
+└── specs/ # Design documents
 ```
 
-## 2. Directory Structure Initialization
+## Installation
 
-The pipeline expects specific directories for data, models, and reports. Run the setup script:
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repository-url>
+ cd PROJ-203-predicting-phase-transitions-in-amorphou
+ ```
 
-```bash
-python code/setup_directories.py
-```
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-This creates:
-- `data/raw/`, `data/processed/`, `data/logs/`
-- `code/models/`, `code/utils/`, `code/data/`
-- `artifacts/models/`, `artifacts/figures/`, `artifacts/reports/`
-- `docs/`
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-## 3. Data Validation
+4. **Verify MD simulation tools**:
+ Ensure `lammps` or `openmm` is installed and accessible. Run the verification script:
+ ```bash
+ python code/data/simulate.py --verify-only
+ ```
 
-Before running simulations, verify that the literature subset data exists:
+## Data Preparation
 
+Before running the pipeline, ensure the raw literature data is available:
+
+- **Required File**: `data/raw/literature_subset.csv`
+- **Content**: Must contain 24 compositions with columns: `composition_id`, `Tg_exp`, `Tx_exp`, `dsc_cooling_rate_K_s`, `chemical_family`.
+- **Validation**: The pipeline will fail loudly if this file is missing or corrupted.
+
+To validate the data file:
 ```bash
 python code/data/validate_literature_subset.py
 ```
 
-**Note**: This script will fail loudly with `FileNotFoundError` if `data/raw/literature_subset.csv` is missing.
-Do not attempt to bypass this check with synthetic data.
+## Running the Pipeline
 
-## 4. Running the Full Pipeline
+The full pipeline can be executed end-to-end via the main script. This will:
+1. Validate input data.
+2. Run MD simulations (or use pre-existing trajectories if available).
+3. Extract structural descriptors.
+4. Merge descriptors with experimental labels.
+5. Train regression and classification models.
+6. Generate interpretability reports (SHAP, partial dependence).
+7. Output all metrics and figures.
 
-Execute the entire pipeline from simulation to model evaluation:
+### Full Pipeline Execution
 
 ```bash
 python code/main.py
 ```
 
-This single entry point orchestrates:
-1. **Data Loading & Validation**: Verifies `literature_subset.csv` and pilot compositions.
-2. **Simulation Execution**: Runs MD simulations for 24 pilot compositions [UNRESOLVED-CLAIM: c_5a7295b5 — status=not_enough_info] (with time caps).
-3. **Descriptor Extraction**: Calculates RDF, bond-angle variance, and coordination numbers.
-4. **Virtual Alignment**: Aligns MD timescales with experimental cooling rates.
-5. **Dataset Merging & Labeling**: Combines descriptors with experimental Tg/Tx and creates crystallization labels.
-6. **Model Training**: Trains Random Forest regressor (Tg) and classifier (crystallization).
-7. **Cross-Validation & Metrics**: Performs k-fold CV and computes RMSE/ROC-AUC.
-8. **Interpretability**: Generates SHAP plots, partial dependence plots, and stability reports.
-9. **Validation Reports**: Produces null model, permutation, collinearity, and timing reports.
+**Expected Runtime**: ~6 hours (limited by simulation and model training).
+**Output Artifacts**:
+- `data/processed/final_dataset.parquet`
+- `models/tg_regressor.pkl`, `models/crystallization_classifier.pkl`
+- `docs/reports/metrics.json`, `docs/reports/interpretability_report.md`
+- `docs/reports/shap_plots/`, `docs/reports/confusion_matrix.png`
 
-**Expected Runtime**: ≤ 6 hours (enforced by `code/utils/timeout_enforcer.py`).
+### Individual Task Execution
 
-## 5. Output Artifacts
+If you wish to run specific stages of the pipeline:
 
-Upon successful completion, the following artifacts are generated:
+- **Data Generation**:
+ ```bash
+ python code/data/simulate.py
+ python code/data/descriptor_utils.py
+ python code/data/merge.py
+ python code/data/finalize_dataset.py
+ ```
 
-### Data
-- `data/processed/final_dataset.parquet`: Merged dataset with descriptors, labels, and metadata.
-- `data/processed/sensitivity_report.json`: Threshold sensitivity analysis results.
-- `data/logs/excluded_rows.log`: Log of excluded compositions with reasons.
+- **Model Training**:
+ ```bash
+ python code/models/train.py
+ ```
 
-### Models
-- `models/tg_regressor.pkl`: Trained Random Forest regressor for Tg prediction.
-- `models/crystallization_classifier.pkl`: Trained Random Forest classifier.
+- **Evaluation & Interpretability**:
+ ```bash
+ python code/models/evaluate.py
+ python code/models/collinearity_analysis.py
+ python code/models/sensitivity_analysis.py
+ ```
 
-### Reports & Figures
-- `docs/reports/metrics.json`: RMSE, ROC-AUC, and CV scores.
-- `docs/reports/confusion_matrix.png`: Confusion matrix for crystallization classification.
-- `docs/reports/shap_plots/`: SHAP summary and beeswarm plots per chemical family.
-- `docs/reports/interpretability_report.md`: Final report on universal vs. family-specific predictors.
-- `docs/reports/null_model_report.json`: Null model and permutation test results.
-- `docs/reports/collinearity_report.json`: VIF analysis for predictor collinearity.
-- `docs/reports/stability_report.json`: LOO jackknife stability analysis.
-- `docs/reports/pipeline_timing.json`: End-to-end timing verification.
+## Configuration
 
-## 6. Individual Task Execution
+Configuration is managed via `code/config.py`. Key settings include:
+- **Paths**: `data/raw`, `data/processed`, `models`, `artifacts`
+- **Simulation Parameters**: Cooling rate, time steps, trajectory truncation limits.
+- **Model Parameters**: Hyperparameter search ranges for Random Forest.
 
-If you need to run specific stages independently:
+To modify settings, edit `code/config.py` or set environment variables as documented in the `config.py` source.
 
-```bash
-# Data Pipeline
-python code/data/simulate.py
-python code/data/descriptor_utils.py
-python code/data/merge.py
-python code/data/finalize_dataset.py
+## Outputs
 
-# Model Training
-python code/models/train.py
+Upon successful execution, the following artifacts will be generated:
 
-# Evaluation & Interpretability
-python code/models/generate_metrics_report.py
-python code/models/generate_shap_plots.py
-python code/models/partial_dependence_analysis.py
-python code/models/stability_analysis.py
-```
+| Artifact | Path | Description |
+|----------|------|-------------|
+| Final Dataset | `data/processed/final_dataset.parquet` | Merged dataset with descriptors and labels |
+| Regression Model | `models/tg_regressor.pkl` | Trained Random Forest for $T_g$ prediction |
+| Classification Model | `models/crystallization_classifier.pkl` | Trained Random Forest for crystallization propensity |
+| Metrics Report | `docs/reports/metrics.json` | RMSE, ROC-AUC, CV scores |
+| SHAP Plots | `docs/reports/shap_plots/` | Family-specific SHAP summary plots |
+| Interpretability Report | `docs/reports/interpretability_report.md` | Analysis of universal vs. family-specific predictors |
+| Confusion Matrix | `docs/reports/confusion_matrix.png` | Visualization of classification performance |
+| Collinearity Report | `docs/reports/collinearity_report.json` | VIF analysis for predictors |
+| Sensitivity Report | `data/processed/sensitivity_report.json` | Threshold sensitivity analysis |
 
-## 7. Troubleshooting
+## Troubleshooting
 
-### Missing Data Files
-If `validate_literature_subset.py` fails, ensure `data/raw/literature_subset.csv` is present.
-This file must be obtained from the verified real data source (Zenodo/NIST) as specified in the project plan.
+### "FATAL: literature_subset.csv missing"
+Ensure `data/raw/literature_subset.csv` exists and is not corrupted.
 
-### Simulation Timeouts
-If simulations are truncated, check `data/logs/simulation_times.json` for per-composition timing.
-The pipeline enforces a 6-hour wall-clock limit [UNRESOLVED-CLAIM: c_a5b5c8c7 — status=not_enough_info] via `code/utils/timeout_enforcer.py`.
+### "OpenKIM potentials not found"
+Verify OpenKIM installation and network connectivity. The `simulate.py` script includes a verification step.
 
-### Model Performance
-If RMSE > 15 K or ROC-AUC ≤ 0.7, review `docs/reports/null_model_report.json` and `docs/reports/collinearity_report.json`
-to assess statistical validity and predictor quality.
+### Simulation Timeout
+The pipeline enforces a 6-hour total wall-clock limit. [UNRESOLVED-CLAIM: c_436850d2 — status=not_enough_info] If exceeded, partial results are saved. Check `data/logs/simulation_times.json` for details.
 
-## 8. Verification
+### Memory Errors
+Reduce batch sizes or run on a machine with more RAM. The pipeline is optimized for 24 compositions but may require adjustments for larger datasets. [UNRESOLVED-CLAIM: c_4f366982 — status=not_enough_info]
 
-To verify the pipeline completed successfully:
+## Support
 
-```bash
-# Check for final dataset
-ls -lh data/processed/final_dataset.parquet
-
-# Check for model artifacts
-ls -lh models/*.pkl
-
-# Check for required reports
-ls -lh docs/reports/*.json docs/reports/*.png docs/reports/*.md
-```
-
-All files should be non-empty and contain valid data/figures.
-
-## 9. Next Steps
-
-- Review `docs/reports/interpretability_report.md` for scientific insights.
-- Analyze `docs/reports/stability_report.json` for feature stability confidence intervals.
-- Consider expanding the pilot to N > 24 compositions for broader validation.
+For issues or questions, refer to the `docs/` directory or consult the design documents in `specs/`.
 
 ---
-*This pipeline implements the pilot study (N=24) as defined in `spec.md` and `plan.md`.
-Performance targets (RMSE ≤ 15 K, ROC-AUC > 0.7) are validated via Null Model/Permutation Tests.*
+*Generated by llmXive research-implementer agent.*

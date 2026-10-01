@@ -1,0 +1,32 @@
+{
+  "regressor_oxide": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_oxide_regressor.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_oxide_regressor.json"
+  },
+  "regressor_sulfide": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_sulfide_regressor.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_sulfide_regressor.json"
+  },
+  "regressor_organic": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_organic_regressor.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_organic_regressor.json"
+  },
+  "classifier_oxide": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_oxide_classifier.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_oxide_classifier.json"
+  },
+  "classifier_sulfide": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_sulfide_classifier.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_sulfide_classifier.json"
+  },
+  "classifier_organic": {
+    "status": "success",
+    "plot_path": "docs/reports/shap_plots/shap_summary_organic_classifier.png",
+    "ranked_features_path": "docs/reports/shap_plots/shap_ranked_organic_classifier.json"
+  }
+}

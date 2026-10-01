@@ -4,10 +4,10 @@ torchvision==0.18.0
 transformers
 diffusers
 scikit-learn
-torchmetrics
-datasets
 numpy
 pandas
 matplotlib
+bitsandbytes
+datasets
 psutil
-tqdm
+pillow
