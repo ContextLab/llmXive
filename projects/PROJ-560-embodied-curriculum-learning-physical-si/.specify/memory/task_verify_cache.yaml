@@ -20,14 +20,13 @@ T017a:
     coded handler that writes JSONL entries to that specific path, which is not present.\
     \ The implementer must configure the handler to target `data/derivation_logs/skipped_records.log`\
     \ by default (and ensure the file is created)."
-T026c:
+T026b:
   c: false
-  h: 5aeef2a845d951a37116f0d467fd474209f3eb856d886c85e394c7a594a33354
-  r: The repository lacks the required output file `data/processed/results.json`,
-    and the provided `stats_engine.py` excerpt does not show an implementation of
-    the `finalize_results` function (the file is truncated before any such function
-    could appear). Both the core function and the final merged results file are missing,
-    so the task is not fulfilled.
+  h: 4913229a3c33957bd51fe3525ab5f8adc8a84e267f776bb87ae67e0db3208880
+  r: The `stats_engine.py` file does not contain a `write_partial_results` implementation
+    (the shown code ends before any such function) and the required output file `data/processed/results_us2.json`
+    is absent. Both the function and the resulting JSON file are missing, so the task
+    is not satisfied.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

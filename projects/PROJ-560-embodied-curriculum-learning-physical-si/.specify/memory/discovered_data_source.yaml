@@ -1,11 +1,11 @@
 status: none
-intent: OpenML math reasoning pre-test post-test dataset download python package dataset
+intent: download OpenML educational pre-test post-test dataset python package dataset
 required_fields:
+- participant_id
 - pre_test_score
 - post_test_score
 - condition
-- student_id
 - metadata
-cache_key: 7aed1b9cb03c4b1cf0d541efaf1c708ac8b065364bd3900012d928433284f869
-searched_at: '2026-09-29T18:18:42.592802+00:00'
+cache_key: fc30cc84b6489a4aad1a8b9b1efb5bffa68dfb27dfb7f20b9433a547f273214d
+searched_at: '2026-10-01T02:25:38.310249+00:00'
 retry_count: 1

@@ -4,227 +4,123 @@ import os
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any
+import pandas as pd
 
-from .models import DatasetRecord
-from .synthetic_gen import SyntheticDataGenerator
-from .utils import set_seed
-from .logging_config import setup_logging
+try:
+    from .synthetic_gen import SyntheticDataGenerator
+    from .logging_config import write_skipped_record_jsonl
+except ImportError:
+    import synthetic_gen
+    import logging_config
+    from synthetic_gen import SyntheticDataGenerator
+    from logging_config import write_skipped_record_jsonl
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = ["pre_test_score", "post_test_score", "instruction_type"]
-SKIPPED_LOG_PATH = Path("data/derivation_logs/skipped_records.log")
-
-def log_skipped_record(record: Dict[str, Any], reason: str) -> None:
-    """Log a skipped record to the derivation log in JSONL format."""
-    SKIPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    log_entry = {
-        "timestamp": record.get("timestamp", ""),
-        "error_code": "DATA_SKIP",
+def log_skipped_record(reason: str, dataset_source: str, timestamp: str = None):
+    """Log a skipped record to derivation logs."""
+    if timestamp is None:
+        import datetime
+        timestamp = datetime.datetime.now().isoformat()
+    record = {
+        "timestamp": timestamp,
         "reason": reason,
-        "record_preview": record
-    }
-    with open(SKIPPED_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
-    logger.warning(f"Skipped record: {reason}")
-
-def handle_synthetic_fallback_failure(dataset_source: str) -> None:
-    """Handle the case where synthetic generation fails. Exits with code 1."""
-    error_msg = "Primary research question cannot be answered: missing instruction_type and synthetic generation failed"
-    logger.error(error_msg)
-    
-    # Log to derivation log
-    SKIPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    log_entry = {
-        "timestamp": "",
-        "error_code": "FALLBACK_FAILED",
-        "reason": "synthetic_gen_failed",
         "dataset_source": dataset_source
     }
-    with open(SKIPPED_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
-    
-    sys.exit(1)
+    log_path = Path("data/derivation_logs/skipped_records.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    write_skipped_record_jsonl(record, str(log_path))
 
-def load_public_dataset(file_path: str) -> List[DatasetRecord]:
-    """
-    Load a public dataset from a CSV or JSON file.
-    
-    Args:
-        file_path: Path to the CSV or JSON file.
-        
-    Returns:
-        List of DatasetRecord objects.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
-    """
-    path = Path(file_path)
+def handle_synthetic_fallback_failure(dataset_source: str):
+    """Handle failure of synthetic fallback generation."""
+    error_msg = "Primary research question cannot be answered: missing instruction_type and synthetic generation failed"
+    logger.error(error_msg)
+    log_skipped_record("synthetic_gen_failed", dataset_source)
+    raise SystemExit(1)
+
+def load_public_dataset(input_path: str) -> Optional[pd.DataFrame]:
+    """Load and validate public dataset."""
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {file_path}")
-    
-    data: List[Dict[str, Any]] = []
-    
-    if path.suffix.lower() == ".csv":
-        with open(path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            data = list(reader)
-    elif path.suffix.lower() in [".json", ".jsonl"]:
-        with open(path, "r", encoding="utf-8") as f:
-            if path.suffix == ".json":
-                data = json.load(f)
-            else:
-                data = [json.loads(line) for line in f if line.strip()]
-    else:
-        raise ValueError(f"Unsupported file format: {path.suffix}")
-    
-    # Validate required columns
-    if data:
-        first_record = data[0]
-        missing_cols = [col for col in REQUIRED_COLUMNS if col not in first_record]
-        if missing_cols:
-            raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    return [
-        DatasetRecord(
-            pre_test_score=float(r.get("pre_test_score", 0)),
-            post_test_score=float(r.get("post_test_score", 0)),
-            instruction_type=str(r.get("instruction_type", "unknown")),
-            covariates={k: v for k, v in r.items() if k not in REQUIRED_COLUMNS}
-        )
-        for r in data
-    ]
+        logger.error(f"Input file not found: {input_path}")
+        return None
 
-def generate_synthetic_fallback(n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> List[DatasetRecord]:
-    """
-    Generate synthetic data as a fallback when public data lacks instruction_type.
-    
-    Args:
-        n: Number of records to generate.
-        seed: Random seed for reproducibility.
-        mean_diff_embodied: Mean difference for embodied group.
-        mean_diff_static: Mean difference for static group.
-        
-    Returns:
-        List of DatasetRecord objects.
-    """
-    set_seed(seed)
-    generator = SyntheticDataGenerator()
-    return generator.generate(n=n, seed=seed, mean_diff_embodied=mean_diff_embodied, mean_diff_static=mean_diff_static)
+    try:
+        if path.suffix == '.csv':
+            df = pd.read_csv(path)
+        elif path.suffix == '.json':
+            df = pd.read_json(path)
+        else:
+            logger.error(f"Unsupported file format: {path.suffix}")
+            return None
+    except Exception as e:
+        logger.error(f"Failed to load dataset: {e}")
+        return None
 
-def calculate_gain_scores(records: List[DatasetRecord]) -> List[DatasetRecord]:
-    """
-    Calculate gain scores (post - pre) for each record.
-    Logs records with missing values to the derivation log.
-    
-    Args:
-        records: List of DatasetRecord objects.
-        
-    Returns:
-        List of DatasetRecord objects with gain scores calculated.
-    """
-    processed_records = []
-    for i, record in enumerate(records):
-        pre = record.pre_test_score
-        post = record.post_test_score
-        
-        if pre is None or post is None or (isinstance(pre, float) and (pre != pre)) or (isinstance(post, float) and (post != post)):
-            log_skipped_record({"index": i, "pre": pre, "post": post}, "missing_or_nan_scores")
-            continue
-        
-        gain = post - pre
-        processed_records.append(DatasetRecord(
-            pre_test_score=pre,
-            post_test_score=post,
-            instruction_type=record.instruction_type,
-            covariates=record.covariates,
-            gain_score=gain
-        ))
-    
-    return processed_records
+    required_cols = ['pre_test_score', 'post_test_score', 'instruction_type']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        logger.warning(f"Missing required columns: {missing_cols}")
+        return df # Return anyway for fallback logic to handle
 
-def write_processed_data(records: List[DatasetRecord], output_path: str) -> None:
-    """
-    Write processed records to a CSV file.
-    
-    Args:
-        records: List of DatasetRecord objects.
-        output_path: Path to the output CSV file.
-    """
+    return df
+
+def generate_synthetic_fallback(n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> Optional[pd.DataFrame]:
+    """Generate synthetic data as fallback."""
+    try:
+        generator = SyntheticDataGenerator()
+        df = generator.generate(n, seed, mean_diff_embodied, mean_diff_static)
+        return df
+    except Exception as e:
+        logger.error(f"Synthetic generation failed: {e}")
+        return None
+
+def calculate_gain_scores(df: pd.DataFrame) -> pd.Series:
+    """Calculate gain scores, logging skipped records."""
+    if 'pre_test_score' not in df.columns or 'post_test_score' not in df.columns:
+        logger.error("Missing pre/post test scores for gain calculation")
+        return pd.Series(dtype=float)
+
+    gain = df['post_test_score'] - df['pre_test_score']
+    # Log missing values
+    missing = gain.isna().sum()
+    if missing > 0:
+        log_skipped_record("missing_gain_data", "current_dataset")
+    return gain
+
+def write_processed_data(df: pd.DataFrame, output_path: str):
+    """Write processed data to CSV."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["pre_test_score", "post_test_score", "instruction_type", "gain_score"])
-        for record in records:
-            writer.writerow([
-                record.pre_test_score,
-                record.post_test_score,
-                record.instruction_type,
-                getattr(record, "gain_score", None)
-            ])
-    logger.info(f"Wrote {len(records)} records to {output_path}")
+    df.to_csv(path, index=False)
+    logger.info(f"Processed data written to {output_path}")
 
-def load_public_dataset_with_fallback(
-    file_path: Optional[str] = None,
-    n: int = 100,
-    seed: int = 42,
-    mean_diff_embodied: float = 5.0,
-    mean_diff_static: float = 2.0,
-    mode: str = "secondary_analysis"
-) -> List[DatasetRecord]:
+def load_public_dataset_with_fallback(input_path: str, n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> Optional[pd.DataFrame]:
     """
-    Load public dataset with fallback to synthetic generation.
-    
-    Args:
-        file_path: Path to public dataset. If None or missing instruction_type, uses synthetic.
-        n: Number of synthetic records if fallback is used.
-        seed: Random seed for synthetic generation.
-        mean_diff_embodied: Mean difference for embodied group in synthetic.
-        mean_diff_static: Mean difference for static group in synthetic.
-        mode: Operation mode ('secondary_analysis' or 'synthetic').
+    Load public dataset. If instruction_type is missing, generate synthetic fallback.
+    """
+    df = load_public_dataset(input_path)
+
+    if df is None:
+        # If file doesn't exist, try synthetic
+        synthetic_df = generate_synthetic_fallback(n, seed, mean_diff_embodied, mean_diff_static)
+        if synthetic_df is None:
+            handle_synthetic_fallback_failure(input_path)
+        return synthetic_df
+
+    # Check for instruction_type
+    if 'instruction_type' not in df.columns:
+        logger.warning("instruction_type missing in public data. Generating synthetic fallback.")
+        synthetic_df = generate_synthetic_fallback(n, seed, mean_diff_embodied, mean_diff_static)
+        if synthetic_df is None:
+            handle_synthetic_fallback_failure(input_path)
         
-    Returns:
-        List of DatasetRecord objects.
-    """
-    # If file_path is provided, try to load it
-    if file_path and Path(file_path).exists():
-        try:
-            records = load_public_dataset(file_path)
-            if records and all(r.instruction_type for r in records):
-                return records
-            # If loaded but missing instruction_type, fall through to synthetic
-            logger.warning("Public data loaded but missing instruction_type. Falling back to synthetic.")
-        except Exception as e:
-            logger.warning(f"Failed to load public dataset: {e}. Falling back to synthetic.")
-    
-    # Fallback to synthetic
-    if mode == "secondary_analysis":
-        handle_synthetic_fallback_failure(file_path or "unknown")
-    
-    return generate_synthetic_fallback(n, seed, mean_diff_embodied, mean_diff_static)
+        # Save fallback
+        fallback_path = "data/processed/validated_fallback.csv"
+        write_processed_data(synthetic_df, fallback_path)
+        return synthetic_df
 
-def main() -> None:
-    """Main entry point for data loading module."""
-    import sys
-    from .cli import parse_args
-    
-    args = parse_args(sys.argv[1:])
-    setup_logging()
-    
-    records = load_public_dataset_with_fallback(
-        file_path=args.input,
-        n=args.n,
-        seed=args.seed,
-        mode=args.mode
-    )
-    
-    gain_records = calculate_gain_scores(records)
-    output_path = f"data/processed/validated_fallback.csv"
-    write_processed_data(gain_records, output_path)
-    
-    logger.info(f"Data processing complete. Output: {output_path}")
+    return df
 
-import sys
+def main():
+    pass

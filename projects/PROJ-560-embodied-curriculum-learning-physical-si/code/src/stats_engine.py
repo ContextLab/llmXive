@@ -5,263 +5,197 @@ import pandas as pd
 from scipy import stats
 from statsmodels.formula.api import ols
 import json
+import os
 from pathlib import Path
-from .models import AnalysisResult, SensitivitySweep
+
+# Ensure output directory exists
+os.makedirs("data/processed", exist_ok=True)
 
 logger = logging.getLogger(__name__)
 
-def run_t_test(
-    group1_scores: List[float],
-    group2_scores: List[float],
-    equal_var: bool = False
-) -> Tuple[float, float]:
+def run_t_test(gain_scores_embodied: np.ndarray, gain_scores_static: np.ndarray, 
+               equal_var: bool = True) -> Tuple[float, float]:
     """
-    Perform Welch's t-test (or Student's t-test if equal_var=True) on two groups.
+    Perform Student's or Welch's t-test on gain scores.
     Returns (t_statistic, p_value).
     """
-    if not group1_scores or not group2_scores:
-        raise ValueError("Cannot run t-test on empty groups")
-    
-    t_stat, p_val = stats.ttest_ind(group1_scores, group2_scores, equal_var=equal_var)
+    if equal_var:
+        t_stat, p_val = stats.ttest_ind(gain_scores_embodied, gain_scores_static, equal_var=True)
+    else:
+        t_stat, p_val = stats.ttest_ind(gain_scores_embodied, gain_scores_static, equal_var=False)
     return float(t_stat), float(p_val)
 
-def calculate_effect_size(
-    group1_scores: List[float],
-    group2_scores: List[float],
-    pooled_std: Optional[float] = None
-) -> float:
-    """
-    Calculate Cohen's d effect size.
-    If pooled_std is provided, use it; otherwise calculate from groups.
-    """
-    if not group1_scores or not group2_scores:
-        return 0.0
+def calculate_effect_size(group1: np.ndarray, group2: np.ndarray) -> float:
+    """Calculate Cohen's d."""
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+    n1, n2 = len(group1), len(group2)
     
-    mean1 = np.mean(group1_scores)
-    mean2 = np.mean(group2_scores)
-    
-    if pooled_std is None:
-        n1, n2 = len(group1_scores), len(group2_scores)
-        var1 = np.var(group1_scores, ddof=1)
-        var2 = np.var(group2_scores, ddof=1)
-        pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-    
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     if pooled_std == 0:
         return 0.0
-        
     return float((mean1 - mean2) / pooled_std)
 
-def calculate_confidence_interval(
-    effect_size: float,
-    n1: int,
-    n2: int,
-    confidence_level: float = 0.95
-) -> Tuple[float, float]:
-    """
-    Approximate confidence interval for Cohen's d.
-    Uses non-central t-distribution approximation.
-    """
-    # Simplified approximation using standard error
-    se = np.sqrt((n1 + n2) / (n1 * n2) + (effect_size**2) / (2 * (n1 + n2)))
-    z = stats.norm.ppf((1 + confidence_level) / 2)
-    lower = effect_size - z * se
-    upper = effect_size + z * se
-    return float(lower), float(upper)
+def calculate_confidence_interval(effect_size: float, group1: np.ndarray, group2: np.ndarray, 
+                                  confidence: float = 0.95) -> Tuple[float, float]:
+    """Calculate confidence interval for effect size."""
+    n1, n2 = len(group1), len(group2)
+    n = n1 + n2
+    # Approximate standard error for Cohen's d
+    se = np.sqrt((n1 + n2) / (n1 * n2) + effect_size**2 / (2 * (n1 + n2)))
+    z = stats.norm.ppf((1 + confidence) / 2)
+    return float(effect_size - z * se), float(effect_size + z * se)
 
-def apply_bonferroni_correction(
-    p_values: List[float],
-    alpha: float = 0.05
-) -> List[float]:
-    """
-    Apply Bonferroni correction to a list of p-values.
-    Returns adjusted p-values.
-    """
-    m = len(p_values)
-    if m == 0:
-        return []
-    
-    adjusted = [min(p * m, 1.0) for p in p_values]
-    return adjusted
+def apply_bonferroni_correction(p_value: float, n_concepts: int) -> float:
+    """Apply Bonferroni correction."""
+    return min(p_value * n_concepts, 1.0)
 
-def check_collinearity(
-    df: pd.DataFrame,
-    predictors: List[str],
-    threshold: float = 0.8
-) -> Dict[str, Any]:
-    """
-    Check for collinearity between predictors.
-    Returns diagnostics including max correlation and pairs exceeding threshold.
-    """
-    if len(predictors) < 2:
-        return {"max_correlation": 0.0, "high_correlation_pairs": [], "flagged": False}
-    
-    corr_matrix = df[predictors].corr().abs()
-    
-    # Find upper triangle correlations
-    high_pairs = []
-    max_corr = 0.0
-    
-    for i in range(len(predictors)):
-        for j in range(i + 1, len(predictors)):
-            corr_val = corr_matrix.iloc[i, j]
-            if corr_val > max_corr:
-                max_corr = corr_val
-            if corr_val > threshold:
-                high_pairs.append({
-                    "pair": [predictors[i], predictors[j]],
-                    "correlation": float(corr_val)
-                })
-    
+def check_collinearity(df: pd.DataFrame, predictors: List[str]) -> Dict[str, Any]:
+    """Detect |r| > 0.8 between predictors."""
+    corr_matrix = df[predictors].corr()
+    high_corr = {}
+    for i, col1 in enumerate(predictors):
+        for j, col2 in enumerate(predictors):
+            if i < j:
+                r = corr_matrix.loc[col1, col2]
+                if abs(r) > 0.8:
+                    high_corr[f"{col1}_{col2}"] = float(r)
     return {
-        "max_correlation": float(max_corr),
-        "high_correlation_pairs": high_pairs,
-        "flagged": len(high_pairs) > 0
+        "detected": len(high_corr) > 0,
+        "high_correlations": high_corr,
+        "max_correlation": float(corr_matrix.abs().max().max()) if not corr_matrix.empty else 0.0
     }
 
-def calculate_power(
-    effect_size: float,
-    n1: int,
-    n2: int,
-    alpha: float = 0.05
-) -> float:
-    """
-    Calculate achieved power for a two-sample t-test.
-    Uses non-central t-distribution.
-    """
-    if n1 <= 0 or n2 <= 0:
-        return 0.0
+def calculate_power(effect_size: float, n1: int, n2: int, alpha: float = 0.05) -> Dict[str, Any]:
+    """Compute achieved power."""
+    n_total = n1 + n2
+    # Approximate power calculation for t-test
+    # Using non-central t-distribution approximation
+    df = n_total - 2
+    # Effect size in terms of standard error
+    se = np.sqrt(1/n1 + 1/n2)
+    non_central_param = effect_size / se
     
-    # Approximate power calculation
-    df = n1 + n2 - 2
-    n = (n1 * n2) / (n1 + n2)
-    non_central_param = effect_size * np.sqrt(n)
+    # Critical t value
+    t_crit = stats.t.inv(1 - alpha/2, df)
     
-    # Critical t-value
-    t_crit = stats.t.ppf(1 - alpha/2, df)
-    
-    # Power is probability that t > t_crit under alternative
-    power = 1 - stats.nct.cdf(t_crit, df, non_central_param) + \
-            stats.nct.cdf(-t_crit, df, non_central_param)
-    
-    return float(power)
-
-def frame_inference(
-    p_value: float,
-    alpha: float = 0.05,
-    effect_size: float = 0.0
-) -> str:
-    """
-    Frame the statistical inference with appropriate caveats.
-    Returns a string explaining the associational nature of findings.
-    """
-    significant = p_value < alpha
-    direction = "positive" if effect_size > 0 else ("negative" if effect_size < 0 else "no")
-    
-    return (
-        f"Findings are associational; no causal inference is drawn due to observational nature of data. "
-        f"The analysis shows a {direction} association (effect size: {effect_size:.3f}, p-value: {p_value:.4f}). "
-        f"{'The association is statistically significant at alpha=0.05.' if significant else 'The association is not statistically significant at alpha=0.05.'}"
-    )
-
-def aggregate_stats_results(
-    t_statistic: float,
-    p_value: float,
-    effect_size: float,
-    ci_lower: float,
-    ci_upper: float,
-    inference_text: str,
-    power: float,
-    collinearity_diag: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Aggregate all statistical results into a single dictionary structure.
-    """
+    # Power is probability that non-central t > t_crit
+    # Using scipy's nct (non-central t)
+    try:
+        power = 1 - stats.nct.cdf(t_crit, df, non_central_param) + stats.nct.cdf(-t_crit, df, non_central_param)
+    except Exception:
+        power = 0.0
+      
     return {
+        "achieved_power": float(power),
+        "is_underpowered": float(power) < 0.80,
+        "effect_size": float(effect_size),
+        "sample_sizes": {"n1": n1, "n2": n2}
+    }
+
+def frame_inference() -> str:
+    """Return the mandatory associational framing statement."""
+    return "Findings are associational; no causal inference is drawn due to observational nature of data."
+
+def aggregate_stats_results(ancova_results: Dict[str, Any], 
+                            t_statistic: float, 
+                            p_value: float, 
+                            corrected_p_value: float, 
+                            effect_size_cohen_d: float, 
+                            confidence_interval: Tuple[float, float], 
+                            power_analysis: Dict[str, Any], 
+                            collinearity_diagnostics: Dict[str, Any]) -> Dict[str, Any]:
+    """Combine all statistical results into a single dictionary."""
+    return {
+        "ancova_results": ancova_results,
         "t_statistic": t_statistic,
         "p_value": p_value,
-        "effect_size_cohen_d": effect_size,
-        "confidence_interval": {"lower": ci_lower, "upper": ci_upper},
-        "inference_framing": inference_text,
-        "power_analysis": {"achieved_power": power, "underpowered": power < 0.80},
-        "collinearity_diagnostics": collinearity_diag
+        "corrected_p_value": corrected_p_value,
+        "effect_size_cohen_d": effect_size_cohen_d,
+        "confidence_interval": list(confidence_interval),
+        "inference_framing": frame_inference(),
+        "power_analysis": power_analysis,
+        "collinearity_diagnostics": collinearity_diagnostics
     }
 
-def write_partial_results(results: Dict[str, Any], output_path: str) -> None:
+def write_partial_results(
+    ancova_results: Dict[str, Any],
+    t_statistic: float,
+    p_value: float,
+    corrected_p_value: float,
+    effect_size_cohen_d: float,
+    confidence_interval: Tuple[float, float],
+    power_analysis: Dict[str, Any],
+    collinearity_diagnostics: Dict[str, Any],
+    output_path: str = "data/processed/results_us2.json"
+) -> str:
     """
-    Write the aggregated statistical results to a JSON file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    Write the aggregated dictionary to a JSON file.
+    Returns the path to the written file.
     
-    with open(path, 'w') as f:
+    Schema Keys required:
+    - ancova_results (PRIMARY: F-statistic, p-value, adjusted_means)
+    - t_statistic (SECONDARY)
+    - p_value (SECONDARY)
+    - corrected_p_value (Bonferroni-adjusted, required when N_concepts > 1)
+    - effect_size_cohen_d
+    - confidence_interval
+    - inference_framing (Must contain the full explanatory statement from FR-003)
+    - power_analysis
+    - collinearity_diagnostics
+    """
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Aggregate results
+    results = aggregate_stats_results(
+        ancova_results=ancova_results,
+        t_statistic=t_statistic,
+        p_value=p_value,
+        corrected_p_value=corrected_p_value,
+        effect_size_cohen_d=effect_size_cohen_d,
+        confidence_interval=confidence_interval,
+        power_analysis=power_analysis,
+        collinearity_diagnostics=collinearity_diagnostics
+    )
+    
+    # Write to JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
     
     logger.info(f"Partial results written to {output_path}")
+    return output_path
 
 def finalize_results(
-    us2_results_path: str,
-    sensitivity_results: List[Dict[str, Any]],
+    partial_results_path: str,
+    sensitivity_analysis: List[Dict[str, Any]],
     robustness_warning: bool,
-    output_path: str
-) -> Dict[str, Any]:
+    output_path: str = "data/processed/results.json"
+) -> str:
     """
-    Merge US2 results (t-test, effect size, etc.) with sensitivity analysis results
-    into the final results JSON.
-    
-    Args:
-        us2_results_path: Path to the results_us2.json file containing US2 results
-        sensitivity_results: List of sensitivity analysis results from T028/T030
-        robustness_warning: Boolean flag from T030
-        output_path: Path where the final results.json should be written
-        
-    Returns:
-        The complete merged results dictionary
+    Merge US2 results with sensitivity analysis into the final report.
     """
-    # Load US2 results
-    try:
-        with open(us2_results_path, 'r') as f:
-            us2_data = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"US2 results file not found at {us2_results_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Invalid JSON in US2 results file: {us2_results_path}")
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    # Ensure required keys exist in US2 data
-    required_keys = [
-        "t_statistic", "p_value", "effect_size_cohen_d", 
-        "confidence_interval", "inference_framing"
-    ]
-    for key in required_keys:
-        if key not in us2_data:
-            raise KeyError(f"Missing required key '{key}' in US2 results")
+    # Load partial results
+    with open(partial_results_path, 'r', encoding='utf-8') as f:
+        base_results = json.load(f)
     
-    # Format sensitivity analysis results
-    formatted_sensitivity = []
-    for sweep_result in sensitivity_results:
-        formatted_sensitivity.append({
-            "threshold_value": sweep_result.get("threshold_value"),
-            "n_participants_retained": sweep_result.get("n_participants_retained"),
-            "effect_size_cohen_d": sweep_result.get("effect_size_cohen_d"),
-            "robustness_flag": sweep_result.get("robustness_flag", False)
-        })
-    
-    # Merge into final structure
-    final_results = {
-        "t_statistic": us2_data["t_statistic"],
-        "p_value": us2_data["p_value"],
-        "effect_size_cohen_d": us2_data["effect_size_cohen_d"],
-        "confidence_interval": us2_data["confidence_interval"],
-        "inference_framing": us2_data["inference_framing"],
-        "sensitivity_analysis": formatted_sensitivity,
+    # Construct final report
+    final_report = {
+        **base_results,
+        "sensitivity_analysis": sensitivity_analysis,
         "robustness_warning": robustness_warning
     }
     
-    # Write final results
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(final_results, f, indent=2)
+    # Write final report
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(final_report, f, indent=2)
     
     logger.info(f"Final results written to {output_path}")
-    return final_results
+    return output_path

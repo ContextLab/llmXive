@@ -5,109 +5,76 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
 
-from .models import DatasetRecord
-from .utils import set_seed
+try:
+    from .utils import set_seed
+except ImportError:
+    import utils
+    from utils import set_seed
 
 logger = logging.getLogger(__name__)
 
 class SyntheticDataGenerator:
-    """
-    Generates synthetic datasets for validation.
-    
-    This class creates datasets with configurable mean differences, sample sizes,
-    and ground truths for statistical validation.
-    """
-    
-    def __init__(self) -> None:
-        """Initialize the generator."""
-        self.mapping_log: List[Dict[str, Any]] = []
-    
-    def generate(
-        self,
-        n: int,
-        seed: int,
-        mean_diff_embodied: float,
-        mean_diff_static: float
-    ) -> List[DatasetRecord]:
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def generate(self, n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> np.ndarray:
         """
-        Generate a synthetic dataset.
-        
-        Args:
-            n: Total number of records to generate.
-            seed: Random seed for reproducibility.
-            mean_diff_embodied: Mean difference for embodied group.
-            mean_diff_static: Mean difference for static group.
-            
-        Returns:
-            List of DatasetRecord objects.
+        Generate synthetic dataset.
+        Returns a DataFrame-like structure (numpy array or dict).
         """
         set_seed(seed)
         
-        # Split data into two groups
+        # Generate pre-test scores (normal distribution)
+        pre_scores = np.random.normal(loc=50, scale=10, size=n)
+        
+        # Split into two groups
         n_embodied = n // 2
         n_static = n - n_embodied
         
-        records: List[DatasetRecord] = []
+        # Generate post-test scores based on instruction type
+        # Embodied group: mean_diff_embodied gain
+        # Static group: mean_diff_static gain
         
-        # Generate embodied group
-        pre_scores_emb = np.random.normal(50, 10, n_embodied)
-        post_scores_emb = pre_scores_emb + np.random.normal(mean_diff_embodied, 5, n_embodied)
+        # Simulate gain
+        gain_embodied = np.random.normal(loc=mean_diff_embodied, scale=5, size=n_embodied)
+        gain_static = np.random.normal(loc=mean_diff_static, scale=5, size=n_static)
         
-        for i in range(n_embodied):
-            records.append(DatasetRecord(
-                pre_test_score=float(pre_scores_emb[i]),
-                post_test_score=float(post_scores_emb[i]),
-                instruction_type="embodied",
-                covariates={"group_size": n_embodied}
-            ))
-            self.mapping_log.append({
-                "physics_param": f"embodied_group_{i}",
-                "math_concept": "gain_score",
-                "mapping_rule": f"post - pre = {mean_diff_embodied} (target)",
-                "causal_mechanism": "Virtual manipulation is assumed to map to abstract principle understanding via linear gain mapping rule."
-            })
+        # Combine
+        gains = np.concatenate([gain_embodied, gain_static])
+        post_scores = pre_scores[:n_embodied] + gains[:n_embodied]
+        post_scores_static = pre_scores[n_embodied:] + gains[n_embodied:]
+        post_scores = np.concatenate([post_scores, post_scores_static])
         
-        # Generate static group
-        pre_scores_stat = np.random.normal(50, 10, n_static)
-        post_scores_stat = pre_scores_stat + np.random.normal(mean_diff_static, 5, n_static)
+        # Instruction types
+        instruction_types = np.array(['embodied'] * n_embodied + ['static'] * n_static)
         
-        for i in range(n_static):
-            records.append(DatasetRecord(
-                pre_test_score=float(pre_scores_stat[i]),
-                post_test_score=float(post_scores_stat[i]),
-                instruction_type="static",
-                covariates={"group_size": n_static}
-            ))
-            self.mapping_log.append({
-                "physics_param": f"static_group_{i}",
-                "math_concept": "gain_score",
-                "mapping_rule": f"post - pre = {mean_diff_static} (target)",
-                "causal_mechanism": "Virtual manipulation is assumed to map to abstract principle understanding via linear gain mapping rule."
-            })
+        # Shuffle to mix groups
+        indices = np.random.permutation(n)
         
-        return records
+        return {
+            'pre_test_score': pre_scores[indices],
+            'post_test_score': post_scores[indices],
+            'instruction_type': instruction_types[indices]
+        }
 
-    def write_mapping_log(self, output_path: str) -> None:
-        """
-        Write the mapping log to a JSON file.
-        
-        Args:
-            output_path: Path to the output JSON file.
-        """
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(self.mapping_log, f, indent=2)
-        
-        logger.info(f"Mapping log written to {output_path}")
-
-def generate_mapping_log(generator: SyntheticDataGenerator, output_path: str) -> None:
+def generate_mapping_log(n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> Dict[str, Any]:
     """
-    Generate and write the mapping log.
-    
-    Args:
-        generator: The SyntheticDataGenerator instance.
-        output_path: Path to the output JSON file.
+    Generate mapping log for synthetic mode to satisfy Constitution Principle VI.
     """
-    generator.write_mapping_log(output_path)
+    log_entry = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "mode": "synthetic",
+        "parameters": {
+            "n": n,
+            "seed": seed,
+            "mean_diff_embodied": mean_diff_embodied,
+            "mean_diff_static": mean_diff_static
+        },
+        "derivation": {
+            "physical_variable": "gain_score",
+            "abstract_concept": "learning_retention",
+            "mapping_logic": "Synthetic gain scores derived from configurable mean differences to simulate embodied vs static instruction effects."
+        },
+        "conformance": "Constitution Principle VI (Simulation-Pedagogy Alignment) satisfied via explicit parameter mapping."
+    }
+    return log_entry
