@@ -1,0 +1,49 @@
+
+### Phase 0: Research & Design (Input)
+- Spec review and clarification (already completed).
+- This plan document.
+- research.md, data-model.md, quickstart.md.
+
+### Phase 1: Setup & Validation (Tasks T001-T010)
+- **T001**: Initialize repository structure (code/, data/, tests/, docs/).
+- **T002**: Create requirements.txt with pinned versions.
+- **T003**: Implement synthetic_data.py with SCM generator.
+- **T004**: Implement imputation.py (Mean, KNN, MICE).
+- **T005**: Implement causal_estimators.py (IPW, PSM).
+- **T006**: Implement regenerate_ground_truth(seed, beta) function. Add unit tests verifying function returns expected values for seed=42, beta=0.5.
+- **T007**: Implement analysis.py (bias, RMSE, statistical tests).
+- **T008**: Implement sensitivity.py (Spearman, regression).
+- **T009**: Run unit tests (pytest tests/unit/).
+- **T010**: Implement MNAR validation (Kolmogorov-Smirnov test). Verify observed-data distribution diverges from complete-data distribution for beta > 0.
+
+### Phase 2: Data Generation & Estimation (Tasks T011-T029d)
+- **T011-T016**: Implement visualization.py and run_simulation.py orchestration.
+- **T017**: Implement Mean imputation + bootstrap for robust SEs/CIs.
+- **T018**: Implement KNN imputation + bootstrap for robust SEs/CIs.
+- **T019**: Implement MICE imputation + Rubin's Rules for robust SEs/CIs.
+- **T020-T023**: Implement IPW and PSM causal estimators with SE/CI calculation.
+- **T024**: Test IPW estimator on synthetic data.
+- **T025**: Test PSM estimator on synthetic data.
+- **T026**: Implement main simulation loop (iterate over runs and beta sweep).
+- **T027**: Implement data aggregation logic (write to CSV).
+- **T028.5**: Implement schema validation (verify simulation_summary.csv has all required columns before visualization).
+- **T029a**: Loop Orchestration: Iterate over multiple runs and beta sweep. Explicit dependencies and error handling.
+- **T029b**: Data Generation: Call regenerate_ground_truth(seed, beta) for each run.
+- **T029c**: Imputation/Estimation: Apply all 3 imputation methods and 2 estimators.
+- **T029d**: CSV Aggregation: Write results to simulation_summary.csv. Store ground_truth_ate, mnar_alpha, mnar_beta for every row.
+
+### Phase 3: Analysis & Validation (Tasks T030-T036)
+- **T028**: Implement statistical test decision tree (Shapiro → ANOVA/Friedman → Bootstrap). Write results to data/results/statistical_tests.json with test_type, p_value, test_statistic, skewness, bootstrap_ci_diff.
+- **T030**: Implement bias trend analysis. Compute Spearman rho and p-value for bias vs. beta. Verify rho > 0.9 AND p < 0.05. Write to data/results/sensitivity_analysis.json with monotonicity_confirmed flag.
+- **T031**: Implement divergence check between IPW and PSM. Calculate |bias_IPW - bias_PSM|. If > 0.1, flag as interaction effect in statistical_tests.json.
+- **T032**: Implement power sensitivity analysis (vary number of runs per beta). If power < 80%, flag in paper.
+- **T033**: Post-hoc power calculation. Verify [deferred] power for a moderate Cohen's d difference in bias.
+- **T034**: (REMOVED — bootstrap integrated into Task T028).
+- **T035**: Implement coverage trend analysis. Compute regression slope for coverage vs. beta. Verify slope < 0 AND p < 0.05. Write to data/results/sensitivity_analysis.json with negative_slope_confirmed flag.
+- **T036**: Implement oracle benchmark (IPW on complete data). Compute bias relative to oracle for independent validation.
+
+### Phase 4: Visualization & Documentation (Tasks T037-T042c)
+- **T037-T041**: Finalize analysis and prepare paper.
+- **T042a**: Generate bias_vs_beta.png: Plot bias by imputation method across beta levels. Script: `python code/visualization.py --plot bias_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/bias_vs_beta.png`.
+- **T042b**: Generate coverage_vs_beta.png: Plot coverage rate by method across beta levels. Script: `python code/visualization.py --plot coverage_vs_beta --input data/results/simulation_summary.csv --output docs/paper/figures/coverage_vs_beta.png`.
+- **T042c**: Generate bias_distributions.png: Boxplot of bias distributions per beta level. Script: `python code/visualization.py --plot bias_distributions --input data/results/simulation_summary.csv --output docs/paper/figures/bias_distributions.png`.

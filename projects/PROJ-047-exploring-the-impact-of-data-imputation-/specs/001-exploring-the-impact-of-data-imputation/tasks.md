@@ -5,12 +5,12 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -57,11 +57,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
+- [X] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
 - [X] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
 - [X] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
-- [X] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to calculate Variance Inflation Factor (VIF) for each confounder using `statsmodels.stats.outliers_influence.variance_inflation_factor`. If VIF > 10, log a warning but DO NOT discard the run; store the VIF value in the run metadata. (Edge Case: near-perfect collinearity).
-- [ ] T014 [US1] [Requires: T010, T011] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)** for **multiple runs**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "passed|failed|reported" }`. **CRITICAL**: Process all runs. If $\rho > 0.5$ and $p < 0.01$, set `status` to "passed". If $\rho \le 0.5$ or $p \ge 0.01$, set `status` to "failed" but DO NOT discard the run; log a warning and proceed. The main loop (T029a) must process ALL runs regardless of status. This task enforces the spec's verification requirement by flagging failures without filtering data.
+- [X] T013 [US1] Create collinearity diagnostic check in `code/simulation/scm_generator.py` to calculate Variance Inflation Factor (VIF) for each confounder using `statsmodels.stats.outliers_influence.variance_inflation_factor`. If VIF > 10, log a warning but DO NOT discard the run; store the VIF value in the run metadata. (Edge Case: near-perfect collinearity).
+- [X] T014 [US1] Add verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)** for **multiple runs**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "passed|failed|reported" }`. **CRITICAL**: Process all runs. If $\rho > 0.5$ and $p < 0.01$, set `status` to "passed". If $\rho \le 0.5$ or $p \ge 0.01$, set `status` to "failed" but DO NOT discard the run; log a warning and proceed. The main loop (T029a) must process ALL runs regardless of status. This task enforces the spec's verification requirement by flagging failures without filtering data. The output JSON must include the exact correlation and p-value for every run to allow downstream aggregation to flag invalid runs without excluding them. **Integration**: T029a will import and call the verification function defined here to log metrics.
 - [X] T015 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
 - [X] T016 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
 
@@ -101,19 +101,18 @@
 ### Implementation for User Story 3
 
 - [X] T027 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
-- [ ] T028 [P] [US3] [Requires: T029c] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: **Per FR-006, implement the specific decision tree:** 1) Run Shapiro-Wilk test on bias distribution (derived from `data/results/simulation_summary.csv` aggregated by beta level). 2) If $p < 0.05$ (non-normal) → Use **Friedman Test**. 3) If $p \ge$ the conventional significance threshold (normal) → Use **Repeated-Measures ANOVA**. 4) **Independently and MANDATORILY**: Calculate skewness via `scipy.stats.skew`. If skewness > 1 OR < -1 → Compute **Bootstrap CIs** (1000 iterations) for the difference in medians between the best and worst performing methods as a robust alternative. **Output**: Write the test result (p-value, test type used, conclusion, bootstrap_ci_diff) to `data/results/statistical_test_results.json` with schema: `{ "test_type": "anova|friedman|bootstrap", "p_value": float, "test_statistic": float, "skewness": float, "bootstrap_ci_diff": float }`. **Mandatory**: If skewness condition is met, `bootstrap_ci_diff` MUST be populated and included in the output.
-- [X] T029a [US3] [Requires: T023, T014] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate for **sufficient replications** to ensure convergence. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T010` (Gen), `T011` (Inject). **Import and call the verification function defined in T014** to log metrics, but DO NOT skip any runs based on the verification result. **This task orchestrates the internal calls to T029b and T029c functions.**
+- [X] T028 [US3] [Requires: T029a, T029c, T029d] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: **Per FR-006, implement the specific decision tree:** 1) Run Shapiro-Wilk test on bias distribution (derived from `data/results/simulation_summary.csv` aggregated by beta level). 2) If $p < 0.05$ (non-normal) → Use **Friedman Test**. 3) If $p \ge$ the conventional significance threshold (normal) → Use **Repeated-Measures ANOVA**. 4) **Independently and MANDATORILY**: Calculate skewness via `scipy.stats.skew`. If skewness > 1 OR < -1 → Compute **Bootstrap CIs** (A sufficient number of iterations) for the difference in medians between the best and worst performing methods as a robust alternative. **Output**: Write the test result (p-value, test type used, conclusion, bootstrap_ci_diff) to `data/results/statistical_test_results.json` with schema: `{ "test_type": "anova|friedman|bootstrap", "p_value": float, "test_statistic": float, "skewness": float, "bootstrap_ci_diff": float }`. **Mandatory**: If skewness > 1, `bootstrap_ci_diff` MUST be populated (not null). If not met, `bootstrap_ci_diff` MUST be set to `null` or `0.0` to ensure deterministic schema. If skewness > 1, `test_type` should reflect the bootstrap result as a robust alternative.
+- [X] T029a [US3] [Requires: T023, T014, T029b, T029c, T029d] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate for **sufficient replications** to ensure convergence. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T014` (Gen) to log metrics. **Do NOT call T028 inside the loop**. Instead, after the loop completes, invoke T029c (Aggregation), T029d (Validation), and then T028 (Stats). **This task orchestrates the internal calls to T029b and T029c functions.** **Output**: Generate raw run data to a temporary file or memory buffer, which is then consumed by T029c.
 - [X] T029b [Writing] [US3] [Internal Step of T029a] **Data Generation & Ground Truth Storage**: For each run, call `regenerate_ground_truth(seed, beta)` and store `tau_true`, `alpha`, `beta` in the run data. **Constitution VI**: Ensure these values are explicitly stored for every row. **Implementation**: This task defines the function called by T029a to generate and store ground truth.
-- [ ] T029c [Writing] [US3] [Internal Step of T029a] **Data Aggregation**: Aggregate results from T029a and T029b into `data/results/simulation_summary.csv`. **Schema**: `[beta, method, estimator, ate, bias, rmse, coverage_rate, seed, run_id, ground_truth_ate, beta_value, status]`. **Explicitly calculate coverage_rate** as the proportion of CIs (from T020) that contain `ground_truth_ate`, averaged per (method, estimator, beta) combination. Ensure `ground_truth_ate` and `beta_value` are included for every row to satisfy Constitution VI. **Implementation**: This task defines the function called by T029a to aggregate data.
-- [ ] T029d [Writing] [US3] [Requires: T029c] **Schema Validation**: Validate that `data/results/simulation_summary.csv` contains all columns required for T031 plots (bias_vs_beta, coverage_vs_beta, bias_distributions). If missing, raise an error.
+- [X] T029c [Writing] [US3] [Requires: T029a, T029b] **Data Aggregation**: Implement function `def aggregate_results(runs_list: List[Dict]) -> pd.DataFrame` in `code/analysis/aggregation.py`. Input: List of run dictionaries. Output: DataFrame. **Schema**: `[beta, method, estimator, ate, bias, rmse, coverage_rate, seed, run_id, ground_truth_ate, beta, status, vif, mnar_correlation, mnar_p_value]`. **Explicitly calculate coverage_rate** as the proportion of CIs (from T020) that contain `ground_truth_ate`, averaged per (method, estimator, beta) combination. **Mandatory**: Call `regenerate_ground_truth(seed, beta)` to verify integrity before storing `ground_truth_ate` to satisfy Constitution Principle VI. Write results to `data/results/simulation_summary.csv`.
+- [X] T029d [Writing] [US3] [Requires: T029c] **Schema Validation**: Implement function `def validate_schema(df: pd.DataFrame) -> bool` in `code/analysis/validation.py`. Validate that `data/results/simulation_summary.csv` contains ALL required columns: `[beta, method, estimator, ate, bias, rmse, coverage_rate, seed, run_id, ground_truth_ate, beta, status, vif, mnar_correlation, mnar_p_value]`. If missing, raise an error.
 - [X] T030 [US3] [Requires: T029c, T028] **Bias Trend Verification**: Compute Spearman rank correlation $\rho$ AND regression slope for bias vs. $\beta$. Verify $\rho > 0.9$, $p < 0.05$, and slope is positive. **Unit of Analysis**: Use the **arithmetic mean of absolute bias** across all runs for that beta level. **Output**: Write verification result (pass/fail, $\rho$, p-value, slope, status) to `data/results/bias_trend_verification.json` with keys: `{ "rho": float, "p_value": float, "slope": float, "monotonicity_confirmed": bool }`.
-- [X] T031 [US3] [Requires: T029c, T028, T029d] **Monotonic Trend Verification & Sensitivity Dataset (FR-007/SC-005)**: Implement `code/analysis/sensitivity.py` to calculate and verify monotonic trends for bias and coverage. **Primary Artifact**: Explicitly generate and save `data/results/sensitivity_analysis_dataset.csv` containing the mean absolute bias and mean coverage rate per beta level (aggregated). **Verification**: Verify Spearman $\rho > 0.9$ and $p < 0.05$ for bias trend, and negative slope ($p < 0.05$) for coverage trend. **Output**: Write results to `data/results/sensitivity_analysis.json` with keys: `{ "monotonicity_confirmed": bool, "spearman_rho": float, "p_value": float, "negative_slope_confirmed": bool }`. The `spearman_rho` and `p_value` MUST correspond to the **bias** monotonicity check as required by SC-005.
-- [X] T032 [US3] [REMOVED - Merged into T031]
+- [X] T031 [US3] [Requires: T029c, T028] **Monotonic Trend Verification & Sensitivity Dataset (FR-007/SC-005)**: Implement `code/analysis/sensitivity.py` to calculate and verify monotonic trends for bias and coverage. **Primary Artifact**: Explicitly generate and save `data/results/sensitivity_analysis_dataset.csv` containing the mean absolute bias and mean coverage rate per beta level (aggregated). **Verification**: Verify Spearman $\rho > 0.9$ and $p < 0.05$ for bias trend, and negative slope ($p < 0.05$) for coverage trend. **Output**: Write results to `data/results/sensitivity_analysis.json` with keys: `{ "monotonicity_confirmed": bool, "spearman_rho": float, "p_value": float, "negative_slope_confirmed": bool }`. The `spearman_rho` and `p_value` MUST correspond to the **bias** monotonicity check as required by SC-005.
+- [X] T032 [US3] **Power Analysis**: Implement `code/analysis/power.py` to calculate statistical power for the bias comparison.
 - [X] T033 [US3] Create `tests/test_metrics.py` to verify bias calculations match manual checks on small synthetic data
 - [X] T034 [US3] Create `tests/test_sensitivity.py` to verify monotonic trend detection logic
-- [X] T035 [US3] [REMOVED - Merged into T031]
-- [X] T036 [US3] **Oracle Benchmark (Plan T036)**: Implement `code/analysis/oracle.py` to run IPW on complete (unmasked) data. Calculate bias relative to this oracle benchmark to distinguish imputation failure from MNAR parameter distortion. **Success Criterion**: If `bias_vs_oracle` > 0.1, flag the run as "imputation_failure" in the output JSON. Write results to `data/results/oracle_benchmark.json` with schema: `{ "method": str, "bias_vs_oracle": float, "bias_vs_truth": float, "flag": "imputation_failure|normal" }`.
-- [X] T037 [US3] **Power Sensitivity Analysis (Plan T032)**: Implement logic to vary the number of runs per beta (e.g., multiple trials) and calculate post-hoc power using `statsmodels.stats.power.tt_ind_solve_power` with effect size `Cohen's d = 0.5` and target power `0.8`. Flag if power < 80% in `data/results/power_analysis.json`.
+- [X] T035 [US3] **Oracle Benchmark**: Implement `code/analysis/oracle.py` to run IPW on complete (unmasked) data. Calculate bias relative to this oracle benchmark to distinguish imputation failure from MNAR parameter distortion. **Success Criterion**: If `bias_vs_oracle` > 0.1, flag the run as "imputation_failure" in the output JSON. **Output**: Write results to `data/results/oracle_benchmark.json` with schema: `{ "method": str, "bias_vs_oracle": float, "bias_vs_truth": float, "flag": "imputation_failure|normal" }`.
+- [X] T036 [US3] [Requires: T029c] **Power Sensitivity Analysis**: Implement logic to vary the number of runs per beta (e.g., multiple trials) and calculate post-hoc power using `statsmodels.stats.power.tt_ind_solve_power` with effect size `Cohen's d = 0.5` and target power `0.8`. Flag if power < 80% in `data/results/power_analysis.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -123,14 +122,31 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T038 [P] Create `.github/workflows/simulation.yml` with steps to install dependencies, run `pytest`, and execute `main.py`.
-- [X] T039 [P] Add timeout configuration to `.github/workflows/simulation.yml` (set `timeout-minutes:`) and verify execution time does not exceed the maximum duration of the free-tier CPU. (SC-003).
-- [X] T040 [P] Implement `code/utils/hashing.py` to generate SHA-256 content hashes for all files in `data/`.
-- [X] T041 [P] Implement logic to update `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `artifact_hashes` map using the hashes generated in T040.
-- [ ] T042a [US3] [Requires: T029d] Generate `docs/paper/bias_vs_beta.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_bias.py`.
-- [ ] T042b [US3] [Requires: T029d] Generate `docs/paper/coverage_vs_beta.pdf` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_coverage.py`. **Requirement**: Perform a regression test for a negative slope in coverage vs. beta. Embed the resulting p-value in the figure caption or a companion JSON file (`docs/paper/coverage_regression.json`) to verify SC-002. <!-- ATOMIZE: requested -->
-- [ ] T042c [US3] [Requires: T029d] Generate `docs/paper/bias_distributions.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_distributions.py`. <!-- ATOMIZE: requested -->
+- [X] T037 [P] Create `.github/workflows/simulation.yml` with steps to install dependencies, run `pytest`, and execute `main.py`.
+- [X] T038 [P] Add timeout configuration to `.github/workflows/simulation.yml` (set `timeout-minutes:`) and verify execution time does not exceed the maximum duration of the free-tier CPU. (SC-003).
+- [X] T039 [P] Implement `code/utils/hashing.py` to generate SHA-256 content hashes for all files in `data/`.
+- [X] T040 [P] Implement logic to update `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `artifact_hashes` map using the hashes generated in T039.
+- [X] T041 [P] [US3] Create `code/visualization.py` as a unified CLI script to handle all plot generation requests (`--plot bias_vs_beta`, `--plot coverage_vs_beta`, `--plot bias_distributions`).
+- [X] T042 [US3] Update `docs/quickstart.md` to replace references to non-existent `code/run_simulation.py` and `code/analysis.py` with the correct invocation of `code/main.py` (for simulation) and `code/visualization.py` (for plots), ensuring the run-book matches the implemented artifact structure.
 - [X] T043 Run full regression test suite on the complete pipeline to ensure no runtime errors under extreme missingness (>50%) missingness.
+- [X] T044 Reconcile run-book vs implementation for `code/run_simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/run_simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T045 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T046 Reconcile run-book vs implementation for `code/visualization.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/visualization.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T047 [P] [US3] Create `code/visualization.py` as a unified CLI script to handle all plot generation requests (`--plot bias_vs_beta`, `--plot coverage_vs_beta`, `--plot bias_distributions`). This task resolves the missing script referenced in T046 and consolidates the logic from T042a-c into a single, maintainable entry point that reads from `data/results/simulation_summary.csv` and outputs to `docs/paper/figures/`. Ensure strict adherence to the schema validation defined in T029d. **Requires: T029d** (Data validation must pass before plotting).
+
+---
+
+## Phase 7: Revision & Hardening (Review Concerns)
+
+**Purpose**: Address specific reviewer concerns regarding data integrity, statistical robustness, and execution feasibility.
+
+- [ ] T048 [P] [US3] **Explicit MNAR Mechanism Documentation**: Update `code/simulation/missingness.py` and `docs/paper/notes.md` to explicitly document that the "ground truth" refers to the generative parameter and that ATE is not identifiable from observed data. Add a warning log in `main.py` (T029a) that prints this disclaimer before every run.
+- [ ] T049 [P] [US3] **Robust SE/CI Verification**: Extend `tests/test_se_combination.py` to verify that `apply_bootstrap_ci` and `apply_rubins_rules` produce standard errors within expected bounds for a known synthetic distribution (e.g., normal data with known variance).
+- [ ] T050 [P] [US3] **Convergence Failure Handling**: Enhance `code/analysis/pipeline.py` (T024) to explicitly log the convergence failure reason (e.g., "MICE failed to converge after 10 iterations") and ensure this log is captured in `data/results/run_errors.log` with a unique run ID.
+- [ ] T051 [P] [US3] **Power Analysis Validation**: Update `code/analysis/power.py` to output a detailed report in `data/results/power_analysis.json` that includes the calculated effect size, sample size, and the specific power value, ensuring the "flag if power < 80%" logic is clearly visible in the output.
+- [ ] T052 [P] [US3] **Runtime Optimization**: Profile `code/main.py` (T029a) to identify bottlenecks in the 200-run loop. If runtime exceeds 3.5 hours, implement `joblib.Parallel` with `n_jobs=2` for independent beta-level loops to ensure SC-003 compliance (completion within 4 hours).
+- [ ] T053 [P] [US3] **Schema Rigor**: Add a strict Pydantic model in `code/analysis/schemas.py` for `simulation_summary.csv` and `statistical_test_results.json`. Update T029d and T028 to use these models for validation, raising a `ValidationError` if any field is missing or of the wrong type.
+- [ ] T054 [P] [US3] **MNAR Parameter Sweep Verification**: Add a unit test in `tests/test_missingness.py` to verify that `tune_alpha` correctly converges to the target missingness rate for extreme $\beta$ values (0.0, 1.0), ensuring the sweep covers the full range of MNAR intensity.
 
 ---
 
@@ -144,10 +160,11 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 7)**: Depends on completion of all User Story phases and initial execution feedback
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other user stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data generation to function
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 pipeline output to calculate metrics
 
@@ -165,21 +182,7 @@
 - Once Foundational phase completes, US1, US2, and US3 implementation can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Imputation methods (Mean, KNN, MICE) and Estimators (IPW, PSM) can be implemented in parallel
-
----
-
-## Parallel Example: User Story 2
-
-```bash
-# Launch all imputation implementations together:
-Task: "Implement Mean imputation in code/analysis/imputation.py"
-Task: "Implement KNN imputation in code/analysis/imputation.py"
-Task: "Implement MICE imputation in code/analysis/imputation.py"
-
-# Launch all estimation implementations together:
-Task: "Implement IPW estimation in code/analysis/causal_estimation.py"
-Task: "Implement PSM estimation in code/analysis/causal_estimation.py"
-```
+- Phase 7 tasks (T049-T055) can be executed in parallel as they are independent hardening steps
 
 ---
 
@@ -228,9 +231,5 @@ With multiple developers:
 - **Statistical Rigor**: Use FR-006 decision tree (Shapiro -> ANOVA/Friedman -> Bootstrap) as primary test. Bootstrap is conditional on skewness and mandatory if skewness > 1.
 - **Verification**: All statistical tests must output JSON verification files with pass/fail flags.
 - **No Filtering**: Do not discard runs based on correlation thresholds (T014).
-- **Hard Dependencies**: T029c is a hard blocker for T030, T031, and T042a-c. T028 must complete before T030/T031. T014 must complete before T029a.
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [X] T044 Reconcile run-book vs implementation for `code/run_simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/run_simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [X] T045 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T046 Reconcile run-book vs implementation for `code/visualization.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/visualization.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- **Single Source of Truth**: Every metric must trace back to a specific run in the simulation, allowing for reproducibility and verification.
+- **Data Collection**: Log all relevant data points (parameters, results, errors) for each run to enable detailed analysis and debugging.
