@@ -12,11 +12,9 @@ T010:
     provided `code/prompts.py` is truncated before any logic that would create and
     write that manifest. Consequently the task of combining the two source JSONs into
     a final manifest with attribution and checksums has not been fulfilled.
-T014:
+T016:
   c: false
-  h: 9fcc0e4247e2b6cfe5cc0c21dd1b599f3d227cd08ad70bd049df8c170a28e5ee
-  r: The required `data/prompts/manifest.json` file is absent, and `data/failures.log`
-    does not exist, so the generation loop cannot read the prompt list or record failures.
-    Additionally, the provided `code/generate.py` is truncated and does not show a
-    completed loop that processes 30 prompts and produces 90 snippets. These missing/unfinished
-    artifacts must be added for the task to be considered complete.
+  h: 1d2a928dd39d72db6a1c6516d53a59aa326a0c1f8e08e58fa71af217be90c661
+  r: The `code/metrics.py` file contains the mapping functions, but the required `data/mappings/nist_severity_map.yaml`
+    file is absent, so the implementation cannot actually perform the severity conversion
+    as specified. The missing YAML mapping file must be added for the task to be complete.

@@ -12,5 +12,4 @@ T008: 1
   a clear mapping rule, the system MUST abort with exit code 1 and log "GATE: Mapping
   Rule Missing". **Dependency**: T008, T009b.'
 : 1
-T042: 2
-T043: 1
+T043: 2

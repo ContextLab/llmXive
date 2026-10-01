@@ -95,6 +95,7 @@ def _log_timeout_trace(
     Write a detailed timeout trace to results/timeout_traces.log.
     
     Format: JSON line per event for easy parsing.
+    This function ensures the file is written to disk immediately.
     """
     trace_entry = {
         "timestamp": timestamp,
@@ -106,9 +107,13 @@ def _log_timeout_trace(
         "message": f"Agent '{agent_id}' timed out at step '{step}' for task '{task_id}' after {timeout_seconds}s."
     }
     
+    # Ensure directory exists (redundant but safe)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    
     try:
         with open(TIMEOUT_TRACES_LOG, "a", encoding="utf-8") as f:
             f.write(json.dumps(trace_entry) + "\n")
+            f.flush()  # Ensure data is written to disk immediately
     except IOError as e:
         # Fail loudly if we cannot log the trace
         raise RuntimeError(f"Failed to write timeout trace to {TIMEOUT_TRACES_LOG}: {e}") from e

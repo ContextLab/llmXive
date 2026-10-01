@@ -1,225 +1,238 @@
-"""
-Statistical Power Calculator for llmXive Analysis.
-
-This module explicitly calculates statistical power for the observed effect size
-and sample size (N=10). It is used to determine if the study is underpowered
-(< 0.4) and should warn the report generator to interpret results as "inconclusive".
-"""
-
 import json
 import math
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-# Import from existing API surface
-# Note: T029 (tests.py) likely exists in code/analysis/tests.py or similar
-# We assume the paired_scores.json structure is available as per T024/T030
-# We will implement the power calculation logic here using standard stats formulas
-# or scipy if available (listed in requirements).
+# Constants
+PAIRED_SCORES_PATH = Path("results/paired_scores.json")
+STATISTICAL_REPORT_PATH = Path("results/statistical_report.json")
+DEFAULT_MARGIN = 5.0
+DEFAULT_ALPHA = 0.05
+LOW_POWER_THRESHOLD = 0.4
 
-try:
-    from scipy import stats
-    from statsmodels.stats.power import TTestPower
-    HAS_STATS_MODELS = True
-except ImportError:
-    HAS_STATS_MODELS = False
-
-
-def calculate_effect_size_cohen_d(mean_diff: float, std_diff: float) -> float:
+def load_ppaired_scores() -> Tuple[Optional[list], str]:
     """
-    Calculate Cohen's d effect size.
-    d = mean_difference / standard_deviation_of_differences
+    Load paired scores from results/paired_scores.json.
+    Returns (scores_list, error_message). If successful, error_message is empty.
     """
+    if not PAIRED_SCORES_PATH.exists():
+        return None, f"File not found: {PAIRED_SCORES_PATH}"
+    
+    try:
+        with open(PAIRED_SCORES_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, list):
+            return None, "Invalid format: expected a list of score objects."
+        
+        # Extract scientific_core scores for both conditions
+        zero_shot_scores = []
+        scaffolded_scores = []
+        
+        for entry in data:
+            if entry.get("condition") == "zero_shot":
+                zero_shot_scores.append(entry["scores"]["scientific_core"])
+            elif entry.get("condition") == "scaffolded":
+                scaffolded_scores.append(entry["scores"]["scientific_core"])
+        
+        if len(zero_shot_scores) != len(scaffolded_scores):
+            return None, f"Mismatched counts: {len(zero_shot_scores)} zero-shot vs {len(scaffolded_scores)} scaffolded."
+        
+        if len(zero_shot_scores) == 0:
+            return None, "No paired scores found."
+        
+        return list(zip(zero_shot_scores, scaffolded_scores)), ""
+    
+    except json.JSONDecodeError as e:
+        return None, f"JSON decode error: {str(e)}"
+    except Exception as e:
+        return None, f"Unexpected error: {str(e)}"
+
+def calculate_mean_diff(paired_data: list) -> float:
+    """Calculate the mean difference (Scaffolded - Zero-Shot)."""
+    if not paired_data:
+        return 0.0
+    diffs = [s - z for z, s in paired_data]
+    return sum(diffs) / len(diffs)
+
+def calculate_std_dev(data: list) -> float:
+    """Calculate sample standard deviation."""
+    if len(data) < 2:
+        return 0.0
+    mean = sum(data) / len(data)
+    variance = sum((x - mean) ** 2 for x in data) / (len(data) - 1)
+    return math.sqrt(variance)
+
+def calculate_effect_size_cohen_d(paired_data: list) -> float:
+    """
+    Calculate Cohen's d for paired samples.
+    d = mean_diff / std_diff
+    """
+    if not paired_data:
+        return 0.0
+    
+    diffs = [s - z for z, s in paired_data]
+    mean_diff = sum(diffs) / len(diffs)
+    std_diff = calculate_std_dev(diffs)
+    
     if std_diff == 0:
         return 0.0
+    
     return mean_diff / std_diff
-
 
 def calculate_power_t_test(
     effect_size: float,
-    n_obs: int,
-    alpha: float = 0.05,
-    two_tail: bool = True
+    n: int,
+    alpha: float = DEFAULT_ALPHA,
+    margin: float = DEFAULT_MARGIN
 ) -> float:
     """
-    Calculate statistical power for a paired t-test given effect size and N.
-
-    Args:
-        effect_size: Cohen's d
-        n_obs: Number of observations (pairs)
-        alpha: Significance level
-        two_tail: Whether the test is two-tailed
-
-    Returns:
-        Power value between 0 and 1.
+    Estimate statistical power for a paired t-test (approximation).
+    
+    Uses the non-central t-distribution approximation:
+    Power = P(t > t_crit | non-centrality parameter)
+    
+    For simplicity in this environment without scipy.stats, we use a standard
+    approximation formula for power based on effect size and sample size.
+    
+    Power ~ Phi( sqrt(n) * |d| - z_{1-alpha/2} )
+    where Phi is the CDF of the standard normal distribution.
+    
+    Note: This is an approximation. In a full implementation, scipy.stats would be used.
     """
-    if not HAS_STATS_MODELS:
-        # Fallback to approximation if statsmodels is missing
-        # Using a simplified approximation: power ~ 1 - beta
-        # This is a rough estimate, but ensures the module runs without hard crash
-        # if statsmodels is not installed (though it is in requirements).
-        # Standard normal approximation for power:
-        z_alpha = stats.norm.ppf(1 - alpha / 2) if two_tail else stats.norm.ppf(1 - alpha)
-        z_beta = effect_size * math.sqrt(n_obs) - z_alpha
-        power = stats.norm.cdf(z_beta)
-        return float(power)
+    if n < 2:
+        return 0.0
+    
+    # Standard normal critical value for two-tailed test (approx z=1.96 for alpha=0.05)
+    z_critical = 1.96 
+    
+    # Non-centrality parameter (NCP)
+    ncp = math.sqrt(n) * abs(effect_size)
+    
+    # Approximate power using normal CDF
+    # We approximate Phi(x) using the error function
+    # Phi(x) = 0.5 * (1 + erf(x / sqrt(2)))
+    
+    # Power is the probability that the test statistic exceeds the critical value
+    # under the alternative hypothesis.
+    # Approximation: Power = P(Z > z_critical - ncp) + P(Z < -z_critical - ncp)
+    # Since we are looking for equivalence, we focus on the upper tail usually,
+    # but for a standard t-test power calculation:
+    # Power = 1 - Phi(z_critical - ncp) + Phi(-z_critical - ncp)
+    # For large ncp, the second term is negligible.
+    
+    # Let's use a robust approximation for Phi
+    def normal_cdf(x):
+        return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+    
+    # Power = P(reject H0 | H1 is true)
+    # In a two-sided test, we reject if |t| > t_crit.
+    # Under H1, t is distributed as non-central t with ncp.
+    # Approximation: Power = 1 - Phi(z_crit - ncp) + Phi(-z_crit - ncp)
+    
+    term1 = 1 - normal_cdf(z_critical - ncp)
+    term2 = normal_cdf(-z_critical - ncp)
+    
+    power = term1 + term2
+    
+    return min(max(power, 0.0), 1.0)
 
-    power_analysis = TTestPower()
-    power_val = power_analysis.solve_power(
-        effect_size=effect_size,
-        nobs1=n_obs,
-        alpha=alpha,
-        alternative='two-sided' if two_tail else 'larger'
-    )
-    return float(power_val)
-
-
-def load_paired_scores(filepath: str) -> Tuple[float, float, int]:
+def calculate_power_report(paired_data: list) -> Dict[str, Any]:
     """
-    Load paired scores from JSON and calculate mean difference and std dev of differences.
-
-    Returns:
-        Tuple of (mean_diff, std_diff, n_obs)
+    Calculate statistical power and generate a warning if low.
+    
+    Returns a dictionary containing:
+    - n: sample size
+    - mean_diff: calculated mean difference
+    - effect_size: Cohen's d
+    - power: estimated power
+    - power_warning: present if power < 0.4
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Paired scores file not found: {filepath}")
-
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    # Filter for valid entries (assuming structure from T024)
-    # We need to calculate differences between Scaffolded and Zero-Shot for each task_id
-    # The data structure is likely a list of dicts:
-    # [{"task_id": "id", "condition": "zero_shot", "scores": {"scientific_core": 0-50}}, ...]
-
-    # Group by task_id
-    task_scores: Dict[str, Dict[str, float]] = {}
-    for entry in data:
-        tid = entry.get('task_id')
-        cond = entry.get('condition')
-        score = entry.get('scores', {}).get('scientific_core')
-
-        if tid and cond and score is not None:
-            if tid not in task_scores:
-                task_scores[tid] = {}
-            task_scores[tid][cond] = score
-
-    differences = []
-    for tid, scores in task_scores.items():
-        if 'scaffolded' in scores and 'zero_shot' in scores:
-            diff = scores['scaffolded'] - scores['zero_shot']
-            differences.append(diff)
-
-    if not differences:
-        raise ValueError("No paired data found to calculate differences.")
-
-    n_obs = len(differences)
-    mean_diff = sum(differences) / n_obs
-    std_diff = math.sqrt(sum((x - mean_diff) ** 2 for x in differences) / (n_obs - 1)) if n_obs > 1 else 0.0
-
-    return mean_diff, std_diff, n_obs
-
-
-def calculate_power_report(
-    input_file: str,
-    output_file: str,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Main function to calculate power and generate a report.
-
-    This function:
-    1. Loads paired scores from `input_file`.
-    2. Calculates Cohen's d.
-    3. Calculates statistical power.
-    4. Returns a dictionary with power metrics and warnings.
-
-    If power < 0.4, the report includes a 'power_warning' field.
-    """
+    n = len(paired_data)
+    mean_diff = calculate_mean_diff(paired_data)
+    effect_size = calculate_effect_size_cohen_d(paired_data)
+    power = calculate_power_t_test(effect_size, n)
+    
     report = {
-        "input_file": input_file,
-        "alpha": alpha,
-        "status": "success"
+        "n": n,
+        "mean_diff": mean_diff,
+        "effect_size": effect_size,
+        "power": power
     }
+    
+    if power < LOW_POWER_THRESHOLD:
+        report["power_warning"] = {
+            "value": power,
+            "threshold": LOW_POWER_THRESHOLD,
+            "recommendation": "interpret results as 'inconclusive' rather than 'validated'",
+            "reason": f"Statistical power ({power:.3f}) is below the threshold ({LOW_POWER_THRESHOLD}). With N={n}, the sample size is insufficient to reliably detect the observed effect size."
+        }
+    
+    return report
 
-    try:
-        mean_diff, std_diff, n_obs = load_paired_scores(input_file)
-        effect_size = calculate_effect_size_cohen_d(mean_diff, std_diff)
-        power = calculate_power_t_test(effect_size, n_obs, alpha)
-
-        report.update({
-            "mean_difference": mean_diff,
-            "std_difference": std_diff,
-            "n_obs": n_obs,
-            "effect_size_cohen_d": effect_size,
-            "power_estimate": power
-        })
-
-        if power < 0.4:
-            report["power_warning"] = {
-                "value": power,
-                "threshold": 0.4,
-                "recommendation": "Interpret results as 'inconclusive' due to low statistical power.",
-                "suggested_action": "Increase sample size (N) to achieve power >= 0.8."
-            }
-            report["interpretation"] = "inconclusive"
-        else:
-            report["interpretation"] = "validated"
-
-        # Write report to file
-        output_path = Path(output_file)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-
-        return report
-
-    except Exception as e:
-        report["status"] = "error"
-        report["error_message"] = str(e)
-        return report
-
+def update_statistical_report(power_info: Dict[str, Any]) -> None:
+    """
+    Read the existing statistical_report.json, add the power warning if present,
+    and write it back. If the file does not exist, create it with the power info.
+    """
+    report_path = STATISTICAL_REPORT_PATH
+    
+    existing_data = {}
+    if report_path.exists():
+        try:
+            with open(report_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+        except (json.JSONDecodeError, Exception):
+            existing_data = {}
+    
+    # Add power info
+    if "power_info" not in existing_data:
+        existing_data["power_info"] = {}
+    
+    existing_data["power_info"] = {
+        "n": power_info["n"],
+        "mean_diff": power_info["mean_diff"],
+        "effect_size": power_info["effect_size"],
+        "power": power_info["power"]
+    }
+    
+    if "power_warning" in power_info:
+        existing_data["power_warning"] = power_info["power_warning"]
+        # Update interpreted_status if warning exists
+        if "interpreted_status" in existing_data:
+            if existing_data["interpreted_status"] == "safe" and "power_warning" in power_info:
+                existing_data["interpreted_status"] = "inconclusive"
+                existing_data["interpretation_note"] = "Results marked inconclusive due to low statistical power."
+    
+    # Write back
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(existing_data, f, indent=2)
 
 def main():
-    """CLI entry point for power calculation."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Calculate statistical power for llmXive analysis.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="results/paired_scores.json",
-        help="Path to the paired scores JSON file."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="results/power_analysis_report.json",
-        help="Path to write the power analysis report."
-    )
-    parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.05,
-        help="Significance level (default: 0.05)."
-    )
-
-    args = parser.parse_args()
-
-    print(f"Calculating power for {args.input}...")
-    report = calculate_power_report(args.input, args.output, args.alpha)
-
-    if report["status"] == "error":
-        print(f"Error: {report['error_message']}")
-        exit(1)
-
-    print(f"Power analysis complete. Report written to {args.output}")
-    print(f"Power Estimate: {report['power_estimate']:.4f}")
-    if "power_warning" in report:
-        print(f"WARNING: Low power detected ({report['power_warning']['value']:.4f} < 0.4).")
-        print(f"Recommendation: {report['power_warning']['recommendation']}")
-
+    """Main entry point for power calculation."""
+    print("Starting power calculation...")
+    
+    # Load data
+    paired_data, error = load_ppaired_scores()
+    if error:
+        print(f"ERROR: {error}")
+        return 1
+    
+    # Calculate power
+    power_info = calculate_power_report(paired_data)
+    
+    # Update report
+    try:
+        update_statistical_report(power_info)
+        print(f"Power calculation complete. Report updated at {STATISTICAL_REPORT_PATH}")
+        if "power_warning" in power_info:
+            print(f"WARNING: Low power detected ({power_info['power']:.3f}).")
+            print(f"Recommendation: {power_info['power_warning']['recommendation']}")
+    except Exception as e:
+        print(f"ERROR updating report: {str(e)}")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-14T09:52:35.289246Z'
-- artifact_hash: 37207164cc76abd20173ea3f7d54806be75e1763bf60e2f172a6270b06e35844
+- artifact_hash: 260e5f252c79f765c618f5d0c8e6c3e1192e7f7c61ec0988121fbc65a94f3640
   artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://en.wikipedia.org/wiki/History_of_Python
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/History_of_Python
-  verified_at: '2026-09-21T00:58:55.507267Z'
-- artifact_hash: 37207164cc76abd20173ea3f7d54806be75e1763bf60e2f172a6270b06e35844
+  verified_at: '2026-10-01T06:59:52.841229Z'
+- artifact_hash: 260e5f252c79f765c618f5d0c8e6c3e1192e7f7c61ec0988121fbc65a94f3640
   artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://osf.io/{OSF_TEMPLATE_MANIFEST_ID}/manifest.json`
   verification_status: pending
   verified_against_url: https://osf.io/%7BOSF_TEMPLATE_MANIFEST_ID%7D/manifest.json
-  verified_at: '2026-09-21T00:58:55.507267Z'
+  verified_at: '2026-10-01T06:59:52.841229Z'
