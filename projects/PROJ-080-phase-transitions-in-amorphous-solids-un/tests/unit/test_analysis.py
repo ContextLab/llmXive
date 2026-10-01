@@ -1,172 +1,134 @@
-import pytest
-import numpy as np
-from scipy import stats
-import json
 import os
-import sys
+import tempfile
+import pandas as pd
+import numpy as np
+import pytest
 from pathlib import Path
 
-# Add project root to path to allow imports from code/
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Import the functions to test
+from code.analysis import aggregate_to_shear_bands, perform_ks_test, apply_bonferroni_correction
 
-from code.utils import set_seed
-from code.logging_config import get_logger
+class TestAggregateToShearBands:
+    def test_aggregate_creates_correct_columns(self):
+        """Test that aggregation creates the required columns."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / 'input.csv'
+            output_path = Path(tmpdir) / 'output.csv'
+            
+            # Create dummy data with x, y, d2_min
+            df = pd.DataFrame({
+                'x': [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+                'y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+            })
+            df.to_csv(input_path, index=False)
+            
+            aggregate_to_shear_bands(str(input_path), str(output_path), k=3, seed=42)
+            
+            assert output_path.exists()
+            result = pd.read_csv(output_path)
+            
+            assert 'shear_band_id' in result.columns
+            assert 'mean_D2_min' in result.columns
+            assert 'particle_count' in result.columns
+            
+            # Check types
+            assert result['shear_band_id'].dtype in ['int64', 'int32']
+            assert result['particle_count'].dtype in ['int64', 'int32']
 
-logger = get_logger(__name__)
+    def test_aggregate_deterministic_with_seed(self):
+        """Test that clustering is deterministic with fixed seed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / 'input.csv'
+            output_path1 = Path(tmpdir) / 'output1.csv'
+            output_path2 = Path(tmpdir) / 'output2.csv'
+            
+            df = pd.DataFrame({
+                'x': [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+                'y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+            })
+            df.to_csv(input_path, index=False)
+            
+            aggregate_to_shear_bands(str(input_path), str(output_path1), k=3, seed=42)
+            aggregate_to_shear_bands(str(input_path), str(output_path2), k=3, seed=42)
+            
+            res1 = pd.read_csv(output_path1)
+            res2 = pd.read_csv(output_path2)
+            
+            # Results should be identical
+            pd.testing.assert_frame_equal(res1, res2)
 
+    def test_fallback_to_index_clustering(self):
+        """Test fallback when no spatial columns exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / 'input.csv'
+            output_path = Path(tmpdir) / 'output.csv'
+            
+            # Data without x, y, z
+            df = pd.DataFrame({
+                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+            })
+            df.to_csv(input_path, index=False)
+            
+            # Should not raise, should use index clustering
+            aggregate_to_shear_bands(str(input_path), str(output_path), k=3, seed=42)
+            
+            assert output_path.exists()
+            result = pd.read_csv(output_path)
+            assert len(result) == 3  # k=3 bands
 
-class TestKolmogorovSmirnov:
-    """Unit tests for Kolmogorov-Smirnov test implementation (US2)."""
+class TestPerformKsTest:
+    def test_ks_test_returns_valid_stats(self):
+        """Test KS test returns valid statistic and p-value."""
+        brittle_df = pd.DataFrame({'mean_D2_min': [0.1, 0.2, 0.3]})
+        ductile_df = pd.DataFrame({'mean_D2_min': [0.4, 0.5, 0.6]})
+        
+        stat, pval = perform_ks_test(brittle_df, ductile_df)
+        
+        assert 0 <= stat <= 1.0
+        assert 0 <= pval <= 1.0
 
-    def test_ks_test_basic_functionality(self):
-        """Test that KS test runs and returns expected structure."""
-        set_seed(42)
+    def test_ks_test_detects_difference(self):
+        """Test KS test detects significant difference."""
+        # Two distinct distributions
+        brittle_df = pd.DataFrame({'mean_D2_min': [0.1] * 50})
+        ductile_df = pd.DataFrame({'mean_D2_min': [0.9] * 50})
         
-        # Generate two distinct distributions (brittle vs ductile simulation)
-        # Brittle: lower variance, lower mean D2_min
-        brittle_data = np.random.normal(loc=0.05, scale=0.02, size=100)
-        # Ductile: higher variance, higher mean D2_min
-        ductile_data = np.random.normal(loc=0.08, scale=0.05, size=100)
+        stat, pval = perform_ks_test(brittle_df, ductile_df)
         
-        # Run KS test
-        statistic, p_value = stats.ks_2samp(brittle_data, ductile_data)
-        
-        assert isinstance(statistic, float), "KS statistic must be a float"
-        assert isinstance(p_value, float), "P-value must be a float"
-        assert 0.0 <= statistic <= 1.0, "KS statistic must be between 0 and 1"
-        assert 0.0 <= p_value <= 1.0, "P-value must be between 0 and 1"
-        
-        logger.info(f"KS Test - Statistic: {statistic:.4f}, P-value: {p_value:.4f}")
+        # Should be very significant
+        assert pval < 0.05
 
-    def test_ks_test_identical_distributions(self):
-        """Test KS test returns p-value ~ 1.0 for identical distributions."""
-        set_seed(42)
-        data = np.random.normal(loc=0.05, scale=0.02, size=100)
-        
-        statistic, p_value = stats.ks_2samp(data, data)
-        
-        # For identical distributions, p-value should be 1.0
-        assert abs(p_value - 1.0) < 1e-6, "P-value for identical distributions should be ~1.0"
-        assert statistic == 0.0, "KS statistic for identical distributions should be 0.0"
+    def test_ks_test_empty_data_raises(self):
+        """Test KS test raises on empty data."""
+        with pytest.raises(ValueError):
+            perform_ks_test(pd.DataFrame(), pd.DataFrame({'mean_D2_min': [0.1]}))
 
-    def test_ks_test_disjoint_distributions(self):
-        """Test KS test returns p-value ~ 0.0 for completely disjoint distributions."""
-        set_seed(42)
-        data1 = np.random.normal(loc=0.01, scale=0.001, size=100)
-        data2 = np.random.normal(loc=0.99, scale=0.001, size=100)
+class TestBonferroniCorrection:
+    def test_correction_scales_p_values(self):
+        """Test that p-values are scaled by num_tests."""
+        p_values = [0.01, 0.05, 0.1]
+        num_tests = 5
         
-        statistic, p_value = stats.ks_2samp(data1, data2)
+        corrected = apply_bonferroni_correction(p_values, num_tests)
         
-        # For disjoint distributions, p-value should be very close to 0
-        assert p_value < 0.001, "P-value for disjoint distributions should be near 0"
-        assert statistic > 0.9, "KS statistic for disjoint distributions should be near 1"
+        expected = [0.05, 0.25, 0.5]
+        np.testing.assert_array_almost_equal(corrected, expected)
 
-    def test_ks_test_small_sample_size(self):
-        """Test KS test behavior with small sample sizes (N < 30)."""
-        set_seed(42)
-        data1 = np.random.normal(loc=0.05, scale=0.02, size=10)
-        data2 = np.random.normal(loc=0.08, scale=0.05, size=10)
+    def test_correction_caps_at_one(self):
+        """Test that corrected p-values do not exceed 1.0."""
+        p_values = [0.5, 0.9]
+        num_tests = 10
         
-        statistic, p_value = stats.ks_2samp(data1, data2)
+        corrected = apply_bonferroni_correction(p_values, num_tests)
         
-        # Should still run, but p-value may be unreliable
-        assert isinstance(statistic, float), "KS statistic must be a float"
-        assert isinstance(p_value, float), "P-value must be a float"
-        logger.warning(f"Small sample KS Test - Statistic: {statistic:.4f}, P-value: {p_value:.4f}")
+        assert all(p <= 1.0 for p in corrected)
+        assert corrected[0] == 1.0  # 0.5 * 10 = 5.0 -> capped to 1.0
+        assert corrected[1] == 1.0
 
-    def test_ks_test_result_structure(self):
-        """Test that KS test results can be serialized to JSON as required by FR-003."""
-        set_seed(42)
-        brittle_data = np.random.normal(loc=0.05, scale=0.02, size=50)
-        ductile_data = np.random.normal(loc=0.08, scale=0.05, size=50)
-        
-        statistic, p_value = stats.ks_2samp(brittle_data, ductile_data)
-        
-        result = {
-            "statistic": float(statistic),
-            "p_value": float(p_value),
-            "sample_size_brittle": len(brittle_data),
-            "sample_size_ductile": len(ductile_data),
-            "method": "Kolmogorov-Smirnov two-sample test",
-            "framing": "associational finding (not causal)"
-        }
-        
-        # Verify JSON serialization
-        json_str = json.dumps(result, indent=2)
-        loaded_result = json.loads(json_str)
-        
-        assert loaded_result["statistic"] == statistic
-        assert loaded_result["p_value"] == p_value
-        assert loaded_result["framing"] == "associational finding (not causal)"
-
-    def test_ks_test_with_nan_handling(self):
-        """Test that KS test handles NaN values correctly (should raise or filter)."""
-        set_seed(42)
-        data1 = np.random.normal(loc=0.05, scale=0.02, size=100)
-        data2 = np.random.normal(loc=0.08, scale=0.05, size=100)
-        data2[5] = np.nan  # Inject NaN
-        
-        # scipy.stats.ks_2samp should raise a warning or error with NaN
-        # We expect it to produce a warning but still return a result, 
-        # or we handle it explicitly in the calling code
-        with pytest.warns(UserWarning):
-            statistic, p_value = stats.ks_2samp(data1, data2)
-        
-        # If it returns a result, it should be valid
-        assert isinstance(statistic, float)
-        assert isinstance(p_value, float)
-
-    def test_ks_test_consistency_with_seed(self):
-        """Test that KS test results are deterministic with fixed seed."""
-        set_seed(42)
-        brittle_data_1 = np.random.normal(loc=0.05, scale=0.02, size=100)
-        ductile_data_1 = np.random.normal(loc=0.08, scale=0.05, size=100)
-        
-        set_seed(42)
-        brittle_data_2 = np.random.normal(loc=0.05, scale=0.02, size=100)
-        ductile_data_2 = np.random.normal(loc=0.08, scale=0.05, size=100)
-        
-        stat1, pval1 = stats.ks_2samp(brittle_data_1, ductile_data_1)
-        stat2, pval2 = stats.ks_2samp(brittle_data_2, ductile_data_2)
-        
-        assert stat1 == stat2, "KS statistic should be deterministic with fixed seed"
-        assert pval1 == pval2, "P-value should be deterministic with fixed seed"
-
-    def test_ks_test_output_metadata(self):
-        """Test that output includes all required metadata per FR-003."""
-        set_seed(42)
-        brittle_data = np.random.normal(loc=0.05, scale=0.02, size=50)
-        ductile_data = np.random.normal(loc=0.08, scale=0.05, size=50)
-        
-        statistic, p_value = stats.ks_2samp(brittle_data, ductile_data)
-        
-        output = {
-            "ks_statistic": statistic,
-            "p_value": p_value,
-            "n_brittle": len(brittle_data),
-            "n_ductile": len(ductile_data),
-            "test_type": "two-sample",
-            "assumption": "independent samples",
-            "interpretation": "associational finding"
-        }
-        
-        # Verify all keys exist
-        required_keys = ["ks_statistic", "p_value", "n_brittle", "n_ductile", "test_type", "interpretation"]
-        for key in required_keys:
-            assert key in output, f"Missing required key: {key}"
-
-    def test_ks_test_edge_case_single_sample(self):
-        """Test KS test with single sample (edge case)."""
-        set_seed(42)
-        data1 = np.array([0.05])
-        data2 = np.array([0.08])
-        
-        # scipy should handle this, though results may be trivial
-        statistic, p_value = stats.ks_2samp(data1, data2)
-        
-        assert isinstance(statistic, float)
-        assert isinstance(p_value, float)
-        # With single samples, if they are different, statistic should be 1.0
-        if data1[0] != data2[0]:
-            assert statistic == 1.0
+    def test_zero_tests_returns_original(self):
+        """Test that zero tests returns original p-values."""
+        p_values = [0.01, 0.05]
+        corrected = apply_bonferroni_correction(p_values, 0)
+        assert corrected == p_values

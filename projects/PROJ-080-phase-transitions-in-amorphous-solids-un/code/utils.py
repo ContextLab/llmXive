@@ -4,81 +4,73 @@ from typing import Any, Dict, Iterator, Optional, Tuple, Union
 import numpy as np
 import h5py
 import pandas as pd
-from pathlib import Path
+import random
 
 SEED = 42
 
 def set_seed(seed: int = SEED) -> None:
-    """Set random seed for numerical determinism."""
+    """Sets the global random seed for reproducibility."""
     np.random.seed(seed)
+    random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def stream_hdf5(filepath: Union[str, Path], dataset_name: str) -> Iterator[np.ndarray]:
+def stream_hdf5(file_path: Union[str, Path], group: str = 'frames') -> Iterator[Dict[str, np.ndarray]]:
     """
-    Stream data from an HDF5 file in chunks.
+    Streams data from an HDF5 file group.
     
     Args:
-        filepath: Path to HDF5 file
-        dataset_name: Name of dataset to stream
-    
-    Yields:
-        Chunks of data from the dataset
-    """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        raise FileNotFoundError(f"HDF5 file not found: {filepath}")
-    
-    with h5py.File(filepath, 'r') as f:
-        dataset = f[dataset_name]
-        chunk_size = min(1000, dataset.shape[0])
+        file_path: Path to the HDF5 file.
+        group: The group name to stream from.
         
-        for i in range(0, dataset.shape[0], chunk_size):
-            end = min(i + chunk_size, dataset.shape[0])
-            yield dataset[i:end]
-
-def stream_parquet(filepath: Union[str, Path], chunksize: int = 1000) -> Iterator[pd.DataFrame]:
+    Yields:
+        Dictionary of arrays for each item in the group.
     """
-    Stream data from a Parquet file in chunks.
+    with h5py.File(file_path, 'r') as f:
+        if group not in f:
+            return
+        grp = f[group]
+        for key in grp.keys():
+            item = {}
+            for sub_key in grp[key].keys():
+                item[sub_key] = np.array(grp[key][sub_key])
+            yield item
+
+def stream_parquet(file_path: Union[str, Path]) -> Iterator[pd.DataFrame]:
+    """
+    Streams data from a Parquet file.
     
     Args:
-        filepath: Path to Parquet file
-        chunksize: Number of rows per chunk
-    
+        file_path: Path to the Parquet file.
+        
     Yields:
-        Chunks of DataFrame
+        DataFrame chunks.
     """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        raise FileNotFoundError(f"Parquet file not found: {filepath}")
-    
-    for chunk in pd.read_parquet(filepath, chunksize=chunksize):
+    # Parquet streaming is chunk-based
+    for chunk in pd.read_parquet(file_path, chunksize=1000):
         yield chunk
 
-def validate_particle_count(count: int, max_limit: int = 100000) -> None:
+def validate_particle_count(frame_data: Dict[str, np.ndarray], max_count: int = 100_000) -> bool:
     """
-    Validate particle count against maximum limit.
+    Validates that the particle count in a frame does not exceed the limit.
     
     Args:
-        count: Number of particles
-        max_limit: Maximum allowed particles
-    
-    Raises:
-        ValueError: If particle count exceeds limit
+        frame_data: Dictionary containing 'particle_count'.
+        max_count: Maximum allowed particle count.
+        
+    Returns:
+        True if valid, raises ValueError otherwise.
     """
-    if count > max_limit:
-        raise ValueError(f"Particle count {count} exceeds maximum limit {max_limit}. "
-                       "This dataset is too large for processing. Please use a smaller subset.")
+    count = frame_data.get('particle_count', 0)
+    if isinstance(count, np.ndarray):
+        count = count[0] if count.size > 0 else 0
+    
+    if count > max_count:
+        raise ValueError(f"Particle count {count} exceeds limit {max_count}.")
+    return True
 
-def save_json_output(data: Dict, filepath: Union[str, Path]) -> None:
-    """
-    Save dictionary to JSON file.
-    
-    Args:
-        data: Dictionary to save
-        filepath: Path to output file
-    """
-    filepath = Path(filepath)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(filepath, 'w') as f:
+def save_json_output(data: Any, file_path: Union[str, Path]) -> None:
+    """Saves data to a JSON file."""
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(data, f, indent=2)
