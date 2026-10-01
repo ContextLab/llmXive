@@ -48,23 +48,14 @@ T035:
     \ and contains logic to load the instrument model from `data/chemicals/instrument_config.yaml`,\
     \ falling back to the required generic model when the file or the model key is\
     \ missing. This matches the task\u2019s constraints."
-T048:
+T060:
   c: false
-  h: e90505fcf36950bc5c89fd29bf6341af93752e6ef19c9f66e49cb014f17bb151
-  r: "The required input `data/processed/correlation_results.json` does not exist,\
-    \ and the expected output `data/processed/trend_verification_report.json` is missing.\
-    \ Moreover, the provided `validation.py` (truncated) only contains functions for\
-    \ solvent reference loading and dielectric checks; it does not implement the trend\u2011\
-    verification logic that reads the correlation and kinetic files and writes the\
-    \ report. The task therefore remains unfinished."
-T061:
-  c: false
-  h: d4407a870830c46ef1ced2902849ef301afeaed7bdc2b586ead6b129cf81a841
-  r: "The required output file `data/processed/material_balance_report.csv` is not\
-    \ present, and the provided `material_balance.py` is truncated before any report\u2011\
-    generation logic, so there is no evidence that the script actually creates the\
-    \ CSV with the requested quantities and error margins. The missing CSV must be\
-    \ generated for the task to be considered complete."
+  h: 21f4ea046a573df3529e7a1cd79f6f8224d807e02d7d54c374be66e0bf6bc4bb
+  r: "The repository contains the implementation script `code/analysis/instrument_calibration_log.py`,\
+    \ but the required output file `data/processed/instrument_calibration_log.json`\
+    \ is absent. Without the generated JSON log, the task\u2019s primary deliverable\
+    \ is not satisfied. The next implementer must ensure the script runs and creates\
+    \ the specified JSON file with the instrument calibration details."
 T062:
   c: false
   h: 1a94a158b90aa0527c63fdaa5b5058e931e2fee57383d4f283abf86bb3bc1790

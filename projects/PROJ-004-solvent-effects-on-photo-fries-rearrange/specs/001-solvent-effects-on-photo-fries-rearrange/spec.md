@@ -115,7 +115,7 @@ The researcher MUST be able to correlate computed solvation free energies with t
 - Relative humidity will be maintained at ±2% RH throughout all measurements to prevent hydration-state artifacts.
 - Access to laser flash photolysis equipment with nanosecond resolution is available.
 - Computational resources for B3LYP/6-31G* calculations are accessible.
-- The analysis pipeline will run on CPU-only infrastructure (cores, ~7 GB RAM) for data processing; no GPU-accelerated methods are required.
+- The analysis pipeline will run on CPU-only infrastructure (cores, limited RAM) for data processing; no GPU-accelerated methods are required.
 - All solvents will be of analytical grade with documented water content to ensure consistent hydration states.
 - Instrument calibration will be performed before each measurement session using certified reference standards.
 - The relationship between solvent polarity and radical-pair lifetime is a hypothesis to be tested (potentially non-monotonic or null).
