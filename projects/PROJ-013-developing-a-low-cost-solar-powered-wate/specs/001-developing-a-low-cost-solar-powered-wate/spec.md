@@ -24,17 +24,17 @@ The system must retrieve thermal properties (conductivity, emissivity, specific 
 
 ### User Story 2 - 1D Transient Heat Transfer Simulation (Priority: P1)
 
-The system must implement a 1D transient heat transfer model in Python using `scipy.integrate` to simulate the thermal dynamics of three specific still geometries (flat-plate, single-slope, double-slope) under solar irradiance profiles from the NASA POWER API. The model assumes uniform cross-section and models slope variations via effective projected area. The system calculates the time-averaged thermal efficiency ($\eta$) over a designated final period of the simulation to approximate quasi-steady state performance.
+The system must implement a transient heat transfer model in Python using `scipy.integrate` to simulate the thermal dynamics of three specific still geometries (flat-plate, single-slope, double-slope) under solar irradiance profiles from the NASA POWER API. The model assumes uniform cross-section and models slope variations via effective projected area. The system calculates the time-averaged thermal efficiency ($\eta$) over a designated final period of the simulation to approximate quasi-steady state performance.
 
 **Why this priority**: This is the core scientific engine that answers the research question. It transforms the static material data into dynamic performance metrics ($\eta$) required for the trade-off analysis.
 
-**Independent Test**: Can be fully tested by running the simulation with a fixed set of inputs (e.g., Aluminum, single-slope) and verifying that the output efficiency $\eta$ falls within the physically plausible range of 0.0 to 0.8, and that the simulation completes within 60 seconds on a standard CPU.
+**Independent Test**: Can be fully tested by running the simulation with a fixed set of inputs (e.g., Aluminum, single-slope) and verifying that the output efficiency $\eta$ falls within the physically plausible range of non-negative to moderate values., and that the simulation completes within 60 seconds on a standard CPU.
 
 **Acceptance Scenarios**:
 
 1. **Given** valid material properties and a solar irradiance profile, **When** the simulation runs for the single-slope geometry, **Then** the calculated time-averaged thermal efficiency $\eta$ (final interval) is a float between 0.0 and 0.8.
 2. **Given** the same inputs, **When** the simulation runs for the double-slope geometry, **Then** the resulting efficiency differs from the flat-plate result by a non-zero margin, demonstrating geometry sensitivity.
-3. **Given** a standard GitHub Actions runner (2 CPU, 7GB RAM), **When** the full batch of 20 simulations is executed, **Then** the total runtime remains within an acceptable duration for iterative experimentation..
+3. **Given** a standard GitHub Actions runner (2 CPU, 7GB RAM), **When** the full batch of simulations is executed, **Then** the total runtime remains within an acceptable duration for iterative experimentation..
 
 ---
 

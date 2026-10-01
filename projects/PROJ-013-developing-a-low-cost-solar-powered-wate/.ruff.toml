@@ -1,0 +1,5 @@
+# Ruff configuration for llmXive solar purification project
+# This file is deprecated in favor of pyproject.toml but kept for compatibility
+# with tools that look for a standalone config.
+# The authoritative config is in [tool.ruff] section of pyproject.toml.
+extend = "pyproject.toml"

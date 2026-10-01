@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,7 +24,17 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+*.md5
+*.md
+*.log
+
+# Virtual environments
+.venv/
 venv/
 ENV/
 env/
@@ -30,29 +44,27 @@ env/
 .vscode/
 *.swp
 *.swo
-
-# Environment Variables (Store secrets here, never commit)
-.env
-.env.local
-
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/plots/*
-!data/plots/.gitkeep
-
-# Logs
-*.log
-logs/
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing
-.pytest_cache/
+# Project specific
+data/raw/*.json
+data/raw/*.json.sha256
+data/processed/*.csv
+data/processed/*.json
+data/plots/*.png
+*.env
+.env
+.power_key.txt
+nist_materials.json
+market_prices.json
+
+# Coverage
 .coverage
 htmlcov/
+.pytest_cache/
 .mypy_cache/
+.ruff_cache/
