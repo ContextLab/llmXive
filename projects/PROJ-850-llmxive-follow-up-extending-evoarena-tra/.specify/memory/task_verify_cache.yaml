@@ -1,3 +1,18 @@
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the required change (replacing \u201CCohen's\
+    \ d\u201D with \u201CCohen's h\u201D in FR\u2011009 and SC\u2011006 and adding\
+    \ the note \u201CRatified: Cohen's h for binary data\u201D) was provided. Without\
+    \ the updated document, the task\u2019s deliverable cannot be verified."
+T012a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any artifact (e.g., model file, parameter count\
+    \ report, or benchmark results) showing that the T012 model\u2019s size is \u2264\
+    0.5\u202FB parameters and that its inference time is \u2264500\u202Fms per pair.\
+    \ Without concrete metrics or logs, the task\u2019s validation requirement is\
+    \ not satisfied."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
