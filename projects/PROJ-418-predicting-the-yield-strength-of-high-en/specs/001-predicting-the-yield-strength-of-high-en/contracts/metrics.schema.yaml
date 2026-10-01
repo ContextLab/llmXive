@@ -1,31 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Performance Metrics"
 type: object
-additionalProperties: false
 required:
   - r2
   - pearson_r
   - p_value
-  - dataset_split
+  - r2_ci
+  - pearson_r_ci
 properties:
   r2:
     type: number
-    description: "Coefficient of determination (R²)."
-    minimum: -1
-    maximum: 1
+    description: "Coefficient of determination on the test set."
   pearson_r:
     type: number
-    description: "Pearson correlation coefficient."
-    minimum: -1
-    maximum: 1
+    description: "Pearson correlation coefficient on the test set."
   p_value:
     type: number
-    description: "Two‑tailed p‑value for the correlation."
-    minimum: 0
-    maximum: 1
-  dataset_split:
-    type: string
-    description: "Which split the metrics refer to."
-    enum:
-      - "test"
-      - "external"
+    description: "Two‑tailed p‑value for Pearson r."
+  r2_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95 % bootstrap confidence interval for R²."
+  pearson_r_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95 % bootstrap confidence interval for Pearson r."

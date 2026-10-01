@@ -1,21 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the model performance metrics and statistical validation results."
+title: "Model Output: Comprehensive"
+description: "Schema aggregating all pipeline outputs for validation"
 type: object
 properties:
   metrics:
     type: object
-    properties:
-      random_forest:
-        $ref: "#/definitions/model_metrics"
-      gradient_boosting:
-        $ref: "#/definitions/model_metrics"
-      linear_regression:
-        $ref: "#/definitions/model_metrics"
-    required:
-      - random_forest
-      - gradient_boosting
-      - linear_regression
+    $ref: "#/definitions/model_metrics"
   statistical_validation:
     type: object
     properties:

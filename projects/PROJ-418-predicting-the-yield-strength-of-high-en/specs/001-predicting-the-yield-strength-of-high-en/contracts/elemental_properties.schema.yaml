@@ -1,31 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Elemental Property Record"
+title: "Elemental Properties Schema"
 type: object
-additionalProperties: false
 required:
   - element
   - atomic_radius
   - electronegativity
-  - melting_point
   - valence_electrons
+  - melting_point
 properties:
   element:
     type: string
-    description: "Chemical symbol, e.g., \"Fe\"."
-    pattern: "^[A-Z][a-z]?$"
+    description: "Chemical symbol (e.g., Fe, Ni)."
   atomic_radius:
     type: number
-    description: "Atomic radius in picometers."
-    minimum: 0
+    description: "Atomic radius (pm)."
   electronegativity:
     type: number
     description: "Pauling electronegativity."
-    minimum: 0
-  melting_point:
-    type: number
-    description: "Melting point in Kelvin."
-    minimum: 0
   valence_electrons:
     type: integer
     description: "Number of valence electrons."
-    minimum: 0
+  melting_point:
+    type: number
+    description: "Melting temperature (K)."

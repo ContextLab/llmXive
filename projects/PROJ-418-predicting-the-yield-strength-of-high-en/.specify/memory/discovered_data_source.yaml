@@ -1,18 +1,15 @@
 status: none
-intent: Zenodo high entropy alloy yield strength dataset NIST Chemistry WebBook elemental
+intent: huggingface datasets HEA yield strength Zenodo MaterialsProject elemental
   properties python package dataset
 required_fields:
-- X_<element> (composition fraction for each element)
-- yield_strength (target value)
-- temperature (measurement temperature)
-- phase_purity (purity metric)
-- element_symbol (e.g., Fe, Ni)
+- element_symbols
+- element_fractions
+- yield_strength
 - atomic_number
-- atomic_weight
 - atomic_radius
 - electronegativity
 - melting_point
 - density
-cache_key: 258d00e63fc9b4179134ff1cc2d3c103c08a97125ef1b37b79f1e796551ab345
-searched_at: '2026-09-24T22:32:10.608253+00:00'
+cache_key: cf66b80703a33964124b0fc911a2040d14cf932cb16c949a8a96d2105e4640b4
+searched_at: '2026-10-01T08:35:49.339144+00:00'
 retry_count: 1

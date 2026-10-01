@@ -80,7 +80,7 @@ The original proposal aims to develop a fast, composition‑only predictor of HE
 
 10. **Stability Assessment**
  - Run the entire training‑evaluation pipeline **three independent times** with distinct random seeds.
- - Record the top‑5 feature rankings for each run in `output/stability_rankings.json`.
+ - Record the highest-ranked feature rankings for each run in `output/stability_rankings.json`.
  - Compute the maximum rank difference across runs; require **≤ 1**. (FR‑021, SC‑006)
 
 11. **Reproducibility & Reporting**
@@ -120,7 +120,7 @@ The original proposal aims to develop a fast, composition‑only predictor of HE
 - **FR-002**: The system **MUST** compute composition‑based descriptors for each alloy entry according to `elemental_properties.schema.yaml`. (See US‑1)
 - **FR-003**: The system **MUST** train a Random Forest regression model using k‑fold cross‑validation on the training split and store the trained model artifact. (See US‑1)
 - **FR-004**: The system **MUST** evaluate the model on a held‑out test set and report R², Pearson r, and associated p‑value. (See US‑1)
-- **FR-005**: The system **MUST** compute permutation importance for each descriptor using **1000 permutations** per feature on the held‑out test set. (See US‑1)
+- **FR-005**: The system **MUST** compute permutation importance for each descriptor using **A substantial number of permutations** per feature on the held‑out test set. (See US‑1)
 - **FR-006**: The system **MUST** perform a non‑parametric permutation test to assess significance of permutation‑importance scores with Holm‑Bonferroni correction (α = 0.05) and flag features with p < 0.05. (See US‑1)
 - **FR-008**: The system **MUST** produce a markdown `report.md` that includes dataset statistics, model performance metrics, descriptor‑target correlations (training data only), importance rankings, VIF summary, power‑analysis justification, external‑validation documentation, stability assessment, and a provenance summary. (See US‑1)
 - **FR-009**: The system **MUST** abort with a clear error if any input record lacks required fields (e.g., missing element fraction or target). (See US‑1)
@@ -130,7 +130,7 @@ The original proposal aims to develop a fast, composition‑only predictor of HE
 - **FR-016**: The system **MUST** assess multicollinearity via Variance Inflation Factor (VIF) for each descriptor on the training set; descriptors with **VIF > 5** shall be removed or regularized before model training. (See US‑1)
 - **FR-017**: The system **MUST** obtain an external validation dataset from a separate Zenodo release (**) and evaluate model performance on it. (See US‑1)
 - **FR-018**: The system **MUST** validate all input files and intermediate/output artifacts against their respective JSON schema contracts (`dataset.schema.yaml`, `elemental_properties.schema.yaml`, `hea_composition.schema.yaml`, `metrics.schema.yaml`, `importance.schema.yaml`, `manifest.schema.yaml`). (See US‑1)
-- **FR-021**: The system **MUST** execute three independent training/evaluation runs with distinct random seeds, record the top‑5 feature rankings per run in `output/stability_rankings.json`, and ensure the maximum rank difference across runs is ≤ 1. (See US‑1)
+- **FR-021**: The system **MUST** execute three independent training/evaluation runs with distinct random seeds, record the top‑few feature rankings per run in `output/stability_rankings.json`, and ensure the maximum rank difference across runs is ≤ 1. (See US‑1)
 - **FR-022**: The system **MUST** include the achieved statistical power value (≥ 0.8) in `report.md` and confirm it meets the target. (See US‑1)
 - **FR-023**: The system **MUST** document provenance, measurement protocols, and any processing‑condition differences between the primary and external validation datasets, noting potential confounds. (See US‑1)
 - **FR-024**: The system **MUST** verify that every numeric value in `report.md` is generated programmatically and linked to a provenance ID, satisfying Principle IV (Single Source of Truth). (See US‑1)

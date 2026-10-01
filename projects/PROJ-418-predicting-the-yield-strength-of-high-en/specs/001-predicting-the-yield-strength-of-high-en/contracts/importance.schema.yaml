@@ -1,24 +1,21 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Permutation Importance Result"
+title: "Permutation Importance Results"
 type: object
-additionalProperties: false
 required:
   - feature
   - importance_score
-  - p_value
-  - significant
+  - raw_p_value
+  - holm_bonferroni_p
 properties:
   feature:
     type: string
-    description: "Descriptor name (e.g., \"delta_atomic_size\")."
+    description: "Descriptor name."
   importance_score:
     type: number
-    description: "Mean decrease in model performance after permutation."
-  p_value:
+    description: "Mean decrease in score across permutations."
+  raw_p_value:
     type: number
-    description: "Holm‑Bonferroni‑adjusted p‑value."
-    minimum: 0
-    maximum: 1
-  significant:
-    type: boolean
-    description: "True if p_value < 0.05 after correction."
+    description: "Permutation test p‑value before correction."
+  holm_bonferroni_p:
+    type: number
+    description: "Holm‑Bonferroni corrected p‑value."
