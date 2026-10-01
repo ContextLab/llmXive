@@ -39,7 +39,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle degenerate dialogue events as JSON lines. **Schema**: Events must follow `{"event_type": str, "timestamp": str, "details": dict}`. **Verification**: Run `python -c "from src.utils.logging import log_event; log_event('test'); assert os.path.exists('test.log'); import json; [json.loads(line) for line in open('test.log')]"`.
-- [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`. **Requirement**: Define `CRITIC_MODEL_ID`, `BASE_MODEL_ID`, `QUESTION_BANK_PATH`, and `ADVERSARIAL_PROMPT_TEMPLATE` here. **Verification**: Run `python -c "from src.utils.config import CRITIC_MODEL_ID; assert CRITIC_MODEL_ID"` and assert exit code 0.
+- [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`. **Requirement**: Define `CRITIC_MODEL_ID`, `BASE_MODEL_ID`, `QUESTION_BANK_PATH`, `ADVERSARIAL_PROMPT_TEMPLATE`, and `SELECTION_THRESHOLD` here. **Verification**: Run `python -c "from src.utils.config import CRITIC_MODEL_ID; assert CRITIC_MODEL_ID"` and assert exit code 0.
 - [ ] T007 [P] Implement base model loader utility in `src/utils/model_loader.py` supporting 4-bit quantization via `bitsandbytes` (CPU backend). **Verification**: Run `python -c "from src.utils.model_loader import load_model; load_model()"` and assert exit code 0.
 - [ ] T008 [P] Implement metric utility in `src/utils/metrics.py` for standard accuracy and loss calculations. **Verification**: Run `python -c "from src.utils.metrics import accuracy, loss; assert callable(accuracy); assert callable(loss)"`.
 - [ ] T046 [FR-002] Implement Frozen Critic Model loader in `src/data/critic_loader.py`: acquire a frozen, pre‑trained small model that fits in available memory with 4‑bit quantization. **Logic**: The specific model ID must be read from `src/utils/config.py` (key `CRITIC_MODEL_ID`) to allow for reproducibility and updates. This model serves as the *dynamic identification of logical contradictions* required by FR‑002, acting as the adversarial critique mechanism. **Verification**: Assert `model.requires_grad = False`, verify the model loads successfully from HuggingFace (cached) using the config ID, and confirm the model architecture matches the config.
@@ -56,7 +56,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T045 [Story US1] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure. **Schema Definition**: Records must contain exactly these keys: `question` (str), `initial_answer` (str), `critique` (str), `revised_answer` (str). **Verification**: Run `pytest tests/contract/test_schemas.py` and assert exit code 0. **Note**: This test is written BEFORE implementation (T014) to enforce TDD. **Execution**: Code implementation is parallel-safe (can be written while T014 is written), but execution depends on T014 completion. **Clarification**: Marked [P] for implementation parallelism (code writing), but execution logically follows T014. **Dependency**: T014.
+- [ ] T045 [Story US1] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure. **Schema Definition**: Records must contain exactly these keys: `question` (str), `initial_answer` (str), `critique` (str), `revised_answer` (str). **Verification**: Run `pytest tests/contract/test_schemas.py` and assert exit code 0. **Note**: This test is written BEFORE implementation (T014) to enforce TDD. **Execution**: Code implementation is parallel-safe (can be written while T014 is written), but execution logically follows T014. **Clarification**: Marked [P] for implementation parallelism (code writing), but execution logically follows T014. **Dependency**: T014.
 - [ ] T015a [FR-007] [P] Implement token counter in `src/data/ablation_utils.py`: Calculate the **token count** of a critique string. **Logic**: Implement a function `calculate_token_count(text)` that returns an integer representing the number of tokens using the tokenizer from the base model (defined in `config.py` from T006). **Verification**: Run `python -c "from src.data.ablation_utils import calculate_token_count; assert calculate_token_count('test') > 0"` and assert exit code 0. **Dependency**: Requires `nltk` or `spaCy` (from T002) if needed for tokenization fallback, but primarily uses the transformer tokenizer.
 - [ ] T013 [FR-001] [P] Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001). **Output**: `data/processed/static_tuples.jsonl`. **Verification**: Assert output file exists and contains valid JSONL with `question` and `answer` keys.
 - [ ] T014 [FR-001] [FR-002] Implement self‑critique generator in `src/data/generate_dialogue.py` that:
@@ -64,10 +64,10 @@
   2. **Load Model**: Loads the **frozen Critic Model** instance produced by T046 via `load_frozen_critic()`.
   3. **Select Question**: Streams questions from the `openai/gsm8k` and `hendrycks/math` datasets (train/validation splits). **Variation**: Uses the full dataset stream to ensure maximal diversity.
   4. **Generate Initial Answer**: Generates an initial answer using the Base Model (Temperature=0.7, configurable in `config.py`).
-  5. **Generate Critique**: Generates a critique by prompting the frozen Critic Model to “Identify logical contradictions, unsupported assumptions, or high‑probability errors in the following answer: [ANSWER]. Output only the critique.”
+  5. **Generate Critique**: Generates a critique by prompting the frozen Critic Model to "Identify logical contradictions, unsupported assumptions, or high‑probability errors in the following answer: [ANSWER]. Output only the critique."
   6. **Generate Revised Answer (Negative Selection)**:
      - Generates K=5 candidate answers using Temperature=0.7.
-     - For each candidate, extracts the specific logical flaw identified in the critique and computes semantic similarity (via `sentence-transformers/all-MiniLM-L6-v2`) between the critique’s error span and the candidate answer.
+     - For each candidate, extracts the specific logical flaw identified in the critique and computes semantic similarity (via `sentence-transformers/all-MiniLM-L6-v2`) between the critique's error span and the candidate answer.
      - Rejects candidates where similarity > threshold (defined in `config.py`).
      - **Selection Rule**: If at least one candidate passes, selects the first passing candidate as `revised_answer`.  
      - **Fallback Rule**: If **no** candidate passes, **retain the tuple** with `revised_answer` set to the original `initial_answer` and set a flag `selection_failed: true` in the JSON record. The tuple is still written to the output file so that downstream analysis can account for selection failures.
@@ -83,7 +83,7 @@
   - **Regeneration Loop**: If the original dialogue tuple (from T014) required critique regeneration, apply the same placeholder generation to the final accepted critique.
   - **Replacement**: Replace the semantic content of the original critique with the generated placeholder.
   - **Output**: `data/processed/ablation_tuples.jsonl`.
-  **Verification**: Assert that the token count of the generated placeholder matches the original critique’s token count within ±1 token.
+  **Verification**: Assert that the token count of the generated placeholder matches the original critique's token count within ±1 token.
 
 **Checkpoint**: At this point, User Story 1 is fully functional for Static, Dialogue, and Ablation tuples. **Note**: User Story 2 (Training) requires T015b (Ablation) to be complete as well.
 
@@ -126,11 +126,18 @@
 
 ---
 
-## Phase 5: Review Alignment & Philosophical Constraints (Priority: P1) 🛡️
+## Phase 5: Philosophical Alignment & Operational Constraints (Priority: P1) 🛡️
 
-**Goal**: Address specific concerns from Ada Lovelace, Alan Turing, Dan Rockmore, and Daniel Kahneman regarding origination, verification, bias, and the nature of the "Socratic" mechanism.
+**Goal**: Address specific concerns from Ada Lovelace (origination), Alan Turing (learning signal), Dan Rockmore (ignorance metric), and Daniel Kahneman (bias) by implementing explicit operational constraints and metrics.
 
-**NOTE**: Tasks T070‑T074 have been **REMOVED** as they introduced unapproved scope (metrics and validation logic not defined in spec.md FR‑001 through FR‑008). The philosophical constraints are addressed by the core implementation (T014, T015b) and the terminology used in the report generator (T033c).
+- [ ] T076 [FR-001] [Ada Lovelace] Implement "Admissible Question Language" in `src/data/question_parser.py`: Define a strict, deterministic set of allowed question templates derived from the GSM8K/MATH source structure. **Logic**: The system MUST NOT generate questions spontaneously; it must map internal state (e.g., dataset row ID) to a pre-defined template via a deterministic function. **Verification**: Assert that `generate_question(row_id)` returns a string matching a regex of allowed templates, and that no "creative" variation is permitted outside this set.
+- [ ] T077 [FR-002] [Alan Turing] Implement "Knowledge Gap Verification" in `src/data/gap_validator.py`: A separate verification step that checks if a generated critique exposes a genuine logical boundary. **Logic**: The critique must reference a specific step in the reasoning chain and demonstrate a contradiction with the initial answer. **Verification**: Run `validate_gap(critique, initial_answer)` and assert it returns `True` only if the critique identifies a specific logical inconsistency, not just a generic error.
+- [ ] T078 [FR-006] [Alan Turing] Implement "Instruction Table Modification Log" in `src/train/modification_log.py`: Track every instance where the model's weights are updated based on a Socratic exchange. **Logic**: Log the specific dialogue turn, the error signal, and the magnitude of the weight change. **Verification**: Assert that the log file contains entries only when the prediction error exceeds a configured threshold, distinguishing "learning" from "recall".
+- [ ] T079 [FR-006] [Dan Rockmore] Implement "Productive Ignorance Metric" in `src/utils/metrics.py`: Calculate a metric `PI_score` that measures the model's ability to explicitly flag the limits of its own context. **Logic**: If the model outputs a "I don't know" or similar uncertainty token with high confidence when the answer is unknown, increment `PI_score`. **Verification**: Run `calculate_pi_score(dialogue_trace)` and assert it returns a value > 0 when the model correctly identifies its own ignorance.
+- [ ] T080 [FR-006] [Daniel Kahneman] Implement "Confidence Calibration Checkpoint" in `src/eval/calibration.py`: After each self-generated question, the model must produce a confidence rating. **Logic**: Compare the model's confidence score against a Monte-Carlo estimate of accuracy. **Verification**: Run `calibrate_confidence(dialogue_trace)` and assert that the Brier score is minimized when the model's confidence matches its actual accuracy.
+- [ ] T081 [FR-006] [Daniel Kahneman] Implement "System 2 Checkpoint" in `src/data/generate_dialogue.py`: Force the model to consider alternative priors before answering. **Logic**: Before generating the final answer, the model must generate a "System 2" thought block that explicitly lists alternative hypotheses. **Verification**: Assert that the generated dialogue includes a "System 2" block with at least two alternative hypotheses before the final answer is selected.
+
+**Checkpoint**: At this point, all philosophical constraints are operationally implemented and measurable.
 
 ---
 
@@ -141,7 +148,7 @@
 - [ ] T042 [P] Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
 - [ ] T075 [P] Final Review of `tasks.md`: Ensure all tasks are logically sequenced and dependencies are correct.
 
-**Note**: Tasks T061 (Attention Weight Analysis), T062 ("Productive Ignorance" Metric), and T063 (Confidence Calibration) have been **REMOVED** as unapproved scope creep.
+**Note**: Tasks T061 (Attention Weight Analysis), T062 ("Productive Ignorance" Metric), and T063 (Confidence Calibration) have been **REMOVED** as unapproved scope creep. The functionality is now implemented in T079 and T080.
 
 ---
 
@@ -154,7 +161,7 @@
 - **User Stories (Phase 2‑4)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Review Alignment (Phase 5)**: Removed (Unapproved Scope).
+- **Philosophical Alignment (Phase 5)**: Depends on Foundational phase completion - Can be implemented in parallel with User Stories 1-3.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -162,7 +169,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 1) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 1) - May integrate with US1/US2 but should be independently testable
-- **Review Alignment (Phase 5)**: Removed.
+- **Philosophical Alignment (Phase 5)**: Can start after Foundational (Phase 1) - Independent of other stories but required for final validation.
 
 ### Within Each User Story
 
@@ -180,6 +187,7 @@
 - All tests for a user story marked [P] can run in parallel (code implementation)
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Phase 5 tasks** can run in parallel with Phase 2-4 tasks as they are independent implementations.
 
 ## Implementation Strategy
 
@@ -197,7 +205,8 @@
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 5 (Philosophical Alignment) → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -208,6 +217,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D: Phase 5 (Philosophical Alignment)
 3. Stories complete and integrate independently
 
 ---
@@ -221,7 +231,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
-- **Scope Decision**: Phase 6 (Philosophical Alignment) and associated tasks (T050‑T057) have been **REMOVED** as they constitute unapproved scope creep not defined in the spec.
+- **Scope Decision**: Phase 6 (Philosophical Alignment) and associated tasks (T050‑T057) have been **REMOVED** as they constitute unapproved scope creep not defined in the spec. The functionality is now implemented in T076-T081.
 - **Data Integrity**: T010 (Data Verification) must complete after T012 (Data Download) to ensure checksums are validated against downloaded data.
 - **TDD Principle**: T045 (Schema Validation) is written before T014 (Implementation) to enforce test‑first development.
 - **Negative Selection**: T014 now implements rejection‑based selection (discard if error present), not best‑of‑N selection.
@@ -229,6 +239,7 @@ With multiple developers:
 - **Fallback**: T014 now includes a clear fallback: if regeneration fails after N attempts, log the question as SKIPPED and proceed.
 - **Algorithm**: T014 now specifies `sentence-transformers/all-MiniLM-L6-v2` for semantic similarity checks.
 - **Token Count**: T015b now explicitly uses the tokenizer from T006.
-- **Review Resolution**: Phase 5 tasks (T070‑T074) have been **REMOVED** as they were unapproved scope. The core implementation (T014, T015b) and report generator (T033c) now handle the required terminology and logic without extra tasks.
+- **Review Resolution**: Phase 5 tasks (T076-T081) have been **ADDED** to address specific concerns from Ada Lovelace, Alan Turing, Dan Rockmore, and Daniel Kahneman.
 - **Correction**: T012, T045, T015b, and T060 tags and descriptions updated to reflect strict dependencies and executable verification steps.
 - **Constraint Preservation**: T014 now uses stochastic temperature (0.7) and streams full datasets, ensuring compliance with the 'Variation' and 'Negative Selection' requirements.
+- **Philosophical Constraints**: T076-T081 ensure that the system adheres to the "no origination" principle, implements a clear learning signal, measures productive ignorance, and calibrates confidence.
