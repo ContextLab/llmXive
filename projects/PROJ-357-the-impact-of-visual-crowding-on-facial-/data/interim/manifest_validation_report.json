@@ -1,17 +1,14 @@
 {
-  "status": "complete",
+  "status": "error",
   "manifest_path": "data/interim/stimuli_manifest.json",
   "stimuli_dir": "data/interim/stimuli",
   "error_log_path": "data/interim/generation_errors.log",
   "summary": {
-    "manifest_entries": 30,
-    "error_log_entries": 0,
-    "stimuli_files_on_disk": 30,
-    "validation_passed": true,
-    "missing_files_count": 0,
-    "invalid_entries_count": 0
+    "manifest_entries": 6,
+    "error_log_entries": 0
   },
   "missing_files": [],
   "invalid_entries": [],
-  "error_log_entries": []
+  "error_log_entries": [],
+  "error": "Stimuli directory not found: data/interim/stimuli"
 }

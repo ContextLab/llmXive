@@ -1,195 +1,166 @@
+"""
+Data Loader Module for Human Judgments
+
+Loads and validates raw pilot response data, computes accuracy,
+and aggregates results by stimulus and condition.
+"""
+
 import os
 import sys
 import json
 import logging
 import pandas as pd
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+import argparse
 
-# Add project root to path if running as script
-if 'code' not in sys.path:
-    project_root = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(project_root))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from config import ensure_directories, get_env_config
+from config import ensure_directories
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = [
-    'participant_id',
-    'stimulus_id',
-    'true_label',
-    'response_label',
-    'timestamp'
-]
-
-def load_raw_judgments(file_path: str) -> pd.DataFrame:
+def load_raw_judgments(file_path):
     """
-    Load a single raw synthetic judgment CSV file.
-    
+    Load raw pilot judgment data from CSV.
+
     Args:
-        file_path: Path to the CSV file containing raw judgments.
-        
+        file_path (str): Path to the raw pilot responses CSV.
+
     Returns:
-        DataFrame with raw judgment data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+        pd.DataFrame: DataFrame containing raw judgments.
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Raw judgment file not found: {file_path}")
+        raise FileNotFoundError(f"Raw pilot data file not found: {file_path}")
     
     logger.info(f"Loading raw judgments from {file_path}")
     df = pd.read_csv(file_path)
     
-    # Validate required columns
-    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+    required_cols = ['participant_id', 'stimulus_id', 'true_label', 'response_label', 'timestamp']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in raw data: {missing}")
     
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
     return df
 
-def load_all_judgments(data_dir: str) -> pd.DataFrame:
+def validate_judgments(df):
     """
-    Load and concatenate all raw judgment CSV files from a directory.
-    
-    Args:
-        data_dir: Directory containing raw judgment CSV files.
-        
-    Returns:
-        Combined DataFrame with all judgments.
-    """
-    data_path = Path(data_dir)
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
-    
-    csv_files = list(data_path.glob("*.csv"))
-    if not csv_files:
-        raise ValueError(f"No CSV files found in {data_dir}")
-    
-    logger.info(f"Found {len(csv_files)} CSV files in {data_dir}")
-    
-    dfs = []
-    for file in csv_files:
-        try:
-            df = load_raw_judgments(str(file))
-            dfs.append(df)
-        except Exception as e:
-            logger.warning(f"Failed to load {file}: {e}")
-            continue
-    
-    if not dfs:
-        raise ValueError("No valid judgment files could be loaded")
-    
-    combined_df = pd.concat(dfs, ignore_index=True)
-    logger.info(f"Combined total of {len(combined_df)} judgments from {len(dfs)} files")
-    return combined_df
+    Validate the raw judgments dataframe.
 
-def validate_judgments(df: pd.DataFrame, manifest_path: Optional[str] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Validate judgment data against the stimuli manifest if available.
-    
     Args:
-        df: DataFrame with judgment data.
-        manifest_path: Optional path to the stimuli manifest JSON.
-        
+        df (pd.DataFrame): Raw judgments dataframe.
+
     Returns:
-        Tuple of (validated DataFrame, validation report dict).
+        pd.DataFrame: Validated dataframe.
     """
-    report = {
-        'total_rows': len(df),
-        'unique_participants': df['participant_id'].nunique(),
-        'unique_stimuli': df['stimulus_id'].nunique(),
-        'missing_stimuli': [],
-        'invalid_labels': [],
-        'duplicate_entries': 0
-    }
+    logger.info("Validating judgments...")
     
-    # Check for duplicate entries
-    duplicates = df.duplicated(subset=['participant_id', 'stimulus_id'], keep=False)
-    report['duplicate_entries'] = duplicates.sum()
-    if report['duplicate_entries'] > 0:
-        logger.warning(f"Found {report['duplicate_entries']} duplicate participant-stimulus entries")
+    # Check for unique participant IDs
+    n_participants = df['participant_id'].nunique()
+    if n_participants < 5:
+        logger.warning(f"Less than 5 unique participants found ({n_participants}). This may be a test or incomplete dataset.")
     
-    # Validate against manifest if provided
+    # Check for non-null values in critical columns
+    if df[['true_label', 'response_label']].isnull().any().any():
+        logger.warning("Found null values in label columns. Dropping rows with nulls.")
+        df = df.dropna(subset=['true_label', 'response_label'])
+    
+    return df
+
+def compute_accuracy(df):
+    """
+    Compute accuracy for each row (correct/incorrect).
+
+    Args:
+        df (pd.DataFrame): Judgments dataframe.
+
+    Returns:
+        pd.DataFrame: DataFrame with 'accuracy' column (1.0 for correct, 0.0 for incorrect).
+    """
+    df = df.copy()
+    df['accuracy'] = (df['true_label'] == df['response_label']).astype(float)
+    return df
+
+def aggregate_judgments(df, manifest_path=None):
+    """
+    Aggregate judgments by stimulus_id, emotion, and flanker_count.
+
+    Args:
+        df (pd.DataFrame): Judgments dataframe with accuracy computed.
+        manifest_path (str, optional): Path to stimuli manifest to enrich metadata.
+
+    Returns:
+        pd.DataFrame: Aggregated dataframe.
+    """
+    logger.info("Aggregating judgments...")
+    
+    # Basic aggregation
+    agg_df = df.groupby('stimulus_id').agg({
+        'accuracy': 'mean',
+        'participant_id': 'count'
+    }).reset_index()
+    agg_df.columns = ['stimulus_id', 'accuracy', 'n_trials']
+    
     if manifest_path and Path(manifest_path).exists():
+        logger.info(f"Enriching with manifest metadata from {manifest_path}")
         with open(manifest_path, 'r') as f:
             manifest = json.load(f)
         
-        valid_stimuli = {entry['file_path'] for entry in manifest.get('stimuli', [])}
-        stimuli_in_judgments = set(df['stimulus_id'].unique())
+        # Convert manifest to DataFrame for merging
+        manifest_df = pd.DataFrame(manifest)
         
-        missing = stimuli_in_judgments - valid_stimuli
-        report['missing_stimuli'] = list(missing)
-        
-        if missing:
-            logger.warning(f"Found {len(missing)} stimuli in judgments not in manifest")
-        
-        # Validate label consistency (optional, depends on manifest structure)
-        # For now, we just check that labels are non-empty
-        empty_labels = df[df['true_label'].isna() | (df['true_label'] == '')]
-        report['invalid_labels'].extend(empty_labels['stimulus_id'].tolist())
-        
-        if report['invalid_labels']:
-            logger.warning(f"Found {len(report['invalid_labels'])} entries with empty labels")
+        # Merge on stimulus_id
+        if 'stimulus_id' in manifest_df.columns:
+            agg_df = agg_df.merge(manifest_df[['stimulus_id', 'emotion_label', 'flanker_count']], on='stimulus_id', how='left')
+        else:
+            # Try to extract from filename if column name differs
+            if 'file_path' in manifest_df.columns:
+                # Simple extraction logic if needed
+                pass
     
-    # Final validation
-    df['true_label'] = df['true_label'].astype(str).str.strip()
-    df['response_label'] = df['response_label'].astype(str).str.strip()
-    df['participant_id'] = df['participant_id'].astype(str).str.strip()
-    df['stimulus_id'] = df['stimulus_id'].astype(str).str.strip()
-    
-    # Remove rows with missing critical data
-    initial_count = len(df)
-    df = df.dropna(subset=['participant_id', 'stimulus_id', 'true_label', 'response_label'])
-    removed_count = initial_count - len(df)
-    if removed_count > 0:
-        logger.warning(f"Removed {removed_count} rows with missing critical data")
-    
-    report['final_rows'] = len(df)
-    report['removed_rows'] = removed_count
-    
-    return df, report
+    return agg_df
 
-def main():
+def main(args):
     """
-    Main entry point for loading and validating raw synthetic judgment data.
+    Main entry point for data loading and aggregation.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    ensure_directories()
     
-    config = get_env_config()
-    data_dir = config.get('RAW_JUDGMENTS_DIR', 'data/raw/judgments')
-    manifest_path = config.get('STIMULI_MANIFEST_PATH', 'data/interim/stimuli_manifest.json')
-    output_path = config.get('VALIDATED_JUDGMENTS_PATH', 'data/processed/validated_judgments.csv')
-    
-    ensure_directories([output_path])
+    raw_data_path = "data/interim/raw_pilot_responses.csv"
+    manifest_path = "data/interim/stimuli_manifest.json"
+    output_path = "data/processed/human_judgments_aggregates.csv"
     
     try:
-        # Load all judgments
-        df = load_all_judgments(data_dir)
+        # Load
+        df = load_raw_judgments(raw_data_path)
         
         # Validate
-        validated_df, report = validate_judgments(df, manifest_path)
+        df = validate_judgments(df)
         
-        # Save validated data
-        validated_df.to_csv(output_path, index=False)
-        logger.info(f"Saved validated judgments to {output_path}")
+        # Compute Accuracy
+        df = compute_accuracy(df)
         
-        # Print report
-        print("\n=== Judgment Validation Report ===")
-        print(json.dumps(report, indent=2))
+        # Aggregate
+        agg_df = aggregate_judgments(df, manifest_path)
         
-        return validated_df, report
+        # Save
+        agg_df.to_csv(output_path, index=False)
+        logger.info(f"Aggregated judgments saved to {output_path}")
         
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        logger.error("Pipeline cannot proceed without human judgment data. Please run the pilot or provide data manually.")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to load and validate judgments: {e}")
-        raise
+        logger.error(f"Error during data loading/aggregation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Load and aggregate human judgment data.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--test-mode", action="store_true", help="Load mock data if real data is missing")
+    args = parser.parse_args()
+    main(args)

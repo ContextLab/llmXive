@@ -1,3 +1,9 @@
+"""
+Frame extraction utility for RAVDESS dataset.
+
+Extracts frames from video files in the RAVDESS dataset and saves them
+to the specified output directory with metadata tracking.
+"""
 import os
 import sys
 import logging
@@ -5,204 +11,264 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Ensure parent directory is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import ensure_directories, get_seed
-import cv2
+try:
+    import cv2
+except ImportError:
+    print("ERROR: OpenCV (cv2) is required. Install with: pip install opencv-python")
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/raw/frame_extraction.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+from config import ensure_directories, get_env_config
+
+# Setup logging
+LOG_DIR = Path("data/raw")
+LOG_FILE = LOG_DIR / "frame_extraction.log"
+ERROR_LOG = Path("data/interim") / "generation_errors.log"
+
+def setup_logging():
+    """Configure logging to file and console."""
+    ensure_directories([LOG_DIR, ERROR_LOG.parent])
+    
+    # Create handlers
+    file_handler = logging.FileHandler(LOG_FILE, mode='w')
+    console_handler = logging.StreamHandler()
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+    
+    return logging.getLogger(__name__)
 
 def extract_frames_from_video(
     video_path: Path,
     output_dir: Path,
-    target_fps: int = 1,
+    frame_interval: int = 30,
     max_frames: Optional[int] = None
-) -> List[Dict[str, Any]]:
-    """
-    Extract frames from a single video file.
-
-    Args:
-        video_path: Path to the input video file.
-        output_dir: Directory to save extracted frames.
-        target_fps: Target frames per second to extract (default 1 to reduce data).
-        max_frames: Maximum number of frames to extract (None for all).
-
-    Returns:
-        List of metadata dictionaries for extracted frames.
-    """
-    if not video_path.exists():
-        raise FileNotFoundError(f"Video file not found: {video_path}")
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    cap = cv2.VideoCapture(str(video_path))
-    if not cap.isOpened():
-        raise RuntimeError(f"Failed to open video: {video_path}")
-
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    if fps == 0:
-        fps = 30.0  # Default fallback
-
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    frame_interval = max(1, int(fps / target_fps))
-
-    frames_extracted = []
-    frame_count = 0
-    extracted_count = 0
-
-    logger.info(f"Processing {video_path.name}: {total_frames} total frames, extracting every {frame_interval} frames")
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        if frame_count % frame_interval == 0:
-            if max_frames is not None and extracted_count >= max_frames:
-                break
-
-            frame_filename = f"{video_path.stem}_frame_{extracted_count:04d}.png"
-            frame_path = output_dir / frame_filename
-
-            # Ensure directory exists for the specific frame (though output_dir is flat here)
-            frame_path.parent.mkdir(parents=True, exist_ok=True)
-
-            success = cv2.imwrite(str(frame_path), frame)
-            if not success:
-                logger.error(f"Failed to write frame: {frame_path}")
-                continue
-
-            frames_extracted.append({
-                "file_path": str(frame_path),
-                "source_video": str(video_path),
-                "frame_index": frame_count,
-                "extracted_index": extracted_count,
-                "timestamp": frame_count / fps
-            })
-            extracted_count += 1
-
-        frame_count += 1
-
-    cap.release()
-    logger.info(f"Extracted {extracted_count} frames from {video_path.name}")
-    return frames_extracted
-
-def extract_frames_from_dataset(
-    raw_data_dir: Path,
-    output_dir: Path,
-    file_pattern: str = "*.mp4",
-    target_fps: int = 1,
-    max_frames_per_video: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Scan a directory for video files and extract frames.
-
+    Extract frames from a single video file.
+    
     Args:
-        raw_data_dir: Directory containing raw video files (e.g., data/raw).
-        output_dir: Directory to save extracted frames (e.g., data/raw/frames).
-        file_pattern: Glob pattern for video files.
-        target_fps: Frames per second to extract.
-        max_frames_per_video: Max frames to extract per video.
-
+        video_path: Path to the video file
+        output_dir: Directory to save extracted frames
+        frame_interval: Extract every Nth frame (default: 30)
+        max_frames: Maximum number of frames to extract (optional)
+        
     Returns:
-        Manifest dictionary containing metadata for all extracted frames.
+        Dictionary with extraction metadata
     """
-    ensure_directories([output_dir])
+    logger = logging.getLogger(__name__)
+    video_path = Path(video_path)
+    output_dir = Path(output_dir)
+    
+    if not video_path.exists():
+        logger.error(f"Video file not found: {video_path}")
+        return {"status": "error", "reason": "file_not_found", "video": str(video_path)}
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        cap = cv2.VideoCapture(str(video_path))
+        if not cap.isOpened():
+            logger.error(f"Failed to open video: {video_path}")
+            return {"status": "error", "reason": "cannot_open", "video": str(video_path)}
+        
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        extracted_count = 0
+        frame_paths = []
+        
+        frame_idx = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            # Extract every Nth frame
+            if frame_idx % frame_interval == 0:
+                if max_frames and extracted_count >= max_frames:
+                    break
+                
+                # Create frame filename with metadata
+                frame_filename = f"{video_path.stem}_f{frame_idx:06d}.jpg"
+                frame_path = output_dir / frame_filename
+                
+                cv2.imwrite(str(frame_path), frame)
+                frame_paths.append(str(frame_path))
+                extracted_count += 1
+            
+            frame_idx += 1
+        
+        cap.release()
+        
+        logger.info(f"Extracted {extracted_count} frames from {video_path.name} "
+                   f"(total {total_frames} frames, {fps} fps)")
+        
+        return {
+            "status": "success",
+            "video": str(video_path),
+            "output_dir": str(output_dir),
+            "total_frames": total_frames,
+            "fps": fps,
+            "dimensions": {"width": width, "height": height},
+            "extracted_count": extracted_count,
+            "frame_interval": frame_interval,
+            "frame_paths": frame_paths
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing {video_path}: {str(e)}")
+        return {"status": "error", "reason": str(e), "video": str(video_path)}
 
-    video_files = list(raw_data_dir.rglob(file_pattern))
+def extract_frames_from_dataset(
+    dataset_dir: Path,
+    output_base_dir: Path,
+    frame_interval: int = 30,
+    max_frames_per_video: Optional[int] = None,
+    video_extensions: List[str] = None
+) -> Dict[str, Any]:
+    """
+    Extract frames from all videos in a dataset directory.
+    
+    Args:
+        dataset_dir: Root directory containing video files
+        output_base_dir: Base directory for extracted frames
+        frame_interval: Extract every Nth frame
+        max_frames_per_video: Maximum frames per video
+        video_extensions: List of video extensions to process
+        
+    Returns:
+        Summary dictionary with overall extraction results
+    """
+    logger = logging.getLogger(__name__)
+    dataset_dir = Path(dataset_dir)
+    output_base_dir = Path(output_base_dir)
+    
+    if video_extensions is None:
+        video_extensions = ['.mp4', '.avi', '.mov', '.mkv']
+    
+    # Find all video files
+    video_files = []
+    for ext in video_extensions:
+        video_files.extend(list(dataset_dir.rglob(f"*{ext}")))
+        video_files.extend(list(dataset_dir.rglob(f"*{ext.upper()}")))
+    
     if not video_files:
-        logger.warning(f"No video files found matching '{file_pattern}' in {raw_data_dir}")
-        return {"files": [], "total_frames": 0, "videos_processed": 0}
-
-    manifest = {
-        "files": [],
-        "total_frames": 0,
-        "videos_processed": 0,
-        "errors": []
+        logger.warning(f"No video files found in {dataset_dir}")
+        return {
+            "status": "warning",
+            "reason": "no_videos_found",
+            "dataset_dir": str(dataset_dir),
+            "total_videos": 0,
+            "processed": 0,
+            "success": 0,
+            "error": 0
+        }
+    
+    logger.info(f"Found {len(video_files)} video files to process")
+    
+    results = {
+        "status": "success",
+        "dataset_dir": str(dataset_dir),
+        "output_base_dir": str(output_base_dir),
+        "total_videos": len(video_files),
+        "processed": 0,
+        "success": 0,
+        "error": 0,
+        "details": []
     }
-
+    
+    error_count = 0
+    
     for video_path in video_files:
-        try:
-            frames = extract_frames_from_video(
-                video_path,
-                output_dir,
-                target_fps=target_fps,
-                max_frames=max_frames_per_video
-            )
-            manifest["files"].extend(frames)
-            manifest["videos_processed"] += 1
-        except Exception as e:
-            logger.error(f"Error processing {video_path}: {e}")
-            manifest["errors"].append({
-                "video": str(video_path),
-                "error": str(e)
-            })
-
-    manifest["total_frames"] = len(manifest["files"])
-    return manifest
+        # Create output subdirectory mirroring video structure
+        relative_path = video_path.relative_to(dataset_dir)
+        output_subdir = output_base_dir / relative_path.parent
+        output_subdir.mkdir(parents=True, exist_ok=True)
+        
+        result = extract_frames_from_video(
+            video_path,
+            output_subdir,
+            frame_interval,
+            max_frames_per_video
+        )
+        
+        results["processed"] += 1
+        if result["status"] == "success":
+            results["success"] += 1
+        else:
+            results["error"] += 1
+            error_count += 1
+            # Log error to error log
+            with open(ERROR_LOG, 'a') as f:
+                f.write(f"ERROR: Frame extraction failed for {video_path}: {result.get('reason', 'unknown')}\n")
+        
+        results["details"].append(result)
+    
+    logger.info(f"Extraction complete: {results['success']}/{results['total_videos']} videos processed successfully")
+    
+    if error_count > 0:
+        logger.warning(f"{error_count} videos failed to process")
+    
+    return results
 
 def main():
     """Main entry point for frame extraction."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    raw_data_dir = project_root / "data" / "raw"
-    output_dir = project_root / "data" / "raw" / "frames"
-
-    logger.info(f"Starting frame extraction from {raw_data_dir}")
+    logger = setup_logging()
+    logger.info("Starting frame extraction from RAVDESS dataset")
+    
+    # Get configuration
+    config = get_env_config()
+    dataset_dir = Path(config.get('RAVDESS_DIR', 'data/raw/RAVDESS'))
+    output_dir = Path("data/raw/frames")
+    frame_interval = config.get('FRAME_INTERVAL', 30)
+    max_frames = config.get('MAX_FRAMES_PER_VIDEO', None)
+    
+    logger.info(f"Dataset directory: {dataset_dir}")
     logger.info(f"Output directory: {output_dir}")
-
-    # Ensure directories exist
-    ensure_directories([raw_data_dir, output_dir])
-
-    # Check if raw data exists
-    if not raw_data_dir.exists():
-        logger.error(f"Raw data directory does not exist: {raw_data_dir}")
-        logger.error("Please run T011 (download.py) first to fetch the RAVDESS dataset.")
+    logger.info(f"Frame interval: {frame_interval}")
+    if max_frames:
+        logger.info(f"Max frames per video: {max_frames}")
+    
+    # Check if dataset exists
+    if not dataset_dir.exists():
+        logger.error(f"Dataset directory not found: {dataset_dir}")
+        logger.error("Please run download.py first to fetch the RAVDESS dataset")
         sys.exit(1)
-
-    # Check for video files
-    video_files = list(raw_data_dir.rglob("*.mp4"))
-    if not video_files:
-        logger.error(f"No MP4 files found in {raw_data_dir}")
-        logger.error("Please run T011 (download.py) first to fetch the RAVDESS dataset.")
-        sys.exit(1)
-
+    
     # Extract frames
-    manifest = extract_frames_from_dataset(
-        raw_data_dir=raw_data_dir,
-        output_dir=output_dir,
-        file_pattern="*.mp4",
-        target_fps=1,  # Extract 1 frame per second to manage size
-        max_frames_per_video=10  # Limit per video for initial run if needed, or None for all
+    results = extract_frames_from_dataset(
+        dataset_dir,
+        output_dir,
+        frame_interval,
+        max_frames
     )
-
-    # Save manifest
-    manifest_path = project_root / "data" / "raw" / "frame_manifest.json"
-    with open(manifest_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2)
-
-    logger.info(f"Frame extraction complete.")
-    logger.info(f"Total frames extracted: {manifest['total_frames']}")
-    logger.info(f"Videos processed: {manifest['videos_processed']}")
-    logger.info(f"Errors: {len(manifest['errors'])}")
-    logger.info(f"Manifest saved to: {manifest_path}")
-
-    if manifest['errors']:
-        logger.warning("Some videos failed to process. Check logs for details.")
-
-    return manifest
+    
+    # Save results summary
+    summary_path = output_dir / "extraction_summary.json"
+    with open(summary_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Summary saved to {summary_path}")
+    
+    if results["status"] == "error":
+        sys.exit(1)
+    
+    logger.info("Frame extraction completed successfully")
 
 if __name__ == "__main__":
     main()

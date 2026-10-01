@@ -1,0 +1,7 @@
+last_updated: '2026-10-01T19:21:47.125806'
+checksums:
+  data:
+    interim/manifest_validation_report.json: f81d912771abfca3aed7b4ce8fb9088af3b995aa350b3e1b423c0fce86d0f384
+    interim/stimuli_manifest.json: a3ba5dcff8fd919e05d69c1f843a495cd328fee0ad4c73541fe820141c3f47e7
+    interim/clutter_metrics.log: 85268b273248a80c908211f62de4f39cd8409d4d053d14904b811b6b0f98333c
+  artifacts: {}

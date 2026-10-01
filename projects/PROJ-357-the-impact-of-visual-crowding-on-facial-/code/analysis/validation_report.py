@@ -1,116 +1,183 @@
+"""
+Generate validation report confirming clutter metrics correlate with flanker count.
+
+This script validates that spatial frequency energy correlates with flanker count
+(p < 0.05) as a mandatory gate for Phase 4 completion.
+
+Output: data/processed/validation_report.json
+Schema: {
+    'correlation_p_value': float,
+    'threshold_met': bool,
+    'status': 'pass'|'fail',
+    'sample_size': int
+}
+"""
 import os
+import sys
 import json
 import logging
 import pandas as pd
 import numpy as np
-from scipy import stats
 from pathlib import Path
+from scipy import stats
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-def load_metrics(metrics_path: str) -> pd.DataFrame:
-    """
-    Load clutter metrics from CSV.
-    Expected columns: file_path, flanker_count, spatial_frequency_energy, local_contrast_variance
-    """
-    path = Path(metrics_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+from config import ensure_directories
+
+def setup_logging():
+    """Configure logging for the validation report generation."""
+    log_dir = project_root / "data" / "interim"
+    ensure_directories([log_dir])
     
-    df = pd.read_csv(path)
-    required_cols = ['file_path', 'flanker_count', 'spatial_frequency_energy']
-    missing = [c for c in required_cols if c not in df.columns]
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_dir / "validation_report.log"),
+            logging.StreamHandler()
+        ]
+    )
+    return logging.getLogger(__name__)
+
+def load_metrics():
+    """
+    Load clutter metrics from data/processed/clutter_metrics.csv.
+    
+    Returns:
+        pd.DataFrame: DataFrame with columns including 'spatial_frequency_energy' 
+                     and 'flanker_count'.
+        
+    Raises:
+        FileNotFoundError: If the metrics file does not exist.
+        ValueError: If required columns are missing.
+    """
+    metrics_path = project_root / "data" / "processed" / "clutter_metrics.csv"
+    
+    if not metrics_path.exists():
+        raise FileNotFoundError(
+            f"Metrics file not found at {metrics_path}. "
+            "Run code/utils/clutter_metrics.py first to generate this file."
+        )
+    
+    df = pd.read_csv(metrics_path)
+    
+    required_columns = ['spatial_frequency_energy', 'flanker_count']
+    missing = [col for col in required_columns if col not in df.columns]
+    
     if missing:
-        raise ValueError(f"Missing required columns in metrics file: {missing}")
+        raise ValueError(
+            f"Missing required columns in metrics file: {missing}. "
+            "Ensure code/utils/clutter_metrics.py generates these columns."
+        )
     
-    logger.info(f"Loaded {len(df)} records from {metrics_path}")
+    logging.info(f"Loaded {len(df)} rows from {metrics_path}")
     return df
 
-def validate_correlation(df: pd.DataFrame, metric_col: str = 'spatial_frequency_energy', 
-                         predictor_col: str = 'flanker_count', alpha: float = 0.05) -> dict:
+def validate_correlation(df, alpha=0.05):
     """
-    Validate that the specified metric correlates with the predictor (flanker count).
-    Uses Pearson correlation for linear relationship.
-    Returns a dictionary with test statistics and pass/fail status.
+    Validate that spatial frequency energy correlates with flanker count.
+    
+    Performs a Pearson correlation test between spatial_frequency_energy and 
+    flanker_count.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing the metrics.
+        alpha (float): Significance level threshold (default 0.05).
+        
+    Returns:
+        dict: Validation report with correlation p-value, threshold met status,
+              overall status, and sample size.
     """
-    # Clean data
-    clean_df = df[[predictor_col, metric_col]].dropna()
+    # Remove rows with missing values in the relevant columns
+    clean_df = df[['spatial_frequency_energy', 'flanker_count']].dropna()
+    sample_size = len(clean_df)
     
-    if len(clean_df) < 3:
-        raise ValueError(f"Insufficient data for correlation analysis (n={len(clean_df)}).")
-
-    x = clean_df[predictor_col].values
-    y = clean_df[metric_col].values
-
-    # Calculate Pearson correlation
-    r, p_value = stats.pearsonr(x, y)
+    if sample_size < 2:
+        logging.warning("Insufficient data for correlation analysis (need at least 2 rows)")
+        return {
+            'correlation_p_value': None,
+            'threshold_met': False,
+            'status': 'fail',
+            'sample_size': sample_size,
+            'reason': 'Insufficient data'
+        }
     
-    # Determine significance
-    is_significant = p_value < alpha
-    direction = "positive" if r > 0 else "negative"
+    # Perform Pearson correlation test
+    correlation, p_value = stats.pearsonr(
+        clean_df['spatial_frequency_energy'], 
+        clean_df['flanker_count']
+    )
     
-    result = {
-        "test": "Pearson Correlation",
-        "metric": metric_col,
-        "predictor": predictor_col,
-        "sample_size": len(clean_df),
-        "correlation_coefficient": float(r),
-        "p_value": float(p_value),
-        "alpha_threshold": alpha,
-        "is_significant": is_significant,
-        "direction": direction,
-        "status": "PASS" if is_significant else "FAIL",
-        "message": f"Correlation is {'significant' if is_significant else 'NOT significant'} (p={p_value:.4f} < {alpha})"
+    logging.info(f"Pearson correlation: r={correlation:.4f}, p={p_value:.4f}")
+    
+    threshold_met = p_value < alpha
+    status = 'pass' if threshold_met else 'fail'
+    
+    report = {
+        'correlation_p_value': float(p_value),
+        'correlation_coefficient': float(correlation),
+        'threshold_met': threshold_met,
+        'status': status,
+        'sample_size': sample_size,
+        'alpha_threshold': alpha
     }
     
-    return result
+    if not threshold_met:
+        logging.warning(
+            f"Correlation p-value ({p_value:.4f}) did not meet threshold ({alpha}). "
+            "This is a blocking gate for Phase 4 completion."
+        )
+    else:
+        logging.info(
+            f"Validation PASSED: p-value ({p_value:.4f}) < threshold ({alpha}). "
+            "Phase 4 completion gate cleared."
+        )
+    
+    return report
 
 def main():
-    """
-    Main entry point to generate the validation report.
-    Reads clutter metrics, performs correlation analysis, and writes the report.
-    """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    metrics_path = project_root / "data" / "processed" / "clutter_metrics.csv"
-    report_path = project_root / "data" / "processed" / "validation_report.json"
-
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Loading metrics from: {metrics_path}")
-
+    """Main entry point for generating the validation report."""
+    logger = setup_logging()
+    logger.info("Starting validation report generation")
+    
     try:
-        # Load data
-        df = load_metrics(str(metrics_path))
-
-        # Perform validation
-        report_data = validate_correlation(df)
-
-        # Add metadata
-        report_data["generated_at"] = str(pd.Timestamp.now())
-        report_data["source_file"] = str(metrics_path)
-
+        # Load metrics
+        df = load_metrics()
+        
+        # Validate correlation
+        report = validate_correlation(df)
+        
         # Ensure output directory exists
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-
+        output_dir = project_root / "data" / "processed"
+        ensure_directories([output_dir])
+        
         # Write report
-        with open(report_path, 'w') as f:
-            json.dump(report_data, f, indent=2)
-
-        logger.info(f"Validation report written to: {report_path}")
-        logger.info(f"Result: {report_data['status']} - {report_data['message']}")
-
-        return report_data
-
+        output_path = output_dir / "validation_report.json"
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Validation report written to {output_path}")
+        
+        # Exit with appropriate code
+        if report['status'] == 'pass':
+            logger.info("Validation PASSED - Phase 4 gate cleared")
+            sys.exit(0)
+        else:
+            logger.error("Validation FAILED - Phase 4 gate blocked")
+            sys.exit(1)
+            
     except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
+        logger.error(f"File error: {e}")
+        sys.exit(1)
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        raise
+        logger.error(f"Data error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        raise
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

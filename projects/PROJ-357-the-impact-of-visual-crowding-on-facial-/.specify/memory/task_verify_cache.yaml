@@ -1,3 +1,10 @@
+T020:
+  c: false
+  h: d576711456aa2fc4165a1da6919403a8f6230eaad9e6c2d9e65590f8a2fe5cd7
+  r: "The provided `clutter_metrics.py` file does not show any implementation of manifest\
+    \ streaming, chunked processing, memory\u2011limit checks, or a fallback sampling\
+    \ routine, and the required `data/processed/metrics_sampling_log.txt` file is\
+    \ absent. Consequently the task\u2019s core requirements are not met."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,3 +34,38 @@ T042:
     \ generation, metric computation, or analysis scripts were executed on a CPU\u2011\
     only runner and completed within a 6\u2011hour window. The implementer provided\
     \ no artifacts to verify the constraint, so the requirement is unmet."
+T049a:
+  c: false
+  h: a517a2277abbc8b1f45d06ec28046ad4a363b35696525292e5e71600181fd333
+  r: The required file `data/interim/raw_pilot_responses.csv` is missing, so the existence
+    check fails and no validation of participant IDs or placeholder status can be
+    performed. The task therefore has not been satisfied.
+T056:
+  c: true
+  h: e3b818c07da9dbbb16b6609052160e26056112bf60909590bda04bb9001b02eb
+  r: The `code/utils/hygiene.py` file defines `REQUIRED_GLMM_INPUTS` with the two
+    required CSV paths and implements `validate_execution_gate()` that checks their
+    existence and raises an error if they are missing, fulfilling the requested validation
+    step.
+T058:
+  c: false
+  h: cb2606e7eab68d657958ae2acdf1634f8e8a9e9fcb1e35f4c21775060bbea0f9
+  r: "The existing `tests/unit/test_glmm_fallback.py` only contains GLMM fitting tests\
+    \ and does not verify Benjamini\u2011Hochberg correction on `regression_results.json`\
+    \ nor the 0.05 FDR threshold. Additionally, the alternative file `tests/unit/test_reporting.py`\
+    \ is missing entirely. A unit test specifically checking the BH\u2011adjusted\
+    \ p\u2011values and FDR compliance must be added."
+T059:
+  c: false
+  h: e3f5441309c946124cba54a743e111892acfc093dce645e3ec7d86a4593efa81
+  r: "The `pilot_protocol.py` script does contain a hash\u2011verification function,\
+    \ but the required `data/interim/consent_template.md` file is missing, so the\
+    \ verification cannot actually compare against a stored consent version. The missing\
+    \ consent template prevents the task\u2019s compliance check from being functional."
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/timing_report.json` file was presented, nor any evidence that the\
+    \ full pipeline (including manual data upload simulation) was run on a free\u2011\
+    tier runner. Consequently the required timing verification and total duration\
+    \ confirmation are missing."
