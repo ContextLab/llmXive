@@ -1,0 +1,33 @@
+# Schema for Inference Requests sent to the LLM
+type: object
+required:
+  - pr_id
+  - diff_content
+  - file_path
+  - line_start
+  - line_end
+properties:
+  pr_id:
+    type: integer
+    description: PR identifier
+  diff_content:
+    type: string
+    description: The diff snippet to analyze
+  file_path:
+    type: string
+    description: Path to the file
+  line_start:
+    type: integer
+    description: Start line of the snippet
+  line_end:
+    type: integer
+    description: End line of the snippet
+  context_before:
+    type: string
+    description: Optional context lines before the snippet
+  context_after:
+    type: string
+    description: Optional context lines after the snippet
+  max_tokens:
+    type: integer
+    description: Maximum tokens for the model response

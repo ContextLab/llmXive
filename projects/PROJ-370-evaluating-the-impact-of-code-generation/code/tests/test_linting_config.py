@@ -1,110 +1,111 @@
-"""
-Tests to verify that linting and formatting configurations are valid and consistent.
-These tests ensure that the project's pyproject.toml and .ruff.toml are syntactically
-correct and that the project structure adheres to the configured rules.
-"""
-
 import subprocess
 import sys
 import os
 import pytest
 from pathlib import Path
 
-# Ensure we are running from the code directory context if needed,
-# but typically these run from project root.
+# Ensure we are running from the project root or adjust paths accordingly
+# For CI/execution, we assume the working directory is the project root
 PROJECT_ROOT = Path(__file__).parent.parent
 
 def test_ruff_config_exists():
     """Verify that ruff configuration file exists."""
     pyproject_path = PROJECT_ROOT / "pyproject.toml"
-    ruff_path = PROJECT_ROOT / ".ruff.toml"
-    
-    # At least one should exist
-    assert pyproject_path.exists() or ruff_path.exists(), \
-        "Neither pyproject.toml nor .ruff.toml found in project root."
+    ruff_toml_path = PROJECT_ROOT / ".ruff.toml"
+    assert pyproject_path.exists() or ruff_toml_path.exists(), \
+        "Ruff configuration file (pyproject.toml or .ruff.toml) must exist."
 
 def test_black_config_exists():
-    """Verify that black configuration exists (usually in pyproject.toml)."""
+    """Verify that black configuration file exists."""
     pyproject_path = PROJECT_ROOT / "pyproject.toml"
-    assert pyproject_path.exists(), "pyproject.toml missing."
-    
-    content = pyproject_path.read_text()
-    assert "[tool.black]" in content, \
-        "Black configuration section [tool.black] not found in pyproject.toml"
+    black_toml_path = PROJECT_ROOT / ".black.toml"
+    assert pyproject_path.exists() or black_toml_path.exists(), \
+        "Black configuration file (pyproject.toml or .black.toml) must exist."
 
 def test_ruff_syntax_check():
-    """Run ruff check on a dummy file to ensure config is valid."""
-    # Create a temporary file with valid python to test config loading
-    dummy_file = PROJECT_ROOT / "tests" / "dummy_check.py"
-    dummy_file.write_text("x = 1\n")
+    """Run ruff check on the codebase to ensure no syntax errors or linting violations."""
+    # We run ruff on the 'code' directory specifically
+    ruff_path = PROJECT_ROOT / "code"
+    if not ruff_path.exists():
+        pytest.skip("Code directory not found, skipping linting check.")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", str(ruff_path)],
+        capture_output=True,
+        text=True,
+        cwd=str(PROJECT_ROOT)
+    )
     
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", str(dummy_file)],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        # Config errors usually show as exit code 2 or specific error messages
-        # We just want to ensure it doesn't crash on config parsing
-        assert result.returncode in [0, 1], \
-            f"Ruff check failed due to config error: {result.stderr}"
-    finally:
-        if dummy_file.exists():
-            dummy_file.unlink()
+    # We expect success (exit code 0). If there are linting errors, this test fails.
+    # Note: In a real CI, we might want to allow specific ignores, but for this task
+    # we enforce that the configured tools work and the code passes them.
+    assert result.returncode == 0, f"Ruff check failed:\n{result.stdout}\n{result.stderr}"
 
 def test_black_format_check():
-    """Run black --check on a dummy file to ensure config is valid."""
-    dummy_file = PROJECT_ROOT / "tests" / "dummy_format.py"
-    # Content that is valid but might need formatting if config is weird, 
-    # but mostly just checking if black loads config.
-    dummy_file.write_text("x=1\n")
-    
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", str(dummy_file)],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        # Exit code 1 means formatting needed, 0 means ok, >1 means error
-        assert result.returncode in [0, 1], \
-            f"Black check failed due to config error: {result.stderr}"
-    finally:
-        if dummy_file.exists():
-            dummy_file.unlink()
+    """Run black --check on the codebase to ensure code is formatted correctly."""
+    black_path = PROJECT_ROOT / "code"
+    if not black_path.exists():
+        pytest.skip("Code directory not found, skipping formatting check.")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "black", "--check", str(black_path)],
+        capture_output=True,
+        text=True,
+        cwd=str(PROJECT_ROOT)
+    )
+
+    assert result.returncode == 0, f"Black format check failed:\n{result.stdout}\n{result.stderr}"
 
 def test_line_length_consistency():
-    """Verify that Black and Ruff line lengths match."""
+    """Verify that line length is consistent across ruff and black configurations."""
+    # Read pyproject.toml if it exists
     pyproject_path = PROJECT_ROOT / "pyproject.toml"
-    if not pyproject_path.exists():
-        pytest.skip("pyproject.toml missing")
+    if pyproject_path.exists():
+        content = pyproject_path.read_text()
+        # Simple check for line-length in both sections
+        ruff_line = None
+        black_line = None
+        in_ruff = False
+        in_black = False
+        
+        for line in content.splitlines():
+            if "[tool.ruff]" in line:
+                in_ruff = True
+            elif "[tool.black]" in line:
+                in_black = True
+                in_ruff = False
+            
+            if in_ruff and "line-length" in line:
+                ruff_line = int(line.split("=")[1].strip())
+            if in_black and "line-length" in line:
+                black_line = int(line.split("=")[1].strip())
+        
+        if ruff_line is not None and black_line is not None:
+            assert ruff_line == black_line, \
+                f"Line length mismatch: Ruff={ruff_line}, Black={black_line}"
+        elif ruff_line is not None or black_line is not None:
+            # If one is missing, we rely on defaults, but we prefer explicit consistency
+            # For this test, we just ensure we found at least one or the other is default 88
+            pass
     
-    content = pyproject_path.read_text()
+    # If pyproject.toml doesn't have it, check .ruff.toml and .black.toml
+    ruff_toml = PROJECT_ROOT / ".ruff.toml"
+    black_toml = PROJECT_ROOT / ".black.toml"
     
-    # Simple regex-free extraction for line-length
-    import re
-    black_match = re.search(r'\[tool\.black\].*?line-length\s*=\s*(\d+)', content, re.DOTALL)
-    ruff_match = re.search(r'\[tool\.ruff\].*?line-length\s*=\s*(\d+)', content, re.DOTALL)
-    
-    if black_match and ruff_match:
-        black_len = int(black_match.group(1))
-        ruff_len = int(ruff_match.group(1))
-        assert black_len == ruff_len, \
-            f"Line length mismatch: Black={black_len}, Ruff={ruff_len}"
-    elif black_match or ruff_match:
-        # If only one is defined, it's acceptable (defaults apply to the other)
-        pass
-    else:
-        # If neither found in pyproject, check .ruff.toml
-        ruff_path = PROJECT_ROOT / ".ruff.toml"
-        if ruff_path.exists():
-            ruff_content = ruff_path.read_text()
-            ruff_match = re.search(r'line-length\s*=\s*(\d+)', ruff_content)
-            if ruff_match:
-                # Default black is 88, if ruff is different, it's a potential mismatch
-                # But we can't easily check black default without parsing black's source or running it.
-                # We'll just ensure the file parses.
-                pass
+    if ruff_toml.exists() and black_toml.exists():
+        ruff_content = ruff_toml.read_text()
+        black_content = black_toml.read_text()
+        
+        ruff_val = None
+        black_val = None
+        
+        for line in ruff_content.splitlines():
+            if "line-length" in line:
+                ruff_val = int(line.split("=")[1].strip())
+        for line in black_content.splitlines():
+            if "line-length" in line:
+                black_val = int(line.split("=")[1].strip())
+        
+        if ruff_val is not None and black_val is not None:
+            assert ruff_val == black_val, \
+                f"Line length mismatch in TOML files: Ruff={ruff_val}, Black={black_val}"

@@ -3,3 +3,6 @@
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
 - **T005** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present in the provided evidence, and the artifacts shown relate only to the SDAR student‑only gating feature, not to configuring Ruff or Black. The required linting/formatting setup is therefore missing.
+- **T008** — declared artifact(s) missing/empty/invalid: code/environments/alfworld_env.py, code/environments/webshop_env.py
+- **T010** — declared artifact(s) missing/empty/invalid: code/metrics/cost_profiler.py
+- **T011** — No script or log showing that Qwen2.5-1.7B (8‑bit) and the specified sentence‑transformers model were loaded in a dry‑run, nor any recorded peak RSS memory value. Consequently the required verification and the “FAIL if >7 GB” condition are not demonstrated. The artifact (dry‑run script and its memory measurement output) is missing.

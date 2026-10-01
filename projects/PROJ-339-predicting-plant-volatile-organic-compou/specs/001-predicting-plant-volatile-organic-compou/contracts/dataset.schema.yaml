@@ -1,12 +1,14 @@
+# Dataset Schema for Predicting Plant VOC Emission Profiles
+# This file defines the expected structure for Sample, GenomicFeature, EnvironmentalFeature, and VOCProfile objects.
+# Used for validation of both real and synthetic data.
+
 $schema: http://json-schema.org/draft-07/schema#
-title: Plant VOC Prediction Dataset Schema
-description: >
-  Schema definition for the plant volatile organic compound (VOC) prediction pipeline.
-  Defines the structure for Samples, Genomic Features, Environmental Features, and VOC Profiles.
+title: Plant VOC Dataset Schema
+description: Schema for the plant volatile organic compound prediction pipeline.
+
 definitions:
   Sample:
     type: object
-    description: Core sample identifier and metadata linking genomic, environmental, and VOC data.
     required:
       - sample_id
       - species
@@ -21,28 +23,25 @@ definitions:
         description: Scientific name of the plant species (e.g., Arabidopsis thaliana).
       tissue_type:
         type: string
-        description: Type of tissue sampled (e.g., leaf, root, flower).
+        description: Type of plant tissue (e.g., leaf, flower, root).
       collection_date:
         type: string
         format: date
-        description: Date of sample collection (ISO 8601).
+        description: Date of sample collection (YYYY-MM-DD).
       experiment_id:
         type: string
-        description: Identifier for the parent experiment.
-      replicate_id:
-        type: integer
-        description: Biological replicate number (1-based).
-      treatment_condition:
+        description: Identifier for the experiment this sample belongs to.
+      source:
         type: string
-        description: Description of the stress or treatment applied.
+        description: Data source (e.g., NCBI GEO, Metabolomics Workbench, Synthetic).
+      accession_id:
+        type: string
+        description: Original accession ID from the data source.
 
   GenomicFeature:
     type: object
-    description: Gene expression data associated with a sample.
     required:
-      sample_id
-      gene_id
-      tpm_value
+      - sample_id
     properties:
       sample_id:
         type: string
@@ -50,84 +49,79 @@ definitions:
       gene_id:
         type: string
         description: Gene identifier (e.g., AT1G01010).
-      gene_name:
+      gene_symbol:
         type: string
-        description: Symbolic gene name (optional).
-      tpm_value:
+        description: Common gene symbol if available.
+      tpm:
         type: number
-        format: float
         description: Transcripts Per Million normalized expression value.
-      pathway_family:
+      raw_count:
+        type: integer
+        description: Raw read count before normalization.
+      pathway:
         type: string
-        description: Pathway family assignment (e.g., TPS-a, TPS-b).
+        description: Associated metabolic pathway (e.g., Terpenoid biosynthesis).
+      family:
+        type: string
+        description: Gene family (e.g., TPS-a, TPS-b).
 
   EnvironmentalFeature:
     type: object
-    description: Environmental conditions recorded during sample collection.
     required:
-      sample_id
-      temperature
-      light_intensity
-      co2_level
+      - sample_id
     properties:
       sample_id:
         type: string
         description: Foreign key linking to Sample.
       temperature:
         type: number
-        format: float
         description: Temperature in Celsius.
       light_intensity:
         type: number
-        format: float
-        description: Light intensity in µmol/m²/s.
+        description: Light intensity in µmol m⁻² s⁻¹.
       co2_level:
         type: number
-        format: float
         description: CO2 concentration in ppm.
       humidity:
         type: number
-        format: float
         description: Relative humidity in %.
-      soil_moisture:
+      stress_condition:
+        type: string
+        description: Description of applied stress (e.g., drought, heat, herbivory).
+      duration_hours:
         type: number
-        format: float
-        description: Soil moisture content in %.
+        description: Duration of stress exposure in hours.
 
   VOCProfile:
     type: object
-    description: Volatile Organic Compound measurements for a sample.
     required:
-      sample_id
-      compound_id
-      concentration
+      - sample_id
     properties:
       sample_id:
         type: string
         description: Foreign key linking to Sample.
-      compound_id:
-        type: string
-        description: Identifier for the VOC (e.g., CAS number or InChIKey).
       compound_name:
         type: string
-        description: Common name of the compound.
-      concentration:
+        description: Name of the VOC compound.
+      cas_number:
+        type: string
+        description: CAS registry number if available.
+      emission_rate:
         type: number
-        format: float
-        description: Concentration value (units depend on measurement method).
+        description: Emission rate (e.g., ng g⁻¹ h⁻¹).
       unit:
         type: string
-        description: Unit of measurement (e.g., ng/g/h, ppb).
+        description: Unit of measurement.
       detection_limit:
         type: number
-        format: float
-        description: Detection limit for the compound.
+        description: Limit of detection.
+      compound_class:
+        type: string
+        description: Chemical class (e.g., Monoterpene, Sesquiterpene, Green Leaf Volatile).
 
-# Root schema for validation of a dataset containing mixed records
-# In practice, this schema is used to validate individual record types
-# or a combined JSON structure where 'type' discriminates the object.
-anyOf:
-  - $ref: '#/definitions/Sample'
-  - $ref: '#/definitions/GenomicFeature'
-  - $ref: '#/definitions/EnvironmentalFeature'
-  - $ref: '#/definitions/VOCProfile'
+# Root schema for a single record (union of types)
+oneOf:
+  - $ref: "#/definitions/Sample"
+  - $ref: "#/definitions/GenomicFeature"
+  - $ref: "#/definitions/EnvironmentalFeature"
+  - $ref: "#/definitions/VOCProfile"

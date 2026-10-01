@@ -1,6 +1,6 @@
 """
-Test suite to verify linting and formatting configuration.
-These tests ensure that the project adheres to the defined style guides.
+Tests to verify that linting (ruff) and formatting (black) are correctly configured.
+These tests ensure the project enforces code quality standards.
 """
 import subprocess
 import sys
@@ -9,7 +9,7 @@ import tempfile
 import shutil
 
 def run_command(cmd, cwd=None):
-    """Helper to run a shell command and capture output."""
+    """Helper to run a shell command and return stdout, stderr, and return code."""
     result = subprocess.run(
         cmd,
         shell=True,
@@ -17,81 +17,52 @@ def run_command(cmd, cwd=None):
         capture_output=True,
         text=True
     )
-    return result.returncode, result.stdout, result.stderr
+    return result.stdout, result.stderr, result.returncode
 
 def test_ruff_config_exists():
-    """Verify that the ruff configuration file exists."""
+    """Verify that .ruff.toml exists in the code directory."""
+    # The config is expected at code/.ruff.toml based on task requirements
     config_path = os.path.join("code", ".ruff.toml")
-    assert os.path.exists(config_path), f"Ruff config file not found at {config_path}"
+    assert os.path.exists(config_path), f"Ruff config not found at {config_path}"
 
 def test_black_config_exists():
-    """Verify that the black configuration file exists."""
-    config_path = os.path.join("code", ".black.toml")
-    assert os.path.exists(config_path), f"Black config file not found at {config_path}"
+    """Verify that black configuration exists in pyproject.toml."""
+    config_path = os.path.join("pyproject.toml")
+    assert os.path.exists(config_path), f"Black config not found at {config_path}"
+    with open(config_path, "r") as f:
+        content = f.read()
+    assert "[tool.black]" in content, "Black configuration section not found in pyproject.toml"
 
 def test_ruff_check_code():
-    """
-    Run ruff check on the code directory.
-    This test will pass if ruff is installed and finds no errors based on the config.
-    If ruff is not installed, it skips the check but validates the config file structure.
-    """
-    # Create a temporary file with valid Python code to test the config
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, dir='code') as f:
-        f.write("x = 1\ny = 2\n")
-        temp_file = f.name
-
+    """Run ruff check on the code directory to ensure no violations exist."""
+    # Ensure ruff is installed
     try:
-        # Run ruff check
-        returncode, stdout, stderr = run_command(
-            f"ruff check {temp_file}",
-            cwd=os.path.dirname(os.path.abspath(__file__))
-        )
-        
-        # If ruff is not installed, we can't strictly enforce the check,
-        # but we assume the config is correct if the file exists.
-        # In a CI environment, ruff must be installed.
-        if "No such file or directory" in stderr or "command not found" in stderr:
-            # Skip if ruff not available in environment
-            return 
-        
-        # If ruff runs, it should return 0 (success) for this simple valid file
-        # Note: If the project has existing lint errors in other files, this test
-        # focuses on the specific temp file or the config validity.
-        # For a robust test, we ensure the config is parsable.
-        if returncode != 0:
-            # Check if it's just the temp file or a config error
-            if "failed to parse config" in stderr.lower():
-                raise AssertionError(f"Ruff config is invalid: {stderr}")
-            # If it fails on the temp file, that's a config issue
-            raise AssertionError(f"Ruff check failed on valid code: {stderr}")
-    finally:
-        os.unlink(temp_file)
+        subprocess.run([sys.executable, "-m", "pip", "install", "ruff"], check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        pytest.skip("Ruff installation failed")
+
+    # Run ruff check
+    cmd = "ruff check code/"
+    stdout, stderr, returncode = run_command(cmd)
+
+    # If returncode is 0, checks passed. If non-zero, we check if it's just a config issue or code issue.
+    # For this test, we expect the code to pass the configured rules.
+    if returncode != 0:
+        print(f"Ruff check failed:\n{stdout}\n{stderr}")
+        # Fail the test if there are linting errors
+        assert False, f"Ruff found linting errors. Output: {stdout}"
 
 def test_black_check_code():
-    """
-    Run black --check on a temporary file.
-    Validates that the black config is parsable and functional.
-    """
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, dir='code') as f:
-        # Write code that is NOT formatted according to black (too long line)
-        f.write("x = 1\ny = 2\n")
-        temp_file = f.name
-
+    """Run black --check on the code directory to ensure formatting is correct."""
+    # Ensure black is installed
     try:
-        returncode, stdout, stderr = run_command(
-            f"black --check {temp_file}",
-            cwd=os.path.dirname(os.path.abspath(__file__))
-        )
+        subprocess.run([sys.executable, "-m", "pip", "install", "black"], check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        pytest.skip("Black installation failed")
 
-        if "No such file or directory" in stderr or "command not found" in stderr:
-            return # Skip if black not available
+    cmd = "black --check code/"
+    stdout, stderr, returncode = run_command(cmd)
 
-        # If black runs, it should find no issues in this simple file
-        if returncode != 0:
-            if "failed to parse" in stderr.lower():
-                raise AssertionError(f"Black config is invalid: {stderr}")
-            # If it fails, it might be due to the file content not matching the line length
-            # but for a simple 2-line file, it should pass.
-            # We just ensure the tool runs without config errors.
-    finally:
-        os.unlink(temp_file)
+    if returncode != 0:
+        print(f"Black check failed:\n{stdout}\n{stderr}")
+        assert False, f"Black found formatting errors. Output: {stdout}"

@@ -1,0 +1,32 @@
+# Contract for AlignmentResult
+# Used to validate JSON output from src/analysis/align.py
+type: object
+required:
+  - human_bug
+  - llm_bug
+  - match_score
+  - jaccard_index
+  - cosine_similarity
+  - is_valid_match
+  - match_reason
+properties:
+  human_bug:
+    $ref: "./bug_detection.yaml"
+  llm_bug:
+    $ref: "./bug_detection.yaml"
+  match_score:
+    type: number
+    minimum: 0
+    maximum: 1
+  jaccard_index:
+    type: number
+    minimum: 0
+    maximum: 1
+  cosine_similarity:
+    type: number
+    minimum: -1
+    maximum: 1
+  is_valid_match:
+    type: boolean
+  match_reason:
+    type: string

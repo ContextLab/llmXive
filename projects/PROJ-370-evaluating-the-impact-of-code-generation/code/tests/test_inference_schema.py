@@ -2,6 +2,7 @@ import pytest
 import json
 from code.src.inference.schema import InferenceRequest, InferenceResponse, InferenceStatus
 from code.src.detection.schema import LLMCodeDetectionResult, ConfidenceLevel
+from code.src.extraction.schema import Severity
 
 
 class TestInferenceRequest:
@@ -9,155 +10,213 @@ class TestInferenceRequest:
         """Test basic creation of an InferenceRequest."""
         req = InferenceRequest(
             pr_id="PR-123",
-            repo_name="microsoft/vscode",
-            diff_text="+ print('hello')",
+            repo_name="test/repo",
+            diff_text="+ new line\n- old line",
             file_path="src/main.py",
             line_start=10,
-            line_end=11
+            line_end=15
         )
         assert req.pr_id == "PR-123"
-        assert req.diff_text == "+ print('hello')"
+        assert req.repo_name == "test/repo"
+        assert req.file_path == "src/main.py"
         assert req.line_start == 10
+        assert req.line_end == 15
+        assert req.severity_hint is None
+        assert req.llm_detection_result is None
 
-    def test_request_to_dict(self):
-        """Test serialization of InferenceRequest to dict."""
+    def test_create_request_with_optional_fields(self):
+        """Test creation with optional fields populated."""
+        severity = Severity.MAJOR
+        llm_res = LLMCodeDetectionResult(
+            is_llm_generated=True,
+            confidence=ConfidenceLevel.HIGH,
+            details={"reason": "pattern_match"}
+        )
+
         req = InferenceRequest(
             pr_id="PR-456",
-            repo_name="owner/repo",
-            diff_text="- old\n+ new",
-            file_path="utils/helper.py",
-            line_start=5,
-            line_end=6,
-            context_window="def helper():\n",
-            request_metadata={"source": "github_api"}
+            repo_name="test/repo",
+            diff_text="diff content",
+            file_path="test.py",
+            line_start=1,
+            line_end=10,
+            severity_hint=severity,
+            llm_detection_result=llm_res,
+            context_window_size=2048,
+            metadata={"source": "manual"}
         )
-        data = req.to_dict()
-        
-        assert data["pr_id"] == "PR-456"
-        assert data["file_path"] == "utils/helper.py"
-        assert data["context_window"] == "def helper():\n"
-        assert data["request_metadata"]["source"] == "github_api"
 
-    def test_request_json_roundtrip(self):
-        """Test JSON serialization and deserialization of InferenceRequest."""
+        assert req.severity_hint == severity
+        assert req.llm_detection_result is not None
+        assert req.llm_detection_result.is_llm_generated is True
+        assert req.context_window_size == 2048
+        assert req.metadata["source"] == "manual"
+
+    def test_to_dict_and_json(self):
+        """Test serialization methods."""
         req = InferenceRequest(
             pr_id="PR-789",
-            repo_name="test/test",
-            diff_text="bug fix",
-            file_path="fix.py",
-            line_start=1,
-            line_end=2
-        )
-        
-        json_str = req.to_json()
-        loaded = InferenceRequest.from_dict(json.loads(json_str))
-        
-        assert loaded.pr_id == req.pr_id
-        assert loaded.diff_text == req.diff_text
-        assert loaded.file_path == req.file_path
-
-    def test_request_with_llm_detection(self):
-        """Test InferenceRequest containing an LLMCodeDetectionResult."""
-        llm_det = LLMCodeDetectionResult(
-            pr_id="PR-999",
-            file_path="code.py",
-            line_start=1,
-            line_end=5,
-            confidence=ConfidenceLevel.HIGH,
-            is_llm_generated=True
-        )
-        
-        req = InferenceRequest(
-            pr_id="PR-999",
             repo_name="test/repo",
-            diff_text="generated code",
-            file_path="code.py",
+            diff_text="diff",
+            file_path="a.py",
             line_start=1,
-            line_end=5,
-            llm_detection_result=llm_det
+            line_end=2,
+            severity_hint=Severity.MINOR
         )
-        
+
         data = req.to_dict()
-        assert data["llm_detection_result"] is not None
-        assert data["llm_detection_result"]["confidence"] == "high"
-        
-        loaded = InferenceRequest.from_dict(data)
-        assert loaded.llm_detection_result is not None
-        assert loaded.llm_detection_result.is_llm_generated is True
+        assert data["pr_id"] == "PR-789"
+        assert data["severity_hint"] == "minor"
+
+        json_str = req.to_json()
+        assert isinstance(json_str, str)
+        assert "PR-789" in json_str
+
+    def test_from_dict_roundtrip(self):
+        """Test deserialization from dictionary."""
+        original = InferenceRequest(
+            pr_id="PR-999",
+            repo_name="org/proj",
+            diff_text="diff text",
+            file_path="file.py",
+            line_start=5,
+            line_end=10,
+            severity_hint=Severity.CRITICAL,
+            metadata={"key": "val"}
+        )
+
+        data = original.to_dict()
+        reconstructed = InferenceRequest.from_dict(data)
+
+        assert reconstructed.pr_id == original.pr_id
+        assert reconstructed.repo_name == original.repo_name
+        assert reconstructed.file_path == original.file_path
+        assert reconstructed.line_start == original.line_start
+        assert reconstructed.line_end == original.line_end
+        assert reconstructed.severity_hint == original.severity_hint
+        assert reconstructed.metadata == original.metadata
+
+    def test_from_dict_with_llm_result(self):
+        """Test deserialization when llm_detection_result is present."""
+        llm_data = {
+            "is_llm_generated": True,
+            "confidence": "high",
+            "details": {"reason": "test"}
+        }
+        data = {
+            "pr_id": "PR-111",
+            "repo_name": "x/y",
+            "diff_text": "d",
+            "file_path": "f.py",
+            "line_start": 1,
+            "line_end": 2,
+            "llm_detection_result": llm_data
+        }
+
+        req = InferenceRequest.from_dict(data)
+        assert req.llm_detection_result is not None
+        assert req.llm_detection_result.is_llm_generated is True
 
 
 class TestInferenceResponse:
     def test_create_response(self):
         """Test basic creation of an InferenceResponse."""
-        resp = InferenceResponse(
-            request_id="REQ-001",
+        res = InferenceResponse(
+            request_id="PR-123",
             status=InferenceStatus.COMPLETED
         )
-        assert resp.request_id == "REQ-001"
-        assert resp.status == InferenceStatus.COMPLETED
-        assert resp.detected_bugs == []
+        assert res.request_id == "PR-123"
+        assert res.status == InferenceStatus.COMPLETED
+        assert res.detected_bugs == []
+        assert res.is_successful() is True
 
-    def test_response_with_bugs(self):
-        """Test response containing detected bugs."""
+    def test_create_response_with_bugs(self):
+        """Test creation with detected bugs."""
         bugs = [
-            {
-                "file_path": "main.py",
-                "line_start": 10,
-                "line_end": 12,
-                "severity": "major",
-                "description": "Potential null pointer exception"
-            }
+            {"file": "a.py", "line": 10, "severity": "major", "desc": "bug 1"},
+            {"file": "b.py", "line": 20, "severity": "minor", "desc": "bug 2"}
         ]
-        resp = InferenceResponse(
-            request_id="REQ-002",
+        res = InferenceResponse(
+            request_id="PR-123",
             status=InferenceStatus.COMPLETED,
             detected_bugs=bugs,
-            model_id="starcoder2-3b",
-            latency_seconds=12.5
+            raw_output="Found 2 bugs...",
+            latency_seconds=1.5,
+            model_id="starcoder2-3b"
         )
-        
-        assert len(resp.detected_bugs) == 1
-        assert resp.latency_seconds == 12.5
 
-    def test_response_to_dict(self):
-        """Test serialization of InferenceResponse to dict."""
-        resp = InferenceResponse(
-            request_id="REQ-003",
+        assert res.has_detected_bugs() is True
+        assert len(res.detected_bugs) == 2
+        assert res.latency_seconds == 1.5
+        assert res.model_id == "starcoder2-3b"
+
+    def test_create_response_with_error(self):
+        """Test creation when inference fails or parsing errors occur."""
+        res = InferenceResponse(
+            request_id="PR-456",
             status=InferenceStatus.FAILED,
-            error_message="Model timeout",
-            metadata={"retry_count": 3}
+            parsing_error="JSON parse error: unexpected token"
         )
-        data = resp.to_dict()
-        
-        assert data["status"] == "failed"
-        assert data["error_message"] == "Model timeout"
-        assert data["metadata"]["retry_count"] == 3
+        assert res.status == InferenceStatus.FAILED
+        assert res.parsing_error is not None
+        assert res.is_successful() is False
 
-    def test_response_json_roundtrip(self):
-        """Test JSON serialization and deserialization of InferenceResponse."""
-        bugs = [
-            {"file_path": "a.py", "line_start": 1, "line_end": 1, "severity": "minor", "description": "Style"}
-        ]
-        resp = InferenceResponse(
-            request_id="REQ-004",
-            status=InferenceStatus.COMPLETED,
-            detected_bugs=bugs,
-            raw_output="Found 1 bug: Style issue in a.py"
-        )
-        
-        json_str = resp.to_json()
-        loaded = InferenceResponse.from_dict(json.loads(json_str))
-        
-        assert loaded.request_id == resp.request_id
-        assert loaded.status == resp.status
-        assert len(loaded.detected_bugs) == 1
-        assert loaded.raw_output == resp.raw_output
-
-    def test_response_timeout_status(self):
-        """Test response with TIMEOUT status."""
-        resp = InferenceResponse(
-            request_id="REQ-005",
+    def test_create_response_timeout(self):
+        """Test creation with timeout status."""
+        res = InferenceResponse(
+            request_id="PR-789",
             status=InferenceStatus.TIMEOUT,
-            error_message="Execution exceeded 60s limit"
+            latency_seconds=300.0
         )
-        assert resp.status == InferenceStatus.TIMEOUT
+        assert res.status == InferenceStatus.TIMEOUT
+        assert res.is_successful() is False
+
+    def test_to_dict_and_json(self):
+        """Test serialization methods."""
+        res = InferenceResponse(
+            request_id="PR-999",
+            status=InferenceStatus.COMPLETED,
+            detected_bugs=[{"line": 5}],
+            model_id="model-v1"
+        )
+
+        data = res.to_dict()
+        assert data["request_id"] == "PR-999"
+        assert data["status"] == "completed"
+        assert len(data["detected_bugs"]) == 1
+
+        json_str = res.to_json()
+        assert "PR-999" in json_str
+
+    def test_from_dict_roundtrip(self):
+        """Test deserialization from dictionary."""
+        original = InferenceResponse(
+            request_id="PR-888",
+            status=InferenceStatus.COMPLETED,
+            detected_bugs=[{"line": 10, "severity": "critical"}],
+            raw_output="output",
+            latency_seconds=2.0,
+            model_id="test-model"
+        )
+
+        data = original.to_dict()
+        reconstructed = InferenceResponse.from_dict(data)
+
+        assert reconstructed.request_id == original.request_id
+        assert reconstructed.status == original.status
+        assert reconstructed.detected_bugs == original.detected_bugs
+        assert reconstructed.latency_seconds == original.latency_seconds
+        assert reconstructed.model_id == original.model_id
+
+    def test_from_dict_invalid_status(self):
+        """Test deserialization with invalid status string."""
+        data = {
+            "request_id": "PR-000",
+            "status": "invalid_status_string",
+            "detected_bugs": []
+        }
+        res = InferenceResponse.from_dict(data)
+        # Should fallback to FAILED or default based on implementation
+        assert res.request_id == "PR-000"
+        # The implementation defaults to FAILED on ValueError
+        assert res.status == InferenceStatus.FAILED

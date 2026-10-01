@@ -1,23 +1,49 @@
+# Ruff configuration for llmXive project
+# Enforces consistent code style and catches common errors
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults (common in dataclasses)
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few patterns
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black
+line-length = 88
+
+# Assume Python 3.10+ (compatible with dataclasses and type hints used)
+target-version = "py310"
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+"code/config.py" = ["N806"] # Allow uppercase variables in dataclass defaults if needed
+"code/tests/*" = ["S101"]   # Allow assert in tests

@@ -60,9 +60,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T006 [P] Configure configuration management in `code/config.py` (seeds, hyperparameters, variant flags)
 - [X] T007 [P] Implement base logging infrastructure in `code/utils/logging.py` to support JSON/CSV output for `TrainingRun` and `GatingSignal` artifacts
 - [ ] T008 [P] Setup environment wrappers for ALFWorld (`code/environments/alfworld_env.py`) and WebShop (`code/environments/webshop_env.py`) ensuring they are fetchable via `pip`
-- [ ] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface
+- [X] T009 Create base agent class `code/agents/base_agent.py` defining the RL loop interface
 - [ ] T010 Setup cost profiling utility in `code/metrics/cost_profiler.py` to track CPU time and RSS memory per step
-- [ ] T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}} (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script; FAIL if combined RSS >7GB RAM (Constitution VI)
+- [ ] T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}} (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script; FAIL if combined RSS >7GB RAM (Constitution VI) [UNRESOLVED-CLAIM: c_28947c1b — status=refuted]
 - [ ] T012 [P] [FR-002] [SC-001] Implement `code/agents/baseline_agent.py` (dual-model SDAR with Teacher + Student) per FR-002 requirements, ensuring it **explicitly logs teacher-student gap scores** to `data/processed/` with `paired_trajectory_id` for later replay analysis (FR-004, Constitution VII).
 - [ ] T013 [P] Implement `code/agents/student_only_agent.py` skeleton inheriting from `base_agent.py` (logic to be completed in Phase 3)
 

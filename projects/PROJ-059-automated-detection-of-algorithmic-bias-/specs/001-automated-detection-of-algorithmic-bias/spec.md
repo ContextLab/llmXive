@@ -60,7 +60,7 @@ The system MUST halt pipeline execution if Cohen's Kappa score for VADER validat
 The system MUST support an `injected_skew_magnitude` parameter to control the degree of bias injection in synthetic data.
 
 ### FR-013: Validation Dataset Usage
-The system MUST use a manually labeled validation dataset (200 comments) to validate sentiment thresholds. [UNRESOLVED-CLAIM: c_16a1c0e7 — status=not_enough_info]
+The system MUST use a manually labeled validation dataset (200 comments) to validate sentiment thresholds.
 
 ### FR-014: Error Injection Testing
 The system MUST generate an 'Error Injection Dataset' of repositories with syntax errors to test robustness.
@@ -80,13 +80,13 @@ The correlation analysis must successfully compute a Spearman correlation coeffi
 The system must correctly flag repositories as "High Risk" when p < 0.05 after Bonferroni correction.
 
 ### SC-003: Performance
-The system must process 500 repositories in ≤6h on a 2-core CPU. [UNRESOLVED-CLAIM: c_025d2083 — status=not_enough_info]
+The system must process 500 repositories in ≤6h on a 2-core CPU.
 
 ### SC-004: Independence Verification (AMENDED)
 The system must perform a **diff check** (set-difference on normalized token streams) to verify zero token overlap between synthetic data and code tokens.
 
 ### SC-005: Error Handling Success Rate
-The system must handle ≥95% of syntax errors gracefully without crashing. [UNRESOLVED-CLAIM: c_01b647bb — status=not_enough_info]
+The system must handle ≥95% of syntax errors gracefully without crashing.
 
 ### SC-006: Error Report Generation
 The system must generate an `error_handling_report.json` with success rates and error statistics.

@@ -3,7 +3,6 @@ import argparse
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-
 @dataclass
 class SeedConfig:
     """Configuration for random seeds."""
@@ -11,83 +10,102 @@ class SeedConfig:
     torch_seed: int = 42
     numpy_seed: int = 42
 
-
 @dataclass
 class ModelConfig:
-    """Configuration for models."""
+    """Configuration for model loading and parameters."""
     teacher_model_name: str = "Qwen/Qwen2.5-1.7B"
     student_model_name: str = "Qwen/Qwen2.5-1.7B"
-    sentence_transformer_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     quantization_bits: int = 8
-    max_context_length: int = 2048
-
+    device: str = "cpu"
+    context_window: int = 2048
+    max_new_tokens: int = 256
 
 @dataclass
 class TrainingConfig:
-    """Configuration for training runs."""
-    max_episodes: int = 100
-    max_steps_per_episode: int = 50
-    early_stop_reward_threshold: float = 0.8
-    early_stop_consecutive_episodes: int = 3
-    learning_rate: float = 1e-4
+    """Configuration for training hyperparameters."""
+    variant: str = "student-only" # Options: student-only, baseline, grpo
+    max_steps: int = 1000
     batch_size: int = 1
-    variant: str = "student-only"  # Options: student-only, baseline, grpo
-
+    learning_rate: float = 1e-5
+    reward_threshold: float = 0.8
+    consecutive_wins: int = 3
+    early_stopping_patience: int = 5
 
 @dataclass
 class EnvironmentConfig:
-    """Configuration for environments."""
-    alfworld_env: str = "alfworld"
-    webshop_env: str = "webshop"
-    random_seed: int = 42
-
+    """Configuration for environment settings."""
+    env_type: str = "alfworld" # Options: alfworld, webshop
+    task_subset: Optional[str] = None
+    max_episode_steps: int = 50
 
 @dataclass
 class LoggingConfig:
-    """Configuration for logging outputs."""
+    """Configuration for logging and output paths."""
     output_dir: str = "data/processed"
-    training_log_jsonl: str = "training_run_logs.jsonl"
-    training_log_csv: str = "training_run_logs.csv"
-    gating_signal_log_jsonl: str = "gating_signal_logs.jsonl"
-    gating_signal_log_csv: str = "gating_signal_logs.csv"
-
+    log_level: str = "INFO"
+    log_metrics: bool = True
+    log_trajectories: bool = True
+    save_interval: int = 100
 
 @dataclass
 class StatisticalConfig:
     """Configuration for statistical analysis."""
-    bootstrap_iterations: int = 1000
+    n_bootstrap: int = 1000
     confidence_level: float = 0.95
-    significance_threshold: float = 0.05
-
+    significance_level: float = 0.05
 
 @dataclass
 class ProjectConfig:
-    """Top-level project configuration."""
-    project_name: str = "llmXive-follow-up-extending-self-distill"
+    """General project configuration."""
+    project_name: str = "llmxive-follow-up-extending-self-distill"
     version: str = "0.1.0"
+    debug: bool = False
+
+@dataclass
+class FullConfig:
+    """Aggregated configuration."""
     seed: SeedConfig = field(default_factory=SeedConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     environment: EnvironmentConfig = field(default_factory=EnvironmentConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     statistical: StatisticalConfig = field(default_factory=StatisticalConfig)
+    project: ProjectConfig = field(default_factory=ProjectConfig)
 
-
-def get_config() -> ProjectConfig:
-    """Get the project configuration."""
-    return ProjectConfig()
-
+def get_config(args: Optional[argparse.Namespace] = None) -> FullConfig:
+    """
+    Constructs a FullConfig object.
+    If args is provided, it overrides defaults from command line.
+    """
+    config = FullConfig()
+    
+    if args:
+        if hasattr(args, 'seed'):
+            config.seed.seed = args.seed
+        if hasattr(args, 'variant'):
+            config.training.variant = args.variant
+        if hasattr(args, 'env_type'):
+            config.environment.env_type = args.env_type
+        if hasattr(args, 'output_dir'):
+            config.logging.output_dir = args.output_dir
+    
+    return config
 
 def parse_args_to_dict() -> Dict[str, Any]:
-    """Parse command line arguments and return as a dictionary."""
-    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--variant", type=str, default="student-only",
-                        choices=["student-only", "baseline", "grpo"],
-                        help="Training variant")
-    parser.add_argument("--max-episodes", type=int, default=100, help="Max episodes")
-    parser.add_argument("--output-dir", type=str, default="data/processed",
-                        help="Output directory for logs")
-
-    args = parser.parse_args()
-    return vars(args)
+    """
+    Parses command line arguments and returns a dictionary.
+    Used for dynamic configuration updates.
+    """
+    parser = argparse.ArgumentParser(description="LLM-Xive Research Pipeline")
+    
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--variant', type=str, default='student-only', 
+                        choices=['student-only', 'baseline', 'grpo'],
+                        help='Agent variant to run')
+    parser.add_argument('--env_type', type=str, default='alfworld',
+                        choices=['alfworld', 'webshop'],
+                        help='Environment to run against')
+    parser.add_argument('--output_dir', type=str, default='data/processed',
+                        help='Directory for output logs and artifacts')
+    
+    return vars(parser.parse_args())

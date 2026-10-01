@@ -1,31 +1,5 @@
-# Standalone Ruff config for CLI usage if pyproject.toml is not found in cwd
-# This mirrors the settings in pyproject.toml for consistency.
-
-line-length = 100
+# Explicit config file for ruff to ensure it is picked up by editors/CI
+# This file mirrors the settings in pyproject.toml for explicit discovery.
+extend = "pyproject.toml"
+line-length = 88
 target-version = "py39"
-
-[lint]
-select = ["E", "F", "I", "W", "N", "B", "C90", "UP", "ANN", "S", "BLE", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "RUF"]
-ignore = [
-    "ANN101",
-    "ANN102",
-    "S101",
-    "S113",
-    "RUF012",
-]
-
-fixable = ["ALL"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[lint.per-file-ignores]
-"tests/*" = ["ANN", "S", "ARG"]
-"code/setup_*.py" = ["T20"]
-
-[lint.mccabe]
-max-complexity = 10
-
-[lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = false
-combine-as-imports = true

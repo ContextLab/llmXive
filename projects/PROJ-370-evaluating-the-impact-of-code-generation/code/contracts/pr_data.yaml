@@ -1,0 +1,77 @@
+# Contract for PullRequest
+# Used to validate JSON output from src/extraction/fetch_prs.py and src/extraction/preprocess.py
+type: object
+required:
+  - pr_id
+  - repo_name
+  - title
+  - state
+  - created_at
+  - updated_at
+  - author
+  - base_branch
+  - head_branch
+  - diff
+  - files_changed
+  - linked_issue_ids
+  - review_comments
+properties:
+  pr_id:
+    type: string
+  repo_name:
+    type: string
+  title:
+    type: string
+  body:
+    type: string
+    nullable: true
+  state:
+    type: string
+    enum:
+      - open
+      - closed
+      - merged
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time
+  author:
+    type: string
+  base_branch:
+    type: string
+  head_branch:
+    type: string
+  diff:
+    type: string
+  files_changed:
+    type: array
+    items:
+      type: object
+      properties:
+        path:
+          type: string
+        additions:
+          type: integer
+        deletions:
+          type: integer
+  linked_issue_ids:
+    type: array
+    items:
+      type: integer
+  review_comments:
+    type: array
+    items:
+      type: object
+      properties:
+        text:
+          type: string
+        author:
+          type: string
+  is_llm_generated:
+    type: boolean
+    nullable: true
+  checksum:
+    type: string
+    nullable: true

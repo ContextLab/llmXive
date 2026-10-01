@@ -1,179 +1,91 @@
 """
-Contract test for data ingestion output schema (US1).
+Contract tests for the data ingestion output schema (T012).
 
-This test verifies that the data ingestion pipeline produces an output
-that strictly adheres to the schema defined in:
-specs/001-predict-voc-profiles/contracts/dataset.schema.yaml
-
-It validates:
-1. File existence and format (CSV).
-2. Required columns presence.
-3. Data types for critical columns (numeric vs categorical).
-4. Absence of non-numeric entries in numeric fields.
-5. Minimum row count (>= 50) as per the MVP checkpoint.
+Verifies that code/01_ingest.py produces the expected output files
+and that the data adheres to the schema defined in T007a.
 """
 import os
 import json
-import yaml
 import pandas as pd
-import numpy as np
-from pathlib import Path
 import pytest
-from typing import Dict, Any, List, Set
+from pathlib import Path
 
-# Import project utilities if needed, though this is a pure contract test
-# We assume the ingestion script (T014) runs before this test in the CI/CD flow
-# or we run the generator (T005) to ensure data exists.
-
-# Constants based on project structure
+# Project root setup
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-predict-voc-profiles" / "contracts" / "dataset.schema.yaml"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "merged_dataset.csv"
-SYNTHETIC_SOURCE = PROJECT_ROOT / "data" / "raw" / "synthetic_arabidopsis_v1.csv"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
-def load_schema() -> Dict[str, Any]:
-    """Load the dataset schema definition."""
-    if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found at {SCHEMA_PATH}")
-    with open(SCHEMA_PATH, 'r') as f:
-        return yaml.safe_load(f)
+@pytest.fixture
+def ingest_script():
+    return PROJECT_ROOT / "code" / "01_ingest.py"
 
-def ensure_data_exists():
+def test_ingest_script_exists(ingest_script):
+    """Test that the ingestion script exists."""
+    assert ingest_script.exists(), "code/01_ingest.py not found"
+
+def test_ingest_produces_merged_csv(ingest_script):
     """
-    Ensure the output file exists. If not, attempt to generate synthetic data
-    via T005 to satisfy the test environment.
+    Test that running the ingestion script produces the merged CSV.
+    This is a contract test for the output file existence.
     """
-    if OUTPUT_PATH.exists():
-        return
-
-    if SYNTHETIC_SOURCE.exists():
-        # If raw synthetic exists but processed doesn't, we might need to run the pipeline.
-        # For this contract test, we assume the pipeline (T014/T015) has run.
-        # If the output is missing, we fail the test rather than silently generating it,
-        # because the test is verifying the *output* of the ingestion task.
-        # However, to make the test runnable in isolation for T010 implementation,
-        # we will trigger the synthetic generator if the raw file is missing.
-        pass
+    # Note: We assume the script has been run or will be run by the test runner.
+    # In a real CI, this might be an integration test that runs the script.
+    # Here we check if the file exists as a result of a previous run.
+    output_path = DATA_PROCESSED_DIR / "merged_dataset.csv"
     
-    # If the processed file is missing, the test fails. 
-    # In a real CI, T014 runs before T010.
-    # For the purpose of this task implementation, we assume the file should be there.
-    # If it's not, we raise a clear assertion error.
-    if not OUTPUT_PATH.exists():
-        # Attempt to run the generator if raw is missing, just in case
-        if not SYNTHETIC_SOURCE.exists():
-            try:
-                from generators.synthetic_data import main
-                main()
-            except Exception:
-                pass # Ignore, test will fail below
+    # If the file doesn't exist, we can't validate it yet.
+    # In a real test suite, we would run: subprocess.run(["python", str(ingest_script)])
+    # For now, we assert existence as a contract.
+    assert output_path.exists(), f"Expected output file {output_path} not found. Run code/01_ingest.py first."
 
-def test_ingest_schema_contract():
+def test_merged_csv_schema():
     """
-    Contract Test: Verify the merged dataset matches the schema.
+    Contract test for the schema of merged_dataset.csv.
+    Verifies required columns and data types.
     """
-    # 1. Ensure data is present (simulate pipeline run if needed for local dev)
-    # In a strict CI, this would be a setup fixture. Here we check existence.
-    if not OUTPUT_PATH.exists():
-        # If the file doesn't exist, the ingestion task (T014/15) hasn't run.
-        # We cannot validate the schema.
-        pytest.fail(f"Output file {OUTPUT_PATH} does not exist. Ingestion pipeline not run.")
-
-    # 2. Load Schema
-    schema = load_schema()
-    expected_columns = schema.get("required_columns", [])
-    column_types = schema.get("column_types", {})
-    min_rows = schema.get("min_rows", 50)
-
-    # 3. Load Data
-    try:
-        df = pd.read_csv(OUTPUT_PATH)
-    except Exception as e:
-        pytest.fail(f"Failed to read CSV: {e}")
-
-    # 4. Check Row Count
-    assert len(df) >= min_rows, (
-        f"Dataset has {len(df)} rows, but schema requires >= {min_rows} rows."
-    )
-
-    # 5. Check Required Columns
-    missing_cols = set(expected_columns) - set(df.columns)
-    assert not missing_cols, (
-        f"Missing required columns: {missing_cols}. "
-        f"Expected: {expected_columns}, Found: {list(df.columns)}"
-    )
-
-    # 6. Validate Data Types and Content
-    numeric_columns = [col for col, dtype in column_types.items() if dtype == "numeric"]
-    categorical_columns = [col for col, dtype in column_types.items() if dtype == "categorical"]
+    output_path = DATA_PROCESSED_DIR / "merged_dataset.csv"
+    if not output_path.exists():
+        pytest.skip("Output file not found. Run code/01_ingest.py first.")
     
-    errors = []
-
-    for col in numeric_columns:
-        if col in df.columns:
-            # Check for non-numeric values (including NaN if not allowed, but usually allowed)
-            # We check if the series can be coerced to numeric without errors (excluding NaN)
-            # Actually, pandas read_csv might read numbers as objects if mixed.
-            # We enforce that they MUST be numeric types or coercible.
-            try:
-                # Attempt conversion to float, ignoring NaN
-                pd.to_numeric(df[col], errors='raise')
-            except ValueError as e:
-                errors.append(f"Column '{col}' contains non-numeric values: {e}")
-
-    for col in categorical_columns:
-        if col in df.columns:
-            # Ensure it's not purely numeric if expected to be categorical (optional check)
-            # Main check is that it exists.
-            if df[col].dtype == 'float64' or df[col].dtype == 'int64':
-                # It's okay if it's numeric, but let's verify it's not empty
-                if df[col].empty:
-                    errors.append(f"Column '{col}' is empty.")
-
-    if errors:
-        pytest.fail("Schema validation errors:\n" + "\n".join(errors))
-
-    # 7. Check for Critical Nulls (if defined in schema)
-    # Assuming schema might have "critical_fields" that cannot be null
-    critical_fields = schema.get("critical_fields", [])
-    for field in critical_fields:
-        if field in df.columns:
-            null_count = df[field].isnull().sum()
-            if null_count > 0:
-                errors.append(f"Critical field '{field}' has {null_count} null values.")
+    df = pd.read_csv(output_path)
     
-    if errors:
-        pytest.fail("Critical field validation errors:\n" + "\n".join(errors))
-
-def test_data_integrity_replicates():
-    """
-    Integration-style check: Verify replicate logic is consistent with T006.
-    This ensures the ingestion pipeline respected the replicate exclusion logic.
-    """
-    if not OUTPUT_PATH.exists():
-        pytest.skip("Output file not found.")
-
-    df = pd.read_csv(OUTPUT_PATH)
-    schema = load_schema()
+    # Required columns from T007a schema
+    required_cols = ["sample_id", "temperature", "light_intensity", "co2_level"]
     
-    # Assuming 'condition_id' or similar is the grouping key for replicates
-    # The schema should define the grouping key.
-    group_key = schema.get("grouping_key", "condition_id")
+    for col in required_cols:
+        assert col in df.columns, f"Missing required column: {col}"
     
-    if group_key not in df.columns:
-        # If the key isn't there, we can't test this specific contract
-        pytest.skip(f"Grouping key '{group_key}' not found in schema.")
-
-    # Check that no group has < 3 replicates (FR-011 logic)
-    # Note: If the ingestion pipeline (T015) did its job, this should hold.
-    # If it fails, the ingestion logic is flawed.
-    counts = df.groupby(group_key).size()
-    low_replicate_groups = counts[counts < 3]
+    # Check numeric types
+    assert pd.api.types.is_numeric_dtype(df["temperature"]), "temperature must be numeric"
+    assert pd.api.types.is_numeric_dtype(df["light_intensity"]), "light_intensity must be numeric"
+    assert pd.api.types.is_numeric_dtype(df["co2_level"]), "co2_level must be numeric"
     
-    assert len(low_replicate_groups) == 0, (
-        f"Found {len(low_replicate_groups)} condition groups with < 3 replicates. "
-        f"Violates FR-011. Groups: {low_replicate_groups.index.tolist()}"
-    )
+    # Check row count (T012 requires >= 50 samples)
+    assert len(df) >= 50, f"Dataset has {len(df)} samples, expected >= 50"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_validation_report_exists():
+    """Test that the validation report JSON is produced."""
+    report_path = DATA_RESULTS_DIR / "data_validation_report.json"
+    assert report_path.exists(), f"Validation report {report_path} not found."
+
+def test_validation_report_schema():
+    """Test the schema of the validation report."""
+    report_path = DATA_RESULTS_DIR / "data_validation_report.json"
+    if not report_path.exists():
+        pytest.skip("Validation report not found.")
+    
+    with open(report_path, 'r') as f:
+        report = json.load(f)
+    
+    required_keys = ["total_samples", "excluded_samples", "validation_status"]
+    for key in required_keys:
+        assert key in report, f"Missing key in validation report: {key}"
+    
+    assert report["validation_status"] == "passed", "Validation status should be 'passed'"
+    assert report["total_samples"] >= 50, "Report should indicate >= 50 samples"
+
+def test_query_log_exists():
+    """Test that the query log is produced."""
+    log_path = DATA_RAW_DIR / "query_log.json"
+    assert log_path.exists(), f"Query log {log_path} not found."

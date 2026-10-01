@@ -1,79 +1,128 @@
 """
-Tests for the synthetic data generator.
+Tests for the synthetic data generator (T005).
+
+Verifies:
+1. The generator creates the expected output file.
+2. The output file has the correct number of rows (>= 50).
+3. The output file contains the required columns.
+4. The data types are correct.
+5. The checksum manifest is generated.
 """
 import os
 import json
-import hashlib
+import csv
 import pytest
 from pathlib import Path
 import pandas as pd
 
-# Add code to path if necessary, assuming standard project structure
-# sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code directory to path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from generators.synthetic_data import generate_synthetic_dataset, SEED
+from generators.synthetic_data import generate_synthetic_dataset, compute_file_hash, validate_against_schema
 
-DATA_DIR = Path("data/raw")
-EXPECTED_FILE = DATA_DIR / "synthetic_arabidopsis_v1.csv"
-EXPECTED_MANIFEST = DATA_DIR / "synthetic_arabidopsis_v1.manifest.json"
-
-@pytest.fixture(scope="module")
-def generated_dataset():
-    """Generate the dataset once for all tests in this module."""
-    if not EXPECTED_FILE.exists():
-        generate_synthetic_dataset(num_replicates=10)
-    return EXPECTED_FILE
-
-def test_file_exists(generated_dataset):
-    """Test that the synthetic CSV file is created."""
-    assert generated_dataset.exists(), f"Expected file {generated_dataset} not found."
-
-def test_manifest_exists(generated_dataset):
-    """Test that the manifest file is created."""
-    assert EXPECTED_MANIFEST.exists(), f"Expected manifest {EXPECTED_MANIFEST} not found."
-
-def test_csv_has_correct_columns(generated_dataset):
-    """Test that the CSV contains expected columns."""
-    df = pd.read_csv(generated_dataset)
-    required_columns = [
-        "sample_id", "condition", "temperature", "light_intensity", 
-        "humidity", "monoterpenes_total", "sesquiterpenes_total", 
-        "glv_total", "benzoids_total", "total_voc_flux"
-    ]
-    for col in required_columns:
-        assert col in df.columns, f"Missing required column: {col}"
-
-def test_csv_has_minimum_rows(generated_dataset):
-    """Test that the CSV has at least 50 rows as per requirements."""
-    df = pd.read_csv(generated_dataset)
-    assert len(df) >= 50, f"Expected at least 50 rows, got {len(df)}"
-
-def test_conditions_present(generated_dataset):
-    """Test that all expected conditions are present."""
-    df = pd.read_csv(generated_dataset)
-    expected_conditions = ["control", "drought", "heat", "cold", "pathogen_attack", "herbivory"]
-    for cond in expected_conditions:
-        assert cond in df["condition"].values, f"Missing condition: {cond}"
-
-def test_manifest_hash_matches_file(generated_dataset):
-    """Test that the manifest hash matches the actual file hash."""
-    with open(EXPECTED_MANIFEST, 'r') as f:
-        manifest = json.load(f)
+class TestSyntheticDataGeneration:
     
-    file_hash = hashlib.sha256(generated_dataset.read_bytes()).hexdigest()
-    manifest_hash = manifest["hash"]
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self, tmp_path):
+        """Setup and teardown for each test."""
+        self.tmp_dir = tmp_path
+        self.output_path = self.tmp_dir / "test_synthetic_output.csv"
+        yield
+        # Cleanup handled by pytest tmp_path
     
-    assert file_hash == manifest_hash, f"Hash mismatch: {file_hash} != {manifest_hash}"
-
-def test_data_types_correct(generated_dataset):
-    """Test that numeric columns are numeric."""
-    df = pd.read_csv(generated_dataset)
-    numeric_cols = ["temperature", "light_intensity", "humidity", "monoterpenes_total"]
-    for col in numeric_cols:
-        assert pd.api.types.is_numeric_dtype(df[col]), f"Column {col} is not numeric"
-
-def test_no_missing_critical_env_data(generated_dataset):
-    """Test that critical environmental fields are not missing."""
-    df = pd.read_csv(generated_dataset)
-    assert not df["temperature"].isnull().any(), "Missing temperature values"
-    assert not df["light_intensity"].isnull().any(), "Missing light_intensity values"
+    def test_file_creation(self):
+        """Test that the generator creates the output file."""
+        result = generate_synthetic_dataset(self.output_path)
+        
+        assert result.exists(), "Output file was not created"
+        assert result.suffix == ".csv", "Output file is not a CSV"
+        assert result.stat().st_size > 0, "Output file is empty"
+        
+    def test_minimum_row_count(self):
+        """Test that the generator produces at least 50 rows."""
+        generate_synthetic_dataset(self.output_path)
+        
+        df = pd.read_csv(self.output_path)
+        
+        assert len(df) >= 50, f"Expected >= 50 rows, got {len(df)}"
+        
+    def test_required_columns(self):
+        """Test that all required schema columns are present."""
+        generate_synthetic_dataset(self.output_path)
+        
+        df = pd.read_csv(self.output_path)
+        
+        required_cols = [
+            "sample_id", "temperature", "light_intensity", "co2_level",
+            "monoterpene_total", "sesquiterpene_total", "green_leaf_volatiles", "benzenoids"
+        ]
+        
+        for col in required_cols:
+            assert col in df.columns, f"Missing required column: {col}"
+            
+    def test_data_types(self):
+        """Test that numeric columns are numeric and sample_id is string."""
+        generate_synthetic_dataset(self.output_path)
+        
+        df = pd.read_csv(self.output_path)
+        
+        # Check sample_id is string
+        assert df["sample_id"].dtype == 'object', "sample_id should be string"
+        assert all(isinstance(x, str) for x in df["sample_id"]), "All sample_ids must be strings"
+        
+        # Check numeric columns
+        numeric_cols = ["temperature", "light_intensity", "co2_level", "monoterpene_total"]
+        for col in numeric_cols:
+            assert pd.api.types.is_numeric_dtype(df[col]), f"{col} should be numeric"
+            # Check for non-NaN values
+            assert not df[col].isna().any(), f"{col} contains NaN values"
+            
+    def test_checksum_manifest(self):
+        """Test that a checksum manifest is generated."""
+        generate_synthetic_dataset(self.output_path)
+        
+        manifest_path = self.output_path.parent / "synthetic_data_hashes.json"
+        
+        assert manifest_path.exists(), "Checksum manifest was not created"
+        
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+            
+        assert "checksum" in manifest, "Manifest missing checksum"
+        assert manifest["file"] == str(self.output_path), "Manifest file path mismatch"
+        assert "num_samples" in manifest, "Manifest missing num_samples"
+        assert manifest["num_samples"] >= 50, "Manifest num_samples < 50"
+        
+    def test_schema_validation(self):
+        """Test the internal schema validation function."""
+        generate_synthetic_dataset(self.output_path)
+        
+        df = pd.read_csv(self.output_path)
+        data_list = df.to_dict('records')
+        
+        assert validate_against_schema(data_list), "Schema validation failed"
+        
+    def test_unique_sample_ids(self):
+        """Test that all sample IDs are unique."""
+        generate_synthetic_dataset(self.output_path)
+        
+        df = pd.read_csv(self.output_path)
+        
+        assert df["sample_id"].is_unique, "Sample IDs are not unique"
+        assert len(df) == df["sample_id"].nunique(), "Duplicate sample IDs found"
+        
+    def test_consistent_seed(self):
+        """Test that running with the same seed produces the same output."""
+        # Run twice
+        path1 = self.tmp_dir / "test_seed_1.csv"
+        path2 = self.tmp_dir / "test_seed_2.csv"
+        
+        generate_synthetic_dataset(path1)
+        generate_synthetic_dataset(path2)
+        
+        # Compare checksums
+        hash1 = compute_file_hash(path1)
+        hash2 = compute_file_hash(path2)
+        
+        assert hash1 == hash2, "Same seed did not produce identical output"

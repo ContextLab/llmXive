@@ -6,3 +6,11 @@ T005:
     \ the provided evidence, and the artifacts shown relate only to the SDAR student\u2011\
     only gating feature, not to configuring Ruff or Black. The required linting/formatting\
     \ setup is therefore missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script or log showing that Qwen2.5-1.7B (8\u2011bit) and the specified sentence\u2011\
+    transformers model were loaded in a dry\u2011run, nor any recorded peak RSS memory\
+    \ value. Consequently the required verification and the \u201CFAIL if >7\u202F\
+    GB\u201D condition are not demonstrated. The artifact (dry\u2011run script and\
+    \ its memory measurement output) is missing."
