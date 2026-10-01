@@ -213,6 +213,20 @@
 
 ---
 
+## Phase P: Analysis-Driven Refinement (Post-Review)
+
+**Purpose**: Address specific findings from the `/speckit.analyze` run regarding robustness, edge cases, and data flow integrity.
+
+- [ ] T052 [P] [US1] Implement robust error handling for Pymatgen property fetch failures. **Action**: In `code/data/features.py`, wrap element property lookups in a `try/except` block. If a property is missing or the element is invalid, log a specific error with the element symbol and composition ID, and exclude the row from the final dataset. **Verification**: Run with a dataset containing an unknown element (e.g., "Xx") and confirm the row is excluded and logged without crashing. (FR-002, Edge Cases)
+- [ ] T053 [P] [US2] Add explicit validation for LOCO cluster assignment logic. **Action**: In `code/models/train.py`, add a unit test or assertion that verifies the cluster assignment rule (highest atomic fraction, then highest atomic number) is applied consistently across all rows. **Verification**: Create a synthetic dataset with tied fractions and verify the tie-breaker logic produces the expected cluster assignments. (FR-004, Plan Phase 2 Step 1)
+- [ ] T054 [P] [US3] Refine the bootstrapping ensemble training to ensure true randomness and reproducibility. **Action**: In `code/models/predict.py::train_ensemble`, explicitly set `random_state` for each of the 10 models based on a master seed + index (e.g., `master_seed + i`). **Verification**: Run the pipeline twice with the same master seed and confirm that the ensemble predictions are bit-for-bit identical. (FR-003, Constitution Principle I)
+- [ ] T055 [P] [US3] Implement a "dry-run" mode for the novelty check to validate the query logic without hitting external APIs. **Action**: Add a `--dry-run` flag to `code/utils/novelty.py` that simulates the query process and logs the expected outcomes without making network requests. **Verification**: Run with `--dry-run` and confirm the logs show the intended query paths and fallback behaviors. (FR-013, Plan Phase 3 Step 5)
+- [ ] T056 [P] [US3] Add a sanity check for the Domain of Applicability (DoA) threshold calculation. **Action**: In `code/models/predict.py::calculate_doa`, verify that the Mahalanobis distance threshold (chi-squared quantile) is calculated using the correct degrees of freedom (number of PCA components). Log the calculated threshold and the number of components used. **Verification**: Run the pipeline and check the logs for the threshold value and component count to ensure they match expectations. (FR-009, Plan Phase 3 Step 3)
+- [ ] T057 [P] [US3] Ensure the filtering logic for candidates handles the case where the 10th percentile is undefined (e.g., dataset size < 10). **Action**: In `code/models/predict.py`, add a check for the dataset size before calculating the percentile. If the size is too small, fall back to the absolute cutoff of 4.0 and log a warning. **Verification**: Run with a synthetic dataset of 5 rows and confirm the fallback logic is triggered and logged. (FR-006, Edge Cases)
+- [ ] T058 [P] [US3] Add a final validation step to ensure the `verification_requests.json` file contains exactly the top 10 candidates (or fewer if the threshold is not met). **Action**: In `code/models/predict.py`, after generating the file, count the number of entries and assert it matches the expected count based on the filtering logic. **Verification**: Run the full pipeline and verify the output file has the correct number of entries. (FR-008, FR-013)
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -224,6 +238,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision (Phase O)**: Depends on the completion of the analysis stage and the identification of specific issues.
+- **Refinement (Phase P)**: Depends on the completion of the analysis stage and the identification of specific robustness and edge-case concerns.
 
 ### User Story Dependencies
 
@@ -249,6 +264,7 @@
 - Different user stories can be worked on in parallel by different team members
 - **Phase 5 Parallelism**: T030 and T031 cannot run in parallel; T031 depends on T030 output file. T032a is sequential after T030/T031 AND T021b (PCA model). T035a is sequential after T022, T030/T031, AND T021, AND T021b (PCA model for pipeline flow, though bootstrapping uses raw data). T036 is sequential after T030/T031 AND T008c.
 - **Phase O Parallelism**: T048, T049, T050, T051 can be implemented in parallel as they address distinct concerns in different modules.
+- **Phase P Parallelism**: T052, T053, T054, T055, T056, T057, T058 can be implemented in parallel as they address distinct robustness and edge-case concerns across different modules.
 
 ---
 
