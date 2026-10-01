@@ -93,7 +93,7 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 
 ## Assumptions
 
-- The HuggingFace datasets `DTS-SN1-15-01-2024` and `SN18-All-20240204` contain all necessary variables: molecular structure (SMILES), experimental rate constants, explicit substrate class labels, temperature, and solvent. The dataset size is [deferred] (source: DTS-SN-15-01-2024 repository URL). If the actual count is <500, the study is a feasibility demonstration.
+- The HuggingFace datasets `DTS-SN1-15-01-2024` and `SN18-All-20240204` contain all necessary variables: molecular structure (SMILES), experimental rate constants, explicit substrate class labels, temperature, and solvent. The dataset size is [deferred] (source: DTS-SN-01-2024 repository URL). If the actual count is <500, the study is a feasibility demonstration.
 - The Gasteiger partial charge method and topological indices are computationally tractable on a 2-core CPU runner for the expected dataset size ([deferred] rows, ≤14 GB disk usage), whereas PM is too expensive for the imposed time limit.
 - The relationship between molecular structure and SN1 rate constants is primarily driven by electronic and steric features that can be captured by graph-based descriptors and MPNNs.
 - The dataset size is sufficient to train a shallow MPNN without severe overfitting, or regularization techniques (dropout) will be sufficient to mitigate overfitting. If N < 500, the study is framed as a feasibility demonstration.

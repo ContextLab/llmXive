@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "48289ec9462e6ad3",
+  "root_hash": "1d95c7381bb01e12",
   "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-10-01T17:13:20.483944+00:00",
+  "created_at": "2026-10-01T17:45:17.331195+00:00",
   "entries": [
     {
       "element_id": "e000",
