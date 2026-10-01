@@ -116,11 +116,11 @@
 - [X] T024 [P] [US3] Implement `code/training/sensitivity.py` (Part 1): Define hyperparameter grid (Message Passing Steps **{1, 2, 3}**, Learning Rates: small values will be employed to promote stable convergence during training.)
 - [X] T042 [P] [US3] Implement `code/training/sensitivity.py` (Part 2): Sweep loop to retrain/evaluate models across the grid (Depends on T024, T041)
 - [ ] T043 [US3] Implement `code/training/sensitivity.py` (Part 3): Generate sweep report `artifacts/reports/sensitivity_report.json` with table of metrics (Depends on T042)
-- [ ] T025a [P] [US3] Implement `code/training/ablation_pipeline.py`: Add `remove_solvent` flag to the training input pipeline for both MPNN and Linear Regression (FR‑006, SC‑004)
+- [X] T025a [P] [US3] Implement `code/training/ablation_pipeline.py`: Add `remove_solvent` flag to the training input pipeline for both MPNN and Linear Regression (FR‑006, SC‑004)
 - [ ] T025a_test [P] Add unit test `tests/unit/test_ablation_flag.py` that runs the pipeline with `remove_solvent=True` and asserts solvent descriptors are absent from the model input
-- [~] T025b [US3] Implement `code/training/ablation_study.py`: Orchestrate re‑training using the pipeline from T025a with `remove_solvent=True` for BOTH GNN and Baseline. **Explicitly calculate `variation_delta` as (full_model_r - ablated_model_r) for both models.** Generate `artifacts/reports/ablation_report.json` containing `gnn_variation_delta`, `baseline_variation_delta`, and the raw correlation values. (Depends on T041, T019a, T019b, T025a)
+- [ ] T025b [US3] Implement `code/training/ablation_study.py`: Orchestrate re‑training using the pipeline from T025a with `remove_solvent=True` for BOTH GNN and Baseline. **Explicitly calculate `variation_delta` as (full_model_r - ablated_model_r) for both models.** Generate `artifacts/reports/ablation_report.json` containing `gnn_variation_delta`, `baseline_variation_delta`, and the raw correlation values. (Depends on T041, T019a, T019b, T025a)
 - [ ] T025b_test [P] Add contract test `tests/contract/test_ablation_report.py` verifying the JSON contains fields `gnn_variation_delta`, `baseline_variation_delta` and that values are numeric
-- [~] T026 [US3] Implement `code/training/robustness.py`: Detect dataset size (using T019a logic) and switch CV strategy if < 50 molecules; calculate Pearson r on full dataset and on dataset excluding the top portion of residuals; write `artifacts/reports/outlier_analysis.json` (Depends on T019a, T041)
+- [ ] T026 [US3] Implement `code/training/robustness.py`: Detect dataset size (using T019a logic) and switch CV strategy if < 50 molecules; calculate Pearson r on full dataset and on dataset excluding the top portion of residuals; write `artifacts/reports/outlier_analysis.json` (Depends on T019a, T041)
 - [ ] T027 [US3] Generate final report `artifacts/reports/sensitivity_summary.md` summarizing stability of Pearson r > 0.7 across variations **and explicitly include a `stability` field (`stable`/`unstable`) based on whether all r values meet the threshold**. **Must depend on T043 AND T025b** to ensure both sweep and ablation results are available. (Depends on T043, T025b)
 - [X] T027b [P] Add verification test `tests/contract/test_sensitivity_stability.py` that checks the summary report contains a stability statement and that all r values are recorded
 - [X] T028 [US3] Add unit test `tests/unit/test_outlier_analysis.py` confirming the JSON includes both full‑set and trimmed‑set r values
@@ -135,8 +135,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T029 [P] Documentation updates: Write `code/README.md` with execution instructions and data source requirements
-- [~] T030 Code cleanup and refactoring of `code/` imports and dependencies
-- [~] T031 [P] Add pytest unit tests for `utils/monitor.py` to verify memory/time gating logic; explicitly implement `test_time_limit`, `test_memory_limit`, and `test_resource_limit_message` (executability)
+- [ ] T030 Code cleanup and refactoring of `code/` imports and dependencies
+- [ ] T031 [P] Add pytest unit tests for `utils/monitor.py` to verify memory/time gating logic; explicitly implement `test_time_limit`, `test_memory_limit`, and `test_resource_limit_message` (executability)
 - [~] T032a [P] Provide deterministic script `run_quickstart.py` that runs the full pipeline on synthetic data and asserts successful completion (executability)
 - [~] T033a [P] Add verification step that diffs `plan.md` to ensure a dataset source URL line is present; fail the task if missing (executability)
 - [~] T034 Update `plan.md` with the actual dataset source found (NIST/Zenodo) or confirm "Simulation Study" status (requires manual edit but task ensures it is recorded)

@@ -19,28 +19,6 @@ T006c:
   r: The required output file `artifacts/reports/runtime_memory.json` does not exist,
     so the total runtime is not being recorded as specified. The implementer must
     create the JSON file with the `"total_seconds"` key containing the measured runtime.
-T006e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `monitor.py` file or modified version is presented, and there is no JSON report
-    showing a `"peak_memory_mb"` field. Without the actual code change or output artifact,
-    the requirement to extend `monitor.py` cannot be verified as fulfilled.
-T007b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No ingestion script, featurized JSONL output, training script, model files, or
-    evaluation report are present. The claim provides only a textual description of
-    the intended functionality, but the required artifacts (code, data files, and
-    result metrics) are missing, so the task is not satisfied.
-T012:
-  c: false
-  h: 86eec3910f97d7d03ad3cfbf8e52c668691782ca8f74accdfe71d98dab1826f2
-  r: "The `code/ingestion/ingest.py` file exists and contains validation and featurization\
-    \ logic, but the provided excerpt ends before any JSON\u2011L line is written,\
-    \ and the required output file `data/processed/featurized.jsonl` is missing, so\
-    \ we cannot confirm that the script fulfills the \u201Cwrite featurized.jsonl\u201D\
-    \ requirement. The implementation must include the code that writes each record\
-    \ to the JSONL file (and optionally produce the file when run)."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,13 +34,6 @@ T014:
     message. Without the modified script or evidence of its behavior, the requirement
     cannot be confirmed. The implementer must provide the updated `ingest.py` (or
     a diff) and a sample run showing the error handling in action.
-T015:
-  c: false
-  h: 8af3772f8dc7532381c86246a57b980e07c3c2f6c03befc8c649785f7438894b
-  r: The test file `tests/contract/test_featurization.py` is present, but the referenced
-    schema `specs/001-predicting-molecular-diffusion-coefficie/contracts/dataset.schema.yaml`
-    does not exist, so the contract test cannot actually perform validation. Add the
-    missing `dataset.schema.yaml` (or correct the path) to satisfy the requirement.
 T025a:
   c: false
   h: d4e23c28255f7dacb43f005cd1f35f73f6afa8f2e0a7c8143c716dca444dd14e
@@ -70,10 +41,43 @@ T025a:
     requested `remove_solvent` flag cannot be present or functional. The implementer
     must add the missing script with the appropriate flag implementation for both
     MPNN and Linear Regression pipelines.
+T025b:
+  c: false
+  h: b1a266deba0ff2eb7830610614086d1659f97acbd0a4377d2a761e94258dab53
+  r: The required script `code/training/ablation_study.py` is absent, and the expected
+    output file `artifacts/reports/ablation_report.json` does not exist, so the orchestration,
+    calculation of variation deltas, and report generation were never performed. The
+    implementer must add the missing script and ensure it creates the JSON report
+    with the specified fields.
+T026:
+  c: false
+  h: e30164e73b8607c9cfddc47783fe9872e3ae625c578c6ec16ae3e3f64cb87ba0
+  r: "The `code/training/robustness.py` file exists and appears to implement the required\
+    \ logic, but the required output artifact `artifacts/reports/outlier_analysis.json`\
+    \ is missing from the repository. Without this JSON report, the task\u2019s requirement\
+    \ to write the analysis results is not satisfied. The next implementer should\
+    \ ensure the script creates the `outlier_analysis.json` file (and optionally run\
+    \ it to generate the file)."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifacts, commit diffs, or documentation showing that imports and dependencies
+    in the `code/` directory were cleaned up or refactored are present. Without any
+    files or change logs, the claim cannot be verified. The required evidence (e.g.,
+    updated source files, a summary of changes, or a test run confirming imports work)
+    is missing.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest test file (e.g., `tests/test_monitor.py`) containing the required `test_time_limit`,
+    `test_memory_limit`, and `test_resource_limit_message` functions is present in
+    the repository, nor any evidence of such tests being added. The task therefore
+    remains unfulfilled.
 T043:
   c: false
-  h: faf3615db8c353bd3a2a5490436f11d981090cbe92c5cd830a6b5e07555c568a
-  r: The repository contains `code/training/sensitivity.py`, but it only defines a
-    hyperparameter grid and a stub that simulates training with placeholder results;
-    it does not produce real metrics. Moreover, the required output file `artifacts/reports/sensitivity_report.json`
-    is absent. Consequently, the sweep report generation task is not fulfilled.
+  h: 3ac017d6f4e829631a3cb76029bfa92b635e0123241af8f33502491117e9e577
+  r: "The repository contains `code/training/sensitivity.py`, but the file is truncated\
+    \ and does not show a function that writes the required `artifacts/reports/sensitivity_report.json`.\
+    \ Moreover, the expected report file `reports/sensitivity_report.json` is absent\
+    \ from the disk. Without the generated JSON report, the task\u2019s core requirement\
+    \ is unmet."

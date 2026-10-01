@@ -1,129 +1,125 @@
 """
-Unit tests for extract_features.py (T013).
-Verifies that the extraction logic produces non-empty arrays with correct dimensions.
+Unit tests for extract_features.py.
+
+These tests verify the extraction logic, data loading, and file saving
+without requiring a full GPU or large video dataset.
 """
-import pytest
-import numpy as np
-import torch
-from pathlib import Path
-import tempfile
-import json
 import os
 import sys
+import json
+import tempfile
+import numpy as np
+import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import torch
+from torch import nn
 
-# Add parent directory to path to import project modules
+# Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from extract_features import ExtractionResult, ExtractionStats, save_features
-from models.video_clip import VideoClip
-from utils.memory_integration import MemoryManagedExtractor
-from utils.logging_config import get_logger
+from extract_features import (
+    ExtractionStats,
+    ExtractionResult,
+    get_memory_usage_mb,
+    extract_activations,
+    save_features
+)
 
-logger = get_logger(__name__)
+class MockLayer(nn.Module):
+    """Mock layer to simulate MoE behavior."""
+    def __init__(self):
+        super().__init__()
+        self.expert_weights = torch.tensor([0.1, 0.9, 0.0]) # 3 experts, 2 active
 
+    def forward(self, x):
+        return x
 
-class TestExtractionResult:
-    def test_extraction_result_creation(self):
-        """Test that ExtractionResult creates valid objects."""
-        latent = np.random.rand(768).astype(np.float32)
-        mask = np.array([1, 0, 1, 0, 0, 0, 0, 0], dtype=np.int8)
-        
-        result = ExtractionResult(
-            clip_id="test_clip_001",
-            latent_vector=latent,
-            expert_mask=mask
+class MockModel(nn.Module):
+    """Mock model for testing hooks."""
+    def __init__(self):
+        super().__init__()
+        self.layer = MockLayer()
+
+    def forward(self, x):
+        return self.layer(x)
+
+def test_extraction_result_creation():
+    """Test that ExtractionResult is created correctly."""
+    latent = np.random.rand(768)
+    mask = np.array([1, 0, 1])
+    result = ExtractionResult(
+        clip_id="test_001",
+        latent_vector=latent,
+        expert_mask=mask,
+        metadata={"test": True}
+    )
+    assert result.clip_id == "test_001"
+    assert result.latent_vector.shape == (768,)
+    assert np.array_equal(result.expert_mask, mask)
+
+def test_extract_activations_with_mock_model():
+    """Test the hook mechanism with a mock model."""
+    model = MockModel()
+    clip_id = "mock_clip"
+    video_tensor = torch.randn(1, 10, 3, 32, 32)
+    
+    result = extract_activations(model, clip_id, video_tensor, "cpu")
+    
+    assert result is not None
+    assert result.clip_id == clip_id
+    assert result.latent_vector is not None
+    assert result.expert_mask is not None
+    # Verify mask has expected size (3 experts)
+    assert result.expert_mask.shape[0] == 3
+
+def test_save_features(tmp_path):
+    """Test saving features to .npy and .json."""
+    # Create mock results
+    results = [
+        ExtractionResult(
+            clip_id="c1",
+            latent_vector=np.random.rand(10),
+            expert_mask=np.array([1, 0]),
+            metadata={"id": "c1"}
+        ),
+        ExtractionResult(
+            clip_id="c2",
+            latent_vector=np.random.rand(10),
+            expert_mask=np.array([0, 1]),
+            metadata={"id": "c2"}
         )
-        
-        assert result.clip_id == "test_clip_001"
-        assert result.latent_vector.shape == (768,)
-        assert result.expert_mask.shape == (8,)
-        assert result.latent_vector.dtype == np.float32
-        assert result.expert_mask.dtype == np.int8
+    ]
+    
+    npy_path = tmp_path / "features.npy"
+    json_path = tmp_path / "features_metadata.json"
+    
+    save_features(results, str(npy_path), str(json_path))
+    
+    # Verify files exist
+    assert npy_path.exists()
+    assert json_path.exists()
+    
+    # Verify content
+    data = np.load(npy_path, allow_pickle=True)
+    assert "latents" in data.files
+    assert "masks" in data.files
+    assert "clip_ids" in data.files
+    assert data["latents"].shape == (2, 10)
+    assert data["masks"].shape == (2, 2)
+    
+    with open(json_path) as f:
+        meta = json.load(f)
+    assert meta["total_samples"] == 2
+    assert len(meta["samples"]) == 2
 
+def test_empty_results_fails():
+    """Test that saving empty results raises an error."""
+    with pytest.raises(Exception):
+        save_features([], "dummy.npy", "dummy.json")
 
-class TestSaveFeatures:
-    def test_save_features_creates_file(self):
-        """Test that save_features creates a non-empty .npy file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_features.npy"
-            
-            results = [
-                ExtractionResult("clip_1", np.zeros(768, dtype=np.float32), np.zeros(8, dtype=np.int8)),
-                ExtractionResult("clip_2", np.ones(768, dtype=np.float32), np.ones(8, dtype=np.int8))
-            ]
-            
-            save_features(results, output_path)
-            
-            assert output_path.exists()
-            assert output_path.stat().st_size > 0
-            
-            # Load and verify
-            data = np.load(output_path, allow_pickle=True).item()
-            assert 'clip_ids' in data
-            assert 'latents' in data
-            assert 'masks' in data
-            assert len(data['clip_ids']) == 2
-            assert data['latents'].shape == (2, 768)
-            assert data['masks'].shape == (2, 8)
-
-
-class TestMemoryManagedExtractor:
-    def test_extractor_initialization(self):
-        """Test that MemoryManagedExtractor initializes correctly."""
-        # Mock model
-        class MockModel(torch.nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.layer = torch.nn.Linear(10, 10)
-            
-            def forward(self, x):
-                return x
-        
-        model = MockModel()
-        
-        extractor = MemoryManagedExtractor(
-            model=model,
-            memory_limit_gb=2.0,
-            logger=logger
-        )
-        
-        assert extractor.model is model
-        assert extractor.memory_limit_gb == 2.0
-
-
-class TestIntegration:
-    @pytest.mark.integration
-    def test_full_extraction_flow(self):
-        """
-        Integration test: Simulate the full extraction flow.
-        Checks that the pipeline produces the expected artifacts.
-        """
-        # This test simulates the logic in extract_features.py without
-        # actually downloading the model or video (to keep tests fast).
-        # It verifies the structure of the output.
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "integration_features.npy"
-            
-            # Simulate results from extract_activations
-            results = []
-            for i in range(5):
-                latent = np.random.randn(768).astype(np.float32)
-                mask = (np.random.rand(8) > 0.5).astype(np.int8)
-                results.append(ExtractionResult(f"clip_{i}", latent, mask))
-            
-            save_features(results, output_path)
-            
-            # Verify
-            assert output_path.exists()
-            data = np.load(output_path, allow_pickle=True).item()
-            
-            assert len(data['clip_ids']) == 5
-            assert data['latents'].shape == (5, 768)
-            assert data['masks'].shape == (5, 8)
-            
-            # Verify non-empty
-            assert np.any(data['latents'] != 0) or True # Latents can be zero, but array exists
-            assert np.any(data['masks'] != 0) or True # Masks can be zero, but array exists
-            
-            logger.info("Integration test passed: Output structure is valid.")
+def test_memory_usage_reporting():
+    """Test that memory usage function returns a number."""
+    mem = get_memory_usage_mb()
+    assert isinstance(mem, float)
+    assert mem >= 0

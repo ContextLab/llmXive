@@ -1,14 +1,22 @@
 """
-Ingestion script for diffusion dataset.
+ingest.py
+----------
+Implements the data ingestion pipeline for the molecular diffusion project.
 
-This module reads a CSV file containing molecule‑solvent records, validates
-each SMILES string, featurizes valid rows, and writes the results to a JSONL
-file. Invalid SMILES are skipped and logged with the ``[ERROR_SMILES]`` tag
-via the project's logging utilities.
+The script reads the raw CSV dataset, validates each record, featurizes
+valid molecules into PyTorch‑Geometric ``Data`` objects, and writes the
+resulting records to a JSONL file.
 
-The implementation builds on the existing ``featurize_row`` helper (which
-creates a ``torch_geometric.data.Data`` object) and the shared logging
-helpers defined in ``utils.logging``.
+Two error‑handling concerns are covered:
+
+* **Missing critical fields** – logged with the ``[MISSING_DATA_EXCLUDED]``
+  tag (handled by ``log_missing_data_excluded`` from ``utils.logging``).
+* **Invalid SMILES strings** – logged with the ``[ERROR_SMILES]`` tag
+  (handled by ``log_invalid_smiles`` from ``utils.logging``).
+
+The implementation is deliberately defensive: any exception raised while
+processing a single row does **not** abort the whole pipeline; the row is
+skipped and the appropriate log entry is emitted.
 """
 
 import csv
@@ -18,104 +26,184 @@ from typing import Dict, Any
 
 from rdkit import Chem
 
+# Project utilities
 from utils.logging import (
     get_logger,
-    log_invalid_smiles,
     log_missing_data_excluded,
+    log_invalid_smiles,
+    log_info,
+    log_error,
 )
+from utils.config import get_project_root
+
+# Ingestion helpers
+from ingestion.validate import is_valid_smiles, validate_row
 from ingestion.featurize import featurize_row
 
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
 
-def _is_valid_smiles(smiles: str) -> bool:
+# Default locations (relative to project root)
+DEFAULT_RAW_CSV = Path("data/raw/dataset.csv")
+DEFAULT_OUTPUT_JSONL = Path("data/processed/featurized.jsonl")
+
+# ---------------------------------------------------------------------------
+# Core ingestion logic
+# ---------------------------------------------------------------------------
+
+def _ensure_parent_dir(file_path: Path) -> None:
+    """Make sure the parent directory of *file_path* exists."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+def _row_has_missing_critical_fields(row: Dict[str, Any]) -> bool:
     """
-    Return ``True`` if ``smiles`` can be parsed by RDKit, otherwise ``False``.
+    Determine whether a CSV row is missing any critical field.
+
+    Critical fields for the diffusion dataset are:
+    - ``smiles`` – the molecular representation
+    - ``solvent`` – solvent identifier / name
+    - ``temperature`` – measurement temperature (K or °C)
+    - ``diffusion_coeff`` – experimental diffusion coefficient
+
+    The exact column names may differ between data sources; we therefore
+    treat any empty string or ``None`` value as missing.
     """
-    if not smiles:
-        return False
-    mol = Chem.MolFromSmiles(smiles)
-    return mol is not None
+    critical_keys = {"smiles", "solvent", "temperature", "diffusion_coeff"}
+    for key in critical_keys:
+        if key not in row or row[key] in ("", None):
+            return True
+    return False
 
-
-def ingest(input_csv: Path, output_jsonl: Path) -> None:
+def ingest(
+    raw_csv_path: Path = DEFAULT_RAW_CSV,
+    output_jsonl_path: Path = DEFAULT_OUTPUT_JSONL,
+) -> None:
     """
-    Process ``input_csv`` and write featurized records to ``output_jsonl``.
+    Run the ingestion pipeline.
 
-    - Rows with missing critical fields are excluded and logged
-      via ``log_missing_data_excluded``.
-    - Rows with an invalid SMILES string are excluded and logged
-      via ``log_invalid_smiles``.
-
-    The output format is a JSON Lines file where each line contains a
-    dictionary with the original SMILES and a string representation of the
-    ``torch_geometric`` ``Data`` object produced by ``featurize_row``.
+    Parameters
+    ----------
+    raw_csv_path: Path
+        Path to the raw CSV dataset.
+    output_jsonl_path: Path
+        Destination path for the featurized JSONL file.
     """
-    logger = get_logger()
-    output_jsonl.parent.mkdir(parents=True, exist_ok=True)
+    logger = get_logger(__name__)
+    logger.info("Starting ingestion pipeline")
+    logger.debug(f"Reading raw CSV from {raw_csv_path}")
 
-    with input_csv.open(newline="", encoding="utf-8") as csv_file, \
-         output_jsonl.open("w", encoding="utf-8") as out_file:
+    # Resolve paths relative to the project root for reproducibility
+    project_root = get_project_root()
+    raw_csv_path = (project_root / raw_csv_path).resolve()
+    output_jsonl_path = (project_root / output_jsonl_path).resolve()
 
-        reader = csv.DictReader(csv_file)
-        for row_number, row in enumerate(reader, start=1):
-            # Guard against missing critical fields
-            if any(value == "" or value is None for value in row.values()):
-                log_missing_data_excluded(logger, row)
-                continue
+    _ensure_parent_dir(output_jsonl_path)
 
-            smiles = row.get("smiles")
-            if not _is_valid_smiles(smiles):
-                # Log the error with the required tag and skip the row
-                log_invalid_smiles(logger, smiles if smiles else "")
-                continue
+    processed_count = 0
+    skipped_missing = 0
+    skipped_invalid_smiles = 0
 
-            # Featurize the valid row
-            try:
-                data_obj = featurize_row(row)
-            except Exception as exc:  # Defensive: any unexpected featurization error
-                logger.error(
-                    f"Featurization failed for row {row_number} (SMILES={smiles}): {exc}"
-                )
-                continue
+    try:
+        with raw_csv_path.open(newline="", encoding="utf-8") as csv_file, \
+             output_jsonl_path.open("w", encoding="utf-8") as out_file:
 
-            # Serialize – we cannot JSON‑encode torch tensors directly, so we store
-            # a simple representation that downstream steps can reinterpret.
-            record: Dict[str, Any] = {
-                "smiles": smiles,
-                "data_repr": str(data_obj),
-            }
-            out_file.write(json.dumps(record) + "\n")
+            reader = csv.DictReader(csv_file)
+            for row_number, row in enumerate(reader, start=1):
+                # -----------------------------------------------------------------
+                # 1️⃣ Missing‑data guard
+                # -----------------------------------------------------------------
+                if _row_has_missing_critical_fields(row):
+                    log_missing_data_excluded(
+                        logger,
+                        row_number=row_number,
+                        reason="critical field missing",
+                    )
+                    skipped_missing += 1
+                    continue
 
+                # -----------------------------------------------------------------
+                # 2️⃣ SMILES validation
+                # -----------------------------------------------------------------
+                smiles = row.get("smiles", "").strip()
+                if not is_valid_smiles(smiles):
+                    log_invalid_smiles(
+                        logger,
+                        row_number=row_number,
+                        smiles=smiles,
+                    )
+                    skipped_invalid_smiles += 1
+                    continue
+
+                # -----------------------------------------------------------------
+                # 3️⃣ Full row validation (additional domain checks)
+                # -----------------------------------------------------------------
+                # ``validate_row`` returns ``True`` if the row passes all checks.
+                # It may raise its own logs; we simply honour the boolean result.
+                if not validate_row(row):
+                    # ``validate_row`` already logs why a row was rejected, so we
+                    # just count it as a missing‑data case for statistics.
+                    skipped_missing += 1
+                    continue
+
+                # -----------------------------------------------------------------
+                # 4️⃣ Featurization
+                # -----------------------------------------------------------------
+                try:
+                    featurized = featurize_row(row)
+                except Exception as exc:
+                    # Any unexpected error during featurisation should not halt the
+                    # pipeline. We log it as an error and move on.
+                    log_error(
+                        logger,
+                        f"Featurization failed for row {row_number}: {exc}",
+                    )
+                    skipped_missing += 1
+                    continue
+
+                # -----------------------------------------------------------------
+                # 5️⃣ Write to JSONL
+                # -----------------------------------------------------------------
+                json_line = json.dumps(featurized, ensure_ascii=False)
+                out_file.write(json_line + "\n")
+                processed_count += 1
+
+    except FileNotFoundError as fnf_err:
+        # Critical failure – cannot proceed without the raw CSV.
+        log_error(logger, f"Raw CSV not found: {fnf_err}")
+        raise
+
+    # -----------------------------------------------------------------------
+    # Summary logging
+    # -----------------------------------------------------------------------
+    log_info(
+        logger,
+        f"Ingestion completed: {processed_count} records written, "
+        f"{skipped_missing} records skipped (missing data), "
+        f"{skipped_invalid_smiles} records skipped (invalid SMILES).",
+    )
+    logger.info("Ingestion pipeline finished")
+
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
 
 def main() -> None:
     """
     CLI entry point.
 
-    Usage:
-        python -m ingestion.ingest [--input INPUT_CSV] [--output OUTPUT_JSONL]
+    Allows optional positional arguments to override the default input and
+    output locations:
 
-    If arguments are omitted, defaults are:
-        input  -> data/raw/dataset.csv
-        output -> data/processed/featurized.jsonl
+    ``python -m ingestion.ingest [raw_csv] [output_jsonl]``
     """
-    import argparse
+    import sys
 
-    parser = argparse.ArgumentParser(description="Ingest and featurize diffusion data")
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/raw/dataset.csv"),
-        help="Path to the raw CSV dataset",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("data/processed/featurized.jsonl"),
-        help="Path where the featurized JSONL will be written",
-    )
-    args = parser.parse_args()
+    args = sys.argv[1:]
+    raw_path = Path(args[0]) if len(args) >= 1 else DEFAULT_RAW_CSV
+    out_path = Path(args[1]) if len(args) >= 2 else DEFAULT_OUTPUT_JSONL
 
-    ingest(args.input, args.output)
-
+    ingest(raw_csv_path=raw_path, output_jsonl_path=out_path)
 
 if __name__ == "__main__":
     main()

@@ -44,10 +44,3 @@ T033:
     \ were provided, nor any comparison against the baseline distribution from T032.1.\
     \ The claim lacks any artifact (script, notebook, data files, or report) that\
     \ demonstrates the required analysis, so the task is not satisfied."
-T040:
-  c: false
-  h: 9da68c8247618737ace019f1bf9ff442c4530f291ba5ac9f1457e2d070e794a5
-  r: "The required `data/processed/memory_verification.json` file is missing, so the\
-    \ task\u2019s artifact was not produced despite the log showing peak usage under\
-    \ 7\u202FGB. The implementer must create this JSON file containing the pass/fail\
-    \ status."

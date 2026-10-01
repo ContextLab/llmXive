@@ -1437,3 +1437,371 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T19:59:07Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/README.md
+  attempts: 1
+  canonical: Dependency strengths swept across r in {0, 0.1, 0.2, 0.3, 0.5}
+  claim_id: c_04cb6a85
+  context: Dependency strengths are swept across the discrete set $r \in \\{0, 0.1,
+    0.2, 0.3, 0.5\\}$. Project Structure
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependency strengths are swept across the discrete set r \in {0, 0.1,
+    0.2, 0.3, 0.5}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:29:33Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/README.md
+  attempts: 1
+  canonical: 10000 replications completed within 6 hours on 2-core 7GB RAM runner
+  claim_id: c_e9c0d99c
+  context: Performance Targets The pipeline is optimized to complete 10,000 replications
+    within **6 hours** on a standard 2-core, 7GB RAM runner. Vectorized NumPy operations
+    and efficient aggregation strategies are employed to meet this target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is optimized to complete 10,000 replications within 6 hours
+    on a standard 2-core, 7GB RAM runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:29:51Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/README.md
+  attempts: 1
+  canonical: Project uses Wine, Car Evaluation, and Zoo datasets from UCI Machine
+    Learning Repository
+  claim_id: c_13193d72
+  context: 'Data Sources This project uses **verified real-world datasets** from the
+    UCI Machine Learning Repository: - **Wine**: Continuous variables (ANOVA/t-test).
+    - **Car Evaluation**: Categorical variables (Chi-squared). - **Zoo**: Categorical
+    variables (Chi-squared).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Wine,_Car_Evaluation,_and_Zoo_datasets_from_UCI
+  kind: entity_fact
+  raw_text: 'The project uses verified real-world datasets from the UCI Machine Learning
+    Repository: Wine, Car Evaluation, and Zoo.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:30:24Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/README.md
+  attempts: 1
+  canonical: 'Uses verified UCI datasets: Wine, Car, Zoo'
+  claim_id: c_f861e05b
+  context: Key Features section describing the data sources.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_verified_UCI_datasets:_Wine,_Car,_Zoo
+  kind: entity_fact
+  raw_text: Uses verified UCI datasets (Wine, Car, Zoo).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:30:52Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/README.md
+  attempts: 1
+  canonical: Target 10000 replications in less than 6 hours
+  claim_id: c_04d72011
+  context: Performance section describing optimization targets.
+  evidence:
+    candidates:
+    - - Donate Create account Log in Target
+      - 10000.0
+    - - Target 10000 replications in less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Target_10000_replications_in_less_than_6_hours
+  kind: magnitude
+  raw_text: 'Target: 10,000 replications in < 6 hours.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-01T01:31:25Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: K-Means clustering with k=3 for spatial proxy generation
+  claim_id: c_754c84be
+  context: 'T037 [P] Implement code/dependency_injector.py (FR-003): Feature-space
+    clustering proxy logic to generate spatial proxies for datasets lacking explicit
+    spatial coordinates. Use K-Means with k=3 to generate proxy coordinates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use K-Means with k=3 to generate proxy coordinates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:32:29Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Silhouette score threshold > 0.25 for proxy validation
+  claim_id: c_235d3b5f
+  context: 'T041 Implement code/dependency_injector.py (FR-003): Validation logic
+    for the feature-space clustering proxy. Validate the proxy using silhouette score
+    (threshold > 0.25).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate the proxy using silhouette score with a threshold > 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:32:29Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: AR(1) resampling strengths restricted to discrete set {0, 0.1, 0.2, 0.3,
+    0.5}
+  claim_id: c_c54cbc65
+  context: 'T006a [P] Implement code/dependency_injector.py (FR-003): Vectorized AR(1)
+    resampling function with tunable strength restricted strictly to the discrete
+    set r in {0, 0.1, 0.2, 0.3, 0.5} as per FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vectorized AR(1) resampling function with tunable strength restricted
+    strictly to the discrete set r in {0, 0.1, 0.2, 0.3, 0.5}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:33:34Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Autocorrelation injection validation within 5% tolerance
+  claim_id: c_86f78316
+  context: 'T006a [P] Implement code/dependency_injector.py (FR-003): ... Validation:
+    Verify injected autocorrelation matches target r within 5% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify injected autocorrelation matches target r within 5% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:33:35Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap block size calculated as square root of N
+  claim_id: c_72cf3094
+  context: 'T006b [P] Implement code/dependency_injector.py (FR-003): Block bootstrap
+    function for hierarchical dependency with tunable block size determined by block
+    size = sqrt(N).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Block_bootstrap_block_size_calculated_as_square_root_of_N
+  kind: entity_fact
+  raw_text: Block bootstrap function for hierarchical dependency with tunable block
+    size determined by block size = sqrt(N).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:34:46Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Gaussian kernel with Silverman's rule for bandwidth selection
+  claim_id: c_11818509
+  context: 'T006c-native [P] Implement code/dependency_injector.py (FR-003): Spatial
+    kernel smoothing function for datasets with explicit spatial coordinates. Use
+    Gaussian kernel and scipy.stats.gaussian_kde default bandwidth (Silverman''s rule)
+    for bandwidth selection.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2174: 5434'
+      source_id: Q79493953
+      url: https://www.wikidata.org/wiki/Q79493953
+      value: '5434'
+    filled: true
+  kind: entity_fact
+  raw_text: Use Gaussian kernel and scipy.stats.gaussian_kde default bandwidth (Silverman's
+    rule) for bandwidth selection.
+  resolved_value: '5434'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T01:34:53Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 'Definition of metrics functions: calculate_type1_error, calculate_power,
+    clopper_pearson_ci, train_logistic_model'
+  claim_id: c_09e49d3a
+  context: 'T007 [P] Library Definition: Create code/metrics.py (FR-005, SC-001).
+    Define functions calculate_type1_error, calculate_power, clopper_pearson_ci, and
+    train_logistic_model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_metrics_functions:_calculate_type1_error,_calc
+  kind: entity_fact
+  raw_text: Define functions calculate_type1_error, calculate_power, clopper_pearson_ci,
+    and train_logistic_model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:35:22Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Sturges' rule for binning continuous variables in Chi-squared tests
+  claim_id: c_c37ddfb5
+  context: 'T020a [US2] Extend code/simulation_runner.py to include Chi-squared test
+    logic and block bootstrap for hierarchical structures. Requirement: Implement
+    contingency table construction logic using Sturges'' rule (k = 1 + log2(N)) for
+    binning continuous variables if the dataset lacks categorical ones.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Sturges' rule (k = 1 + log2(N)) for binning continuous variables if
+    the dataset lacks categorical ones.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:35:42Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mean shift injection of 1.0 standard deviation for power analysis
+  claim_id: c_3a5b81cc
+  context: 'Phase 5: User Story 3 - Power Analysis under Dependency (Priority: P3)
+    ... Independent Test: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data and measure proportion of significant results vs. baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data and measure proportion of significant results vs. baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:36:18Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 'Performance target: 10,000 replications in under 6 hours on 2-core 7GB
+    RAM'
+  claim_id: c_395d0646
+  context: 'T032a-Target [P] Execution: Define the performance target in code/main.py:
+    10,000 replications must complete in < 6 hours on a 2-core, 7GB RAM runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 replications must complete in < 6 hours on a 2-core, 7GB RAM runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:36:38Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Memory footprint estimation formula for 10,000 replications with 6GB
+    threshold
+  claim_id: c_b690bea7
+  context: 'T052 [P] [Review: Execution Constraints] Add a pre-flight check in code/main.py
+    to estimate the memory footprint of the simulation for the largest dataset and
+    highest replication count. Threshold: 6GB. Formula: (dataset_rows * 8 bytes *
+    10000) / (1024^3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Threshold: 6GB. Formula: (dataset_rows * 8 bytes * 10000) / (1024^3).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:36:56Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Minimum replication count 10,000 and minimum sample size 50
+  claim_id: c_dc79f923
+  context: 'T052 [P] [Review: Execution Constraints] ... Do NOT reduce the replication
+    count below 10,000, nor reduce the sample size below N=50, as this violates FR-008
+    and statistical validity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Do NOT reduce the replication count below 10,000, nor reduce the sample
+    size below N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:37:22Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Silhouette score threshold 0.25 for skipping spatial dependency injection
+  claim_id: c_b3963f23
+  context: 'T053 [P] [Review: Spatial Proxy Validity] Enhance code/dependency_injector.py
+    (T037/T041) to log the validity metric score of the clustering proxy generation.
+    Threshold: silhouette_score > 0.25. If the score falls below 0.25, log a warning
+    in data/manifests/spatial_proxy_report.json and skip the spatial dependency injection
+    for that specific dataset.'
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Threshold: silhouette_score > 0.25. If the score falls below 0.25, log
+    a warning and skip the spatial dependency injection.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T01:37:23Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mann-Kendall trend test added for monotonicity verification
+  claim_id: c_d74800fb
+  context: 'T060 [P] [Review: Trend Test Robustness] Enhance code/metrics.py (T014)
+    to include a Mann-Kendall trend test in addition to Spearman correlation for verifying
+    monotonicity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mann-Kendall_trend_test_added_for_monotonicity_verification
+  kind: entity_fact
+  raw_text: Implement Mann-Kendall trend test in addition to Spearman correlation
+    for verifying monotonicity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:37:55Z'

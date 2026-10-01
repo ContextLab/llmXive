@@ -275,3 +275,64 @@
   source_type: external
   status: verified
   updated_at: '2026-09-16T15:54:03Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: training on up to 5000 molecules completes within 30 minutes on CPU
+  claim_id: c_feb3d589
+  context: "Independent Test: Execute training on \u2264 5 000 molecules; verify completion\
+    \ in \u2264 30 min on CPU; verify model artifacts saved; verify report contains\
+    \ RMSE, Pearson r for both GNN and baseline, and respects synthetic\u2011data\
+    \ policy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
+    \ 30 min on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:11:07Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: evaluation JSON includes pearson_r, rmse, p_value, and hypothesis_status
+    fields
+  claim_id: c_a922b9b7
+  context: Add contract test `tests/contract/test_evaluation_report.py` verifying
+    the JSON schema includes the `hypothesis_status` field and that the file exists
+    when real data is present.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_JSON_includes_pearson_r,_rmse,_p_value,_and_hypot
+  kind: entity_fact
+  raw_text: The evaluation JSON report contains fields `pearson_r`, `rmse`, `p_value`,
+    and `hypothesis_status`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:11:56Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: resource_summary.json includes total_seconds and peak_memory_mb numeric
+    fields
+  claim_id: c_cc8b126b
+  context: Add pytest contract test `tests/contract/test_resource_report.py` verifying
+    that `resource_summary.json` contains both `total_seconds` and `peak_memory_mb`
+    fields with numeric values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_summary.json_includes_total_seconds_and_peak_memory
+  kind: entity_fact
+  raw_text: '`resource_summary.json` contains both `total_seconds` and `peak_memory_mb`
+    fields with numeric values.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T01:12:02Z'

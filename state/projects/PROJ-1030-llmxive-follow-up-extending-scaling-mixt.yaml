@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-10T03:05:03.185805Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1030-llmxive-follow-up-extending-scaling-mixt
-last_run_id: dd65ab08-031d-4e04-a8df-363219b33c6b
+last_run_id: 738ff571-955c-4bf8-a196-fd52f7362e8e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1030-llmxive-follow-up-extending-scaling-mixt/specs/001-llmxive-follow-up-extending-scaling-mixt
 title: 'llmXive follow-up: extending "Scaling Mixture-of-Experts Video Pretraining
   for Embodied Intelligence"'
-updated_at: '2026-09-30T12:53:03.348724Z'
+updated_at: '2026-10-01T00:56:57.391360Z'

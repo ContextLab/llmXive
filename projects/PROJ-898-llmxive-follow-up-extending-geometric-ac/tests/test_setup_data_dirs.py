@@ -1,112 +1,93 @@
-"""
-Unit tests for the setup_data_dirs module.
-
-These tests verify that the data directory structure and .gitkeep files
-are created correctly by the setup_data_dirs module.
-"""
 import os
 import tempfile
+import shutil
 import pytest
-from code.setup_data_dirs import ensure_gitkeep, DATA_SUBDIRS
+from code.setup_data_dirs import ensure_gitkeep, main
 
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as project root for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+class TestEnsureGitkeep:
+    def test_creates_directory_and_gitkeep(self, tmp_path):
+        """Test that ensure_gitkeep creates the directory and .gitkeep file if they don't exist."""
+        target_dir = tmp_path / "test_subdir"
+        assert not target_dir.exists()
 
-def test_ensure_gitkeep_creates_directory(temp_project_root):
-    """Test that ensure_gitkeep creates the directory if it doesn't exist."""
-    test_dir = os.path.join(temp_project_root, "test_dir")
-    assert not os.path.exists(test_dir)
-    
-    result = ensure_gitkeep(test_dir)
-    
-    assert result is True
-    assert os.path.exists(test_dir)
-    assert os.path.isdir(test_dir)
+        ensure_gitkeep(str(target_dir))
 
-def test_ensure_gitkeep_creates_gitkeep(temp_project_root):
-    """Test that ensure_gitkeep creates the .gitkeep file."""
-    test_dir = os.path.join(temp_project_root, "test_dir")
-    
-    result = ensure_gitkeep(test_dir)
-    
-    assert result is True
-    gitkeep_path = os.path.join(test_dir, ".gitkeep")
-    assert os.path.exists(gitkeep_path)
-    assert os.path.isfile(gitkeep_path)
-    
-    # Verify file content
-    with open(gitkeep_path, 'r') as f:
-        content = f.read()
-    assert "Git keep file" in content
+        assert target_dir.exists()
+        assert target_dir.is_dir()
+        gitkeep_file = target_dir / ".gitkeep"
+        assert gitkeep_file.exists()
+        assert gitkeep_file.is_file()
+        assert gitkeep_file.stat().st_size == 0
 
-def test_ensure_gitkeep_idempotent(temp_project_root):
-    """Test that calling ensure_gitkeep multiple times is safe."""
-    test_dir = os.path.join(temp_project_root, "test_dir")
-    
-    # First call
-    result1 = ensure_gitkeep(test_dir)
-    assert result1 is True
-    
-    # Second call
-    result2 = ensure_gitkeep(test_dir)
-    assert result2 is True
-    
-    # Third call
-    result3 = ensure_gitkeep(test_dir)
-    assert result3 is True
-    
-    # Verify only one .gitkeep file exists
-    gitkeep_path = os.path.join(test_dir, ".gitkeep")
-    assert os.path.exists(gitkeep_path)
+    def test_uses_existing_directory(self, tmp_path):
+        """Test that ensure_gitkeep does not fail if the directory already exists."""
+        target_dir = tmp_path / "existing_dir"
+        target_dir.mkdir()
+        gitkeep_file = target_dir / ".gitkeep"
+        gitkeep_file.write_text("existing content")
 
-def test_ensure_gitkeep_existing_directory(temp_project_root):
-    """Test that ensure_gitkeep works when directory already exists."""
-    test_dir = os.path.join(temp_project_root, "existing_dir")
-    os.makedirs(test_dir, exist_ok=True)
-    
-    result = ensure_gitkeep(test_dir)
-    
-    assert result is True
-    assert os.path.exists(test_dir)
-    gitkeep_path = os.path.join(test_dir, ".gitkeep")
-    assert os.path.exists(gitkeep_path)
+        ensure_gitkeep(str(target_dir))
 
-def test_data_subdirs_defined():
-    """Test that the required data subdirectories are defined."""
-    assert len(DATA_SUBDIRS) > 0
-    assert "data/raw" in DATA_SUBDIRS
-    assert "data/generated" in DATA_SUBDIRS
-    assert "data/results" in DATA_SUBDIRS
+        assert target_dir.exists()
+        assert gitkeep_file.exists()
+        assert gitkeep_file.read_text() == "existing content"
 
-def test_main_success(temp_project_root, monkeypatch):
-    """Test that main() returns 0 on success."""
-    # Change to temp directory to simulate project root
-    monkeypatch.chdir(temp_project_root)
-    
-    # Create code directory to simulate project structure
-    os.makedirs("code", exist_ok=True)
-    
-    # Import and run main
-    import sys
-    from code.setup_data_dirs import main
-    
-    # We need to temporarily change the working directory behavior
-    # since main() relies on os.getcwd()
-    original_cwd = os.getcwd()
-    os.chdir(temp_project_root)
-    
-    try:
-        result = main()
-        assert result == 0
-        
-        # Verify directories were created
-        for subdir in DATA_SUBDIRS:
-            full_path = os.path.join(temp_project_root, subdir)
-            assert os.path.exists(full_path)
-            gitkeep_path = os.path.join(full_path, ".gitkeep")
-            assert os.path.exists(gitkeep_path)
-    finally:
-        os.chdir(original_cwd)
+    def test_creates_nested_directories(self, tmp_path):
+        """Test that ensure_gitkeep creates nested directories if needed."""
+        target_dir = tmp_path / "level1" / "level2" / "level3"
+        assert not target_dir.exists()
+
+        ensure_gitkeep(str(target_dir))
+
+        assert target_dir.exists()
+        gitkeep_file = target_dir / ".gitkeep"
+        assert gitkeep_file.exists()
+
+class TestMain:
+    def test_main_creates_standard_data_dirs(self):
+        """Test that main() creates the standard data subdirectories with .gitkeep files."""
+        original_cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            try:
+                result = main()
+                assert result == 0
+
+                expected_dirs = [
+                    os.path.join("data", "raw"),
+                    os.path.join("data", "generated"),
+                    os.path.join("data", "results"),
+                ]
+
+                for dir_path in expected_dirs:
+                    assert os.path.isdir(dir_path)
+                    gitkeep_path = os.path.join(dir_path, ".gitkeep")
+                    assert os.path.isfile(gitkeep_path)
+                    assert os.path.getsize(gitkeep_path) == 0
+            finally:
+                os.chdir(original_cwd)
+
+    def test_main_handles_existing_dirs(self):
+        """Test that main() succeeds even if directories already exist."""
+        original_cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            try:
+                # Pre-create the directories
+                os.makedirs(os.path.join("data", "raw"))
+                os.makedirs(os.path.join("data", "generated"))
+                os.makedirs(os.path.join("data", "results"))
+
+                result = main()
+                assert result == 0
+
+                # Verify .gitkeep files were created
+                expected_gitkeeps = [
+                    os.path.join("data", "raw", ".gitkeep"),
+                    os.path.join("data", "generated", ".gitkeep"),
+                    os.path.join("data", "results", ".gitkeep"),
+                ]
+                for path in expected_gitkeeps:
+                    assert os.path.isfile(path)
+            finally:
+                os.chdir(original_cwd)

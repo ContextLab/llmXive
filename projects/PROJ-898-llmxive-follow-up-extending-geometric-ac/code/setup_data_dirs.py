@@ -1,61 +1,44 @@
-"""
-Setup data directory structure for the llmXive project.
-Creates required directories and .gitkeep files to ensure they are tracked by git.
-"""
 import os
 import sys
 from typing import List, Optional
 
-def ensure_gitkeep(directory_path: str) -> bool:
+def ensure_gitkeep(directory: str) -> None:
     """
-    Ensure a directory exists and contains a .gitkeep file.
-    
+    Ensures that the specified directory exists and contains a .gitkeep file.
+    If the directory does not exist, it is created.
+    If the .gitkeep file does not exist, it is created as an empty file.
+
     Args:
-        directory_path: Path to the directory.
-        
-    Returns:
-        True if successful, False otherwise.
+        directory (str): Path to the directory.
     """
-    try:
-        os.makedirs(directory_path, exist_ok=True)
-        gitkeep_path = os.path.join(directory_path, ".gitkeep")
-        if not os.path.exists(gitkeep_path):
-            with open(gitkeep_path, "w") as f:
-                f.write("# Keep this directory in git\n")
-        return True
-    except Exception as e:
-        print(f"Error ensuring gitkeep in {directory_path}: {e}", file=sys.stderr)
-        return False
+    os.makedirs(directory, exist_ok=True)
+    gitkeep_path = os.path.join(directory, ".gitkeep")
+    if not os.path.exists(gitkeep_path):
+        with open(gitkeep_path, "w") as f:
+            f.write("")
 
 def main() -> int:
     """
-    Main entry point to set up the data directory structure.
-    
+    Main entry point for creating data subdirectories and .gitkeep files.
+    Creates the following directories under 'data/':
+        - data/raw
+        - data/generated
+        - data/results
+    And ensures each contains a .gitkeep file.
+
     Returns:
-        Exit code (0 for success, 1 for failure).
+        int: Exit code (0 for success, 1 for failure).
     """
-    # Define the required data directories relative to the project root
-    # Assuming the script is run from the project root or code/ directory
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_base = os.path.join(base_dir, "data")
-    
-    directories = [
-        os.path.join(data_base, "raw"),
-        os.path.join(data_base, "generated"),
-        os.path.join(data_base, "results"),
-    ]
-    
-    success = True
-    for dir_path in directories:
-        if not ensure_gitkeep(dir_path):
-            success = False
-            print(f"Failed to create {dir_path}")
-    
-    if success:
-        print("Data directory structure created successfully.")
+    data_root = "data"
+    subdirs = ["raw", "generated", "results"]
+    full_paths = [os.path.join(data_root, subdir) for subdir in subdirs]
+
+    try:
+        for path in full_paths:
+            ensure_gitkeep(path)
         return 0
-    else:
-        print("Some directories could not be created.", file=sys.stderr)
+    except Exception as e:
+        print(f"Error creating data directories or .gitkeep files: {e}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

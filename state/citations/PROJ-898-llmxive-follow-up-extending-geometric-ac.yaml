@@ -33,7 +33,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-26T04:13:19.760051Z'
-- artifact_hash: 5ec6a76ce844929c980d30dbfb0bec2dddee849f870b9a762f6f8db71b63a86d
+- artifact_hash: 4d004a4060bba1791ccc163b7d07456e3dad5a7bfcc3c289b70f1b0f2f7e46ff
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,8 +43,8 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-26T04:16:26.362607Z'
-- artifact_hash: 5ec6a76ce844929c980d30dbfb0bec2dddee849f870b9a762f6f8db71b63a86d
+  verified_at: '2026-10-01T00:57:21.374870Z'
+- artifact_hash: 4d004a4060bba1791ccc163b7d07456e3dad5a7bfcc3c289b70f1b0f2f7e46ff
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -54,4 +54,4 @@
   value: https://arxiv.org/abs/2111.01007
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2111.01007
-  verified_at: '2026-08-26T04:16:26.362607Z'
+  verified_at: '2026-10-01T00:57:21.374870Z'

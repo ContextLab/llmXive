@@ -1,26 +1,27 @@
 """
 generate_sensitivity_summary.py
---------------------------------
-This module reads the results of the hyper‑parameter sensitivity sweep
-(``artifacts/reports/sensitivity_report.json``) and the ablation study
-(``artifacts/reports/ablation_report.json``) and produces a concise
-Markdown summary at ``artifacts/reports/sensitivity_summary.md``.
 
-The summary contains:
-* a table of all Pearson‑r values that were recorded,
-* a **stability** field that is ``stable`` when **every** r value is
-  greater than the 0.7 threshold required by the specification,
-  otherwise ``unstable``.
+This module generates the final sensitivity summary report
+``artifacts/reports/sensitivity_summary.md``.  It reads the two JSON
+artifacts produced by the sensitivity sweep (``sensitivity_report.json``)
+and the ablation study (``ablation_report.json``), extracts all Pearson
+correlation coefficients, determines whether every coefficient meets the
+stability threshold (r ≥ 0.7), and writes a human‑readable Markdown file
+containing:
 
-The script is deliberately lightweight – it only depends on the standard
-library and the project's ``utils.config`` helper for locating the project
-root.
+* A table of the sensitivity sweep results (hyper‑parameter settings and
+  the corresponding Pearson r).
+* A short section summarising the ablation study results.
+* A ``stability`` field indicating ``stable`` if *all* Pearson r values
+  (both sweep and ablation) are ≥ 0.7, otherwise ``unstable``.
 
-It can be executed directly:
+The script is deliberately minimal and has no side‑effects other than
+writing the Markdown file.  It is intended to be executed directly, e.g.:
 
-    $ python code/training/generate_sensitivity_summary.py
+    python code/training/generate_sensitivity_summary.py
 
-or imported and used programmatically via ``generate_summary()``.
+The implementation relies only on the public API defined in the project
+(``utils.config`` for locating the repository root).
 """
 
 import json
@@ -30,159 +31,151 @@ from typing import List, Dict, Any
 from utils.config import get_project_root
 
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-def _load_json(path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its content.
-
-    Parameters
-    ----------
-    path: Path
-        Path to the JSON file.
-
-    Returns
-    -------
-    dict
-        Parsed JSON content.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file does not exist.
-    json.JSONDecodeError
-        If the file is not valid JSON.
-    """
-    if not path.is_file():
-        raise FileNotFoundError(f"Required report not found: {path}")
+def _load_json(path: Path) -> Any:
+    """Load a JSON file and return the parsed object."""
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def _extract_r_values_from_sensitivity(report: Dict[str, Any]) -> List[float]:
+def _extract_pearson_values_from_sensitivity(
+    sweep_data: List[Dict[str, Any]]
+) -> List[float]:
     """
-    The sensitivity report is expected to be a list of dictionaries,
-    each representing a hyper‑parameter configuration.  The exact schema
-    is not hard‑coded; we simply look for a numeric ``r`` key.
+    Extract Pearson r values from the sensitivity sweep JSON.
 
-    Parameters
-    ----------
-    report: dict
-        The loaded JSON content (list or dict with ``results`` key).
-
-    Returns
-    -------
-    List[float]
-        All Pearson‑r values found.
+    The expected format of each entry in ``sweep_data`` is a mapping that
+    contains a ``pearson_r`` key (float).  If the key is missing we ignore
+    the entry – this makes the function tolerant to future schema changes.
     """
-    r_values: List[float] = []
-
-    # The report may be a list directly or wrapped in a dict.
-    if isinstance(report, list):
-        entries = report
-    elif isinstance(report, dict) and "results" in report:
-        entries = report["results"]
-    else:
-        entries = []
-
-    for entry in entries:
-        if isinstance(entry, dict):
-            r = entry.get("r")
-            if isinstance(r, (int, float)):
-                r_values.append(float(r))
-    return r_values
-
-
-def _extract_r_values_from_ablation(report: Dict[str, Any]) -> List[float]:
-    """
-    The ablation report contains explicit fields for the GNN and the
-    baseline Pearson‑r values (named ``gnn_r`` and ``baseline_r`` in the
-    implementation of T025b).  We extract both if present.
-
-    Parameters
-    ----------
-    report: dict
-        Loaded JSON content.
-
-    Returns
-    -------
-    List[float]
-        List containing the two r values (may be empty if keys are missing).
-    """
-    r_values: List[float] = []
-    for key in ("gnn_r", "baseline_r"):
-        r = report.get(key)
+    r_vals: List[float] = []
+    for entry in sweep_data:
+        r = entry.get("pearson_r")
         if isinstance(r, (int, float)):
-            r_values.append(float(r))
-    return r_values
+            r_vals.append(float(r))
+    return r_vals
 
 
-# ----------------------------------------------------------------------
-# Core functionality
-# ----------------------------------------------------------------------
-def generate_summary() -> str:
+def _extract_pearson_values_from_ablation(ablation_data: Dict[str, Any]) -> List[float]:
     """
-    Generate the Markdown summary for the sensitivity analysis.
+    Extract Pearson r values from the ablation report.
 
-    Returns
-    -------
-    str
-        Markdown text that will be written to ``sensitivity_summary.md``.
+    The ablation JSON is expected to contain at least the following keys:
+    ``gnn_pearson_r`` and ``baseline_pearson_r``.  Any additional Pearson
+    values are also collected if they follow the ``*_pearson_r`` naming
+    convention.
+    """
+    r_vals: List[float] = []
+    for key, value in ablation_data.items():
+        if key.endswith("_pearson_r") and isinstance(value, (int, float)):
+            r_vals.append(float(value))
+    return r_vals
+
+
+def _determine_stability(all_r: List[float], threshold: float = 0.7) -> str:
+    """
+    Return ``stable`` if *all* Pearson r values are greater than or equal to
+    ``threshold``, otherwise ``unstable``.
+    """
+    if not all_r:
+        # No data – treat as unstable to avoid false positives.
+        return "unstable"
+    return "stable" if all(r >= threshold for r in all_r) else "unstable"
+
+
+def generate_summary() -> Path:
+    """
+    Generate ``sensitivity_summary.md`` and return its path.
+
+    The function performs the following steps:
+
+    1. Load ``artifacts/reports/sensitivity_report.json``.
+    2. Load ``artifacts/reports/ablation_report.json``.
+    3. Collect all Pearson r values from both artifacts.
+    4. Determine the stability flag.
+    5. Write a Markdown file containing:
+       * A table of the sweep results.
+       * A brief description of the ablation results.
+       * The ``stability`` field.
     """
     project_root = get_project_root()
+    reports_dir = project_root / "artifacts" / "reports"
 
-    # Expected locations of the prerequisite reports
-    sensitivity_path = project_root / "artifacts" / "reports" / "sensitivity_report.json"
-    ablation_path = project_root / "artifacts" / "reports" / "ablation_report.json"
+    # 1. Load the sensitivity sweep report.
+    sweep_path = reports_dir / "sensitivity_report.json"
+    sweep_data = _load_json(sweep_path)  # Expected to be a list of dicts
 
-    # Load the JSON files (will raise FileNotFoundError if missing)
-    sensitivity_json = _load_json(sensitivity_path)
-    ablation_json = _load_json(ablation_path)
+    # 2. Load the ablation report.
+    ablation_path = reports_dir / "ablation_report.json"
+    ablation_data = _load_json(ablation_path)  # Expected to be a dict
 
-    # Pull out all Pearson‑r values
-    r_values: List[float] = []
-    r_values.extend(_extract_r_values_from_sensitivity(sensitivity_json))
-    r_values.extend(_extract_r_values_from_ablation(ablation_json))
+    # 3. Extract Pearson r values.
+    sweep_r = _extract_pearson_values_from_sensitivity(sweep_data)
+    ablation_r = _extract_pearson_values_from_ablation(ablation_data)
+    all_r = sweep_r + ablation_r
 
-    # Determine stability
-    THRESHOLD = 0.7
-    stability = "stable" if all(r > THRESHOLD for r in r_values) else "unstable"
+    # 4. Determine stability.
+    stability = _determine_stability(all_r, threshold=0.7)
 
-    # Build a simple Markdown table
-    table_lines = ["| Source | Pearson r |", "|--------|-----------|"]
-    # Sensitivity entries – we label them by index
-    for idx, r in enumerate(_extract_r_values_from_sensitivity(sensitivity_json), start=1):
-        table_lines.append(f"| Sensitivity #{idx} | {r:.4f} |")
-    # Ablation entries – explicit naming
-    for key, r in zip(("GNN (ablation)", "Baseline (ablation)"),
-                      _extract_r_values_from_ablation(ablation_json)):
-        table_lines.append(f"| {key} | {r:.4f} |")
+    # 5. Build Markdown content.
+    md_lines: List[str] = [
+        "# Sensitivity Summary",
+        "",
+        "This report aggregates the results of the hyper‑parameter sensitivity sweep"
+        " and the solvent‑removal ablation study.  The goal is to assess whether the"
+        " model’s Pearson correlation coefficient remains robust (r ≥ 0.7) across"
+        " all examined variations.",
+        "",
+        "## Sensitivity Sweep Results",
+        "",
+        "| # | Hyper‑parameters | Pearson r |",
+        "|---|------------------|-----------|",
+    ]
 
-    markdown = (
-        "# Sensitivity Summary\\n\\n"
-        f"**Stability:** `{stability}`\\n\\n"
-        "## Pearson‑r values across all variations\\n\\n"
-        + "\n".join(table_lines)
-        + "\\n"
+    # Populate the table rows.
+    for idx, entry in enumerate(sweep_data, start=1):
+        # Build a human‑readable representation of the hyper‑parameters.
+        # We join key‑value pairs excluding the Pearson r itself.
+        hyper_params = ", ".join(
+            f"{k}={v}"
+            for k, v in entry.items()
+            if k != "pearson_r"
+        )
+        r_val = entry.get("pearson_r", "N/A")
+        md_lines.append(f"| {idx} | {hyper_params} | {r_val} |")
+
+    md_lines.extend(
+        [
+            "",
+            "## Ablation Study Results",
+            "",
+            f"* GNN Pearson r: {ablation_data.get('gnn_pearson_r', 'N/A')}",
+            f"* Baseline Pearson r: {ablation_data.get('baseline_pearson_r', 'N/A')}",
+            f"* GNN variation delta: {ablation_data.get('gnn_variation_delta', 'N/A')}",
+            f"* Baseline variation delta: {ablation_data.get('baseline_variation_delta', 'N/A')}",
+            "",
+            "## Stability Assessment",
+            "",
+            f"**stability:** `{stability}`",
+            "",
+            "_All Pearson r values observed in the sensitivity sweep and the"
+            " ablation study were examined against the 0.7 threshold._",
+        ]
     )
 
-    return markdown
+    summary_path = reports_dir / "sensitivity_summary.md"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text("\n".join(md_lines), encoding="utf-8")
+
+    return summary_path
 
 
 def main() -> None:
     """
-    Entry‑point used by the CI / pipeline.  It writes the markdown file to
-    ``artifacts/reports/sensitivity_summary.md``.
+    Entry‑point for the script.  It simply calls :func:`generate_summary`
+    and prints the location of the generated file.
     """
-    summary_md = generate_summary()
-
-    output_path = get_project_root() / "artifacts" / "reports" / "sensitivity_summary.md"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with output_path.open("w", encoding="utf-8") as f:
-        f.write(summary_md)
-
-    print(f"Sensitivity summary written to {output_path}")
+    summary_path = generate_summary()
+    print(f"Sensitivity summary written to: {summary_path}")
 
 
 if __name__ == "__main__":
