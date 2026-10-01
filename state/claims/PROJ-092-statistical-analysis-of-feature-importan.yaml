@@ -1,0 +1,90 @@
+- artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/tasks.md
+  attempts: 1
+  canonical: RandomForestRegressor with 100 estimators, max depth 10, seed 42
+  claim_id: c_9663a739
+  context: 'T011 [US1] Implement model training in code/train_and_importance.py: train
+    RandomForestRegressor (n_estimators=100, max_depth=10, seed=42) on first window
+    (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train RandomForestRegressor (n_estimators=100, max_depth=10, seed=42)
+    on first window
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:06:53Z'
+- artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/tasks.md
+  attempts: 1
+  canonical: skip window if R squared less than 0.8
+  claim_id: c_7ee365cb
+  context: "T012 [US1] Implement R\xB2 validation logic in code/train_and_importance.py:\
+    \ skip window if R\xB2 < 0.8 and log Model Failure (FR-003b)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_window_if_R_squared_less_than_0.8
+  kind: magnitude
+  raw_text: "skip window if R\xB2 < 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:07:24Z'
+- artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/tasks.md
+  attempts: 1
+  canonical: split data into 30-day windows
+  claim_id: c_c80b9031
+  context: 'T010 [US1] Implement preprocessing in code/preprocess.py: handle missing
+    values via median imputation and split data into sequential 30-day windows (FR-001,
+    FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: split data into sequential 30-day windows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:07:51Z'
+- artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/tasks.md
+  attempts: 1
+  canonical: handle missing values via median imputation
+  claim_id: c_9983791a
+  context: 'T010 [US1] Implement preprocessing in code/preprocess.py: handle missing
+    values via median imputation and split data into sequential 30-day windows (FR-001,
+    FR-002)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Handle_missing_values_via_median_imputation
+  kind: entity_fact
+  raw_text: handle missing values via median imputation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:08:13Z'
+- artifact_path: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan/tasks.md
+  attempts: 1
+  canonical: ensure less than 4GB RAM usage
+  claim_id: c_2ceded47
+  context: T028 Code cleanup and refactoring for memory efficiency (ensure < 4GB RAM
+    usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_less_than_4GB_RAM_usage
+  kind: magnitude
+  raw_text: ensure < 4GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:08:52Z'

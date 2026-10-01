@@ -1,90 +1,77 @@
 """
-Data schema definitions for the drift_metric entity.
-Defines the structure for drift measurements between windows.
+Drift Metric Schema Definitions.
+
+Defines the structure for storing drift metrics calculated
+between consecutive time windows.
 """
-from dataclasses import dataclass
-from typing import Optional
-from enum import Enum
 
-
-class DriftType(Enum):
-    """Type of drift detected."""
-    CONCEPT = "concept"
-    COVARIATE = "covariate"
-    DATA_DRIFT = "data_drift"
+from dataclasses import dataclass, field
+from typing import Optional, List
+from datetime import datetime
 
 
 @dataclass
-class RankCorrelationMetric:
+class DriftMetric:
     """
-    Schema for Spearman rank correlation between two windows.
+    Schema for drift metrics between two consecutive windows.
+    
+    Attributes:
+        transition_id: Unique identifier for the transition (e.g., 'T1_T2')
+        window_t: ID of the earlier window (source)
+        window_t_plus_1: ID of the later window (target)
+        spearman_rho: Spearman rank correlation coefficient
+        p_value: P-value for the Spearman correlation
+        is_significant: Boolean indicating if correlation is statistically significant
+        drift_magnitude: Absolute value of spearman_rho
+        trend_direction: 'stable', 'increase', or 'decrease' based on rho
+        null_baseline_mean: Mean rho from the null baseline (if available)
+        deviation_from_null: Difference between observed rho and null baseline mean
+        block_permutation_p_value: P-value from block permutation test
+        is_high_drift: Boolean flag if drift is significant (p < 0.05)
+        calculation_date: ISO timestamp when drift was calculated
     """
-    window_t: int
-    window_t_plus_1: int
-    rho: float
+    transition_id: str
+    window_t: str
+    window_t_plus_1: str
+    spearman_rho: float
     p_value: float
-    significant_at_005: bool = False
-    magnitude: str = "none"  # none, low, medium, high
-
-    def __post_init__(self):
-        """Classify magnitude based on |rho| deviation from 1."""
-        deviation = abs(1.0 - abs(self.rho))
-        if deviation < 0.1:
-            self.magnitude = "none"
-        elif deviation < 0.3:
-            self.magnitude = "low"
-        elif deviation < 0.5:
-            self.magnitude = "medium"
-        else:
-            self.magnitude = "high"
-        
-        self.significant_at_005 = self.p_value < 0.05
-
-@dataclass
-class TrendMetric:
-    """
-    Schema for Mann-Kendall trend test results.
-    """
-    sequence_type: str  # e.g., "rho_sequence"
-    kendall_tau: float
-    p_value: float
-    trend_direction: str  # "increasing", "decreasing", "no_trend"
-    sample_size: int
     is_significant: bool = False
+    drift_magnitude: float = 0.0
+    trend_direction: str = "stable"
+    null_baseline_mean: Optional[float] = None
+    deviation_from_null: Optional[float] = None
+    block_permutation_p_value: Optional[float] = None
+    is_high_drift: bool = False
+    calculation_date: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def __post_init__(self):
-        """Determine trend direction and significance."""
-        if self.kendall_tau > 0.1:
-            self.trend_direction = "increasing"
-        elif self.kendall_tau < -0.1:
-            self.trend_direction = "decreasing"
-        else:
-            self.trend_direction = "no_trend"
+        """Post-initialization logic to derive derived fields."""
+        self.drift_magnitude = abs(self.spearman_rho)
         
-        self.is_significant = self.p_value < 0.05
+        if self.spearman_rho > 0.05:
+            self.trend_direction = "increase"
+        elif self.spearman_rho < -0.05:
+            self.trend_direction = "decrease"
+        else:
+            self.trend_direction = "stable"
+        
+        if self.block_permutation_p_value is not None:
+            self.is_high_drift = self.block_permutation_p_value < 0.05
 
-@dataclass
-class NullBaselineResult:
-    """
-    Schema for Null Model Baseline results.
-    """
-    mean_rho: float
-    std_rho: float
-    n_permutations: int
-    observed_rho_mean: float
-    z_score: float
-    p_value: float
-
-@dataclass
-class GlobalStats:
-    """
-    Schema for aggregated global statistics.
-    """
-    mean_rho: float
-    trend_direction: str
-    p_value: float
-    stable_window_count: int
-    total_windows: int
-    model_failures: int
-    avg_model_r_squared: Optional[float] = None
-    high_drift_count: int = 0
+    def to_dict(self) -> dict:
+        """Convert the dataclass instance to a dictionary."""
+        return {
+            "transition_id": self.transition_id,
+            "window_t": self.window_t,
+            "window_t_plus_1": self.window_t_plus_1,
+            "spearman_rho": self.spearman_rho,
+            "p_value": self.p_value,
+            "is_significant": self.is_significant,
+            "drift_magnitude": self.drift_magnitude,
+            "trend_direction": self.trend_direction,
+            "null_baseline_mean": self.null_baseline_mean,
+            "deviation_from_null": self.deviation_from_null,
+            "block_permutation_p_value": self.block_permutation_p_value,
+            "is_high_drift": self.is_high_drift,
+            "calculation_date": self.calculation_date
+        }

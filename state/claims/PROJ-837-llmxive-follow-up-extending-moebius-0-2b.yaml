@@ -3083,3 +3083,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T10:02:49Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 0
+  canonical: Dataset is Places365 subset from HuggingFace mit-places/Places365
+  claim_id: c_34c280b0
+  context: 'Hardware: CPU-only (Intel/AMD) to simulate CI constraints (7GB RAM limit).
+    Dataset: Places365 subset (HuggingFace mit-places/Places365).'
+  evidence:
+    entailment_evidence: Dataset used is Places365 subset mit-places/Places365
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_used_is_Places365_subset_mit-places/Places365
+  kind: entity_fact
+  raw_text: The dataset used is a Places365 subset from HuggingFace mit-places/Places365.
+  resolved_value: Dataset used is Places365 subset mit-places/Places365
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T18:52:27Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: 30% reduction in computational overhead on low-complexity regions
+  claim_id: c_a3669803
+  context: "By employing a lightweight gating head (\u2264 5M params), the model reduces\
+    \ computational overhead by up to 30% on low-complexity regions while maintaining\
+    \ fidelity (FID \u2264 0.5 delta) compared to static high-rank baselines."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model reduces computational overhead by up to 30% on low-complexity
+    regions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:52:29Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: FID delta less than or equal to 0.5 compared to static high-rank baselines
+  claim_id: c_de20d22d
+  context: "By employing a lightweight gating head (\u2264 5M params), the model reduces\
+    \ computational overhead by up to 30% on low-complexity regions while maintaining\
+    \ fidelity (FID \u2264 0.5 delta) compared to static high-rank baselines."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FID_delta_less_than_or_equal_to_0.5_compared_to_static_high-
+  kind: magnitude
+  raw_text: "The model maintains fidelity with an FID delta \u2264 0.5 compared to\
+    \ static high-rank baselines."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:55:28Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Moebius-Tiny core model has 15 million parameters
+  claim_id: c_e64429a0
+  context: "The core model, Moebius-Tiny (\u2264 15M params), serves as the base.\
+    \ It is augmented with a Gating Head that predicts a complexity score S \u2208\
+    \ [1, 5] from the mask."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Moebius-Tiny core model has \u2264 15M parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:55:28Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Gating head has 5 million parameters
+  claim_id: c_45b5f118
+  context: "By employing a lightweight gating head (\u2264 5M params), the model reduces\
+    \ computational overhead by up to 30% on low-complexity regions while maintaining\
+    \ fidelity (FID \u2264 0.5 delta) compared to static high-rank baselines."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The gating head has \u2264 5M parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:55:29Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Gating head predicts complexity score between 1 and 5
+  claim_id: c_1b4e7f9d
+  context: "The core model, Moebius-Tiny (\u2264 15M params), serves as the base.\
+    \ It is augmented with a Gating Head that predicts a complexity score S \u2208\
+    \ [1, 5] from the mask."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gating head predicts a complexity score S in the range [1, 5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:59:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: 30% latency reduction for low-complexity regions with score less than
+    or equal to 2.0
+  claim_id: c_2143ca0b
+  context: "Efficiency: Dynamic model achieves \u2265 30% latency reduction for low-complexity\
+    \ regions (score \u2264 2.0) compared to static high-rank."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/30%25_latency_reduction_for_low-complexity_regions_with_score
+  kind: magnitude
+  raw_text: "The dynamic model achieves \u2265 30% latency reduction for low-complexity\
+    \ regions (score \u2264 2.0) compared to static high-rank."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:00:42Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Krippendorff alpha greater than or equal to 0.5
+  claim_id: c_3c22a89e
+  context: "We validate Inter-Rater Reliability (Krippendorff's \u03B1 \u2265 0.5)\
+    \ and the correlation between synthetic mask metrics (gradient variance, texture\
+    \ entropy) and human scores (r \u2265 0.7)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Krippendorff_alpha_greater_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: "The Inter-Rater Reliability Krippendorff's alpha is \u2265 0.5 in Research\
+    \ Mode."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T19:01:03Z'

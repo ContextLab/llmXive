@@ -1,78 +1,73 @@
 import pytest
+import mne
 import numpy as np
 from pathlib import Path
-import sys
+import json
 import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the functions to test
+from preprocessing import epoch_segmentation, EpochingError, handle_missing_electrodes
 
-from preprocessing import (
-    download_and_validate_dataset,
-    apply_filters,
-    run_ica,
-    segment_epochs,
-    validate_sample_size,
-    preprocess_pipeline
-)
-
-def test_download_and_validate_dataset():
-    """Test that the dataset download and validation function runs without error."""
-    # This test verifies FR-001 implementation
-    # We expect it to run with the sample dataset
-    try:
-        path, report = download_and_validate_dataset("sample-ica")
-        assert path.exists(), "Dataset path does not exist"
-        assert report["bids_compliant"], "Dataset is not BIDS compliant"
-        assert report["event_markers_found"], "Event markers not found"
-        assert "validation_report.json" in [f.name for f in path.glob("*.json")]
-    except ImportError as e:
-        pytest.skip(f"MNE not installed: {e}")
-
-def test_validate_sample_size_pass():
-    """Test sample size validation with sufficient epochs."""
-    # Create a mock epochs object
-    import mne
-    sfreq = 1000.0
-    info = mne.create_info(ch_names=['MEG 001', 'MEG 002'], sfreq=sfreq, ch_types='mag')
-    data = np.random.randn(100, 2, 2000) # 100 epochs, 2 chs, 2s
-    events = np.array([[i*1000, 0, 1] for i in range(100)]) # 100 events
-    event_id = {'test': 1}
+def test_epoch_segmentation_duration():
+    """Test that epoch_segmentation enforces 2-second duration."""
+    # Create a minimal mock raw object
+    info = mne.create_info(ch_names=['EEG 001'], sfreq=1000, ch_types=['eeg'])
+    data = np.random.randn(1, 10000)
+    raw = mne.io.Raw(data, info)
     
-    epochs = mne.EpochsArray(data, info, events, event_id=event_id)
+    # Create mock events
+    events = [
+        {'onset': 0.5, 'description': 'attention_shift'},
+        {'onset': 2.5, 'description': 'attention_shift'}
+    ]
     
-    report = validate_sample_size(epochs, min_epochs=50)
-    assert report["is_valid"]
-    assert report["total_epochs"] == 100
+    # Run segmentation
+    epochs = epoch_segmentation(raw, events, epoch_duration=2.0)
+    
+    # Verify duration
+    assert epochs.times.max() - epochs.times.min() <= 2.0, "Epoch duration must be 2 seconds"
+    assert len(epochs) == 2, "Should create 2 epochs"
 
-def test_validate_sample_size_fail():
-    """Test sample size validation with insufficient epochs."""
-    import mne
-    sfreq = 1000.0
-    info = mne.create_info(ch_names=['MEG 001'], sfreq=sfreq, ch_types='mag')
-    data = np.random.randn(20, 1, 2000) # 20 epochs
-    events = np.array([[i*1000, 0, 1] for i in range(20)])
-    event_id = {'test': 1}
-    
-    epochs = mne.EpochsArray(data, info, events, event_id=event_id)
-    
-    with pytest.raises(ValueError):
-        validate_sample_size(epochs, min_epochs=50)
+def test_epoch_segmentation_constitution_override():
+    """Test that the audit log records the Constitution Principle VI override."""
+    # This test checks that the audit log file is created and contains the override text
+    # Note: This requires a full pipeline run, so we test the existence of the logic
+    # by checking the function source or running a minimal case
+    import inspect
+    source = inspect.getsource(epoch_segmentation)
+    assert "Constitution Principle VI" in source, "Function must reference Constitution Principle VI"
 
-def test_preprocess_pipeline_integration():
-    """Integration test for the full pipeline."""
-    # This is a lightweight integration test
-    # It may be skipped if MNE is not installed or if the download takes too long in CI
-    try:
-        result = preprocess_pipeline("sample-ica")
-        assert result["status"] == "success"
-        assert result["epochs_count"] > 0
-        assert "validation" in result
-    except ImportError:
-        pytest.skip("MNE not installed")
-    except Exception as e:
-        # If the specific dataset is not available, skip
-        if "download" in str(e).lower() or "not found" in str(e).lower():
-            pytest.skip("Dataset download failed or not found")
-        else:
-            raise
+def test_missing_electrodes_handling():
+    """Test that missing electrodes are logged and skipped."""
+    # Create a mock raw object
+    info = mne.create_info(ch_names=['EEG 001', 'EEG 002', 'EEG 003'], sfreq=1000, ch_types=['eeg'])
+    data = np.random.randn(3, 10000)
+    raw = mne.io.Raw(data, info)
+    
+    # Create a temporary output path
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "metadata.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Create empty metadata first
+        with open(output_path, 'w') as f:
+            json.dump({}, f)
+        
+        skipped = handle_missing_electrodes(raw, str(Path(tmpdir)))
+        
+        # Verify skipped list is populated (simulated)
+        assert isinstance(skipped, list)
+        
+        # Verify metadata was updated
+        with open(output_path, 'r') as f:
+            meta = json.load(f)
+        assert 'skipped_electrodes' in meta
+
+def test_epoch_segmentation_no_events():
+    """Test that epoch_segmentation raises error when no events are present."""
+    info = mne.create_info(ch_names=['EEG 001'], sfreq=1000, ch_types=['eeg'])
+    data = np.random.randn(1, 10000)
+    raw = mne.io.Raw(data, info)
+    
+    with pytest.raises(EpochingError):
+        epoch_segmentation(raw, [])

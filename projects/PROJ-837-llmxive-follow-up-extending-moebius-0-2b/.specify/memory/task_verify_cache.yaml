@@ -14,22 +14,20 @@ T011:
     \ No further evidence of a test implementation is provided."
 T015:
   c: false
-  h: 1142dfd7a3e075b07bc533e1a7e65b3d40b30696ace4889c43f0c97b6cc02e2b
-  r: "The required input file `data/annotations/validated_scores.csv` does not exist,\
-    \ and the expected output files `data/annotations/krippendorff_raw.json` and `data/results/validation_log.txt`\
-    \ are missing. Moreover, the provided `code/eval/stats.py` snippet does not contain\
-    \ a `calculate_krippendorff` function (and is truncated), so the implementation\
-    \ cannot be verified. The task\u2019s core computation and persistence steps are\
-    \ therefore not fulfilled."
+  h: 63206d545a493fb6c73dfa0d2d7de23e139b853e82759ede574b8436e364129f
+  r: The required input file `data/annotations/validated_scores.csv` does not exist,
+    nor are the output artifacts `data/annotations/krippendorff_raw.json` or `data/results/validation_log.txt`.
+    The provided `code/eval/stats.py` snippet shows no `calculate_krippendorff` function
+    nor any use of the `krippendorff` library, so the core computation and conditional
+    logging are missing.
 T016:
   c: false
-  h: 81f7efabfb4d1c9a1fb396176d3b7ba164fcf7f574c95067b362fd5f2827b32f
-  r: "The provided `annotator.py` only defines helper functions that return booleans;\
-    \ it never raises an exception when the sample size is <\u202F50 or when label\
-    \ independence fails, nor does it invoke these checks in the workflow. Additionally,\
-    \ the required `data/results/validation_log.txt` file is absent, so no validation\
-    \ result is being logged. The task\u2019s core requirements are therefore not\
-    \ met."
+  h: f6cff22c6f2b73147339f6d2c25d00bdc379a4fde245480f20987757f45dae94
+  r: "The `annotator.py` only defines validation functions that return booleans and\
+    \ log messages; it never raises an exception when the sample size is <\u202F50\
+    \ or when label independence fails. Moreover, the required log file `data/results/validation_log.txt`\
+    \ does not exist, so no validation results are being recorded. Both the error\u2011\
+    raising behavior and the logging artifact are missing."
 T019:
   c: false
   h: 6ced3e91182fc1c05c82be9112d14471280336b8420338a2c2d6f7b5c5959707
@@ -49,11 +47,12 @@ T023:
     \ are absent."
 T025:
   c: false
-  h: b4d80a788b69f9b8cc9dd572563063c3f44f210d8f78a68080f6ad41ec0fcd91
-  r: The provided `code/eval/stats.py` does not contain a `run_permutation_test` implementation
-    (the file is truncated before any such function appears), and the required output
-    file `data/results/permutation_test.json` is absent. Both the core logic and the
-    persisted result are missing, so the task is not fulfilled.
+  h: 12e5676d26443d7663b8721069636e0dcf974e0bd99fb003dcb9ce7d2d0d8b55
+  r: "The provided `code/eval/stats.py` excerpt does not contain a `run_permutation_test`\
+    \ function implementing the required 1000\u2011permutation logic, nor does it\
+    \ show any code that writes `p-value` and `gate_status` to `data/results/permutation_test.json`.\
+    \ Additionally, the expected output file `data/results/permutation_test.json`\
+    \ is absent. The task therefore remains unfinished."
 T025a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -63,6 +62,13 @@ T025a:
     \ artifact, the task\u2019s requirement is not satisfied. The implementer must\
     \ supply the actual implementation (e.g., a function or module) that performs\
     \ this check and blocks deployment accordingly."
+T030a:
+  c: false
+  h: d49919dda70399d9072835957b1d37c4c924815d5e8ee548131c27a024992860
+  r: "The provided `code/eval/stats.py` does not contain any implementation of a power\
+    \ analysis using `scipy.stats.power` (the file is truncated before such a function\
+    \ appears), and the required output file `data/results/power_analysis.json` is\
+    \ absent. Consequently the task\u2019s specifications are not met."
 T032b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,13 +87,22 @@ T032c:
     \ \u226530\u202F% latency reduction, \u22640.5 FID difference, or significance\
     \ testing for the dynamic model versus the static baseline. Consequently the US3\
     \ acceptance criteria are not met."
+T033a:
+  c: false
+  h: 797891c03a89d1c9da8479c5c65ff7f670c522efa99e0cfa64d8571d60b0a6e1
+  r: "The required output file `data/results/latency_raw.csv` does not exist, and\
+    \ the source annotation CSVs needed to select the test set are also missing. Moreover,\
+    \ the claimed implementation `code/eval/inference.py::run_benchmark` is absent\
+    \ (the file is truncated and contains no `run_benchmark` function). Consequently\
+    \ the task\u2019s core requirement\u2014executing inference on the defined test\
+    \ set and saving the latency metrics\u2014is not fulfilled."
 T035:
   c: false
-  h: 44accece991f610eb540093fa6fc6142c7f30ee8f2163a62e2226f84fdbe2e92
-  r: "The provided `code/eval/stats.py` contains a `run_proxy_correlation_analysis`\
-    \ function but no `validate_proxy_correlation` implementation, no gate\u2011status\
-    \ handling, and no `SystemExit` logic. Moreover, the required output file `data/results/proxy_validation.json`\
-    \ does not exist. The task\u2019s core requirements are therefore unmet."
+  h: 1dd3008f7bc888dc300cf8ddfda096e996a0dc8f21b813f6a0fb2bce24648ccb
+  r: "The provided `code/eval/stats.py` does not contain the required `validate_proxy_correlation`\
+    \ function (it ends abruptly and lacks the correlation, gating, and exit logic).\
+    \ Additionally, the expected output file `data/results/proxy_validation.json`\
+    \ is missing. Consequently, the task\u2019s specifications are not satisfied."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -2406,3 +2406,381 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T23:53:44Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Constitution Principle VI defines epoch duration as 2 seconds
+  claim_id: c_0f69f325
+  context: "The spec requirement FR-004 contains a typo (\"\u2011second epochs\").\
+    \ Constitution Principle VI explicitly defines the epoch duration as 2 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Constitution Principle VI explicitly defines the epoch duration as 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:29:42Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Pipeline must download dataset and verify BIDS structure
+  claim_id: c_02b2b890
+  context: 'T010 [US1] Implement dataset download and BIDS validation... Execution
+    Requirement: Must download the dataset and verify BIDS structure.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_must_download_dataset_and_verify_BIDS_structure
+  kind: entity_fact
+  raw_text: The pipeline must download the dataset and verify BIDS structure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:30:17Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Bandpass filter lowcut 1.0 Hz and highcut 40.0 Hz
+  claim_id: c_011af03e
+  context: 'Implement bandpass filter (low-frequency to 40 Hz)... Function Signature:
+    def filter_data(raw: mne.io.Raw, lowcut: float = 1.0, highcut: float = 40.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bandpass filter lowcut is 1.0 Hz and highcut is 40.0 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:30:35Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Notch filter frequency 50.0 Hz
+  claim_id: c_9f378ea2
+  context: 'Implement bandpass filter... and notch filter (50/60 Hz)... Function Signature:
+    ... notch_freq: float = 50.0...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Fnotch or fcutoff = 49.7 Hz
+      source_id: '2504.02847'
+      url: https://arxiv.org/abs/2504.02847
+      value: '49.7'
+    filled: true
+  kind: numeric
+  raw_text: The notch filter frequency is 50.0 Hz.
+  resolved_value: '49.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T18:30:54Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Morlet wavelet decomposition covers 8-30 Hz range
+  claim_id: c_d9f40812
+  context: 'Note: Explicitly covers 8-30 Hz as per Constitution Principle VI and FR-005.
+    Strictly 8-30 Hz range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morlet wavelet time-frequency decomposition explicitly covers the
+    8-30 Hz range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:31:20Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Feature validation requires 80% epochs with non-NaN values
+  claim_id: c_7538d9e0
+  context: "Implement feature validation: verify \u226580% of epochs have non-NaN\
+    \ values... Raise FeatureValidationFailed if <80%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_validation_requires_80%25_epochs_with_non-NaN_values
+  kind: magnitude
+  raw_text: Feature validation requires that at least 80% of epochs have non-NaN values.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:31:53Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Feature matrix schema includes P3_alpha, Pz_alpha, P4_alpha, F3_beta,
+    Fz_beta, F4_beta
+  claim_id: c_47567ef8
+  context: 'Save feature matrix... Schema: ''epoch_id'', ''condition'', ''P3_alpha'',
+    ''Pz_alpha'', ''P4_alpha'', ''F3_beta'', ''Fz_beta'', ''F4_beta''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_matrix_schema_includes_P3_alpha,_Pz_alpha,_P4_alpha,
+  kind: entity_fact
+  raw_text: The feature matrix schema includes columns P3_alpha, Pz_alpha, P4_alpha,
+    F3_beta, Fz_beta, and F4_beta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:32:13Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: High collinearity if score > 0.8
+  claim_id: c_1f836c05
+  context: 'Write a JSON object with keys collinearity_score... and interpretation...
+    defined as: "High collinearity" if score > 0.8...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_collinearity_if_score_%3E_0.8
+  kind: magnitude
+  raw_text: Collinearity interpretation defines 'High collinearity' if the score is
+    greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:32:48Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Moderate collinearity if 0.5 < score <= 0.8
+  claim_id: c_8219f723
+  context: 'defined as: "High collinearity" if score > 0.8, "Moderate" if 0.5 < score
+    <= 0.8...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Collinearity interpretation defines 'Moderate' collinearity if the score
+    is between 0.5 and 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:33:09Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Low collinearity if score <= 0.5
+  claim_id: c_a5ad15b2
+  context: '..."Moderate" if 0.5 < score <= 0.8, "Low" if score <= 0.5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_collinearity_if_score_%3C=_0.5
+  kind: magnitude
+  raw_text: Collinearity interpretation defines 'Low' collinearity if the score is
+    less than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:33:40Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses at least 1000 iterations
+  claim_id: c_c488495e
+  context: "Implement permutation testing with \u22651000 (Wikipedia: Microarray analysis\
+    \ techniques, https://en.wikipedia.org/wiki/Microarray_analysis_techniques) iterations..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Permutation testing must use at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:34:09Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha is 0.05
+  claim_id: c_34484561
+  context: "Report classifier p-value and null hypothesis rejection decision (\u03B1\
+    \ = 0.05)..."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical significance threshold (alpha) is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T18:34:22Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Benchmark accuracy threshold is 65.0
+  claim_id: c_046852a0
+  context: 'Logic: Compare accuracy against the benchmark defined in Constitution
+    Principle VII... if >= 65.0 set status=pass...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark accuracy threshold for passing is 65.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:34:53Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: CI runner RAM limit is 7GB
+  claim_id: c_0b0576c1
+  context: Create ci_config.py with RAM_LIMIT=7GB...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runner_RAM_limit_is_7GB
+  kind: entity_fact
+  raw_text: The CI runner RAM limit is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:35:37Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: CI runner CPU limit is 2 cores
+  claim_id: c_6b4ba503
+  context: Create ci_config.py with RAM_LIMIT=7GB, CPU_LIMIT=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner CPU limit is 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:36:02Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Total pipeline execution time must be less than 21600 seconds
+  claim_id: c_b8b74700
+  context: Verify total runtime < 6 hours (21600s)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_execution_time_must_be_less_than_21600_second
+  kind: magnitude
+  raw_text: The total pipeline execution time must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:36:21Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Sample size validation halts if <50 epochs/condition
+  claim_id: c_a8bec811
+  context: 'Implement sample size validation: HALT immediately if <50 epochs/condition...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_validation_halts_if_%3C50_epochs/condition
+  kind: magnitude
+  raw_text: The sample size validation halts immediately if fewer than 50 epochs per
+    condition are found.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:36:55Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Fallback logic halts if epoch count <50
+  claim_id: c_b61cfe7d
+  context: If count < 50 after fallback, HALT with error.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_logic_halts_if_epoch_count_%3C50
+  kind: magnitude
+  raw_text: The fallback logic halts if the epoch count is less than 50 after substitution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:37:25Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Fallback sets underpowered flag if 50 <= count < 100
+  claim_id: c_9dfc2606
+  context: If 50 <= count < 100, set underpowered=true in metadata...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback logic sets the underpowered flag if the epoch count is between
+    50 and 99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:37:43Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Landmark timestamp fallback requires adjacent diff > 1.0s
+  claim_id: c_7d32bbb7
+  context: 'Algorithm: 2. Check adjacent diff > 1.0s and within [0, recording_duration].'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Landmark_timestamp_fallback_requires_adjacent_diff_%3E_1.0s
+  kind: magnitude
+  raw_text: The landmark timestamp fallback algorithm requires adjacent differences
+    greater than 1.0 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:38:19Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: FWE corrected p-values formatted to 4 decimal places
+  claim_id: c_e99c8e39
+  context: 'JSON Schema for objects: ... ''corrected_p'': float (4 decimal places)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The corrected p-values in the FWE correction task are formatted to 4 decimal
+    places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:38:43Z'

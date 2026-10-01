@@ -13,7 +13,7 @@ Image inpainting often applies uniform computational resources regardless of the
 ### 2.1 Architecture
 The core model, **Moebius-Tiny** ($\le 15$M params), serves as the base. It is augmented with a **Gating Head** that predicts a complexity score $S \in [1, 5]$ from the mask.
 - **Dynamic Rank Modulation**: The predicted score maps to rank indices for the $L\lambda MI$ matrices.
-- **Edge Cases**: Scores > 50% masked region trigger a static high-rank fallback. [UNRESOLVED-CLAIM: c_dd9db3b9 — status=not_enough_info]
+- **Edge Cases**: Scores > 50% masked region trigger a static high-rank fallback.
 
 ### 2.2 Ground Truth & Validation
 To avoid circularity, we decouple ground truth generation from model inference.

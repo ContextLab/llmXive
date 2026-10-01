@@ -1,37 +1,43 @@
-"""
-Logging configuration and utilities.
-"""
 import logging
 import os
 from pathlib import Path
 
-def get_logger(name: str) -> logging.Logger:
+_logger_instance = None
+
+def get_logger(name: str = "pipeline") -> logging.Logger:
     """
-    Get a logger instance configured to output to file and stdout.
+    Returns a configured logger instance.
+    Configures file and stdout handlers.
     """
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
+    global _logger_instance
+    if _logger_instance is None:
+        _logger_instance = logging.getLogger(name)
+        if _logger_instance.handlers:
+            return _logger_instance
 
-    logger.setLevel(logging.INFO)
+        # Setup directories
+        log_dir = Path("data/processed")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "pipeline.log"
 
-    # Create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
+        # Configure format
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-    # Create file handler
-    log_dir = Path("logs")
-    log_dir.mkdir(exist_ok=True)
-    log_file = log_dir / f"{name}.log"
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
+        # File handler
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
 
-    # Create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
+        # Console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)              # Use INFO to see verification output
+        console_handler.setFormatter(formatter)
 
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+        _logger_instance = logging.getLogger(name)
+        _logger_instance.setLevel(logging.INFO)
+        _logger_instance.addHandler(file_handler)
+        _logger_instance.addHandler(console_handler)
 
-    return logger
+    return _logger_instance

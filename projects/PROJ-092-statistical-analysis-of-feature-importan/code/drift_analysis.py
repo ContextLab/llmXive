@@ -4,207 +4,172 @@ import logging
 import csv
 import json
 import math
-import random
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Any, Tuple, Optional
+import scipy.stats as stats
 
-# Import from sibling modules based on API surface
-from utils.logger import setup_logger, get_logger
+from utils.logger import get_logger
 from utils.config import get_config
 
-# Constants
-OUTPUT_DIR = Path("data/outputs")
-PROFILES_PATH = OUTPUT_DIR / "importance_profiles.csv"
-DRIFT_METRICS_PATH = OUTPUT_DIR / "drift_metrics.csv"
-NULL_BASELINE_PATH = OUTPUT_DIR / "null_baseline.json"
-SIGNIFICANCE_RESULTS_PATH = OUTPUT_DIR / "significance_results.json"
+logger = get_logger(__name__)
+config = get_config()
 
-logger = setup_logger("drift_analysis")
+def setup_module_logger():
+    """Initialize logger for this module."""
+    return logger
 
-def setup_module_logger(name: str) -> logging.Logger:
-    """Setup a logger for the module."""
-    return get_logger(name)
-
-def load_importance_profiles(path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def load_importance_profiles(profiles_path: str) -> List[Dict[str, Any]]:
     """Load importance profiles from CSV."""
-    if path is None:
-        path = PROFILES_PATH
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Importance profiles not found at {path}")
-    
     profiles = []
-    with open(path, 'r', newline='') as f:
+    with open(profiles_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            profile = {
-                'window_id': int(row['window_id']),
-                'feature': row['feature'],
-                'importance_score': float(row['importance_score'])
-            }
-            profiles.append(profile)
+            profiles.append(row)
     return profiles
 
-def extract_window_rankings(profiles: List[Dict[str, Any]], window_id: int) -> Dict[str, float]:
-    """Extract importance scores for a specific window."""
-    return {p['feature']: p['importance_score'] for p in profiles if p['window_id'] == window_id}
+def extract_window_rankings(profiles: List[Dict[str, Any]]) -> Dict[int, List[float]]:
+    """Extract feature rankings for each window."""
+    rankings = {}
+    for profile in profiles:
+        window_id = int(profile['window_id'])
+        # Parse importance values (assuming comma-separated string in 'importance_values' or similar)
+        # Adjust key based on actual CSV structure from T014
+        if 'importance_values' in profile:
+            values = [float(x) for x in profile['importance_values'].split(',')]
+        elif 'importances' in profile:
+            values = [float(x) for x in profile['importances'].split(',')]
+        else:
+            # Fallback: assume numeric columns are importances
+            # This is a heuristic; T014 should produce a consistent key
+            numeric_cols = [k for k in profile.keys() if k not in ['window_id', 'timestamp']]
+            values = [float(profile[k]) for k in numeric_cols]
+        
+        # Rank the values (1 = most important)
+        # Using scipy.stats.rankdata with 'average' method for ties
+        ranks = stats.rankdata(values, method='average')
+        rankings[window_id] = list(ranks)
+    return rankings
 
-def calculate_rank_correlation(rankings1: Dict[str, float], rankings2: Dict[str, float]) -> Tuple[float, float]:
-    """
-    Calculate Spearman rank correlation between two sets of feature importances.
-    Returns (rho, p_value).
-    """
-    common_features = set(rankings1.keys()) & set(rankings2.keys())
-    if len(common_features) < 2:
-        return 0.0, 1.0  # Not enough features to correlate
+def calculate_rank_correlation(rankings_t: List[float], rankings_t1: List[float]) -> Tuple[float, float]:
+    """Calculate Spearman rank correlation between two windows."""
+    if len(rankings_t) != len(rankings_t1):
+        raise ValueError("Rankings must have the same length")
+    
+    rho, p_value = stats.spearmanr(rankings_t, rankings_t1)
+    return float(rho), float(p_value)
 
-    # Rank the features
-    features = sorted(common_features)
-    ranks1 = {f: i + 1 for i, f in enumerate(sorted(features, key=lambda x: rankings1[x], reverse=True))}
-    ranks2 = {f: i + 1 for i, f in enumerate(sorted(features, key=lambda x: rankings2[x], reverse=True))}
+def load_null_baseline(null_baseline_path: str) -> Dict[str, Any]:
+    """Load null baseline statistics from JSON."""
+    with open(null_baseline_path, 'r') as f:
+        return json.load(f)
 
-    # Calculate Spearman's rho
-    n = len(features)
-    d_squared_sum = sum((ranks1[f] - ranks2[f]) ** 2 for f in features)
-    rho = 1 - (6 * d_squared_sum) / (n * (n ** 2 - 1))
+def load_p_values_from_significance_test(p_values_path: str) -> Dict[int, float]:
+    """Load block permutation p-values from significance test output."""
+    p_values = {}
+    if not os.path.exists(p_values_path):
+        logger.warning(f"P-values file not found: {p_values_path}")
+        return p_values
+    
+    with open(p_values_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Assuming columns: window_t, p_value
+            window_t = int(row['window_t'])
+            p_val = float(row['p_value'])
+            p_values[window_t] = p_val
+    return p_values
 
-    # Approximate p-value using t-distribution (for n > 10)
-    # For small n, we use a simpler heuristic or permutation (handled elsewhere)
-    if n > 10:
-        t_stat = rho * math.sqrt((n - 2) / (1 - rho ** 2))
-        # Approximate p-value (two-tailed) using a simplified t-distribution approach
-        # In production, use scipy.stats, but avoiding external heavy deps if possible
-        # Here we use a simplified approximation for the p-value
-        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
-    else:
-        # For small n, return a placeholder p-value; actual significance tested via permutation
-        p_value = 1.0
-
-    return rho, p_value
-
-def compute_pairwise_drift(profiles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Compute drift metrics between consecutive windows."""
-    windows = sorted(list(set(p['window_id'] for p in profiles)))
+def compute_pairwise_drift(rankings: Dict[int, List[float]], p_values: Dict[int, float], null_baseline: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Compute pairwise drift metrics between consecutive windows."""
+    sorted_windows = sorted(rankings.keys())
     drift_metrics = []
-
-    for i in range(len(windows) - 1):
-        window_t = windows[i]
-        window_t_plus_1 = windows[i + 1]
+    
+    # Get null baseline mean rho for comparison
+    null_mean_rho = null_baseline.get('mean_rho', 0.0)
+    
+    for i in range(len(sorted_windows) - 1):
+        w_t = sorted_windows[i]
+        w_t1 = sorted_windows[i + 1]
         
-        rankings_t = extract_window_rankings(profiles, window_t)
-        rankings_t_plus_1 = extract_window_rankings(profiles, window_t_plus_1)
+        rho, p_val_spearman = calculate_rank_correlation(rankings[w_t], rankings[w_t1])
         
-        rho, p_value = calculate_rank_correlation(rankings_t, rankings_t_plus_1)
+        # Get block permutation p-value for this transition
+        p_val_perm = p_values.get(w_t, None)
+        
+        # Flag high drift based on permutation p-value < 0.05
+        is_high_drift = False
+        if p_val_perm is not None and p_val_perm < 0.05:
+            is_high_drift = True
         
         drift_metrics.append({
-            'window_t': window_t,
-            'window_t_plus_1': window_t_plus_1,
+            'window_t': w_t,
+            'window_t1': w_t1,
             'rho': rho,
-            'p_value': p_value,
-            'high_drift': False  # Will be updated by flag_high_drift
+            'p_value_spearman': p_val_spearman,
+            'p_value_permutation': p_val_perm,
+            'is_high_drift': is_high_drift,
+            'deviation_from_null': rho - null_mean_rho
         })
     
     return drift_metrics
 
-def load_null_baseline(path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load null baseline results from JSON."""
-    if path is None:
-        path = NULL_BASELINE_PATH
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Null baseline not found at {path}")
-    
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_p_values_from_significance_test(path: Optional[Path] = None) -> Dict[int, float]:
-    """Load p-values from significance test results."""
-    if path is None:
-        path = SIGNIFICANCE_RESULTS_PATH
-    
-    if not path.exists():
-        logger.warning(f"Significance results not found at {path}. Using default p-values.")
-        return {}
-    
-    with open(path, 'r') as f:
-        data = json.load(f)
-    
-    # Assume structure: {"p_values": {"window_t": p_value, ...}}
-    return {int(k): v for k, v in data.get('p_values', {}).items()}
-
-def flag_high_drift(drift_metrics: List[Dict[str, Any]], null_baseline: Dict[str, Any], p_values: Dict[int, float]) -> List[Dict[str, Any]]:
-    """
-    Flag transitions as high drift based on p-value threshold.
-    Uses p-value from significance test if available, otherwise falls back to null baseline.
-    """
-    threshold = 0.05
-    null_mean_rho = null_baseline.get('mean_rho', 0.0)
-    
+def flag_high_drift(drift_metrics: List[Dict[str, Any]], p_values: Dict[int, float]) -> List[Dict[str, Any]]:
+    """Flag transitions as high drift if block permutation p-value < 0.05."""
+    # This logic is now integrated into compute_pairwise_drift, but kept for API compatibility
     for metric in drift_metrics:
-        window_t = metric['window_t']
-        p_value = p_values.get(window_t, metric['p_value'])
-        
-        # Flag if p-value < threshold
-        metric['high_drift'] = p_value < threshold
-    
+        w_t = metric['window_t']
+        if w_t in p_values and p_values[w_t] < 0.05:
+            metric['is_high_drift'] = True
+        else:
+            metric['is_high_drift'] = False
     return drift_metrics
 
-def save_drift_metrics(drift_metrics: List[Dict[str, Any]], path: Optional[Path] = None) -> Path:
+def save_drift_metrics(drift_metrics: List[Dict[str, Any]], output_path: str):
     """Save drift metrics to CSV."""
-    if path is None:
-        path = DRIFT_METRICS_PATH
+    if not drift_metrics:
+        logger.warning("No drift metrics to save")
+        return
     
-    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ['window_t', 'window_t1', 'rho', 'p_value_spearman', 'p_value_permutation', 'is_high_drift', 'deviation_from_null']
     
-    with open(path, 'w', newline='') as f:
-        fieldnames = ['window_t', 'window_t_plus_1', 'rho', 'p_value', 'high_drift']
+    with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(drift_metrics)
     
-    logger.info(f"Saved drift metrics to {path}")
-    return path
+    logger.info(f"Saved drift metrics to {output_path}")
 
-def run_drift_analysis(profiles_path: Optional[Path] = None, 
-                       null_baseline_path: Optional[Path] = None,
-                       significance_results_path: Optional[Path] = None) -> Path:
-    """
-    Run the full drift analysis pipeline:
-    1. Load importance profiles
-    2. Compute pairwise drift
-    3. Load null baseline and p-values
-    4. Flag high drift
-    5. Save metrics
-    """
+def run_drift_analysis(profiles_path: str, null_baseline_path: str, p_values_path: str, output_path: str):
+    """Main function to run drift analysis pipeline."""
+    logger.info(f"Loading importance profiles from {profiles_path}")
     profiles = load_importance_profiles(profiles_path)
-    drift_metrics = compute_pairwise_drift(profiles)
     
-    try:
-        null_baseline = load_null_baseline(null_baseline_path)
-    except FileNotFoundError:
-        logger.warning("Null baseline not found. Skipping high drift flagging.")
-        null_baseline = {'mean_rho': 0.0}
+    logger.info("Extracting window rankings")
+    rankings = extract_window_rankings(profiles)
     
-    try:
-        p_values = load_p_values_from_significance_test(significance_results_path)
-    except FileNotFoundError:
-        logger.warning("Significance results not found. Using default p-values.")
-        p_values = {}
+    logger.info(f"Loading null baseline from {null_baseline_path}")
+    null_baseline = load_null_baseline(null_baseline_path)
     
-    drift_metrics = flag_high_drift(drift_metrics, null_baseline, p_values)
-    output_path = save_drift_metrics(drift_metrics)
+    logger.info(f"Loading p-values from {p_values_path}")
+    p_values = load_p_values_from_significance_test(p_values_path)
     
-    return output_path
+    logger.info("Computing pairwise drift")
+    drift_metrics = compute_pairwise_drift(rankings, p_values, null_baseline)
+    
+    logger.info(f"Saving drift metrics to {output_path}")
+    save_drift_metrics(drift_metrics, output_path)
+    
+    return drift_metrics
 
 def main():
-    """Main entry point for drift analysis."""
-    logger.info("Starting drift analysis...")
-    try:
-        output_path = run_drift_analysis()
-        logger.info(f"Drift analysis complete. Results saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Drift analysis failed: {e}")
-        sys.exit(1)
+    """Entry point for drift analysis."""
+    config = get_config()
+    profiles_path = config.get('paths', {}).get('importance_profiles', 'outputs/importance_profiles.csv')
+    null_baseline_path = config.get('paths', {}).get('null_baseline', 'outputs/null_baseline.json')
+    p_values_path = config.get('paths', {}).get('p_values', 'outputs/significance_test_results.csv')
+    output_path = config.get('paths', {}).get('drift_metrics', 'outputs/drift_metrics.csv')
+    
+    run_drift_analysis(profiles_path, null_baseline_path, p_values_path, output_path)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

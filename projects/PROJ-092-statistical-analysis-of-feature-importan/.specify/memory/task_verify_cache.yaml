@@ -48,3 +48,44 @@ T024:
     \ we cannot confirm the feature was implemented. The implementer must provide\
     \ the updated source (e.g., Python module, notebook, or diff) showing the new\
     \ conditional handling and corresponding tests or output files."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or updated `README.md` files are present in the provided
+    evidence; the only artifacts shown are specifications for statistical analysis,
+    not documentation updates. The required documentation artifacts are missing.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, refactored modules, or memory\u2011usage measurements were provided;\
+    \ the claim contains no artifacts demonstrating that the codebase was cleaned\
+    \ up or that RAM consumption stays below 4\u202FGB. The required deliverables\
+    \ for task T028 are missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required output files (e.g., `outputs/importance_profiles.csv`,\
+    \ `outputs/drift_metrics.csv`, `global_stats.json`) or any code implementing the\
+    \ windowed model training, importance calculation, or performance optimizations\
+    \ is present. Without these artifacts, the task\u2019s acceptance criteria cannot\
+    \ be verified."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no evidence of any new unit test files under `tests/unit/` that
+    address the specified edge cases (missing data, model failure). Without the actual
+    test artifacts present, the requirement for additional unit tests is not satisfied.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts such as `outputs/importance_profiles.csv`, `outputs/drift_metrics.csv`,\
+    \ or `global_stats.json` are present, and the claim provides no code, data, or\
+    \ results to verify the required functionality. Consequently the task\u2019s acceptance\
+    \ criteria are not demonstrably met."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No output files (e.g., `outputs/importance_profiles.csv`, `outputs/drift_metrics.csv`,
+    `global_stats.json`) or validation logs were presented, and there is no evidence
+    that the quickstart.md validation and full pipeline were actually executed. The
+    required artifacts are missing, so the task is not satisfied.

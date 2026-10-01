@@ -42,7 +42,6 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/`
-- [X] T002 Initialize Python project with dependencies (`numpy`, `pandas`, `scikit-learn`, `tqdm`, `pyyaml`, `datasets`, `pytest`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -57,14 +56,14 @@
 - [ ] T004b [P] Create `contracts/run_metadata.schema.yaml` defining fields for seeds, timestamps, and hyperparameters.
 - [ ] T004c [P] Create `contracts/aggregated_metrics.schema.yaml` defining fields for AUCC, final accuracy, and prompt length stats.
 - [ ] T004d [P] Create `contracts/convergence_result.schema.yaml` defining fields for per-cycle accuracy and prompt content.
-- [X] T005 [P] Implement config loader in `code/config.py` (seeds, thresholds, paths)
-- [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py`
-- [X] T007 [P] Create base validation helpers in `code/utils/validation.py` (imports from `contracts/`) - DEPENDS on T004a-d completion
-- [X] T008 [P] Setup deterministic random seed management in `code/utils/seeds.py`. MUST implement a singleton pattern `get_rng(seed: int) -> numpy.random.Generator` to ensure reproducibility (Constitution Principle I) and statistical variance (FR-008). MUST be implemented before T026, T016, and T023.
-- [X] T026 [P] Implement per-step Gaussian noise injection in `code/utils/noise.py`. MUST define function `inject_noise(confidence: float, sigma: float = 0.05) -> float` to inject noise into confidence scores as per FR-008. DEPENDS on T008. MUST be implemented before T016 and T023.
-- [X] T013 [P] Implement MMLU held-out data loader in `code/data/loaders.py`. MUST fail loudly with clear error message if REAL training data is missing (NO synthetic fallback). HOWEVER, for held-out test data generation, if the specific MMLU subset is unavailable, MUST fall back to a synthetic expert distribution as per Spec Assumptions to ensure simulation resilience.
-- [X] T009 [P] Implement State Store utility in `code/utils/state_store.py` to manage `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (required for T021 to track historical confidence). DEPENDS on T004a-d.
-- [X] T021 [US2] Implement CAP classifier in `code/models/cap_classifier.py`. Calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9). MUST explicitly exclude BOTH 'consistently rejected' (<0.1) AND 'consistently accepted' (>0.9) candidates from the prompt as per FR-003 and Constitution Principle VI, retaining only 'fluctuating' candidates. MUST implement fallback to full set if resulting set is empty per FR-007. MUST be implemented before T023. DEPENDS on T009.
+- [ ] T005 [P] Implement config loader in `code/config.py` (seeds, thresholds, paths)
+- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging.py`
+- [ ] T007 [P] Create base validation helpers in `code/utils/validation.py` (imports from `contracts/`) - DEPENDS on T004a-d completion. MUST NOT be marked [P] as it depends on schema contracts.
+- [ ] T008 [P] Setup deterministic random seed management in `code/utils/seeds.py`. MUST implement a singleton pattern `get_rng(seed: int) -> numpy.random.Generator` to ensure reproducibility (Constitution Principle I) and statistical variance (FR-008). MUST be implemented before T026, T016, and T023.
+- [ ] T026 [P] Implement per-step Gaussian noise injection in `code/utils/noise.py`. MUST define function `inject_noise(confidence: float, sigma: float = 0.05) -> float` to inject noise into confidence scores as per FR-008. DEPENDS on T008. MUST be implemented before T016 and T023.
+- [ ] T013 [P] Implement MMLU held-out data loader in `code/data/loaders.py`. MUST fail loudly with clear error message if REAL training data is missing (NO synthetic fallback). HOWEVER, for held-out test data generation, if the specific MMLU subset is unavailable, MUST fall back to a synthetic expert distribution as per Spec Assumptions to ensure simulation resilience.
+- [ ] T009 [P] Implement State Store utility in `code/utils/state_store.py` to manage `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (required for T021 to track historical confidence). DEPENDS on T004a-d.
+- [ ] T021 [US2] Implement CAP classifier in `code/models/cap_classifier.py`. Calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9). MUST explicitly exclude BOTH 'consistently rejected' (<0.1) AND 'consistently accepted' (>0.9) candidates from the prompt as per FR-003 and Constitution Principle VI, retaining only 'fluctuating' candidates. MUST implement fallback to full set if resulting set is empty per FR-007. MUST be implemented before T023. DEPENDS on T009. [FR-003]
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,16 +79,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for rollout log schema in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/contract/test_schemas.py` - DEPENDS on T004a
-- [X] T011 [P] [US1] Unit test for static NCQ generation logic in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_base_zppo.py`
+- [ ] T010 [P] [US1] Contract test for rollout log schema in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/contract/test_schemas.py` - DEPENDS on T004a
+- [ ] T011 [P] [US1] Unit test for static NCQ generation logic in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_base_zppo.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement synthetic rollout log generator in `code/data/generators.py`. MUST implement explicit learning dynamics: student confidence updates based on 'expert gap' and 'prompt length' variables as defined in Plan Step 1. Formula: `new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)`. Includes LLM/VLM tasks, confidence scores, ground truth.
-- [X] T014 [US1] Implement static NCQ generator in `code/loops/base_zppo.py` (includes all known failure modes for every step)
-- [X] T015 [US1] Implement simulated student model in `code/models/student_sim.py`. MUST implement confidence update logic using the formula from T012.
-- [X] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py`. A fixed number of buffer cycles, records accuracy per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T008 and T026.
-- [ ] T018 [US1] Implement single-run simulation ENGINE for baseline in `code/main.py`. This task implements the internal function `run_baseline_simulation(seed)` to execute a single baseline simulation cycle (to be called by the batch runner T031). It does NOT handle CLI argument parsing or batch orchestration; it strictly returns the convergence curve data structure.
+- [ ] T012 [P] [US1] Implement synthetic rollout log generator in `code/data/generators.py`. MUST implement explicit learning dynamics: student confidence updates based on 'expert gap' and 'prompt length' variables as defined in Plan Step 1. Formula: `new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)`. Includes LLM/VLM tasks, confidence scores, ground truth. [FR-001]
+- [ ] T014 [US1] Implement static NCQ generator in `code/loops/base_zppo.py` (includes all known failure modes for every step) [FR-002]
+- [ ] T015 [US1] Implement simulated student model in `code/models/student_sim.py`. MUST implement confidence update logic using the formula from T012.
+- [ ] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py`. A fixed number of buffer cycles, records accuracy per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T008 and T026. Ordering: T008 -> T026 -> T016.
+- [ ] T018 [US1] Implement single-run simulation ENGINE for baseline in `code/main.py`. This task implements the internal function `run_baseline_simulation(seed)` to execute a single baseline simulation cycle (to be called by the batch runner T031). It does NOT handle CLI argument parsing or batch orchestration; it strictly returns the convergence curve data structure. MUST expose `run_baseline_simulation` as an importable module function for T031.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,10 +107,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement dynamic NCQ generator in `code/loops/cap_zppo.py` (filters candidates based on CAP output; MUST enforce FR-007 min threshold; MUST implement specific fallback to full set if pruning results in zero candidates; REQUIRES T021 logic to be implemented first; depends on T021 output)
-- [ ] T023 [US2] Implement CAP-ZPPO training loop in `code/loops/cap_zppo.py`. Updates student confidence using attention-weighted rule, records prompt length per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T021 and T026.
+- [ ] T022 [US2] Implement dynamic NCQ generator in `code/loops/cap_zppo.py` (filters candidates based on CAP output; MUST enforce FR-007 min threshold; MUST implement specific fallback to full set if pruning results in zero candidates; REQUIRES T021 logic to be implemented first; depends on T021 output) [FR-004]
+- [ ] T023 [US2] Implement CAP-ZPPO training loop in `code/loops/cap_zppo.py`. Updates student confidence using attention-weighted rule, records prompt length per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T021 and T026. Ordering: T021 -> T023.
 - [ ] T024 [US2] Implement metrics calculation for CAP in `code/analysis/metrics.py` (AUCC, final accuracy, average prompt length mid-training)
-- [ ] T025 [US2] Implement single-run simulation ENGINE for CAP in `code/main.py`. This task implements the internal function `run_cap_simulation(seed)` to execute a single CAP simulation cycle (to be called by the batch runner T031). It does NOT handle CLI argument parsing or batch orchestration; it strictly returns the convergence curve data structure.
+- [ ] T025 [US2] Implement single-run simulation ENGINE for CAP in `code/main.py`. This task implements the internal function `run_cap_simulation(seed)` to execute a single CAP simulation cycle (to be called by the batch runner T031). It does NOT handle CLI argument parsing or batch orchestration; it strictly returns the convergence curve data structure. MUST expose `run_cap_simulation` as an importable module function for T031.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,8 +129,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement paired t-test logic in `code/analysis/stats.py` (comparing AUCC distributions; MUST calculate and return the Standard Deviation of the AUCC distribution as per SC-002)
-- [ ] T030 [US3] Implement catastrophic forgetting check in `code/analysis/stats.py` (comparing final accuracy on held-out data)
+- [ ] T029 [P] [US3] Implement paired t-test logic in `code/analysis/stats.py` (comparing AUCC distributions; MUST calculate and return the Standard Deviation of the AUCC distribution as per SC-002) [FR-005]
+- [ ] T030 [US3] Implement catastrophic forgetting check in `code/analysis/stats.py` (comparing final accuracy on held-out data) [FR-006]
 - [ ] T031 [US3] Create batch runner script in `code/main.py`. Orchestrates 100 runs (10 tasks x 10 seeds) with distinct random seeds per FR-008. MUST call the internal `run_baseline_simulation` (T018) and `run_cap_simulation` (T025) engines directly in a loop to generate the statistical distribution. MUST select the 10 tasks deterministically (first 10 subjects alphabetically from MMLU, or random sample with seed=42 if order is non-deterministic). MUST generate output file `data/metrics/batch_results.csv` with columns [task_id, seed, aucc, final_accuracy, prompt_length_avg].
 - [ ] T032 [US3] Generate comparative report in `code/analysis/report.py` (p-values, AUCC difference, Standard Deviation of AUCC distribution, prompt length reduction, plots)
 - [ ] T033 [US3] Validate results against `contracts/aggregated_metrics.schema.yaml`. DEPENDS on T004c completion.
@@ -147,7 +146,7 @@
 - [ ] T034 [P] Implement `code/versioning.py` to checksum `data/` and update `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (Principle V). DEPENDS on T001 (Project Structure) and data generation completion.
 - [ ] T035b [P] Refactor `code/analysis/` to separate metric calculation from reporting logic, ensuring `metrics.py` contains no plotting code
 - [ ] T035c [P] Update `code/main.py` to modularize batch execution flow, reducing file length to < 200 lines
-- [ ] T036 Verify all data loaders fail loudly on missing real data (no synthetic fallbacks) per Principle III
+- [ ] T036 [P] Verify all data loaders for TRAINING data fail loudly on missing real data (no synthetic fallbacks) per Principle III. Note: Held-out test data loaders (T013) are exempt and may use synthetic fallback as per Spec Assumptions.
 - [ ] T037 [P] Additional unit tests for noise injection and seed reproducibility
 - [ ] T038 Run quickstart.md validation to ensure full pipeline execution
 
@@ -186,12 +185,12 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, EXCEPT T021 which depends on T009 and loop data, T004 which is missing, T008 which is missing, T026 which is missing)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, EXCEPT T021 which depends on T009 and loop data, T004 which is missing, T008 which is missing, T026 which is missing, T007 which depends on T004)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **NOTE**: T021 (CAP Classifier) CANNOT run in parallel with T016/T023 (Loops) as it requires the data they produce. T026 MUST precede T016/T023.
+- **NOTE**: T021 (CAP Classifier) CANNOT run in parallel with T016/T023 (Loops) as it requires the data they produce. T026 MUST precede T016/T023. T007 CANNOT run in parallel with T004a-d.
 
 ---
 
@@ -264,3 +263,4 @@ With multiple developers:
 - **Batch Execution**: T031 orchestrates the 100 runs (10 tasks x 10 seeds) by directly invoking the engines from T018/T025, ensuring the statistical distribution requirement is met without logical ordering violations.
 - **Output Schema**: T031 must generate `data/metrics/batch_results.csv` with columns [task_id, seed, aucc, final_accuracy, prompt_length_avg].
 - **Learning Dynamics**: T012/T015 use the formula `new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)`.
+- **Revision Concerns**: T018 and T025 were added to strictly separate single-run simulation engines from the batch orchestration logic in T031, ensuring modularity and testability of the core simulation loops before batch execution.

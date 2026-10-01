@@ -1,9 +1,3 @@
-T005c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `verify_dataset.py` script run, its output, or any log confirming\
-    \ that T005a and T005b logic succeeded and the hard\u2011gate condition was satisfied.\
-    \ The required artifact (execution result showing the gate passed) is missing."
 T013:
   c: false
   h: 69bc0c504e017aa1fd81fabf7cddb955f8a2d0ecfb6c83af8b9909fd43a830e8

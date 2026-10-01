@@ -1,70 +1,66 @@
 """
-Data schema definitions for the dataset entity.
-Defines the structure and validation rules for raw and processed data.
+Dataset Schema Definitions.
+
+Defines the structure for metadata regarding the source dataset
+used in the analysis (UCI Electricity Load Diagrams).
 """
+
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-from enum import Enum
-from pathlib import Path
-
-
-class DataSource(Enum):
-    """Enum for supported data sources."""
-    UCI_ELECTRICITY = "uci_electricity"
-    CUSTOM_CSV = "custom_csv"
+from typing import Optional, List
+from datetime import datetime
 
 
 @dataclass
-class DatasetSchema:
+class DatasetMetadata:
     """
-    Schema definition for the Electricity Load Diagrams dataset.
+    Schema for dataset source and processing metadata.
+    
+    Attributes:
+        name: Name of the dataset (e.g., 'Electricity Load Diagrams 2011-2014')
+        source_url: Original URL or location of the dataset
+        version: Version identifier of the dataset
+        download_date: ISO format timestamp of when the data was fetched
+        file_hash: SHA-256 hash of the downloaded file for verification
+        total_rows: Total number of records in the raw dataset
+        total_features: Number of features (columns) in the raw dataset
+        target_column: Name of the target variable (e.g., 'MWH')
+        feature_columns: List of feature column names
+        time_column: Name of the timestamp column
+        time_frequency: Frequency of the time series (e.g., '15min')
+        start_date: ISO format start date of the time series
+        end_date: ISO format end date of the time series
+        preprocessing_steps: List of applied preprocessing steps (e.g., 'median_imputation')
     """
-    source: DataSource
-    raw_path: Path
-    processed_path: Path
-    columns: List[str]
-    target_column: str = "load"
-    timestamp_column: str = "timestamp"
+    name: str
+    source_url: str
+    version: str = "1.0"
+    download_date: Optional[str] = None
+    file_hash: Optional[str] = None
+    total_rows: Optional[int] = None
+    total_features: Optional[int] = None
+    target_column: str = "MWH"
     feature_columns: List[str] = field(default_factory=list)
-    window_size_days: int = 30
-    min_r_squared: float = 0.8
-    missing_value_strategy: str = "median"
+    time_column: str = "timestamp"
+    time_frequency: str = "15min"
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    preprocessing_steps: List[str] = field(default_factory=lambda: ["median_imputation", "zero_variance_drop"])
 
-    def __post_init__(self):
-        """Validate schema constraints."""
-        if self.target_column not in self.columns:
-            raise ValueError(f"Target column '{self.target_column}' not in columns list")
-        if self.timestamp_column not in self.columns:
-            raise ValueError(f"Timestamp column '{self.timestamp_column}' not in columns list")
-        if self.window_size_days <= 0:
-            raise ValueError("Window size must be positive")
-        if not (0.0 <= self.min_r_squared <= 1.0):
-            raise ValueError("min_r_squared must be between 0 and 1")
-
-    def get_feature_list(self) -> List[str]:
-        """Return list of feature columns excluding target and timestamp."""
-        if self.feature_columns:
-            return self.feature_columns
-        exclude = {self.target_column, self.timestamp_column}
-        return [c for c in self.columns if c not in exclude]
-
-
-@dataclass
-class WindowMetadata:
-    """Metadata for a single time window."""
-    window_id: int
-    start_date: str
-    end_date: str
-    row_count: int
-    missing_count: int
-    dropped_zero_variance: List[str]
-    r_squared: Optional[float] = None
-    model_status: str = "pending"  # pending, success, failure
-
-@dataclass
-class ProcessedWindow:
-    """Container for a single processed window's data and metadata."""
-    metadata: WindowMetadata
-    features: Any  # np.ndarray
-    target: Any  # np.ndarray
-    feature_names: List[str]
+    def to_dict(self) -> dict:
+        """Convert the dataclass instance to a dictionary."""
+        return {
+            "name": self.name,
+            "source_url": self.source_url,
+            "version": self.version,
+            "download_date": self.download_date,
+            "file_hash": self.file_hash,
+            "total_rows": self.total_rows,
+            "total_features": self.total_features,
+            "target_column": self.target_column,
+            "feature_columns": self.feature_columns,
+            "time_column": self.time_column,
+            "time_frequency": self.time_frequency,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "preprocessing_steps": self.preprocessing_steps
+        }

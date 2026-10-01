@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/mit-places/Places365
   verified_at: '2026-07-13T12:57:03.659304Z'
-- artifact_hash: f362bbfb38ce2a9878903c0f4dc09fb8b6ef54396b7bd3b91f10672999a3c253
+- artifact_hash: 1c61ac26ef235fe259762371d87d71fd451be9a0024c93d173ab7d5fbae6f50f
   artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://arxiv.org/abs/2606.19195
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2606.19195
-  verified_at: '2026-10-01T05:04:36.914485Z'
+  verified_at: '2026-10-01T19:01:03.465516Z'

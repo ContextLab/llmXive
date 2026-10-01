@@ -15,9 +15,9 @@ This project implements a simulation to evaluate **Confidence-Adaptive Pruning (
 **Testing**: `pytest` with contract tests against YAML schemas and unit tests for CAP logic.  
 **Target Platform**: Linux server (GitHub Actions free-tier: CPU, ~7 GB RAM).  
 **Project Type**: Computational research simulation / CLI tool.  
-**Performance Goals**: Complete 100 simulation runs (10 tasks x 10 seeds) within 6 hours on CPU.  
+**Performance Goals**: Complete 100 simulation runs (Multiple tasks x Multiple seeds) within 6 hours on CPU.  
 **Constraints**: Must run on CPU-only; no GPU acceleration; synthetic data generation must be deterministic via seeds; must handle edge cases (empty prompts) gracefully.  
-**Scale/Scope**: A mix of LLM/VLM tasks, A sufficient number of buffer cycles per run, 100 total runs.
+**Scale/Scope**: A mix of LLM/VLM tasks, A sufficient number of buffer cycles per run, A series of multiple runs will be conducted to evaluate the research question using the specified method, following the approach outlined in the relevant literature (DOI/arXiv/author-year)..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
