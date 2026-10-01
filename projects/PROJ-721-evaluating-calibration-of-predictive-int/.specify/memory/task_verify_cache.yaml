@@ -71,3 +71,25 @@ T042:
   h: 8011732e91d7e630f598ce5c5be6ff7faa50e9aa92ea09c38211221abad1e231
   r: "The required artifact `results/interval_scores.csv` does not exist, so the task\u2019\
     s output file and its required columns/values are missing."
+T053:
+  c: false
+  h: 519c4889e4289853037904324095c3e82d7ea068a7e6ea398094aef97f7ccf71
+  r: The repository lacks a `results/sample_metadata.json` file entirely, and the
+    provided `code/download.py` does not contain any implementation that logs the
+    number of series selected, the sampling method, or the seed (it ends with an incomplete
+    function and placeholder code). Both required artifacts are missing or incomplete.
+T055:
+  c: false
+  h: c7dc55afe7037c233999fcf2626022f1093045f47a970765aa832b097ababdf4
+  r: The `code/recalibration.py` file contains no docstring or logging statement that
+    mentions the bootstrap test power limitation, and the expected `results/bootstrap_pvalues.json`
+    file is absent, so the required disclaimer is not present anywhere.
+T056:
+  c: false
+  h: 72b5d6dcb530e79e265a5ea964b3403cd13f361056c292822684ec48b85508d1
+  r: "The required `code/config.yaml` file is missing, so the grep verification cannot\
+    \ be performed, and there is no evidence that `plan.md` or `spec.md` have had\
+    \ their `[deferred]` placeholders resolved or marked as \u201CTBD\u201D. The existing\
+    \ `config.yaml` (outside `code/`) contains no \u201Cdeferred\u201D text, but the\
+    \ absence of the expected file and lack of checks on the markdown documents mean\
+    \ the task\u2019s requirement is not satisfied."

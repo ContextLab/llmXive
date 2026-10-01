@@ -1,0 +1,17 @@
+T015:
+  c: false
+  h: f487281a503d8b40074e5a246a04bad29aeb53bc44d73925e297f411efd28558
+  r: "The provided `code/main.py` is incomplete (truncated) and does not show a loop\
+    \ that batches `fetch_molecules()` into `CHUNK_SIZE` chunks nor writes the computed\
+    \ metrics to `data/processed/metrics.csv`. Moreover, the expected output file\
+    \ `data/processed/metrics.csv` is missing from the repository. The task\u2019\
+    s core requirement\u2014incremental CSV writing of the specified columns\u2014\
+    is therefore not fulfilled."
+T017:
+  c: false
+  h: c862d5e2fbfa63c49a26b624b1873128427a6922328f0a06751d8919070624b7
+  r: "The `code/report.py` file defines `generate_initial_report` but the module is\
+    \ truncated (ends with an incomplete `if _` line), making it syntactically invalid\
+    \ and non\u2011importable. Moreover, the function returns a path instead of `None`,\
+    \ deviating from the required signature, and the expected JSON file `data/processed/report.json`\
+    \ is not present. The implementation therefore does not meet the task requirements."

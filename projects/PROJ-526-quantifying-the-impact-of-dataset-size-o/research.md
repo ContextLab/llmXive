@@ -1,14 +1,37 @@
-# Research Data Sources
-# This file lists the specific HuggingFace dataset IDs for the target properties.
-# Format: property_name: dataset_id
-#
-# Note: Due to data availability constraints (amended spec), we target 2-3 properties.
-# Properties must have sufficient entries (>40k) for learning curve analysis.
+# Research: Data Sources for Material Properties
 
-# Electronic properties
-band_gap: materials_project/band_gap
-formation_energy: materials_project/formation_energy
+## Target Properties
 
-# Mechanical properties (if available)
-# bulk_modulus: materials_project/bulk_modulus
-# shear_modulus: materials_project/shear_modulus
+This document specifies the HuggingFace dataset IDs for the 2-3 target material properties to be analyzed.
+
+### Properties
+
+1. **Band Gap** (Electronic Property)
+ - Dataset ID: `materials_project/band_gap`
+ - Description: Band gap values from the Materials Project database
+ - Expected entries: ~100,000+ materials
+
+2. **Formation Energy** (Electronic/Thermodynamic Property)
+ - Dataset ID: `materials_project/formation_energy`
+ - Description: Formation energy per atom from the Materials Project database
+ - Expected entries: ~100,000+ materials
+
+### Notes
+
+- These datasets are chosen for their size and relevance to the study.
+- Both properties are available from the Materials Project on HuggingFace.
+- The datasets contain composition data which can be used to generate Magpie descriptors.
+- If additional properties are needed, they can be added following the same pattern.
+
+### Data Format
+
+Each dataset contains:
+- `formula`: Chemical formula
+- `elements`: List of elements
+- `composition`: Dictionary of element to fraction
+- `property_value`: The target property value (band gap or formation energy)
+- Additional metadata fields
+
+### Access
+
+All datasets are publicly available on HuggingFace. No special authentication is required beyond the standard HuggingFace token for rate limit management.

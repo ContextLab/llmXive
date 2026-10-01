@@ -59,7 +59,7 @@
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 Create `data/` directory structure (`raw/`, `processed/`) and `state/` for checksums
 - [X] T005 [P] Implement data integrity utilities: `sha256` checksumming and logging in `code/utils/integrity.py`
-- [ ] T006 [P] Setup environment configuration management for API keys and paths in `code/config.py`
+- [X] T006 [P] Setup environment configuration management for API keys and paths in `code/config.py`
 - [X] T007 Create base data models (MaterialEntry, LearningCurve, ScalingResult) in `code/models.py`
 - [X] T008 Configure deterministic seed setting for `numpy` and `random` in `code/utils/seed.py`
 - [X] T035 [P] **Constitution Override Task**: Create a formal amendment record in `state/amendments.md` AND `state/constitution_override.md` documenting the deviation from Constitution Principle VII (reduced subsets/seeds) and the data availability constraint (properties -> N=2-3). This amendment is a prerequisite for T019, T020, T027.
@@ -108,20 +108,20 @@
 - [X] T037.0 [US1] **Research Generation**: Generate `research.md` in the project root if it does not exist, OR verify its existence. This file MUST list the specific HuggingFace dataset IDs or API endpoints for the A few target properties (e.g., `materials_project/band_gap`, `materials_project/formation_energy`). This file is a prerequisite for T011.
  - **Output**: `research.md` with explicit dataset IDs.
  - **Action**: If the file exists, verify it contains the required dataset IDs. If not, create it.
-- [ ] T011 [US1] Implement `code/download_data.py` to fetch materials data from HuggingFace (Materials Project/AFLOW) using the list defined in `research.md`. Implement exponential backoff for rate limits.
+- [X] T011 [US1] Implement `code/download_data.py` to fetch materials data from HuggingFace (Materials Project/AFLOW) using the list defined in `research.md`. Implement exponential backoff for rate limits.
  - **Dependency**: Must read dataset IDs from `research.md`.
  - **Logic**: Iterate explicitly over the list in `research.md` to fetch each property.
-- [ ] T012 [US1] Implement `code/generate_descriptors.py` to compute Magpie composition-only descriptors for all entries.
+- [X] T012 [US1] Implement `code/generate_descriptors.py` to compute Magpie composition-only descriptors for all entries.
  - **Logic**: Iterate over every entry in the fetched data from T011 to ensure full processing of the target set.
 - [X] T013 [US1] Implement data consolidation logic to merge properties into a single `data/processed/materials_master.parquet` file (with CSV fallback if memory permits)
-- [ ] T014 [US1] Implement chunked loading in `code/download_data.py` using batch processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB during full dataset load
+- [X] T014 [US1] Implement chunked loading in `code/download_data.py` using batch processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB during full dataset load
 - [X] T015 [US1] Add logging for download progress and descriptor generation stats
 - [X] T016 [US1] Implement validation logic to count distinct properties. **IF count < 2, log a critical status update and update `state/properties_status.json`, but DO NOT raise an error.**
  - **Logic**: Read the target minimum count from `state/amendments.md` (default 2) or the amended `spec.md`.
  - **Action**: Log the "N=2-3" status and update `state/properties_status.json`.
  - **Constraint**: The amended spec (FR-001 Correction) adjusted the hard halt to a log-only status. The pipeline must proceed even if N < 15, provided N >= 2.
-- [ ] T037 [US1] **Data Source Verification**: Update `code/download_data.py` to explicitly list the specific HuggingFace dataset IDs or API endpoints for the 2-3 target properties as identified in `research.md`. Replace any generic "fetch all" logic with a targeted fetch loop that iterates only over this verified list to prevent accidental inclusion of incomplete datasets. <!-- FAILED: unspecified -->
-- [ ] T038 [US1] **Stream Implementation**: Refactor `code/download_data.py` to use `datasets.load_dataset(..., streaming=True)` for large properties. Ensure the code accumulates statistics (count, mean, variance) in an online fashion without loading the full dataset into RAM, satisfying NFR-001 (<7GB RAM) for properties >40k entries.
+- [X] T037 [US1] **Data Source Verification**: Update `code/download_data.py` to explicitly list the specific HuggingFace dataset IDs or API endpoints for the 2-3 target properties as identified in `research.md`. Replace any generic "fetch all" logic with a targeted fetch loop that iterates only over this verified list to prevent accidental inclusion of incomplete datasets. <!-- FAILED: unspecified -->
+- [X] T038 [US1] **Stream Implementation**: Refactor `code/download_data.py` to use `datasets.load_dataset(..., streaming=True)` for large properties. Ensure the code accumulates statistics (count, mean, variance) in an online fashion without loading the full dataset into RAM, satisfying NFR-001 (<7GB RAM) for properties >40k entries.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -140,12 +140,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/train_learning_curves.py` to generate **5 training subsets** (sizes: `[1000, 5000, 10000, 20000, 40000]`) per property, training with **1 random seed** per subset using fixed hyperparameters. **Note**: This implementation relies on the amendment ratified in T035 to deviate from the Constitution's 10-subset/3-seed requirement. <!-- FAILED: unspecified -->
-- [ ] T020 [US2] Implement `code/fit_scaling_laws.py` to fit $Error = a \cdot N^{-b}$ and classify properties as "non-power-law" if $R^2 < 0.9$. Output `data/processed/scaling_results.csv` with columns: `property_name`, `exponent_b`, `intercept_a`, `r_squared`, `fit_status`. <!-- FAILED: unspecified -->
+- [X] T019 [US2] Implement `code/train_learning_curves.py` to generate **5 training subsets** (sizes: `[1000, 5000, 10000, 20000, 40000]`) per property, training with **1 random seed** per subset using fixed hyperparameters. **Note**: This implementation relies on the amendment ratified in T035 to deviate from the Constitution's 10-subset/3-seed requirement. <!-- FAILED: unspecified -->
+- [X] T020 [US2] Implement `code/fit_scaling_laws.py` to fit $Error = a \cdot N^{-b}$ and classify properties as "non-power-law" if $R^2 < 0.9$. Output `data/processed/scaling_results.csv` with columns: `property_name`, `exponent_b`, `intercept_a`, `r_squared`, `fit_status`. <!-- FAILED: unspecified -->
 - [X] T021 [US2] Implement aggregation logic to produce `data/processed/scaling_results.csv` with exponents and flags
 - [X] T022 [US2] Add error handling for properties with insufficient data points (< 1,000 samples)
-- [ ] T039 [US2] **Subset Size Validation**: Add a pre-check in `code/train_learning_curves.py` to verify that the available dataset for a given property has at least 40,000 entries (the largest subset size). If a property has fewer than 40,000 entries, log a warning, skip that property for the full curve, and record the maximum available subset size in `state/properties_status.json` to ensure FR-003 is met only where data permits.
-- [ ] T040 [US2] **Deterministic Subsampling**: Implement a strict stratified or random subsampling strategy in `code/train_learning_curves.py` that ensures the 5 subset sizes are nested (i.e., the 1000-sample set is a subset of the 5000-sample set) to reduce variance in the learning curve, using a fixed seed derived from the property name. <!-- FAILED: unspecified -->
+- [X] T039 [US2] **Subset Size Validation**: Add a pre-check in `code/train_learning_curves.py` to verify that the available dataset for a given property has at least 40,000 entries (the largest subset size). If a property has fewer than 40,000 entries, log a warning, skip that property for the full curve, and record the maximum available subset size in `state/properties_status.json` to ensure FR-003 is met only where data permits.
+- [X] T040 [US2] **Deterministic Subsampling**: Implement a strict stratified or random subsampling strategy in `code/train_learning_curves.py` that ensures the 5 subset sizes are nested (i.e., the 1000-sample set is a subset of the 5000-sample set) to reduce variance in the learning curve, using a fixed seed derived from the property name. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

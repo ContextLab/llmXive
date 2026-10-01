@@ -1726,167 +1726,6 @@
   status: not_enough_info
   updated_at: '2026-07-12T19:55:19Z'
 - artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 3
-  canonical: rdkit version 2023.9.1
-  claim_id: c_2e16acbd
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: rdkit==2023.9.1
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:47Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 3
-  canonical: pandas version 2.1.0
-  claim_id: c_050f1421
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: pandas==2.1.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:47Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 3
-  canonical: numpy version 1.24.0
-  claim_id: c_a8886ff2
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: numpy==1.24.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:47Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 3
-  canonical: scipy version 1.11.0
-  claim_id: c_6017bdbd
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: scipy==1.11.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:48Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: scikit-learn version 1.3.0
-  claim_id: c_6e828e9d
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: scikit-learn==1.3.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:48Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: matplotlib version 3.8.0
-  claim_id: c_dcd1c697
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: matplotlib==3.8.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:48Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: seaborn version 0.13.0
-  claim_id: c_816127a2
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: seaborn==0.13.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:49Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: requests version 2.31.0
-  claim_id: c_547ab086
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
-    requests==2.31.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: requests==2.31.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:49Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: huggingface_hub version 0.17.0
-  claim_id: c_b8974a31
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
-    requests==2.31.0, huggingface_hub==0.17.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: huggingface_hub==0.17.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:50Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
-  attempts: 2
-  canonical: datasets version 2.14.0
-  claim_id: c_9cfade3e
-  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
-    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
-    requests==2.31.0, huggingface_hub==0.17.0, datasets==2.14.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: datasets==2.14.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:56:50Z'
-- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
   attempts: 1
   canonical: Dataset ID is sagawa/pubchem-10m-canonicalized
   claim_id: c_219e4605
@@ -2108,3 +1947,894 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T20:09:43Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 0
+  canonical: Memory limit threshold is 4GB
+  claim_id: c_0ec46575
+  context: 'If df.memory_usage(deep=True) > 4GB: Bin atom_count into 10 quantiles...'
+  evidence:
+    entailment_evidence: Memory limit threshold for subsampling is 4GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_threshold_for_subsampling_is_4GB
+  kind: entity_fact
+  raw_text: The memory limit threshold for subsampling is 4GB.
+  resolved_value: Memory limit threshold for subsampling is 4GB
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T03:41:11Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: sagawa/pubchem-10m-canonicalized is a random sample of PubChem
+  claim_id: c_1b261786
+  context: This configuration supports the analysis of molecular complexity vs. chemical
+    properties on a representative random sample of PubChem.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sagawa/pubchem-10m-canonicalized_is_a_random_sample_of_PubCh
+  kind: entity_fact
+  raw_text: The dataset 'sagawa/pubchem-10m-canonicalized' is a random sample of PubChem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:07Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Analysis uses sagawa/pubchem-10m-canonicalized instead of CID 1-5000
+  claim_id: c_6c9eb8be
+  context: Tasks T005 and T014 implement the Plan's override of the Spec's CID 1-5000
+    requirement, using the HuggingFace dataset 'sagawa/pubchem-10m-canonicalized'
+    instead.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses the HuggingFace dataset 'sagawa/pubchem-10m-canonicalized'
+    instead of the Spec's CID 1-5000 requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:12Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 4
+  canonical: rdkit version 2023.9.1
+  claim_id: c_2e16acbd
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: rdkit==2023.9.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:19Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 4
+  canonical: pandas version 2.1.0
+  claim_id: c_050f1421
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:28Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 4
+  canonical: numpy version 1.24.0
+  claim_id: c_a8886ff2
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:36Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 4
+  canonical: scipy version 1.11.0
+  claim_id: c_6017bdbd
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:45Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_6e828e9d
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:43:53Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: matplotlib version 3.8.0
+  claim_id: c_dcd1c697
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:44:01Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: seaborn version 0.13.0
+  claim_id: c_816127a2
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:44:06Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: requests version 2.31.0
+  claim_id: c_547ab086
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
+    requests==2.31.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:47:03Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: huggingface_hub version 0.17.0
+  claim_id: c_b8974a31
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
+    requests==2.31.0, huggingface_hub==0.17.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: huggingface_hub==0.17.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:47:25Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 3
+  canonical: datasets version 2.14.0
+  claim_id: c_9cfade3e
+  context: 'Create code/requirements.txt with pinned versions: rdkit==2023.9.1, pandas==2.1.0,
+    numpy==1.24.0, scipy==1.11.0, scikit-learn==1.3.0, matplotlib==3.8.0, seaborn==0.13.0,
+    requests==2.31.0, huggingface_hub==0.17.0, datasets==2.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:47:51Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: SEED is 42
+  claim_id: c_1aff5f96
+  context: 'Define {''SEED'': 42, ''DATASET_ID'': ''sagawa/pubchem-10m-canonicalized'',
+    ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'': 60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'':
+    ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets SEED to 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:49:50Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: CHUNK_SIZE is 500
+  claim_id: c_8aede47a
+  context: 'Define {''SEED'': 42, ''DATASET_ID'': ''sagawa/pubchem-10m-canonicalized'',
+    ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'': 60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'':
+    ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets CHUNK_SIZE to 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:50:57Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: TIMEOUT_SECONDS is 60
+  claim_id: c_fbd894ec
+  context: 'Define {''SEED'': 42, ''DATASET_ID'': ''sagawa/pubchem-10m-canonicalized'',
+    ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'': 60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'':
+    ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets TIMEOUT_SECONDS to 60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:07Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: MAX_RETRIES is 3
+  claim_id: c_b62fe97c
+  context: 'Define {''SEED'': 42, ''DATASET_ID'': ''sagawa/pubchem-10m-canonicalized'',
+    ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'': 60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'':
+    ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets MAX_RETRIES to 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:15Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: DATASET_ID is sagawa/pubchem-10m-canonicalized
+  claim_id: c_155b4582
+  context: 'Define {''SEED'': 42, ''DATASET_ID'': ''sagawa/pubchem-10m-canonicalized'',
+    ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'': 60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'':
+    ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset ID is 'sagawa/pubchem-10m-canonicalized'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:19Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations by default
+  claim_id: c_13174666
+  context: 'Implement code/analysis.py function calculate_bootstrap_stats(df: pd.DataFrame,
+    metric_x: str, metric_y: str, n_iter: int=1000) -> dict...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling function uses 1000 iterations by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:28Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Stratified subsample uses n=5000 rows
+  claim_id: c_22f7d2db
+  context: Use sklearn.model_selection.StratifiedShuffleSplit with n_splits=1, train_size
+    calculated to result in exactly n=5000 rows.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified subsample for bootstrap stability uses n=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:37Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Atom count binned into 10 quantiles
+  claim_id: c_d3c4f394
+  context: 'If > 4GB: Bin atom_count into 10 quantiles. Use sklearn.model_selection.StratifiedShuffleSplit...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The atom count is binned into 10 quantiles for subsampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:51:47Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Runtime target is 45 minutes
+  claim_id: c_f8e19bc0
+  context: "Verify time python code/main.py output \u2264 45 minutes (SC-005)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_is_45_minutes
+  kind: entity_fact
+  raw_text: The performance optimization target is a runtime of 45 minutes or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:52:43Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: 'Invalid SMILES test: 1 skipped, 2 valid'
+  claim_id: c_8980db19
+  context: 'Add tests/integration/test_error_handling.py::test_invalid_smiles_skipped
+    with assertion: Input list [''CCO'', ''INVALID_SMILES_STRING'', ''CC''], assert
+    skipped_count == 1 and valid_count == 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test case for invalid SMILES handling expects 1 skipped and 2 valid
+    molecules for the input list ['CCO', 'INVALID_SMILES_STRING', 'CC'].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:52:46Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction: 0.01 becomes 0.04 with 4 tests'
+  claim_id: c_d4435c22
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction test expects an adjusted p-value of 0.04 for
+    an input p-value of 0.01 with 4 tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:52:56Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction: 0.06 becomes 1.0 with 4 tests'
+  claim_id: c_219348fb
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction test expects an adjusted p-value of 1.0 for
+    an input p-value of 0.06 with 4 tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:53:04Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: SA score range for CCO is 0.0 to 10.0
+  claim_id: c_2adc615c
+  context: 'Add tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range with
+    assertion: Input smiles=''CCO'', assert 0.0 <= sa_score <= 10.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SA score range for the test molecule CCO is expected to be between
+    0.0 and 10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:53:11Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: QED score range for CCO is 0.0 to 1.0
+  claim_id: c_ca40a6b3
+  context: 'Add tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range with
+    assertion: Input smiles=''CCO'', assert ... and 0.0 <= qed_score <= 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The QED score range for the test molecule CCO is expected to be between
+    0.0 and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:53:15Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Bootstrap test uses 100 iterations
+  claim_id: c_f7620cee
+  context: Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and
+    0 < mean(results) < 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling test uses 100 iterations for the input data [1,
+    2, 3, 4, 5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:53:24Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Plot generation test uses 10 rows
+  claim_id: c_5e49188f
+  context: Input df with 10 rows, x='entropy', y='sa', assert fig is not None and
+    fig.axes length >= 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for plot generation uses a DataFrame with 10 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:53:32Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Plot generation test uses x=entropy, y=sa
+  claim_id: c_c9763c54
+  context: Input df with 10 rows, x='entropy', y='sa', assert fig is not None and
+    fig.axes length >= 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_generation_test_uses_x=entropy,_y=sa
+  kind: entity_fact
+  raw_text: The test for plot generation uses x='entropy' and y='sa'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T03:54:27Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Invalid SMILES test uses list CCO, INVALID_SMILES_STRING, CC
+  claim_id: c_7470afff
+  context: 'Add tests/integration/test_error_handling.py::test_invalid_smiles_skipped
+    with assertion: Input list [''CCO'', ''INVALID_SMILES_STRING'', ''CC''], assert
+    skipped_count == 1 and valid_count == 2.'
+  evidence:
+    entailment_evidence: Invalid SMILES test uses list CCO, INVALID SMILES STRING,
+      CC
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Invalid_SMILES_test_uses_list_CCO,_INVALID_SMILES_STRING,_CC
+  kind: entity_fact
+  raw_text: The test for invalid SMILES handling uses the input list ['CCO', 'INVALID_SMILES_STRING',
+    'CC'].
+  resolved_value: Invalid SMILES test uses list CCO, INVALID_SMILES_STRING, CC
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T03:55:04Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Plot test uses x=entropy, y=sa
+  claim_id: c_1b500acf
+  context: Input df with 10 rows, x='entropy', y='sa', assert fig is not None and
+    fig.axes length >= 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_test_uses_x=entropy,_y=sa
+  kind: entity_fact
+  raw_text: The test for plot generation uses x='entropy' and y='sa'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:37Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Shannon entropy test uses SMILES CCO
+  claim_id: c_944f6e19
+  context: 'Add tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float
+    with assertion: Input smiles=''CCO'', assert result > 0 and isinstance(result,
+    float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_test_uses_SMILES_CCO
+  kind: entity_fact
+  raw_text: The test for Shannon entropy uses the SMILES string 'CCO'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:39Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: LZMA length test uses SMILES CCO
+  claim_id: c_3020435e
+  context: 'Add tests/unit/test_metrics.py::test_lzma_length_returns_integer with
+    assertion: Input smiles=''CCO'', assert isinstance(result, int) and result > 0.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LZMA_length_test_uses_SMILES_CCO
+  kind: entity_fact
+  raw_text: The test for LZMA length uses the SMILES string 'CCO'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:41Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: SA and QED test uses SMILES CCO
+  claim_id: c_139dbc8b
+  context: 'Add tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range with
+    assertion: Input smiles=''CCO'', assert 0.0 <= sa_score <= 10.0 and 0.0 <= qed_score
+    <= 1.0.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SA_and_QED_test_uses_SMILES_CCO
+  kind: entity_fact
+  raw_text: The test for SA and QED scores uses the SMILES string 'CCO'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:45Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Invalid SMILES test expects skipped_count 1
+  claim_id: c_af3fea70
+  context: 'Add tests/integration/test_error_handling.py::test_invalid_smiles_skipped
+    with assertion: Input list [''CCO'', ''INVALID_SMILES_STRING'', ''CC''], assert
+    skipped_count == 1 and valid_count == 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for invalid SMILES handling expects skipped_count to be 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:45Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Invalid SMILES test expects valid_count 2
+  claim_id: c_6b6698b1
+  context: 'Add tests/integration/test_error_handling.py::test_invalid_smiles_skipped
+    with assertion: Input list [''CCO'', ''INVALID_SMILES_STRING'', ''CC''], assert
+    skipped_count == 1 and valid_count == 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for invalid SMILES handling expects valid_count to be 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:46Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction test uses 4 tests
+  claim_id: c_40d46b2e
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for Bonferroni correction uses 4 tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:46Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction test uses p-values 0.01, 0.04, 0.05, 0.06
+  claim_id: c_9330b6c2
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for Bonferroni correction uses input p-values [0.01, 0.04, 0.05,
+    0.06].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:47Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bootstrap test uses data 1, 2, 3, 4, 5
+  claim_id: c_1fb6fc5d
+  context: Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and
+    0 < mean(results) < 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for bootstrap resampling uses input data [1, 2, 3, 4, 5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:47Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bootstrap test expects mean between 0 and 6
+  claim_id: c_3af5f288
+  context: Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and
+    0 < mean(results) < 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for bootstrap resampling expects the mean of results to be between
+    0 and 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:48Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Plot test expects axes length >= 1
+  claim_id: c_158bd61b
+  context: Input df with 10 rows, x='entropy', y='sa', assert fig is not None and
+    fig.axes length >= 1.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plot_test_expects_axes_length_%3E=_1
+  kind: magnitude
+  raw_text: The test for plot generation expects the figure axes length to be at least
+    1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:48Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Shannon entropy test expects float result
+  claim_id: c_1974034e
+  context: 'Add tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float
+    with assertion: Input smiles=''CCO'', assert result > 0 and isinstance(result,
+    float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_test_expects_float_result
+  kind: entity_fact
+  raw_text: The test for Shannon entropy expects the result to be a float.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:50Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Shannon entropy test expects result > 0
+  claim_id: c_9657b19e
+  context: 'Add tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float
+    with assertion: Input smiles=''CCO'', assert result > 0 and isinstance(result,
+    float).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_test_expects_result_%3E_0
+  kind: magnitude
+  raw_text: The test for Shannon entropy expects the result to be greater than 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:51Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: LZMA length test expects integer result
+  claim_id: c_45ba161a
+  context: 'Add tests/unit/test_metrics.py::test_lzma_length_returns_integer with
+    assertion: Input smiles=''CCO'', assert isinstance(result, int) and result > 0.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LZMA_length_test_expects_integer_result
+  kind: entity_fact
+  raw_text: The test for LZMA length expects the result to be an integer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:53Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: LZMA length test expects result > 0
+  claim_id: c_a57bcb2e
+  context: 'Add tests/unit/test_metrics.py::test_lzma_length_returns_integer with
+    assertion: Input smiles=''CCO'', assert isinstance(result, int) and result > 0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LZMA_length_test_expects_result_%3E_0
+  kind: magnitude
+  raw_text: The test for LZMA length expects the result to be greater than 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:54Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: SA score test expects result between 0.0 and 10.0
+  claim_id: c_c84552c3
+  context: 'Add tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range with
+    assertion: Input smiles=''CCO'', assert 0.0 <= sa_score <= 10.0 and 0.0 <= qed_score
+    <= 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for SA score expects the result to be between 0.0 and 10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:54Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: QED score test expects result between 0.0 and 1.0
+  claim_id: c_a62d40c5
+  context: 'Add tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range with
+    assertion: Input smiles=''CCO'', assert 0.0 <= sa_score <= 10.0 and 0.0 <= qed_score
+    <= 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for QED score expects the result to be between 0.0 and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:55Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction expects adjusted p-value 0.04 for input 0.01
+  claim_id: c_adbb728c
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for Bonferroni correction expects the adjusted p-value for the
+    first input (0.01) to be 0.04.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:55Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction expects adjusted p-value 1.0 for input 0.06
+  claim_id: c_8a57897f
+  context: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for Bonferroni correction expects the adjusted p-value for the
+    last input (0.06) to be 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:56Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Bootstrap test expects results length 100
+  claim_id: c_d0dd3f8b
+  context: Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and
+    0 < mean(results) < 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test for bootstrap resampling expects the length of results to be
+    100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:56Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 2
+  canonical: Plot test expects figure not None
+  claim_id: c_a3a3f459
+  context: Input df with 10 rows, x='entropy', y='sa', assert fig is not None and
+    fig.axes length >= 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_test_expects_figure_not_None
+  kind: entity_fact
+  raw_text: The test for plot generation expects the figure to be not None.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T04:04:59Z'

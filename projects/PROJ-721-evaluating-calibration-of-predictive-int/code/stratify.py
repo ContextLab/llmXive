@@ -47,6 +47,8 @@ def stl_decompose_train_only(
         ValueError: If the series is too short for the specified period.
         RuntimeError: If STL decomposition fails to converge.
     """
+    # Enforce minimum length for STL decomposition
+    # STL requires at least 2 periods to estimate seasonality and trend
     if len(series) < 2 * seasonal_period:
         raise ValueError(
             f"Series length ({len(series)}) is too short for "
@@ -90,7 +92,8 @@ def calculate_trend_strength(
     A series is considered to have "high" trend strength if this ratio is > 0.5.
 
     This function operates ONLY on the provided series, ensuring no leakage
-    from future data points.
+    from future data points. It handles short series gracefully by returning
+    a default value instead of crashing.
 
     Args:
         series: The input time series.
@@ -99,10 +102,24 @@ def calculate_trend_strength(
 
     Returns:
         float: The trend strength value between 0 and 1.
-               Returns 0.0 if calculation fails or series is too short.
+               Returns 0.0 (indicating 'low' trend) if series is too short
+               or calculation fails.
     """
+    # Check if series is too short for STL decomposition
+    # STL requires at least 2 periods to function
+    if len(series) < 2 * seasonal_period:
+        logger.warning(
+            f"Series length ({len(series)}) is too short for STL decomposition "
+            f"(requires at least {2 * seasonal_period} for seasonal period {seasonal_period}). "
+            f"Assigning default 'low' trend strength (0.0)."
+        )
+        return 0.0
+
     if len(series) < min_series_length:
-        logger.warning(f"Series length ({len(series)}) is below minimum ({min_series_length}). Returning 0.0 trend strength.")
+        logger.warning(
+            f"Series length ({len(series)}) is below absolute minimum ({min_series_length}). "
+            f"Returning 0.0 trend strength."
+        )
         return 0.0
 
     try:
@@ -126,6 +143,14 @@ def calculate_trend_strength(
         # Clamp to [0, 1] range to handle numerical errors
         return float(np.clip(trend_strength, 0.0, 1.0))
 
+    except ValueError as e:
+        # This catches the "too short" error from stl_decompose_train_only
+        # and logs it as a warning, returning 0.0
+        logger.warning(
+            f"Series too short for trend strength calculation: {e}. "
+            f"Assigning default 'low' trend strength (0.0)."
+        )
+        return 0.0
     except Exception as e:
         logger.warning(f"Failed to calculate trend strength: {e}. Returning 0.0.")
         return 0.0
@@ -139,6 +164,9 @@ def classify_trend_strength(
     """
     Classify a time series as having 'high' or 'low' trend strength.
 
+    This function handles short series gracefully by returning 'low'
+    for series that are too short for STL decomposition.
+
     Args:
         series: The input time series.
         seasonal_period: The period of seasonality.
@@ -146,6 +174,7 @@ def classify_trend_strength(
 
     Returns:
         str: 'high' if trend strength > threshold, 'low' otherwise.
+             Returns 'low' for series that are too short.
     """
     strength = calculate_trend_strength(series, seasonal_period)
     return "high" if strength > threshold else "low"
@@ -160,6 +189,8 @@ def extract_seasonality_flags(
     Determine if a time series exhibits significant seasonality.
 
     This uses the ratio of seasonal variance to total variance.
+    Handles short series gracefully by returning 'no' for series
+    that are too short for STL decomposition.
 
     Args:
         series: The input time series.
@@ -168,8 +199,14 @@ def extract_seasonality_flags(
 
     Returns:
         str: 'yes' if seasonality is significant, 'no' otherwise.
+             Returns 'no' for series that are too short.
     """
+    # STL requires at least 2 periods
     if len(series) < 2 * seasonal_period:
+        logger.warning(
+            f"Series length ({len(series)}) is too short for seasonality detection "
+            f"(requires at least {2 * seasonal_period}). Returning 'no'."
+        )
         return "no"
 
     try:
@@ -184,6 +221,12 @@ def extract_seasonality_flags(
         ratio = var_seasonal / var_total
         return "yes" if ratio > threshold else "no"
 
+    except ValueError as e:
+        # Catch series too short errors
+        logger.warning(
+            f"Series too short for seasonality detection: {e}. Returning 'no'."
+        )
+        return "no"
     except Exception as e:
         logger.warning(f"Failed to extract seasonality flags: {e}. Returning 'no'.")
         return "no"

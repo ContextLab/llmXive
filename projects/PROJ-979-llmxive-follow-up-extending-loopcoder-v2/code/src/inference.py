@@ -4,255 +4,309 @@ import json
 import logging
 import tempfile
 import shutil
-import time
+import csv
 import hashlib
-import pandas as pd
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
-import torch
 import random
+import time
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, field
+from enum import Enum
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+import torch
 import numpy as np
 
-from src.config import get_config_value
-from src.utils import set_global_seed
+# Import local modules
+from src.config import load_config, get_config_value, ensure_config_file
+from src.utils import set_global_seed, calculate_flops
 from src.models import InputProblem, ConvergenceTrajectory, ConvergenceStatus
+from src.data_loader import load_filtered_splits
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @dataclass
 class SandboxResult:
-    task_id: str
-    k: int
-    output: str
     is_correct: bool
+    output: str
     execution_time: float
-    error_msg: Optional[str] = None
+    error_message: Optional[str] = None
 
-def load_model(model_path: str):
-    """Load model and tokenizer."""
-    logger.info(f"Loading model from {model_path}")
+def load_model(config: Dict[str, Any]) -> Tuple[Any, Any]:
+    """Load the model and tokenizer."""
+    model_path = get_config_value("MODEL_PATH", config)
+    device = get_config_value("DEVICE", config, default="cpu")
+    
+    logger.info(f"Loading model from {model_path} on {device}")
+    
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        if not hasattr(tokenizer, 'pad_token') or tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-        
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info(f"Using device: {device}")
-        
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
         model = AutoModelForCausalLM.from_pretrained(
             model_path,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto" if device == "cuda" else None,
-            trust_remote_code=True
+            device_map=device if device != "cpu" else None
         )
         if device == "cpu":
-            model = model.to(device)
+            model = model.to("cpu")
         
-        return model, tokenizer, device
+        # Ensure tokenizer has a pad token
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        
+        logger.info("Model loaded successfully")
+        return model, tokenizer
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
-def generate_solution(model, tokenizer, prompt: str, k: int, temperature: float = 0.7, top_p: float = 0.95) -> str:
-    """Generate a single solution for a given prompt."""
+def generate_solution(
+    prompt: str, 
+    model: Any, 
+    tokenizer: Any, 
+    k: int, 
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    max_new_tokens: int = 512
+) -> List[str]:
+    """Generate k solutions for a given prompt."""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=512,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=True,
-            pad_token_id=tokenizer.pad_token_id,
-            eos_token_id=tokenizer.eos_token_id
-        )
-    generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    # Extract code block if present
-    if "```python" in generated:
-        start = generated.find("```python") + len("```python")
-        end = generated.find("```", start)
-        if end != -1:
-            return generated[start:end].strip()
-    elif "```" in generated:
-        start = generated.find("```") + 3
-        end = generated.find("```", start)
-        if end != -1:
-            return generated[start:end].strip()
-    return generated.strip()
+    
+    # Set generation parameters
+    generation_config = GenerationConfig(
+        temperature=temperature,
+        top_p=top_p,
+        do_sample=True,
+        max_new_tokens=max_new_tokens,
+        pad_token_id=tokenizer.pad_token_id,
+        eos_token_id=tokenizer.eos_token_id
+    )
+    
+    # Generate multiple samples
+    generated_ids_list = model.generate(
+        **inputs,
+        generation_config=generation_config,
+        num_return_sequences=k,
+        return_dict_in_generate=True,
+        output_scores=False
+    )
+    
+    # Decode the generated tokens
+    outputs = []
+    for i in range(k):
+        # Extract the generated tokens for this sequence
+        generated_ids = generated_ids_list.sequences[i]
+        # Remove input tokens
+        generated_ids = generated_ids[inputs['input_ids'].shape[1]:]
+        decoded = tokenizer.decode(generated_ids, skip_special_tokens=True)
+        outputs.append(decoded)
+    
+    return outputs
 
-def execute_code_in_sandbox(code: str, test_case: Dict[str, Any]) -> Tuple[bool, Optional[str], float]:
-    """Execute code in a simple sandbox and check against test case."""
+def execute_code_in_sandbox(code: str, test_cases: List[Dict[str, Any]]) -> SandboxResult:
+    """Execute code in a sandbox and validate against test cases."""
     start_time = time.time()
+    
     try:
         # Create a temporary directory for execution
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Write code to file
             code_file = os.path.join(tmpdir, "solution.py")
             with open(code_file, "w") as f:
                 f.write(code)
             
-            # Prepare execution command
-            # Note: This is a simplified sandbox. In production, use Docker.
+            # Execute the code
             exec_globals = {}
-            exec(code, exec_globals)
+            exec_locals = {}
+            exec(compile(open(code_file).read(), code_file, 'exec'), exec_globals, exec_locals)
             
-            # Run test case
-            func_name = test_case.get("func_name")
-            if func_name and func_name in exec_globals:
-                func = exec_globals[func_name]
-                inputs = test_case.get("inputs", [])
-                expected = test_case.get("expected")
-                
-                for inp in inputs:
-                    result = func(*inp)
-                    if result != expected:
-                        return False, f"Output mismatch: got {result}, expected {expected}", time.time() - start_time
-                return True, None, time.time() - start_time
-            else:
-                return False, f"Function {func_name} not found", time.time() - start_time
-    except Exception as e:
-        return False, str(e), time.time() - start_time
-
-def load_input_problem(problem_path: str) -> List[InputProblem]:
-    """Load input problems from JSON file."""
-    with open(problem_path, "r") as f:
-        data = json.load(f)
+            # Validate against test cases
+            is_correct = True
+            for test_case in test_cases:
+                try:
+                    input_args = test_case.get("input", {})
+                    expected_output = test_case.get("expected_output")
+                    func_name = test_case.get("function_name", "solution")
+                    
+                    if func_name in exec_locals:
+                        result = exec_locals[func_name](**input_args)
+                        if result != expected_output:
+                            is_correct = False
+                            break
+                    else:
+                        is_correct = False
+                        break
+                except Exception:
+                    is_correct = False
+                    break
     
-    problems = []
-    for item in data:
-        problems.append(InputProblem(
-            task_id=item["task_id"],
-            prompt=item["prompt"],
-            test_cases=item.get("test_cases", [])
-        ))
-    return problems
+    except Exception as e:
+        return SandboxResult(
+            is_correct=False,
+            output="",
+            execution_time=0,
+            error_message=str(e)
+        )
+    
+    execution_time = time.time() - start_time
+    return SandboxResult(
+        is_correct=is_correct,
+        output=code,
+        execution_time=execution_time
+    )
 
-def detect_convergence(results: List[SandboxResult]) -> Tuple[Optional[int], bool]:
-    """
-    Detect convergence: find the smallest k where is_correct is True.
-    Returns (first_correct_step, censored).
-    censored is True if no correct answer by k=3 (or max k).
-    """
-    first_correct = None
-    for res in sorted(results, key=lambda x: x.k):
-        if res.is_correct:
-            first_correct = res.k
+def load_input_problem(problem_data: Dict[str, Any]) -> InputProblem:
+    """Load an input problem from data."""
+    return InputProblem(
+        task_id=problem_data.get("task_id"),
+        prompt=problem_data.get("prompt"),
+        test_cases=problem_data.get("test_cases", []),
+        difficulty=problem_data.get("difficulty", "unknown")
+    )
+
+def detect_convergence(results: List[SandboxResult], k_max: int = 3) -> Dict[str, Any]:
+    """Detect convergence based on results."""
+    first_correct_step = None
+    is_censored = True
+    
+    for k, result in enumerate(results, 1):
+        if result.is_correct:
+            first_correct_step = k
+            is_censored = False
             break
     
-    censored = first_correct is None
-    return first_correct, censored
+    if first_correct_step is None:
+        first_correct_step = k_max
+    
+    return {
+        "first_correct_step": first_correct_step,
+        "censored": is_censored,
+        "time_to_event": first_correct_step
+    }
 
-def save_convergence_results(results: List[ConvergenceTrajectory], output_path: str):
-    """Save convergence results to CSV."""
+def save_convergence_results(results: List[Dict[str, Any]], output_path: str):
+    """Save convergence results to a CSV file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    rows = []
-    for traj in results:
-        rows.append({
-            "task_id": traj.task_id,
-            "k": traj.k,
-            "output": traj.output[:500] if traj.output else "",  # Truncate for CSV safety
-            "is_correct": traj.is_correct,
-            "first_correct_step": traj.first_correct_step,
-            "censored": traj.censored,
-            "time_to_event": traj.time_to_event
-        })
+    with open(output_path, 'w', newline='') as csvfile:
+        fieldnames = ['task_id', 'k', 'output', 'is_correct', 'first_correct_step', 'censored', 'time_to_event']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for result in results:
+            writer.writerow(result)
     
-    df = pd.DataFrame(rows)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(rows)} rows to {output_path}")
+    logger.info(f"Saved convergence results to {output_path}")
 
 def run_iterative_inference(
-    model, 
-    tokenizer, 
-    problems: List[InputProblem], 
-    k_range: List[int], 
-    device: str
-) -> List[ConvergenceTrajectory]:
-    """
-    Run iterative inference for k in k_range.
-    For each problem and each k, generate ONE solution and check correctness.
-    Track convergence across k values.
-    """
-    all_results = []
+    model: Any,
+    tokenizer: Any,
+    problem: InputProblem,
+    k_range: List[int],
+    config: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    """Run iterative inference for a single problem across k values."""
+    results = []
+    temperature = get_config_value("MODEL_TEMP", config, default=0.7)
+    top_p = get_config_value("MODEL_TOP_P", config, default=0.95)
     
-    for problem in problems:
-        logger.info(f"Processing task: {problem.task_id}")
-        
-        k_results = []
-        for k in k_range:
-            # Reset seed for determinism per k
-            set_global_seed(get_config_value("RANDOM_SEED", 42))
-            
-            # Generate solution
-            prompt = problem.prompt
-            solution = generate_solution(model, tokenizer, prompt, k)
-            
-            # Check correctness against test cases
-            is_correct = False
-            for test_case in problem.test_cases:
-                correct, error, _ = execute_code_in_sandbox(solution, test_case)
-                if correct:
-                    is_correct = True
-                    break
-            
-            k_results.append(SandboxResult(
-                task_id=problem.task_id,
-                k=k,
-                output=solution,
-                is_correct=is_correct
-            ))
-        
-        # Detect convergence
-        first_correct, censored = detect_convergence(k_results)
-        time_to_event = first_correct if first_correct is not None else max(k_range)
-        
-        # Create trajectory for each k
-        for res in k_results:
-            traj = ConvergenceTrajectory(
-                task_id=res.task_id,
-                k=res.k,
-                output=res.output,
-                is_correct=res.is_correct,
-                first_correct_step=first_correct,
-                censored=censored,
-                time_to_event=time_to_event
-            )
-            all_results.append(traj)
+    # Prepare the prompt
+    prompt = f"Complete the following function:\n\n{problem.prompt}"
     
-    return all_results
+    # Track convergence
+    all_solutions = {}
+    for k in k_range:
+        # Set seed for determinism
+        set_global_seed(get_config_value("RANDOM_SEED", config, default=42))
+        
+        # Generate solutions
+        solutions = generate_solution(
+            prompt, 
+            model, 
+            tokenizer, 
+            k=1,  # Generate one solution per k for convergence
+            temperature=temperature,
+            top_p=top_p
+        )
+        
+        if solutions:
+            all_solutions[k] = solutions[0]
+    
+    # Determine convergence
+    convergence = detect_convergence(
+        [SandboxResult(
+            is_correct=execute_code_in_sandbox(all_solutions[k], problem.test_cases).is_correct if k in all_solutions else False,
+            output=all_solutions.get(k, ""),
+            execution_time=0
+        ) for k in sorted(k_range)],
+        k_max=max(k_range)
+    )
+    
+    first_correct_step = convergence["first_correct_step"]
+    censored = convergence["censored"]
+    time_to_event = convergence["time_to_event"]
+    
+    for k in k_range:
+        is_correct = False
+        if k in all_solutions:
+            result = execute_code_in_sandbox(all_solutions[k], problem.test_cases)
+            is_correct = result.is_correct
+        
+        results.append({
+            "task_id": problem.task_id,
+            "k": k,
+            "output": all_solutions.get(k, ""),
+            "is_correct": is_correct,
+            "first_correct_step": first_correct_step,
+            "censored": censored,
+            "time_to_event": time_to_event
+        })
+    
+    return results
 
 def main():
+    """Main entry point for convergence inference."""
     import argparse
+    
     parser = argparse.ArgumentParser(description="Run convergence inference")
-    parser.add_argument("--input", required=True, help="Path to input splits JSON")
-    parser.add_argument("--output", required=True, help="Path to output CSV")
-    parser.add_argument("--k_range", nargs="+", type=int, default=[1, 2, 3], help="K values to test")
-    parser.add_argument("--model_path", default=None, help="Model path (overrides config)")
+    parser.add_argument("--input", type=str, required=True, help="Input data file (JSON)")
+    parser.add_argument("--output", type=str, required=True, help="Output CSV file")
+    parser.add_argument("--k_range", type=int, nargs="+", default=[1, 2, 3], help="K values to test")
     args = parser.parse_args()
     
-    # Load config
-    model_path = args.model_path or get_config_value("MODEL_PATH")
-    if not model_path:
-        raise ValueError("Model path not specified in config or args")
+    # Load configuration
+    config = load_config()
     
     # Load model
-    model, tokenizer, device = load_model(model_path)
+    model, tokenizer = load_model(config)
     
-    # Load problems
-    problems = load_input_problem(args.input)
+    # Load input data
+    logger.info(f"Loading input data from {args.input}")
+    data = load_filtered_splits(args.input)
     
-    # Run inference
-    logger.info(f"Starting inference for {len(problems)} problems with k_range={args.k_range}")
-    results = run_iterative_inference(model, tokenizer, problems, args.k_range, device)
+    all_results = []
+    
+    # Process each problem
+    for problem_data in data:
+        problem = load_input_problem(problem_data)
+        logger.info(f"Processing problem: {problem.task_id}")
+        
+        try:
+            results = run_iterative_inference(
+                model, 
+                tokenizer, 
+                problem, 
+                args.k_range, 
+                config
+            )
+            all_results.extend(results)
+        except Exception as e:
+            logger.error(f"Failed to process problem {problem.task_id}: {e}")
+            # Log exclusion
+            continue
     
     # Save results
-    save_convergence_results(results, args.output)
+    save_convergence_results(all_results, args.output)
     
-    logger.info("Inference complete")
+    logger.info("Convergence inference completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T053** — The repository lacks a `results/sample_metadata.json` file entirely, and the provided `code/download.py` does not contain any implementation that logs the number of series selected, the sampling method, or the seed (it ends with an incomplete function and placeholder code). Both required artifacts are missing or incomplete.
+- **T055** — The `code/recalibration.py` file contains no docstring or logging statement that mentions the bootstrap test power limitation, and the expected `results/bootstrap_pvalues.json` file is absent, so the required disclaimer is not present anywhere.
+- **T056** — The required `code/config.yaml` file is missing, so the grep verification cannot be performed, and there is no evidence that `plan.md` or `spec.md` have had their `[deferred]` placeholders resolved or marked as “TBD”. The existing `config.yaml` (outside `code/`) contains no “deferred” text, but the absence of the expected file and lack of checks on the markdown documents mean the task’s requirement is not satisfied.

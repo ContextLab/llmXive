@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure: `mkdir -p code/ data/raw/ data/processed/ tests/unit tests/integration`
-- [X] T002 Create `code/requirements.txt` with pinned versions: `rdkit==2023.9.1 [UNRESOLVED-CLAIM: c_2e16acbd — status=not_enough_info] `, `pandas==2.1.0 [UNRESOLVED-CLAIM: c_050f1421 — status=not_enough_info] `, `numpy==1.24.0 [UNRESOLVED-CLAIM: c_a8886ff2 — status=not_enough_info] `, `scipy==1.11.0 [UNRESOLVED-CLAIM: c_6017bdbd — status=not_enough_info] `, `scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_6e828e9d — status=not_enough_info] `, `matplotlib==3.8.0 [UNRESOLVED-CLAIM: c_dcd1c697 — status=not_enough_info] `, `seaborn==0.13.0 [UNRESOLVED-CLAIM: c_816127a2 — status=not_enough_info] `, `requests==2.31.0 [UNRESOLVED-CLAIM: c_547ab086 — status=not_enough_info] `, `huggingface_hub==0.17.0 [UNRESOLVED-CLAIM: c_b8974a31 — status=not_enough_info] `, `datasets==2.14.0 [UNRESOLVED-CLAIM: c_9cfade3e — status=not_enough_info] `
+- [X] T002 Create `code/requirements.txt` with pinned versions: `rdkit==2023.9.1 `, `pandas==2.1.0 `, `numpy==1.24.0 `, `scipy==1.11.0 `, `scikit-learn==1.3.0 `, `matplotlib==3.8.0 `, `seaborn==0.13.0 `, `requests==2.31.0 `, `huggingface_hub==0.17.0 `, `datasets==2.14.0 `
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **NOTE**: The following tasks are **Atomic File Creation Tasks**. Each task creates exactly ONE file. Do not combine these into a single implementation step.
 
-- [ ] T004 [P] [Atomic] Create `code/config.py`: Define `{'SEED': 42, 'DATASET_ID': 'sagawa/pubchem-10m-canonicalized ', 'CHUNK_SIZE': 500, 'TIMEOUT_SECONDS': 60, 'MAX_RETRIES': 3, 'MEMORY_LIMIT_GB': 'sufficient for the workload'}`. Ensure `DATASET_ID` reflects the Plan's override of the Spec's CID requirement. Note: This configuration supports the analysis of molecular complexity vs. chemical properties on a representative random sample of PubChem.
+- [X] T004 [P] [Atomic] Create `code/config.py`: Define `{'SEED': 42, 'DATASET_ID': 'sagawa/pubchem-10m-canonicalized ', 'CHUNK_SIZE': 500, 'TIMEOUT_SECONDS': 60, 'MAX_RETRIES': 3, 'MEMORY_LIMIT_GB': 'sufficient for the workload'}`. Ensure `DATASET_ID` reflects the Plan's override of the Spec's CID requirement. Note: This configuration supports the analysis of molecular complexity vs. chemical properties on a representative random sample of PubChem.
 
-- [ ] T005 [P] [Atomic] Create `code/download.py`: Implement `fetch_molecules()` using `datasets.load_dataset` with streaming for `sagawa/pubchem-10m-canonicalized `. Implement retry logic (exponential backoff, max 3 retries) for network errors. Verify SHA-256 checksums. Output an iterator of dicts `{'cid': int, 'smiles': str}`. **Do not** implement PubChem API logic; use HuggingFace as per Plan.
+- [X] T005 [P] [Atomic] Create `code/download.py`: Implement `fetch_molecules()` using `datasets.load_dataset` with streaming for `sagawa/pubchem-10m-canonicalized `. Implement retry logic (exponential backoff, max 3 retries) for network errors. Verify SHA-256 checksums. Output an iterator of dicts `{'cid': int, 'smiles': str}`. **Do not** implement PubChem API logic; use HuggingFace as per Plan.
 - [X] T006 [P] [Atomic] Create `code/metrics.py` with exact signatures:
  - `calculate_shannon_entropy(smiles: str) -> float`
  - `calculate_lzma_length(smiles: str) -> int`
@@ -93,9 +93,9 @@
 
 - [X] T014 [US1] **VERIFY DATA SOURCE**: Confirm `code/main.py` calls `code/download.py` (T005) which fetches from `sagawa/pubchem-10m-canonicalized `. Document in `code/main.py` comments that this overrides Spec FR-001 (CID 1-5000) per Plan, ensuring the sample is representative.
 - [ ] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
-- [~] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
+- [ ] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
 - [X] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
-- [~] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
+- [ ] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
 - [X] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
