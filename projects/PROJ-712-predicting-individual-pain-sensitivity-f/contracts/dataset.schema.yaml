@@ -1,0 +1,167 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: OpenNeuro EEG Dataset Schema for Pain Sensitivity Study
+description: >
+  Schema defining the expected structure of the raw EEG dataset downloaded from OpenNeuro.
+  Based on BIDS (Brain Imaging Data Structure) standards and project requirements.
+type: object
+required:
+  - dataset_description
+  - participants
+  - sessions
+  - tasks
+  - modalities
+  - channels
+  - events
+properties:
+  dataset_description:
+    type: object
+    properties:
+      Name:
+        type: string
+        description: Name of the dataset (e.g., "OpenNeuro ds003XXX")
+      Version:
+        type: string
+        description: Dataset version string
+      License:
+        type: string
+      Authors:
+        type: array
+        items:
+          type: string
+      HowToAcknowledge:
+        type: string
+    required:
+      - Name
+      - Version
+  participants:
+    type: object
+    description: >
+      File: participants.tsv
+      Must contain subject IDs and relevant metadata including heat-pain threshold labels.
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        contains:
+          type: string
+          pattern: "^subject$"
+      data:
+        type: array
+        items:
+          type: object
+          required:
+            - subject
+            - heat_pain_threshold
+          properties:
+            subject:
+              type: string
+              pattern: "^sub-[0-9]+$"
+              description: Participant ID (e.g., sub-001)
+            heat_pain_threshold:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Heat pain threshold in Celsius.
+            sex:
+              type: string
+              enum: ["M", "F", "O"]
+            age:
+              type: integer
+              minimum: 0
+              maximum: 120
+  sessions:
+    type: object
+    description: >
+      File: sessions.tsv (optional if single session)
+      Defines session structure if multiple sessions exist.
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+      data:
+        type: array
+        items:
+          type: object
+  tasks:
+    type: object
+    description: >
+      File: task-*.json or task-*.tsv
+      Defines the resting-state task structure.
+    properties:
+      task_name:
+        type: string
+        enum: ["rest"]
+        description: Must be 'rest' for resting-state EEG.
+      task_label:
+        type: string
+    required:
+      - task_name
+  modalities:
+    type: array
+    items:
+      type: string
+      enum: ["eeg"]
+    minItems: 1
+    description: Must include 'eeg'.
+  channels:
+    type: object
+    description: >
+      File: *channels.tsv
+      Defines EEG channel layout and properties.
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          type: string
+          pattern: "^name$"
+      data:
+        type: array
+        items:
+          type: object
+          required:
+            - name
+            - type
+          properties:
+            name:
+              type: string
+              description: Channel name (e.g., Fz, Cz, Pz)
+            type:
+              type: string
+              enum: ["EEG", "EOG", "MISC"]
+            sampling_frequency:
+              type: number
+              minimum: 100
+  events:
+    type: object
+    description: >
+      File: *events.tsv
+      Defines event markers for segmentation if applicable.
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          type: string
+          pattern: "^onset$"
+      data:
+        type: array
+        items:
+          type: object
+          properties:
+            onset:
+              type: number
+            duration:
+              type: number
+            trial_type:
+              type: string
+additionalProperties: true
+x-bids-standard: true
+x-project-id: PROJ-712

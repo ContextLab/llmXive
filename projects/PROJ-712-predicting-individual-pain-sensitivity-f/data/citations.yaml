@@ -1,0 +1,22 @@
+# Citations for external data sources, datasets, and methods used in this project.
+# Required by Constitution Principle II: Verified Accuracy.
+# This file must be populated before running the pipeline.
+- source: OpenNeuro Dataset
+  dataset_id: "ds003XXX" # To be resolved in research.md
+  url: "https://openneuro.org/datasets/ds003XXX"
+  citation: "Authors. (Year). Dataset Title. OpenNeuro. Retrieved from URL"
+  type: "dataset"
+- source: MNE-Python
+  package: "mne"
+  url: "https://mne.tools"
+  citation: "Gramfort et al. (2013). MNE: A software for MEG and EEG analysis. Neuroimage"
+  type: "software"
+- source: Scikit-learn
+  package: "scikit-learn"
+  url: "https://scikit-learn.org"
+  citation: "Pedregosa et al. (2011). Scikit-learn: Machine Learning in Python. JMLR"
+  type: "software"
+- source: Microstate Analysis
+  method: "Microstate Segmentation"
+  reference: "Murray et al. (2008). Microstates in EEG. Neuroimage"
+  type: "methodology"

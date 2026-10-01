@@ -1,13 +1,15 @@
-T001b:
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/`\
-    \ and `state/`) is provided; the response contains only the task description and\
-    \ no file\u2011system listing or screenshots confirming their creation. The implementer\
-    \ must create the directories and supply proof (e.g., a directory tree listing)."
-T001c:
+  h: 38932c48dbd5007eea4247829de6c5392a8f9831aa85ace94c483e633ef063a5
+  r: The repository contains `code/main.py` with an aggregation function and the required
+    assertion, but the script never writes the DataFrame to `data/processed/feature_matrix.csv`
+    (the file is missing). Consequently the required output artifact does not exist,
+    so the task is not fulfilled.
+T026a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/`
-    and `tests/`) is provided; the claim is unsubstantiated and the artifacts are
-    missing.
+  h: f5b307da3f32df57f62fd6b5bd7ce11a445c3b8da01f4e3814bc560d3737d038
+  r: "The provided `code/utils.py` contains seed, logging, and checksum utilities\
+    \ but no function that records start/end times or asserts that the duration is\
+    \ under 6\u202Fhours. Moreover, `code/config.py` is missing entirely, so there\
+    \ is no alternative location for the required instrumentation. The task\u2019\
+    s timing\u2011instrumentation requirement is therefore not satisfied."

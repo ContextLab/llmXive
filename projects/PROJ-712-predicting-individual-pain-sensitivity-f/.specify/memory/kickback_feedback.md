@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was presented that the required directories `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/` and `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/processed/` actually exist on disk; the response contains no file listings, screenshots, or other verification of their creation. The task therefore remains unfulfilled.
+- `T001` (rejected 1x): No evidence of the required directories (`data/raw/`, `data/processed/`, `artifacts/`, `state/`, `code/`, `tests/`) being present on disk is provided; the claim lacks any artifact confirming the project structure was created. The implementer must supply a directory listing or screenshots showing these folders exist.
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change
 

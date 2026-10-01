@@ -1122,3 +1122,291 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T12:54:16Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: '30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities, 6 spectral power features'
+  claim_id: c_5eba9d12
+  context: 'T016 [US1] Implement feature extraction in code/preprocessing.py: calculate
+    exactly 30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities (4x4 matrix flattened), and 6 spectral power features
+    (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'calculate exactly 30 features per participant: 4 mean durations, 4 occurrence
+    rates, 16 transition probabilities (4x4 matrix flattened), and 6 spectral power
+    features (delta, theta, alpha, beta, low-gamma, high-gamma)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:44:23Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: exclude participants with less than 4 minutes of valid EEG data
+  claim_id: c_b9589e27
+  context: 'T014 [US1] Implement participant exclusion logic in code/preprocessing.py:
+    exclude if < 4 minutes of valid EEG data remains after ICA artifact removal and
+    bad channel interpolation, log warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_less_than_4_minutes_of_valid_EEG_d
+  kind: magnitude
+  raw_text: exclude if < 4 minutes of valid EEG data remains after ICA artifact removal
+    and bad channel interpolation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:45:16Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: band-pass filter 1 to 40 Hz
+  claim_id: c_eba7b80f
+  context: "T013 [US1] Implement EEG preprocessing in code/preprocessing.py: re-reference\
+    \ to average mastoids, band-pass filter 1\u201340 Hz, and apply ICA for ocular/muscle\
+    \ removal."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "band-pass filter 1\u201340 Hz"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:45:50Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: re-reference EEG to average mastoids
+  claim_id: c_9cab2f47
+  context: "T013 [US1] Implement EEG preprocessing in code/preprocessing.py: re-reference\
+    \ to average mastoids, band-pass filter 1\u201340 Hz, and apply ICA for ocular/muscle\
+    \ removal."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Re-reference_EEG_to_average_mastoids
+  kind: entity_fact
+  raw_text: re-reference to average mastoids
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:46:42Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 'median-split sensitivity analysis thresholds: median-0.1, median-0.05,
+    median, median+0.05, median+0.1'
+  claim_id: c_5353267c
+  context: 'T032 [US3] Implement median-split sensitivity analysis in code/diagnostics.py:
+    sweep the median-split threshold on the observed heat-pain threshold labels (ground
+    truth) by testing the specific set [median-0.1, median-0.05, median, median+0.05,
+    median+0.1], calculate Cohen''s d as the effect size for each step, and report
+    the variation in effect size estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep the median-split threshold on the observed heat-pain threshold labels
+    by testing the specific set [median-0.1, median-0.05, median, median+0.05, median+0.1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:47:07Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: flag predictors with Variance Inflation Factor greater than 10
+  claim_id: c_07b5d491
+  context: T031 [US3] Implement VIF calculation in code/diagnostics.py using statsmodels;
+    flag any predictors with VIF > 10 in the diagnostic output, but do NOT exclude
+    them or re-run the model.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_Variance_Inflation_Factor_greater_than
+  kind: magnitude
+  raw_text: flag any predictors with VIF > 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:47:41Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 6 spectral power features including delta, theta, alpha, beta, low-gamma,
+    high-gamma
+  claim_id: c_9d6a170f
+  context: 'T016 [US1] Implement feature extraction in code/preprocessing.py: calculate
+    exactly 30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities (4x4 matrix flattened), and 6 spectral power features
+    (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:48:14Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 16 transition probabilities from 4x4 matrix
+  claim_id: c_dc6a08df
+  context: 'T016 [US1] Implement feature extraction in code/preprocessing.py: calculate
+    exactly 30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities (4x4 matrix flattened), and 6 spectral power features
+    (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 16 transition probabilities (4x4 matrix flattened)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:48:36Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 4 mean duration features
+  claim_id: c_31083d60
+  context: 'T016 [US1] Implement feature extraction in code/preprocessing.py: calculate
+    exactly 30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities (4x4 matrix flattened), and 6 spectral power features
+    (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 mean durations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:49:09Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 4 occurrence rate features
+  claim_id: c_a946eb37
+  context: 'T016 [US1] Implement feature extraction in code/preprocessing.py: calculate
+    exactly 30 features per participant: 4 mean durations, 4 occurrence rates, 16
+    transition probabilities (4x4 matrix flattened), and 6 spectral power features
+    (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 occurrence rates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:50:21Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 'Calculate 30 features per participant: 4 mean durations, 4 occurrence
+    rates, 16 transition probabilities, 6 spectral power features'
+  claim_id: c_81813c37
+  context: 'Implement feature extraction in code/preprocessing.py: calculate exactly
+    30 features per participant: 4 mean durations, 4 occurrence rates, 16 transition
+    probabilities (4x4 matrix flattened), and 6 spectral power features (delta, theta,
+    alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate exactly 30 features per participant: 4 mean durations, 4 occurrence
+    rates, 16 transition probabilities (4x4 matrix flattened), and 6 spectral power
+    features (delta, theta, alpha, beta, low-gamma, high-gamma).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:52:34Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Flag predictors with Variance Inflation Factor greater than 10
+  claim_id: c_4d0753be
+  context: Implement VIF calculation in code/diagnostics.py using statsmodels; flag
+    any predictors with VIF > 10 in the diagnostic output, but do NOT exclude them
+    or re-run the model.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_Variance_Inflation_Factor_greater_than
+  kind: magnitude
+  raw_text: Flag any predictors with VIF > 10 in the diagnostic output.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:53:02Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 'Test median-split threshold set: median-0.1, median-0.05, median, median+0.05,
+    median+0.1'
+  claim_id: c_7fda2b29
+  context: 'Implement median-split sensitivity analysis in code/diagnostics.py: sweep
+    the median-split threshold on the observed heat-pain threshold labels (ground
+    truth) by testing the specific set [median-0.1, median-0.05, median, median+0.05,
+    median+0.1], calculate Cohen''s d as the effect size for each step, and report
+    the variation in effect size estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test the specific set [median-0.1, median-0.05, median, median+0.05, median+0.1]
+    for median-split sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:53:31Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Band-pass filter EEG data 1 to 40 Hz
+  claim_id: c_2401bd2e
+  context: "Implement EEG preprocessing in code/preprocessing.py: re-reference to\
+    \ average mastoids, band-pass filter 1\u201340 Hz, and apply ICA for ocular/muscle\
+    \ removal."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Band-pass filter EEG data between 1\u201340 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:54:00Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Exclude participants with less than 4 minutes of valid EEG data
+  claim_id: c_b9ea34d5
+  context: 'Implement participant exclusion logic in code/preprocessing.py: exclude
+    if < 4 minutes of valid EEG data remains after ICA artifact removal and bad channel
+    interpolation, log warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_less_than_4_minutes_of_valid_EEG_d
+  kind: magnitude
+  raw_text: Exclude participants if less than 4 minutes of valid EEG data remains
+    after ICA artifact removal and bad channel interpolation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T09:54:44Z'
