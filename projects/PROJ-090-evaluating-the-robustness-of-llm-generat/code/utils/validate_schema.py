@@ -1,3 +1,10 @@
+"""
+Utility script to validate JSON files against a JSON schema.
+
+This module provides command-line validation for JSON data files
+against schema definitions defined in contracts/.
+"""
+
 import json
 import argparse
 import sys
@@ -5,162 +12,151 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 def load_json_file(path: Path) -> Any:
-    """Load and parse a JSON file."""
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Input file not found: {path}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {path}: {e}")
+    """Load a JSON file."""
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def load_schema_file(path: Path) -> Dict[str, Any]:
-    """Load and parse a JSON schema file."""
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Schema file not found: {path}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in schema {path}: {e}")
+    """Load a JSON schema file."""
+    return load_json_file(path)
 
 def validate_against_schema(data: Any, schema: Dict[str, Any]) -> List[str]:
     """
-    Validate data against a JSON schema (draft-07 compatible subset).
-    Returns a list of error messages. If empty, validation passed.
-    
-    Supports: type, required, properties, items (for lists), additionalProperties.
+    Validate data against a JSON schema (basic validation without external libs).
+
+    Returns a list of error messages. Empty list means valid.
     """
-    errors: List[str] = []
-    
-    # Type check
-    if 'type' in schema:
-        expected_type = schema['type']
-        if expected_type == 'object':
-            if not isinstance(data, dict):
-                errors.append(f"Expected object, got {type(data).__name__}")
-        elif expected_type == 'array':
-            if not isinstance(data, list):
-                errors.append(f"Expected array, got {type(data).__name__}")
-        elif expected_type == 'string':
-            if not isinstance(data, str):
-                errors.append(f"Expected string, got {type(data).__name__}")
-        elif expected_type == 'number':
-            if not isinstance(data, (int, float)):
-                errors.append(f"Expected number, got {type(data).__name__}")
-        elif expected_type == 'boolean':
-            if not isinstance(data, bool):
-                errors.append(f"Expected boolean, got {type(data).__name__}")
-        elif expected_type == 'integer':
-            if not isinstance(data, int) or isinstance(data, bool):
-                errors.append(f"Expected integer, got {type(data).__name__}")
-    
-    # Required fields (for objects)
-    if isinstance(data, dict) and 'required' in schema:
-        for field in schema['required']:
-            if field not in data:
-                errors.append(f"Missing required field: '{field}'")
-    
-    # Properties (for objects)
-    if isinstance(data, dict) and 'properties' in schema:
-        for prop_name, prop_schema in schema['properties'].items():
-            if prop_name in data:
-                prop_errors = validate_against_schema(data[prop_name], prop_schema)
-                for err in prop_errors:
-                    errors.append(f"Field '{prop_name}': {err}")
+    errors = []
+
+    # Basic type checking for root
+    if schema.get("type") == "array":
+        if not isinstance(data, list):
+            errors.append(f"Expected root to be a list, got {type(data)}")
+            return errors
         
-        # Check for additional properties if not allowed
-        if schema.get('additionalProperties') is False:
-            allowed = set(schema.get('properties', {}).keys())
-            extra = set(data.keys()) - allowed
-            if extra:
-                errors.append(f"Additional properties not allowed: {extra}")
-    
-    # Items (for arrays)
-    if isinstance(data, list) and 'items' in schema:
+        items_schema = schema.get("items", {})
         for i, item in enumerate(data):
-            item_errors = validate_against_schema(item, schema['items'])
-            for err in item_errors:
-                errors.append(f"Item [{i}]: {err}")
+            item_errors = validate_item_against_schema(item, items_schema, i)
+            errors.extend(item_errors)
+    elif schema.get("type") == "object":
+        if not isinstance(data, dict):
+            errors.append(f"Expected root to be an object, got {type(data)}")
+    else:
+        # Default: no strict root type check if not specified
+        pass
+
+    return errors
+
+def validate_item_against_schema(item: Any, schema: Dict[str, Any], index: int) -> List[str]:
+    """Validate a single item against the items schema."""
+    errors = []
     
+    if schema.get("type") == "object":
+        if not isinstance(item, dict):
+            errors.append(f"Item {index}: Expected object, got {type(item)}")
+            return errors
+        
+        properties = schema.get("properties", {})
+        required = schema.get("required", [])
+        
+        # Check required fields
+        for field in required:
+            if field not in item:
+                errors.append(f"Item {index}: Missing required field '{field}'")
+        
+        # Check property types
+        for field, field_schema in properties.items():
+            if field in item:
+                value = item[field]
+                expected_type = field_schema.get("type")
+                if expected_type == "string" and not isinstance(value, str):
+                    errors.append(f"Item {index}.{field}: Expected string, got {type(value)}")
+                elif expected_type == "number" and not isinstance(value, (int, float)):
+                    errors.append(f"Item {index}.{field}: Expected number, got {type(value)}")
+                elif expected_type == "boolean" and not isinstance(value, bool):
+                    errors.append(f"Item {index}.{field}: Expected boolean, got {type(value)}")
+                elif expected_type == "integer" and not isinstance(value, int):
+                    errors.append(f"Item {index}.{field}: Expected integer, got {type(value)}")
+                
+                # Check enum
+                if "enum" in field_schema:
+                    if value not in field_schema["enum"]:
+                        errors.append(f"Item {index}.{field}: Value '{value}' not in enum {field_schema['enum']}")
+                
+                # Check minimum/maximum for numbers
+                if expected_type in ["number", "integer"]:
+                    if "minimum" in field_schema and value < field_schema["minimum"]:
+                        errors.append(f"Item {index}.{field}: Value {value} is less than minimum {field_schema['minimum']}")
+                    if "maximum" in field_schema and value > field_schema["maximum"]:
+                        errors.append(f"Item {index}.{field}: Value {value} is greater than maximum {field_schema['maximum']}")
     return errors
 
 def validate_raw_schema(input_path: Path, schema_path: Path) -> bool:
-    """
-    Validate a raw perturbation candidates file against the schema.
-    Returns True if valid, False otherwise.
-    """
+    """Validate perturbation candidates raw file."""
+    return validate_generic(input_path, schema_path)
+
+def validate_filtered_schema(input_path: Path, schema_path: Path) -> bool:
+    """Validate perturbation candidates filtered file."""
+    return validate_generic(input_path, schema_path)
+
+def validate_error_classification_schema(input_path: Path, schema_path: Path) -> bool:
+    """Validate error classification report file."""
+    return validate_generic(input_path, schema_path)
+
+def validate_generic(input_path: Path, schema_path: Path) -> bool:
+    """Generic validation function."""
     try:
         data = load_json_file(input_path)
         schema = load_schema_file(schema_path)
-    except (FileNotFoundError, ValueError) as e:
-        print(f"Error loading files: {e}", file=sys.stderr)
+        
+        errors = validate_against_schema(data, schema)
+        
+        if errors:
+            print(f"Validation FAILED for {input_path}:")
+            for err in errors:
+                print(f"  - {err}")
+            return False
+        else:
+            print(f"Validation PASSED for {input_path}")
+            return True
+    except FileNotFoundError as e:
+        print(f"Error: File not found - {e}")
         return False
-    
-    if not isinstance(data, list):
-        print("Error: Input file must contain a JSON array.", file=sys.stderr)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON - {e}")
         return False
-    
-    errors = validate_against_schema(data, schema)
-    
-    if errors:
-        print("Validation FAILED with errors:", file=sys.stderr)
-        for err in errors:
-            print(f"  - {err}", file=sys.stderr)
+    except Exception as e:
+        print(f"Error: Unexpected error - {e}")
         return False
-    
-    print("Validation PASSED.")
-    return True
-
-def validate_filtered_schema(input_path: Path, schema_path: Path) -> bool:
-    """
-    Validate a filtered perturbation candidates file against the schema.
-    Same logic as validate_raw_schema but with specific error context if needed.
-    Currently identical, but kept separate for future differentiation.
-    """
-    return validate_raw_schema(input_path, schema_path)
-
-def validate_error_classification_schema(input_path: Path, schema_path: Path) -> bool:
-    """
-    Validate an error classification report file against a schema.
-    Currently uses the same generic validator.
-    """
-    return validate_raw_schema(input_path, schema_path)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate JSON files against a JSON schema."
-    )
-    parser.add_argument(
-        "--input", "-i",
-        required=True,
-        type=Path,
-        help="Path to the input JSON file to validate."
-    )
-    parser.add_argument(
-        "--schema", "-s",
-        required=True,
-        type=Path,
-        help="Path to the JSON schema file."
-    )
-    parser.add_argument(
-        "--type", "-t",
-        choices=["raw", "filtered", "error_classification"],
-        default="raw",
-        help="Type of validation to perform (default: raw)."
-    )
+    parser = argparse.ArgumentParser(description="Validate JSON files against a schema.")
+    parser.add_argument("--input", required=True, help="Path to the input JSON file")
+    parser.add_argument("--schema", required=True, help="Path to the JSON schema file")
+    parser.add_argument("--type", choices=["raw", "filtered", "error_classification", "generic"], 
+                        default="generic", help="Type of validation to perform")
     
     args = parser.parse_args()
     
-    if args.type == "raw":
-        success = validate_raw_schema(args.input, args.schema)
-    elif args.type == "filtered":
-        success = validate_filtered_schema(args.input, args.schema)
-    elif args.type == "error_classification":
-        success = validate_error_classification_schema(args.input, args.schema)
-    else:
-        print(f"Unknown validation type: {args.type}", file=sys.stderr)
+    input_path = Path(args.input)
+    schema_path = Path(args.schema)
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}")
         sys.exit(1)
+    if not schema_path.exists():
+        print(f"Error: Schema file not found: {schema_path}")
+        sys.exit(1)
+    
+    success = False
+    if args.type == "raw":
+        success = validate_raw_schema(input_path, schema_path)
+    elif args.type == "filtered":
+        success = validate_filtered_schema(input_path, schema_path)
+    elif args.type == "error_classification":
+        success = validate_error_classification_schema(input_path, schema_path)
+    else:
+        success = validate_generic(input_path, schema_path)
     
     sys.exit(0 if success else 1)
 

@@ -1878,21 +1878,6 @@
   updated_at: '2026-08-03T15:36:04Z'
 - artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
   attempts: 1
-  canonical: psutil version 5.9.0
-  claim_id: c_cc350737
-  context: 'Create requirements.txt with pinned versions: ... psutil==5.9.0.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: psutil==5.9.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-03T15:36:06Z'
-- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
-  attempts: 1
   canonical: ruff line-length setting 88
   claim_id: c_862b2a72
   context: 'Configure linting (ruff) and formatting (black) tools ... with explicit
@@ -2549,23 +2534,6 @@
   updated_at: '2026-08-03T15:42:53Z'
 - artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
   attempts: 1
-  canonical: total sample cap of 656
-  claim_id: c_d0b071da
-  context: Enforce the total sample cap of 656 (as defined in Plan.md). Prioritize
-    original prompts, then fill remaining slots with perturbed prompts in a deterministic
-    order.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The system must enforce a total sample cap of 656.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-03T15:43:59Z'
-- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
-  attempts: 1
   canonical: semantic similarity score greater than 0.95
   claim_id: c_60d5bf92
   context: 'STRICT CONSTRAINT: Primary set retains only perturbations with score >
@@ -2960,3 +2928,801 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T15:47:04Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: persist full unfiltered perturbation candidates to data/processed/perturbation_candidates_raw.json
+  claim_id: c_0fe20fa0
+  context: T017 [US1] Implement perturbation generation pipeline... The system MUST
+    persist the full unfiltered list of all generated candidates to data/processed/perturbation_candidates_raw.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Persist_full_unfiltered_perturbation_candidates_to_data/proc
+  kind: entity_fact
+  raw_text: The system MUST persist the full unfiltered list of all generated candidates
+    to data/processed/perturbation_candidates_raw.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:31:17Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: total sample cap of 656
+  claim_id: c_d4a95722
+  context: Enforce the total sample cap of 656 (as defined in Plan.md).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total sample cap is 656.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:31:50Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: semantic similarity threshold > 0.95 for primary set
+  claim_id: c_57bee703
+  context: 'STRICT CONSTRAINT: Primary set retains only perturbations with score >
+    0.95 [FR-003].'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/semantic_similarity_threshold_%3E_0.95_for_primary_set
+  kind: magnitude
+  raw_text: The primary set retains only perturbations with a semantic similarity
+    score greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:32:45Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.85 0.90 0.95 0.99
+  claim_id: c_321e629a
+  context: 'Threshold Set: {0.85, 0.90, 0.95, 0.99} (as defined in FR-013/SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis threshold set includes 0.85, 0.90, 0.95, and
+    0.99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:33:13Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: error classifier stratified sampling limit 50
+  claim_id: c_5790b636
+  context: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or a representative sample) in code/analysis/error_classifier.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The error classifier uses stratified sampling of 50 failures or a representative
+    sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:33:29Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: error classifier random seed 42
+  claim_id: c_8ac8e73c
+  context: using stratification by perturbation type and random seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the error classifier is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:33:51Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: model selection bigcode/starcoder-1.5b CPU bigcode/starcoder-3b GPU
+  claim_id: c_b6d92fce
+  context: select bigcode/starcoder-1.5b for CPU runs and bigcode/starcoder-3b for
+    GPU runs, logging the selection rationale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference engine targets bigcode/starcoder-3b for GPU runs and bigcode/starcoder-1.5b
+    for CPU runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:34:04Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU fallback model bigcode/starcoder2-1.5b
+  claim_id: c_332dd9c7
+  context: if 3B exceeds memory/time limits on CPU, use bigcode/starcoder2-1.5b as
+    a fallback for CPU runs only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 3B exceeds memory/time limits on CPU, bigcode/starcoder2-1.5b is used
+    as a fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:34:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_4610a736
+  context: assert it is < 6 hours (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_limit_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:01Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU usage limit 6GB per process
+  claim_id: c_c259fb23
+  context: ensure CPU usage < 6GB per process and verify memory usage < 6GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_usage_limit_6GB_per_process
+  kind: magnitude
+  raw_text: CPU usage per process must be less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:10Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: transformers version 4.42.0
+  claim_id: c_fe1e00aa
+  context: 'Create requirements.txt with pinned versions: transformers==4.42.0'
+  evidence:
+    asserted: '4.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins transformers==4.42.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: datasets version 2.20.0
+  claim_id: c_a78cd20b
+  context: datasets==2.20.0
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins datasets==2.20.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: sentence-transformers version 3.0.1
+  claim_id: c_e33faede
+  context: sentence-transformers==3.0.1
+  evidence:
+    asserted: '3.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins sentence-transformers==3.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.43.1
+  claim_id: c_af0feff9
+  context: bitsandbytes==0.43.1
+  evidence:
+    asserted: '0.43'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins bitsandbytes==0.43.1.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_50a7d273
+  context: scikit-learn==1.5.0
+  evidence:
+    asserted: '1.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scikit-learn==1.5.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:12Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.2
+  claim_id: c_3e8fe95a
+  context: statsmodels==0.14.2
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins statsmodels==0.14.2.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:12Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_01169867
+  context: pandas==2.2.2
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pandas==2.2.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:12Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pytest version 8.2.2
+  claim_id: c_573905d3
+  context: pytest==8.2.2
+  evidence:
+    asserted: '8.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pytest==8.2.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:13Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_8a5912fe
+  context: numpy==1.26.4
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins numpy==1.26.4.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:13Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: psutil version 5.9.0
+  claim_id: c_026db269
+  context: psutil==5.9.0
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins psutil==5.9.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T12:35:13Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: generate up to 3 perturbation candidates per task
+  claim_id: c_55a358ce
+  context: 'Implement perturbation generation pipeline... that generates up to 3 candidates
+    (one per transformation type: synonym, typo, rephrase) per task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perturbation generation pipeline generates up to 3 candidates per
+    task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:21Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: perturbation types synonym typo rephrase
+  claim_id: c_1896fd06
+  context: correctly tagged by type (synonym, typo, rephrase)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perturbation_types_synonym_typo_rephrase
+  kind: entity_fact
+  raw_text: The perturbation types are synonym, typo, and rephrase.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: ruff line-length 88
+  claim_id: c_2b0abc92
+  context: 'explicit settings: line-length = 88'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The line-length configuration for ruff is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:37Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: black target-version py311
+  claim_id: c_e5db3a1e
+  context: target-version = 'py311'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Black_target-version_py311
+  kind: entity_fact
+  raw_text: The target-version for black is py311.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: perturbation schema version v1.0
+  claim_id: c_efb698f6
+  context: defining the v1.0 schema for perturbation output
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perturbation schema version is v1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:35:53Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 2
+  canonical: total sample cap of 656
+  claim_id: c_d0b071da
+  context: Enforce the total sample cap of 656 (as defined in Plan.md). Prioritize
+    original prompts, then fill remaining slots with perturbed prompts in a deterministic
+    order.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce a total sample cap of 656.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:41:43Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: semantic similarity score threshold greater than 0.95
+  claim_id: c_3385836b
+  context: 'STRICT CONSTRAINT: Primary set retains only perturbations with score >
+    0.95 [FR-003].'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_score_threshold_greater_than_0.95
+  kind: magnitude
+  raw_text: The primary set retains only perturbations with a semantic similarity
+    score greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:41:45Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds {0.85, 0.90, 0.95, 0.99}
+  claim_id: c_60ed98d3
+  context: 'Threshold Set: {0.85, 0.90, 0.95, 0.99} (as defined in FR-013/SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis evaluates semantic thresholds across the set
+    {0.85, 0.90, 0.95, 0.99}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:42:15Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: error classifier stratified sampling limit of 50 failures
+  claim_id: c_ca047650
+  context: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or a representative sample) in code/analysis/error_classifier.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The error classifier uses a stratified sampling limit of 50 failures or
+    a representative sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:42:31Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: target model for CPU runs bigcode/starcoder2-1.5b
+  claim_id: c_a3b44a09
+  context: 'Plan Override: Per Plan.md Compute Feasibility Strategy, if 3B exceeds
+    memory/time limits on CPU, use bigcode/starcoder2-1.5b as a fallback for CPU runs
+    only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target model for CPU runs is bigcode/starcoder2-1.5b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:42:47Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: target model for GPU runs bigcode/starcoder-3b
+  claim_id: c_b83d87a6
+  context: select bigcode/starcoder-1.5b for CPU runs and bigcode/starcoder-3b for
+    GPU runs, logging the selection rationale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target model for GPU runs is bigcode/starcoder-3b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:43:03Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit of 6 hours
+  claim_id: c_f721ee64
+  context: assert it is < 6 hours (SC-003). ... SC-003 corrected to 6-hour.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime is limited to 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:43:22Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU usage limit less than 6GB per process
+  claim_id: c_e1ecaf2e
+  context: Refactor code/model/inference.py to use chunked loading to ensure CPU usage
+    < 6GB per process.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_usage_limit_less_than_6GB_per_process
+  kind: magnitude
+  raw_text: CPU usage must be less than 6GB per process.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:43:24Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: perturbation generation up to 3 candidates per task
+  claim_id: c_6aa00b0a
+  context: 'Implement perturbation generation pipeline in code/data/generate_perturbations.py
+    that generates up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perturbation generation pipeline generates up to 3 candidates per
+    task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:43:25Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: semantic validation model sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_80cc2e25
+  context: Implement semantic validation using sentence-transformers/all-MiniLM-L6-v2
+    in code/data/semantic_validator.py to calculate cosine similarity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_model_sentence-transformers/all-MiniLM-L
+  kind: entity_fact
+  raw_text: The semantic validation uses the sentence-transformers/all-MiniLM-L6-v2
+    model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:43:43Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: error classifier random seed 42
+  claim_id: c_f7bf8a50
+  context: Implement error classifier for stratified sampling ... using stratification
+    by perturbation type and random seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The error classifier uses a random seed of 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:44:02Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: transformers version 4.42.0
+  claim_id: c_8637e80f
+  context: 'Create requirements.txt with pinned versions: transformers==4.42.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes transformers version 4.42.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:44:21Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: datasets version 2.20.0
+  claim_id: c_eabbef08
+  context: 'Create requirements.txt with pinned versions: ... datasets==2.20.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes datasets version 2.20.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:44:49Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: sentence-transformers version 3.0.1
+  claim_id: c_17608267
+  context: 'Create requirements.txt with pinned versions: ... sentence-transformers==3.0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes sentence-transformers version 3.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:45:04Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.43.1
+  claim_id: c_3070a64f
+  context: 'Create requirements.txt with pinned versions: ... bitsandbytes==0.43.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes bitsandbytes version 0.43.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:45:25Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_e1658fca
+  context: 'Create requirements.txt with pinned versions: ... scikit-learn==1.5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes scikit-learn version 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:45:37Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.2
+  claim_id: c_0b2045bb
+  context: 'Create requirements.txt with pinned versions: ... statsmodels==0.14.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes statsmodels version 0.14.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:45:51Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_3f1c4f0d
+  context: 'Create requirements.txt with pinned versions: ... pandas==2.2.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes pandas version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:46:10Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: pytest version 8.2.2
+  claim_id: c_edbb8d8b
+  context: 'Create requirements.txt with pinned versions: ... pytest==8.2.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes pytest version 8.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:46:42Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_fa3ce925
+  context: 'Create requirements.txt with pinned versions: ... numpy==1.26.4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt includes numpy version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:47:15Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 2
+  canonical: psutil version 5.9.0
+  claim_id: c_cc350737
+  context: 'Create requirements.txt with pinned versions: ... psutil==5.9.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil==5.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T12:47:40Z'

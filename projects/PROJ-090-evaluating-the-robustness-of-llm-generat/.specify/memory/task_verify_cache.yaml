@@ -23,22 +23,11 @@ T016:
     \ and halt\u2011condition logging are missing."
 T018:
   c: false
-  h: d36fc338cf6d40f3cd850c2bc4308b59637d120705ca29449400efcb09d5059d
-  r: "The repository contains `code/data/filter_perturbations.py`, but the script\
-    \ does not actually produce the required output files \u2013 `data/processed/perturbation_candidates.json`\
-    \ and `data/logs/halt_report.json` are missing. Moreover, the halt logic exits\
-    \ on zero candidates instead of logging a warning and continuing, and the code\
-    \ lacks a citation to FR\u2011009. Consequently the task\u2019s output and behavior\
-    \ requirements are not satisfied."
-T021:
-  c: false
-  h: f5b4e9143e1968fc34f09f65e412c2f9f43b416c1d8a1655e54ea9ebdd5c69ce
-  r: "The repository contains `code/model/inference.py` with a model\u2011loading\
-    \ function that uses bitsandbytes and the correct model ID, but the required inference\
-    \ logging file `data/processed/inference_logs.json` is missing, and the provided\
-    \ code (truncated) does not demonstrate enforcement of timeouts, capture of logits/confidence\
-    \ scores, or writing of the specified JSON schema. The task\u2019s critical output\
-    \ and logging requirements are therefore unmet."
+  h: 469815913fde38d66aeefbbd25577c173874919603afb1a9964a4cece1e82083
+  r: "The `filter_perturbations.py` script exists but the required output files (`data/processed/perturbation_candidates.json`\
+    \ and `data/logs/halt_report.json`) are missing, and the provided code excerpt\
+    \ does not show the halt\u2011condition logic or the final write step. Consequently\
+    \ the primary dataset was not created as the task demands."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

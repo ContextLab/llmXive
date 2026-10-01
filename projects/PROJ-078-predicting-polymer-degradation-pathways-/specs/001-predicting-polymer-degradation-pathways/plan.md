@@ -16,8 +16,8 @@ This feature implements a lightweight Graph Neural Network (GNN) pipeline to pre
 **Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, no GPU)  
 **Project Type**: Computational Chemistry Simulation Pipeline  
 **Performance Goals**: <6h total runtime, <7GB RAM peak, <30min augmentation  
-**Constraints**: CPU-only execution; no external API credentials; dataset size ~150 instances (estimated from ChemData700K filtering for ester bonds)  
-**Scale/Scope**: ~150 polymer records; 3 degradation classes; 1 GNN model; 1 statistical report
+**Constraints**: CPU-only execution; no external API credentials; dataset size ~a representative subset (estimated from ChemData700K filtering for ester bonds)  
+**Scale/Scope**: A dataset of polymer records; 3 degradation classes; 1 GNN model; 1 statistical report
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -84,9 +84,9 @@ projects/PROJ-078-predicting-polymer-degradation-pathways-/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Data augmentation (exactly 2x) | Small dataset (~150) requires robustness; Constitution VII mandates augmentation. | No augmentation would lead to overfitting and unreliable CV metrics. |
+| Data augmentation (increased magnitude) | Small dataset requires robustness; Constitution VII mandates augmentation. | No augmentation would lead to overfitting and unreliable CV metrics. |
 | 5-fold CV (or LOO if n<150) | Small sample size; Constitution VI mandates cross-validation. | Single train/test split would not capture variance; LOO used if n<150. |
-| χ² test with 1000 iterations | Statistical validation of attribution stability required; Constitution VI mandates significance testing. | No statistical test would render findings unverified. |
+| χ² test with iterations | Statistical validation of attribution stability required; Constitution VI mandates significance testing. | No statistical test would render findings unverified. |
 | Synthetic Labels | Real degradation pathway labels are unavailable in verified sources; required to train any model. | Without labels, no supervised learning is possible. |
 
 ## Implementation Phases
@@ -102,7 +102,7 @@ projects/PROJ-078-predicting-polymer-degradation-pathways-/
 - **T013**: Implement `ingest.py` for data download.
   - Logic: Fetch from HuggingFace (primary) or NIST/Materials Project (fallback).
   - Filtering: Retain only polyester records using RDKit to detect ester bonds (`C(=O)O`) (FR-001, SC-006).
- - Labeling: Apply synthetic label distribution (60% hydrolysis, [deferred] oxidation, [deferred] photolysis) if labels missing (FR-001, FR-008).
+ - Labeling: Apply synthetic label distribution (dominant hydrolysis, [deferred] oxidation, [deferred] photolysis) if labels missing (FR-001, FR-008).
   - Flagging: Flag records missing labels for manual curation (FR-001, FR-008).
   - Halt Logic: If N=0 after filtering, halt with fatal error. If N>0 but all flagged, proceed with synthetic labels and log warning.
 - **T014**: Identify records missing labels.
@@ -110,7 +110,7 @@ projects/PROJ-078-predicting-polymer-degradation-pathways-/
   - Action: Apply synthetic labels or flag for curation. Calculate ratio of flagged records (SC-010).
 - **T015**: Implement `preprocess.py` for SMILES → Graph.
   - Logic: Convert SMILES to molecular graphs using RDKit.
-  - Missing Values: Impute missing environmental conditions (temp, pH, UV) with defaults (25°C, pH 7, 0 UV) and flag (FR-002, SC-006).
+  - Missing Values: Impute missing environmental conditions (temp, pH, UV) with defaults (standard laboratory temperature, neutral pH, and absence of UV) and flag (FR-002, SC-006).
   - Invalid SMILES: Skip invalid SMILES strings, log them, and continue (FR-009).
 - **T016a**: Save raw ingested dataset.
   - Logic: Save filtered/flagged records to `data/raw/` with checksums.

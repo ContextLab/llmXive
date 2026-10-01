@@ -1,47 +1,3 @@
-- artifact_hash: e25eca6efa21b9fa406a2000d07f6abfe7b29afe4413bd32bc0539927fe72e8e
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Registry Number Not Found
-  kind: url
-  value: https://webbook.nist.gov/cgi/cbook.cgi?ID=...`
-  verification_status: pending
-  verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi?ID=
-  verified_at: '2026-08-22T09:10:19.931793Z'
-- artifact_hash: e25eca6efa21b9fa406a2000d07f6abfe7b29afe4413bd32bc0539927fe72e8e
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/rest/v/materials/...`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest/v/materials/
-  verified_at: '2026-08-22T09:10:19.931793Z'
-- artifact_hash: e25eca6efa21b9fa406a2000d07f6abfe7b29afe4413bd32bc0539927fe72e8e
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-22T09:10:19.931793Z'
-- artifact_hash: e25eca6efa21b9fa406a2000d07f6abfe7b29afe4413bd32bc0539927fe72e8e
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1711.00066] Fraternal Dropout'
-  kind: url
-  value: https://arxiv.org/abs/1711.00066
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1711.00066
-  verified_at: '2026-08-22T09:10:19.931793Z'
 - artifact_hash: 17e6ffd9140ecbb8252bf9d2a299dbe6c407026c0abb719b96f02f9e2fcc0036
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
   cite_id: c-001
@@ -86,3 +42,36 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-078-predicting-polymer-degradation-pathways-
   verified_at: '2026-09-28T06:55:27.309015Z'
+- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-10-01T13:24:43.703033Z'
+- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Registry Number Not Found
+  kind: url
+  value: https://webbook.nist.gov/cgi/cbook.cgi?ID=...`
+  verification_status: pending
+  verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi?ID=
+  verified_at: '2026-10-01T13:24:43.703033Z'
+- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/rest/v/materials/...`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/rest/v/materials/
+  verified_at: '2026-10-01T13:24:43.703033Z'
