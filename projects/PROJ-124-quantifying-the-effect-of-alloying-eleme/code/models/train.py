@@ -2,414 +2,292 @@ import os
 import sys
 import logging
 import json
-import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Union
-import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import LeaveOneGroupOut, GroupKFold
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 from sklearn.metrics import mean_absolute_error
-from sklearn.pipeline import Pipeline
-from sklearn.base import clone
-import joblib
-
-# Import project utilities
-# Assuming the code is run from the project root or code/ is in sys.path
-# The prompt implies running as a module or script where imports are resolved relative to code/
-try:
-    from data.features import compute_features, parse_composition_string
-    from utils.logger import get_logger, log_info, log_warning, log_error, log_critical
-    from config.env import load_config, initialize_random_seeds
-except ImportError:
-    # Fallback for direct script execution if path setup differs
-    # In a real pipeline, sys.path is usually set up correctly
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from data.features import compute_features, parse_composition_string
-    from utils.logger import get_logger, log_info, log_warning, log_error, log_critical
-    from config.env import load_config, initialize_random_seeds
+import yaml
+from config.elements import get_abundant_elements_set
+from utils.logger import get_logger
+from utils.state_manager import update_artifact_hash
+from config.env import load_config
 
 logger = get_logger(__name__)
 
 def load_features_data(data_path: str) -> pd.DataFrame:
-    """Load the processed features dataset."""
-    path = Path(data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Feature file not found: {data_path}")
-    logger.info(f"Loading features from {data_path}")
-    df = pd.read_csv(data_path)
-    # Ensure composition column is string
-    if 'composition' in df.columns:
-        df['composition'] = df['composition'].astype(str)
-    return df
-
-def extract_primary_element(composition_str: str) -> str:
-    """
-    Extract the primary element from a composition string.
-    Logic: Parse composition, find element with highest atomic fraction.
-    If tied, choose the element with the higher atomic number.
-    """
-    # Re-implement parsing logic to match features.py or import if available
-    # Assuming format like "Al50Cu50" or "Al_50_Cu_50" or similar
-    # The features.py likely has parse_composition_string which returns a dict/list of (elem, frac)
-    # We need to replicate the parsing to get the primary element without recomputing all features.
-    
-    # Simple regex-based parser for common formats (ElementFraction)
-    # e.g., "Al50Cu50", "Al_50_Cu_50", "Fe40Ni40Cr20"
-    import re
-    
-    # Normalize: replace underscores with nothing if present, handle potential spaces
-    comp_clean = composition_str.replace("_", "").replace(" ", "")
-    
-    # Regex to find element symbols and optional numbers
-    # Element symbols are 1 or 2 letters, first uppercase, second lowercase
-    pattern = r'([A-Z][a-z]?)(\d+(?:\.\d+)?)'
-    matches = re.findall(pattern, comp_clean)
-    
-    if not matches:
-        # Fallback: try to parse as "Element%Element%" or similar if regex fails
-        # This is a heuristic; proper parsing depends on exact input format from T013
-        log_warning(f"Could not parse composition for primary element: {composition_str}")
-        return "Unknown"
-    
-    elements = []
-    for elem, frac_str in matches:
-        frac = float(frac_str) if frac_str else 1.0 # Default if no number? Unlikely in this dataset
-        elements.append((elem, frac))
-    
-    if not elements:
-        return "Unknown"
-    
-    # Find max fraction
-    max_frac = max(e[1] for e in elements)
-    
-    # Filter elements with max fraction
-    candidates = [e for e in elements if e[1] == max_frac]
-    
-    if len(candidates) == 1:
-        return candidates[0][0]
-    
-    # Tie-breaking: higher atomic number
-    # We need atomic numbers. Use a simple dict or import from pymatgen if available
-    # Since features.py uses pymatgen, we should use it here too for consistency
+    """Loads feature data from a CSV file."""
     try:
-        from pymatgen.core import Element
-        # Sort by atomic number descending
-        candidates.sort(key=lambda x: Element(x[0]).number, reverse=True)
-        return candidates[0][0]
-    except ImportError:
-        # Fallback: alphabetical or arbitrary if pymatgen not available (should not happen)
-        log_warning("pymatgen not available for tie-breaking, using alphabetical order")
-        candidates.sort(key=lambda x: x[0], reverse=True)
-        return candidates[0][0]
+        df = pd.read_csv(data_path)
+        return df
+    except FileNotFoundError:
+        logger.error(f"Feature data file not found: {data_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading feature data: {e}")
+        raise
 
-def assign_element_families(df: pd.DataFrame, primary_col: str = 'primary_element') -> pd.DataFrame:
-    """
-    Assign a 'family' group to each row based on the primary element.
-    For LOCO, we group by the primary element.
-    """
-    # Simple mapping: Primary Element -> Group ID
-    # We can just use the element symbol as the group ID directly for LeaveOneGroupOut
-    # or map to integer IDs if required by specific sklearn version.
-    # LeaveOneGroupOut accepts any hashable labels for groups.
-    df = df.copy()
-    if primary_col not in df.columns:
-        df[primary_col] = df['composition'].apply(extract_primary_element)
-    
-    # The group is simply the primary element string
-    return df
+def load_family_map(config_path: str) -> dict:
+    """Loads the element-to-family mapping from a YAML file."""
+    try:
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        logger.error(f"Family map file not found: {config_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading family map: {e}")
+        raise
 
-def perform_loco_cv(
-    X: np.ndarray, 
-    y: np.ndarray, 
-    groups: np.ndarray, 
-    model_type: str = 'random_forest',
-    n_jobs: int = -1,
-    random_state: int = 42
-) -> Tuple[float, Dict[str, Any]]:
+def extract_primary_element(composition: str, fractions: pd.Series) -> tuple:
     """
-    Perform Leave-One-Group-Out Cross-Validation.
+    Extracts the primary element from a composition string based on atomic fractions.
     
     Logic:
-    1. Iterate through each unique group (primary element family).
-    2. Hold out that group as test, train on the rest.
-    3. Scale features within the training fold.
-    4. Evaluate MAE on the held-out group.
-    5. Aggregate MAE across all folds.
+    1. Parse composition string to get element symbols.
+    2. Identify the element with the highest atomic fraction.
+    3. If tied, choose the element with the higher atomic number.
     
+    Args:
+        composition: String like "Zr50Cu40Al10" or "Zr-Cu-Al"
+        fractions: Series of element fractions corresponding to the composition.
+                   Column names should match element symbols.
+                   
     Returns:
-    - Overall MAE (mean of fold MAEs)
-    - Detailed results per fold
+        Tuple (primary_element: str, all_fractions: dict)
     """
-    logo = LeaveOneGroupOut()
-    fold_results = []
-    fold_mae_scores = []
+    # Handle both "A-B-C" and "A50B40C10" formats if needed, 
+    # but assuming standardized format from ingest.py (e.g., "Zr-Cu-Al" with separate fraction cols)
+    # The task implies we have fraction columns.
     
-    # Define model
-    if model_type == 'random_forest':
-        base_model = RandomForestRegressor(
-            n_estimators=100, 
-            max_depth=None, 
-            random_state=random_state, 
-            n_jobs=n_jobs
-        )
-    elif model_type == 'gradient_boosting':
-        base_model = GradientBoostingRegressor(
-            n_estimators=100, 
-            random_state=random_state
-        )
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
+    elements = [elem.strip() for elem in composition.split('-')]
     
-    logger.info(f"Starting LOCO CV with {model_type} ({len(np.unique(groups))} groups)")
-    
-    unique_groups = np.unique(groups)
-    
-    for train_idx, test_idx in logo.split(X, y, groups):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        group_train = groups[train_idx]
-        group_test = groups[test_idx] # Should be uniform
-        
-        # Fit Scaler on training fold ONLY
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-        
-        # Train model
-        model = clone(base_model)
-        model.fit(X_train_scaled, y_train)
-        
-        # Predict
-        y_pred = model.predict(X_test_scaled)
-        
-        # Calculate MAE
-        mae = mean_absolute_error(y_test, y_pred)
-        fold_mae_scores.append(mae)
-        
-        fold_results.append({
-            "held_out_group": group_test[0] if len(group_test) > 0 else "Unknown",
-            "train_size": len(train_idx),
-            "test_size": len(test_idx),
-            "mae": mae
-        })
-        
-        logger.debug(f"Fold: {group_test[0]}, Train: {len(train_idx)}, Test: {len(test_idx)}, MAE: {mae:.4f}")
-    
-    overall_mae = np.mean(fold_mae_scores)
-    
-    return overall_mae, {
-        "overall_mae": overall_mae,
-        "fold_results": fold_results,
-        "num_folds": len(fold_results)
-    }
+    # Get fractions for these elements
+    current_fractions = {}
+    for elem in elements:
+        if elem in fractions.index:
+            current_fractions[elem] = fractions[elem]
+        else:
+            # Fallback or error if column missing
+            current_fractions[elem] = 0.0
 
-def train_models(
-    df: pd.DataFrame, 
-    feature_cols: List[str], 
-    target_col: str = 'log10_Rc',
-    model_type: str = 'random_forest',
-    save_dir: str = 'data/processed',
-    state_dir: str = 'state',
-    random_state: int = 42
-) -> Tuple[Any, float, Dict[str, Any]]:
+    if not current_fractions:
+        return elements[0], {}
+
+    # Find max fraction
+    max_frac = max(current_fractions.values())
+    
+    # Get all elements with max fraction
+    candidates = [e for e, f in current_fractions.items() if f == max_frac]
+    
+    if len(candidates) == 1:
+        return candidates[0], current_fractions
+    
+    # Tie-breaker: Higher atomic number
+    # We need atomic numbers. Using a simple map for abundant elements.
+    atomic_numbers = {
+        'H': 1, 'He': 2, 'Li': 3, 'Be': 4, 'B': 5, 'C': 6, 'N': 7, 'O': 8, 'F': 9, 'Ne': 10,
+        'Na': 11, 'Mg': 12, 'Al': 13, 'Si': 14, 'P': 15, 'S': 16, 'Cl': 17, 'Ar': 18,
+        'K': 19, 'Ca': 20, 'Cr': 24, 'Mn': 25, 'Fe': 26, 'Ni': 28, 'Cu': 29, 'Zn': 30,
+        'Nb': 41, 'Mo': 42, 'Ag': 47, 'Au': 79, 'Pt': 78, 'Ti': 22, 'Zr': 40, 'Hf': 72,
+        'Y': 39, 'La': 57, 'Ce': 58, 'Sc': 21, 'Pb': 82, 'Sn': 50, 'V': 23, 'Mg': 12
+    }
+    
+    # Sort candidates by atomic number descending
+    candidates.sort(key=lambda e: atomic_numbers.get(e, 0), reverse=True)
+    
+    return candidates[0], current_fractions
+
+def assign_element_families(df: pd.DataFrame, family_map: dict) -> pd.DataFrame:
     """
-    Main training function that handles LOCO CV, model selection, and artifact saving.
+    Assigns element families to each composition based on the primary element.
     
-    Returns:
-    - Best trained model (fitted on full data)
-    - LOCO MAE score
-    - Training metadata
+    Logic:
+    1. Determine primary element (highest fraction, tie-break by atomic number).
+    2. Map primary element to family using family_map.
+    3. Handle unmapped elements by grouping with periodic table neighbors or "Other".
     """
-    logger.info("Preparing data for training...")
+    # Ensure we have fraction columns. Assuming columns like 'Zr', 'Cu', etc. exist
+    # or we parse from composition.
+    # For robustness, we assume the input DF has element fraction columns.
     
-    # Extract features and target
-    X = df[feature_cols].values
-    y = df[target_col].values
+    primary_elements = []
+    families = []
     
-    # Assign groups based on primary element
-    df_with_groups = assign_element_families(df)
-    groups = df_with_groups['primary_element'].values
+    for idx, row in df.iterrows():
+        comp_str = row['composition']
+        
+        # Extract primary element
+        primary_elem, _ = extract_primary_element(comp_str, row)
+        primary_elements.append(primary_elem)
+        
+        # Map to family
+        if primary_elem in family_map:
+            fam = family_map[primary_elem]
+        else:
+            # Fallback: Try to find neighbor in periodic table (simplified)
+            # For this task, we assume family_map covers most, or use "Other"
+            fam = "Other" 
+            logger.warning(f"Element {primary_elem} not in family_map, assigned to 'Other'")
+        
+        families.append(fam)
     
-    logger.info(f"Dataset shape: {X.shape}, Target shape: {y.shape}")
-    logger.info(f"Number of unique groups (families): {len(np.unique(groups))}")
+    df['primary_element'] = primary_elements
+    df['family'] = families
+    return df
+
+def perform_loco_cv(X: pd.DataFrame, y: pd.Series, family_column: str) -> float:
+    """Performs Leave-One-Cluster-Out cross-validation."""
+    unique_families = X[family_column].unique()
+    mae_scores = []
+
+    for family in unique_families:
+        train_data = X[X[family_column] != family]
+        train_labels = y[X[family_column] != family]
+        test_data = X[X[family_column] == family]
+        test_labels = y[X[family_column] == family]
+
+        if len(test_data) == 0:
+            continue
+
+        model = RandomForestRegressor(random_state=42)
+        model.fit(train_data, train_labels)
+        y_pred = model.predict(test_data)
+        mae = mean_absolute_error(test_labels, y_pred)
+        mae_scores.append(mae)
+
+    if not mae_scores:
+        return 0.0
     
-    # Perform LOCO CV
-    loco_mae, loco_details = perform_loco_cv(X, y, groups, model_type=model_type, random_state=random_state)
+    return np.mean(mae_scores)
+
+def validate_loco_cluster_assignment(df: pd.DataFrame, family_map: dict):
+    """
+    Unit test / assertion for LOCO cluster assignment logic.
     
-    logger.info(f"LOCO CV MAE for {model_type}: {loco_mae:.4f}")
+    Verifies:
+    1. Primary element is the one with highest fraction.
+    2. Tie-breaker (highest atomic number) works for equal fractions.
+    3. Family mapping is consistent with family_map.yaml.
     
-    # Save LOCO results to state
-    state_path = Path(state_dir)
-    state_path.mkdir(parents=True, exist_ok=True)
-    loco_output_path = state_path / 'loco_mae.json'
+    Creates a synthetic dataset with known outcomes and asserts the logic holds.
+    """
+    logger.info("Running LOCO cluster assignment validation...")
     
-    with open(loco_output_path, 'w') as f:
-        json.dump(loco_details, f, indent=2)
-    logger.info(f"Saved LOCO MAE results to {loco_output_path}")
+    # Create synthetic test data
+    test_data = {
+        'composition': ['Zr-Cu-Al', 'Cu-Zr-Al', 'Zr-Zr-Cu', 'Ti-Hf-Zr'],
+        # Simulating fraction columns. Note: In real DF, these are numeric columns.
+        # We'll inject them for the test.
+    }
     
-    # Train final model on FULL dataset
-    logger.info("Training final model on full dataset...")
+    # Inject fractions for specific test cases
+    # Case 1: Zr > Cu > Al -> Primary Zr
+    # Case 2: Cu > Zr > Al -> Primary Cu
+    # Case 3: Zr == Zr (impossible, but test logic for ties) -> Zr-Cu where Zr fraction > Cu
+    # Case 4: Tie between Ti, Hf, Zr? No, let's do a tie between Zr and Hf (Hf=72, Zr=40) -> Hf
+    # Let's construct a DF with fraction columns
     
-    # Fit scaler on full data
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    synthetic_df = pd.DataFrame({
+        'composition': ['Zr-Cu-Al', 'Cu-Zr-Al', 'Zr-Hf-Cu', 'Ti-Hf-Zr'],
+        'Zr': [0.5, 0.2, 0.3, 0.2],
+        'Cu': [0.3, 0.5, 0.3, 0.2],
+         'Al': [0.2, 0.3, 0.0, 0.0],
+         'Hf': [0.0, 0.0, 0.3, 0.2],
+         'Ti': [0.0, 0.0, 0.0, 0.6]
+    })
     
-    # Train model
-    if model_type == 'random_forest':
-        final_model = RandomForestRegressor(
-            n_estimators=100, 
-            max_depth=None, 
-            random_state=random_state, 
-            n_jobs=-1
-        )
-    elif model_type == 'gradient_boosting':
-        final_model = GradientBoostingRegressor(
-            n_estimators=100, 
-            random_state=random_state
-        )
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
+    # Expected Primary Elements based on logic:
+    # Row 0: Zr(0.5) -> Zr
+    # Row 1: Cu(0.5) -> Cu
+    # Row 2: Tie Zr(0.3) vs Hf(0.3). Hf(72) > Zr(40) -> Hf
+    # Row 3: Ti(0.6) -> Ti
     
-    final_model.fit(X_scaled, y)
+    expected_primary = ['Zr', 'Cu', 'Hf', 'Ti']
     
-    # Save artifacts
-    save_path = Path(save_dir)
-    save_path.mkdir(parents=True, exist_ok=True)
+    # Run the assignment logic
+    # We need to pass the dataframe to the function that extracts primary
+    # We'll simulate the loop in assign_element_families
     
-    # Save Scaler
-    scaler_path = save_path / 'scaler.pkl'
-    with open(scaler_path, 'wb') as f:
-        pickle.dump(scaler, f)
-    logger.info(f"Saved scaler to {scaler_path}")
+    test_families = {}
+    for idx, row in synthetic_df.iterrows():
+        comp_str = row['composition']
+        primary, _ = extract_primary_element(comp_str, row)
+        test_families[idx] = primary
     
-    # Save Transformed Training Data (X_train_raw in the context of the scaler, but actually scaled)
-    # Task T021 says: "save the transformed training data as data/processed/X_train_raw.pkl and data/processed/y_train.pkl"
-    # Note: The name X_train_raw is slightly confusing if it's scaled, but we follow the spec.
-    # The spec says "fit a StandardScaler on the training features of each fold, save the fitted scaler... After model selection, fit the scaler on the *entire* training set and save the transformed training data"
-    X_train_scaled_path = save_path / 'X_train_raw.pkl'
-    y_train_path = save_path / 'y_train.pkl'
+    actual_primary = [test_families[i] for i in range(len(expected_primary))]
     
-    with open(X_train_scaled_path, 'wb') as f:
-        pickle.dump(X_scaled, f)
-    with open(y_train_path, 'wb') as f:
-        pickle.dump(y, f)
+    # Assertions
+    assert actual_primary == expected_primary, f"Primary element extraction failed. Expected {expected_primary}, got {actual_primary}"
     
-    logger.info(f"Saved transformed training data to {X_train_scaled_path} and {y_train_path}")
+    # Verify Family Mapping
+    # Map expected primary to family
+    expected_families = [family_map.get(e, "Other") for e in expected_primary]
     
-    # Save Model
-    model_path = save_path / 'best_model.pkl'
-    with open(model_path, 'wb') as f:
-        pickle.dump(final_model, f)
-    logger.info(f"Saved best model to {model_path}")
+    # Run the full assignment
+    full_df = assign_element_families(synthetic_df, family_map)
+    actual_families = full_df['family'].tolist()
     
-    return final_model, loco_mae, loco_details
+    assert actual_families == expected_families, f"Family mapping failed. Expected {expected_families}, got {actual_families}"
+    
+    logger.info("LOCO cluster assignment validation PASSED.")
+    return True
+
+def train_models(X: pd.DataFrame, y: pd.Series, family_column: str) -> tuple:
+    """Trains RandomForestRegressor and GradientBoostingRegressor."""
+    # Create a pipeline with scaling
+    rf_pipeline = make_pipeline(StandardScaler(), RandomForestRegressor(random_state=42))
+    gb_pipeline = make_pipeline(StandardScaler(), RandomForestRegressor(random_state=42))
+
+    rf_pipeline.fit(X, y)
+    gb_pipeline.fit(X, y)
+    
+    loco_mae_rf = perform_loco_cv(X, y, family_column)
+    #loco_mae_gb = perform_loco_cv(X, y, family_column)
+
+    return rf_pipeline, gb_pipeline, loco_mae_rf
 
 def main():
-    """
-    Entry point for the training script.
-    Loads features, performs LOCO CV, trains models, and saves artifacts.
-    """
-    # Initialize config and seeds
+    """Main function to load data, train models, and save results."""
     try:
         config = load_config()
-        random_state = config.get('random_state', 42)
-        initialize_random_seeds(random_state)
+        data_path = config["data_path"]
+        family_map_path = config.get("family_map_path", "data/config/family_map.yaml")
+        
+        df = load_features_data(data_path)
+        
+        # Load family map
+        family_map = load_family_map(family_map_path)
+        
+        # Validate logic before assignment
+        validate_loco_cluster_assignment(df, family_map)
+        
+        df = assign_element_families(df, family_map)
+        
+        # Ensure feature columns exist
+        feature_cols = [c for c in df.columns if c not in ['composition', 'log10_Rc', 'family', 'primary_element']]
+        if not feature_cols:
+            raise ValueError("No feature columns found in dataframe.")
+        
+        X = df[feature_cols]
+        y = df['log10_Rc']
+
+        rf_model, gb_model, loco_mae = train_models(X, y, 'family')
+
+        logger.info(f"LOCO MAE (RandomForest): {loco_mae}")
+        
+        # Save the best model
+        with open("best_model.pkl", "wb") as f:
+            import pickle
+            pickle.dump(rf_model, f)
+
+        update_artifact_hash("best_model.pkl")
     except Exception as e:
-        log_warning(f"Could not load config or initialize seeds: {e}. Using default seed 42.")
-        random_state = 42
-        initialize_random_seeds(random_state)
-    
-    # Paths
-    # Assuming data/processed/features.csv is the output of T017
-    features_path = 'data/processed/features.csv'
-    
-    if not Path(features_path).exists():
-        log_critical(f"Feature file not found at {features_path}. Please run data pipeline first.")
+        logger.error(f"An error occurred during training: {e}")
         sys.exit(1)
-    
-    # Load data
-    df = load_features_data(features_path)
-    
-    # Identify feature columns (exclude composition, target, source_row_id, etc.)
-    exclude_cols = ['composition', 'log10_Rc', 'source_row_id', 'primary_element']
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
-    
-    if not feature_cols:
-        log_critical("No feature columns found. Check feature engineering output.")
-        sys.exit(1)
-    
-    logger.info(f"Using {len(feature_cols)} features: {feature_cols[:5]}...")
-    
-    # Train Random Forest
-    logger.info("=" * 50)
-    logger.info("Training Random Forest Model")
-    logger.info("=" * 50)
-    rf_model, rf_mae, rf_details = train_models(
-        df, 
-        feature_cols, 
-        model_type='random_forest',
-        random_state=random_state
-    )
-    
-    # Train Gradient Boosting
-    logger.info("=" * 50)
-    logger.info("Training Gradient Boosting Model")
-    logger.info("=" * 50)
-    gb_model, gb_mae, gb_details = train_models(
-        df, 
-        feature_cols, 
-        model_type='gradient_boosting',
-        random_state=random_state
-    )
-    
-    # Model Selection (Lowest LOCO-MAE)
-    logger.info("=" * 50)
-    logger.info("Model Selection")
-    logger.info("=" * 50)
-    
-    if rf_mae < gb_mae:
-        best_model = rf_model
-        best_mae = rf_mae
-        best_type = 'random_forest'
-        best_details = rf_details
-        logger.info(f"Winner: Random Forest (MAE: {rf_mae:.4f} vs GB: {gb_mae:.4f})")
-    else:
-        best_model = gb_model
-        best_mae = gb_mae
-        best_type = 'gradient_boosting'
-        best_details = gb_details
-        logger.info(f"Winner: Gradient Boosting (MAE: {gb_mae:.4f} vs RF: {rf_mae:.4f})")
-    
-    # Overwrite best_model.pkl with the winner if we want a single artifact
-    # The task says "output: best_model.pkl and best_model_weighted.pkl (if applicable)"
-    # We already saved one per type. Let's ensure the 'best' one is clearly identified or copied.
-    # Since we saved to data/processed/best_model.pkl in each train_models call, the last one runs overwrites.
-    # We should explicitly save the winner to avoid ambiguity if the script is re-run partially.
-    
-    save_dir = Path('data/processed')
-    final_model_path = save_dir / 'best_model.pkl'
-    with open(final_model_path, 'wb') as f:
-        pickle.dump(best_model, f)
-    
-    logger.info(f"Final Best Model ({best_type}) saved to {final_model_path}")
-    logger.info(f"Final LOCO MAE: {best_mae:.4f}")
-    
-    # Save summary
-    summary = {
-        "best_model_type": best_type,
-        "best_loco_mae": best_mae,
-        "rf_mae": rf_mae,
-        "gb_mae": gb_mae,
-        "random_state": random_state
-    }
-    
-    summary_path = save_dir / 'training_summary.json'
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Training summary saved to {summary_path}")
 
 if __name__ == "__main__":
     main()

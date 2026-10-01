@@ -1,0 +1,34 @@
+# Element to Metallic Family Mapping
+# Generated for PROJ-124: Quantifying the Effect of Alloying Elements on GFA
+# Mapped based on Plan.md and T008e specifications.
+# Format: Element Symbol -> Family Name
+
+Zr: Zr-family
+Hf: Zr-family
+Ti: Zr-family
+Cu: Cu-family
+Ag: Cu-family
+Au: Cu-family
+Al: Al-family
+Ca: Ca-family
+Fe: Fe-family
+Mg: Mg-family
+Si: Si-family
+Na: Na-family
+K: K-family
+Zn: Zn-family
+Cr: Cr-family
+Mn: Mn-family
+V: V-family
+Sn: Sn-family
+Pb: Pb-family
+Ni: Ni-family
+Pt: Pt-family
+Mo: Mo-family
+W: Mo-family
+Nb: Nb-family
+Ta: Nb-family
+Y: Y-family
+La: La-family
+Ce: La-family
+Sc: Sc-family
