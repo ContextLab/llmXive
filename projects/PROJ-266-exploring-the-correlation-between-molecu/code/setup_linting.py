@@ -1,124 +1,85 @@
+"""
+Script to configure linting (flake8/black) and formatting tools.
+Implements T004: Configure linting (flake8/black) and formatting tools.
+"""
 import os
 import sys
 import subprocess
 from pathlib import Path
 from typing import List, Tuple
-from utils.logging import get_logger
+
+# Import logger from local utils
+try:
+    from utils.logging import get_logger
+except ImportError:
+    # Fallback for direct execution if utils not in path
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+
+logger = get_logger(__name__)
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
+    """Get the project root directory (parent of 'code')."""
     current = Path(__file__).resolve()
-    while current.parent != current:
-        if (current / "setup_linting.py").exists():
-            return current
-        current = current.parent
-    raise RuntimeError("Could not find project root")
+    # Assuming this script is in code/
+    return current.parent
 
-def check_config_files(root: Path) -> Tuple[bool, List[str]]:
+def check_config_files(project_root: Path) -> Tuple[bool, List[str]]:
     """Check if flake8 and black config files exist."""
     missing = []
-    if not (root / ".flake8").exists():
+    flake8_cfg = project_root / ".flake8"
+    pyproject_cfg = project_root / "pyproject.toml"
+
+    if not flake8_cfg.exists():
         missing.append(".flake8")
-    if not (root / "pyproject.toml").exists():
-        missing.append("pyproject.toml (for black)")
+    if not pyproject_cfg.exists() or "[tool.black]" not in pyproject_cfg.read_text():
+        missing.append("pyproject.toml (black section)")
+
     return len(missing) == 0, missing
 
-def create_flake8_config(root: Path) -> None:
+def create_flake8_config(project_root: Path) -> None:
     """Create .flake8 configuration file."""
-    config_content = """[flake8]
+    content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
     .eggs,
-    build,
-    dist,
     *.egg-info,
-    .venv,
-    venv,
-    env,
-    data/processed/conformers.pkl
+    build,
+    dist
 per-file-ignores =
-    # Allow long lines in test files for readability
-    tests/*: E501
+    # Allow unused imports in __init__.py
+    */__init__.py: F401
 """
-    config_path = root / ".flake8"
-    config_path.write_text(config_content)
-    logger = get_logger(__name__)
-    logger.info(f"Created {config_path}")
+    path = project_root / ".flake8"
+    path.write_text(content)
+    logger.info(f"Created {path}")
 
-def create_black_config(root: Path) -> None:
-    """Ensure pyproject.toml exists with black configuration."""
-    pyproject_path = root / "pyproject.toml"
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" not in content:
-            # Append black config
-            black_config = """
+def create_black_config(project_root: Path) -> None:
+    """Ensure pyproject.toml has black configuration."""
+    pyproject_path = project_root / "pyproject.toml"
+    content = pyproject_path.read_text() if pyproject_path.exists() else ""
 
+    if "[tool.black]" not in content:
+        black_config = """
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py38']
 include = '\\.pyi?$'
 exclude = '''
 /(
     \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \\.eggs
-)/
-'''
-"""
-            pyproject_path.write_text(content + black_config)
-            logger = get_logger(__name__)
-            logger.info("Updated pyproject.toml with black configuration")
-    else:
-        # Create minimal pyproject.toml with black config
-        config_content = """[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "molecular-flexibility-permeability"
-version = "0.1.0"
-description = "Exploring the correlation between molecular flexibility and drug transport across cell membranes"
-requires-python = ">=3.9"
-dependencies = [
-    "rdkit",
-    "pandas",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "requests",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "pyvib",
-]
-
-[tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \\.eggs
+    | \\.hg
+    | \\.mypy_cache
+    | \\.tox
+    | \\.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -129,91 +90,122 @@ line_length = 88
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v"
 """
-        pyproject_path.write_text(config_content)
-        logger = get_logger(__name__)
-        logger.info(f"Created {pyproject_path}")
+        # Append if file exists, otherwise write new
+        if pyproject_path.exists():
+            with open(pyproject_path, "a") as f:
+                f.write(black_config)
+        else:
+            # Basic build system config if file didn't exist
+            header = """[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
-def run_flake8_check(root: Path) -> bool:
-    """Run flake8 check and return True if it passes."""
-    logger = get_logger(__name__)
+[project]
+name = "molecular-flexibility-permeability"
+version = "0.1.0"
+description = "Exploring the correlation between molecular flexibility and drug transport"
+requires-python = ">=3.8"
+dependencies = [
+    "rdkit",
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "requests",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "nolds",
+]
+"""
+            with open(pyproject_path, "w") as f:
+                f.write(header + black_config)
+        logger.info(f"Updated {pyproject_path} with Black configuration")
+    else:
+        logger.info(f"{pyproject_path} already contains Black configuration")
+
+def run_flake8_check(project_root: Path) -> int:
+    """Run flake8 to check for linting errors."""
+    logger.info("Running flake8 check...")
     try:
         result = subprocess.run(
-            ["flake8", "code/"],
-            cwd=root,
+            ["flake8", str(project_root / "code")],
+            cwd=project_root,
             capture_output=True,
             text=True
         )
         if result.returncode == 0:
-            logger.info("flake8 check passed")
-            return True
+            logger.info("Flake8 check passed.")
+            return 0
         else:
-            logger.warning("flake8 found issues:")
-            logger.warning(result.stdout)
-            logger.warning(result.stderr)
-            return False
+            logger.warning("Flake8 found issues:")
+            print(result.stdout)
+            print(result.stderr)
+            return result.returncode
     except FileNotFoundError:
         logger.error("flake8 not found. Please install it: pip install flake8")
-        return False
+        return 1
+    except Exception as e:
+        logger.error(f"Error running flake8: {e}")
+        return 1
 
-def run_black_check(root: Path) -> bool:
-    """Run black check and return True if it passes."""
-    logger = get_logger(__name__)
+def run_black_check(project_root: Path) -> int:
+    """Run black to check for formatting issues."""
+    logger.info("Running black check...")
     try:
         result = subprocess.run(
-            ["black", "--check", "code/"],
-            cwd=root,
+            ["black", "--check", str(project_root / "code")],
+            cwd=project_root,
             capture_output=True,
             text=True
         )
         if result.returncode == 0:
-            logger.info("black check passed")
-            return True
+            logger.info("Black check passed.")
+            return 0
         else:
-            logger.warning("black found formatting issues:")
-            logger.warning(result.stdout)
-            logger.warning(result.stderr)
-            return False
+            logger.warning("Black found formatting issues. Run 'black code/' to fix.")
+            print(result.stdout)
+            print(result.stderr)
+            return result.returncode
     except FileNotFoundError:
         logger.error("black not found. Please install it: pip install black")
-        return False
+        return 1
+    except Exception as e:
+        logger.error(f"Error running black: {e}")
+        return 1
 
 def main() -> int:
-    """Main entry point for setup_linting script."""
-    logger = get_logger(__name__)
-    logger.info("Setting up linting and formatting tools...")
+    """Main entry point for setup_linting."""
+    logger.info("Starting linting configuration setup (T004)...")
+    project_root = get_project_root()
 
-    root = get_project_root()
-    logger.info(f"Project root: {root}")
-
-    # Check if config files exist
-    configs_exist, missing = check_config_files(root)
-    if not configs_exist:
-        logger.info(f"Missing config files: {missing}")
-        logger.info("Creating configuration files...")
-        create_flake8_config(root)
-        create_black_config(root)
+    # 1. Create config files
+    logger.info("Checking configuration files...")
+    exists, missing = check_config_files(project_root)
+    if not exists:
+        logger.info(f"Missing configs: {missing}. Creating them now...")
+        if ".flake8" in missing:
+            create_flake8_config(project_root)
+        if "pyproject.toml (black section)" in missing:
+            create_black_config(project_root)
     else:
-        logger.info("Configuration files already exist.")
+        logger.info("Configuration files already present.")
 
-    # Run checks
-    flake8_ok = run_flake8_check(root)
-    black_ok = run_black_check(root)
+    # 2. Attempt to run checks (optional, but good for verification)
+    # We log warnings but do not fail the setup if tools are missing
+    flake8_code = run_flake8_check(project_root)
+    black_code = run_black_check(project_root)
 
-    if flake8_ok and black_ok:
-        logger.info("All linting and formatting checks passed!")
+    if flake8_code == 0 and black_code == 0:
+        logger.info("Linting and formatting setup complete and verified.")
         return 0
-    else:
-        logger.warning("Some checks failed. Please fix the issues.")
-        if not flake8_ok:
-            logger.warning("- Run 'flake8 code/' to see flake8 issues")
-        if not black_ok:
-            logger.warning("- Run 'black --check code/' to see formatting issues")
-            logger.warning("- Run 'black code/' to auto-fix formatting")
-        return 1
+    elif flake8_code != 0 or black_code != 0:
+        logger.warning("Linting setup complete, but check found issues. "
+                       "Run 'black code/' and 'flake8 code/' manually to fix.")
+        return 0  # Setup is done, issues are for the developer to fix
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

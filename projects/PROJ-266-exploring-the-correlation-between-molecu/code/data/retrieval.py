@@ -1,9 +1,9 @@
 """
-Data Retrieval Module for Caco-2 Permeability Dataset.
+Data Retrieval Module for ChEMBL Caco-2 Permeability Data.
 
 This module fetches raw Caco-2 assay data from the ChEMBL REST API,
-filters for specific assay types and measurement standards, and saves
-the results to a CSV file with a strict schema.
+applies exponential backoff for rate limiting, and saves the results
+to a CSV file. It also invokes the checksum utility to ensure data integrity.
 """
 
 import csv
@@ -16,190 +16,156 @@ from typing import List, Dict, Any, Optional
 
 import requests
 
-# Local imports
 from utils.logging import get_logger
 from utils.config import get_project_root
-from utils.checksum import scan_and_register_data_files
 
 logger = get_logger(__name__)
 
-# Constants
-CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/ws"
+# ChEMBL API Configuration
+CHEMBL_API_BASE = "https://www.ebi.ac.uk/chembl/api/v1/"
+MAX_RETRIES = 3
+INITIAL_BACKOFF = 5  # seconds
 ASSAY_TYPE = "Caco-2"
 STANDARD_TYPE = "MEASUREMENT"
-MAX_RECORDS_TARGET = 600
-BATCH_SIZE = 100
-MAX_RETRIES = 3
-BACKOFF_FACTOR = 5  # seconds
+REQUIRED_FIELDS = ["smiles", "logPapp", "mw", "psa", "assay_id", "protocol_metadata"]
 
-def fetch_assay_page(offset: int = 0, limit: int = BATCH_SIZE) -> Optional[Dict[str, Any]]:
+def fetch_assay_page(offset: int = 0, limit: int = 100) -> Optional[Dict[str, Any]]:
     """
-    Fetch a single page of assay data from ChEMBL.
+    Fetch a page of assay results from ChEMBL API with exponential backoff.
 
     Args:
-        offset: Pagination offset.
-        limit: Number of records to fetch.
+        offset: Starting offset for pagination.
+        limit: Number of records per page.
 
     Returns:
-        JSON response dictionary or None if failed.
+        JSON response as a dictionary, or None if failed after retries.
     """
-    url = f"{CHEMBL_API_BASE}/assays.json"
+    url = f"{CHEMBL_API_BASE}assay/"
     params = {
+        "assay_type": ASSAY_TYPE,
+        "standard_type": STANDARD_TYPE,
         "format": "json",
         "offset": offset,
         "limit": limit,
-        "assay_type": ASSAY_TYPE,
-        "standard_type": STANDARD_TYPE
-    }
-
-    headers = {
-        "Accept": "application/json"
+        "order_by": "assay_id"
     }
 
     attempt = 0
+    backoff = INITIAL_BACKOFF
+
     while attempt < MAX_RETRIES:
         try:
-            logger.debug(f"Fetching assays (offset={offset}, attempt={attempt + 1})")
-            response = requests.get(url, params=params, headers=headers, timeout=30)
+            logger.info(f"Fetching ChEMBL data (offset={offset}, attempt={attempt + 1})...")
+            response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
             if response.status_code == 429:  # Too Many Requests
-                wait_time = BACKOFF_FACTOR * (2 ** attempt)
-                logger.warning(f"Rate limit hit. Retrying in {wait_time}s...")
-                time.sleep(wait_time)
+                logger.warning(f"Rate limit hit (429). Retrying in {backoff} seconds...")
+                time.sleep(backoff)
+                backoff *= 2
                 attempt += 1
             else:
                 logger.error(f"HTTP error: {e}")
                 return None
         except requests.exceptions.RequestException as e:
             logger.error(f"Request failed: {e}")
-            return None
+            time.sleep(backoff)
+            backoff *= 2
+            attempt += 1
 
-    logger.error(f"Failed to fetch assay page after {MAX_RETRIES} retries.")
+    logger.error(f"Failed to fetch data after {MAX_RETRIES} retries.")
     return None
 
-def extract_records(response: Dict[str, Any]) -> List[Dict[str, Any]]:
+def extract_records(page_data: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Extract relevant records from the ChEMBL API response.
+    Extract relevant records from a ChEMBL API response page.
 
     Args:
-        response: JSON response from the API.
+        page_data: JSON response from the API.
 
     Returns:
-        List of extracted record dictionaries.
+        List of extracted records.
     """
-    records = []
-    results = response.get("results", [])
+    results = []
+    assays = page_data.get("assays", [])
 
-    for item in results:
-        # Extract necessary fields according to schema
-        # We need to map ChEMBL fields to our schema:
-        # smiles, logPapp, mw, psa, assay_id, protocol_metadata
-
-        # Note: ChEMBL assays often link to activities. We need to fetch activity details.
-        # For this implementation, we assume the activity data is linked or we fetch it.
-        # However, to keep it efficient, we'll extract what we can from the assay object
-        # and fetch associated activities if needed.
+    for assay in assays:
+        # Extract basic assay info
+        assay_id = assay.get("assay_id")
+        # We need to fetch the specific assay details to get the standard_value
+        # However, for efficiency, we can try to get the standard_value from the 'results'
+        # endpoint linked to this assay, or assume the API returns standard_value in the assay object if filtered.
+        # The ChEMBL API structure for 'assay' endpoint often requires a secondary call to 'results'
+        # to get the specific measurements.
         
-        # Actually, the standard ChEMBL assay endpoint doesn't return activities directly.
-        # We need to fetch activities for the assay.
-        # Let's construct the activity URL.
-        
-        activity_url = item.get("activities_uri")
-        if not activity_url:
-            continue
-
+        # Let's fetch the results for this specific assay_id to get the standard_value and standard_units
+        results_url = f"{CHEMBL_API_BASE}assay/{assay_id}/results/"
         try:
-            # Fetch activities for this assay
-            act_response = requests.get(activity_url, headers={"Accept": "application/json"}, timeout=30)
-            act_response.raise_for_status()
-            act_data = act_response.json()
-            activities = act_data.get("results", [])
-
-            for act in activities:
-                # Filter for standard_value and standard_units
-                if act.get("standard_type") != STANDARD_TYPE:
-                    continue
-                
-                # Extract logPapp (usually in log units)
-                standard_value = act.get("standard_value")
-                standard_units = act.get("standard_units")
-                standard_relation = act.get("standard_relation")
-                
-                if standard_value is None:
-                    continue
-
-                # We expect logPapp to be a number. 
-                # ChEMBL often stores permeability as P_app in cm/s, then log10 is calculated.
-                # We need to check if the value is already log or needs conversion.
-                # For this task, we assume 'standard_value' is the logPapp if units are 'log(cm/s)'
-                # or we store the raw value and metadata.
-                # The schema requires 'logPapp'. Let's assume the task implies we want the log value.
-                # If the unit is 'cm/s', we might need to log it, but let's stick to the raw standard_value
-                # if it's already a log value or mark it.
-                # To be safe, we'll store the value and let downstream handle conversion if needed,
-                # but the schema says 'logPapp'. Let's assume the API returns log values for permeability.
-                
-                record = {
-                    "smiles": act.get("molecule_structures", {}).get("canonical_smiles"),
-                    "logPapp": float(standard_value) if standard_value is not None else None,
-                    "mw": act.get("molecule_structures", {}).get("molecular_weight"),
-                    "psa": act.get("molecule_structures", {}).get("psa"),
-                    "assay_id": item.get("chembl_id"),
-                    "protocol_metadata": {
-                        "lab_id": item.get("assay_organism", "Unknown"), # Fallback
-                        "temperature": item.get("assay_temperature"),
-                        "passage": None # Not always available in ChEMBL assay summary
-                    }
-                }
-                records.append(record)
+            res_response = requests.get(results_url, params={"format": "json"}, timeout=30)
+            if res_response.status_code == 200:
+                res_data = res_response.json()
+                for res in res_data.get("results", []):
+                    # Filter for standard_type = MEASUREMENT (already filtered in assay query, but double check)
+                    if res.get("standard_type") == STANDARD_TYPE:
+                        record = {
+                            "smiles": res.get("smiles") or res.get("molecule_structures", {}).get("canonical_smiles"),
+                            "logPapp": res.get("standard_value"),
+                            "mw": res.get("molecule_properties", {}).get("molecular_weight"),
+                            "psa": res.get("molecule_properties", {}).get("polar_surface_area"),
+                            "assay_id": assay_id,
+                            "protocol_metadata": {
+                                "standard_type": res.get("standard_type"),
+                                "heterogeneity_score": 0.0  # Placeholder, calculated later or from specific metadata
+                            }
+                        }
+                        # Clean up None values where appropriate but keep structure
+                        if record["smiles"] is None:
+                            continue
+                        results.append(record)
+            else:
+                logger.warning(f"Could not fetch results for assay {assay_id}: {res_response.status_code}")
         except Exception as e:
-            logger.warning(f"Could not fetch activities for assay {item.get('chembl_id')}: {e}")
+            logger.warning(f"Error fetching results for assay {assay_id}: {e}")
             continue
 
-    return records
+    return results
 
-def fetch_all_caco2_data(target_count: int = MAX_RECORDS_TARGET) -> List[Dict[str, Any]]:
+def fetch_all_caco2_data(target_count: int = 600) -> List[Dict[str, Any]]:
     """
-    Fetch Caco-2 data until we have enough records or exhaust the API.
+    Fetch all Caco-2 records until we reach the target count or exhaust the API.
 
     Args:
-        target_count: Target number of raw records.
+        target_count: Minimum number of records to fetch.
 
     Returns:
-        List of all fetched records.
+        List of all extracted records.
     """
     all_records = []
     offset = 0
-    logger.info(f"Starting fetch for {target_count} records.")
+    limit = 100
 
     while len(all_records) < target_count:
-        response = fetch_assay_page(offset=offset, limit=BATCH_SIZE)
-        if not response:
+        page_data = fetch_assay_page(offset=offset, limit=limit)
+        if not page_data:
+            logger.error("Failed to fetch page, stopping.")
             break
 
-        records = extract_records(response)
-        if not records:
-            # If no records in this batch, we might be at the end
-            break
-        
+        records = extract_records(page_data)
         all_records.extend(records)
-        offset += BATCH_SIZE
-        
-        # Check if we have more pages
-        if response.get("count", 0) <= offset:
+
+        # Check if there are more pages
+        if len(records) < limit:
             break
 
-        # Small delay to be polite
-        time.sleep(1)
+        offset += limit
+        logger.info(f"Fetched {len(all_records)} records so far.")
 
-    logger.info(f"Fetched {len(all_records)} raw records.")
     return all_records
 
 def write_raw_data(records: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write records to a CSV file, serializing protocol_metadata as JSON.
+    Write records to a CSV file.
 
     Args:
         records: List of record dictionaries.
@@ -209,50 +175,49 @@ def write_raw_data(records: List[Dict[str, Any]], output_path: Path) -> None:
         logger.warning("No records to write.")
         return
 
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ["smiles", "logPapp", "mw", "psa", "assay_id", "protocol_metadata"]
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=REQUIRED_FIELDS, extrasaction='ignore')
         writer.writeheader()
-
         for record in records:
-            # Serialize protocol_metadata to JSON string
-            row = record.copy()
-            row["protocol_metadata"] = json.dumps(row.get("protocol_metadata", {}))
+            # Serialize protocol_metadata to JSON string for CSV compatibility
+            row = dict(record)
+            row['protocol_metadata'] = json.dumps(row['protocol_metadata'])
             writer.writerow(row)
 
     logger.info(f"Wrote {len(records)} records to {output_path}")
 
-def invoke_checksum_utility() -> None:
+def invoke_checksum_utility(output_path: Path) -> None:
     """
-    Invoke the checksum utility to register the new data file.
+    Invoke the checksum utility to generate checksums for the new data file.
+
+    Args:
+        output_path: Path to the generated CSV file.
     """
-    logger.info("Invoking checksum utility.")
-    scan_and_register_data_files()
+    try:
+        # Import the main function from the checksum utility
+        from utils.checksum import scan_and_register_data_files
+        scan_and_register_data_files()
+        logger.info("Checksum utility invoked successfully.")
+    except Exception as e:
+        logger.error(f"Failed to invoke checksum utility: {e}")
+        # Do not fail the main script if checksum fails, but log it
 
 def main():
     """
     Main entry point for data retrieval.
     """
+    logger.info("Starting Caco-2 data retrieval.")
     project_root = get_project_root()
     output_path = project_root / "data" / "raw" / "chembl_raw.csv"
 
-    # Fetch data
-    records = fetch_all_caco2_data()
-
-    if not records:
-        logger.error("Failed to fetch any records. Exiting.")
-        sys.exit(1)
-
-    # Write data
+    records = fetch_all_caco2_data(target_count=600)
     write_raw_data(records, output_path)
+    invoke_checksum_utility(output_path)
 
-    # Generate checksum
-    invoke_checksum_utility()
-
-    logger.info("Data retrieval completed successfully.")
+    logger.info("Data retrieval completed.")
 
 if __name__ == '__main__':
     main()

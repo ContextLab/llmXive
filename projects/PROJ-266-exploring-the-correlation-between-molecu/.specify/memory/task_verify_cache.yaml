@@ -1,3 +1,17 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory artifacts (`code/`, `tests/`, `data/`) are presented; the claim
+    provides only a textual statement without any file system evidence that the `os.makedirs`
+    calls were executed. The required folders are therefore missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with black settings, or a pre\u2011commit hook) are present in the provided\
+    \ evidence, so the requirement to configure flake8/black is not satisfied. The\
+    \ implementer must add the appropriate configuration artifacts and ensure they\
+    \ are non\u2011empty."
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -6,6 +20,22 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or console output showing the `os.makedirs` calls or the subsequent
+    `assert` checks is provided, and there is no evidence that the required directories
+    actually exist. The implementer must supply the execution artifact (e.g., a Python
+    script or notebook cell) that creates the four directories and demonstrates the
+    assertions passing.
+T008b:
+  c: false
+  h: 3ce19ea0ddb23f61ab3842d23ac7f244b4ee58fcd9c34d96ddffcefc295597f4
+  r: "The provided `code/utils/checksum.py` is truncated (the `scan_and_register_data_files`\
+    \ function ends abruptly) and does not show the logic that computes SHA\u2011\
+    256 checksums for files in `data/` and writes them to `state/pending/checksums.yaml`.\
+    \ Moreover, the required `state/pending/checksums.yaml` file does not exist. The\
+    \ task\u2019s core functionality and output are therefore missing."
 T008d:
   c: true
   h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
@@ -13,6 +43,22 @@ T008d:
     required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
     is present with the exact content `artifact_hashes: {}` as specified. No missing
     or placeholder artifacts remain.'
+T009:
+  c: false
+  h: f23a74305718ef153384256317b1fd7be516c430fdb03b8ea13b9990b0fae785
+  r: The required CSV `data/raw/chembl_raw.csv` does not exist, nor does the generated
+    checksum file `state/pending/checksums.yaml`, and the schema file referenced in
+    the task is missing. Moreover, the provided `retrieval.py` is truncated and does
+    not show the logic for writing the CSV or invoking the checksum utility, so the
+    core requirements are unmet.
+T010:
+  c: false
+  h: 03aa5a535ba95c41fa601317d4ec32bbed0b1c06125f546c7e7489ea0c8e6fdd
+  r: The repository lacks the required input file `data/raw/chembl_raw.csv`, the output
+    `data/processed/filtered_data.csv`, and the checksum file `state/pending/checksums.yaml`.
+    Moreover, `code/data/preprocessing.py` is truncated and does not contain code
+    that writes the filtered CSV or invokes the checksum utility, so the stated processing
+    and logging steps are not actually performed.
 T013:
   c: false
   h: 2ed3643d866df72c1121f09b4e40a45098ba68e12eeae95977e2556b1816cb93
@@ -21,14 +67,6 @@ T013:
     \ logic and the code to write the results to `data/processed/conformers.pkl`).\
     \ Moreover, the required `conformers.pkl` file does not exist. The task\u2019\
     s core output and complete implementation are missing."
-T014:
-  c: false
-  h: 29957688750a2a54a83e0c16e10f06db4b6a2accd996de22cb67adc52b2f3ea4
-  r: The repository lacks the required input file `data/processed/conformers.pkl`
-    and the expected output `data/processed/descriptors_raw.csv`. Moreover, the provided
-    `code/data/descriptors.py` is truncated and does not show the full implementation
-    of loading the conformer file, computing the three variances, or writing the CSV.
-    These essential artifacts are missing, so the task is not genuinely completed.
 T015:
   c: false
   h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620

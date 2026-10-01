@@ -1,64 +1,47 @@
-"""
-Project Structure Initialization Script (T002).
-
-This script creates the foundational directory structure required for the project:
-- code/
-- tests/
-- data/
-
-It executes the required os.makedirs calls and verifies the directories exist.
-"""
 import os
 import sys
 from pathlib import Path
+from utils.logging import get_logger, configure_root_logger
 
-
-def create_directories():
+def create_directories(logger):
     """
     Create the core project directories: code/, tests/, data/.
+    Requirement: Execute os.makedirs('code/', exist_ok=True), etc.
     """
-    # Define the directories to create relative to the project root
     dirs_to_create = ['code', 'tests', 'data']
-
     for dir_name in dirs_to_create:
         dir_path = Path(dir_name)
-        # Execute the required makedirs call with exist_ok=True
-        os.makedirs(str(dir_path), exist_ok=True)
-        print(f"Created directory: {dir_path}")
+        logger.info(f"Creating directory: {dir_path}")
+        os.makedirs(dir_path, exist_ok=True)
+        if not dir_path.is_dir():
+            raise RuntimeError(f"Failed to create directory: {dir_path}")
+        logger.info(f"Successfully created or verified: {dir_path}")
 
-
-def verify_directories():
+def verify_directories(logger):
     """
-    Verify that the required directories were created successfully.
+    Verify that the required directories exist.
     """
-    dirs_to_check = ['code', 'tests', 'data']
-    all_exist = True
-
-    for dir_name in dirs_to_check:
+    required_dirs = ['code', 'tests', 'data']
+    for dir_name in required_dirs:
         dir_path = Path(dir_name)
         if not dir_path.is_dir():
-            print(f"ERROR: Directory {dir_path} does not exist!")
-            all_exist = False
-        else:
-            print(f"Verified directory: {dir_path}")
-
-    return all_exist
-
+            raise FileNotFoundError(f"Required directory missing: {dir_path}")
+        logger.info(f"Verified directory exists: {dir_path}")
 
 def main():
     """
-    Main entry point for the script.
+    Entry point for T002: Create project structure.
     """
-    print("Initializing project structure (Task T002)...")
-    create_directories()
+    logger = configure_root_logger()
+    logger.info("Starting T002: Create project structure")
     
-    if verify_directories():
-        print("Project structure initialization successful.")
-        sys.exit(0)
-    else:
-        print("Project structure initialization failed.")
+    try:
+        create_directories(logger)
+        verify_directories(logger)
+        logger.info("T002 completed successfully.")
+    except Exception as e:
+        logger.error(f"T002 failed: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

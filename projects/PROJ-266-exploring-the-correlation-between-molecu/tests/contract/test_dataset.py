@@ -8,8 +8,9 @@ import sys
 import pytest
 from pathlib import Path
 import yaml
+import pandas as pd
 
-# Add project root to path for imports if necessary, though this test is standalone
+# Add project root to path for imports if necessary
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-molecular-flexibility-permeability" / "contracts" / "dataset.schema.yaml"
 DATA_PATH_RAW = PROJECT_ROOT / "data" / "raw" / "chembl_raw.csv"
@@ -18,8 +19,10 @@ DATA_PATH_PROCESSED = PROJECT_ROOT / "data" / "processed" / "filtered_data.csv"
 def load_schema():
     """Load the JSON schema from the yaml file."""
     if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found at {SCHEMA_PATH}. "
-                                "Ensure T007 has been completed and the schema file exists.")
+        raise FileNotFoundError(
+            f"Schema file not found at {SCHEMA_PATH}. "
+            "Ensure T007 has been completed and the schema file exists."
+        )
     with open(SCHEMA_PATH, 'r') as f:
         return yaml.safe_load(f)
 
@@ -53,19 +56,29 @@ def validate_record(record: dict, schema: dict):
     for field, expected_type in type_checks.items():
         if field in record:
             if not isinstance(record[field], expected_type):
-                errors.append(f"Field '{field}' has type {type(record[field]).__name__}, expected {expected_type}")
+                errors.append(
+                    f"Field '{field}' has type {type(record[field]).__name__}, "
+                    f"expected {expected_type}"
+                )
 
     # Specific validation for protocol_metadata
     if 'protocol_metadata' in record and isinstance(record['protocol_metadata'], dict):
         meta = record['protocol_metadata']
-        meta_required = ['lab_id', 'temperature', 'passage']
+        meta_required = ['standard_type', 'heterogeneity_score']
         for meta_field in meta_required:
             if meta_field not in meta:
                 errors.append(f"Missing required field in protocol_metadata: {meta_field}")
         
-        if 'temperature' in meta and not isinstance(meta['temperature'], (int, float)):
-            errors.append("protocol_metadata.temperature must be a number")
-    
+        if 'heterogeneity_score' in meta:
+            score = meta['heterogeneity_score']
+            if not isinstance(score, (int, float)):
+                errors.append("protocol_metadata.heterogeneity_score must be a number")
+            elif not (0.0 <= score <= 1.0):
+                errors.append("protocol_metadata.heterogeneity_score must be between 0.0 and 1.0")
+        
+        if 'standard_type' in meta and not isinstance(meta['standard_type'], str):
+            errors.append("protocol_metadata.standard_type must be a string")
+
     # Check for empty strings where not allowed
     if 'smiles' in record and (not record['smiles'] or not record['smiles'].strip()):
         errors.append("smiles cannot be empty")
@@ -77,7 +90,6 @@ def load_csv_data(filepath: Path):
     if not filepath.exists():
         raise FileNotFoundError(f"Data file not found at {filepath}")
     
-    import pandas as pd
     df = pd.read_csv(filepath)
     
     # If protocol_metadata is a JSON string (as per T009 requirement), parse it
@@ -86,8 +98,10 @@ def load_csv_data(filepath: Path):
         sample = df['protocol_metadata'].iloc[0] if len(df) > 0 else None
         if isinstance(sample, str):
             try:
-                df['protocol_metadata'] = df['protocol_metadata'].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
-            except json.JSONDecodeError as e:
+                df['protocol_metadata'] = df['protocol_metadata'].apply(
+                    lambda x: json.loads(x) if isinstance(x, str) else x
+                )
+            except json.JSONDecodeError:
                 # If parsing fails, we might have raw strings or mixed types, 
                 # but for strict schema validation we expect the parsed object
                 # If it fails, we'll let the validator catch the type error
@@ -136,10 +150,14 @@ def test_schema_compliance():
             pytest.fail(f"Failed to load or validate processed data: {e}")
 
     if total_records == 0:
-        pytest.fail("No data files found to validate. Ensure T009 and T010 have produced output files.")
+        pytest.fail(
+            "No data files found to validate. Ensure T009 and T010 have produced output files."
+        )
 
     if failed_records > 0:
-        pytest.fail(f"Schema validation failed for {failed_records} out of {total_records} records.\n" + 
-                    "Sample errors:\n" + "\n".join(error_log))
+        pytest.fail(
+            f"Schema validation failed for {failed_records} out of {total_records} records.\n" + 
+            "Sample errors:\n" + "\n".join(error_log)
+        )
 
     assert failed_records == 0, "Schema validation failed."

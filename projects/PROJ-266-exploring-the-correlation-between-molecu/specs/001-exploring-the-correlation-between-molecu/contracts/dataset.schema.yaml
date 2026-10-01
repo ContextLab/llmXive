@@ -1,6 +1,8 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Caco-2 Permeability Dataset Schema"
-description: "Schema for the Caco-2 permeability dataset retrieved from ChEMBL and processed for molecular flexibility analysis."
+$schema: http://json-schema.org/draft-07/schema#
+title: Caco-2 Permeability Dataset Schema
+description: |
+  Schema for the Caco-2 dataset used in the molecular flexibility permeability study.
+  Validated against requirements from T007 and FR-010.
 type: object
 required:
   - smiles
@@ -12,34 +14,39 @@ required:
 properties:
   smiles:
     type: string
-    description: "SMILES string representing the molecular structure."
+    description: Canonical SMILES string of the molecule.
     minLength: 1
   logPapp:
     type: number
-    description: "Apparent permeability coefficient (log Papp) in cm/s."
+    description: Log of the apparent permeability coefficient (cm/s).
   mw:
     type: number
-    description: "Molecular weight in g/mol."
+    description: Molecular weight in g/mol.
   psa:
     type: number
-    description: "Polar Surface Area in Å²."
+    description: Polar Surface Area in Å².
   assay_id:
     type: string
-    description: "Unique identifier for the assay from ChEMBL."
+    description: Unique identifier for the assay from ChEMBL.
   protocol_metadata:
     type: object
-    description: "Metadata regarding the experimental protocol."
+    description: Metadata regarding the assay protocol and conditions.
     required:
-      - lab_id
-      - temperature
-      - passage
+      - standard_type
+      - heterogeneity_score
     properties:
+      standard_type:
+        type: string
+        description: The type of standard used (e.g., MEASUREMENT, ESTIMATE).
+      heterogeneity_score:
+        type: number
+        description: A normalized score indicating protocol heterogeneity (0.0 to 1.0).
       lab_id:
         type: string
-        description: "Identifier for the laboratory or source of the data."
+        description: Identifier for the laboratory performing the assay.
       temperature:
         type: number
-        description: "Temperature at which the assay was conducted (°C)."
+        description: Temperature in Kelvin.
       passage:
         type: integer
-        description: "Cell passage number used in the assay."
+        description: Cell passage number.

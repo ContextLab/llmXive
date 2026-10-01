@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "molecular-flexibility-permeability"
 version = "0.1.0"
-description = "Exploring the correlation between molecular flexibility and drug transport across cell membranes"
-requires-python = ">=3.9"
+description = "Exploring the correlation between molecular flexibility and drug transport"
+requires-python = ">=3.8"
 dependencies = [
     "rdkit",
     "pandas",
@@ -17,25 +17,24 @@ dependencies = [
     "numpy",
     "scipy",
     "statsmodels",
-    "pyvib",
+    "nolds",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311"]
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \.eggs
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -46,6 +45,4 @@ line_length = 88
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v"
