@@ -1,93 +1,117 @@
 # Project Plan: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
 
-## Executive Summary
+## Summary
 
-This project implements a Genome-Wide Association Study (GWAS) pipeline to identify Single Nucleotide Polymorphisms (SNPs) associated with susceptibility to Colony Collapse Disorder (CCD) in honeybees (*Apis mellifera*). The pipeline adheres to strict data integrity, statistical rigor, and reproducibility standards defined in the project specification.
+This project executes a Genome-Wide Association Study (GWAS) on honeybee genomic data to identify Single Nucleotide Polymorphisms (SNPs) associated with susceptibility to Colony Collapse Disorder (CCD). {{claim:c_90ea1c29}} The pipeline includes rigorous quality control, LD pruning, logistic regression with mandatory covariates, Benjamini-Hochberg FDR correction, and machine learning validation using LASSO.
 
-## Objectives
+**Data Source**: NCBI BioProject PRJNA639195 and PRJNA566029 (Primary). No HuggingFace references remain.
+**Reference Genome**: *Apis mellifera* Amel_HAv3.1.
+**Key Constraint**: The pipeline enforces a minimum sample size (n >= 80) and mandatory Varroa mite covariate coverage (>80%) before proceeding.
 
-1. **Primary Goal**: Identify genetic markers (SNPs) significantly associated with CCD status using a logistic regression GWAS approach.
-2. **Statistical Rigor**: Apply Benjamini-Hochberg (BH) False Discovery Rate (FDR) correction to control for multiple testing across the entire set of high-quality SNPs.
-3. **Validation**: Validate findings using LASSO logistic regression and Polygenic Risk Scores (PRS).
-4. **Annotation**: Map significant SNPs to genes and Gene Ontology (GO) terms using the Ensembl Bees API.
-5. **Reproducibility**: Ensure all steps are documented, automated, and reproducible via a defined run-book.
+## Phase 0: Prerequisites & Environment Setup
 
-## Scope
+**Goal**: Establish the computational environment and verify tool availability.
 
-### In Scope
-- Data acquisition from verified public repositories (Hugging Face/NCBI).
-- Data preprocessing (alignment, variant calling, QC, LD pruning).
-- GWAS execution (logistic regression with covariates).
-- Multiple testing correction (BH FDR).
-- Functional annotation of significant SNPs.
-- Machine learning validation (LASSO, PRS).
-- Generation of final reports and visualizations.
+- Install system dependencies: `bwa`, `freebayes`, `bcftools`, `plink`, `samtools`, `entrez-direct`.
+- Install `dwgsim` via conda/bioconda for synthetic validation paths (T013a).
+- Verify `dwgsim` availability (T013b).
+- Set up Python environment with pinned dependencies (`requirements.txt`).
+- Configure API keys for NCBI and Ensembl in `.env`.
 
-### Out of Scope
-- Wet-lab data generation (sequencing, phenotyping).
-- Causal inference (findings are associational).
-- Real-time monitoring of beehives.
+## Phase 1: Data Acquisition & Power Analysis (Blocking)
 
-## Architecture & Workflow
+**Goal**: Verify statistical power and fetch real data from NCBI.
 
-The pipeline follows a linear, stage-gated workflow:
+1. **Run Power Analysis (T005)**: Execute `code/utils/power_analysis.py` to calculate statistical power based on expected effect sizes.
+ - **Gate**: If calculated power < 0.80 or sample size n < 80, the pipeline halts with `ERR_SAMPLE_SIZE_INSUFFICIENT`.
+ - **Output**: `data/processed/power_analysis_report.json`.
+2. **Data Fetch (T012a)**: Execute `code/01_download.py` to fetch SRA metadata and FASTQ files for PRJNA639195 and PRJNA566029.
+ - **Constraint**: Strict SSL verification. No fallback to synthetic data.
+ - **Gate**: Verify sample count n >= 80.
+ - **Output**: `data/raw/fastq_files/`, `data/processed/ncbi_fetch_log.json`.
 
-1. **Setup & Validation**: Environment setup, dependency installation, and power analysis.
-2. **Data Ingestion**: Downloading raw FASTQ/VCF data and phenotype metadata.
-3. **Preprocessing**: Alignment, variant calling, VCF to PLINK conversion, LD pruning, and phenotype harmonization.
-4. **GWAS Execution**: Running PLINK logistic regression with mandatory covariates.
-5. **Statistical Correction**: Applying BH FDR correction and sensitivity analysis.
-6. **Validation & Annotation**: LASSO/PRS validation and Ensembl gene mapping.
-7. **Reporting**: Generating final artifacts and documentation.
+## Phase 2: Preprocessing & Variant Calling
 
-## Data Management
+**Goal**: Align reads, call variants, and prepare PLINK datasets.
 
-- **Raw Data**: Stored in `data/raw/`. Immutable. Verified via checksums.
-- **Interim Data**: Stored in `data/interim/`. Intermediate files (BAM, VCF, PLINK binary).
-- **Processed Data**: Stored in `data/processed/`. Final analysis results (GWAS stats, PRS, annotations).
-- **Sources**:
- - Genomic Data: `bee_genome_variants` (Hugging Face, derived from NCBI BioProject PRJNA/566029).
- - Reference Genome: `Amel_HAv3.1`.
- - Annotation: Ensembl Bees API.
+1. **Alignment & Variant Calling (T014)**: Execute `code/02_align_call.sh`.
+ - Align FASTQ to *Amel_HAv3.1* using `bwa mem`.
+ - Call variants with `freebayes`.
+ - Filter to high-quality biallelic SNPs (QUAL > 30, DP >= 10).
+ - **Output**: `data/interim/raw_variants.vcf`.
+2. **VCF to PLINK Conversion (T015)**: Execute `code/utils/vcf_to_plink.py`.
+ - **Output**: `data/interim/bed.{bed,bim,fam}`.
+3. **Phenotype Harmonization (T062)**: Execute `code/02_harmonize_phenotypes.py`.
+ - Map CCD diagnosis codes to binary (1/0).
+ - **Gate**: Verify Varroa mite data coverage >= 80%.
+ - **Output**: `data/interim/phenotypes_harmonized.fam`.
+4. **LD Pruning (T016)**: Execute `code/utils/preprocess_phenotype.py`.
+ - Perform LD pruning (r² < 0.2) for covariate analysis.
+ - **Output**: `data/interim/bed_pruned.bim`.
 
-## Statistical Methodology
+## Phase 3: GWAS Execution & Machine Learning Validation
 
-- **Association Test**: Logistic Regression (PLINK `--logistic`).
-- **Covariates**: Geographic region, sampling year, Varroa mite count.
-- **Multiple Testing**: Benjamini-Hochberg FDR (q-value < 0.05 threshold).
-- **Power Analysis**: Non-central chi-squared distribution (Target Power > 0.8).
-- **Validation**: 5-fold Cross-Validation for LASSO; Likelihood Ratio Test for PRS.
+**Goal**: Execute the primary GWAS, apply FDR, and validate findings with ML.
+
+1. **Primary GWAS (T017)**: Execute `code/03_gwas.sh`.
+ - Run PLINK logistic regression with mandatory covariates (Geographic Region, Sampling Year, Varroa Count).
+ - **Constraint**: Use ALL high-quality SNPs. Do NOT use the candidate-gene filtered list.
+ - **Output**: `data/interim/gwas_raw.tsv`.
+2. **FDR Correction (T020)**: Execute `code/utils/fdr_correction.py`.
+ - Apply Benjamini-Hochberg procedure to raw p-values.
+ - **Output**: `data/interim/gwas_fdr.tsv`.
+3. **Result Merging (T022)**: Execute `code/04_apply_fdr.sh`.
+ - Merge raw and FDR-corrected results.
+ - **Output**: `data/processed/gwas_results_fdr.tsv`.
+4. **Machine Learning Validation (T027)**: Execute `code/04_ml_validation.py`.
+ - **Method**: LASSO logistic regression with **StratifiedKFold(n_splits=5)** cross-validation.
+ - **Data Split**: **80/20** train-test split (stratified by phenotype).
+ - **Output**: `data/processed/lasso_auc_report.json`.
+5. **PRS & Likelihood Ratio Test (T028, T029)**:
+ - Calculate Polygenic Risk Scores (PRS) for significant SNPs.
+ - Perform likelihood-ratio test comparing PRS model vs. covariates-only model.
+ - **Output**: `data/processed/prs_scores.tsv`, `data/processed/prs_lr_test.json`.
+
+## Phase 4: Sensitivity Analysis & Annotation
+
+**Goal**: Assess robustness and map SNPs to genes.
+
+1. **Threshold Sensitivity (T021)**: Execute `code/utils/threshold_sensitivity.py`.
+ - Sweep across significance thresholds to count robust SNPs.
+ - **Output**: `data/processed/threshold_sensitivity.json`.
+2. **Gene Annotation (T032)**: Execute `code/05_annotation.py`.
+ - Map significant SNPs to genes using Ensembl Bees API v104.
+ - Handle intergenic regions and API failures gracefully.
+ - **Output**: `data/processed/annotation_results.tsv`.
+
+## Phase N: Documentation & Reporting
+
+**Goal**: Compile final reports and ensure reproducibility.
+
+- **Study Design (T023)**: Generate `data/processed/study_design.md`.
+- **Collinearity Report (T031)**: Generate `data/processed/collinearity_report.json`.
+- **Runtime Verification (T089)**: Execute `code/07_wall_clock_timer.py`.
+ - Measure total pipeline runtime.
+ - **Output**: `data/processed/runtime_log.json`.
+- **Final Validation (T095)**: Dry-run on synthetic data to verify all paths.
+
+## Technical Context
+
+- **Reference Genome**: *Apis mellifera* Amel_HAv3.1.
+- **APIs**: Ensembl Bees API v104 for gene mapping.
+- **Statistical Methods**: Logistic Regression (PLINK), Benjamini-Hochberg FDR, LASSO (scikit-learn), Likelihood Ratio Test.
+- **Hardware**: CPU-tractable. No GPU required.
 
 ## Complexity Tracking
 
-| Component | Complexity | Mitigation Strategy |
+| Component | Complexity | Notes |
 |:--- |:--- |:--- |
-| **GWAS Scale** | High (Millions of SNPs) | **Primary GWAS is performed on ALL high-quality SNPs.** Candidate-Gene filtering is applied *only* for downstream functional annotation (T032) to manage API load and focus interpretation, NOT for the statistical test. |
-| **API Load** | Medium | Rate limiting and retry logic in annotation scripts. |
-| **Compute** | Medium | CPU-tractable. No GPU required. |
-| **Data Size** | Medium | Streaming/Chunked processing for large datasets. |
+| Data Fetch | High | Network I/O, SSL verification |
+| Alignment | High | CPU intensive (BWA) |
+| GWAS | Medium | PLINK optimization |
+| ML Validation | Medium | LASSO CV on CPU |
+| Annotation | Medium | API rate limiting |
 
-## Risks & Mitigations
+## Critical Methodological Adjustments
 
-- **Risk**: Insufficient statistical power.
- - **Mitigation**: Gate T005 halts pipeline if power < 0.8.
-- **Risk**: Missing Varroa data.
- - **Mitigation**: T062 halts pipeline if Varroa coverage < 80%.
-- **Risk**: API unavailability.
- - **Mitigation**: Retry logic and fallback to 'UNAVAILABLE' status in annotations.
-- **Risk**: Data fabrication.
- - **Mitigation**: Strict enforcement of real data sources; synthetic data only for pipeline validation (T009) with explicit flags.
-
-## Deliverables
-
-1. `data/processed/gwas_results_fdr.tsv`: Final GWAS results with FDR correction.
-2. `data/processed/annotation_results.tsv`: Gene mappings for significant SNPs.
-3. `data/processed/lasso_auc_report.json`: LASSO validation metrics.
-4. `data/processed/prs_scores.tsv`: Polygenic Risk Scores.
-5. `docs/report_template.md`: Final report structure with mandatory disclaimers.
-
-## References
-
-- **Spec**: `specs/001-gene-regulation/`
-- **Contracts**: `specs/001-gene-regulation/contracts/`
-- **API Surface**: `code/` directory modules.
+*None. The pipeline adheres strictly to the Spec (FR-004) requiring GWAS on all SNPs. Candidate-gene filtering is used only for annotation (T063), not the primary statistical test.*

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T15:21:58.688452Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-207-identifying-genetic-markers-associated-w
-last_run_id: 6f58fa3e-7f33-4ecb-93f7-917e2f86ce83
+last_run_id: 57f1cebd-91ee-418d-9bdc-fb54892e9a46
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w
 title: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
-updated_at: '2026-09-30T03:00:37.224634Z'
+updated_at: '2026-10-01T14:08:43.058661Z'

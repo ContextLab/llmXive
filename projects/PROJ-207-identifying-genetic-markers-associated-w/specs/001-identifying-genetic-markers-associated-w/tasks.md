@@ -336,7 +336,7 @@ entrez-direct
 
 **Purpose**: Resolve conflicts between Spec and Plan regarding Candidate-Gene filtering and ensure documentation reflects the governing Spec requirements.
 
-- [ ] T082 [P] [Plan Revision] Update `plan.md` to remove "Candidate-Gene Pre-filtering" from the "Complexity Tracking" table and the "Critical Methodological Adjustment" section.
+- [ ] T082 [P] [Plan Revision] Update `plan.md` to remove "Candidate-Gene Pre-filtering" from the "Complexity Tracking" table and the "Critical Methodological Adjustment" section. <!-- FAILED: unspecified -->
  - **Specific Action**: Delete the entire "Critical Methodological Adjustment" section (lines 15-25 in plan.md) and remove the "Candidate-Gene Pre-filtering" row from the "Complexity Tracking" table.
  - **Rationale**: The Spec (FR-004) requires GWAS on all high-quality SNPs. The Plan's suggestion to pre-filter for the primary GWAS contradicts the Spec. The Candidate-Gene approach is correctly implemented in T063 *only* for annotation, not for the statistical test.
 

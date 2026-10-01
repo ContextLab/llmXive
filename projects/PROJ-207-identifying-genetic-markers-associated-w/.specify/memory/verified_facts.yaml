@@ -1,10 +1,6 @@
-'|14gb dataset exceed':
-  quote: "The dataset has size 760 GB. It contains 79,302,017 32\xD732-pixel color\
-    \ images, scaled down from images scraped from the World Wide Web over 8 months.\
-    \ The images are classified into 75,062 classes. Each class is a non-abstract\
-    \ noun in WordNet. Images may appear in more than one class. The dataset was motivated\
-    \ by non-parametric models of neural activations in the visual cortex upon seeing\
-    \ images."
-  source_id: 80 Million Tiny Images
-  url: https://en.wikipedia.org/wiki/80_Million_Tiny_Images
-  value: 760 GB
+20|data ratio split testing training using:
+  quote: sample-wise curves at different training set sizes up to 80% of the data.
+    The
+  source_id: '2201.12150'
+  url: https://arxiv.org/abs/2201.12150
+  value: 80%
