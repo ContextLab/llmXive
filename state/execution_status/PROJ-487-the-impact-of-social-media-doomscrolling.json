@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-487-the-impact-of-social-media-doomscrolling",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 5 declared deliverable(s) absent: data/processed/aligned_timeseries.csv; data/processed/granger_results.csv; data/processed/stationarity_check.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-01T16:52:46Z"
+}

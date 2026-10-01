@@ -24,15 +24,6 @@ T007a:
     empty, and contains a valid JSON\u2011Schema definition matching the expected\
     \ structure. No required files are missing, and the artifact fulfills the task\u2019\
     s specification."
-T008:
-  c: false
-  h: c679922adc013f48242269bba45094eb6e211fd72d39a040de7d467f42a47546
-  r: "The provided `validation.py` is truncated and does not show the required pre\u2011\
-    check for the presence of both schema files **and** the Pydantic models file,\
-    \ nor does it demonstrate functions that actually validate data against the two\
-    \ schemas and the models. Moreover, the Pydantic models file (`utils/models.py`\
-    \ or equivalent) is not listed among the artifacts, so the script cannot verify\
-    \ its existence. The task\u2019s core requirements are therefore not satisfied."
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,13 +49,6 @@ T013:
     is not fulfilled. The implementer must add the CSV\u2011writing step (or run the\
     \ script to generate the file) and ensure the file exists and contains the expected\
     \ data for the specified keywords and date range."
-T015c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, program output, or data file was provided that calculates and prints\
-    \ the percentage of days with non\u2011null values, nor any evidence that the\
-    \ process exits with a non\u2011zero status when the percentage is below 95\u202F\
-    %. The required artifact (a runnable verification tool or its result) is missing."
 T017:
   c: false
   h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944

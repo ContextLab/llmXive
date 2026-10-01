@@ -14,3 +14,4 @@ jsonschema
 pdfplumber
 pydantic
 python-dotenv
+scipy  # auto-added: imported by run-book but missing from venv

@@ -17,7 +17,7 @@ This feature implements a time-series analysis pipeline to quantify the relation
 **Project Type**: Data Science Pipeline / CLI
 **Performance Goals**: < 6 hours total runtime; < 7 GB RAM usage
 **Constraints**: CPU-only execution; no external API keys required for GDELT (public S3 access); Google Trends data must be fetched via `pytrends` with robust retry logic; strict adherence to stationarity checks and cointegration logic before analysis.
-**Scale/Scope**: Daily time-series data for 2020-01-01 to 2023-12-31 (approximately four years of daily observations); analysis of multiple lag windows.
+**Scale/Scope**: Daily time-series data for a multi-year period (approximately four years of daily observations); analysis of multiple lag windows.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -93,7 +93,7 @@ projects/PROJ-487-the-impact-of-social-media-doomscrolling/
 
 *   **T010**: Initialize project structure (`data/`, `code/`, `contracts/`).
 *   **T012**: **Fetch GDELT Data via AWS S3 Bulk Download**.
-    *   Download the GDELT 2.0 GKG 2.0 bulk files for 2020-2023 from the public AWS S3 bucket.
+    *   Download the GDELT GKG bulk files for a multi-year period from the public AWS S3 bucket.
     *   Filter for `EventCount` with `AvgTone < 0` (negative sentiment).
     *   Aggregate to daily frequency.
     *   *Constraint*: Use `s3fs` or direct `wget` for bulk retrieval to avoid API rate limits.
@@ -133,7 +133,7 @@ projects/PROJ-487-the-impact-of-social-media-doomscrolling/
     *   Compute Pearson and Spearman correlation coefficients.
     *   Report p-values.
 *   **T029b**: **Granger Causality**.
-    *   Test at lags {2, 3, 7, 14}.
+    *   Test at multiple short-to-medium lags and a short-term lag.
     *   Apply **Holm-Bonferroni correction** for multiple comparisons (5 tests).
     *   *Output*: p-values, F-statistics, significance flags.
 *   **T029c**: **Sensitivity Analysis**.
