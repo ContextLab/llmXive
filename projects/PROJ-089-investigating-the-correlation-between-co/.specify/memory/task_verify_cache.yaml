@@ -85,12 +85,6 @@ T032a:
   r: No `quickstart.md` file or its contents were provided, so we cannot confirm that
     installation and execution instructions were added as required. The implementer
     must supply the updated `quickstart.md` showing the new instructions.
-T032b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file or its contents were presented, so there is no evidence
-    that methodology details and validation study citations were added as required.
-    The required artifact is missing.
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

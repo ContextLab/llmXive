@@ -2,10 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T015a** — The repository contains a `code/preprocessing.py` file, but it is truncated and does not implement the full filtering logic or write the required `data/processed/unified_metrics.csv`. Moreover, the expected output file `data/processed/unified_metrics.csv` is absent. The task’s required output is therefore not produced.
-- **T022** — The repository lacks the required `data/results/sensitivity_analysis.csv` file, and the provided `code/analysis.py` only defines helper functions without any code that calls `run_correlation_analysis` for thresholds 5, 10, 20 and writes the aggregated results to the CSV. The task’s deliverable is therefore not satisfied.
-- **T028b** — The `summary_report.txt` file does not exist, and `code/reporting.py` is incomplete (the implementation is truncated and missing the logic to generate and write the report). Both required artifacts are absent or unfinished, so the task is not genuinely completed.
-- **T032a** — No `quickstart.md` file or its contents were provided, so we cannot confirm that installation and execution instructions were added as required. The implementer must supply the updated `quickstart.md` showing the new instructions.
-- **T032b** — No `research.md` file or its contents were presented, so there is no evidence that methodology details and validation study citations were added as required. The required artifact is missing.
-- **T035** — No `tests/unit/` directory or test files for the metric calculation logic are present in the provided artifact list, so the claimed additional unit tests do not exist. The task requires concrete test files to be added, which are missing.
-- **T036** — No artifact such as a validation log, report, or evidence that `quickstart.md` was executed and passed is present; the implementer provided no output confirming end‑to‑end reproducibility. The required proof of running the quickstart validation is missing.
+- **T040** — No updated `plan.md` file or its contents were provided; without the corrected narrative we cannot confirm that contradictions have been resolved. The required artifact is missing.
+- **T042** — declared artifact(s) missing/empty/invalid: data/raw/repos_metadata.csv

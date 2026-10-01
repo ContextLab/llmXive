@@ -49,10 +49,10 @@ description: "Task list for feature implementation: Investigating the Correlatio
 
 **⚠️ CRITICAL**: No implementation tasks (Phase 1+) can begin until Phase 0 is complete.
 
-- [X] T000a [US1] **Verify Alignment**: Read `spec.md` and `plan.md`. Confirm that the Spec's "Methodological Correction" (Raw Metrics/Semgrep) is correctly implemented in the Plan. **Action**: The Spec (FR-001, FR-002) explicitly mandates raw metrics and Semgrep. The Plan's "Methodological Correction" section contains a documented **Constitution Exception** (Principles VI & VII) resolving the divergence. **Deliverable**: 
-  1. Log entry to `data/logs/spec_verification.log` is NOT required here. 
-  2. **Mandatory Verification**: Confirm the existence and content of `data/logs/constitution_exception.log` (if it exists) OR verify that `plan.md` explicitly documents the exception for Principles VI and VII in its "Constitution Check" table. If the Plan's exception is missing, the task fails.
-  **Note**: If the Plan's exception is missing, the task fails; the pipeline cannot proceed.
+- [X] T000a [US1] **Verify Alignment**: Read `spec.md` and `plan.md`. Confirm that the Spec's "Methodological Correction" (Raw Metrics/Semgrep) is correctly implemented in the Plan. **Action**: The Spec (FR-001, FR-002) explicitly mandates raw metrics and Semgrep. The Plan's "Methodological Correction" section contains a documented **Constitution Exception** (Principles VI & VII) resolving the divergence. **Deliverable**:
+ 1. Log entry to `data/logs/spec_verification.log` is NOT required here.
+ 2. **Mandatory Verification**: Confirm the existence and content of `data/logs/constitution_exception.log` (if it exists) OR verify that `plan.md` explicitly documents the exception for Principles VI and VII in its "Constitution Check" table. If the Plan's exception is missing, the task fails.
+ **Note**: If the Plan's exception is missing, the task fails; the pipeline cannot proceed.
 
 - [X] T000b [US1] **Create Verification Log**: **Action**: Create `data/logs/spec_verification.log` with format: `TIMESTAMP | ALIGNMENT_VERIFIED | Spec mandates Raw/Semgrep, Plan documents Exception | ACTION: UNBLOCK PIPELINE`. **Deliverable**: `data/logs/spec_verification.log`. **Depends on**: T000a.
 
@@ -79,18 +79,18 @@ description: "Task list for feature implementation: Investigating the Correlatio
 - [X] T004 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T005 [P] Implement `code/config.py` with parameter defaults (LOC thresholds: varied levels. Repo limits, tool versions, state file path from Constitution)
 - [X] T006 [P] Implement `code/utils.py` for logging, checksum utilities, and random seed pinning
-- [X] T013 [US1] **Tool Validation**: Implement `code/utils.py` to verify tool availability and validity per Spec SC-005. **Action**: 
-  1. **Primary Check**: Attempt to fetch GitHub star count for Semgrep via API. If stars > 5000, log "PASS".
-  2. **Secondary Check**: If star check fails, perform an **active literature search** using a Python script querying bibliographic databases (e.g., Google Scholar API, arXiv, or DBLP) for "Semgrep" and "technical debt" or "static analysis" citations. 
-  3. **Fail**: If neither check passes, raise an error. **Note**: Do NOT use a hardcoded `literature_citations.json` file. The verification must be dynamic and external.
-  **Deliverable**: `data/logs/tool_validation_log.csv` with columns: `tool_name`, `version`, `stars`, `status`. **Depends on**: T005.
+- [X] T013 [US1] **Tool Validation**: Implement `code/utils.py` to verify tool availability and validity per Spec SC-005. **Action**:
+ 1. **Primary Check**: Attempt to fetch GitHub star count for Semgrep via API. If stars > 5000, log "PASS".
+ 2. **Secondary Check**: If star check fails, perform an **active literature search** using a Python script querying bibliographic databases (e.g., Google Scholar API, arXiv, or DBLP) for "Semgrep" and "technical debt" or "static analysis" citations.
+ 3. **Fail**: If neither check passes, raise an error. **Note**: Do NOT use a hardcoded `literature_citations.json` file. The verification must be dynamic and external.
+ **Deliverable**: `data/logs/tool_validation_log.csv` with columns: `tool_name`, `version`, `stars`, `status`. **Depends on**: T005.
 - [X] T007b [P] **Skeleton & Timeout**: Create `code/main.py` with function stubs. **Action**: Implement `def run_extraction(...) -> pd.DataFrame`, `def run_analysis(...) -> dict`, `def run_reporting(...) -> None`. Implement a configurable timeout logic using `threading.Timer` as cross-platform fallback, with `signal` used only if `sys.platform == 'linux'`. **Deliverable**: `code/main.py` raises `TimeoutError` if execution exceeds **6 hours**. **Log**: Total execution time to `data/logs/pipeline.log` with format `TOTAL_TIME: {duration}s`.
 - [X] T007c [P] **Error Handling**: Implement error handling wrapper in `code/main.py`. **Action**: Wrap repo processing in `try/except` blocks. Log exceptions to `data/logs/pipeline.log` with format `ERROR: {repo_id}: {message}`. **Deliverable**: `code/main.py` continues execution after a repo failure.
 - [X] T007d [P] **Orchestration**: Implement pipeline orchestration in `code/main.py`. **Action**: Call `run_extraction`, `run_analysis`, `run_reporting` sequentially. **Deliverable**: `code/main.py` runs the full pipeline end-to-end on mock data.
-- [X] T007e [P] **Quickstart Creation**: Create `quickstart.md` in the project root. **Action**: Write initial content including: 
-  1. **Installation**: Steps to install Python 3.11, Semgrep, and dependencies from `code/requirements.txt`.
-  2. **Execution**: Command `python code/main.py` and expected output summary.
-  **Deliverable**: `quickstart.md` with the above sections. **Depends on**: T003, T005.
+- [X] T007e [P] **Quickstart Creation**: Create `quickstart.md` in the project root. **Action**: Write initial content including:
+ 1. **Installation**: Steps to install Python 3.11, Semgrep, and dependencies from `code/requirements.txt`.
+ 2. **Execution**: Command `python code/main.py` and expected output summary.
+ **Deliverable**: `quickstart.md` with the above sections. **Depends on**: T003, T005.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -118,8 +118,8 @@ description: "Task list for feature implementation: Investigating the Correlatio
  - For Python: `debt_score` = Sum(Cyclomatic Complexity from Semgrep) + (100 - Maintainability Index from Semgrep). **Note**: If Semgrep does not provide Maintainability Index (MI) for a file, **default MI to 100** (neutral baseline) and calculate `Sum(Cyclomatic Complexity) + (100 - 100)`. Do NOT omit the MI term.
  - For Java, JS, TS, Go, Rust: `debt_score` = Sum(Code Smells + Cyclomatic Complexity) as reported by Semgrep.
  - **Deliverable**: `data/raw/static_analysis/{repo_id}/semgrep_results.json` with per-file scores. **Depends on**: T010, T011, T013.
-- [X] T015a [US1] **Filtering**: Implement `code/preprocessing.py`. **Action**: Filter non-source-code files from T011 and T014 outputs. **Input**: `data/raw/git_history/*/commits.csv` and `data/raw/static_analysis/*/semgrep_results.json`. 
- **Logic**: 
+- [X] T015a [US1] **Filtering**: Implement `code/preprocessing.py`. **Action**: Filter non-source-code files from T011 and T014 outputs. **Input**: `data/raw/git_history/*/commits.csv` and `data/raw/static_analysis/*/semgrep_results.json`.
+ **Logic**:
  1. Include only files with extensions: `.py`, `.java`, `.js`, `.ts`, `.go`, `.rs`.
  2. Exclude files with `total_lines_changed` < 1 or `debt_score` < 0.
  3. Calculate `avg_loc` as the average lines of code per file (from git history or static analysis source lines).
@@ -154,12 +154,12 @@ description: "Task list for feature implementation: Investigating the Correlatio
  5. Convert back to r: `r_combined = (np.exp(2 * z_combined) - 1) / (np.exp(2 * z_combined) + 1)`.
  6. Calculate p-value for `z_combined`.
  **Deliverable**: `data/results/meta_analysis_results.csv` with columns: `method`, `combined_r`, `combined_se`, `p_value`, `k_studies`. **Depends on**: T020.
-- [X] T022 [US2] **Sensitivity Analysis Aggregation**: Implement `code/analysis.py`. **Action**: 
+- [X] T022 [US2] **Sensitivity Analysis Aggregation**: Implement `code/analysis.py`. **Action**:
  1. Load `unified_metrics.csv` from T015a.
  2. For each threshold in the **fixed set** of values: `5`, `10`, `20`:
-    a. Filter data for `avg_loc >= threshold`.
-    b. Run the full correlation logic from T020 (Pearson/Spearman, controlling for `avg_loc`) on the filtered data.
-    c. Record `r_value`, `p_value`, `n`.
+ a. Filter data for `avg_loc >= threshold`.
+ b. Run the full correlation logic from T020 (Pearson/Spearman, controlling for `avg_loc`) on the filtered data.
+ c. Record `r_value`, `p_value`, `n`.
  3. Aggregate results into a single CSV.
  **Deliverable**: `data/results/sensitivity_analysis.csv` with columns: `threshold`, `r_value`, `p_value`, `n`. **Depends on**: T015a, T020.
 
@@ -206,7 +206,7 @@ description: "Task list for feature implementation: Investigating the Correlatio
  3. Steps to install dependencies from `code/requirements.txt`.
  4. Command `python code/main.py`.
  5. Expected output summary (e.g., "Pipeline completed successfully", path to `data/results/summary_report.txt`).
-  **Deliverable**: `quickstart.md` with a complete "Installation" and "Execution" section. **Depends on**: T007e.
+ **Deliverable**: `quickstart.md` with a complete "Installation" and "Execution" section. **Depends on**: T007e.
 - [X] T033b [US3] **Streaming & Memory**: Refactor `code/preprocessing.py` to implement streaming iterator for large files. **Action**: Replace `pandas.read_csv` with `pd.read_csv(..., chunksize=1000)` and use a generator to accumulate statistics. **Success Criteria**: Peak memory usage < 7GB as measured by `code/utils.py` memory monitor (aligned with Plan's 7GB limit). **Depends on**: T015a.
 - [X] T034 [US1] **Batch Logic**: Implement batch processing logic in `code/data_extraction.py` using `queue.Queue`. **Action**: Use `queue.Queue` with `maxsize=100`. **Params**: Batch size = 100 repos; Trigger = RAM > 5GB. **Depends on**: T011.
 - [X] T035 [P] **Unit Tests**: Implement unit tests in `tests/unit/test_metrics.py`. **Action**: Create functions: `test_debt_score_calculation`, `test_churn_calculation`, `test_avg_loc_calculation`. Each function must assert specific expected values. **Depends on**: T015a.
@@ -220,25 +220,25 @@ description: "Task list for feature implementation: Investigating the Correlatio
 
 **⚠️ CRITICAL**: These tasks address specific gaps identified in the initial review of the plan/spec alignment and data loading logic.
 
-- [ ] T040 [US1] **Plan Narrative Correction**: Update `plan.md` to resolve contradictions. **Action**: 
- 1. Locate the "Summary" section in `plan.md`. 
- 2. Remove the statement claiming the study uses "Density Metrics" as a primary approach. 
- 3. Replace with: "This study uses **Raw Metrics** (`total_lines_changed`, `debt_score`) as the primary analysis, with `avg_loc` as a covariate in a Log-Log Linear Model, strictly adhering to Spec FR-001." 
- 4. Ensure the "Methodological Correction" section explicitly states that the Plan **implements** the Spec's Raw Metrics requirement, not a deviation. 
- 5. Verify the "Constitution Exception" table correctly lists Principles VI and VII as exceptions *resolved by the Spec's mandate*, not by the Plan's deviation. 
+- [ ] T040 [US1] **Plan Narrative Correction**: Update `plan.md` to resolve contradictions. **Action**:
+ 1. Locate the "Summary" section in `plan.md`.
+ 2. Remove the statement claiming the study uses "Density Metrics" as a primary approach.
+ 3. Replace with: "This study uses **Raw Metrics** (`total_lines_changed`, `debt_score`) as the primary analysis, with `avg_loc` as a covariate in a Log-Log Linear Model, strictly adhering to Spec FR-001."
+ 4. Ensure the "Methodological Correction" section explicitly states that the Plan **implements** the Spec's Raw Metrics requirement, not a deviation.
+ 5. Verify the "Constitution Exception" table correctly lists Principles VI and VII as exceptions *resolved by the Spec's mandate*, not by the Plan's deviation.
  **Deliverable**: Updated `plan.md` with consistent narrative. **Depends on**: None (Document update).
-- [ ] T041 [US1] **Data Loader Hardening**: Refactor `code/data_extraction.py` to enforce "Fail Loudly" policy. **Action**: 
- 1. Locate the repo cloning logic (T011). 
- 2. Remove any `try/except` block that catches network errors and falls back to `generate_synthetic_repos()` or `mock_data()`. 
- 3. Add a pre-clone validation step to check that the `url` field in the pinned repo list points to a public GitHub repository (SC-004). 
- 4. Ensure that if `pydriller` or `git` fails to clone a repo from the PINNED list, the script raises a `RuntimeError` with a clear message: "Failed to clone real repo {repo_id}. Aborting pipeline to prevent synthetic data fabrication." 
- 5. Add a comment referencing the "Real Data + Real Results Only" rule. 
+- [X] T041 [US1] **Data Loader Hardening**: Refactor `code/data_extraction.py` to enforce "Fail Loudly" policy. **Action**:
+ 1. Locate the repo cloning logic (T011).
+ 2. Remove any `try/except` block that catches network errors and falls back to `generate_synthetic_repos()` or `mock_data()`.
+ 3. Add a pre-clone validation step to check that the `url` field in the pinned repo list points to a public GitHub repository (SC-004).
+ 4. Ensure that if `pydriller` or `git` fails to clone a repo from the PINNED list, the script raises a `RuntimeError` with a clear message: "Failed to clone real repo {repo_id}. Aborting pipeline to prevent synthetic data fabrication."
+ 5. Add a comment referencing the "Real Data + Real Results Only" rule.
  **Deliverable**: Updated `code/data_extraction.py` with no synthetic fallbacks and public URL validation. **Depends on**: T011.
-- [ ] T042 [US1] **Dataset Sourcing**: Implement a robust repo list generator if `data/raw/repos_metadata.csv` is missing. **Action**: 
- 1. In `code/data_extraction.py` (T010), if `data/raw/repos_metadata.csv` is missing, do NOT generate random data. 
- 2. Instead, fetch a verified list of top Python/JS/Java repos from the GitHub API (e.g., `search/repositories?q=stars:>10000&sort=stars`) or use the hardcoded, verified list of 5-10 specific, well-known open-source projects (e.g., `psf/requests`, `tensorflow/tensorflow`, `vuejs/vue`) that are guaranteed to exist. 
- 3. Write this verified list to `data/raw/repos_metadata.csv`. 
- 4. Log the source of the list (API query or hardcoded set) to `data/logs/validation.log`. 
+- [ ] T042 [US1] **Dataset Sourcing**: Implement a robust repo list generator if `data/raw/repos_metadata.csv` is missing. **Action**:
+ 1. In `code/data_extraction.py` (T010), if `data/raw/repos_metadata.csv` is missing, do NOT generate random data.
+ 2. Instead, fetch a verified list of top Python/JS/Java repos from the GitHub API (e.g., `search/repositories?q=stars:>10000&sort=stars`) or use the hardcoded, verified list of 5-10 specific, well-known open-source projects (e.g., `psf/requests`, `tensorflow/tensorflow`, `vuejs/vue`) that are guaranteed to exist.
+ 3. Write this verified list to `data/raw/repos_metadata.csv`.
+ 4. Log the source of the list (API query or hardcoded set) to `data/logs/validation.log`.
  **Deliverable**: `data/raw/repos_metadata.csv` populated with real, reachable repos. **Depends on**: T010.
 
 **Checkpoint**: Plan narrative aligned with Spec; Data loading enforces real-data-only policy.
