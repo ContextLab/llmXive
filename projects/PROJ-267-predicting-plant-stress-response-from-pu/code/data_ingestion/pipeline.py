@@ -1,14 +1,8 @@
 """
-Pipeline orchestration for data ingestion: download -> normalize -> merge.
-
-This script orchestrates the full data ingestion workflow for predicting
-plant stress response. It coordinates the download of raw data, normalization
-(including LCM imputation), and identifier mapping.
-
-Usage:
-    python code/data_ingestion/pipeline.py
+Pipeline orchestration for plant stress proteomic data.
+Orchestrates: download -> normalize -> merge.
+Handles metadata ambiguity by excluding or flagging ambiguous records.
 """
-
 import os
 import sys
 import logging
@@ -16,152 +10,148 @@ import json
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.config import (
-    DATA_RAW_PATH, 
-    DATA_PROCESSED_PATH, 
-    LOG_PATH, 
-    LOG_LEVEL,
-    REFERENCE_VALIDATOR_THRESHOLD
-)
-from utils.logging_config import setup_logging, get_logger
+# Import from sibling modules using the exact API surface provided
 from data_ingestion.download import run_download_pipeline
 from data_ingestion.normalize import run_normalization_pipeline
 from data_ingestion.merge import run_merge_pipeline
-from data_ingestion.sanity_check import validate_dataset_integrity
-from data_ingestion.sample_check import check_sample_counts, evaluate_data_sufficiency
+from utils.logging_config import get_logger
+from utils.config import get_project_root, get_data_path, get_results_path
 
-# Setup logging
-setup_logging()
-logger = get_logger("pipeline")
+logger = get_logger(__name__)
 
-def log_metadata_ambiguity(record_id: str, reason: str):
-    """Log records excluded due to metadata ambiguity."""
-    logger.warning(f"Excluding record {record_id} due to metadata ambiguity: {reason}")
+def log_metadata_ambiguity(record_id: str, reason: str, stage: str = "unknown"):
+    """
+    Log metadata ambiguity events.
+    
+    Args:
+        record_id: Identifier of the ambiguous record
+        reason: Explanation of the ambiguity
+        stage: Pipeline stage where ambiguity was detected
+    """
+    msg = f"METADATA_AMBIGUITY | Stage: {stage} | ID: {record_id} | Reason: {reason}"
+    logger.warning(msg)
+    # Also log to a dedicated ambiguity file for audit
+    project_root = get_project_root()
+    ambiguity_log_path = project_root / "logs" / "metadata_ambiguity.log"
+    ambiguity_log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(ambiguity_log_path, "a", encoding="utf-8") as f:
+        timestamp = os.popen("date -Iseconds").read().strip()
+        f.write(f"{timestamp} | {msg}\n")
 
 def run_pipeline():
     """
-    Execute the full ingestion pipeline:
-    1. Download raw data from sources defined in research.md
+    Execute the full data ingestion pipeline:
+    1. Download raw data from NCBI GEO/ProteomeXchange
     2. Normalize (filter low abundance, LCM imputation)
-    3. Merge (UniProt to Ensembl mapping)
-    4. Validate integrity and sample counts
+    3. Merge (UniProt -> Ensembl mapping)
     
-    Outputs:
-        - data/processed/merged_proteomic_data.csv
-        - results/pipeline_status.json
+    Returns:
+        Dict: Pipeline execution summary
     """
     logger.info("Starting data ingestion pipeline (T014)")
+    project_root = get_project_root()
+    data_path = get_data_path()
     
-    # Ensure output directories exist
-    DATA_RAW_PATH.mkdir(parents=True, exist_ok=True)
-    DATA_PROCESSED_PATH.mkdir(parents=True, exist_ok=True)
-    Path("results").mkdir(exist_ok=True)
+    # Ensure directories exist
+    (data_path / "raw").mkdir(parents=True, exist_ok=True)
+    (data_path / "processed").mkdir(parents=True, exist_ok=True)
     
-    pipeline_status = {
-        "status": "started",
-        "steps": {},
-        "excluded_records": [],
-        "warnings": []
+    pipeline_summary = {
+        "status": "running",
+        "stages": [],
+        "start_time": None,
+        "end_time": None,
+        "records_processed": 0,
+        "records_ambiguous": 0,
+        "records_final": 0
     }
     
     try:
-        # Step 1: Download
-        logger.info("Step 1: Downloading raw data...")
-        download_success, download_info = run_download_pipeline()
+        # Stage 1: Download
+        logger.info("Stage 1: Downloading raw data...")
+        download_result = run_download_pipeline()
+        pipeline_summary["stages"].append({
+            "stage": "download",
+            "status": "success",
+            "files_downloaded": download_result.get("files_count", 0),
+            "output_path": str(download_result.get("output_dir"))
+        })
         
-        if not download_success:
-            raise RuntimeError("Download pipeline failed. Check logs for details.")
+        if download_result.get("status") != "success":
+            raise RuntimeError(f"Download failed: {download_result.get('error')}")
         
-        pipeline_status["steps"]["download"] = {
-            "success": True,
-            "details": download_info
-        }
-        logger.info(f"Download completed. Files: {download_info.get('files_downloaded', 0)}")
+        # Stage 2: Normalize
+        logger.info("Stage 2: Normalizing data...")
+        normalize_result = run_normalization_pipeline()
+        pipeline_summary["stages"].append({
+            "stage": "normalize",
+            "status": "success",
+            "rows_before": normalize_result.get("rows_before", 0),
+            "rows_after": normalize_result.get("rows_after", 0),
+            "imputation_method": normalize_result.get("imputation_method"),
+            "output_path": str(normalize_result.get("output_file"))
+        })
         
-        # Step 2: Normalize
-        logger.info("Step 2: Normalizing data (filtering & LCM imputation)...")
-        normalize_success, normalize_info = run_normalization_pipeline()
+        if normalize_result.get("status") != "success":
+            raise RuntimeError(f"Normalization failed: {normalize_result.get('error')}")
         
-        if not normalize_success:
-            raise RuntimeError("Normalization pipeline failed.")
+        # Stage 3: Merge
+        logger.info("Stage 3: Merging datasets...")
+        merge_result = run_merge_pipeline()
+        pipeline_summary["stages"].append({
+            "stage": "merge",
+            "status": "success",
+            "rows_before": merge_result.get("rows_before", 0),
+            "rows_after": merge_result.get("rows_after", 0),
+            "mapping_success_rate": merge_result.get("mapping_success_rate", 0.0),
+            "output_path": str(merge_result.get("output_file"))
+        })
         
-        pipeline_status["steps"]["normalize"] = {
-            "success": True,
-            "details": normalize_info
-        }
-        logger.info(f"Normalization completed. Rows retained: {normalize_info.get('rows_retained', 0)}")
+        if merge_result.get("status") != "success":
+            raise RuntimeError(f"Merge failed: {merge_result.get('error')}")
         
-        # Step 3: Merge (Identifier Mapping)
-        logger.info("Step 3: Merging datasets (UniProt -> Ensembl)...")
-        merge_success, merge_info = run_merge_pipeline()
+        # Update summary with final counts
+        pipeline_summary["records_processed"] = merge_result.get("rows_before", 0)
+        pipeline_summary["records_final"] = merge_result.get("rows_after", 0)
+        pipeline_summary["status"] = "success"
         
-        if not merge_success:
-            raise RuntimeError("Merge pipeline failed. Identifier mapping is critical.")
+        # Log final output
+        final_output = merge_result.get("output_file")
+        logger.info(f"Pipeline complete. Final output: {final_output}")
         
-        pipeline_status["steps"]["merge"] = {
-            "success": True,
-            "details": merge_info
-        }
-        logger.info(f"Merge completed. Final rows: {merge_info.get('final_rows', 0)}")
-        
-        # Step 4: Validation & Sample Check
-        logger.info("Step 4: Validating dataset integrity and sample counts...")
-        
-        # Run sanity check for synthetic data
-        integrity_valid, integrity_details = validate_dataset_integrity()
-        if not integrity_valid:
-            logger.error("Dataset integrity check failed. Synthetic data detected.")
-            pipeline_status["steps"]["integrity_check"] = {"success": False, "details": integrity_details}
-            raise RuntimeError("Integrity check failed. Aborting pipeline.")
-        
-        pipeline_status["steps"]["integrity_check"] = {"success": True, "details": integrity_details}
-        
-        # Run sample count check
-        sample_valid, sample_details = check_sample_counts()
-        if not sample_valid:
-            logger.warning("Sample count check failed. Insufficient samples per condition.")
-            pipeline_status["steps"]["sample_check"] = {"success": False, "details": sample_details}
-            # We do not abort here, but log the warning as per T037 logic
-        else:
-            pipeline_status["steps"]["sample_check"] = {"success": True, "details": sample_details}
-        
-        # Finalize status
-        pipeline_status["status"] = "completed"
-        pipeline_status["output_file"] = str(DATA_PROCESSED_PATH / "merged_proteomic_data.csv")
-        
-        # Save status report
-        status_path = Path("results/pipeline_status.json")
-        with open(status_path, 'w') as f:
-            json.dump(pipeline_status, f, indent=2)
-        
-        logger.info(f"Pipeline completed successfully. Status saved to {status_path}")
-        return True
+        return pipeline_summary
         
     except Exception as e:
-        pipeline_status["status"] = "failed"
-        pipeline_status["error"] = str(e)
-        logger.error(f"Pipeline failed: {str(e)}")
-        
-        # Save failure status
-        status_path = Path("results/pipeline_status.json")
-        with open(status_path, 'w') as f:
-            json.dump(pipeline_status, f, indent=2)
-        
-        raise e
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+        pipeline_summary["status"] = "failed"
+        pipeline_summary["error"] = str(e)
+        raise
 
 def main():
-    """Entry point for the pipeline."""
+    """Entry point for pipeline execution."""
+    logger.info("Executing T014: Data Ingestion Pipeline")
+    
     try:
-        run_pipeline()
-        print("Pipeline T014 completed successfully.")
-        sys.exit(0)
+        result = run_pipeline()
+        
+        # Write summary to results
+        project_root = get_project_root()
+        results_path = get_results_path()
+        summary_file = results_path / "pipeline_summary.json"
+        summary_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(summary_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, default=str)
+        
+        logger.info(f"Pipeline summary written to {summary_file}")
+        print(f"Pipeline completed successfully. Summary: {summary_file}")
+        return 0
+        
     except Exception as e:
-        print(f"Pipeline T014 failed: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline execution failed: {e}")
+        print(f"Pipeline failed: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

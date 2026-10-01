@@ -1,155 +1,177 @@
 """
 verify_sources.py
 
-Validates that all citations in research.md are verified against primary sources.
-- Fetches primary source metadata (DOI/URL).
-- Verifies title-token overlap >= threshold (from config.py).
-- Verifies semantic relevance (basic keyword check).
-- Fails if any citation fails validation.
+Implements the "Verified Accuracy Gate" for the plant stress response pipeline.
+Fetches metadata for all citations in research.md and verifies title-token overlap
+against a configured threshold.
 """
 
 import os
 import re
 import sys
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import requests
-from bs4 import BeautifulSoup
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import shared config and logging utilities
+# Note: config.py is expected to exist per T004 (though T004 is marked incomplete in feedback,
+# we must implement this task assuming the standard project structure).
+# We will attempt to import config, and if it fails, we will define a minimal fallback
+# to ensure this script can run and report the failure of the gate.
+try:
+    from utils.config import REFERENCE_VALIDATOR_THRESHOLD, LOG_PATH, LOG_LEVEL
+except ImportError:
+    # Fallback defaults if config.py is not yet available
+    REFERENCE_VALIDATOR_THRESHOLD = 0.7
+    LOG_PATH = Path("logs/pipeline.log")
+    LOG_LEVEL = logging.INFO
 
-from utils.config import get_config, REFERENCE_VALIDATION_THRESHOLD, DATA_RAW_PATH
-from utils.logging_config import get_logger, log_warning
+from utils.logging_config import setup_logging, get_logger, log_warning
 
+# Constants
+RESEARCH_MD_PATH = Path("research.md")
+VALIDATION_REPORT_PATH = Path("results/verification_report.json")
+GATE_FAILURE_MESSAGE = "Verified Accuracy Gate Failure"
+
+# Setup logging
+setup_logging(level=LOG_LEVEL, log_path=LOG_PATH)
 logger = get_logger(__name__)
 
-# Constants for citation parsing
-DOI_REGEX = re.compile(r'10\.\d{4,9}/[-._;()/:A-Z0-9]+', re.IGNORECASE)
-URL_REGEX = re.compile(r'https?://[^\s<>"{}|\\^`\[\]]+')
-CITATION_PATTERN = re.compile(r'\[(\d+)\]\s+(.*)', re.DOTALL)
 
-def parse_citations(research_md_path: str) -> List[Dict[str, Any]]:
+def parse_citations(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Parse research.md to extract citations (numbered list or bracketed references).
-    Returns a list of dicts: {'id': int, 'raw_text': str, 'doi': str | None, 'url': str | None, 'title': str | None}
+    Parses research.md to extract citation blocks.
+    Expects a format like:
+    [1] Title: "..." URL: "..." or similar structured text.
+    Returns a list of dicts with 'id', 'title', 'url', 'doi' (if present).
     """
-    if not os.path.exists(research_md_path):
-        raise FileNotFoundError(f"research.md not found at {research_md_path}")
-
-    with open(research_md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    if not file_path.exists():
+        raise FileNotFoundError(f"Research file not found: {file_path}")
 
     citations = []
-    # Simple heuristic: look for lines starting with [N] or lines containing DOIs/URLs that look like references
-    # We assume research.md has a "References" section or similar structure.
-    # For robustness, we look for lines that contain a DOI or a long URL and capture the surrounding text as the title/description.
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-    lines = content.split('\n')
-    current_ref_id = 0
-    in_references_section = False
+    # Regex to capture citation blocks.
+    # Assumes a pattern like: [ID] ... Title: ... URL: ...
+    # This is a heuristic; adjust based on actual research.md format if needed.
+    # Pattern looks for lines starting with [X] or similar markers.
+    citation_pattern = re.compile(
+        r'\[(\d+)\]\s*(?P<text>.*?)(?=\n\[\d+\]|\Z)',
+        re.DOTALL | re.IGNORECASE
+    )
 
-    for line in lines:
-        # Detect start of references section (heuristic)
-        if re.match(r'^#+\s*(References|Bibliography|Citations)', line, re.IGNORECASE):
-            in_references_section = True
-            continue
+    matches = citation_pattern.findall(content)
 
-        if in_references_section or re.search(r'\[\d+\]', line):
-            # Extract DOI
-            doi_match = DOI_REGEX.search(line)
-            doi = doi_match.group(0) if doi_match else None
+    for match_id, text in matches:
+        # Extract title
+        title_match = re.search(r'Title:\s*["\']?(.*?)["\']?', text, re.IGNORECASE)
+        title = title_match.group(1).strip() if title_match else "Unknown Title"
 
-            # Extract URL
-            url_match = URL_REGEX.search(line)
-            url = url_match.group(0) if url_match else None
+        # Extract URL
+        url_match = re.search(r'URL:\s*["\']?(.*?)["\']?', text, re.IGNORECASE)
+        url = url_match.group(1).strip() if url_match else None
 
-            # Extract potential title (text before DOI/URL or the whole line if no DOI/URL)
-            text = line.strip()
-            if not text:
-                continue
+        # Extract DOI
+        doi_match = re.search(r'DOI:\s*["\']?(.*?)["\']?', text, re.IGNORECASE)
+        doi = doi_match.group(1).strip() if doi_match else None
 
-            # Clean up numbering like [1], [2]
-            clean_text = re.sub(r'^\[\d+\]\s*', '', text)
-            # Remove URLs and DOIs from the text to get the title/description
-            clean_text = re.sub(r'https?://[^\s]+', '', clean_text)
-            clean_text = re.sub(r'10\.\d{4,9}/[-._;()/:A-Z0-9]+', '', clean_text)
-            clean_text = clean_text.strip()
-
-            if not clean_text and not doi and not url:
-                continue
-
+        if title != "Unknown Title" or url or doi:
             citations.append({
-                'id': len(citations) + 1,
-                'raw_text': text,
-                'doi': doi,
+                'id': match_id,
+                'title': title,
                 'url': url,
-                'title_candidate': clean_text
+                'doi': doi
             })
 
     if not citations:
-        logger.warning("No citations found in research.md. Assuming empty list or invalid format.")
-
+        logger.warning("No citations found in research.md. Gate may fail.")
+    
     return citations
+
 
 def fetch_doi_metadata(doi: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch metadata for a DOI from Crossref API.
+    Fetches metadata from Crossref API for a given DOI.
+    Returns title and authors if successful, None otherwise.
     """
+    import requests
+    if not doi:
+        return None
+
     url = f"https://api.crossref.org/works/{doi}"
     try:
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             data = response.json()
             item = data.get('message', {}).get('items', [{}])[0]
-            return {
-                'title': item.get('title', [''])[0],
-                'author': item.get('author', []),
-                'published': item.get('published-print', {}).get('date-parts', [[None]])[0][0],
-                'type': item.get('type')
-            }
+            title = item.get('title', [None])[0]
+            return {'title': title, 'source': 'crossref'}
         else:
-            logger.warning(f"Failed to fetch DOI {doi}: HTTP {response.status_code}")
+            logger.warning(f"Crossref API returned {response.status_code} for DOI {doi}")
             return None
     except Exception as e:
-        logger.warning(f"Error fetching DOI {doi}: {e}")
+        logger.error(f"Failed to fetch DOI metadata for {doi}: {e}")
         return None
+
 
 def fetch_url_metadata(url: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch basic metadata (title) from a URL (HTML scraping).
+    Fetches basic metadata from a URL (e.g., arXiv, NCBI).
+    For arXiv, tries to parse title from HTML or API.
+    For others, returns a placeholder or attempts generic title extraction.
     """
+    import requests
+    from bs4 import BeautifulSoup
+    
+    if not url:
+        return None
+
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (compatible; LLMXiveBot/1.0)'}
-        response = requests.get(url, headers=headers, timeout=10)
+        # Handle arXiv specifically as it's common in research
+        if 'arxiv.org' in url:
+            # Try arXiv API
+            api_url = url.replace('abs', 'json')
+            if 'abs' not in api_url: # Fallback if abs wasn't in original
+                api_url = url + '.json'
+            
+            response = requests.get(api_url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                title = data.get('entry', {}).get('title', [None])[0]
+                if title:
+                    return {'title': title, 'source': 'arxiv'}
+            # Fallback to scraping
+        
+        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             title_tag = soup.find('title')
-            title = title_tag.get_text().strip() if title_tag else ""
-            return {'title': title, 'source': url}
-        else:
-            logger.warning(f"Failed to fetch URL {url}: HTTP {response.status_code}")
-            return None
+            if title_tag:
+                return {'title': title_tag.get_text().strip(), 'source': 'scraped'}
+        
+        return None
     except Exception as e:
-        logger.warning(f"Error fetching URL {url}: {e}")
+        logger.warning(f"Failed to fetch URL metadata for {url}: {e}")
         return None
 
-def calculate_token_overlap(text1: str, text2: str) -> float:
+
+def calculate_token_overlap(title1: str, title2: str) -> float:
     """
-    Calculate Jaccard similarity (token overlap) between two strings.
+    Calculates the Jaccard similarity (token overlap) between two titles.
     """
-    if not text1 or not text2:
+    if not title1 or not title2:
         return 0.0
 
-    # Normalize: lowercase, remove punctuation, split
-    def tokenize(s: str) -> set:
-        s = s.lower()
-        s = re.sub(r'[^\w\s]', '', s)
-        return set(s.split())
+    # Normalize: lowercase, remove punctuation, split into tokens
+    def tokenize(text):
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', '', text)
+        return set(text.split())
 
-    tokens1 = tokenize(text1)
-    tokens2 = tokenize(text2)
+    tokens1 = tokenize(title1)
+    tokens2 = tokenize(title2)
 
     if not tokens1 or not tokens2:
         return 0.0
@@ -159,118 +181,110 @@ def calculate_token_overlap(text1: str, text2: str) -> float:
 
     return len(intersection) / len(union) if union else 0.0
 
-def verify_semantic_relevance(title_candidate: str, metadata: Dict[str, Any]) -> bool:
+
+def verify_semantic_relevance(citation: Dict[str, Any], threshold: float) -> Tuple[bool, float, Optional[str]]:
     """
-    Basic semantic relevance check:
-    - Ensure the fetched title contains significant words from the candidate.
-    - Check for presence of 'Plant', 'Protein', 'Stress', 'Arabidopsis', 'Rice', 'Wheat' if applicable.
+    Verifies if the fetched metadata matches the citation title sufficiently.
+    Returns (is_valid, overlap_score, source_type).
     """
-    # If we have no candidate text, we can't verify
-    if not title_candidate:
-        return True  # Or False? Let's assume if no candidate, we trust the link/DOI.
+    citation_title = citation.get('title', '')
+    fetched_title = None
+    source_type = None
 
-    # Check for domain-specific keywords if the candidate mentions them
-    keywords = ['plant', 'protein', 'stress', 'arabidopsis', 'rice', 'wheat', 'proteomic', 'transcriptomic']
-    candidate_lower = title_candidate.lower()
-    metadata_title = metadata.get('title', '').lower()
+    # Try DOI first
+    if citation.get('doi'):
+        meta = fetch_doi_metadata(citation['doi'])
+        if meta:
+            fetched_title = meta['title']
+            source_type = meta['source']
 
-    # Count how many keywords from the candidate appear in the metadata title
-    matches = 0
-    for kw in keywords:
-        if kw in candidate_lower and kw in metadata_title:
-            matches += 1
+    # Try URL if DOI failed or no DOI
+    if not fetched_title and citation.get('url'):
+        meta = fetch_url_metadata(citation['url'])
+        if meta:
+            fetched_title = meta['title']
+            source_type = meta['source']
 
-    # If the candidate has specific keywords, they must appear in the metadata
-    if any(kw in candidate_lower for kw in keywords) and matches == 0:
-        return False
+    if not fetched_title:
+        logger.warning(f"Could not fetch metadata for citation {citation['id']}")
+        return False, 0.0, None
 
-    return True
+    overlap = calculate_token_overlap(citation_title, fetched_title)
+    is_valid = overlap >= threshold
 
-def validate_citation(citation: Dict[str, Any], threshold: float) -> Tuple[bool, str]:
+    return is_valid, overlap, source_type
+
+
+def validate_citation(citation: Dict[str, Any], threshold: float) -> Dict[str, Any]:
     """
-    Validate a single citation.
-    Returns (is_valid, message)
+    Validates a single citation.
     """
-    doi = citation.get('doi')
-    url = citation.get('url')
-    title_candidate = citation.get('title_candidate', '')
+    is_valid, score, source = verify_semantic_relevance(citation, threshold)
+    return {
+        'id': citation['id'],
+        'title': citation['title'],
+        'verified': is_valid,
+        'overlap_score': score,
+        'source': source,
+        'threshold': threshold
+    }
 
-    if not doi and not url:
-        return False, "No DOI or URL found in citation."
-
-    metadata = None
-    if doi:
-        logger.info(f"Validating DOI: {doi}")
-        metadata = fetch_doi_metadata(doi)
-    elif url:
-        logger.info(f"Validating URL: {url}")
-        metadata = fetch_url_metadata(url)
-
-    if not metadata:
-        return False, "Could not fetch metadata from primary source."
-
-    # 1. Check Title Overlap
-    overlap = calculate_token_overlap(title_candidate, metadata.get('title', ''))
-    if overlap < threshold:
-        return False, f"Title token overlap ({overlap:.2f}) is below threshold ({threshold})."
-
-    # 2. Check Semantic Relevance
-    if not verify_semantic_relevance(title_candidate, metadata):
-        return False, "Semantic relevance check failed (keyword mismatch)."
-
-    return True, "Validated successfully."
 
 def main():
     """
-    Main entry point for verify_sources.py.
+    Main entry point for the verification gate.
+    1. Parse research.md.
+    2. Validate each citation.
+    3. If any fail, exit with 'Verified Accuracy Gate Failure'.
+    4. Write report to results/verification_report.json.
     """
-    config = get_config()
-    threshold = config.get('reference_validation_threshold', REFERENCE_VALIDATION_THRESHOLD)
-    research_path = config.get('research_md_path', 'research.md')
+    logger.info("Starting Source Verification Gate (T035)...")
 
-    # Resolve relative path if needed
-    if not os.path.isabs(research_path):
-        # Try relative to project root, then relative to script
-        if not os.path.exists(research_path):
-            parent = Path(__file__).parent.parent
-            research_path = str(parent / research_path)
+    # Ensure results directory exists
+    VALIDATION_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting source verification for: {research_path} with threshold {threshold}")
-
-    try:
-        citations = parse_citations(research_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-
+    citations = parse_citations(RESEARCH_MD_PATH)
     if not citations:
-        logger.warning("No citations found to validate. Exiting successfully.")
-        return
-
-    failed_citations = []
-    for citation in citations:
-        is_valid, message = validate_citation(citation, threshold)
-        if is_valid:
-            logger.info(f"Citation {citation['id']}: OK - {message}")
-        else:
-            logger.error(f"Citation {citation['id']}: FAILED - {message}")
-            failed_citations.append({
-                'id': citation['id'],
-                'raw_text': citation['raw_text'],
-                'reason': message
-            })
-
-    if failed_citations:
-        logger.error(f"Validation FAILED for {len(failed_citations)} citations.")
-        # Write failure report
-        report_path = Path(DATA_RAW_PATH) / "source_validation_report.json"
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_path, 'w', encoding='utf-8') as f:
-            json.dump(failed_citations, f, indent=2)
-        logger.error(f"Failure report written to {report_path}")
+        logger.error("No citations found in research.md. Cannot proceed.")
+        print(GATE_FAILURE_MESSAGE)
         sys.exit(1)
-    else:
-        logger.info("All citations validated successfully.")
 
-if __name__ == "__main__":
+    logger.info(f"Found {len(citations)} citations to validate.")
+
+    results = []
+    all_passed = True
+
+    for citation in citations:
+        result = validate_citation(citation, REFERENCE_VALIDATOR_THRESHOLD)
+        results.append(result)
+        if not result['verified']:
+            all_passed = False
+            logger.error(f"Citation {result['id']} failed validation (Score: {result['overlap_score']:.2f} < {REFERENCE_VALIDATOR_THRESHOLD})")
+        else:
+            logger.info(f"Citation {result['id']} passed (Score: {result['overlap_score']:.2f})")
+
+    # Write report
+    report = {
+        'timestamp': str(Path().absolute()), # Simple timestamp placeholder
+        'total_citations': len(citations),
+        'passed': all_passed,
+        'threshold': REFERENCE_VALIDATOR_THRESHOLD,
+        'details': results
+    }
+
+    with open(VALIDATION_REPORT_PATH, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Verification report written to {VALIDATION_REPORT_PATH}")
+
+    if not all_passed:
+        logger.critical(GATE_FAILURE_MESSAGE)
+        print(GATE_FAILURE_MESSAGE)
+        sys.exit(1)
+    
+    logger.info("Source Verification Gate PASSED.")
+    sys.exit(0)
+
+
+if __name__ == '__main__':
     main()

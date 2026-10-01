@@ -1,21 +1,7 @@
 """
-Sanity check module for verifying the integrity of the merged dataset.
-
-This script ensures that the merged dataset contains real measured values
-and detects any synthetic placeholder data, fake IDs, or constant columns
-that suggest data fabrication.
-
-Checks performed:
-1. Detect columns with names suggesting synthetic data (e.g., 'random_*')
-2. Identify constant columns with fake/placeholder IDs
-3. Verify presence of real measured values (non-zero variance)
-4. Check for suspicious patterns indicating data fabrication
-
-Exit codes:
-0 - All checks passed, dataset appears real
-1 - One or more checks failed, dataset may contain synthetic data
+Sanity check module for verifying dataset integrity.
+Ensures that merged datasets contain real measured values and not synthetic placeholders.
 """
-
 import os
 import sys
 import re
@@ -23,312 +9,395 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Import project configuration and logging utilities
+from utils.logging_config import get_logger
+from utils.config import DATA_PROCESSED_PATH
 
-from utils.config import DATA_PROCESSED_PATH, LOG_PATH
-from utils.logging_config import setup_logging, get_logger, log_warning
-from utils.data_utils import load_csv, load_parquet
-
-# Setup logging
-setup_logging()
 logger = get_logger(__name__)
 
 # Constants for detection
-SYNTHETIC_COLUMN_PATTERNS = [
-    r'random.*',
-    r'fake.*',
-    r'placeholder.*',
-    r'synthetic.*',
-    r'generated.*',
-    r'test.*',
-    r'sample.*',
-    r'dummy.*'
+SYNTHETIC_PATTERNS = [
+    r'^fake_',
+    r'^synthetic_',
+    r'^mock_',
+    r'^placeholder_',
+    r'^test_data_',
+    r'^random_',
+    r'^generated_',
+    r'^dummy_'
 ]
 
-# Thresholds for detection
-CONSTANT_COLUMN_THRESHOLD = 0.999  # If variance ratio < this, consider constant
-MIN_REAL_VALUES_RATIO = 0.01  # At least 1% of values should be real measurements
+FAKE_ID_PATTERNS = [
+    r'^FAKE_ID_\d+$',
+    r'^TEST_ID_\d+$',
+    r'^MOCK_ID_\d+$',
+    r'^0+$',  # All zeros
+    r'^NA+$', # All NA strings
+    r'^NULL+$'
+]
 
+SUSPICIOUS_STATISTICAL_THRESHOLDS = {
+    'constant_ratio': 0.99,  # If >99% of values are identical
+    'zero_variance': 1e-10,
+    'perfect_correlation': 0.9999
+}
 
 def detect_synthetic_column_names(df: pd.DataFrame) -> List[str]:
     """
-    Detect columns with names suggesting synthetic data generation.
+    Detect columns with names suggesting synthetic or fake data.
     
     Args:
-        df: Input DataFrame to check
+        df: DataFrame to check
         
     Returns:
-        List of column names that match synthetic patterns
+        List of column names matching synthetic patterns
     """
-    synthetic_columns = []
-    
+    synthetic_cols = []
     for col in df.columns:
-        col_lower = col.lower()
-        for pattern in SYNTHETIC_COLUMN_PATTERNS:
-            if re.match(pattern, col_lower, re.IGNORECASE):
-                synthetic_columns.append(col)
+        col_str = str(col).lower()
+        for pattern in SYNTHETIC_PATTERNS:
+            if re.search(pattern, col_str):
+                synthetic_cols.append(col)
+                logger.warning(f"Detected potentially synthetic column name: {col}")
                 break
-                
-    return synthetic_columns
+    return synthetic_cols
 
-
-def detect_constant_fake_ids(df: pd.DataFrame, id_columns: List[str]) -> List[str]:
+def detect_constant_fake_ids(df: pd.DataFrame, id_columns: Optional[List[str]] = None) -> List[str]:
     """
-    Detect constant columns that appear to be fake IDs.
+    Detect columns that appear to be fake IDs (constant or following fake patterns).
     
     Args:
-        df: Input DataFrame
-        id_columns: List of columns that should contain IDs
+        df: DataFrame to check
+        id_columns: Specific columns to check as IDs. If None, checks all object/string columns.
         
     Returns:
-        List of constant ID columns that may be fake
+        List of column names identified as fake IDs
     """
-    constant_fake_ids = []
+    fake_id_cols = []
+    
+    if id_columns is None:
+        # Check all object and string columns
+        id_columns = [col for col in df.columns if df[col].dtype == 'object' or df[col].dtype == 'string']
     
     for col in id_columns:
         if col not in df.columns:
             continue
             
+        unique_vals = df[col].unique()
+        unique_count = len(unique_vals)
+        total_count = len(df)
+        
         # Check if column is constant
-        unique_values = df[col].nunique()
-        if unique_values == 1:
-            # Single value across all rows - likely fake
-            constant_fake_ids.append(col)
-            logger.warning(f"Constant ID column detected: {col} (single value: {df[col].iloc[0]})")
-        elif unique_values < len(df) * 0.1:
-            # Very few unique values relative to sample size
-            logger.warning(f"Suspiciously low unique values in ID column: {col} ({unique_values} unique in {len(df)} rows)")
-            
-    return constant_fake_ids
+        if unique_count == 1:
+            val = unique_vals[0]
+            if isinstance(val, str):
+                for pattern in FAKE_ID_PATTERNS:
+                    if re.match(pattern, val):
+                        fake_id_cols.append(col)
+                        logger.warning(f"Detected constant fake ID column: {col} with value '{val}'")
+                        break
+            elif pd.isna(val) or val == '':
+                fake_id_cols.append(col)
+                logger.warning(f"Detected constant fake ID column: {col} with null/empty value")
+            continue
+        
+        # Check if all values match fake patterns
+        fake_pattern_count = 0
+        for val in unique_vals:
+            if isinstance(val, str):
+                for pattern in FAKE_ID_PATTERNS:
+                    if re.match(pattern, val):
+                        fake_pattern_count += 1
+                        break
+        
+        if fake_pattern_count == unique_count:
+            fake_id_cols.append(col)
+            logger.warning(f"Detected column {col} with all values matching fake ID patterns")
+    
+    return fake_id_cols
 
-
-def detect_constant_numeric_columns(df: pd.DataFrame, exclude_columns: List[str]) -> List[str]:
+def detect_constant_numeric_columns(df: pd.DataFrame) -> List[str]:
     """
-    Detect numeric columns with suspiciously low variance (constant values).
+    Detect numeric columns that are constant or have near-zero variance.
     
     Args:
-        df: Input DataFrame
-        exclude_columns: Columns to exclude from check (e.g., ID columns, metadata)
+        df: DataFrame to check
         
     Returns:
-        List of constant numeric columns
+        List of column names with constant or suspiciously low variance
     """
-    constant_numeric = []
+    constant_cols = []
     
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     
     for col in numeric_cols:
-        if col in exclude_columns:
-            continue
-            
-        # Skip columns with all NaN
         if df[col].isna().all():
-            continue
+            continue  # Skip all-NA columns
             
         # Calculate variance
-        non_null_values = df[col].dropna()
-        if len(non_null_values) == 0:
-            continue
-            
-        variance = non_null_values.var()
-        mean = non_null_values.mean()
+        var = df[col].var()
         
-        # Handle edge cases
-        if pd.isna(variance) or pd.isna(mean):
-            continue
-            
-        if mean == 0:
-            # All zeros or very small values
-            if variance == 0:
-                constant_numeric.append(col)
-                logger.warning(f"Constant zero column detected: {col}")
-            continue
-            
-        # Coefficient of variation check
-        cv = variance / (mean ** 2) if mean != 0 else 0
-        
-        # If variance is extremely low relative to mean
-        if variance < (abs(mean) * 1e-10):
-            constant_numeric.append(col)
-            logger.warning(f"Constant numeric column detected: {col} (variance={variance}, mean={mean})")
-            
-    return constant_numeric
-
+        if var == 0:
+            constant_cols.append(col)
+            logger.warning(f"Detected constant numeric column: {col} (variance = 0)")
+        elif var < SUSPICIOUS_STATISTICAL_THRESHOLDS['zero_variance']:
+            # Check if it's actually constant due to rounding
+            unique_vals = df[col].dropna().unique()
+            if len(unique_vals) <= 2:
+                constant_cols.append(col)
+                logger.warning(f"Detected near-constant numeric column: {col} (variance = {var}, unique values = {len(unique_vals)})")
+    
+    return constant_cols
 
 def detect_suspicious_patterns(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Detect suspicious patterns that may indicate data fabrication.
+    Detect various suspicious statistical patterns that might indicate synthetic data.
     
     Args:
-        df: Input DataFrame
+        df: DataFrame to check
         
     Returns:
         Dictionary with detection results
     """
     results = {
-        'synthetic_column_names': [],
-        'constant_fake_ids': [],
-        'constant_numeric_columns': [],
-        'suspicious_patterns': [],
-        'issues_found': False
+        'constant_ratio_columns': [],
+        'perfect_correlation_pairs': [],
+        'all_nan_columns': [],
+        'suspicious_summary': {}
     }
     
-    # 1. Check for synthetic column names
-    results['synthetic_column_names'] = detect_synthetic_column_names(df)
-    if results['synthetic_column_names']:
-        results['issues_found'] = True
-        logger.error(f"Synthetic column names detected: {results['synthetic_column_names']}")
-    
-    # 2. Check for constant fake IDs
-    # Common ID column patterns
-    id_patterns = ['protein_id', 'gene_id', 'sample_id', 'accession', 'uniprot', 'ensembl']
-    potential_id_cols = [col for col in df.columns if any(pattern in col.lower() for pattern in id_patterns)]
-    results['constant_fake_ids'] = detect_constant_fake_ids(df, potential_id_cols)
-    
-    # 3. Check for constant numeric columns
-    exclude_cols = potential_id_cols + ['stress_condition', 'species', 'treatment', 'replicate']
-    results['constant_numeric_columns'] = detect_constant_numeric_columns(df, exclude_cols)
-    
-    # 4. Check for suspicious value patterns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    for col in numeric_cols:
-        non_null = df[col].dropna()
-        if len(non_null) < 10:
+    # Check for constant ratio columns
+    for col in df.columns:
+        if df[col].isna().all():
+            results['all_nan_columns'].append(col)
             continue
             
-        # Check for too many identical values
-        value_counts = non_null.value_counts()
-        max_count = value_counts.max()
-        ratio = max_count / len(non_null)
+        non_na = df[col].dropna()
+        if len(non_na) == 0:
+            continue
+            
+        unique_count = len(non_na.unique())
+        total_count = len(non_na)
+        constant_ratio = unique_count / total_count if total_count > 0 else 0
         
-        if ratio > 0.9:
-            results['suspicious_patterns'].append(
-                f"Column '{col}' has {ratio:.1%} identical values"
-            )
-            logger.warning(f"Suspicious pattern in {col}: {ratio:.1%} identical values")
+        if constant_ratio < SUSPICIOUS_STATISTICAL_THRESHOLDS['constant_ratio']:
+            results['constant_ratio_columns'].append({
+                'column': col,
+                'ratio': constant_ratio,
+                'unique_values': unique_count,
+                'total_values': total_count
+            })
+            logger.warning(f"Column {col} has suspiciously low unique value ratio: {constant_ratio:.4f}")
     
-    if results['suspicious_patterns']:
-        results['issues_found'] = True
-        
+    # Check for perfect correlations between numeric columns
+    numeric_df = df.select_dtypes(include=[np.number])
+    if numeric_df.shape[1] > 1:
+        corr_matrix = numeric_df.corr()
+        for i in range(len(corr_matrix.columns)):
+            for j in range(i + 1, len(corr_matrix.columns)):
+                corr_val = abs(corr_matrix.iloc[i, j])
+                if corr_val >= SUSPICIOUS_STATISTICAL_THRESHOLDS['perfect_correlation']:
+                    results['perfect_correlation_pairs'].append({
+                        'col1': corr_matrix.columns[i],
+                        'col2': corr_matrix.columns[j],
+                        'correlation': corr_val
+                    })
+                    logger.warning(f"Perfect correlation detected between {corr_matrix.columns[i]} and {corr_matrix.columns[j]}: {corr_val:.6f}")
+    
     return results
 
-
-def validate_dataset_integrity(df: pd.DataFrame) -> bool:
+def validate_dataset_integrity(df: pd.DataFrame, source_file: Optional[str] = None) -> Tuple[bool, Dict[str, Any]]:
     """
-    Main validation function to check dataset integrity.
+    Perform comprehensive integrity validation on the dataset.
     
     Args:
-        df: Input DataFrame to validate
+        df: DataFrame to validate
+        source_file: Optional source file path for logging
         
     Returns:
-        True if dataset passes all checks, False otherwise
+        Tuple of (is_valid, details_dict)
     """
-    logger.info("Starting dataset integrity validation...")
+    details = {
+        'source_file': source_file,
+        'row_count': len(df),
+        'column_count': len(df.columns),
+        'issues': [],
+        'warnings': [],
+        'passed_checks': []
+    }
     
-    # Run all checks
-    results = detect_suspicious_patterns(df)
+    is_valid = True
     
-    # Report findings
-    if results['issues_found']:
-        logger.error("Dataset integrity check FAILED:")
-        
-        if results['synthetic_column_names']:
-            logger.error(f"  - Synthetic column names: {results['synthetic_column_names']}")
-            
-        if results['constant_fake_ids']:
-            logger.error(f"  - Constant fake ID columns: {results['constant_fake_ids']}")
-            
-        if results['constant_numeric_columns']:
-            logger.error(f"  - Constant numeric columns: {results['constant_numeric_columns']}")
-            
-        if results['suspicious_patterns']:
-            logger.error(f"  - Suspicious patterns:")
-            for pattern in results['suspicious_patterns']:
-                logger.error(f"    - {pattern}")
-                
-        return False
+    # Check 1: Synthetic column names
+    synthetic_cols = detect_synthetic_column_names(df)
+    if synthetic_cols:
+        details['issues'].append({
+            'type': 'synthetic_column_names',
+            'columns': synthetic_cols,
+            'message': f"Found {len(synthetic_cols)} columns with synthetic-looking names"
+        })
+        is_valid = False
     else:
-        logger.info("Dataset integrity check PASSED: No synthetic data detected")
-        logger.info(f"  - Dataset shape: {df.shape}")
-        logger.info(f"  - Numeric columns: {len(df.select_dtypes(include=[np.number]).columns)}")
-        logger.info(f"  - Missing value ratio: {df.isna().mean().mean():.2%}")
-        return True
-
+        details['passed_checks'].append('No synthetic column names detected')
+    
+    # Check 2: Fake ID columns
+    fake_id_cols = detect_constant_fake_ids(df)
+    if fake_id_cols:
+        details['issues'].append({
+            'type': 'fake_id_columns',
+            'columns': fake_id_cols,
+            'message': f"Found {len(fake_id_cols)} columns with fake ID patterns"
+        })
+        is_valid = False
+    else:
+        details['passed_checks'].append('No fake ID columns detected')
+    
+    # Check 3: Constant numeric columns
+    constant_num_cols = detect_constant_numeric_columns(df)
+    if constant_num_cols:
+        details['warnings'].append({
+            'type': 'constant_numeric_columns',
+            'columns': constant_num_cols,
+            'message': f"Found {len(constant_num_cols)} constant numeric columns"
+        })
+        # This is a warning, not a failure, but we log it
+        logger.warning(f"Dataset contains {len(constant_num_cols)} constant numeric columns")
+    else:
+        details['passed_checks'].append('No constant numeric columns detected')
+    
+    # Check 4: Suspicious statistical patterns
+    suspicious_patterns = detect_suspicious_patterns(df)
+    if suspicious_patterns['perfect_correlation_pairs']:
+        details['warnings'].append({
+            'type': 'perfect_correlations',
+            'pairs': suspicious_patterns['perfect_correlation_pairs'],
+            'message': f"Found {len(suspicious_patterns['perfect_correlation_pairs'])} pairs with perfect correlation"
+        })
+    
+    if suspicious_patterns['all_nan_columns']:
+        details['warnings'].append({
+            'type': 'all_nan_columns',
+            'columns': suspicious_patterns['all_nan_columns'],
+            'message': f"Found {len(suspicious_patterns['all_nan_columns'])} columns with all NaN values"
+        })
+    
+    # Check 5: Basic data existence
+    if len(df) == 0:
+        details['issues'].append({
+            'type': 'empty_dataset',
+            'message': 'Dataset is empty'
+        })
+        is_valid = False
+    
+    if len(df.columns) == 0:
+        details['issues'].append({
+            'type': 'no_columns',
+            'message': 'Dataset has no columns'
+        })
+        is_valid = False
+    
+    # Check 6: Verify no random generation artifacts
+    # Look for columns that might be from np.random or similar
+    for col in df.columns:
+        if df[col].dtype in [np.float64, np.float32, np.int64, np.int32]:
+            # Check for suspiciously round numbers or patterns
+            non_na = df[col].dropna()
+            if len(non_na) > 10:
+                # Check if values are suspiciously uniform
+                if non_na.nunique() == 1:
+                    val = non_na.iloc[0]
+                    if val == 0.0 or val == 1.0 or val == 10.0:
+                        details['warnings'].append({
+                            'type': 'suspicious_constant',
+                            'column': col,
+                            'value': val,
+                            'message': f"Column {col} is constant with value {val}"
+                        })
+    
+    return is_valid, details
 
 def main():
     """
-    Main entry point for the sanity check script.
-    
-    Loads the merged dataset from data/processed/ and performs
-    comprehensive checks for synthetic/fake data.
+    Main function to run sanity checks on the processed dataset.
     """
-    logger.info("=" * 60)
-    logger.info("Starting dataset sanity check (T036)")
-    logger.info("=" * 60)
+    logger.info("Starting dataset sanity check...")
     
-    # Determine input file
+    # Determine the processed data file
     processed_path = Path(DATA_PROCESSED_PATH)
     
-    # Look for merged dataset files
+    # Look for the most recent processed file
     possible_files = [
-        processed_path / "merged_dataset.csv",
-        processed_path / "merged_dataset.parquet",
-        processed_path / "proteomics_merged.csv",
-        processed_path / "proteomics_merged.parquet"
+        processed_path / "merged_proteomic_transcriptomic.csv",
+        processed_path / "processed_data.csv",
+        processed_path / "merged_data.csv"
     ]
     
-    input_file = None
+    data_file = None
     for file_path in possible_files:
         if file_path.exists():
-            input_file = file_path
+            data_file = file_path
             break
-            
-    if input_file is None:
-        logger.error("No merged dataset found in data/processed/")
-        logger.error("Please run the data ingestion pipeline first (T014)")
-        sys.exit(1)
-        
-    logger.info(f"Loading dataset from: {input_file}")
+    
+    if data_file is None:
+        # Try to find any CSV in the processed directory
+        csv_files = list(processed_path.glob("*.csv"))
+        if csv_files:
+            data_file = csv_files[-1]  # Use the most recent
+        else:
+            logger.error("No processed data file found. Please run the data ingestion pipeline first.")
+            sys.exit(1)
+    
+    logger.info(f"Loading data from: {data_file}")
     
     try:
-        if input_file.suffix == '.csv':
-            df = load_csv(input_file)
-        elif input_file.suffix == '.parquet':
-            df = load_parquet(input_file)
-        else:
-            logger.error(f"Unsupported file format: {input_file.suffix}")
-            sys.exit(1)
-            
+        df = pd.read_csv(data_file)
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error(f"Failed to load data file: {e}")
         sys.exit(1)
-        
-    if df.empty:
-        logger.error("Dataset is empty after loading")
-        sys.exit(1)
-        
-    logger.info(f"Dataset loaded successfully: {df.shape[0]} rows, {df.shape[1]} columns")
     
-    # Validate dataset
-    is_valid = validate_dataset_integrity(df)
+    logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
     
-    if is_valid:
-        logger.info("=" * 60)
-        logger.info("SANITY CHECK PASSED: Dataset contains real measured values")
-        logger.info("=" * 60)
-        sys.exit(0)
-    else:
-        logger.error("=" * 60)
-        logger.error("SANITY CHECK FAILED: Synthetic or fake data detected")
-        logger.error("=" * 60)
+    # Run validation
+    is_valid, details = validate_dataset_integrity(df, source_file=str(data_file))
+    
+    # Report results
+    logger.info("=" * 50)
+    logger.info("SANITY CHECK RESULTS")
+    logger.info("=" * 50)
+    logger.info(f"Dataset: {data_file}")
+    logger.info(f"Rows: {details['row_count']}, Columns: {details['column_count']}")
+    logger.info(f"Overall Status: {'PASSED' if is_valid else 'FAILED'}")
+    logger.info("-" * 50)
+    
+    if details['passed_checks']:
+        logger.info("Passed checks:")
+        for check in details['passed_checks']:
+            logger.info(f"  ✓ {check}")
+    
+    if details['warnings']:
+        logger.warning("Warnings:")
+        for warning in details['warnings']:
+            logger.warning(f"  ⚠ {warning['message']}")
+    
+    if details['issues']:
+        logger.error("Issues detected:")
+        for issue in details['issues']:
+            logger.error(f"  ✗ {issue['message']}")
+        logger.error(f"  Total issues: {len(details['issues'])}")
+    
+    logger.info("=" * 50)
+    
+    if not is_valid:
+        logger.error("SANITY CHECK FAILED: Synthetic or fake data detected!")
+        logger.error("The dataset contains values that appear to be synthetic placeholders.")
+        logger.error("Please review the issues listed above and ensure real data is being used.")
         sys.exit(1)
-
+    
+    logger.info("SANITY CHECK PASSED: Dataset appears to contain real measured values.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

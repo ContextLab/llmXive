@@ -1,15 +1,11 @@
 """
-Sample Check Module for Data Ingestion Pipeline.
+Sample Check Module for Plant Stress Response Pipeline.
 
-This module verifies that the merged dataset contains a sufficient number of
-real samples per stress condition for the target species (Arabidopsis, Rice, Wheat).
-If the sample count is insufficient (< 5 per condition for all species), it triggers
-a "Data Unavailable" halt path and exits cleanly.
-
-This module relies on data already present in `data/processed/` (typically generated
-by `download.py`, `normalize.py`, and `merge.py`).
+This module verifies that the processed dataset contains a sufficient number
+of samples per stress condition for the target species (Arabidopsis, Rice, Wheat).
+It enforces the minimum sample threshold (n >= 5) to prevent model training on
+statistically insignificant data.
 """
-
 import os
 import sys
 import logging
@@ -19,257 +15,314 @@ from typing import Dict, List, Optional, Any, Tuple
 
 import pandas as pd
 
-# Import local utilities
-# We assume the project structure is: code/utils/config.py and code/utils/logging_config.py
-try:
-    from utils.logging_config import get_logger, log_warning
-    from utils.config import DATA_PROCESSED_PATH, TARGET_SPECIES, TARGET_STRESS_CONDITIONS
-except ImportError:
-    # Fallback for direct execution or different import context
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from utils.logging_config import get_logger, log_warning
-    from utils.config import DATA_PROCESSED_PATH, TARGET_SPECIES, TARGET_STRESS_CONDITIONS
+from utils.config import DATA_PROCESSED_PATH, PROJECT_ROOT
+from utils.logging_config import get_logger
 
-# Initialize logger
 logger = get_logger(__name__)
 
-# Constants for thresholds
+# Constants
+TARGET_SPECIES = ["Arabidopsis", "Rice", "Wheat"]
 MIN_SAMPLES_PER_CONDITION = 5
-OUTPUT_REPORT_PATH = Path("results/sample_check_report.json")
+STRESS_COLUMNS = ["StressCondition", "Stress_Type", "Condition"]
+SPECIES_COLUMNS = ["Species", "Organism", "Organ"]
 
-def load_processed_data(file_path: Optional[Path] = None) -> pd.DataFrame:
+def load_processed_data(file_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load the processed dataset.
-    
+    Load the processed dataset from the specified path or the default location.
+
     Args:
-        file_path: Optional specific file path. If None, looks for standard merged file.
-        
+        file_path: Optional path to the CSV file. If None, uses DATA_PROCESSED_PATH.
+
     Returns:
-        pd.DataFrame: The loaded dataset.
-        
+        pandas.DataFrame containing the processed dataset.
+
     Raises:
-        FileNotFoundError: If the data file does not exist.
-        ValueError: If the file format is unsupported or data is empty.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file format is invalid or empty.
     """
     if file_path is None:
-        # Expected output from the pipeline (T014)
-        # We look for the standard merged CSV
-        potential_files = [
-            DATA_PROCESSED_PATH / "merged_proteomics_transcriptomics.csv",
-            DATA_PROCESSED_PATH / "merged_data.csv",
-            DATA_PROCESSED_PATH / "processed_data.csv"
+        # Look for the standard processed file
+        default_paths = [
+            DATA_PROCESSED_PATH / "merged_normalized.csv",
+            DATA_PROCESSED_PATH / "processed_data.csv",
         ]
-        found_path = None
-        for p in potential_files:
-            if p.exists():
-                found_path = p
+        for path in default_paths:
+            if path.exists():
+                file_path = str(path)
                 break
-        
-        if found_path is None:
-            # Fallback: check if any CSV exists in data/processed
-            csv_files = list(DATA_PROCESSED_PATH.glob("*.csv"))
-            if csv_files:
-                found_path = csv_files[0]
-                log_warning(f"No standard merged file found. Using first available CSV: {found_path}")
-            else:
+        else:
+            # Fallback to first CSV in directory
+            processed_dir = Path(DATA_PROCESSED_PATH)
+            csv_files = list(processed_dir.glob("*.csv"))
+            if not csv_files:
                 raise FileNotFoundError(
-                    f"Could not find processed data in {DATA_PROCESSED_PATH}. "
-                    "Please ensure the ingestion pipeline (T014) has run successfully."
+                    f"No processed CSV files found in {DATA_PROCESSED_PATH}. "
+                    "Please run the data ingestion pipeline first."
                 )
-    else:
-        found_path = file_path
-        
-    if not found_path.exists():
-        raise FileNotFoundError(f"Data file not found: {found_path}")
-    
-    logger.info(f"Loading data from {found_path}")
-    
+            file_path = str(csv_files[0])
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Processed data file not found: {file_path}")
+
+    logger.info(f"Loading processed data from: {file_path}")
     try:
-        df = pd.read_csv(found_path)
+        df = pd.read_csv(file_path)
     except Exception as e:
-        raise ValueError(f"Failed to read CSV file {found_path}: {e}")
-    
+        raise ValueError(f"Failed to read CSV file {file_path}: {e}")
+
     if df.empty:
-        raise ValueError(f"Loaded dataset from {found_path} is empty.")
-        
+        raise ValueError(f"Dataset at {file_path} is empty.")
+
+    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns.")
     return df
 
 def check_sample_counts(
     df: pd.DataFrame,
-    species_column: str = "species",
-    stress_column: str = "stress_condition",
-    sample_id_column: str = "sample_id"
-) -> Dict[str, Dict[str, int]]:
+    species: List[str] = TARGET_SPECIES,
+    min_count: int = MIN_SAMPLES_PER_CONDITION
+) -> Dict[str, Any]:
     """
-    Count samples per species and stress condition.
-    
-    Args:
-        df: The dataframe containing the data.
-        species_column: Name of the column containing species names.
-        stress_column: Name of the column containing stress conditions.
-        sample_id_column: Name of the column containing unique sample IDs.
-        
-    Returns:
-        A nested dictionary: {species: {stress: count}}
-    """
-    # Ensure required columns exist
-    required_cols = [species_column, stress_column, sample_id_column]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
-    
-    # Filter for target species only
-    # Normalize species names to handle case sensitivity or minor variations
-    df_clean = df.copy()
-    df_clean[species_column] = df_clean[species_column].astype(str).str.strip().str.title()
-    
-    # Map common variations to standard names if necessary
-    # e.g., "Arabidopsis thaliana" -> "Arabidopsis"
-    def normalize_species(name: str) -> str:
-        name_lower = name.lower()
-        if "arabidopsis" in name_lower:
-            return "Arabidopsis"
-        if "rice" in name_lower or "oryza" in name_lower:
-            return "Rice"
-        if "wheat" in name_lower or "triticum" in name_lower:
-            return "Wheat"
-        return name
-    
-    df_clean[species_column] = df_clean[species_column].apply(normalize_species)
-    
-    # Filter for target species
-    target_species_normalized = {normalize_species(s) for s in TARGET_SPECIES}
-    mask = df_clean[species_column].isin(target_species_normalized)
-    df_filtered = df_clean[mask]
-    
-    if df_filtered.empty:
-        logger.warning("No samples found for target species after filtering.")
-        return {s: {c: 0 for c in TARGET_STRESS_CONDITIONS} for s in TARGET_SPECIES}
-    
-    # Group by species and stress condition
-    counts = {}
-    for species in TARGET_SPECIES:
-        species_normalized = normalize_species(species)
-        counts[species] = {}
-        for stress in TARGET_STRESS_CONDITIONS:
-            # Count unique sample IDs
-            subset = df_filtered[
-                (df_filtered[species_column] == species_normalized) & 
-                (df_filtered[stress_column].str.lower() == stress.lower())
-            ]
-            count = subset[sample_id_column].nunique()
-            counts[species][stress] = count
-            
-    return counts
+    Count samples per stress condition for each target species.
 
-def evaluate_data_sufficiency(counts: Dict[str, Dict[str, int]]) -> Tuple[bool, List[str]]:
-    """
-    Evaluate if the data meets the minimum sample requirements.
-    
     Args:
-        counts: The sample counts dictionary.
-        
+        df: The processed dataframe.
+        species: List of species names to check.
+        min_count: Minimum required samples per condition.
+
     Returns:
-        Tuple of (is_sufficient, list_of_issues)
+        A dictionary containing:
+            - 'counts': Dict mapping (Species, Stress) -> count
+            - 'failed': List of (Species, Stress) tuples failing the threshold
+            - 'passed': List of (Species, Stress) tuples passing the threshold
+            - 'total_species_found': List of species found in data
     """
-    issues = []
-    sufficient_for_any = False
-    
-    for species in TARGET_SPECIES:
-        species_ok = False
-        for stress in TARGET_STRESS_CONDITIONS:
-            count = counts.get(species, {}).get(stress, 0)
-            if count < MIN_SAMPLES_PER_CONDITION:
-                issues.append(
-                    f"{species} under {stress} has {count} samples (min required: {MIN_SAMPLES_PER_CONDITION})"
-                )
+    # Identify species column
+    species_col = None
+    for col in SPECIES_COLUMNS:
+        if col in df.columns:
+            species_col = col
+            break
+
+    if species_col is None:
+        logger.warning(
+            f"Could not identify species column. Searched: {SPECIES_COLUMNS}. "
+            "Assuming all rows are valid for counting."
+        )
+        species_col = None
+
+    # Identify stress column
+    stress_col = None
+    for col in STRESS_COLUMNS:
+        if col in df.columns:
+            stress_col = col
+            break
+
+    if stress_col is None:
+        logger.warning(
+            f"Could not identify stress column. Searched: {STRESS_COLUMNS}. "
+            "Cannot perform sample check."
+        )
+        return {
+            "counts": {},
+            "failed": [],
+            "passed": [],
+            "total_species_found": [],
+            "error": "Missing stress column"
+        }
+
+    # Normalize species names if column exists
+    if species_col:
+        # Convert to string and normalize case for matching
+        df_check = df.copy()
+        df_check[species_col] = df_check[species_col].astype(str).str.strip().str.title()
+    else:
+        df_check = df
+
+    results = {"counts": {}, "failed": [], "passed": [], "total_species_found": []}
+
+    # Determine which species are actually in the dataset
+    if species_col:
+        found_species = df_check[species_col].unique().tolist()
+        # Filter for target species (case-insensitive match)
+        matched_species = [
+            s for s in species
+            if any(s.lower() == fs.lower() for fs in found_species)
+        ]
+        results["total_species_found"] = matched_species
+    else:
+        # If no species column, treat as one global group
+        matched_species = ["Global"]
+
+    # Iterate through matched species and stress conditions
+    # If species_col is None, we iterate over the whole dataset
+    for sp in matched_species:
+        if species_col:
+            subset = df_check[df_check[species_col] == sp]
+        else:
+            subset = df_check
+
+        # Get unique stress conditions in this subset
+        unique_stresses = subset[stress_col].dropna().unique()
+
+        for stress in unique_stresses:
+            if species_col:
+                count = subset[subset[stress_col] == stress].shape[0]
             else:
-                species_ok = True
-        
-        if species_ok:
-            sufficient_for_any = True
-            
-    if not sufficient_for_any:
-        return False, issues
-        
-    return True, issues
+                count = subset[subset[stress_col] == stress].shape[0]
 
-def generate_report(counts: Dict[str, Dict[str, int]], is_sufficient: bool, issues: List[str]) -> Dict[str, Any]:
+            key = (sp, str(stress))
+            results["counts"][key] = count
+
+            if count >= min_count:
+                results["passed"].append(key)
+            else:
+                results["failed"].append(key)
+
+    return results
+
+def evaluate_data_sufficiency(check_results: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Generate a report dictionary for the sample check.
+    Evaluate if the dataset meets the minimum sample requirements.
+
+    Args:
+        check_results: Output from check_sample_counts.
+
+    Returns:
+        Tuple of (is_sufficient, message).
+        If is_sufficient is False, it triggers the "Data Unavailable" halt path.
     """
-    return {
-        "status": "PASS" if is_sufficient else "FAIL",
-        "threshold": MIN_SAMPLES_PER_CONDITION,
-        "counts": counts,
-        "issues": issues,
-        "timestamp": pd.Timestamp.now().isoformat()
+    if "error" in check_results:
+        return False, f"Data check failed due to missing columns: {check_results['error']}"
+
+    passed = check_results.get("passed", [])
+    failed = check_results.get("failed", [])
+    total_species = check_results.get("total_species_found", [])
+
+    logger.info(f"Data Sufficiency Check Results:")
+    logger.info(f"  Species found: {total_species}")
+    logger.info(f"  Passed conditions: {len(passed)}")
+    logger.info(f"  Failed conditions: {len(failed)}")
+
+    if not passed:
+        if not total_species:
+            return False, "No target species (Arabidopsis, Rice, Wheat) found in dataset."
+        return (
+            False,
+            f"Insufficient data: No stress condition has >= {MIN_SAMPLES_PER_CONDITION} "
+            f"samples for any of the target species ({', '.join(total_species)}). "
+            "Triggering 'Data Unavailable' halt path."
+        )
+
+    # Check if ALL found species have at least one passing condition
+    # Or strictly: "at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat"
+    # Interpretation: If a species is present, it must have valid conditions.
+    # If NO species are present, fail.
+    # If species exist but ALL their conditions fail, fail.
+    # If at least one (Species, Stress) pair passes, we proceed?
+    # Task says: "ensure at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat"
+    # This implies: For every (Species, Stress) combo found in the data, n >= 5.
+    # If we find a combo with n < 5, we should probably flag it.
+    # However, the "halt path" is triggered "If n < 5 for ALL species".
+    # So if ANY species has ANY condition with n >= 5, we proceed.
+
+    if len(failed) > 0:
+        logger.warning(
+            f"Found {len(failed)} condition(s) with < {MIN_SAMPLES_PER_CONDITION} samples. "
+            "Proceeding with caution, but these may be excluded."
+        )
+
+    return True, f"Data sufficiency verified. {len(passed)} conditions meet minimum threshold."
+
+def generate_report(check_results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Generate a JSON report of the sample check results.
+
+    Args:
+        check_results: Output from check_sample_counts.
+        output_path: Path to write the JSON report.
+    """
+    report = {
+        "status": "completed",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "min_samples_required": MIN_SAMPLES_PER_CONDITION,
+        "species_found": check_results.get("total_species_found", []),
+        "counts": {f"{k[0]}|{k[1]}": v for k, v in check_results["counts"].items()},
+        "passed_conditions": [f"{k[0]}|{k[1]}" for k in check_results["passed"]],
+        "failed_conditions": [f"{k[0]}|{k[1]}" for k in check_results["failed"]],
+        "summary": {
+            "total_passed": len(check_results["passed"]),
+            "total_failed": len(check_results["failed"])
+        }
     }
 
-def save_report(report: Dict[str, Any], output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Sample check report saved to: {output_path}")
+
+def save_report(report_data: Dict[str, Any], output_path: Path) -> None:
     """
-    Save the report to a JSON file.
+    Save the final evaluation report.
+
+    Args:
+        report_data: The full report dictionary.
+        output_path: Path to save the file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Report saved to {output_path}")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report_data, f, indent=2)
+    logger.info(f"Final report saved to: {output_path}")
 
-def main():
+def main() -> int:
     """
     Main entry point for the sample check task.
-    
-    This function:
-    1. Loads the processed data.
-    2. Counts samples per species and stress condition.
-    3. Evaluates sufficiency.
-    4. Generates and saves a report.
-    5. Exits with code 0 if sufficient, 1 if data is insufficient (Data Unavailable path).
+
+    Returns:
+        0 if successful, 1 if data is insufficient (halt path).
     """
     logger.info("Starting Sample Check (T037)...")
-    
+
     try:
         # Load data
         df = load_processed_data()
-        logger.info(f"Loaded {len(df)} rows.")
-        
+
         # Check counts
-        counts = check_sample_counts(df)
-        logger.debug(f"Sample counts: {counts}")
-        
-        # Evaluate
-        is_sufficient, issues = evaluate_data_sufficiency(counts)
-        
+        results = check_sample_counts(df)
+
+        # Evaluate sufficiency
+        is_sufficient, message = evaluate_data_sufficiency(results)
+
         # Generate report
-        report = generate_report(counts, is_sufficient, issues)
-        
-        # Save report
-        save_report(report, OUTPUT_REPORT_PATH)
-        
-        if is_sufficient:
-            logger.info("Data sufficiency check PASSED.")
-            print(f"SUCCESS: Data sufficient. Report saved to {OUTPUT_REPORT_PATH}")
-            sys.exit(0)
-        else:
-            logger.error("Data sufficiency check FAILED. Insufficient samples for all target species/conditions.")
-            print(f"HALT: Data Unavailable. Insufficient samples.")
-            print(f"Issues found: {issues}")
-            print(f"Report saved to {OUTPUT_REPORT_PATH}")
-            sys.exit(1)
-            
+        report_path = Path(PROJECT_ROOT) / "results" / "sample_check_report.json"
+        generate_report(results, report_path)
+
+        # Final evaluation report
+        final_report = {
+            "task": "T037",
+            "sufficient": is_sufficient,
+            "message": message,
+            "details": results
+        }
+        save_report(final_report, Path(PROJECT_ROOT) / "results" / "sample_check_summary.json")
+
+        if not is_sufficient:
+            logger.error(message)
+            logger.error("HALTING: Data Unavailable.")
+            return 1
+
+        logger.info(message)
+        return 0
+
     except FileNotFoundError as e:
-        logger.critical(f"Data file not found: {e}")
-        print(f"FATAL: Data file not found. Cannot proceed with sample check.")
-        sys.exit(2)
+        logger.error(f"Data file not found: {e}")
+        return 1
     except ValueError as e:
-        logger.critical(f"Data validation error: {e}")
-        print(f"FATAL: Data validation error. {e}")
-        sys.exit(2)
+        logger.error(f"Data validation error: {e}")
+        return 1
     except Exception as e:
         logger.exception(f"Unexpected error during sample check: {e}")
-        print(f"FATAL: Unexpected error. {e}")
-        sys.exit(3)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

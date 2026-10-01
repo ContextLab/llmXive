@@ -1,87 +1,84 @@
 """
-Setup script to create the project directory structure.
-This script creates the necessary folders for data ingestion, modeling,
-reporting, utilities, tests, raw/processed data, results, logs, and docs.
+Project Directory Initialization Script.
+Creates the foundational directory structure required for the llmXive pipeline.
 """
 import os
 import sys
 from pathlib import Path
+import logging
+
+# Configure basic logging for the setup phase
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Define the project root relative to this script's location
+# Assuming this script is in code/ or code/setup_*.py
+# We need to resolve the project root.
+# Standard convention: script is at code/setup_directories.py, root is parent of code/
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+
+# Directories to create relative to PROJECT_ROOT
+DIRECTORIES_TO_CREATE = [
+    "code",
+    "tests",
+    "logs",
+    "results",
+    "data/raw",
+    "data/processed",
+    "docs",
+    "figures"
+]
+
+def ensure_directory(dir_path: Path) -> bool:
+    """
+    Ensures a directory exists. Creates it if missing.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+        else:
+            logger.info(f"Directory already exists: {dir_path}")
+        
+        # Verify writability by attempting to create a temp file
+        test_file = dir_path / ".write_test"
+        test_file.touch()
+        test_file.unlink()
+        return True
+    except PermissionError:
+        logger.error(f"Permission denied: Unable to write to {dir_path}")
+        return False
+    except OSError as e:
+        logger.error(f"OS error creating {dir_path}: {e}")
+        return False
 
 def main():
-    """Create the project directory structure."""
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
+    """
+    Main entry point to initialize the project structure.
+    """
+    logger.info(f"Project Root identified at: {PROJECT_ROOT}")
     
-    # Define the directory structure to create
-    directories = [
-        "code/data_ingestion",
-        "code/modeling",
-        "code/reporting",
-        "code/utils",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "results",
-        "logs",
-        "docs"
-    ]
-    
+    all_success = True
     created_count = 0
-    skipped_count = 0
     
-    print(f"Creating project directory structure in: {base_dir}")
-    
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        
-        if full_path.exists():
-            if full_path.is_dir():
-                print(f"  [SKIP] {dir_path} (already exists)")
-                skipped_count += 1
-            else:
-                print(f"  [ERROR] {dir_path} exists but is not a directory")
-                sys.exit(1)
+    for dir_name in DIRECTORIES_TO_CREATE:
+        full_path = PROJECT_ROOT / dir_name
+        if ensure_directory(full_path):
+            created_count += 1
         else:
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"  [CREATE] {dir_path}")
-                created_count += 1
-            except PermissionError:
-                print(f"  [ERROR] Permission denied creating {dir_path}")
-                sys.exit(1)
-            except Exception as e:
-                print(f"  [ERROR] Failed to create {dir_path}: {e}")
-                sys.exit(1)
+            all_success = False
     
-    print(f"\nDirectory creation complete.")
-    print(f"  Created: {created_count}")
-    print(f"  Skipped: {skipped_count}")
-    
-    # Verify all directories exist and are writable
-    print("\nVerifying directory structure...")
-    all_good = True
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists() or not full_path.is_dir():
-            print(f"  [FAIL] {dir_path} does not exist or is not a directory")
-            all_good = False
-        else:
-            # Check writability by trying to create a temporary file
-            try:
-                test_file = full_path / ".write_test"
-                test_file.touch()
-                test_file.unlink()
-                print(f"  [OK] {dir_path} (writable)")
-            except Exception as e:
-                print(f"  [FAIL] {dir_path} (not writable: {e})")
-                all_good = False
-    
-    if not all_good:
-        print("\n[ERROR] Directory verification failed.")
+    if all_success:
+        logger.info(f"Successfully initialized {created_count} directories.")
+        sys.exit(0)
+    else:
+        logger.error("Failed to create one or more required directories.")
         sys.exit(1)
-    
-    print("\n[SUCCESS] All directories created and verified.")
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

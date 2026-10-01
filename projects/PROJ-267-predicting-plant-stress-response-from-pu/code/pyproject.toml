@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-plant-stress"
+version = "0.1.0"
+description = "Predicting Plant Stress Response from Publicly Available Proteomic Data"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "rpy2",
+    "requests",
+    "psutil",
+    "pydantic",
+    "toml"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | \.eggs
+  | \.egg-info
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88

@@ -1,338 +1,406 @@
-"""
-Schema validation for data/raw and data/processed directories.
-Implements validation for CSV and Parquet files using Pydantic-like dict checks.
-"""
 import os
 import csv
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass, field
-from enum import Enum
+import logging
 
-import pandas as pd
-
-from .config import DATA_RAW_PATH, DATA_PROCESSED_PATH
 from .logging_config import get_logger, log_warning
+from .config import get_data_path, DATA_RAW_PATH, DATA_PROCESSED_PATH
 
 logger = get_logger(__name__)
 
-
-class ValidationStatus(Enum):
-    """Validation status enum."""
-    SUCCESS = "success"
-    WARNING = "warning"
-    FAILED = "failed"
-
-
 @dataclass
 class ValidationResult:
-    """Result of a schema validation run."""
-    status: ValidationStatus
-    file_path: str
+    """Container for schema validation results."""
+    status: str  # 'passed', 'failed', 'warning'
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
-    details: Dict[str, Any] = field(default_factory=dict)
+    files_checked: int = 0
+    total_rows: int = 0
 
-def validate_csv_schema(file_path: Path, required_columns: Optional[List[str]] = None) -> ValidationResult:
+class ValidationStatus:
+    PASSED = "passed"
+    FAILED = "failed"
+    WARNING = "warning"
+
+# Define expected schemas based on project requirements
+# These are the minimal required columns/structures for our data pipelines
+
+RAW_SCHEMA_EXPECTATIONS = {
+    # Expected columns for raw proteomic data (common across sources)
+    "proteomic": {
+        "required_columns": ["protein_id", "sample_id"],
+        "optional_columns": ["abundance", "detection_rate", "species", "stress_condition"],
+        "column_types": {
+            "protein_id": str,
+            "sample_id": str,
+            "abundance": (int, float),
+            "detection_rate": (int, float),
+            "species": str,
+            "stress_condition": str
+        }
+    },
+    # Expected columns for raw transcriptomic data
+    "transcriptomic": {
+        "required_columns": ["gene_id", "sample_id"],
+        "optional_columns": ["expression_value", "species", "stress_condition"],
+        "column_types": {
+            "gene_id": str,
+            "sample_id": str,
+            "expression_value": (int, float),
+            "species": str,
+            "stress_condition": str
+        }
+    }
+}
+
+PROCESSED_SCHEMA_EXPECTATIONS = {
+    # Expected columns for merged/processed data
+    "merged": {
+        "required_columns": ["protein_id", "sample_id", "expression_value"],
+        "optional_columns": ["species", "stress_condition", "detection_rate"],
+        "column_types": {
+            "protein_id": str,
+            "sample_id": str,
+            "expression_value": (int, float),
+            "species": str,
+            "stress_condition": str,
+            "detection_rate": (int, float)
+        },
+        "constraints": {
+            "expression_value": {"min": None, "max": None}  # No hard limits, but check for NaN
+        }
+    }
+}
+
+def validate_csv_schema(file_path: Path, schema_type: str = "proteomic") -> ValidationResult:
     """
-    Validate CSV file schema.
-
+    Validate a CSV file against the expected schema for its type.
+    
     Args:
-        file_path: Path to the CSV file
-        required_columns: Optional list of required column names
-
+        file_path: Path to the CSV file to validate
+        schema_type: Type of schema to validate against ('proteomic', 'transcriptomic', 'merged')
+        
     Returns:
-        ValidationResult with status and any errors/warnings
+        ValidationResult with status, errors, and warnings
     """
-    errors = []
-    warnings = []
-    details = {}
-
+    result = ValidationResult(status=ValidationStatus.PASSED)
+    result.files_checked = 1
+    
+    if not file_path.exists():
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"File not found: {file_path}")
+        return result
+    
     try:
-        # Check file exists and is readable
-        if not file_path.exists():
-            errors.append(f"File does not exist: {file_path}")
-            return ValidationResult(
-                status=ValidationStatus.FAILED,
-                file_path=str(file_path),
-                errors=errors
-            )
-
-        # Read header to get columns
         with open(file_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            try:
-                header = next(reader)
-            except StopIteration:
-                errors.append(f"Empty CSV file: {file_path}")
-                return ValidationResult(
-                    status=ValidationStatus.FAILED,
-                    file_path=str(file_path),
-                    errors=errors
-                )
-
-        columns = [col.strip() for col in header]
-        details['columns'] = columns
-        details['column_count'] = len(columns)
-
-        # Check for required columns
-        if required_columns:
-            missing = set(required_columns) - set(columns)
-            if missing:
-                errors.append(f"Missing required columns: {missing}")
-
-        # Check for duplicate columns
-        seen = set()
-        duplicates = set()
-        for col in columns:
-            if col in seen:
-                duplicates.add(col)
-            seen.add(col)
-        if duplicates:
-            warnings.append(f"Duplicate columns found: {duplicates}")
-
-        # Check row count
-        try:
-            df = pd.read_csv(file_path, nrows=1000)
-            details['sample_row_count'] = len(df)
-            if len(df) == 0:
-                warnings.append("File appears to have no data rows")
-        except Exception as e:
-            warnings.append(f"Could not read sample rows: {str(e)}")
-
-        # Check for empty column names
-        empty_cols = [c for c in columns if not c or c.strip() == '']
-        if empty_cols:
-            errors.append(f"Empty column names found: {len(empty_cols)}")
-
-        # Determine status
-        if errors:
-            status = ValidationStatus.FAILED
-        elif warnings:
-            status = ValidationStatus.WARNING
-        else:
-            status = ValidationStatus.SUCCESS
-
-        return ValidationResult(
-            status=status,
-            file_path=str(file_path),
-            errors=errors,
-            warnings=warnings,
-            details=details
-        )
-
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            
+            if not headers:
+                result.status = ValidationStatus.FAILED
+                result.errors.append(f"CSV file {file_path} has no headers")
+                return result
+            
+            # Determine which schema to use
+            if schema_type in RAW_SCHEMA_EXPECTATIONS:
+                schema = RAW_SCHEMA_EXPECTATIONS[schema_type]
+            elif schema_type in PROCESSED_SCHEMA_EXPECTATIONS:
+                schema = PROCESSED_SCHEMA_EXPECTATIONS[schema_type]
+            else:
+                # Default to proteomic if unknown
+                schema = RAW_SCHEMA_EXPECTATIONS["proteomic"]
+                log_warning(f"Unknown schema type '{schema_type}', defaulting to proteomic for {file_path}")
+                result.warnings.append(f"Unknown schema type '{schema_type}', using proteomic schema")
+            
+            # Check required columns
+            missing_required = set(schema["required_columns"]) - set(headers)
+            if missing_required:
+                result.status = ValidationStatus.FAILED
+                result.errors.append(f"Missing required columns in {file_path}: {missing_required}")
+            
+            # Check for unexpected columns (optional warning)
+            expected_columns = set(schema["required_columns"]) | set(schema.get("optional_columns", []))
+            unexpected_columns = set(headers) - expected_columns
+            if unexpected_columns:
+                result.warnings.append(f"Unexpected columns in {file_path}: {unexpected_columns}")
+            
+            # Validate row data types and constraints
+            row_count = 0
+            for row in reader:
+                row_count += 1
+                
+                # Check column types
+                for col_name, expected_type in schema.get("column_types", {}).items():
+                    if col_name in row:
+                        value = row[col_name]
+                        if value is not None and value != '':
+                            # Check if value matches expected type
+                            try:
+                                if expected_type == str:
+                                    str(value)
+                                elif expected_type == int:
+                                    int(value)
+                                elif expected_type == float:
+                                    float(value)
+                                elif isinstance(expected_type, tuple):
+                                    # Handle tuple of types (e.g., (int, float))
+                                    converted = False
+                                    for t in expected_type:
+                                        try:
+                                            if t == int:
+                                                int(value)
+                                            elif t == float:
+                                                float(value)
+                                            converted = True
+                                            break
+                                        except ValueError:
+                                            continue
+                                    if not converted:
+                                        result.warnings.append(
+                                            f"Type mismatch for column '{col_name}' in {file_path}: expected {expected_type}, got {value}"
+                                        )
+                            except ValueError:
+                                result.warnings.append(
+                                    f"Invalid value '{value}' for column '{col_name}' in {file_path}, expected {expected_type}"
+                                )
+                
+                # Check constraints (e.g., non-null for certain columns)
+                if "constraints" in schema:
+                    for col_name, constraint in schema["constraints"].items():
+                        if col_name in row:
+                            value = row[col_name]
+                            if value is None or value == '':
+                                if constraint.get("allow_null", False) is False:
+                                    result.warnings.append(
+                                        f"Null value for constrained column '{col_name}' in {file_path}"
+                                    )
+            
+            result.total_rows = row_count
+            
     except Exception as e:
-        logger.error(f"Error validating CSV {file_path}: {str(e)}")
-        return ValidationResult(
-            status=ValidationStatus.FAILED,
-            file_path=str(file_path),
-            errors=[f"Validation error: {str(e)}"]
-        )
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"Error reading CSV file {file_path}: {str(e)}")
+    
+    return result
 
-
-def validate_parquet_schema(file_path: Path, required_columns: Optional[List[str]] = None) -> ValidationResult:
+def validate_parquet_schema(file_path: Path, schema_type: str = "merged") -> ValidationResult:
     """
-    Validate Parquet file schema.
-
+    Validate a Parquet file against the expected schema.
+    
     Args:
-        file_path: Path to the Parquet file
-        required_columns: Optional list of required column names
-
+        file_path: Path to the Parquet file to validate
+        schema_type: Type of schema to validate against
+        
     Returns:
-        ValidationResult with status and any errors/warnings
+        ValidationResult with status, errors, and warnings
     """
-    errors = []
-    warnings = []
-    details = {}
-
+    result = ValidationResult(status=ValidationStatus.PASSED)
+    result.files_checked = 1
+    
+    if not file_path.exists():
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"File not found: {file_path}")
+        return result
+    
     try:
-        # Check file exists
-        if not file_path.exists():
-            errors.append(f"File does not exist: {file_path}")
-            return ValidationResult(
-                status=ValidationStatus.FAILED,
-                file_path=str(file_path),
-                errors=errors
-            )
-
-        # Try to read schema
-        try:
-            df = pd.read_parquet(file_path, nrows=1000)
-        except Exception as e:
-            errors.append(f"Could not read Parquet file: {str(e)}")
-            return ValidationResult(
-                status=ValidationStatus.FAILED,
-                file_path=str(file_path),
-                errors=errors
-            )
-
-        columns = list(df.columns)
-        details['columns'] = columns
-        details['column_count'] = len(columns)
-        details['dtype_summary'] = {col: str(dtype) for col, dtype in df.dtypes.items()}
-
-        # Check for required columns
-        if required_columns:
-            missing = set(required_columns) - set(columns)
-            if missing:
-                errors.append(f"Missing required columns: {missing}")
-
-        # Check row count
-        details['sample_row_count'] = len(df)
-        if len(df) == 0:
-            warnings.append("File appears to have no data rows")
-
-        # Check for empty column names
-        empty_cols = [c for c in columns if not c or str(c).strip() == '']
-        if empty_cols:
-            errors.append(f"Empty column names found: {len(empty_cols)}")
-
-        # Check for duplicate columns
-        seen = set()
-        duplicates = set()
-        for col in columns:
-            if col in seen:
-                duplicates.add(col)
-            seen.add(col)
-        if duplicates:
-            warnings.append(f"Duplicate columns found: {duplicates}")
-
-        # Determine status
-        if errors:
-            status = ValidationStatus.FAILED
-        elif warnings:
-            status = ValidationStatus.WARNING
+        import pandas as pd
+        df = pd.read_parquet(file_path)
+        
+        headers = list(df.columns)
+        
+        # Determine which schema to use
+        if schema_type in PROCESSED_SCHEMA_EXPECTATIONS:
+            schema = PROCESSED_SCHEMA_EXPECTATIONS[schema_type]
+        elif schema_type in RAW_SCHEMA_EXPECTATIONS:
+            schema = RAW_SCHEMA_EXPECTATIONS[schema_type]
         else:
-            status = ValidationStatus.SUCCESS
-
-        return ValidationResult(
-            status=status,
-            file_path=str(file_path),
-            errors=errors,
-            warnings=warnings,
-            details=details
-        )
-
+            schema = PROCESSED_SCHEMA_EXPECTATIONS["merged"]
+            log_warning(f"Unknown schema type '{schema_type}', defaulting to merged for {file_path}")
+            result.warnings.append(f"Unknown schema type '{schema_type}', using merged schema")
+        
+        # Check required columns
+        missing_required = set(schema["required_columns"]) - set(headers)
+        if missing_required:
+            result.status = ValidationStatus.FAILED
+            result.errors.append(f"Missing required columns in {file_path}: {missing_required}")
+        
+        # Check for unexpected columns
+        expected_columns = set(schema["required_columns"]) | set(schema.get("optional_columns", []))
+        unexpected_columns = set(headers) - expected_columns
+        if unexpected_columns:
+            result.warnings.append(f"Unexpected columns in {file_path}: {unexpected_columns}")
+        
+        # Check data types
+        for col_name, expected_type in schema.get("column_types", {}).items():
+            if col_name in df.columns:
+                actual_dtype = df[col_name].dtype
+                # Simple type checking
+                if expected_type == str:
+                    if not pd.api.types.is_string_dtype(actual_dtype):
+                        result.warnings.append(
+                            f"Column '{col_name}' in {file_path} has dtype {actual_dtype}, expected string"
+                        )
+                elif expected_type == int:
+                    if not pd.api.types.is_integer_dtype(actual_dtype):
+                        result.warnings.append(
+                            f"Column '{col_name}' in {file_path} has dtype {actual_dtype}, expected integer"
+                        )
+                elif expected_type == float:
+                    if not pd.api.types.is_float_dtype(actual_dtype):
+                        result.warnings.append(
+                            f"Column '{col_name}' in {file_path} has dtype {actual_dtype}, expected float"
+                        )
+                elif isinstance(expected_type, tuple):
+                    # For (int, float), check if it's numeric
+                    if not pd.api.types.is_numeric_dtype(actual_dtype):
+                        result.warnings.append(
+                            f"Column '{col_name}' in {file_path} has dtype {actual_dtype}, expected numeric"
+                        )
+        
+        # Check for null values in constrained columns
+        if "constraints" in schema:
+            for col_name, constraint in schema["constraints"].items():
+                if col_name in df.columns:
+                    null_count = df[col_name].isnull().sum()
+                    if null_count > 0 and constraint.get("allow_null", False) is False:
+                        result.warnings.append(
+                            f"Column '{col_name}' in {file_path} has {null_count} null values"
+                        )
+        
+        result.total_rows = len(df)
+        
     except Exception as e:
-        logger.error(f"Error validating Parquet {file_path}: {str(e)}")
-        return ValidationResult(
-            status=ValidationStatus.FAILED,
-            file_path=str(file_path),
-            errors=[f"Validation error: {str(e)}"]
-        )
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"Error reading Parquet file {file_path}: {str(e)}")
+    
+    return result
 
-
-def validate_directory_schema(
-    directory: Path,
-    file_extensions: List[str],
-    required_columns: Optional[Dict[str, List[str]]] = None,
-    recursive: bool = False
-) -> List[ValidationResult]:
+def validate_directory_schema(directory_path: Path, schema_type: str = "proteomic") -> ValidationResult:
     """
-    Validate all files in a directory.
-
+    Validate all CSV and Parquet files in a directory against the expected schema.
+    
     Args:
-        directory: Path to directory to validate
-        file_extensions: List of file extensions to validate (e.g., ['.csv', '.parquet'])
-        required_columns: Dict mapping filename patterns to required columns
-        recursive: Whether to search subdirectories
-
+        directory_path: Path to the directory containing data files
+        schema_type: Type of schema to validate against
+        
     Returns:
-        List of ValidationResult objects
+        ValidationResult with aggregated results
     """
-    results = []
-
-    if not directory.exists():
-        log_warning(f"Directory does not exist: {directory}")
-        return results
-
-    # Find all matching files
-    pattern = '**/*' if recursive else '*'
-    files = []
-    for ext in file_extensions:
-        files.extend(directory.glob(f"{pattern}{ext}"))
-
-    # Remove duplicates
-    files = list(set(files))
-
-    for file_path in sorted(files):
-        # Determine required columns for this file
-        file_required_cols = None
-        if required_columns:
-            filename = file_path.name
-            for pattern_str, cols in required_columns.items():
-                if pattern_str in filename:
-                    file_required_cols = cols
-                    break
-
-        # Validate based on extension
-        if file_path.suffix.lower() == '.csv':
-            result = validate_csv_schema(file_path, file_required_cols)
-        elif file_path.suffix.lower() in ['.parquet', '.pq']:
-            result = validate_parquet_schema(file_path, file_required_cols)
+    result = ValidationResult(status=ValidationStatus.PASSED)
+    
+    if not directory_path.exists():
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"Directory not found: {directory_path}")
+        return result
+    
+    if not directory_path.is_dir():
+        result.status = ValidationStatus.FAILED
+        result.errors.append(f"Path is not a directory: {directory_path}")
+        return result
+    
+    # Find all CSV and Parquet files
+    csv_files = list(directory_path.glob("*.csv"))
+    parquet_files = list(directory_path.glob("*.parquet"))
+    all_files = csv_files + parquet_files
+    
+    if not all_files:
+        result.warnings.append(f"No CSV or Parquet files found in {directory_path}")
+        return result
+    
+    # Validate each file
+    for file_path in all_files:
+        if file_path.suffix == '.csv':
+            file_result = validate_csv_schema(file_path, schema_type)
+        elif file_path.suffix == '.parquet':
+            file_result = validate_parquet_schema(file_path, schema_type)
         else:
             continue
-
-        results.append(result)
-
-    return results
-
+        
+        # Aggregate results
+        result.files_checked += file_result.files_checked
+        result.total_rows += file_result.total_rows
+        
+        if file_result.status == ValidationStatus.FAILED:
+            result.status = ValidationStatus.FAILED
+            result.errors.extend(file_result.errors)
+        elif file_result.status == ValidationStatus.WARNING:
+            if result.status == ValidationStatus.PASSED:
+                result.status = ValidationStatus.WARNING
+            result.warnings.extend(file_result.warnings)
+    
+    return result
 
 def main():
-    """Main entry point for schema validation."""
-    logger.info("Starting schema validation for data directories")
-
-    # Define required columns for common files
-    required_columns = {
-        'processed': ['protein_id', 'sample_id', 'stress_condition', 'species'],
-        'raw': None  # Raw files may have varying schemas
-    }
-
-    # Validate data/raw directory
-    logger.info(f"Validating {DATA_RAW_PATH}")
-    raw_results = validate_directory_schema(
-        DATA_RAW_PATH,
-        file_extensions=['.csv', '.parquet'],
-        recursive=True
+    """Main entry point for schema validation CLI."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Validate data schemas for raw and processed directories")
+    parser.add_argument(
+        "--directory",
+        type=str,
+        default=None,
+        help="Directory to validate (default: DATA_RAW_PATH or DATA_PROCESSED_PATH)"
     )
-
-    # Validate data/processed directory
-    logger.info(f"Validating {DATA_PROCESSED_PATH}")
-    processed_results = validate_directory_schema(
-        DATA_PROCESSED_PATH,
-        file_extensions=['.csv', '.parquet'],
-        required_columns=required_columns.get('processed'),
-        recursive=True
+    parser.add_argument(
+        "--schema-type",
+        type=str,
+        default="proteomic",
+        choices=["proteomic", "transcriptomic", "merged"],
+        help="Schema type to validate against"
     )
-
-    # Summarize results
-    total_files = len(raw_results) + len(processed_results)
-    failed = sum(1 for r in (raw_results + processed_results) if r.status == ValidationStatus.FAILED)
-    warnings = sum(1 for r in (raw_results + processed_results) if r.status == ValidationStatus.WARNING)
-
-    logger.info(f"Validation complete: {total_files} files checked, {failed} failed, {warnings} warnings")
-
-    # Print detailed results
-    for result in raw_results + processed_results:
-        status_str = result.status.value.upper()
-        logger.info(f"[{status_str}] {result.file_path}")
-        if result.errors:
-            for err in result.errors:
-                logger.error(f"  Error: {err}")
-        if result.warnings:
-            for warn in result.warnings:
-                log_warning(f"  Warning: {warn}")
-
-    # Exit with error code if any failures
-    if failed > 0:
-        logger.error(f"Schema validation failed with {failed} errors")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output file for validation report (JSON)"
+    )
+    
+    args = parser.parse_args()
+    
+    # Determine directory to validate
+    if args.directory:
+        directory_path = Path(args.directory)
+    else:
+        # Default to raw data directory
+        directory_path = Path(DATA_RAW_PATH)
+    
+    logger.info(f"Validating schema for directory: {directory_path}")
+    logger.info(f"Using schema type: {args.schema_type}")
+    
+    result = validate_directory_schema(directory_path, args.schema_type)
+    
+    # Log results
+    if result.status == ValidationStatus.PASSED:
+        logger.info(f"Schema validation PASSED for {result.files_checked} files, {result.total_rows} total rows")
+    elif result.status == ValidationStatus.WARNING:
+        logger.warning(f"Schema validation PASSED with WARNINGS for {result.files_checked} files")
+        for warning in result.warnings:
+            logger.warning(f"  - {warning}")
+    else:
+        logger.error(f"Schema validation FAILED for {result.files_checked} files")
+        for error in result.errors:
+            logger.error(f"  - {error}")
+    
+    # Save report if requested
+    if args.output:
+        report = {
+            "status": result.status,
+            "files_checked": result.files_checked,
+            "total_rows": result.total_rows,
+            "errors": result.errors,
+            "warnings": result.warnings
+        }
+        with open(args.output, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Validation report saved to {args.output}")
+    
+    # Exit with appropriate code
+    if result.status == ValidationStatus.FAILED:
         return 1
-
-    logger.info("All schema validations passed")
     return 0
 
-
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())
