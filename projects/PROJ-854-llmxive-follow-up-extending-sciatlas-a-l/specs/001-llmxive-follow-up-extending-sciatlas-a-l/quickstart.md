@@ -3,72 +3,76 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to the OpenAlex API (public, no key required for basic usage).
+- Git
+- 7GB+ RAM (for processing the subgraph)
+- 2 CPU cores (minimum)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project root.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` includes `networkx`, `sentence-transformers`, `scikit-learn`, `pandas`, `pyarrow`, `pyalex`.*
+1. **Clone the Repository**:
+   ```bash
+   git clone <repo-url>
+   cd PROJ-854-llmxive-follow-up-extending-sciatlas-a-l
+   ```
+
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins all versions for reproducibility.*
+
+## Data Preparation
+
+Ensure the input data exists:
+- `data/processed/subgraph.parquet` must be present.
+- If missing, run the data ingestion script (if provided in `code/`) or download the OpenAlex subgraph as per the project documentation.
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via the `src/cli/main.py` script.
+Execute the full analysis pipeline:
 
-### 1. Run Data Ingestion & Sampling
-Fetches a degree-stratified sample from OpenAlex and builds the initial graph.
 ```bash
-python -m src.cli.main --step ingest --sample-size [DEFERRED]
-```
-*Output*: `data/raw/openalex_stream.parquet`, `data/processed/subgraph_with_clusters.parquet`.
-
-### 2. Run Embeddings & Text Clustering
-Computes embeddings and assigns text-based topic clusters.
-```bash
-python -m src.cli.main --step embeddings --batch-size 64
-```
-*Output*: `data/processed/nodes_with_embeddings.parquet`.
-
-### 3. Run Statistical Analysis
-Performs correlation, regression, and FDR correction.
-```bash
-python -m src.cli.main --step analysis
-```
-*Output*: `artifacts/results/statistical_outputs.json`.
-
-### 4. Generate Report
-(If applicable) Generates a markdown summary of the results.
-```bash
-python -m src.cli.main --step report
+python -m src.cli.main --input data/processed/subgraph.parquet --output data/processed/subgraph_with_clusters.parquet
 ```
 
-## Verification
+### Options
 
-To verify the pipeline on a small subset (unit test mode):
-```bash
-pytest tests/unit/test_ingest.py -v
-pytest tests/unit/test_metrics.py -v
-```
+- `--input`: Path to the input Parquet file (default: `data/processed/subgraph.parquet`).
+- `--output`: Path for the enriched output (default: `data/processed/subgraph_with_clusters.parquet`).
+- `--correction-method`: Multiple-comparison correction method. Options: `bonferroni`, `benjamini-hochberg` (default: `benjamini-hochberg`).
+- `--seed`: Random seed for reproducibility (default: 42).
 
-To run the full integration test on a tiny sample (e.g., 100 nodes):
-```bash
-python -m src.cli.main --step ingest --sample-size 100 --debug
-python -m src.cli.main --step embeddings --debug
-python -m src.cli.main --step analysis --debug
-```
-*Check*: Ensure `artifacts/results/statistical_outputs.json` exists and contains valid floats.
+## Expected Outputs
+
+1. **Enriched Data**: `data/processed/subgraph_with_clusters.parquet` containing all metrics.
+2. **Logs**: `data/processed/excluded_nodes.json` (if any nodes were excluded).
+3. **Reports**: A summary report printed to stdout or saved to `artifacts/results/summary_report.txt`.
+
+## Validation
+
+To verify the results:
+
+1. **Schema Validation**:
+   ```bash
+   python -m tests.contract.test_schemas
+   ```
+   This ensures the output file matches the defined schema.
+
+2. **Independence Check**:
+   Run the unit test for US-002:
+   ```bash
+   python -m pytest tests/unit/test_embeddings.py::test_novelty_independence
+   ```
+   This confirms that novelty scores are not dependent on cluster assignments.
 
 ## Troubleshooting
 
-- **OOM (Out of Memory)**: Reduce `--sample-size` or `--batch-size`. Ensure `streaming=True` is used in ingestion.
-- **API Rate Limits**: If using `pyalex`, add `--delay 1.0` to slow down requests.
-- **Missing Data**: The pipeline skips nodes with missing titles or degree 0 (assigning default values). Check logs for skipped counts.
+- **Memory Error**: If you encounter `MemoryError`, reduce the sample size or ensure the input data is not larger than expected.
+- **CUDA Error**: The pipeline is CPU-only. If you see CUDA errors, ensure `device="cpu"` is set in the embedding configuration (default).
+- **Schema Mismatch**: Verify that the input `subgraph.parquet` contains all required columns (`id`, `title`, `cited_by_count`, `publication_date`, `field`).

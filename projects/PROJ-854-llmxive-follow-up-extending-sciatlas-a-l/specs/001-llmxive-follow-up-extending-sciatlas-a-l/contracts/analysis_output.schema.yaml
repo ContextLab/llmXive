@@ -34,7 +34,10 @@ properties:
           description: "Name of the outcome variable."
         method:
           type: string
-          description: "Statistical method used (e.g., Spearman, Quadratic Regression)."
+          description: "Statistical method used (e.g., Spearman, Negative Binomial GLM)."
+        correction_method:
+          type: string
+          description: "Multiple-comparison correction method used (e.g., Bonferroni, Benjamini-Hochberg)."
         correlation_coefficient:
           type: number
           description: "Spearman's rho or regression coefficient."
@@ -55,17 +58,30 @@ properties:
         note:
           type: string
           description: "Must state 'associational' if observational."
+        r_squared_improvement:
+          type: number
+          description: "R-squared improvement over a baseline model without covariates."
       required:
         - test_name
         - predictor
         - outcome
         - method
+        - correction_method
         - correlation_coefficient
         - p_value_raw
         - p_value_adjusted
         - is_significant
         - note
     minItems: 2
+  metrics:
+    type: object
+    properties:
+      novelty_score_variance:
+        type: number
+        description: "Variance of novelty scores to confirm independence from cluster topology (SC-002)."
+      mdes:
+        type: number
+        description: "Minimum Detectable Effect Size from power analysis."
   metadata:
     type: object
     properties:
@@ -82,6 +98,9 @@ properties:
       dataset_source:
         type: string
         description: "Source of the dataset (e.g., 'OpenAlex')."
+      is_associational:
+        type: boolean
+        description: "Must be true. Labels result as associational."
 required:
   - summary
   - tests

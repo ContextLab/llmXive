@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Enriched Subgraph Output Schema
+description: Schema for the final output Parquet file containing bridging and novelty metrics.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique work identifier.
+  title:
+    type: ["string", "null"]
+    description: Work title.
+  cited_by_count:
+    type: integer
+    description: Citation count.
+  publication_date:
+    type: string
+    format: date-time
+    description: Date of publication.
+  field:
+    type: string
+    description: Disciplinary field identifier.
+  primary_cluster:
+    type: integer
+    description: Louvain community ID.
+  degree:
+    type: integer
+    description: Total number of connections.
+  inter_cluster_edges:
+    type: integer
+    description: Number of edges connecting to different clusters.
+  bridging_coefficient:
+    type: number
+    description: Ratio of inter-cluster edges to total degree.
+  novelty_score:
+    type: number
+    description: Cosine distance to global centroid.
+  is_singleton:
+    type: boolean
+    description: True if the node is in a singleton cluster.
+required:
+  - id
+  - cited_by_count
+  - publication_date
+  - field
+  - primary_cluster
+  - degree
+  - bridging_coefficient
+  - novelty_score
+  - is_singleton
+additionalProperties: true

@@ -1,15 +1,5 @@
 status: none
-intent: download PubGraph OpenAlex citation graph dataset python package dataset
-required_fields:
-- node_id
-- paper_title
-- publication_year
-- citation_count
-- list_of_reference_ids
-- list_of_fields_of_study
-- primary_discipline_label
-- edge_source_id
-- edge_target_id
-cache_key: 17be8fa08ee67451daf45d79b541d3081057ee454dd84782b5763db6b08cc8eb
-searched_at: '2026-09-22T17:31:24.244771+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-01T14:50:35.244364+00:00'
+retry_count: 3

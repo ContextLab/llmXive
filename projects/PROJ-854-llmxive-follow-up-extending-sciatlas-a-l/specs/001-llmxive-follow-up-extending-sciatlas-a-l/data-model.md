@@ -2,76 +2,74 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline. All data is stored in **Parquet** format for efficiency and type safety. The model ensures strict separation between raw inputs, derived graph metrics, and final analysis datasets.
+This document defines the data structures, schemas, and transformations used in the analysis pipeline. The data flows from a raw OpenAlex-derived subgraph to an enriched dataset containing topological and text-based metrics.
 
-## Entity Definitions
+## Source Data
 
-### 1. Node (Publication)
-Represents a scientific publication in the graph.
-*   **`id`**: `string` (Unique identifier, e.g., OpenAlex ID).
-*   **`title`**: `string` (Publication title).
-*   **`abstract`**: `string` (Optional).
-*   **`publication_year`**: `int16`.
-*   **`citation_count`**: `int32` (Non-negative).
-*   **`embedding_vector`**: `list[float32]` (384 dimensions from `all-MiniLM-L6-v2`).
-*   **`primary_cluster`**: `int32` (Cluster ID from Louvain algorithm).
-*   **`topic_cluster`**: `int32` (Cluster ID from K-Means on embeddings).
-*   **`bridging_coefficient`**: `float32` (Ratio of inter-cluster edges / total degree). Range [0.0, 1.0].
-*   **`novelty_score`**: `float32` (Cosine distance to topic centroid). Range [0.0, 2.0].
-*   **`degree`**: `int32` (Total number of edges).
+### Input: `data/processed/subgraph.parquet`
+- **Format**: Apache Parquet.
+- **Description**: A subset of the OpenAlex graph containing scientific works and their connections. Derived from the **OpenAlex Full Snapshot (2026-01-01)**.
+- **Schema**:
+  - `id`: `string` (Unique work identifier)
+  - `title`: `string` (Work title, nullable)
+  - `cited_by_count`: `int64` (Citation count, nullable)
+  - `publication_date`: `datetime64[ns]` (Date of publication)
+  - `field`: `string` (Disciplinary field identifier)
+  - `neighbors`: `list[string]` (List of connected work IDs). *Derived from the same OpenAlex snapshot as the node data, linked via the `id` field.*
 
-### 2. Edge (Relationship)
-Represents a citation or connection between two nodes.
-*   **`source_id`**: `string`.
-*   **`target_id`**: `string`.
-*   **`type`**: `string` (e.g., "cites", "references").
+## Derived Data
 
-### 3. Cluster (Community)
-*   **`cluster_id`**: `int32`.
-*   **`type`**: `string` ("topological" or "textual").
-*   **`node_count`**: `int32`.
-*   **`centroid_embedding`**: `list[float32]` (Only for textual clusters).
+### Output: `data/processed/subgraph_with_clusters.parquet`
+- **Format**: Apache Parquet.
+- **Description**: The original dataset enriched with clustering, bridging, and novelty metrics.
+- **Schema**:
+  - `id`: `string`
+  - `title`: `string`
+  - `cited_by_count`: `int64`
+  - `publication_date`: `datetime64[ns]`
+  - `field`: `string`
+  - `primary_cluster`: `int32` (Louvain cluster ID)
+  - `degree`: `int32` (Total number of connections)
+  - `inter_cluster_edges`: `int32` (Number of edges connecting to different clusters)
+  - `bridging_coefficient`: `float64` (Calculated as `inter_cluster_edges / degree`)
+  - `embedding_vector`: `list[float32]` (384-dimensional vector from MiniLM)
+  - `novelty_score`: `float64` (Cosine distance to global centroid)
+  - `is_singleton`: `bool` (True if cluster size is 1)
+  - `novelty_score_variance`: `float64` (Variance of novelty scores for the dataset, computed for SC-002)
 
-## File Artifacts
+### Logs: `data/processed/excluded_nodes.json`
+- **Format**: JSON.
+- **Description**: List of nodes excluded from embedding generation due to null titles.
+- **Schema**:
+  - `excluded_ids`: `list[string]`
+  - `reason`: `string` (e.g., "null_title")
 
-### `data/raw/openalex_stream.parquet`
-*   **Source**: OpenAlex API (streamed).
-*   **Content**: Raw node and edge metadata for the sampled IDs.
-*   **Schema**: `id`, `title`, `cited_by_count`, `publication_year`, `references` (list of IDs).
+## Data Transformations
 
-### `data/processed/subgraph_with_clusters.parquet`
-*   **Source**: Ingested data + Louvain clustering.
-*   **Content**: Nodes with `primary_cluster` and `bridging_coefficient`.
-*   **Schema**: `id`, `primary_cluster`, `bridging_coefficient`, `degree`.
+1. **Ingestion**:
+   - Load `subgraph.parquet`.
+   - Validate against `data/schema/openalex_works.json` (derived from `contracts/openalex_works.schema.yaml`).
+   - Handle missing `cited_by_count` (default to 0).
+   - Log null titles to `excluded_nodes.json`.
 
-### `data/processed/nodes_with_embeddings.parquet`
-*   **Source**: Subgraph + Embedding inference + K-Means.
-*   **Content**: Nodes with `embedding_vector`, `topic_cluster`, `novelty_score`.
-*   **Schema**: `id`, `embedding_vector`, `topic_cluster`, `novelty_score`.
+2. **Embedding**:
+   - Filter nodes with non-null titles.
+   - Generate embeddings using `all-MiniLM-L6-v2`.
+   - Compute global centroid (mean of normalized vectors, float32).
+   - Calculate `novelty_score` (cosine distance to centroid).
 
-### `data/processed/final_analysis_dataset.parquet`
-*   **Source**: Join of all processed files.
-*   **Content**: Complete feature set for statistical analysis.
-*   **Schema**: All fields from `Node` entity.
+3. **Topology**:
+   - Construct graph from `id` and `neighbors` (convert list of strings to NetworkX edges).
+   - Run Louvain clustering to assign `primary_cluster`.
+   - Calculate `degree` and `inter_cluster_edges`.
+   - Compute `bridging_coefficient`.
 
-### `artifacts/results/statistical_outputs.json`
-*   **Content**: Correlation coefficients, p-values, FDR-adjusted p-values, regression coefficients.
-*   **Schema**:
-    ```json
-    {
-      "correlation_citations": { "rho": 0.0, "p_value": 0.0, "p_adj": 0.0 },
-      "correlation_novelty": { "rho": 0.0, "p_value": 0.0, "p_adj": 0.0 },
-      "regression_citations": { "coef": 0.0, "p_value": 0.0 },
-      "regression_novelty": { "coef": 0.0, "p_value": 0.0 }
-    }
-    ```
+4. **Enrichment**:
+   - Merge embedding/novelty data with topology data.
+   - Save to `subgraph_with_clusters.parquet`.
 
-## Data Flow
+## Constraints
 
-1.  **Ingest**: `data/raw/openalex_stream.parquet` (Raw)
-2.  **Graph Construction**: Build NetworkX graph from raw edges.
-3.  **Topological Analysis**: Compute `primary_cluster` (Louvain) and `bridging_coefficient`. Save to `subgraph_with_clusters.parquet`.
-4.  **Embedding**: Compute `embedding_vector` for all nodes.
-5.  **Text Clustering**: Compute `topic_cluster` (K-Means) and `novelty_score`. Save to `nodes_with_embeddings.parquet`.
-6.  **Merge**: Join results into `final_analysis_dataset.parquet`.
-7.  **Analysis**: Compute statistics and save to `statistical_outputs.json`.
+- **Memory**: All transformations must be optimized to fit within 7GB RAM. Large lists (embeddings) may be stored as compressed arrays or processed in batches.
+- **Integrity**: Checksums are recorded for all Parquet files. No in-place modification.
+- **Validation**: Every intermediate file must pass schema validation before being used as input for the next step.

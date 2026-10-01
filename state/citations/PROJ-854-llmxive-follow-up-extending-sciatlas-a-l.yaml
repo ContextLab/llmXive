@@ -1,1 +1,23 @@
-[]
+- artifact_hash: e0ea70f0bbeaa1b9db22ff1f9d5dd7fd62df3669160193c48a40ce96242b1d7f
+  artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: works
+  kind: url
+  value: https://api.openalex.org/works`
+  verification_status: pending
+  verified_against_url: https://api.openalex.org/works
+  verified_at: '2026-10-01T15:00:28.355950Z'
+- artifact_hash: e0ea70f0bbeaa1b9db22ff1f9d5dd7fd62df3669160193c48a40ce96242b1d7f
+  artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2108.10402] Matching Bayesian and frequentist coverage probabilities
+    when using an approximate data covariance matrix'
+  kind: url
+  value: https://arxiv.org/abs/2108.10402
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2108.10402
+  verified_at: '2026-10-01T15:00:28.355950Z'

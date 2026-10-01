@@ -36,9 +36,9 @@ properties:
     maximum: 1.0
   novelty_score:
     type: "number"
-    description: "Cosine distance to topic centroid"
+    description: "Cosine distance to topic centroid (MAX for singletons)"
     minimum: 0.0
-    maximum: 2.0
+    maximum: 2.5
   degree:
     type: "integer"
     description: "Total degree of the node"
