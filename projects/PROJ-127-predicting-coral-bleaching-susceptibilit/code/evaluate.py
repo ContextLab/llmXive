@@ -4,408 +4,300 @@ import json
 import warnings
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
-
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 from sklearn.inspection import permutation_importance
-from sklearn.model_selection import train_test_split
+from scipy.stats import spearmanr
+from scipy.stats import zscore
 import xgboost as xgb
 
-# Assuming config is available in the project root or code directory
-# If not, we assume it's imported or paths are constructed relative to the script
-try:
-    import config
-except ImportError:
-    # Fallback if run as script without package structure
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    import config
+# Import shared config
+import config
 
-def compute_roc_auc(y_true: np.ndarray, y_proba: np.ndarray) -> float:
-    """Compute ROC-AUC score."""
-    if len(np.unique(y_true)) < 2:
-        warnings.warn("Only one class present in y_true. ROC-AUC is undefined.")
-        return float('nan')
-    return roc_auc_score(y_true, y_proba)
+# --- Helper Functions for Permutation Importance & Convergence (T026) ---
 
-def run_permutation_importance(
-    model: Any,
-    X: np.ndarray,
-    y: np.ndarray,
-    feature_names: List[str],
-    n_permutations: int = 1000,
-    random_state: int = 42
-) -> pd.DataFrame:
-    """Run permutation importance and return results as DataFrame."""
+def load_model_and_data() -> Tuple[Any, pd.DataFrame, pd.DataFrame, np.ndarray]:
+    """
+    Loads the trained model, features, and target from the processed data.
+    Assumes T023 has run and produced the necessary artifacts.
+    """
+    model_path = config.PROJECT_ROOT / "data" / "models" / "model.json"
+    features_path = config.PROJECT_ROOT / "data" / "processed" / "filtered_features.csv"
+    target_path = config.PROJECT_ROOT / "data" / "processed" / "filtered_features.csv" # Target is in the same file usually
+
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found at {model_path}. Run T023 first.")
+    
+    # Load model
+    model = xgb.XGBClassifier()
+    model.load_model(str(model_path))
+
+    # Load data
+    df = pd.read_csv(features_path)
+    
+    # Identify target column based on standard naming or config
+    # Assuming 'bleaching_label' is the target based on context
+    if 'bleaching_label' not in df.columns:
+        raise ValueError("Target column 'bleaching_label' not found in filtered_features.csv")
+    
+    X = df.drop(columns=['bleaching_label'])
+    y = df['bleaching_label']
+
+    return model, X, y, df
+
+def run_permutation_importance(model: Any, X: pd.DataFrame, y: np.ndarray, n_repeats: int = 10, random_state: int = 42) -> pd.DataFrame:
+    """
+    Runs permutation importance and returns a DataFrame of scores.
+    """
     result = permutation_importance(
-        model, X, y,
-        n_repeats=n_permutations,
-        random_state=random_state,
-        scoring='roc_auc',
-        n_jobs=-1
+        model, X, y, 
+        n_repeats=n_repeats, 
+        random_state=random_state, 
+        n_jobs=-1, 
+        scoring='roc_auc'
     )
     
-    importance_df = pd.DataFrame({
-        'feature': feature_names,
+    df_importance = pd.DataFrame({
+        'feature': X.columns,
         'mean_importance': result.importances_mean,
-        'std_importance': result.importances_std,
-        'raw_scores': list(result.importances)
+        'std_importance': result.importances_std
     })
-    importance_df = importance_df.sort_values('mean_importance', ascending=False)
+    return df_importance.sort_values(by='mean_importance', ascending=False)
+
+def compute_ranking_correlation(rankings: List[pd.DataFrame]) -> float:
+    """
+    Computes the Spearman correlation between the rankings of two consecutive batches.
+    Returns the mean correlation of top-K features if K is specified, or all.
+    """
+    if len(rankings) < 2:
+        return 0.0
+    
+    # Flatten rankings to just the feature order (or mean importance)
+    # We compare the mean_importance columns
+    last_rank = rankings[-1]['mean_importance'].values
+    prev_rank = rankings[-2]['mean_importance'].values
+    
+    corr, _ = spearmanr(last_rank, prev_rank)
+    return corr if not np.isnan(corr) else 0.0
+
+def run_convergence_loop(model: Any, X: pd.DataFrame, y: np.ndarray, 
+                         batch_size: int = 200, max_runs: int = 2000, 
+                         tolerance: float = 0.01, patience: int = 2) -> Tuple[int, pd.DataFrame]:
+    """
+    Runs permutation importance in batches until the ranking stabilizes.
+    Returns the final N (total runs) and the final ranking.
+    """
+    current_n = 0
+    rankings = []
+    stable_count = 0
+    final_ranking = None
+
+    print("Starting convergence loop for permutation importance...")
+
+    while current_n < max_runs:
+        # Calculate how many more repeats we need for this batch
+        # We simulate 'n_repeats' by running the permutation function multiple times
+        # Note: sklearn's permutation_importance with n_repeats=k does k shuffles.
+        # To simulate convergence, we run the whole process multiple times with increasing total repeats?
+        # Actually, the task implies running the permutation importance with a growing 'n_repeats' parameter
+        # or running the whole experiment multiple times.
+        # Interpretation: We run permutation importance with n_repeats = batch_size, then 2*batch_size, etc.
+        
+        next_n = min(current_n + batch_size, max_runs)
+        
+        # Run permutation importance with current total repeats
+        # Note: sklearn's n_repeats is the number of shuffles per feature.
+        # We interpret "convergence" as the stability of the ranking as we increase the number of shuffles (n_repeats).
+        
+        current_ranking = run_permutation_importance(model, X, y, n_repeats=next_n, random_state=42)
+        rankings.append(current_ranking)
+        
+        if len(rankings) >= 2:
+            corr = compute_ranking_correlation(rankings)
+            if abs(corr) > 1 - tolerance: # High correlation means stable
+                stable_count += 1
+                if stable_count >= patience:
+                    print(f"Convergence reached at N={next_n} (Correlation: {corr:.4f})")
+                    return next_n, current_ranking
+            else:
+                stable_count = 0
+        
+        current_n = next_n
+        print(f"Current N={current_n}, Correlation={compute_ranking_correlation(rankings) if len(rankings)>=2 else 0:.4f}")
+
+    warnings.warn("Convergence loop hit max runs without stabilizing.")
+    return max_runs, rankings[-1]
+
+def calculate_p_values(importance_df: pd.DataFrame, n_permutations: int) -> pd.DataFrame:
+    """
+    Calculates empirical p-values for feature importance.
+    Assumes null distribution is centered at 0.
+    """
+    # Simple empirical p-value: proportion of permuted importances <= 0 (for positive importance)
+    # Or more robustly, compare observed to a distribution of nulls.
+    # Since we only have the mean/std from sklearn, we approximate a Z-score assuming normality of the permutation distribution.
+    # Z = (mean - 0) / std
+    
+    z_scores = importance_df['mean_importance'] / (importance_df['std_importance'] + 1e-8)
+    
+    # One-tailed p-value (probability of observing this or more extreme under null)
+    # Using survival function for positive importance
+    from scipy.stats import norm
+    p_values = norm.sf(z_scores)
+    
+    importance_df['p_value'] = p_values
     return importance_df
 
-def apply_fdr_correction(
-    importance_df: pd.DataFrame,
-    p_value_col: str = 'p_value',
-    alpha: float = 0.05
-) -> pd.DataFrame:
-    """Apply Benjamini-Hochberg FDR correction to p-values."""
-    if p_value_col not in importance_df.columns:
-        # If p-values aren't provided, we can't correct them.
-        # In a full pipeline, p-values might be derived from permutation distribution.
-        # For this task, we assume p-values are passed or calculated elsewhere.
-        # If missing, we return the dataframe as is with a warning.
-        warnings.warn("No p-value column found. Skipping FDR correction.")
-        importance_df['fdr_corrected_p'] = importance_df.get('p_value', np.nan)
-        return importance_df
-
-    p_values = importance_df[p_value_col].values
+def apply_fdr_correction(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Applies Benjamini-Hochberg correction to p-values.
+    """
+    p_values = df['p_value'].values
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = p_values[sorted_indices]
+    sorted_p = p_values[sorted_indices]
     
-    # BH procedure
-    rank = np.arange(1, n + 1)
-    corrected_p = (sorted_p_values * n) / rank
-    corrected_p = np.minimum.accumulate(corrected_p[::-1])[::-1]
+    corrected_p = np.zeros(n)
+    for i in range(n):
+        corrected_p[sorted_indices[i]] = sorted_p[i] * n / (i + 1)
+    
+    # Ensure values are <= 1
     corrected_p = np.minimum(corrected_p, 1.0)
     
-    importance_df['fdr_corrected_p'] = 0.0
-    importance_df.loc[sorted_indices, 'fdr_corrected_p'] = corrected_p
-    
-    return importance_df
+    df['p_value_corrected'] = corrected_p
+    return df
 
-def bootstrap_stability(
-    model: Any,
-    X: np.ndarray,
-    y: np.ndarray,
-    feature_names: List[str],
-    n_resamples: int = 100,
-    top_k: int = 3,
-    random_state: int = 42,
-    scoring_metric: str = 'roc_auc'
-) -> Dict[str, Any]:
+# --- T028: Bootstrap Stability Analysis ---
+
+def run_bootstrap_stability(model: Any, X: pd.DataFrame, y: np.ndarray, 
+                            n_bootstraps: int = 100, random_state: int = 42) -> Dict[str, Any]:
     """
-    Perform Bootstrap Stability analysis to measure ranking stability of top-k predictors.
+    Performs Bootstrap Stability analysis (100 resamples) to measure ranking stability 
+    of the top-3 predictors.
     
-    Args:
-        model: Trained model (e.g., XGBoost).
-        X: Feature matrix.
-        y: Target vector.
-        feature_names: List of feature names corresponding to X columns.
-        n_resamples: Number of bootstrap resamples.
-        top_k: Number of top features to analyze for stability.
-        random_state: Random seed for reproducibility.
-        scoring_metric: Metric used for permutation importance (default 'roc_auc').
-        
-    Returns:
-        Dictionary containing stability metrics and detailed results.
+    Returns a dictionary with:
+    - 'top_3_features': list of feature names
+    - 'stability_scores': dict mapping feature name to frequency of being in top-3
+    - 'ranking_variance': variance in the ranking positions
     """
-    rng = np.random.default_rng(random_state)
-    n_samples = X.shape[0]
-    
-    top_feature_rankings = {f: [] for f in feature_names}
-    top_feature_scores = {f: [] for f in feature_names}
-    
-    for i in range(n_resamples):
-        # Bootstrap sample
-        indices = rng.choice(n_samples, size=n_samples, replace=True)
-        X_boot = X[indices]
-        y_boot = y[indices]
+    np.random.seed(random_state)
+    n_samples = len(y)
+    feature_names = X.columns.tolist()
+    top_k = 3
+    top_3_counts = {f: 0 for f in feature_names}
+    all_rankings = []
+
+    print(f"Starting Bootstrap Stability Analysis ({n_bootstraps} resamples)...")
+
+    for i in range(n_bootstraps):
+        # Resample with replacement
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        X_boot = X.iloc[indices]
+        y_boot = y.iloc[indices]
         
-        # Retrain model on bootstrap sample to capture model variance
-        # Assuming the model has a .fit() method. 
-        # For XGBoost, we need to clone the model or reinitialize with same params.
-        # Since we don't have the original params here, we assume the passed model 
-        # is a template or we retrain a new one. 
-        # To be safe and accurate to the "stability of predictors" concept, 
-        # we retrain a fresh model with the same hyperparameters as the original.
-        # However, without access to original params, we might just refit the passed model 
-        # if it's a class instance that can be reset, or we assume the caller 
-        # passes a factory. 
-        # Given the constraints, we will assume the model passed is the best estimator 
-        # and we retrain a new instance with the same type. 
-        # Since we don't have the type, we'll assume the model passed is the one to retrain 
-        # but that's not possible if it's already fitted. 
-        # Strategy: We will assume the input model is a "template" or we just refit 
-        # a new XGBClassifier with default params if not specified? 
-        # No, that changes the model. 
-        # Correct approach for this task: The task asks for stability of *predictors*.
-        # This usually means: "If we resample data, do the same features remain important?"
-        # We should use the *same* model architecture. 
-        # Since we can't easily clone without params, we will assume the model passed 
-        # is the one we are evaluating, and we are just evaluating feature importance 
-        # on resampled data *using the same model*? 
-        # No, standard bootstrap stability for feature importance involves retraining 
-        # on the bootstrap sample. 
-        # Let's assume we can retrain a new model of the same type. 
-        # Since we don't have the type, we will use the passed model's class 
-        # but we need to know it. 
-        # To avoid complex cloning, we will assume the model is an XGBClassifier 
-        # and retrain it. If it's not, this might fail, but it's the most likely case.
+        # Train a quick model on bootstrap sample to get ranking
+        # Re-train XGB on bootstrap data
+        boot_model = xgb.XGBClassifier(random_state=random_state)
+        boot_model.fit(X_boot, y_boot)
         
-        # Better approach: The prompt implies we have a trained model. 
-        # We will assume we are testing the stability of the feature ranking 
-        # derived from the model trained on the full data, but evaluated on resampled data?
-        # No, that's not bootstrap stability of the ranking. 
-        # Bootstrap stability of ranking: Train on Bootstrap -> Get Rank -> Repeat.
-        # We need to retrain. 
-        # Let's assume the model is an XGBClassifier and we can retrain it.
-        # We need to get the parameters. 
-        # Since we can't get them from a fitted object easily without get_params,
-        # and we don't know if it's fitted, we will try to get params.
+        # Get permutation importance for this bootstrap sample
+        # Use a smaller n_repeats for speed during bootstrap, e.g., 50
+        importance_df = run_permutation_importance(boot_model, X_boot, y_boot, n_repeats=50, random_state=random_state + i)
         
-        try:
-            # Try to get params
-            params = model.get_params()
-            # Remove 'n_estimators' if it was set to a specific value for the full model?
-            # No, keep it.
-            # Create new instance
-            new_model = model.__class__(**params)
-            new_model.fit(X_boot, y_boot)
-        except Exception as e:
-            # Fallback: if we can't clone, we might just use the original model 
-            # but that defeats the purpose of bootstrap stability for model variance.
-            # However, for the sake of this task, we will assume the model is cloneable.
-            # If not, we skip this resample or use the original model (less accurate).
-            # Let's raise a clear error if we can't retrain.
-            warnings.warn(f"Could not retrain model for bootstrap resample {i}: {e}. Skipping.")
-            continue
+        # Extract top K features
+        top_k_features = importance_df.head(top_k)['feature'].tolist()
+        all_rankings.append(importance_df['feature'].tolist())
         
-        # Compute permutation importance on the bootstrap sample
-        # We need to evaluate on the bootstrap sample itself or a holdout?
-        # Usually, importance is computed on the data used for training or a validation set.
-        # Here we compute on the bootstrap sample to see if the model 
-        # identifies the same features as important.
-        try:
-            perm_result = permutation_importance(
-                new_model, X_boot, y_boot,
-                n_repeats=10, # Fewer repeats for speed in bootstrap
-                random_state=random_state + i,
-                scoring=scoring_metric,
-                n_jobs=1
-            )
-            
-            # Extract mean importance
-            importances = perm_result.importances_mean
-            feature_importance_df = pd.DataFrame({
-                'feature': feature_names,
-                'importance': importances
-            })
-            feature_importance_df = feature_importance_df.sort_values('importance', ascending=False)
-            
-            # Record top-k ranks
-            top_features = feature_importance_df.head(top_k)['feature'].tolist()
-            for feat in feature_names:
-                if feat in top_features:
-                    rank = top_features.index(feat) + 1
-                    top_feature_rankings[feat].append(rank)
-                else:
-                    top_feature_rankings[feat].append(None) # Not in top k
-                    
-        except Exception as e:
-            warnings.warn(f"Permutation importance failed for resample {i}: {e}. Skipping.")
-            continue
+        # Update counts
+        for f in top_k_features:
+            top_3_counts[f] += 1
+
+    # Calculate stability scores (frequency of being in top 3)
+    stability_scores = {f: count / n_bootstraps for f, count in top_3_counts.items()}
     
-    # Calculate stability metrics
-    stability_results = {}
-    for feat in feature_names:
-        ranks = [r for r in top_feature_rankings[feat] if r is not None]
-        if not ranks:
-            stability_results[feat] = {
-                'mean_rank': None,
-                'std_rank': None,
-                'frequency_in_top_k': 0.0,
-                'stability_score': 0.0
-            }
-        else:
-            mean_rank = np.mean(ranks)
-            std_rank = np.std(ranks)
-            freq_in_top_k = len(ranks) / n_resamples
-            # Stability score: 1 / (1 + std_rank) -> lower std = higher stability
-            stability_score = 1.0 / (1.0 + std_rank) if std_rank is not None else 0.0
-            
-            stability_results[feat] = {
-                'mean_rank': float(mean_rank),
-                'std_rank': float(std_rank),
-                'frequency_in_top_k': float(freq_in_top_k),
-                'stability_score': float(stability_score)
-            }
+    # Determine the "base" top 3 from the full model (or average)
+    # For this task, we report the stability of the features that appear most often in top 3
+    sorted_stability = sorted(stability_scores.items(), key=lambda x: x[1], reverse=True)
+    most_stable_features = [f[0] for f in sorted_stability[:top_k]]
     
-    # Sort by stability score descending
-    sorted_stability = sorted(stability_results.items(), key=lambda x: x[1]['stability_score'], reverse=True)
+    # Calculate variance in rankings (Spearman correlation stability or position variance)
+    # Let's compute the standard deviation of the rank position for each feature
+    rank_positions = {f: [] for f in feature_names}
+    for ranking in all_rankings:
+        for idx, f in enumerate(ranking):
+            rank_positions[f].append(idx + 1)
     
+    rank_variance = {f: np.var(positions) for f, positions in rank_positions.items()}
+
     return {
-        'n_resamples': n_resamples,
-        'top_k': top_k,
-        'stability_metrics': stability_results,
-        'top_stable_features': [f for f, _ in sorted_stability[:top_k]]
+        'n_bootstraps': n_bootstraps,
+        'top_3_features': most_stable_features,
+        'stability_scores': stability_scores,
+        'rank_variance': rank_variance,
+        'all_rankings': all_rankings # Optional, might be large
     }
 
-def evaluate_model(
-    model: Any,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    feature_names: List[str],
-    output_dir: Path
-) -> Dict[str, Any]:
+def evaluate_model() -> Dict[str, Any]:
     """
-    Comprehensive evaluation: ROC-AUC, Permutation Importance, FDR, Bootstrap Stability.
+    Main evaluation function that orchestrates T026 (Convergence) and T028 (Bootstrap).
     """
-    results = {}
+    print("Loading model and data...")
+    model, X, y, df = load_model_and_data()
+
+    # 1. Run Convergence Loop (T026)
+    print("Running Convergence Loop...")
+    final_n, final_ranking = run_convergence_loop(model, X, y)
     
-    # Predictions
-    y_proba = model.predict_proba(X_test)[:, 1]
+    # 2. Calculate P-values and FDR (T026)
+    final_ranking = calculate_p_values(final_ranking)
+    final_ranking = apply_fdr_correction(final_ranking)
     
-    # ROC-AUC
-    roc_auc = compute_roc_auc(y_test, y_proba)
-    results['roc_auc'] = roc_auc
-    print(f"ROC-AUC: {roc_auc:.4f}")
+    # Save permutation results
+    results_path = config.PROJECT_ROOT / "data" / "processed" / "permutation_results.json"
+    # Convert dataframe to serializable dict
+    permutation_data = final_ranking.to_dict(orient='records')
     
-    # Permutation Importance
-    perm_imp = run_permutation_importance(model, X_test, y_test, feature_names, n_permutations=1000)
-    results['permutation_importance'] = perm_imp.to_dict(orient='records')
+    # 3. Run Bootstrap Stability (T028)
+    print("Running Bootstrap Stability Analysis...")
+    bootstrap_results = run_bootstrap_stability(model, X, y, n_bootstraps=100)
     
-    # Calculate p-values for permutation importance (simple z-score approach)
-    # H0: importance is 0. Z = (mean - 0) / std
-    perm_imp['z_score'] = perm_imp['mean_importance'] / (perm_imp['std_importance'] + 1e-9)
-    # Two-tailed p-value from normal distribution (approximation)
-    from scipy.stats import norm
-    perm_imp['p_value'] = 2 * (1 - norm.cdf(np.abs(perm_imp['z_score'])))
+    # Merge results
+    output = {
+        'convergence': {
+            'final_n_repeats': final_n,
+            'top_features': final_ranking.head(10)['feature'].tolist(),
+            'p_values': final_ranking[['feature', 'p_value', 'p_value_corrected']].to_dict(orient='records')
+        },
+        'bootstrap_stability': {
+            'n_bootstraps': bootstrap_results['n_bootstraps'],
+            'top_3_features': bootstrap_results['top_3_features'],
+            'stability_scores': bootstrap_results['stability_scores'],
+            'rank_variance': bootstrap_results['rank_variance']
+        }
+    }
+
+    with open(results_path, 'w') as f:
+        json.dump(output, f, indent=2)
     
-    # FDR Correction
-    perm_imp_corrected = apply_fdr_correction(perm_imp, p_value_col='p_value')
-    results['fdr_corrected_importance'] = perm_imp_corrected.to_dict(orient='records')
-    
-    # Bootstrap Stability
-    stability = bootstrap_stability(model, X_test, y_test, feature_names, n_resamples=100, top_k=3)
-    results['bootstrap_stability'] = stability
-    
-    # Save results to JSON
-    output_path = output_dir / 'evaluation_results.json'
-    # Convert numpy types to python types for JSON serialization
-    def convert(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, dict):
-            return {k: convert(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convert(i) for i in obj]
-        return obj
-    
-    with open(output_path, 'w') as f:
-        json.dump(convert(results), f, indent=2)
-    
-    print(f"Evaluation results saved to {output_path}")
-    return results
+    print(f"Evaluation complete. Results saved to {results_path}")
+    return output
+
+def compute_metrics() -> Dict[str, Any]:
+    """
+    Placeholder for metric computation if needed separately.
+    """
+    return {}
 
 def main():
-    """Main entry point for evaluation script."""
-    # Load data (assuming processed data exists from previous steps)
-    # This is a placeholder for the actual data loading logic
-    # In a real scenario, we would load from data/processed/filtered_features.csv
-    # and load the trained model from data/models/
-    
+    """
+    Entry point for the evaluation script.
+    """
     try:
-        # Load data
-        data_path = config.DATA_PROCESSED / 'filtered_features.csv'
-        if not data_path.exists():
-            print(f"Error: Data file not found at {data_path}. Please run the ingestion and feature engineering pipeline first.")
-            sys.exit(1)
-        
-        df = pd.read_csv(data_path)
-        
-        # Assume target column is 'bleaching_label' and features are everything else except 'id', 'lat', 'lon', etc.
-        # This is a simplification. The actual column names should be defined in the config or spec.
-        target_col = 'bleaching_label'
-        if target_col not in df.columns:
-            print(f"Error: Target column '{target_col}' not found in data.")
-            sys.exit(1)
-        
-        feature_cols = [col for col in df.columns if col not in [target_col, 'id', 'lat', 'lon', 'reef_id', 'species_id']]
-        
-        X = df[feature_cols].values
-        y = df[target_col].values
-        feature_names = feature_cols
-        
-        # Split data spatially (Western vs Eastern Pacific)
-        # This logic should ideally be in train.py, but for evaluation we need a test set
-        # We assume the model was trained on Western and we evaluate on Eastern
-        # For this script, we will simulate a split or load a pre-split test set
-        # If we don't have a pre-split, we do a random split as a fallback (not ideal)
-        # But the task says "held-out geographic test set". 
-        # Let's assume we have a 'region' column or we split by coordinates.
-        if 'region' in df.columns:
-            train_mask = df['region'] == 'Western'
-            test_mask = df['region'] == 'Eastern'
-        else:
-            # Fallback to longitude split
-            # Western Pacific: ~100E to 180, Eastern: ~180 to 70W (or negative)
-            # This is a rough approximation
-            if 'lon' in df.columns:
-                train_mask = df['lon'] > 100
-                test_mask = df['lon'] <= 100
-            else:
-                # Random split if no spatial info
-                warnings.warn("No spatial info found. Using random split for evaluation.")
-                train_mask, test_mask = train_test_split(
-                    np.arange(len(df)), test_size=0.2, random_state=42
-                )
-                train_mask = np.isin(np.arange(len(df)), train_mask)
-                test_mask = np.isin(np.arange(len(df)), test_mask)
-        
-        X_train, y_train = X[train_mask], y[train_mask]
-        X_test, y_test = X[test_mask], y[test_mask]
-        
-        # Train a model for evaluation (if not provided)
-        # In a real pipeline, we would load the trained model from disk
-        model_path = config.DATA_MODELS / 'best_model.json'
-        if model_path.exists():
-            model = xgb.XGBClassifier()
-            model.load_model(str(model_path))
-        else:
-            # Train a new model for demonstration
-            warnings.warn("No trained model found. Training a new one for evaluation.")
-            model = xgb.XGBClassifier(
-                max_depth=5,
-                learning_rate=0.1,
-                n_estimators=100,
-                random_state=42
-            )
-            model.fit(X_train, y_train)
-        
-        # Run evaluation
-        results = evaluate_model(model, X_test, y_test, feature_names, config.DATA_MODELS)
-        
-        # Print stability summary
-        stability = results['bootstrap_stability']
-        print("\nBootstrap Stability Analysis (Top 3 Predictors):")
-        for feat, metrics in stability['stability_metrics'].items():
-            if metrics['frequency_in_top_k'] > 0:
-                print(f"  {feat}: Mean Rank: {metrics['mean_rank']:.2f}, "
-                      f"Freq in Top 3: {metrics['frequency_in_top_k']:.2f}, "
-                      f"Stability Score: {metrics['stability_score']:.4f}")
-        
+        results = evaluate_model()
+        print(json.dumps(results, indent=2))
     except Exception as e:
-        print(f"Error during evaluation: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Evaluation failed: {e}", file=sys.stderr)
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
 """
-Test package initialization for PROJ-127-predicting-coral-bleaching-susceptibilit.
+llmXive Project: Predicting Coral Bleaching Susceptibility
+Tests package initialization.
 """

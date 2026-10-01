@@ -1,1 +1,3 @@
-"""Integration tests for the coral bleaching prediction pipeline."""
+"""
+Integration tests package initialization.
+"""

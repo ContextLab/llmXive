@@ -41,28 +41,31 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (directories: `code/`, `data/raw`, `data/processed`, `data/models`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (xgboost, scikit-learn, pandas, geopandas, rasterio, numpy, requests, pyyaml)
-- [ ] T003 [P] Configure linting and formatting tools (ruff/black) in `code/`
+- [ ] T001 [P] Create project directory structure: `code/`, `data/raw`, `data/processed`, `data/models`, `tests/unit`, `tests/integration`, `results/`, and `state/`. Create `__init__.py` files in all Python directories. Create `.gitignore` and `requirements.txt` with pinned dependencies (xgboost, scikit-learn, pandas, geopandas, rasterio, numpy, requests, pyyaml, pytest). (Requires: None)
+- [ ] T002 [P] Configure linting and formatting tools (ruff/black) in `code/`. (Requires: T001)
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Foundational (Blocking Prerequisites & Data Ingestion)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented, including immediate data ingestion if verified.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/config.py` with paths, random seeds, thresholds, and `DATA_GAP_HALT` flag
-- [X] T005 [P] Create `code/data_gap_report.py` to generate `data_gap_report.md` if verified sources are missing. **Success Criteria**: Script must check if any required dataset URL (e.g., `config.NOAA_URL`, `config.CORAL_TRAIT_URL`) is missing or invalid in `config.py` and, if so, generate `data_gap_report.md` listing the missing sources and a "HALT" flag. (Requires: T004)
-- [ ] T012A [P] Execute Data Gap Verification: Run `code/data_gap_report.py` to generate `data_gap_report.md` if verification fails. **Blocking Gate**: If this task generates a report with missing sources, the pipeline MUST halt and NO subsequent ingestion tasks (T013+) may run. (Requires: T005)
-- [X] T006 Create `code/ingest.py` skeleton for data download and merging logic (Requires: T004)
-- [X] T007 Create `code/features.py` skeleton for VIF and lagged feature logic (Requires: T004)
-- [X] T008 Create `code/train.py` skeleton for XGBoost training logic (Requires: T004)
-- [X] T009 Create `code/evaluate.py` skeleton for importance and statistical tests (Requires: T004)
-- [X] T010 Create `code/map.py` skeleton for GeoTIFF and threshold analysis (Requires: T004)
-- [X] T011 Create `code/main.py` pipeline orchestrator (Requires: T004)
-- [ ] T012 Setup `tests/unit/` and `tests/integration/` directory structure
+- [ ] T003 [P] Implement `code/config.py` with paths, random seeds, thresholds, `DATA_GAP_HALT` flag, `IMPUTATION_THRESHOLD_DAYS` (default 30), `FULL_DATA_STREAMING` (default True), and verified URLs (NOAA_URL, UNEP_URL, CORAL_TRAIT_URL, REEFBASE_URL). **Requirement**: Must validate that all URLs are reachable; if any URL is unreachable, the script must raise an error. **Action**: Populate config.py with actual, working URLs. (Requires: T001)
+- [ ] T004 [P] Create `code/data_gap_report.py` to generate `data_gap_report.md` if verified sources are missing. **Success Criteria**: Script must check if any required dataset URL is missing or invalid in `config.py` and, if so, generate `data_gap_report.md` listing the missing sources and a "HALT" flag. (Requires: T003)
+- [ ] T005 [P] Execute Data Gap Verification: Run `code/data_gap_report.py`. **Success Criteria**: Generate `data_gap_status.json` with `status: PASS` if all data is present; generate `data_gap_report.md` and set `status: FAIL` if missing. **Blocking Gate**: If status is FAIL, the pipeline MUST halt and NO subsequent ingestion tasks may run. **Schema**: `data_gap_status.json` must contain keys `status` (string) and `missing_sources` (list). (Requires: T004)
+- [ ] T006 [US1] Implement `code/ingest.py`: Download NOAA SST/DHW rasters, UNEP reef geometries, Coral Trait Database traits, and ReefBase bleaching events from URLs specified in `config.NOAA_URL`, `config.CORAL_TRAIT_URL`, etc. **Requirement**: Must compute and record checksums for all downloaded files. **Requires**: T005 (Data Gap Check must pass). (Requires: T003, T005)
+- [ ] T007 [US1] Implement `code/ingest.py`: Merge data into a unified `data/processed/reef_species_unified.csv` with 5-km grid resolution. **Logic**: 
+ 1. **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to process the full dataset in chunks. Do NOT select a subset.
+ 2. **Memory Management**: If RAM usage approaches 6GB, process in chunks and aggregate statistics online (e.g., running mean, count) to preserve the full dataset's integrity.
+ 3. **Imputation**: Impute missing values using the nearest valid temporal neighbor within `config.IMPUTATION_THRESHOLD_DAYS`; if no neighbor exists within threshold, exclude the row.
+ 4. **Output**: Ensure critical columns (SST, DHW, thermal tolerance, bleaching label) have no nulls.
+ 5. **Flagging**: Add a `trait_missing_flag` column to rows where species trait data was missing (excluded or marked as "unknown").
+ **Verification**: Verify row count matches intersection of reefs and species (or stream count) and that critical columns are non-null. (Requires: T006)
+- [ ] T008 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T007)
+- [ ] T009 [US1] Implement `code/features.py`: Perform Definitional Circularity Check (verify if DHW is derived from SST). **Action**: If derived, compute residuals (DHW - mean(DHW)) and use residuals for the interaction term; do not use raw DHW. Log the decision and flag in `data/processed/features.csv`. (Requires: T008)
+- [ ] T010 [US1] Implement `code/features.py`: Calculate Variance Inflation Factor (VIF) for all predictors; drop features with VIF > 5. **Output**: Save filtered feature list to `data/processed/filtered_features.csv` AND a `data/processed/feature_list.txt` containing the column names. (Requires: T009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,16 +79,8 @@
 
 ### Implementation for User Story 1
 
-- [X] T020 [US1] Implement `tests/unit/test_ingest.py`: Verify row counts, column presence, and null handling in the unified dataset. (TDD: Write before implementation)
-- [X] T021 [US1] Implement `tests/unit/test_features.py`: Verify lagged feature calculations and VIF filtering logic. (TDD: Write before implementation)
-
-- [X] T013 [US1] Implement `code/ingest.py`: Download NOAA SST/DHW rasters, UNEP reef geometries, Coral Trait Database traits, and ReefBase bleaching events from URLs specified in `config.NOAA_URL`, `config.CORAL_TRAIT_URL`, etc. **Requires**: T012A (Data Gap Check must pass). (Requires: T012A)
-- [ ] T014 [US1] Implement `code/ingest.py`: Merge data into a unified `data/processed/reef_species_unified.csv` with 5-km grid resolution. (Requires: T013) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T015 [US1] Implement `code/ingest.py`: Handle missing values by imputing with nearest valid temporal neighbor or excluding rows if gaps exceed thresholds. (Requires: T014)
-- [X] T016 [US1] Implement `code/ingest.py`: Flag rows where species trait data is missing (exclude or mark as "unknown" per edge case). (Requires: T015)
-- [X] T017 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T016)
-- [X] T018 [US1] Implement `code/features.py`: Perform Definitional Circularity Check (verify if DHW is derived from SST). **Action**: If derived, drop DHW or use residuals; otherwise, proceed. **Artifact**: Log the decision and flag in `data/processed/features.csv`. (Requires: T017)
-- [X] T019 [US1] Implement `code/features.py`: Calculate Variance Inflation Factor (VIF) for all predictors; drop features with VIF > 5. **Output**: Save filtered feature list to `data/processed/filtered_features.csv`. (Requires: T018)
+- [ ] T011 [US1] Implement `tests/unit/test_ingest.py`: Verify row counts, column presence, and null handling in the unified dataset. **TDD**: Write before implementation. **Requires**: T007 (Code implementation). (Requires: T007)
+- [ ] T012 [US1] Implement `tests/unit/test_features.py`: Verify lagged feature calculations, circularity check logic, and VIF filtering logic. **TDD**: Write before implementation. **Requires**: T008, T009, T010 (Code implementations). (Requires: T008, T009, T010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,14 +94,21 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/train.py`: Split data spatially (Train: Western Pacific, Test: Eastern Pacific). **Requires**: T019 (VIF filtering must be complete to ensure training on uncorrelated features). (Requires: T019)
-- [X] T023 [US2] Implement `code/train.py`: Train XGBoost model with 5-fold cross-validation for hyperparameter tuning (max_depth, learning_rate, n_estimators). **Requires**: T022 (Spatial Split) and T019 (VIF Filtering). (Requires: T022, T019)
-- [X] T024 [US2] Implement `code/train.py`: Handle edge case where test set has zero positive events. **Action**: If zero positives, skip ROC-AUC calculation, write a warning to stdout, and set `ROC_AUC` to `null` in `results.json`. (Requires: T023)
-- [X] T025 [US2] Implement `code/evaluate.py`: Compute ROC-AUC score on the held-out geographic test set (SC-001). If real data missing, skip and warn. (Requires: T023)
-- [X] T026 [US2] Implement `code/evaluate.py`: Perform Permutation Importance analysis (1,000 permutations) to rank predictors. (Requires: T023)
-- [X] T027 [US2] Implement `code/evaluate.py`: Run 1,000 permutations to derive empirical p-values and apply Benjamini-Hochberg FDR correction (FR-007). (Requires: T026)
-- [X] T028 [US2] Implement `code/evaluate.py`: Perform Bootstrap Stability analysis (100 resamples) to measure ranking stability of top-3 predictors (SC-002).
-- [X] T029 [US2] Implement `tests/integration/test_pipeline.py`: End-to-end test of spatial split, training, and evaluation pipeline.
+- [ ] T013 [US2] Implement `code/train.py`: Split data spatially (Train: Western Pacific, Test: Eastern Pacific). **Requires**: T010 (VIF filtering must be complete to ensure training on uncorrelated features). (Requires: T010)
+- [ ] T014 [US2] Implement `code/train.py`: Train XGBoost model with 5-fold cross-validation for hyperparameter tuning (max_depth, learning_rate, n_estimators). **Requires**: T013 (Spatial Split) and T010 (VIF Filtering). (Requires: T013, T010)
+- [ ] T015 [US2] Implement `code/train.py`: Handle edge case where test set has zero positive events. **Action**: If zero positives, skip ROC-AUC calculation, write a warning to stdout, and set `ROC_AUC` to JSON `null` in `results.json`. (Requires: T014)
+- [ ] T016 [US2] Implement `code/evaluate.py`: Compute ROC-AUC score on the held-out geographic test set (SC-001). If real data missing, skip and warn. (Requires: T014)
+- [ ] T017 [US2] **Constitutional Gate**: Evaluate ROC-AUC score from T016 against the 0.80 threshold mandated by Constitution Principle VII. **Action**: 
+ 1. Read `data_gap_status.json`. If `status: FAIL`, log "N/A" for ROC-AUC and proceed.
+ 2. If `status: PASS`, read `results.json` key `roc_auc`. If score < 0.80, generate `scope_amendment_report.md` detailing the failure and halt the pipeline; otherwise, proceed. (Requires: T016, T005)
+- [ ] T018 [US2] **Convergence-Driven Permutation & FDR**: Implement a single atomic task in `code/evaluate.py` that:
+ 1. **Determines Sufficiency**: Runs a convergence loop to find the minimum permutation count `N` where feature ranking stability (Spearman correlation) stabilizes. **Algorithm**: Start with `batch_size=200`, increment by `200` per step, max `2000`. Convergence criterion: correlation delta < 0.01 over 2 consecutive increments. Log steps to `convergence_log.json`.
+ 2. **Executes Importance**: Performs the final permutation importance analysis using the determined `N`.
+ 3. **Calculates P-Values**: Derives empirical p-values for all features based on the `N` permutations.
+ 4. **Applies FDR**: Applies Benjamini-Hochberg correction to the p-values (FR-007).
+ **Output**: Save `permutation_results.json` containing the final `N`, the ranking, and corrected p-values. **Requirement**: This task must succeed only if convergence is reached or `N` hits the max (log warning if max hit). (Requires: T014, T016, T017)
+- [ ] T019 [US2] Implement `code/evaluate.py`: Perform Bootstrap Stability analysis (100 resamples) to measure ranking stability of top-3 predictors (SC-002). **Requires**: T014 (Model) and T018 (to ensure the base ranking is stable and sufficient). (Requires: T014, T018)
+- [ ] T020 [US2] Implement `tests/integration/test_pipeline.py`: End-to-end test of spatial split, training, and evaluation pipeline. (Requires: T014, T016, T018)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,13 +122,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031B [US3] Ingest 2024 Environmental Rasters: Download and verify 2024 environmental rasters (SST, DHW) from `config.RASTER_2024_URL` required for risk mapping. (Requires: T004)
-- [ ] T030 [US3] Implement `code/map.py`: Load 2024 environmental rasters (from T031B) and generate `data/models/bleaching_risk_map.tif` (probability 0-1) (FR-005). (Requires: T023, T031B)
-- [ ] T031A [US3] Verify Independent Reports: Fetch/verify existence of independent historical bleaching reports from `config.INDEPENDENT_BLEACHING_URL`. **Action**: If missing, log a warning and set `independent_data_available = false` in `metrics.json`; if present, proceed to T033. (Requires: T004)
-- [X] T031 [US3] Implement `code/map.py`: Use SHAP values to identify the dominant driver for the top 10 high-risk pixels (US-3 Acceptance Scenario 2). (Requires: T030)
-- [X] T032 [US3] Implement `code/map.py`: Perform threshold sensitivity analysis sweeping cutoffs {0.3, 0.5, 0.7}. **Action**: Calculate FP/FN rates and **generate** a `threshold_sensitivity.csv` table and a `sensitivity_report.md` summarizing the variation (delta/range) for the end-user. (Requires: T023)
-- [X] T033 [US3] Implement `code/map.py`: Validate map against independent historical bleaching reports (from T031A) by calculating and reporting AUPRC between predicted probability and observed severity. **Action**: If T031A found no data, mark as "N/A" in the report. (Requires: T031A, T030)
-- [ ] T034 [US3] Implement `tests/integration/test_mapping.py`: Verify GeoTIFF generation and threshold analysis outputs.
+- [ ] T021 [US3] Acquire 2024 environmental rasters (SST, DHW) from `config.NOAA_URL` or local `data/raw/2024/`. **Requirement**: Verify file integrity and spatial alignment with the target region. **Output**: `data/raw/2024/sst.tif`, `data/raw/2024/dhw.tif`. (Requires: T003)
+- [ ] T022 [US3] Implement `code/map.py`: Load 2024 environmental rasters (from T021) and generate `data/models/bleaching_risk_map.tif`. **Logic**: Use the trained model to predict probability of bleaching for each pixel. **Output**: A GeoTIFF file where pixel values represent the probability of bleaching (ranging from 0.0 to 1.0) as required by FR-005. **Verification**: Verify GeoTIFF exists and values are within [0, 1]. (Requires: T014, T021)
+- [ ] T023 [US3] Implement `code/map.py`: Use SHAP values to identify the dominant driver for the top 10 high-risk pixels (US-3 Acceptance Scenario 2). (Requires: T022)
+- [ ] T024 [US3] Implement `code/map.py`: Perform threshold sensitivity analysis sweeping cutoffs over a **continuous range [0.1, 0.9] with step 0.05**, explicitly including the SC-005 set {0.3, 0.5, 0.7}. **Action**: Calculate FP/FN rates for each threshold and **generate** a `threshold_sensitivity.csv` table and a `sensitivity_report.md` summarizing the variation (delta/range) for the end-user. (Requires: T014)
+- [ ] T025 [US3] Implement `code/map.py`: Validate map against independent historical bleaching reports from `config.REEFBASE_URL`. **Action**: Fetch `2023_bleaching_events.csv` from REEFBASE_URL. If data is available, calculate and report AUPRC between predicted probability and observed severity. If no independent data exists, log a warning and set `independent_data_available = false` in `metrics.json`. (Requires: T022)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,10 +136,10 @@
 
 **Purpose**: Generate final artifacts and documentation
 
-- [ ] T035 Generate final `research.md` report containing all metrics (ROC-AUC, AUPRC, stability scores) and data gap status. (Requires: T033, T025, T027, T028, T032)
-- [ ] T036 Generate `data-model.md` documenting the final schema of the `reef-species` dataset.
-- [ ] T037 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` based on final artifacts.
-- [ ] T038 Run `quickstart.md` validation: Log total runtime in seconds to `data/processed/runtime.log`. **Action**: If runtime > 21600s (6 hours), generate a `performance_report.md` alerting the team and detailing the bottleneck; otherwise, log success. (Requires: T035)
+- [ ] T026 [P] Generate final `research.md` report. **Structure**: Include sections for Data Gap Status, ROC-AUC (SC-001), AUPRC (SC-003), Stability Scores (SC-002), and Threshold Sensitivity (SC-005). **Data Sources**: Read `data_gap_status.json` for status, `results.json` for ROC-AUC, `metrics.json` for AUPRC, `permutation_results.json` for stability, `sensitivity_report.md` for threshold analysis. **Verification**: Verify `research.md` exists and contains all required metrics derived from these files. (Requires: T025, T016, T018, T019, T024)
+- [ ] T027 [P] Generate `data-model.md` documenting the final schema of the `reef-species` dataset. (Requires: T007)
+- [ ] T028 [P] Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` based on final artifacts. (Requires: T007, T022)
+- [ ] T029 [P] Run `quickstart.md` validation: Log total runtime in seconds to `data/processed/runtime.log`. **Action**: If runtime > 21600s (6 hours), generate a `performance_report.md` alerting the team and detailing the bottleneck; otherwise, log success. (Requires: T026)
 
 ---
 

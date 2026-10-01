@@ -3,104 +3,101 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 import warnings
+
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.tools.tools import add_constant
 
-# Configuration import
+# Import config for paths
 import config
 
-# Constants
-VIF_THRESHOLD = 5.0
-UNDEFINED_VIF_THRESHOLD = 100.0  # Threshold for dropping features with undefined VIF (e.g., constant columns)
-
-def compute_lagged_features(df: pd.DataFrame, date_col: str = 'date', target_cols: list = None) -> pd.DataFrame:
+def compute_lagged_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute lagged environmental variables (e.g., 30-day rolling mean SST).
     
     Args:
-        df: Input DataFrame with date column and environmental variables.
-        date_col: Name of the date column.
-        target_cols: List of columns to compute lags for. If None, uses all numeric columns except date.
+        df: DataFrame with 'date' and environmental columns.
     
     Returns:
-        DataFrame with added lagged features.
+        DataFrame with added lagged feature columns.
     """
-    if target_cols is None:
-        target_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        if date_col in target_cols:
-            target_cols.remove(date_col)
-    
     df = df.copy()
-    df[date_col] = pd.to_datetime(df[date_col])
-    df = df.sort_values(by=[date_col])
+    if 'date' not in df.columns:
+        return df
     
-    lagged_cols = []
-    for col in target_cols:
-        if col in df.columns:
-            # Compute 30-day rolling mean
-            lagged_col_name = f"{col}_30d_mean"
-            df[lagged_col_name] = df[col].rolling(window=30, min_periods=1).mean()
-            lagged_cols.append(lagged_col_name)
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values(by=['reef_id', 'date'])
+    
+    # 30-day rolling mean for SST
+    if 'sst' in df.columns:
+        df['sst_30d_mean'] = df.groupby('reef_id')['sst'].transform(
+            lambda x: x.rolling(window='30D', min_periods=1).mean()
+        )
+    
+    # 30-day rolling mean for DHW (if present)
+    if 'dhw' in df.columns:
+        df['dhw_30d_mean'] = df.groupby('reef_id')['dhw'].transform(
+            lambda x: x.rolling(window='30D', min_periods=1).mean()
+        )
     
     return df
 
-def compute_interaction_features(df: pd.DataFrame, col1: str = 'dhw', col2: str = 'thermal_tolerance') -> pd.DataFrame:
+def compute_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute interaction features, specifically DHW * thermal_tolerance.
+    Compute interaction term: DHW * thermal_tolerance.
     
     Args:
-        df: Input DataFrame.
-        col1: First interaction column (e.g., 'dhw').
-        col2: Second interaction column (e.g., 'thermal_tolerance').
+        df: DataFrame with 'dhw' and 'thermal_tolerance' columns.
     
     Returns:
-        DataFrame with added interaction feature.
+        DataFrame with added interaction column.
     """
     df = df.copy()
-    interaction_name = f"{col1}_times_{col2}"
-    if col1 in df.columns and col2 in df.columns:
-        df[interaction_name] = df[col1] * df[col2]
-    else:
-        warnings.warn(f"Interaction columns {col1} or {col2} not found in DataFrame. Skipping interaction feature.")
+    if 'dhw' in df.columns and 'thermal_tolerance' in df.columns:
+        df['dhw_thermal_interaction'] = df['dhw'] * df['thermal_tolerance']
     return df
 
-def check_definitional_circularity(df: pd.DataFrame, dhw_col: str = 'dhw', sst_col: str = 'sst') -> pd.DataFrame:
+def check_definitional_circularity(df: pd.DataFrame, log_path: Path) -> pd.DataFrame:
     """
-    Check for definitional circularity between DHW and SST.
-    DHW (Degree Heating Weeks) is derived from SST.
-    
-    Action: If derived, drop DHW or use residuals.
+    Check if DHW is derived from SST (definitional circularity).
+    If derived, drop DHW from the feature set.
     
     Args:
         df: Input DataFrame.
-        dhw_col: Name of DHW column.
-        sst_col: Name of SST column.
+        log_path: Path to log the decision.
     
     Returns:
-        DataFrame with a flag indicating circularity and handling decision.
+        DataFrame with DHW dropped if circularity is detected.
     """
     df = df.copy()
-    circularity_flag = False
-    decision = "DHW dropped due to circularity with SST"
+    decision = "KEEP"
+    reason = "No circularity detected or DHW not derived from SST in this context."
     
-    if dhw_col in df.columns and sst_col in df.columns:
-        # Check correlation
-        correlation = df[dhw_col].corr(df[sst_col])
-        if abs(correlation) > 0.9:
-            circularity_flag = True
-            # Drop DHW column as it is derived from SST
-            df = df.drop(columns=[dhw_col])
-    else:
-        decision = "DHW or SST columns not found; no circularity check performed"
+    # Logic: In many datasets, DHW (Degree Heating Weeks) is accumulated from SST anomalies.
+    # If both SST and DHW are present and highly correlated (>0.95) or if the spec says so,
+    # we drop DHW to avoid leakage.
+    # Based on T018 requirement: "If derived, drop DHW".
+    # We assume the standard NOAA definition where DHW is derived from SST.
     
-    # Log decision
-    print(f"Definitional Circularity Check: {decision}")
+    if 'dhw' in df.columns and 'sst' in df.columns:
+        # Check correlation as a heuristic if we can't inspect the source derivation logic
+        # However, the task T018 explicitly says: "Verify if DHW is derived from SST. If derived, drop DHW."
+        # Since DHW is by definition derived from SST anomalies (accumulated heat stress),
+        # we strictly follow the instruction to drop it to prevent circularity.
+        decision = "DROP"
+        reason = "DHW is derived from SST (Degree Heating Weeks calculation). Dropping to prevent definitional circularity."
+        df = df.drop(columns=['dhw'])
     
-    # Add a flag column to indicate if circularity was detected and handled
-    df['circularity_detected'] = circularity_flag
+    # Log the decision
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w') as f:
+        f.write(f"Definitional Circularity Check:\n")
+        f.write(f"Decision: {decision}\n")
+        f.write(f"Reason: {reason}\n")
+        f.write(f"Timestamp: {datetime.now().isoformat()}\n")
     
+    # Add a flag column to the dataframe
+    df['circularity_check_flag'] = decision
     return df
 
 def calculate_vif(df: pd.DataFrame, feature_cols: list = None) -> pd.DataFrame:
@@ -108,146 +105,123 @@ def calculate_vif(df: pd.DataFrame, feature_cols: list = None) -> pd.DataFrame:
     Calculate Variance Inflation Factor (VIF) for all predictors.
     
     Args:
-        df: Input DataFrame.
-        feature_cols: List of feature columns to calculate VIF for. If None, uses all numeric columns.
+        df: DataFrame containing features.
+        feature_cols: List of columns to calculate VIF for. If None, uses all numeric columns.
     
     Returns:
         DataFrame with VIF values for each feature.
     """
     if feature_cols is None:
-        feature_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    # Remove target variable if present
-    target_var = 'bleaching_susceptibility'
-    if target_var in feature_cols:
-        feature_cols.remove(target_var)
-    
-    # Filter to only existing columns
-    feature_cols = [col for col in feature_cols if col in df.columns]
-    
-    # Prepare data for VIF calculation
-    X = df[feature_cols].copy()
-    
-    # Handle constant columns (VIF undefined)
-    constant_cols = []
-    for col in X.columns:
-        if X[col].std() == 0:
-            constant_cols.append(col)
-    
-    if constant_cols:
-        print(f"Warning: Constant columns detected: {constant_cols}. Setting VIF to {UNDEFINED_VIF_THRESHOLD}.")
-        for col in constant_cols:
-            X[col] = X[col].astype(float)  # Ensure numeric for VIF calculation
-    
-    # Add constant for VIF calculation
-    X_const = add_constant(X)
+        # Select only numeric columns that are likely predictors (exclude target and IDs)
+        exclude_cols = ['reef_id', 'species_id', 'bleaching_label', 'date', 
+                        'circularity_check_flag', 'trait_missing_flag']
+        feature_cols = [c for c in df.select_dtypes(include=[np.number]).columns 
+                        if c not in exclude_cols]
     
     vif_data = []
-    for col in X.columns:
-        try:
-            vif = variance_inflation_factor(X_const, col)
-            vif_data.append({'feature': col, 'vif': vif})
-        except Exception as e:
-            print(f"Error calculating VIF for {col}: {e}")
-            vif_data.append({'feature': col, 'vif': UNDEFINED_VIF_THRESHOLD})
+    for col in feature_cols:
+        if col not in df.columns:
+            continue
+        # Handle constant columns
+        if df[col].std() == 0:
+            vif = float('inf')
+        else:
+            try:
+                # VIF calculation requires a model matrix. We use a simple OLS approach via statsmodels
+                # or manual calculation: VIF = 1 / (1 - R^2) where R^2 is from regressing col on others.
+                # Using statsmodels is robust.
+                from statsmodels.stats.outliers_influence import variance_inflation_factor
+                X = df[feature_cols].values
+                vif = variance_inflation_factor(X, feature_cols.index(col))
+            except Exception:
+                vif = float('inf')
+        
+        vif_data.append({'feature': col, 'vif': vif})
     
-    vif_df = pd.DataFrame(vif_data)
-    return vif_df
+    return pd.DataFrame(vif_data)
 
-def filter_high_vif(df: pd.DataFrame, vif_df: pd.DataFrame, threshold: float = VIF_THRESHOLD) -> pd.DataFrame:
+def filter_high_vif(vif_df: pd.DataFrame, threshold: float = 5.0) -> list:
     """
-    Filter out features with VIF > threshold.
+    Filter features with VIF > threshold.
     
     Args:
-        df: Original DataFrame.
-        vif_df: DataFrame with VIF values.
-        threshold: VIF threshold for filtering.
+        vif_df: DataFrame with 'feature' and 'vif' columns.
+        threshold: VIF threshold (default 5.0).
     
     Returns:
-        DataFrame with high VIF features removed.
+        List of feature names to KEEP (VIF <= threshold).
     """
-    # Get features with VIF > threshold
-    high_vif_features = vif_df[vif_df['vif'] > threshold]['feature'].tolist()
-    
-    # Also include constant columns (VIF undefined)
-    constant_cols = vif_df[vif_df['vif'] >= UNDEFINED_VIF_THRESHOLD]['feature'].tolist()
-    features_to_drop = list(set(high_vif_features + constant_cols))
-    
-    print(f"Features to drop due to high VIF or constant values: {features_to_drop}")
-    
-    # Drop features
-    filtered_df = df.drop(columns=features_to_drop, errors='ignore')
-    
-    return filtered_df
+    keep_features = vif_df[vif_df['vif'] <= threshold]['feature'].tolist()
+    return keep_features
 
 def main():
     """
-    Main function to run VIF calculation and feature filtering.
-    
-    Steps:
-    1. Load the unified dataset from data/processed/reef_species_unified.csv.
-    2. Compute lagged features and interaction features (if not already done).
-    3. Check definitional circularity.
-    4. Calculate VIF for all predictors.
-    5. Drop features with VIF > 5.
-    6. Save filtered feature list to data/processed/filtered_features.csv.
+    Main execution for T019: VIF Calculation and Filtering.
+    Reads unified dataset, calculates VIF, drops high VIF features, and saves result.
     """
-    # Define paths
-    input_file = Path(config.DATA_PROCESSED) / 'reef_species_unified.csv'
-    output_file = Path(config.DATA_PROCESSED) / 'filtered_features.csv'
+    print("Starting T019: VIF Calculation and Filtering...")
     
-    if not input_file.exists():
-        print(f"Error: Input file {input_file} not found. Please ensure T014 (unified dataset) is complete.")
-        sys.exit(1)
+    # Paths
+    input_path = config.PROJECT_ROOT / "data" / "processed" / "reef_species_unified.csv"
+    output_path = config.PROJECT_ROOT / "data" / "processed" / "filtered_features.csv"
+    log_path = config.PROJECT_ROOT / "data" / "processed" / "vif_log.md"
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                                f"Please ensure T014 (merge) is complete.")
     
     # Load data
-    print(f"Loading data from {input_file}...")
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_path)
+    print(f"Loaded {len(df)} rows from {input_path}")
     
-    # Ensure required columns exist
-    required_cols = ['dhw', 'thermal_tolerance', 'sst']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        print(f"Warning: Missing columns in input data: {missing_cols}. Some features may not be computed.")
+    # Step 1: Compute Lagged Features (T017)
+    df = compute_lagged_features(df)
     
-    # Compute lagged features (if not already present)
-    lagged_cols = [col for col in df.columns if col.endswith('_30d_mean')]
-    if not lagged_cols:
-        print("Computing lagged features...")
-        df = compute_lagged_features(df)
+    # Step 2: Compute Interaction Features (T017)
+    df = compute_interaction_features(df)
     
-    # Compute interaction features (if not already present)
-    interaction_col = 'dhw_times_thermal_tolerance'
-    if interaction_col not in df.columns:
-        print("Computing interaction features...")
-        df = compute_interaction_features(df)
+    # Step 3: Check Definitional Circularity (T018)
+    df = check_definitional_circularity(df, log_path)
     
-    # Check definitional circularity
-    print("Checking definitional circularity...")
-    df = check_definitional_circularity(df)
+    # Identify feature columns for VIF
+    # Exclude non-predictor columns
+    exclude_cols = ['reef_id', 'species_id', 'bleaching_label', 'date', 
+                    'circularity_check_flag', 'trait_missing_flag']
+    feature_cols = [c for c in df.select_dtypes(include=[np.number]).columns 
+                    if c not in exclude_cols]
     
-    # Calculate VIF
-    print("Calculating VIF...")
-    vif_df = calculate_vif(df)
+    print(f"Calculating VIF for {len(feature_cols)} features...")
     
-    # Filter high VIF features
-    print("Filtering high VIF features...")
-    filtered_df = filter_high_vif(df, vif_df)
+    # Step 4: Calculate VIF (T019)
+    vif_df = calculate_vif(df, feature_cols)
     
-    # Save filtered dataset
-    print(f"Saving filtered dataset to {output_file}...")
-    filtered_df.to_csv(output_file, index=False)
+    # Display VIF results
+    print("\nVIF Results:")
+    print(vif_df.sort_values(by='vif', ascending=False).to_string(index=False))
     
-    # Save VIF report
-    vif_report_file = Path(config.DATA_PROCESSED) / 'vif_report.csv'
-    vif_df.to_csv(vif_report_file, index=False)
+    # Step 5: Filter High VIF (T019)
+    keep_features = filter_high_vif(vif_df, threshold=5.0)
+    print(f"\nFeatures to KEEP (VIF <= 5): {len(keep_features)}")
+    print(f"Features DROPPED (VIF > 5): {len(feature_cols) - len(keep_features)}")
     
-    print(f"VIF report saved to {vif_report_file}")
-    print(f"Filtered features saved to {output_file}")
-    print(f"Number of features before filtering: {len(df.columns)}")
-    print(f"Number of features after filtering: {len(filtered_df.columns)}")
+    # Construct final DataFrame
+    # Keep predictors + target + IDs
+    final_cols = keep_features + [c for c in df.columns if c in ['reef_id', 'species_id', 'bleaching_label']]
     
-    return filtered_df
+    # Ensure we don't drop IDs or target
+    final_df = df[final_cols].copy()
+    
+    # Save output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    final_df.to_csv(output_path, index=False)
+    print(f"Saved filtered features to {output_path}")
+    
+    # Save VIF report as a separate CSV for analysis
+    vif_report_path = config.PROJECT_ROOT / "data" / "processed" / "vif_report.csv"
+    vif_df.to_csv(vif_report_path, index=False)
+    print(f"Saved VIF report to {vif_report_path}")
+    
+    print("T019 completed successfully.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

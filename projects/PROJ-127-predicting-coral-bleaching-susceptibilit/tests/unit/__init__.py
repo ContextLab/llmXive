@@ -1,1 +1,3 @@
-"""Unit tests for the coral bleaching prediction pipeline."""
+"""
+Unit tests package initialization.
+"""

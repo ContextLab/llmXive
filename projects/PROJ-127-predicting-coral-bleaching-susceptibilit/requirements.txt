@@ -6,4 +6,8 @@ rasterio
 numpy
 requests
 pyyaml
+pytest
 statsmodels
+shap
+matplotlib
+seaborn

@@ -1,27 +1,47 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file list showing the required folders (`code/`, `data/raw`,
+    `data/processed`, `data/models`, `tests/unit`, `tests/integration`, `results/`)
+    was provided; without concrete evidence the claimed structure cannot be confirmed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are present in the listed directories (`code/`, `tests/`,
+    `tests/unit/`, `tests/integration/`) and no `.gitignore` file is shown in the
+    provided evidence, so the required artifacts are missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit hook) are provided\
+    \ in the `code/` directory, so the requirement to configure ruff/black is not\
+    \ demonstrated. The implementer must add the appropriate config files and verify\
+    \ they are non\u2011empty."
+T014:
+  c: false
+  h: b5e13c8934d367998e41fc5bc82c762508f5b73456557e28e6d5fc6be681572c
+  r: "The repository contains a partially\u2011implemented `code/ingest.py` (the file\
+    \ is truncated and does not include logic to merge the various data sources or\
+    \ write `data/processed/reef_species_unified.csv`). Moreover, the required output\
+    \ CSV `data/processed/reef_species_unified.csv` is absent. The task\u2019s core\
+    \ requirement\u2014producing a unified dataset at 5\u2011km grid resolution\u2014\
+    is therefore not satisfied."
 T018:
   c: false
-  h: d248450b4e30e0b7de5816bbc5e0e6f7143f2b4caf8f660e4da48a3953cca732
-  r: "The repository contains a `code/features.py` with a `check_definitional_circularity`\
-    \ function, but it never logs the decision or writes any flag to `data/processed/features.csv`,\
-    \ and the required `features.csv` file is absent. The task\u2019s primary artifact\
-    \ (the processed CSV with the circularity flag) is missing."
+  h: d03cd66c9882c5856c0fac42a1851bf00216c4753c833431dae658062531e76a
+  r: "The required output file `data/processed/features.csv` is missing, and the provided\
+    \ `code/features.py` snippet is incomplete (truncated) and does not clearly show\
+    \ logging of the decision or writing a flag to the CSV. Without the CSV artifact,\
+    \ the task\u2019s primary deliverable is not satisfied."
 T019:
   c: false
-  h: fa6388aa4e7b8980e3bdc411f05a5babc0efd6e3f88380d7a07ec1993cb26150
-  r: "The repository contains `code/features.py`, but the file is truncated and does\
-    \ not clearly show the VIF calculation, feature\u2011dropping logic, or any code\
-    \ that writes `filtered_features.csv`. Moreover, the required output file `data/processed/filtered_features.csv`\
-    \ is absent from the disk. The task\u2019s core deliverable \u2013 saving the\
-    \ filtered feature list \u2013 is therefore not present."
-T030:
-  c: false
-  h: 2e19d9b8ba32e11e920f54b3ddd10bc828daedb37dd72cc68aa546597d0b36ff
-  r: "The provided `code/map.py` contains only stub functions that load a single raster,\
-    \ use a dummy JSON model, and never write a GeoTIFF; it does not load the required\
-    \ 2024 environmental rasters nor generate the `data/models/bleaching_risk_map.tif`.\
-    \ Moreover, the expected output file `data/models/bleaching_risk_map.tif` is missing\
-    \ entirely. The task\u2019s core requirement\u2014to produce a probability raster\
-    \ file\u2014is not satisfied."
+  h: 407994f35f216deb491fc5d8ce33e2da0d4c1c986fc0cb7ac3ae30ffa5a41c27
+  r: "The provided `code/features.py` contains only lag/interaction feature helpers\
+    \ and a partial circularity check; there is no implementation that computes variance\
+    \ inflation factors, drops columns with VIF\u202F>\u202F5, or writes a `filtered_features.csv`.\
+    \ Moreover, the required `data/processed/filtered_features.csv` file is absent.\
+    \ The task\u2019s core requirement is therefore not satisfied."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
