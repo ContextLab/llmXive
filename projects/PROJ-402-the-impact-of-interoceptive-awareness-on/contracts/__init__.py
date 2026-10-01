@@ -1,1 +1,1 @@
-# Contracts directory placeholder
+# Contracts directory initialization

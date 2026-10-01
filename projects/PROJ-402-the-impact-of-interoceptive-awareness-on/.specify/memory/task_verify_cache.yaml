@@ -7,14 +7,6 @@ T007:
     \ file is absent. Additionally, the required state file `state/projects/001-impact-of-interoceptive-awareness.yaml`\
     \ does not exist, indicating the script has not successfully created or updated\
     \ it. The task therefore remains unfinished."
-T008:
-  c: false
-  h: 5f91a08034107de4ac8857dac214fe2040bbfeb21ee541d6a7406c2d2d2add56
-  r: "The repository lacks both a `conftest.py` with pytest seed\u2011pinning configuration\
-    \ and a `results/checksums.txt` file. Moreover, `code/01_download_data.py` does\
-    \ not contain any code that writes the computed SHA\u2011256 checksum to `results/checksums.txt`\
-    \ before exiting. These missing artifacts mean the task\u2019s explicit requirement\
-    \ is not satisfied."
 T010:
   c: false
   h: 3baed5528433f397cee5685b576ca14d614269a3c431ec96fcbc5e2bfffe1267

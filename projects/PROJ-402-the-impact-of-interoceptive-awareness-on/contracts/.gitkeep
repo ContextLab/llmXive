@@ -1,2 +1,1 @@
-# This file ensures the contracts directory is tracked by git.
-# Data schemas and validation contracts will be stored here.
+# Directory for contracts and schemas

@@ -1,2 +1,1 @@
-# This file ensures the data directory is tracked by git.
-# Raw and derived data files will be stored in subdirectories.
+# Directory for data artifacts

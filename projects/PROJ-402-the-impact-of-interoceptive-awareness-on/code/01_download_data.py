@@ -1,3 +1,15 @@
+"""
+Download the WESAD dataset from Zenodo.
+
+This script downloads the WESAD dataset archive from Zenodo (DOI: 10.5281/zenodo.1292932)
+to data/raw/wesad/WESAD.zip, calculates its SHA-256 checksum, and writes the checksum
+to results/checksums.txt for reproducibility verification.
+
+If the download fails or times out, the script logs a CRITICAL error, deletes any
+partial file, and ABORTs the WESAD-specific scan path. It does NOT proceed to scan
+WESAD data if the download fails.
+"""
+
 import os
 import sys
 import time
@@ -5,6 +17,7 @@ import logging
 import hashlib
 import requests
 from pathlib import Path
+import shutil
 
 # Configure logging
 logging.basicConfig(
@@ -12,167 +25,218 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/download.log')
+        logging.FileHandler('results/download.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-WESAD_ZENODO_DOI = "10.5281/zenodo.1292932"
-# Zenodo API endpoint for latest version of a record
-ZENODO_API_URL = f"https://zenodo.org/api/records/{WESAD_ZENODO_DOI.split('.')[-1]}"
-WESAD_FILENAME = "WESAD.zip"
-WESAD_OUTPUT_DIR = Path("data/raw/wesad")
+ZENODO_API_URL = "https://zenodo.org/api/records/1292932"
+ZENODO_DOWNLOAD_URL = "https://zenodo.org/records/1292932/files/WESAD.zip"
+OUTPUT_DIR = Path("data/raw/wesad")
+OUTPUT_FILE = OUTPUT_DIR / "WESAD.zip"
 CHECKSUMS_FILE = Path("results/checksums.txt")
 DOWNLOAD_TIMEOUT = 600  # 10 minutes in seconds
+CHUNK_SIZE = 8192  # 8KB chunks for streaming download
+
 
 def get_wesad_download_url():
     """
-    Fetches the download URL for the WESAD dataset from Zenodo API.
-    Returns the direct download link for the archive file.
+    Fetch the download URL for WESAD dataset from Zenodo API.
+
+    Returns:
+        str: The direct download URL for WESAD.zip
+
+    Raises:
+        RuntimeError: If the Zenodo API call fails or the record is not found
     """
     try:
-        logger.info(f"Fetching download URL from Zenodo for DOI: {WESAD_ZENODO_DOI}")
         response = requests.get(ZENODO_API_URL, timeout=30)
         response.raise_for_status()
         data = response.json()
-        
-        # Find the file with the correct name
-        files = data.get('files', [])
-        download_url = None
-        for file_info in files:
-            if file_info.get('key') == WESAD_FILENAME:
-                download_url = file_info.get('links', {}).get('self')
-                break
-        
-        if not download_url:
-            logger.error(f"Could not find '{WESAD_FILENAME}' in Zenodo record files.")
-            return None
-        
-        logger.info(f"Found download URL: {download_url}")
-        return download_url
-    
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch Zenodo record: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error fetching Zenodo record: {e}")
-        return None
 
-def calculate_sha256(file_path):
+        # Extract the download URL from the Zenodo API response
+        files = data.get('files', [])
+        for file_info in files:
+            if file_info.get('key') == 'WESAD.zip':
+                # Zenodo provides a 'download_url' in the files section
+                return file_info.get('download_url')
+
+        # Fallback: construct the URL manually if not in API response
+        # Zenodo record ID is 1292932
+        return f"https://zenodo.org/records/1292932/files/WESAD.zip"
+
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch download URL from Zenodo API: {e}")
+        raise RuntimeError(f"Zenodo API call failed: {e}")
+
+
+def calculate_sha256(filepath):
     """
-    Calculates the SHA-256 checksum of a file.
+    Calculate SHA-256 checksum of a file.
+
+    Args:
+        filepath: Path to the file
+
+    Returns:
+        str: Hexadecimal SHA-256 hash
     """
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error calculating checksum for {file_path}: {e}")
-        return None
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def download_file_with_checksum(url, output_path, timeout):
+
+def download_file_with_checksum(url, output_path, timeout=600):
     """
-    Downloads a file from the given URL to the output path with a timeout.
-    Returns the SHA-256 checksum of the downloaded file if successful, None otherwise.
+    Download a file with progress logging and checksum verification.
+
+    Args:
+        url: Download URL
+        output_path: Path where file should be saved
+        timeout: Download timeout in seconds
+
+    Returns:
+        str: SHA-256 checksum of the downloaded file
+
+    Raises:
+        RuntimeError: If download fails or checksum verification fails
     """
+    logger.info(f"Starting download from {url}")
+    logger.info(f"Output path: {output_path}")
+    logger.info(f"Timeout: {timeout} seconds")
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Clean up any existing partial file
+    if output_path.exists():
+        logger.warning(f"Removing existing partial file: {output_path}")
+        output_path.unlink()
+
     try:
-        logger.info(f"Starting download from {url} to {output_path}")
-        start_time = time.time()
-        
+        # Stream the download
         response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
-        
+
         total_size = int(response.headers.get('content-length', 0))
         downloaded_size = 0
-        
+        last_progress_time = time.time()
+
         with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
+            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:  # filter out keep-alive chunks
                     f.write(chunk)
                     downloaded_size += len(chunk)
-                    if total_size > 0:
-                        progress = (downloaded_size / total_size) * 100
-                        logger.info(f"Download progress: {progress:.2f}%")
-        
-        elapsed_time = time.time() - start_time
-        logger.info(f"Download completed in {elapsed_time:.2f} seconds.")
-        
-        checksum = calculate_sha256(output_path)
-        if checksum:
-            logger.info(f"SHA-256 checksum: {checksum}")
-            return checksum
-        else:
-            logger.error("Failed to calculate checksum.")
-            return None
-    
-    except requests.exceptions.Timeout:
-        logger.error(f"Download timed out after {timeout} seconds.")
-        return None
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error during download: {e}")
-        return None
 
-def write_checksums(checksum, filename):
+                    # Log progress every 10 seconds
+                    if time.time() - last_progress_time > 10:
+                        if total_size > 0:
+                            percent = (downloaded_size / total_size) * 100
+                            logger.info(f"Download progress: {downloaded_size}/{total_size} bytes ({percent:.1f}%)")
+                        else:
+                            logger.info(f"Downloaded {downloaded_size} bytes")
+                        last_progress_time = time.time()
+
+        logger.info(f"Download complete: {output_path}")
+
+        # Calculate checksum
+        checksum = calculate_sha256(output_path)
+        logger.info(f"SHA-256 checksum: {checksum}")
+
+        return checksum
+
+    except requests.exceptions.Timeout:
+        logger.critical(f"Download timed out after {timeout} seconds")
+        # Clean up partial file
+        if output_path.exists():
+            logger.warning(f"Deleting partial file: {output_path}")
+            output_path.unlink()
+        raise RuntimeError(f"Download timed out after {timeout} seconds")
+
+    except requests.exceptions.RequestException as e:
+        logger.critical(f"Download failed: {e}")
+        # Clean up partial file
+        if output_path.exists():
+            logger.warning(f"Deleting partial file: {output_path}")
+            output_path.unlink()
+        raise RuntimeError(f"Download failed: {e}")
+
+
+def write_checksums(checksum_dict):
     """
-    Writes the checksum and filename to the checksums file.
+    Write checksums to the checksums file.
+
+    Args:
+        checksum_dict: Dictionary mapping filename to checksum
     """
-    try:
-        with open(CHECKSUMS_FILE, 'a') as f:
+    CHECKSUMS_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(CHECKSUMS_FILE, 'a') as f:
+        for filename, checksum in checksum_dict.items():
             f.write(f"{checksum}  {filename}\n")
-        logger.info(f"Checksum written to {CHECKSUMS_FILE}")
-    except Exception as e:
-        logger.error(f"Failed to write checksum to {CHECKSUMS_FILE}: {e}")
+
+    logger.info(f"Checksums written to {CHECKSUMS_FILE}")
+
 
 def main():
     """
-    Main function to download the WESAD dataset.
+    Main function to download WESAD dataset.
+
+    This function:
+    1. Gets the download URL from Zenodo
+    2. Downloads the WESAD.zip file
+    3. Calculates and logs the SHA-256 checksum
+    4. Writes the checksum to results/checksums.txt
+    5. Extracts the ZIP file to data/raw/wesad/
+
+    If any step fails, it logs a CRITICAL error and exits.
     """
-    logger.info("Starting T010: Download WESAD dataset")
-    
-    # Ensure output directory exists
-    WESAD_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = WESAD_OUTPUT_DIR / WESAD_FILENAME
-    
-    # Remove partial file if it exists
-    if output_path.exists():
-        logger.warning(f"Partial file {output_path} exists. Deleting it.")
-        try:
-            output_path.unlink()
-        except Exception as e:
-            logger.error(f"Failed to delete partial file {output_path}: {e}")
-            # Continue anyway, as per task requirements
-    
-    # Get download URL
-    download_url = get_wesad_download_url()
-    if not download_url:
-        logger.error("Failed to get download URL. Cannot proceed.")
+    logger.info("=" * 60)
+    logger.info("Starting WESAD dataset download")
+    logger.info("=" * 60)
+
+    try:
+        # Step 1: Get download URL
+        download_url = get_wesad_download_url()
+        logger.info(f"Download URL: {download_url}")
+
+        # Step 2: Download the file
+        checksum = download_file_with_checksum(
+            download_url,
+            OUTPUT_FILE,
+            timeout=DOWNLOAD_TIMEOUT
+        )
+
+        # Step 3: Write checksum
+        write_checksums({"WESAD.zip": checksum})
+
+        # Step 4: Extract the ZIP file
+        logger.info("Extracting ZIP file...")
+        shutil.unpack_archive(str(OUTPUT_FILE), str(OUTPUT_DIR))
+        logger.info(f"Extraction complete. Files extracted to {OUTPUT_DIR}")
+
+        # Verify extraction
+        extracted_files = list(OUTPUT_DIR.rglob("*"))
+        logger.info(f"Extracted {len(extracted_files)} files/directories")
+
+        logger.info("=" * 60)
+        logger.info("WESAD dataset download and extraction completed successfully")
+        logger.info("=" * 60)
+
+        return 0
+
+    except RuntimeError as e:
+        logger.critical(f"Fatal error during download: {e}")
+        logger.info("WESAD download path ABORTED. Pipeline will skip WESAD-specific scans.")
         return 1
-    
-    # Download file
-    checksum = download_file_with_checksum(download_url, output_path, DOWNLOAD_TIMEOUT)
-    
-    if checksum:
-        logger.info("Download successful.")
-        write_checksums(checksum, WESAD_FILENAME)
-        logger.info("T010 completed successfully.")
-        return 0
-    else:
-        logger.error("Download failed or timed out. Deleting partial file.")
-        if output_path.exists():
-            try:
-                output_path.unlink()
-                logger.info(f"Deleted partial file {output_path}")
-            except Exception as e:
-                logger.error(f"Failed to delete partial file {output_path}: {e}")
-        # Do not exit with error code; pipeline continues to T011a
-        logger.info("T010 failed, but pipeline will continue to T011a.")
-        return 0
+
+    except Exception as e:
+        logger.critical(f"Unexpected error: {e}", exc_info=True)
+        logger.info("WESAD download path ABORTED due to unexpected error.")
+        return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

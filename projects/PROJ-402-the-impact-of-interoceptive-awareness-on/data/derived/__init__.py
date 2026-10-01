@@ -1,1 +1,1 @@
-# Processed/derived datasets go here.
+# Derived data directory initialization

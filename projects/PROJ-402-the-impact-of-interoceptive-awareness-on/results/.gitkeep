@@ -1,2 +1,2 @@
-# This file ensures the results directory is tracked by git.
-# Analysis outputs and reports will be stored here.
+# This directory holds final reports, logs, and checksums
+# Do not commit large binary files to git.

@@ -1,55 +1,33 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "BIDS events.tsv Schema for Interoceptive Awareness Study"
-description: |
-  JSON Schema for validating BIDS events.tsv files in the context of
-  the 'Impact of Interoceptive Awareness on Emotional Regulation' study.
-  
-  Defines the structure for task events including 'Schandry', 'heartbeat',
-  'TSST', 'rest', and 'baseline'.
-  
-  Note: 'Schandry' and 'heartbeat' are the ONLY values that indicate the
-  presence of the behavioral task per FR-002. 'TSST', 'rest', and 'baseline'
-  are included for phase identification but do not indicate the presence
-  of the behavioral task.
+$schema: http://json-schema.org/draft-07/schema#
+title: BIDS Events TSV Schema
+description: Schema for validating BIDS events.tsv files in the interoceptive awareness project.
 type: object
 properties:
   task:
-    description: "Name of the task or condition. REQUIRED column."
     type: string
+    description: Name of the task. Must be one of the allowed values.
     enum:
       - Schandry
       - heartbeat
       - TSST
       - rest
       - baseline
-    minLength: 1
   onset:
-    description: "Onset time of the event in seconds."
     type: number
+    description: Start time of the event in seconds.
     minimum: 0
   duration:
-    description: "Duration of the event in seconds."
     type: number
+    description: Duration of the event in seconds.
     minimum: 0
   value:
-    description: "Optional numeric value associated with the event."
     type: number
+    description: Optional value associated with the event (e.g., heart rate).
   trial_type:
-    description: "Optional string describing the specific trial type."
     type: string
+    description: Optional trial type classification.
 required:
   - task
   - onset
   - duration
 additionalProperties: true
-examples:
-  - task: Schandry
-    onset: 10.0
-    duration: 120.0
-    trial_type: "interoceptive counting"
-  - task: TSST
-    onset: 150.0
-    duration: 300.0
-  - task: rest
-    onset: 0.0
-    duration: 60.0

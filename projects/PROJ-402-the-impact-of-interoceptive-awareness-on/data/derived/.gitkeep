@@ -1,1 +1,2 @@
-# Derived data directory - stores processed data artifacts
+# This directory holds processed/derived datasets (e.g., HRV metrics)
+# Do not commit large binary files to git.

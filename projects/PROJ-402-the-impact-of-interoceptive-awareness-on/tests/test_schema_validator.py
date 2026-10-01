@@ -1,166 +1,243 @@
 """
-Tests for the schema_validator module.
+Tests for the schema validator module.
 """
-import os
+import pytest
 import json
 import tempfile
-import pytest
+import os
 from pathlib import Path
-import yaml
-
-# Add project root to path if running standalone
-sys_path = Path(__file__).resolve().parent.parent
-if str(sys_path) not in os.sys.path:
-    os.sys.path.insert(0, str(sys_path))
-
 from utils.schema_validator import (
     load_schema_from_file,
-    validate_data_against_schema,
-    validate_file_against_schema,
     validate_contract_input,
-    ContractViolationError
+    validate_file_against_schema,
+    FileLoadError,
+    InvalidFormatError,
+    BEHAVIORAL_TASKS,
+    PHASE_TASKS
 )
 
+class TestSchemaLoading:
+    def test_load_yaml_schema(self):
+        """Test loading a valid YAML schema."""
+        schema_content = """
+        $schema: http://json-schema.org/draft-07/schema#
+        type: object
+        properties:
+          task:
+            type: string
+        required:
+          - task
+        """
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write(schema_content)
+            f_path = Path(f.name)
+        
+        try:
+            schema = load_schema_from_file(f_path)
+            assert schema is not None
+            assert schema['type'] == 'object'
+            assert 'task' in schema['properties']
+        finally:
+            os.unlink(f_path)
+    
+    def test_load_missing_schema(self):
+        """Test loading a non-existent schema file."""
+        with pytest.raises(FileLoadError):
+            load_schema_from_file(Path("/nonexistent/path/schema.yaml"))
+    
+    def test_load_invalid_yaml_schema(self):
+        """Test loading an invalid YAML schema."""
+        invalid_content = "invalid: yaml: content: ["
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write(invalid_content)
+            f_path = Path(f.name)
+        
+        try:
+            with pytest.raises(FileLoadError):
+                load_schema_from_file(f_path)
+        finally:
+            os.unlink(f_path)
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-
-@pytest.fixture
-def sample_schema(temp_dir):
-    """Create a sample JSON schema."""
-    schema = {
-        "type": "object",
-        "properties": {
-            "subject_id": {"type": "integer"},
-            "phase": {"type": "string"},
-            "RMSSD": {"type": "number"}
-        },
-        "required": ["subject_id", "phase", "RMSSD"]
-    }
-    schema_path = temp_dir / "test_schema.json"
-    with open(schema_path, 'w') as f:
-        json.dump(schema, f)
-    return schema_path
-
-
-@pytest.fixture
-def valid_data():
-    """Create valid test data."""
-    return {
-        "subject_id": 101,
-        "phase": "baseline",
-        "RMSSD": 45.2
-    }
-
-
-@pytest.fixture
-def invalid_data():
-    """Create invalid test data (missing required field)."""
-    return {
-        "subject_id": 101,
-        "phase": "baseline"
-        # Missing RMSSD
-    }
-
-
-def test_load_schema_from_file_json(temp_dir):
-    """Test loading a JSON schema."""
-    schema = {"type": "string"}
-    path = temp_dir / "schema.json"
-    with open(path, 'w') as f:
-        json.dump(schema, f)
-
-    loaded = load_schema_from_file(path)
-    assert loaded == schema
-
-
-def test_load_schema_from_file_yaml(temp_dir):
-    """Test loading a YAML schema."""
-    schema = {"type": "string"}
-    path = temp_dir / "schema.yaml"
-    with open(path, 'w') as f:
-        yaml.dump(schema, f)
-
-    loaded = load_schema_from_file(path)
-    assert loaded == schema
-
-
-def test_load_schema_from_file_not_found():
-    """Test error when schema file is missing."""
-    with pytest.raises(FileNotFoundError):
-        load_schema_from_file("non_existent_schema.json")
-
-
-def test_validate_data_against_schema_valid(valid_data, sample_schema):
-    """Test validation with valid data."""
-    schema = load_schema_from_file(sample_schema)
-    assert validate_data_against_schema(valid_data, schema) is True
-
-
-def test_validate_data_against_schema_invalid(valid_data, invalid_data, sample_schema):
-    """Test validation with invalid data."""
-    schema = load_schema_from_file(sample_schema)
-    with pytest.raises(ContractViolationError):
-        validate_data_against_schema(invalid_data, schema)
-
-
-def test_validate_file_against_schema_csv(temp_dir):
-    """Test validation of a CSV file against a schema."""
-    # Define schema expecting a list of objects
-    schema = {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "subject_id": {"type": "integer"},
-                "value": {"type": "number"}
+class TestDataValidation:
+    def test_valid_behavioral_task(self):
+        """Test that valid behavioral tasks pass validation."""
+        schema = {
+            'properties': {
+                'task': {'type': 'string'},
+                'onset': {'type': 'number'},
+                'duration': {'type': 'number'}
             },
-            "required": ["subject_id", "value"]
+            'required': ['task', 'onset', 'duration']
         }
-    }
-    schema_path = temp_dir / "csv_schema.json"
-    with open(schema_path, 'w') as f:
-        json.dump(schema, f)
+        
+        data = [
+            {'task': 'Schandry', 'onset': 0.0, 'duration': 10.0},
+            {'task': 'heartbeat', 'onset': 20.0, 'duration': 5.0}
+        ]
+        
+        is_valid, errors = validate_contract_input(data, schema)
+        assert is_valid is True
+        assert len(errors) == 0
+    
+    def test_valid_phase_task(self):
+        """Test that valid phase tasks pass validation but are flagged."""
+        schema = {
+            'properties': {
+                'task': {'type': 'string'},
+                'onset': {'type': 'number'},
+                'duration': {'type': 'number'}
+            },
+            'required': ['task', 'onset', 'duration']
+        }
+        
+        data = [
+            {'task': 'TSST', 'onset': 0.0, 'duration': 10.0},
+            {'task': 'rest', 'onset': 20.0, 'duration': 5.0},
+            {'task': 'baseline', 'onset': 30.0, 'duration': 3.0}
+        ]
+        
+        is_valid, errors = validate_contract_input(data, schema)
+        assert is_valid is True
+        assert len(errors) == 0
+    
+    def test_invalid_task_value(self):
+        """Test that invalid task values are caught."""
+        schema = {
+            'properties': {
+                'task': {'type': 'string'},
+                'onset': {'type': 'number'},
+                'duration': {'type': 'number'}
+            },
+            'required': ['task', 'onset', 'duration']
+        }
+        
+        data = [
+            {'task': 'invalid_task', 'onset': 0.0, 'duration': 10.0}
+        ]
+        
+        is_valid, errors = validate_contract_input(data, schema)
+        assert is_valid is False
+        assert len(errors) > 0
+        assert any('Invalid task value' in error for error in errors)
+    
+    def test_missing_required_field(self):
+        """Test that missing required fields are caught."""
+        schema = {
+            'properties': {
+                'task': {'type': 'string'},
+                'onset': {'type': 'number'},
+                'duration': {'type': 'number'}
+            },
+            'required': ['task', 'onset', 'duration']
+        }
+        
+        data = [
+            {'task': 'Schandry', 'onset': 0.0}  # Missing duration
+        ]
+        
+        is_valid, errors = validate_contract_input(data, schema)
+        assert is_valid is False
+        assert len(errors) > 0
+        assert any('Missing required field' in error for error in errors)
+    
+    def test_numeric_field_validation(self):
+        """Test that non-numeric values in numeric fields are caught."""
+        schema = {
+            'properties': {
+                'task': {'type': 'string'},
+                'onset': {'type': 'number'},
+                'duration': {'type': 'number'}
+            },
+            'required': ['task', 'onset', 'duration']
+        }
+        
+        data = [
+            {'task': 'Schandry', 'onset': 'not_a_number', 'duration': 10.0}
+        ]
+        
+        is_valid, errors = validate_contract_input(data, schema)
+        assert is_valid is False
+        assert len(errors) > 0
+        assert any('must be numeric' in error for error in errors)
 
-    # Create valid CSV
-    csv_path = temp_dir / "data.csv"
-    with open(csv_path, 'w') as f:
-        f.write("subject_id,value\n101,45.2\n102,50.1\n")
-
-    assert validate_file_against_schema(csv_path, schema_path) is True
-
-
-def test_validate_contract_input_missing_schema(temp_dir):
-    """Test error when contract schema is missing."""
-    data_path = temp_dir / "data.json"
-    data_path.write_text("{}")
-
-    with pytest.raises(FileNotFoundError):
-        validate_contract_input(data_path, "non_existent_contract", contracts_dir=temp_dir)
-
-
-def test_validate_contract_input_valid(temp_dir):
-    """Test full contract validation flow."""
-    # Create schema file
-    schema = {
-        "type": "object",
-        "properties": {"status": {"type": "string"}},
-        "required": ["status"]
-    }
-    schema_path = temp_dir / "my_contract.schema.json"
-    with open(schema_path, 'w') as f:
-        json.dump(schema, f)
-
-    # Create valid data
-    data = {"status": "ok"}
-    data_path = temp_dir / "data.json"
-    with open(data_path, 'w') as f:
-        json.dump(data, f)
-
-    # This should not raise
-    result = validate_contract_input(data_path, "my_contract", contracts_dir=temp_dir)
-    assert result is True
+class TestFileValidation:
+    def test_validate_valid_tsv(self):
+        """Test validation of a valid TSV file."""
+        schema_content = """
+        $schema: http://json-schema.org/draft-07/schema#
+        type: object
+        properties:
+          task:
+            type: string
+          onset:
+            type: number
+          duration:
+            type: number
+        required:
+          - task
+          - onset
+          - duration
+        """
+        
+        tsv_content = "task\tonset\tduration\nSchandry\t0.0\t10.0\nheartbeat\t20.0\t5.0\n"
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            schema_path = Path(tmpdir) / "schema.yaml"
+            tsv_path = Path(tmpdir) / "events.tsv"
+            
+            with open(schema_path, 'w') as f:
+                f.write(schema_content)
+            with open(tsv_path, 'w') as f:
+                f.write(tsv_content)
+            
+            is_valid, errors, stats = validate_file_against_schema(tsv_path, schema_path)
+            
+            assert is_valid is True
+            assert len(errors) == 0
+            assert stats['total_rows'] == 2
+            assert 'schandry' in stats['behavioral_tasks_found']
+            assert 'heartbeat' in stats['behavioral_tasks_found']
+    
+    def test_validate_invalid_tsv(self):
+        """Test validation of an invalid TSV file."""
+        schema_content = """
+        $schema: http://json-schema.org/draft-07/schema#
+        type: object
+        properties:
+          task:
+            type: string
+          onset:
+            type: number
+          duration:
+            type: number
+        required:
+          - task
+          - onset
+          - duration
+        """
+        
+        tsv_content = "task\tonset\tduration\ninvalid_task\t0.0\t10.0\n"
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            schema_path = Path(tmpdir) / "schema.yaml"
+            tsv_path = Path(tmpdir) / "events.tsv"
+            
+            with open(schema_path, 'w') as f:
+                f.write(schema_content)
+            with open(tsv_path, 'w') as f:
+                f.write(tsv_content)
+            
+            is_valid, errors, stats = validate_file_against_schema(tsv_path, schema_path)
+            
+            assert is_valid is False
+            assert len(errors) > 0
+            assert stats['total_rows'] == 1
+            assert 'invalid_task' in stats['invalid_tasks_found']
+    
+    def test_validate_missing_file(self):
+        """Test validation of a missing TSV file."""
+        schema_path = Path("/nonexistent/schema.yaml")
+        tsv_path = Path("/nonexistent/events.tsv")
+        
+        with pytest.raises(FileLoadError):
+            validate_file_against_schema(tsv_path, schema_path)

@@ -1,2 +1,1 @@
-# This file ensures the figures directory is tracked by git.
-# Visualization outputs will be stored here.
+# Directory for generated figures

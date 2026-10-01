@@ -1,5 +1,4 @@
 """
-llmXive Research Pipeline - Tests Module
-
-This package contains all unit and integration tests for the project.
+llmXive Project: The Impact of Interoceptive Awareness on Emotional Regulation
+Test package initialization.
 """
