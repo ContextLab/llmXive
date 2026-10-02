@@ -1,111 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the validation report and model artifacts."
+description: "Schema for the trained model artifacts and metrics"
 type: "object"
 properties:
   model_type:
     type: "string"
-    enum:
-      - "RandomForest"
-      - "GradientBoosting"
-      - "LinearRegression"
-      - "MeanPredictor"
+    description: "Type of model: 'RF', 'GB', or 'Linear'"
+    enum: ["RF", "GB", "Linear"]
   hyperparameters:
     type: "object"
-    description: "Hyperparameters used for training."
-  performance_metrics:
+    description: "Dictionary of hyperparameters used"
+  metrics:
     type: "object"
+    description: "Performance metrics"
     properties:
-      R2:
+      r_squared:
         type: "number"
-      RMSE:
+      rmse:
         type: "number"
-      MAE:
+      mae:
         type: "number"
-    required:
-      - R2
-      - RMSE
-      - MAE
   coefficients:
     type: "object"
-    description: "Coefficients for Linear Regression (null for RF/GB/MeanPredictor)."
-    additionalProperties:
-      type: "number"
-  p_values:
-    type: "object"
-    description: "P-values for Linear Regression coefficients."
-    additionalProperties:
-      type: "number"
-  bootstrap_ci:
-    type: "object"
-    description: "95% Confidence Intervals for Linear Regression coefficients."
-    additionalProperties:
-      type: "array"
-      items:
-        type: "number"
-      minItems: 2
-      maxItems: 2
-  baseline_comparison:
-    type: "object"
-    description: "Comparison against the Mean Predictor baseline (SC-001)."
+    description: "Coefficients and p-values (only for Linear)"
     properties:
-      mean_predictor_r2:
-        type: "number"
-        description: "R2 of the Mean Predictor (mean of training set target)."
-      model_r2:
-        type: "number"
-      improvement:
-        type: "number"
-        description: "R2_model - R2_mean_predictor."
-    required:
-      - mean_predictor_r2
-      - model_r2
-      - improvement
-  sensitivity_analysis:
-    type: "object"
-    description: "Results of the threshold sweep (0.45 to 0.55 eV)."
-    properties:
-      threshold_range:
-        type: "array"
-        items:
-          type: "number"
-      classification_rates:
-        type: "array"
-        items:
-          type: "number"
-      stability_std_dev:
-        type: "number"
-        description: "Standard deviation of the classification rate across the threshold sweep. Measures absolute variation in stability."
-      error_source:
-        type: "string"
-        description: "Source of error estimate used: 'experimental_error_bars' or 'model_rmse'."
-    required:
-      - threshold_range
-      - classification_rates
-      - stability_std_dev
-      - error_source
-  power_analysis:
-    type: "object"
-    description: "Statistical power analysis results."
-    properties:
-      sample_size:
-        type: "integer"
-      achieved_power:
-        type: "number"
-        description: "Calculated power to detect the observed effect size."
-      minimum_detectable_effect:
-        type: "number"
-        description: "Minimum effect size detectable with [deferred] power."
-      exploratory_flag:
-        type: "boolean"
-        description: "True if N < 50, indicating the study is exploratory."
-    required:
-      - sample_size
-      - achieved_power
-      - minimum_detectable_effect
-      - exploratory_flag
+      size_mismatch:
+        type: "object"
+        properties:
+          coef:
+            type: "number"
+          p_value:
+            type: "number"
+          std_error:
+            type: "number"
+  timestamp:
+    type: "string"
+    format: "date-time"
+  random_seed:
+    type: "integer"
 required:
   - model_type
   - hyperparameters
-  - performance_metrics
-additionalProperties: false
+  - metrics
+  - timestamp
+  - random_seed
+additionalProperties: true

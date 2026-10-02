@@ -54,10 +54,14 @@ class CSVLogHandler(logging.Handler):
             else:
                 data = record.msg
 
-            # Ensure all expected columns are present, fill missing with None
+            # Ensure all expected columns are present, fill missing with empty string
             row = []
             for col in LOG_COLUMNS:
-                row.append(data.get(col, ""))
+                val = data.get(col, "")
+                # Convert boolean to string 'true'/'false' or keep as is for CSV writer
+                if isinstance(val, bool):
+                    val = str(val).lower()
+                row.append(val)
 
             with open(self.filepath, 'a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)

@@ -5,72 +5,33 @@
 
 ## Summary
 
-This project implements a predictive pipeline to quantify how alloying elements affect the diffusion activation energy in Face-Centered Cubic (FCC) metals. **Critical Scope Adjustment**: The original spec requested data from Materials Project/NIST, but no verified open URL for a complete FCC self-diffusion dataset exists in the input context. Therefore, this plan adopts a **"Real Data Hunt"** strategy:
-1.  Attempt to download a real, open-access FCC diffusion dataset from verified sources (e.g., Zenodo, OpenKIM open subset, UCI).
-2.  **If a real dataset is found**: Proceed with analysis, framing results as "Exploratory" if N < 50.
-3.  **If NO real dataset is found**: The project halts at Phase 0 with a "Data Unavailable" report. **No synthetic data will be generated** to simulate results, as this would invalidate the scientific hypothesis.
-
-The approach ingests raw diffusion data, filters for FCC self-diffusion, engineers atomic descriptors (specifically size mismatch), and trains Random Forest, Gradient Boosting, and Linear Regression models. The plan prioritizes statistical validity (p-values, bootstrap CIs) and robustness (threshold sensitivity) while strictly adhering to GitHub Actions CPU constraints and reproducibility principles.
-
-**Traceability**:
-- **US-1 (Data Ingestion)**: Addressed by Phase 0 (Data Acquisition & Curation), specifically Tasks T001, T001b, T051.
-- **US-2 (Feature Engineering & Training)**: Addressed by Phase 1 (Feature Engineering & Model Training), specifically Tasks T002, T003, T004, T060.
-- **US-3 (Statistical Validation)**: Addressed by Phase 2 (Validation & Sensitivity), specifically Tasks T005, T006, T007.
-- **FR-001**: Addressed by T001 (Filtering logic).
-- **FR-002**: Addressed by T002 (Feature calculation).
-- **FR-003**: Addressed by T003 (RF/GB training).
-- **FR-004**: Addressed by T003, T005 (CV and metrics).
-- **FR-005**: Addressed by T004, T006 (Linear model and sensitivity).
-- **FR-006**: Addressed by T030, T031 (Baseline retrieval).
+This project implements a reproducible machine learning pipeline to predict the impact of alloying on the diffusion activation energy in FCC metals. The approach involves ingesting real-world diffusion datasets (specifically the verified DiffusionDB), filtering for FCC self-diffusion, engineering atomic descriptors (specifically size mismatch), and training Random Forest, Gradient Boosting, and Linear Regression models. The pipeline enforces strict data hygiene, statistical validation of the size-mismatch hypothesis (framed as association), and sensitivity analysis of decision thresholds, all constrained to run on GitHub Actions free-tier resources (CPU-first).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `periodictable`, `pytest`, `pyyaml`, `requests`  
-**Storage**: Local CSV/JSON artifacts (`data/curated/`, `models/`, `results/`)  
-**Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data Science / Computational Materials Science  
-**Performance Goals**: Complete full pipeline (ingestion → validation) within 6 hours; model training < 2 CPU-hours.  
-**Constraints**: Memory < 7 GB; No GPU required (CPU-tractable methods selected); No external API calls during runtime (data downloaded once).  
-**Scale/Scope**: Dataset < 10 MB (curated open subsets); < 500 data points (typical for FCC self-diffusion open subsets).
+**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `joblib`, `mendeleev`  
+**Storage**: Local file system (CSV, JSON, Pickle) within the repository `data/` and `models/` directories.  
+**Testing**: `pytest` (unit tests for feature calculation, integration tests for pipeline execution).  
+**Target Platform**: Linux (GitHub Actions Runner).  
+**Project Type**: Data Science / Scientific Computing Pipeline.  
+**Performance Goals**: Complete full pipeline (ingestion to validation) in <6 hours; peak memory <7 GB.  
+**Constraints**: No synthetic data generation; strict filtering for FCC/self-diffusion; CPU-only execution for models; no external API calls during runtime (datasets must be local or streamable).  
+**Scale/Scope**: Processing of public diffusion datasets (target <50k rows after filtering); training of multiple regression models.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Method |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **CONDITIONAL PASS** | All random seeds pinned in `code/`. External data sources fixed to the **verified open subset found during the Data Hunt** (or project paused). `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **CONDITIONAL PASS** | Citations in `research.md` reference the **actual verified URL found** (e.g., Zenodo ID). If no URL exists, the project is paused. No fabricated metrics. |
-| **III. Data Hygiene** | **PASS** | Plan includes `data_provenance.json` generation (T051 fix). Raw data preserved; derivatives written to new files with checksums. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` will be generated directly from `data/curated/` and `models/` artifacts. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will include content hashes in `state/` updates. |
-| **VI. Computational Resource Compliance** | **PASS** | Methods (RF, GB, Linear) are CPU-tractable. Dataset size kept < 10 MB. Training time estimated < 2 CPU-hours. |
-| **VII. Descriptor Consistency** | **PASS** | `periodictable` library (version pinned) used for atomic radii/electronegativity. Pauling scale enforced. |
-
-## Phased Execution Plan
-
-### Phase 0: Data Acquisition & Curation (US-1, FR-001)
-- **T001**: **Data Hunt**: Attempt to download real FCC self-diffusion data from verified open sources (Zenodo, OpenKIM open subset, UCI).
-- **T001b**: **Re-specify Source**: If the original NIST/Materials Project URLs are inaccessible, document the new source (e.g., Zenodo ID) in `data_provenance.json` and update traceability.
-- **T030**: Calculate `baseline_shift` ($\Delta Q$) by retrieving $Q_{host}$ (pure metal) from the dataset or a standard reference file (`pure_metals_q.csv`).
-- **T031**: **Baseline Retrieval**: If the dataset lacks 0 at.% rows, implement interpolation or lookup from `pure_metals_q.csv` to ensure FR-006 compliance.
-- **T051**: Generate `data/curated/data_provenance.json` with checksums, source URLs, and row counts. Log excluded rows (e.g., missing concentration) with reason codes.
-- **T052**: **Pause Check**: If no real data is found, generate a "Data Unavailable" report and halt.
-
-### Phase 1: Feature Engineering & Model Training (US-2, FR-002, FR-003, FR-004)
-- **T002**: Compute atomic descriptors (`size_mismatch`, `electronegativity_diff`) using `periodictable`.
-- **T003**: Train Random Forest and Gradient Boosting models with Grid Search (5-fold CV) on CPU.
-- **T004**: Train Linear Regression model for statistical inference (coefficients, p-values).
-- **T060**: Implement and evaluate a **Mean Predictor** baseline model (mean of `delta_q_eV` in **training set**) for SC-001 comparison.
-
-### Phase 2: Validation & Sensitivity (US-3, FR-005, FR-006, SC-002, SC-003)
-- **T005**: Compute R², RMSE, MAE on held-out test set. Compare against Mean Predictor baseline.
-- **T006**: Perform threshold sensitivity analysis (0.45–0.55 eV). **Logic**: Use real experimental error bars if available; otherwise, use model RMSE as a conservative estimate, explicitly labeled as such.
-- **T007**: Generate final reports and plots. Include explicit "Exploratory" flag if N < 50.
+1.  **Principle I (Reproducibility)**: The plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and checksumming of all `data/` artifacts. External datasets MUST be fetched from the same canonical source on every run (DiffusionDB). Every result reported MUST be reproducible by re-running the project's `code/` against the project's `data/` on a fresh GitHub Actions runner.
+2.  **Principle II (Verified Accuracy)**: Every external citation in `idea/`, `technical-design/`, `implementation-plan/`, or `paper/` MUST be verified by the Reference-Validator Agent against the primary source before contributing review points. Title-token-overlap with the cited source MUST be ≥ `CITATION_TITLE_OVERLAP_THRESHOLD` (default 0.7). Citations in `research.md` are restricted to the "Verified datasets" block.
+3.  **Principle III (Data Hygiene)**: Datasets MUST be checksummed and the checksum recorded under `data/`. No data may be modified in place; every transformation MUST produce a new file with a documented derivation. The plan includes a `Data Availability Check` (FR-001) and generates `data/curated/data_provenance.json`. No PII will appear in committed data.
+4.  **Principle IV (Single Source of Truth)**: Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper. The `data-model.md` defines strict schemas.
+5.  **Principle V (Versioning Discipline)**: Every artifact under this project carries a content hash. The Advancement-Evaluator Agent invalidates stale review records when the hashed artifact changes. Every research-stage artifact change updates this project's `state/projects/PROJ-415-predicting-the-impact-of-alloying-on-the.yaml` `updated_at` timestamp. The plan includes generating content hashes for data and model artifacts.
+6.  **Principle VI (Computational Resource Compliance)**: All training pipelines MUST complete within the 6-hour GitHub Actions runner limit specified in the feasibility check; model training MUST remain within a computationally efficient timeframe.; The dataset size must remain within a manageable limit to ensure efficient processing and storage. to ensure reproducibility within CI constraints. The methodology is strictly CPU-first (scikit-learn).
+7.  **Principle VII (Descriptor Consistency)**: All atomic descriptors (atomic radius, electronegativity, valence) MUST be computed using fixed, versioned periodic table constants. The Pauling scale for electronegativity MUST be used consistently across all solutes to prevent feature drift. The plan specifies using a fixed, versioned `mendeleev` library.
 
 ## Project Structure
 
@@ -82,52 +43,49 @@ specs/001-predict-alloy-diffusion/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── model_output.schema.yaml
+    └── validation_report.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-415-predicting-the-impact-of-alloying-on-the/
+├── data/
+│   ├── raw/               # Downloaded raw files (preserved)
+│   └── curated/           # Filtered, processed data (filtered.csv, data_provenance.json)
 ├── code/
 │   ├── __init__.py
-│   ├── data/
-│   │   ├── ingestion.py       # Loads real data from verified source, filters FCC/Self
-│   │   ├── curation.py        # Handles missing values, writes provenance (T051), calculates baseline (T030)
-│   │   └── baseline.py        # Implements Mean Predictor baseline (T060)
+│   ├── ingestion/
+│   │   └── curation.py    # Ingests, filters, validates, writes provenance (FR-001, FR-007)
+│   │                      # Logic: Writes data/curated/data_provenance.json with source_url, hash, timestamp, filter_criteria
 │   ├── features/
-│   │   └── descriptors.py     # Computes size_mismatch, electronegativity
+│   │   └── engineering.py # Calculates size_mismatch, electronegativity diff (FR-002)
 │   ├── models/
-│   │   ├── train.py           # RF, GB, Linear training + GridSearch
-│   │   └── evaluate.py        # Metrics, p-values, bootstrap
+│   │   └── train.py       # Trains RF, GB, Linear; saves artifacts (FR-003, FR-004)
 │   └── validation/
-│       ├── baseline.py        # Implements Mean Predictor baseline (T060)
-│       └── sensitivity.py     # Threshold sweep analysis
-├── data/
-│   ├── raw/                   # Downloaded real files
-│   ├── curated/
-│   │   ├── filtered.csv       # FCC/Self only
-│   │   ├── enriched.csv       # With AtomicDescriptors
-│   │   └── data_provenance.json # Hash log (T051)
-│   └── reference/
-│       └── pure_metals_q.csv  # Standard reference for Q_host (T031)
+│       ├── baseline.py    # Calculates baseline_shift from data/curated/filtered.csv (FR-008, T030)
+│       │                  # Logic: Joins curated data with PureMetalBaseline table to compute shift
+│       └── sensitivity.py # Threshold sweep, stability index (FR-005, FR-006)
 ├── models/
 │   ├── final_rf.pkl
 │   ├── final_gb.pkl
 │   └── linear_coef.json
-├── results/
-│   ├── metrics.json
-│   └── sensitivity_plot.png
 ├── tests/
 │   ├── unit/
 │   └── integration/
 ├── requirements.txt
-└── pyproject.toml
+└── README.md
 ```
 
-**Structure Decision**: Selected a modular `code/` layout separating data, features, models, and validation to ensure testability and alignment with the "Single Source of Truth" principle. This structure supports the independent testing of US-1 (Ingestion) and US-2 (Feature Engineering).
+**Structure Decision**: A modular Python package structure is selected to separate concerns (ingestion, features, training, validation) and facilitate unit testing. The `code/` directory mirrors the functional requirements directly. The `data/` directory is split into `raw` and `curated` to enforce the "no modification in place" rule.
 
 ## Complexity Tracking
 
-No violations detected. The linear flow (Ingest -> Feature -> Train -> Validate) is standard for this domain and fits within the specified resource constraints. The use of real data (if available) ensures scientific validity. If no real data is available, the project halts, avoiding fabrication.
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | The project scope is strictly bounded by the spec and resource constraints. | A monolithic script was rejected to ensure testability of the `baseline.py` and `curation.py` modules independently. |

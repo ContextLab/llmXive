@@ -1,9 +1,3 @@
-"""
-Configuration management for the Quantization Impact on GW Reconstruction project.
-
-Handles random seeds, resource limits (CI constraints), and batch size calculations
-for the N=1200 pilot study.
-"""
 import os
 import numpy as np
 from typing import Tuple, Dict, Any, Optional
@@ -11,184 +5,96 @@ from pathlib import Path
 import json
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Resource constraints from T009
+CI_TIME_LIMIT_HOURS = 6
+CI_MEMORY_LIMIT_GB = 7
+CPU_CORES_AVAILABLE = 2
 
-# --------------------------------------------------------------------------
-# Constants: CI Resource Limits (Hard Constraints)
-# --------------------------------------------------------------------------
-CI_CPU_LIMIT = 2
-CI_RAM_LIMIT_GB = 7.0
-CI_TIME_LIMIT_HOURS = 6.0
-CI_TIME_LIMIT_SECONDS = CI_TIME_LIMIT_HOURS * 3600
+# Pilot configuration
+NUM_BIT_DEPTHS = 6  # 1, 8, 10, 12, 14, 16
+NUM_SNR_BINS = 4    # 8-14, 14-20, 20-30, 30-50
+SIGNALS_PER_BIN = 50
+TOTAL_PILOT_SIGNALS = NUM_BIT_DEPTHS * NUM_SNR_BINS * SIGNALS_PER_BIN
 
-# Pilot Study Parameters
-PILOT_N_SIGNALS = 1200
-PILOT_BIT_DEPTHS = [1, 8, 10, 12, 14, 16]
-PILOT_SNR_BINS = [(8, 14), (14, 20), (20, 30), (30, 50)]
-PILOT_SIGNALS_PER_BIN = 50
+# Estimated costs per signal (empirical approximations for BBH IMRPhenomPv)
+# In seconds (generation + injection + quantization)
+ESTIMATE_GEN_TIME_PER_SIGNAL_SEC = 0.5
+# In seconds (MCMC inference: 500 steps, 2 walkers, uniform prior)
+ESTIMATE_INF_TIME_PER_SIGNAL_SEC = 45.0
+# In GB (HDF5 waveform + metadata + posterior samples)
+ESTIMATE_MEM_PER_SIGNAL_GB = 0.005  # ~5 MB per signal in memory during processing
 
-# Memory Estimation Constants (bytes per signal)
-# Estimation: 
-# - Waveform (float64): 4096 samples * 8 bytes = 32KB
-# - Noise PSD (float64): 4096 samples * 8 bytes = 32KB
-# - Inference state (posterior samples): ~10,000 samples * 4 params * 8 bytes = 320KB
-# - Overhead/Python objects: ~100KB
-# Total per signal approx: 0.5 MB (conservative upper bound)
-ESTIMATED_MEMORY_PER_SIGNAL_MB = 0.5
-ESTIMATED_MEMORY_PER_SIGNAL_BYTES = ESTIMATED_MEMORY_PER_SIGNAL_MB * 1024 * 1024
+# Derived constraints
+TOTAL_ESTIMATED_GEN_TIME_SEC = TOTAL_PILOT_SIGNALS * ESTIMATE_GEN_TIME_PER_SIGNAL_SEC
+TOTAL_ESTIMATED_INF_TIME_SEC = TOTAL_PILOT_SIGNALS * ESTIMATE_INF_TIME_PER_SIGNAL_SEC
+TOTAL_ESTIMATED_MEM_GB = TOTAL_PILOT_SIGNALS * ESTIMATE_MEM_PER_SIGNAL_GB
 
-# --------------------------------------------------------------------------
-# Random Seed Management
-# --------------------------------------------------------------------------
-def get_seed(env_var: str = "QUANTIZATION_SEED") -> int:
-    """
-    Retrieves the random seed from the environment variable.
-    Defaults to 42 if not set.
-    """
-    seed_str = os.getenv(env_var, "42")
-    try:
-        return int(seed_str)
-    except ValueError:
-        logger.warning(f"Invalid seed '{seed_str}', defaulting to 42")
-        return 42
+# Batch size constraints
+MAX_BATCH_SIZE_BY_TIME = int((CI_TIME_LIMIT_HOURS * 3600) / ESTIMATE_INF_TIME_PER_SIGNAL_SEC)
+MAX_BATCH_SIZE_BY_MEM = int(CI_MEMORY_LIMIT_GB / ESTIMATE_MEM_PER_SIGNAL_GB)
+MAX_BATCH_SIZE = min(MAX_BATCH_SIZE_BY_TIME, MAX_BATCH_SIZE_BY_MEM)
+
+# Seed management
+DEFAULT_SEED = 42
+
+def get_seed() -> int:
+    """Retrieve the random seed from environment or use default."""
+    return int(os.environ.get("GW_QUANT_SEED", DEFAULT_SEED))
 
 def set_seed(seed: int) -> None:
-    """
-    Sets the random seed for numpy, random, and python hash randomization.
-    """
-    os.environ["PYTHONHASHSEED"] = str(seed)
+    """Set the random seed for reproducibility."""
+    os.environ["GW_QUANT_SEED"] = str(seed)
     np.random.seed(seed)
-    # Note: random module seed is handled by the caller if needed, 
-    # but usually np.random is sufficient for scientific stacks.
     import random
     random.seed(seed)
-    logger.info(f"Random seed set to {seed}")
 
-# --------------------------------------------------------------------------
-# Resource Limits
-# --------------------------------------------------------------------------
 def get_resource_limits() -> Dict[str, Any]:
-    """
-    Returns the CI resource limits as a dictionary.
-    """
+    """Return resource limits dictionary."""
     return {
-        "cpu_limit": CI_CPU_LIMIT,
-        "ram_limit_gb": CI_RAM_LIMIT_GB,
-        "ram_limit_bytes": int(CI_RAM_LIMIT_GB * 1024 * 1024 * 1024),
-        "time_limit_seconds": CI_TIME_LIMIT_SECONDS
+        "time_limit_hours": CI_TIME_LIMIT_HOURS,
+        "memory_limit_gb": CI_MEMORY_LIMIT_GB,
+        "cpu_cores": CPU_CORES_AVAILABLE
     }
 
-# --------------------------------------------------------------------------
-# Batch Constraint Calculations
-# --------------------------------------------------------------------------
 def calculate_batch_constraints() -> Dict[str, Any]:
-    """
-    Calculates the maximum batch size that fits within CI RAM limits.
-    
-    Returns a dictionary with:
-    - max_batch_size: Maximum number of signals to process in one go.
-    - recommended_batch_size: A safer batch size (80% of max).
-    - pilot_feasible: Boolean indicating if N=1200 fits in the limit.
-    - total_estimated_memory_gb: Estimated memory for the full pilot.
-    """
-    limits = get_resource_limits()
-    ram_limit_bytes = limits["ram_limit_bytes"]
-    
-    # Calculate max signals that fit in RAM
-    # We assume we need to hold the batch in memory plus overhead for the loader/process.
-    # Safety factor of 0.8 to account for OS and Python interpreter overhead.
-    safe_ram_bytes = int(ram_limit_bytes * 0.8)
-    max_signals = int(safe_ram_bytes / ESTIMATED_MEMORY_PER_SIGNAL_BYTES)
-    
-    # Recommended batch size (conservative)
-    recommended_signals = int(max_signals * 0.8)
-    
-    # Pilot feasibility check
-    total_pilot_memory_gb = (PILOT_N_SIGNALS * ESTIMATED_MEMORY_PER_SIGNAL_BYTES) / (1024**3)
-    pilot_feasible = total_pilot_memory_gb < CI_RAM_LIMIT_GB
-    
-    # Time feasibility (rough estimate: 20 seconds per signal on 2 CPU)
-    # 1200 signals * 20s = 24000s = 6.66 hours. 
-    # This is tight. We need to process in parallel or optimize.
-    # Assuming parallel processing of 2 signals (2 CPUs) effectively halves time.
-    # 6.66 hours / 2 = 3.33 hours. Feasible within 6 hours.
-    estimated_time_hours = (PILOT_N_SIGNALS * 20) / (CI_CPU_LIMIT * 3600)
-    time_feasible = estimated_time_hours <= CI_TIME_LIMIT_HOURS
-
+    """Calculate and return batch size constraints."""
     return {
-        "max_batch_size": max_signals,
-        "recommended_batch_size": recommended_signals,
-        "pilot_n_signals": PILOT_N_SIGNALS,
-        "total_estimated_memory_gb": round(total_pilot_memory_gb, 2),
-        "pilot_feasible": pilot_feasible,
-        "estimated_time_hours": round(estimated_time_hours, 2),
-        "time_feasible": time_feasible,
-        "constraints": {
-            "cpu": CI_CPU_LIMIT,
-            "ram_gb": CI_RAM_LIMIT_GB,
-            "time_hours": CI_TIME_LIMIT_HOURS
-        }
+        "total_pilot_signals": TOTAL_PILOT_SIGNALS,
+        "max_batch_size_by_time": MAX_BATCH_SIZE_BY_TIME,
+        "max_batch_size_by_mem": MAX_BATCH_SIZE_BY_MEM,
+        "max_batch_size": MAX_BATCH_SIZE,
+        "estimated_total_gen_time_hours": TOTAL_ESTIMATED_GEN_TIME_SEC / 3600,
+        "estimated_total_inf_time_hours": TOTAL_ESTIMATED_INF_TIME_SEC / 3600,
+        "estimated_total_mem_gb": TOTAL_ESTIMATED_MEM_GB
     }
 
 def verify_pilot_feasibility() -> Tuple[bool, str]:
     """
-    Verifies if the N=1200 pilot study is feasible under current CI constraints.
-    
-    Returns:
-    - feasible: True if both memory and time constraints are met.
-    - message: Detailed explanation of the feasibility status.
+    Verify if the pilot batch (N=1200) fits within CI limits.
+    Returns (is_feasible, reason_message).
     """
     constraints = calculate_batch_constraints()
-    
-    if not constraints["pilot_feasible"]:
-        msg = (
-            f"Memory constraint violated. Pilot requires {constraints['total_estimated_memory_gb']} GB, "
-            f"but limit is {CI_RAM_LIMIT_GB} GB."
-        )
-        return False, msg
-    
-    if not constraints["time_feasible"]:
-        msg = (
-            f"Time constraint violated. Estimated runtime is {constraints['estimated_time_hours']} hours, "
-            f"but limit is {CI_TIME_LIMIT_HOURS} hours."
-        )
-        return False, msg
+    is_feasible = True
+    reasons = []
 
-    msg = (
-        f"Pilot feasible. Memory: {constraints['total_estimated_memory_gb']} GB < {CI_RAM_LIMIT_GB} GB. "
-        f"Time: {constraints['estimated_time_hours']} hours < {CI_TIME_LIMIT_HOURS} hours. "
-        f"Recommended batch size: {constraints['recommended_batch_size']}."
-    )
-    return True, msg
+    # Check memory
+    if constraints["estimated_total_mem_gb"] > CI_MEMORY_LIMIT_GB:
+        is_feasible = False
+        reasons.append(f"Memory {constraints['estimated_total_mem_gb']:.2f} GB > {CI_MEMORY_LIMIT_GB} GB limit")
 
-# --------------------------------------------------------------------------
-# Main Entry Point for Script Execution
-# --------------------------------------------------------------------------
-if __name__ == "__main__":
-    print("=== Project Configuration & Pilot Feasibility Report ===")
-    seed = get_seed()
-    print(f"Active Seed: {seed}")
-    
-    limits = get_resource_limits()
-    print(f"\nCI Resource Limits:")
-    print(f"  CPU: {limits['cpu_limit']}")
-    print(f"  RAM: {limits['ram_limit_gb']} GB")
-    print(f"  Time: {limits['time_limit_seconds']}s ({limits['time_limit_seconds']/3600}h)")
-    
-    constraints = calculate_batch_constraints()
-    print(f"\nBatch Constraints:")
-    print(f"  Max Batch Size: {constraints['max_batch_size']}")
-    print(f"  Recommended Batch Size: {constraints['recommended_batch_size']}")
-    print(f"  Pilot Total Memory: {constraints['total_estimated_memory_gb']} GB")
-    
-    feasible, message = verify_pilot_feasibility()
-    print(f"\nFeasibility Check: {'PASSED' if feasible else 'FAILED'}")
-    print(f"Details: {message}")
-    
-    if not feasible:
-        exit(1)
-    
-    print("\nConfiguration valid for N=1200 pilot.")
-    exit(0)
+    # Check time
+    if constraints["estimated_total_inf_time_hours"] > CI_TIME_LIMIT_HOURS:
+        is_feasible = False
+        reasons.append(f"Inference time {constraints['estimated_total_inf_time_hours']:.2f}h > {CI_TIME_LIMIT_HOURS}h limit")
+
+    if is_feasible:
+        msg = (
+            f"Pilot N={TOTAL_PILOT_SIGNALS} is feasible. "
+            f"Est. Time: {constraints['estimated_total_inf_time_hours']:.2f}h, "
+            f"Est. Mem: {constraints['estimated_total_mem_gb']:.2f} GB. "
+            f"Max batch size allowed: {MAX_BATCH_SIZE}."
+        )
+    else:
+        msg = "; ".join(reasons)
+
+    return is_feasible, msg

@@ -1,5 +1,8 @@
 """
-Tests for error handling module.
+Tests for error handling utilities in src/error_handling.py.
+
+These tests verify that the pipeline fails gracefully with clear error messages
+when noise files are missing, corrupted, or inaccessible.
 """
 import os
 import tempfile
@@ -7,245 +10,234 @@ import shutil
 from pathlib import Path
 import pytest
 import sys
-import json
+import hashlib
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.error_handling import (
     NoiseFileError,
     MissingNoiseFileError,
     CorruptedNoiseFileError,
     NoiseFileAccessError,
-    validate_noise_file,
-    calculate_file_checksum,
-    load_noise_file_with_fallback,
-    handle_noise_file_error,
     get_noise_file_directories,
     find_noise_file,
+    calculate_file_checksum,
+    validate_noise_file,
+    load_noise_file_with_fallback,
+    handle_noise_file_error,
     ensure_noise_file_availability
 )
 
 
 class TestNoiseFileValidation:
-    """Test noise file validation functions."""
+    """Tests for noise file validation logic."""
 
-    def test_validate_existing_valid_file(self, tmp_path):
-        """Test validation of an existing, valid file."""
-        # Create a valid text file
-        test_file = tmp_path / "valid_noise.txt"
-        test_file.write_text("1.0\n2.0\n3.0\n")
+    def test_validate_valid_file(self, tmp_path):
+        """Test validation of a valid noise file."""
+        # Create a fake HDF5 file with correct magic bytes
+        file_path = tmp_path / "valid_noise.h5"
+        with open(file_path, 'wb') as f:
+            f.write(b'\x89HDF')  # HDF5 magic
+            f.write(b'\x00' * 100)  # Padding
         
-        is_valid, msg = validate_noise_file(str(test_file))
-        assert is_valid
-        assert "successful" in msg.lower()
+        assert validate_noise_file(file_path) is True
 
     def test_validate_empty_file(self, tmp_path):
         """Test validation fails for empty file."""
-        # Create an empty file
-        test_file = tmp_path / "empty_noise.txt"
-        test_file.write_text("")
+        file_path = tmp_path / "empty_noise.h5"
+        file_path.touch()
         
         with pytest.raises(CorruptedNoiseFileError) as exc_info:
-            validate_noise_file(str(test_file))
+            validate_noise_file(file_path)
         
         assert "empty" in str(exc_info.value).lower()
 
-    def test_validate_nonexistent_file(self, tmp_path):
-        """Test validation fails for non-existent file."""
-        fake_path = tmp_path / "does_not_exist.txt"
+    def test_validate_invalid_header(self, tmp_path):
+        """Test validation fails for invalid file header."""
+        file_path = tmp_path / "fake_noise.h5"
+        with open(file_path, 'wb') as f:
+            f.write(b'NOT HDF5 HEADER')
         
-        with pytest.raises(MissingNoiseFileError):
-            validate_noise_file(str(fake_path))
+        with pytest.raises(CorruptedNoiseFileError) as exc_info:
+            validate_noise_file(file_path)
+        
+        assert "Invalid HDF5 header" in str(exc_info.value)
 
     def test_validate_checksum_mismatch(self, tmp_path):
         """Test validation fails when checksum doesn't match."""
-        test_file = tmp_path / "noise.txt"
-        test_file.write_text("test data")
+        file_path = tmp_path / "noise.h5"
+        file_path.write_text("data")
         
-        wrong_checksum = "0" * 64  # Invalid checksum
+        wrong_checksum = "a" * 64  # Fake checksum
         
         with pytest.raises(CorruptedNoiseFileError) as exc_info:
-            validate_noise_file(str(test_file), expected_checksum=wrong_checksum)
+            validate_noise_file(file_path, expected_checksum=wrong_checksum)
         
-        assert "checksum" in str(exc_info.value).lower()
+        assert "Checksum mismatch" in str(exc_info.value)
+
+    def test_validate_checksum_match(self, tmp_path):
+        """Test validation passes when checksum matches."""
+        file_path = tmp_path / "noise.h5"
+        file_path.write_text("data")
+        
+        # Calculate real checksum
+        real_checksum = calculate_file_checksum(file_path)
+        
+        # Should not raise
+        assert validate_noise_file(file_path, expected_checksum=real_checksum) is True
 
 
 class TestChecksumCalculation:
-    """Test checksum calculation functions."""
+    """Tests for file checksum calculation."""
 
     def test_calculate_checksum(self, tmp_path):
-        """Test checksum calculation for a file."""
-        test_file = tmp_path / "test.txt"
-        content = "test content for checksum"
-        test_file.write_text(content)
+        """Test checksum calculation for a known file."""
+        file_path = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        file_path.write_bytes(content)
         
-        checksum = calculate_file_checksum(str(test_file))
+        checksum = calculate_file_checksum(file_path)
         
-        # Verify it's a valid SHA-256 hex string
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
+        # Verify against Python's hashlib
+        expected = hashlib.sha256(content).hexdigest()
+        assert checksum == expected
 
-    def test_calculate_checksum_consistency(self, tmp_path):
-        """Test that checksum is consistent for same file."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test")
+    def test_calculate_checksum_large_file(self, tmp_path):
+        """Test checksum calculation for a large file (chunked reading)."""
+        file_path = tmp_path / "large.bin"
+        # Create 1MB file
+        chunk = b"x" * 65536
+        with open(file_path, 'wb') as f:
+            for _ in range(16):
+                f.write(chunk)
         
-        checksum1 = calculate_file_checksum(str(test_file))
-        checksum2 = calculate_file_checksum(str(test_file))
-        
-        assert checksum1 == checksum2
-
-    def test_calculate_checksum_nonexistent(self, tmp_path):
-        """Test checksum fails for non-existent file."""
-        fake_path = tmp_path / "nonexistent.txt"
-        
-        with pytest.raises(MissingNoiseFileError):
-            calculate_file_checksum(str(fake_path))
+        checksum = calculate_file_checksum(file_path)
+        assert len(checksum) == 64  # SHA256 hex length
+        assert isinstance(checksum, str)
 
 
 class TestFallbackLoading:
-    """Test fallback loading mechanisms."""
+    """Tests for fallback loading behavior."""
 
-    def test_load_valid_file(self, tmp_path):
-        """Test loading a valid file."""
-        test_file = tmp_path / "noise.txt"
-        test_file.write_text("data")
+    def test_load_nonexistent_strict_true(self):
+        """Test that strict=True raises MissingNoiseFileError."""
+        with pytest.raises(MissingNoiseFileError) as exc_info:
+            load_noise_file_with_fallback("nonexistent.h5", strict=True)
         
-        path, error = load_noise_file_with_fallback(str(test_file))
-        
-        assert path is not None
-        assert error is None
-        assert path.exists()
+        assert "not found" in str(exc_info.value).lower()
 
-    def test_load_missing_file(self, tmp_path):
-        """Test loading a missing file returns error."""
-        fake_path = tmp_path / "nonexistent.txt"
-        
-        path, error = load_noise_file_with_fallback(str(fake_path))
-        
-        assert path is None
-        assert error is not None
-        assert isinstance(error, MissingNoiseFileError)
+    def test_load_nonexistent_strict_false(self):
+        """Test that strict=False returns None."""
+        result = load_noise_file_with_fallback("nonexistent.h5", strict=False)
+        assert result is None
 
-    def test_load_corrupted_file(self, tmp_path):
-        """Test loading a corrupted (empty) file returns error."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_text("")
+    def test_load_existing_valid(self, tmp_path, monkeypatch):
+        """Test loading an existing valid file."""
+        # Create a valid noise file
+        noise_file = tmp_path / "valid.h5"
+        with open(noise_file, 'wb') as f:
+            f.write(b'\x89HDF')
+            f.write(b'\x00' * 50)
         
-        path, error = load_noise_file_with_fallback(str(test_file))
+        # Monkeypatch the search directory
+        monkeypatch.setenv('GW_NOISE_DATA_DIR', str(tmp_path))
         
-        assert path is None
-        assert error is not None
-        assert isinstance(error, CorruptedNoiseFileError)
+        result = load_noise_file_with_fallback("valid.h5", strict=True)
+        assert result == noise_file
 
 
 class TestErrorHandling:
-    """Test error handling and reporting."""
+    """Tests for error handling and logging."""
 
-    def test_handle_missing_error(self):
-        """Test handling of missing file error."""
-        error = MissingNoiseFileError("test.txt", ["/path1", "/path2"])
-        result = handle_noise_file_error(error)
-        
-        assert result["success"] is False
-        assert result["error_category"] == "missing"
-        assert "MissingNoiseFileError" in result["error_type"]
+    def test_missing_error_attributes(self):
+        """Test MissingNoiseFileError stores search paths."""
+        paths = ["/a", "/b"]
+        try:
+            raise MissingNoiseFileError("Not found", search_paths=paths)
+        except MissingNoiseFileError as e:
+            assert e.search_paths == paths
+            assert e.details['search_paths'] == paths
 
-    def test_handle_corrupted_error(self):
-        """Test handling of corrupted file error."""
-        error = CorruptedNoiseFileError("test.txt", "Checksum mismatch")
-        result = handle_noise_file_error(error)
-        
-        assert result["success"] is False
-        assert result["error_category"] == "corrupted"
+    def test_corrupted_error_attributes(self, tmp_path):
+        """Test CorruptedNoiseFileError stores file details."""
+        file_path = tmp_path / "bad.h5"
+        try:
+            raise CorruptedNoiseFileError(
+                "Bad file",
+                str(file_path),
+                "expected",
+                "actual"
+            )
+        except CorruptedNoiseFileError as e:
+            assert e.file_path == str(file_path)
+            assert e.details['expected_checksum'] == "expected"
+            assert e.details['actual_checksum'] == "actual"
 
-    def test_handle_access_error(self):
-        """Test handling of access error."""
-        error = NoiseFileAccessError("test.txt", "Permission denied")
-        result = handle_noise_file_error(error)
+    def test_handle_noise_file_error(self, caplog):
+        """Test that handle_noise_file_error logs and re-raises."""
+        caplog.set_level("ERROR")
+        error = MissingNoiseFileError("Test error", search_paths=["/tmp"])
         
-        assert result["success"] is False
-        assert result["error_category"] == "access"
-
-    def test_handle_unknown_error(self):
-        """Test handling of unknown error type."""
-        error = ValueError("Some unknown error")
-        result = handle_noise_file_error(error)
+        with pytest.raises(MissingNoiseFileError):
+            handle_noise_file_error(error)
         
-        assert result["success"] is False
-        assert result["error_category"] == "unknown"
+        assert "MISSING NOISE FILE" in caplog.text
 
 
 class TestDirectoryFunctions:
-    """Test directory-related functions."""
+    """Tests for directory-related functions."""
 
-    def test_get_noise_file_directories(self):
-        """Test getting noise file directories."""
+    def test_get_noise_file_directories_env(self, monkeypatch, tmp_path):
+        """Test directory retrieval from environment variable."""
+        test_dir = str(tmp_path)
+        monkeypatch.setenv('GW_NOISE_DATA_DIR', test_dir)
+        
         dirs = get_noise_file_directories()
-        
-        # Should return a list
-        assert isinstance(dirs, list)
-        # Should contain Path objects
-        assert all(isinstance(d, Path) for d in dirs)
+        assert len(dirs) == 1
+        assert dirs[0] == Path(test_dir)
 
-    def test_find_noise_file_existing(self, tmp_path, monkeypatch):
-        """Test finding an existing noise file."""
-        # Create a noise file in a standard location
-        noise_dir = tmp_path / "data" / "raw" / "noise"
-        noise_dir.mkdir(parents=True)
-        test_file = noise_dir / "test_noise.txt"
-        test_file.write_text("data")
+    def test_get_noise_file_directories_default(self, monkeypatch):
+        """Test directory retrieval from defaults when env is unset."""
+        monkeypatch.delenv('GW_NOISE_DATA_DIR', raising=False)
         
-        # Mock the project root
-        monkeypatch.setenv('PROJECT_ROOT', str(tmp_path))
-        
-        found = find_noise_file("test_noise.txt")
-        
-        assert found is not None
-        assert found.exists()
+        dirs = get_noise_file_directories()
+        assert len(dirs) >= 1
+        # Check that default paths are returned
+        assert any('data' in str(p) for p in dirs)
 
-    def test_find_noise_file_missing(self, tmp_path, monkeypatch):
-        """Test finding a missing noise file."""
-        monkeypatch.setenv('PROJECT_ROOT', str(tmp_path))
+    def test_find_file_not_found(self, monkeypatch):
+        """Test find_noise_file returns None when not found and required=False."""
+        monkeypatch.setenv('GW_NOISE_DATA_DIR', '/nonexistent/path')
         
-        found = find_noise_file("nonexistent.txt")
+        result = find_noise_file("fake.h5", required=False)
+        assert result is None
+
+    def test_find_file_found(self, tmp_path, monkeypatch):
+        """Test find_noise_file returns path when found."""
+        noise_file = tmp_path / "found.h5"
+        noise_file.touch()
+        monkeypatch.setenv('GW_NOISE_DATA_DIR', str(tmp_path))
         
-        assert found is None
+        result = find_noise_file("found.h5", required=True)
+        assert result == noise_file
 
 
 class TestEnsureAvailability:
-    """Test ensure_noise_file_availability function."""
+    """Tests for ensure_noise_file_availability wrapper."""
 
-    def test_ensure_existing_valid(self, tmp_path, monkeypatch):
-        """Test ensuring availability of existing valid file."""
-        noise_dir = tmp_path / "data" / "raw" / "noise"
-        noise_dir.mkdir(parents=True)
-        test_file = noise_dir / "valid.txt"
-        test_file.write_text("data")
-        
-        monkeypatch.setenv('PROJECT_ROOT', str(tmp_path))
-        
-        result = ensure_noise_file_availability("valid.txt")
-        
-        assert result.exists()
-        assert result == test_file
-
-    def test_ensure_missing(self, tmp_path, monkeypatch):
-        """Test ensuring availability fails for missing file."""
-        monkeypatch.setenv('PROJECT_ROOT', str(tmp_path))
-        
+    def test_ensure_missing_raises(self):
+        """Test that ensure raises on missing file."""
         with pytest.raises(MissingNoiseFileError):
-            ensure_noise_file_availability("nonexistent.txt")
+            ensure_noise_file_availability("missing.h5")
 
-    def test_ensure_corrupted(self, tmp_path, monkeypatch):
-        """Test ensuring availability fails for corrupted file."""
-        noise_dir = tmp_path / "data" / "raw" / "noise"
-        noise_dir.mkdir(parents=True)
-        test_file = noise_dir / "empty.txt"
-        test_file.write_text("")
+    def test_ensure_valid_returns_path(self, tmp_path, monkeypatch):
+        """Test that ensure returns path for valid file."""
+        noise_file = tmp_path / "valid.h5"
+        with open(noise_file, 'wb') as f:
+            f.write(b'\x89HDF')
         
-        monkeypatch.setenv('PROJECT_ROOT', str(tmp_path))
+        monkeypatch.setenv('GW_NOISE_DATA_DIR', str(tmp_path))
         
-        with pytest.raises(CorruptedNoiseFileError):
-            ensure_noise_file_availability("empty.txt")
+        result = ensure_noise_file_availability("valid.h5")
+        assert result == noise_file

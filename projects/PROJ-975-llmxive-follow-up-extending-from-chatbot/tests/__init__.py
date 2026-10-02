@@ -1,1 +1,1 @@
-# llmXive tests package initialization
+# llmXive tests package

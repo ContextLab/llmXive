@@ -1,18 +1,36 @@
 T007:
   c: false
-  h: ab331b9c0248d6552b7003fdcb2a6c342f1549eddadbee364c279a246d4d6e1a
-  r: "The `code/logging_config.py` file is truncated (ends with `_handler = `) and\
-    \ never adds the CSV handler or returns a fully configured logger. The provided\
-    \ CSV file\u2019s header omits the `\"edge_case\"` column defined in `LOG_COLUMNS`,\
-    \ and the required `contracts/experiment_log.schema.yaml` file is missing, so\
-    \ schema compliance cannot be verified."
+  h: 04229e80dae1ed3ad2b60e98128c20a5ba773858b8d5070cb6cea9e404c89f5c
+  r: "The `code/logging_config.py` file is truncated and does not finish constructing\
+    \ the logger (the `get_logger` function ends with `_logger = l`). The generated\
+    \ CSV file\u2019s header lacks the `\"edge_case\"` column defined in `LOG_COLUMNS`,\
+    \ so the column structure does not match the contract. Additionally, the required\
+    \ `contracts/experiment_log.schema.yaml` (or `schema.yaml`) is missing, preventing\
+    \ any schema\u2011compliance verification."
 T011:
   c: false
-  h: 788dc3016ba7d45a854c3f8d8f2fca8cae02729614e8c68ce6d8fd54ac6593cd
-  r: The provided `tests/contract/test_schemas.py` is incomplete and contains syntax
-    errors (e.g., `for skill i`), and it attempts to load `contracts/task.schema.yaml`
-    which is missing from the repository. Without the schema file and a syntactically
-    correct test, the contract validation cannot be performed.
+  h: 062da73576d9ef9a4e89733292a954725f72b782cf2bf082cc98fe48e30705e1
+  r: "The `tests/contract/test_schemas.py` file exists, but it only validates hard\u2011\
+    coded sample task objects and never loads or checks the actual `tasks.json` data\
+    \ file. Moreover, the required schema file `contracts/task.schema.yaml` (and the\
+    \ generic `schema.yaml` mentioned) is missing, so the test cannot even locate\
+    \ the schema it is supposed to validate against. The task\u2019s contract\u2011\
+    validation requirement is therefore not satisfied."
+T012:
+  c: false
+  h: 062da73576d9ef9a4e89733292a954725f72b782cf2bf082cc98fe48e30705e1
+  r: "The provided `tests/contract/test_schemas.py` file is truncated and does not\
+    \ contain a complete set of tests for the skill schema\u2014there is no test that\
+    \ loads `data/raw/skills.json` and validates it against `contracts/skill.schema.yaml`,\
+    \ nor any test that checks overlap metrics. Consequently, the required contract\
+    \ test is missing/incomplete."
+T015:
+  c: false
+  h: 6b125ea227b2a721e7705ee4839f9be289a3cd7a30eb0c82b239e90dd384132b
+  r: The required output files `data/raw/skills.json`, `data/raw/tasks.json`, and
+    the state YAML `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml`
+    are missing, and the provided `generate_data.py` does not contain the serialization
+    and checksum logic needed to create them. The task therefore is not satisfied.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,1 +1,1 @@
-# llmXive code package initialization
+# llmXive code package

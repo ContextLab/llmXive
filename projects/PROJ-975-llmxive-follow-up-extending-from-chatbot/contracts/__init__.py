@@ -1,1 +1,1 @@
-# Contracts package initialization
+# Contracts package

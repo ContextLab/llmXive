@@ -1,53 +1,71 @@
 # Data Model: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
-## Entities
+## Entity Definitions
 
-### DiffusionRecord
-Represents a single data point of diffusion in an alloy.
-*   `host_element` (str): Symbol of the host metal (e.g., "Ni", "Cu").
-*   `solute_element` (str): Symbol of the solute (e.g., "Co", "Zn").
-*   `concentration_at_pct` (float): Solute concentration in atomic percent.
-*   `activation_energy_eV` (float): Measured activation energy in eV/atom.
-*   `crystal_structure` (str): Must be "FCC".
-*   `diffusion_mode` (str): Must be "self".
-*   `source_id` (str): Identifier for the data source (e.g., "Zenodo-001").
-*   `q_host_eV` (float): Activation energy of the pure host metal (0 at.%), retrieved from the dataset or `data/reference/pure_metals_q.csv`.
-*   `delta_q_eV` (float): Calculated shift: `activation_energy_eV - q_host_eV`.
+### 1. DiffusionRecord
+Represents a single experimental or simulation data point.
 
-### AtomicDescriptor
-Computed features for a solute-host pair.
-*   `host_radius` (float): Atomic radius of host (pm).
-*   `solute_radius` (float): Atomic radius of solute (pm).
-*   `size_mismatch` (float): Calculated as `(solute_radius - host_radius) / host_radius`.
-*   `electronegativity_diff` (float): Difference in Pauling electronegativity.
-*   `valence_electron_diff` (int): Difference in valence electrons.
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `id` | string | Unique identifier (UUID or hash) | Generated |
+| `host_metal` | string | Symbol of the host metal (e.g., "Ni", "Cu") | Raw Data |
+| `solute_metal` | string | Symbol of the solute metal | Raw Data |
+| `crystal_structure` | string | Must be "FCC" for this project | Raw Data |
+| `diffusion_mode` | string | Must be "self" for this project | Raw Data |
+| `activation_energy_eV` | float | Activation energy in eV/atom | Raw Data |
+| `concentration_at_pct` | float | Solute concentration in atomic percent | Raw Data |
+| `source_url` | string | URL of the dataset row | Raw Data |
 
-### ModelArtifact
+### 2. AtomicDescriptor
+Computed features derived from the DiffusionRecord.
+
+| Field | Type | Description | Calculation |
+| :--- | :--- | :--- | :--- |
+| `record_id` | string | FK to DiffusionRecord | - |
+| `host_radius` | float | Atomic radius of host (pm or Å) | `mendeleev` |
+| `solute_radius` | float | Atomic radius of solute | `mendeleev` |
+| `host_electronegativity` | float | Pauling electronegativity | `mendeleev` |
+| `solute_electronegativity` | float | Pauling electronegativity | `mendeleev` |
+| `size_mismatch` | float | Relative size difference | `(solute_radius - host_radius) / host_radius` |
+| `electronegativity_diff` | float | Absolute difference | `abs(solute_electronegativity - host_electronegativity)` |
+
+### 3. ModelArtifact
 Output of the training phase.
-*   `model_type` (str): "RandomForest", "GradientBoosting", "LinearRegression", "MeanPredictor".
-*   `hyperparameters` (dict): JSON dict of tuned parameters.
-*   `metrics` (dict): R², RMSE, MAE.
-*   `coefficients` (dict): For Linear Regression, includes `size_mismatch`, `p_value`, `ci_lower`, `ci_upper`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `model_type` | string | "RF", "GB", or "Linear" |
+| `hyperparameters` | dict | JSON object of tuned params |
+| `metrics` | dict | R², RMSE, MAE on test set |
+| `coefficients` | dict | (For Linear) Coefficients and p-values |
+| `timestamp` | string | ISO 8601 timestamp of training |
+| `random_seed` | int | Seed used for reproducibility |
+
+### 4. ProvenanceRecord
+Record of data lineage and integrity.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `source_url` | string | URL of the raw dataset |
+| `file_hash` | string | SHA-256 hash of the raw file |
+| `timestamp` | string | ISO 8601 timestamp of ingestion |
+| `filter_criteria` | string | JSON string of filters applied (e.g., "FCC", "self") |
+| `rows_in` | int | Number of rows before filtering |
+| `rows_out` | int | Number of rows after filtering |
 
 ## Data Flow
 
-1.  **Raw Input**: `data/raw/diffusion_raw.csv` (from Zenodo/OpenKIM open subset).
-2.  **Filtering**: `data/curated/filtered.csv` (FCC + Self only).
-3.  **Baseline Retrieval**: `data/reference/pure_metals_q.csv` (used if dataset lacks 0 at.% rows).
-4.  **Enrichment**: `data/curated/enriched.csv` (with AtomicDescriptors and `delta_q_eV`).
-5.  **Training**: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
-6.  **Validation**: `results/metrics.json`, `results/sensitivity_analysis.csv`.
-
-## Storage Format
-
-*   **CSV**: UTF-8, comma-delimited, no index.
-*   **JSON**: Compact, no pretty-printing for artifacts (except logs).
-*   **Pickle**: Protocol 4 (compatible with Python 3.11).
+1.  **Ingestion**: `code/ingestion/curation.py` reads raw CSV/Parquet -> Filters for FCC/Self -> Writes `data/curated/filtered.csv`.
+    *   **Provenance Logic**: Simultaneously generates `data/curated/data_provenance.json` containing `source_url`, `file_hash`, `timestamp`, `filter_criteria`, `rows_in`, `rows_out` (Addressing FR-007 and T051).
+2.  **Enrichment**: `code/features/engineering.py` reads `filtered.csv` -> Joins with atomic data -> Writes `data/curated/enriched.csv`.
+3.  **Baseline Calculation**: `code/validation/baseline.py` reads `enriched.csv` and the `PureMetalBaseline` table -> Computes `baseline_shift` -> Writes `data/curated/with_shift.csv` (Addressing FR-008 and T030).
+4.  **Training**: `code/models/train.py` reads `with_shift.csv` -> Splits -> Trains -> Writes `models/`.
+5.  **Validation**: `code/validation/sensitivity.py` reads `models/` and `with_shift.csv` -> Writes `results/`.
 
 ## Constraints
 
-*   `crystal_structure` must be exactly "FCC".
-*   `diffusion_mode` must be exactly "self".
-*   `activation_energy_eV` must be > 0.
-*   `size_mismatch` cannot be NaN.
-*   `q_host_eV` must be present for every record to calculate `delta_q_eV`. If not in dataset, must be retrieved from `pure_metals_q.csv`.
+-   **FCC Only**: Any record where `crystal_structure` != "FCC" is discarded.
+-   **Self Only**: Any record where `diffusion_mode` != "self" is discarded.
+-   **Concentration**: Records with missing `concentration_at_pct` are discarded.
+-   **Units**: All energies must be converted to eV/atom.
+-   **Baseline Integrity**: If a host metal lacks a value in `PureMetalBaseline`, the `baseline_shift` for that record is marked as `NaN` and excluded from the shift analysis.

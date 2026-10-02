@@ -1,0 +1,29 @@
+{
+  "task_id": "T010",
+  "pilot_configuration": {
+    "bit_depths": [1, 8, 10, 12, 14, 16],
+    "snr_bins": [
+      "8-14",
+      "14-20",
+      "20-30",
+      "30-50"
+    ],
+    "signals_per_bin": 50,
+    "total_signals": 1200
+  },
+  "resource_limits": {
+    "time_limit_hours": 6,
+    "memory_limit_gb": 7,
+    "cpu_cores": 2
+  },
+  "estimates": {
+    "generation_time_hours": 0.17,
+    "inference_time_hours": 5.0,
+    "memory_usage_gb": 6.0,
+    "max_batch_size": 1200
+  },
+  "feasibility": {
+    "is_feasible": true,
+    "reason": "Pilot N=1200 is feasible. Est. Time: 5.00h, Est. Mem: 6.00 GB. Max batch size allowed: 1200."
+  }
+}

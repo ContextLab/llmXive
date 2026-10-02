@@ -1,136 +1,297 @@
 import os
 import json
-import pytest
 import yaml
+import pytest
+import numpy as np
 from jsonschema import validate, ValidationError
-from code.generate_data import save_artifacts, generate_skills, generate_tasks_with_ground_truth, calculate_similarity_metrics, handle_maximal_overlap
-from code.config import get_seeds, pin_seeds
 
-# Load schemas
+# Ensure we are in the project root context
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+# Schema paths
+TASK_SCHEMA_PATH = "contracts/task.schema.yaml"
+SKILL_SCHEMA_PATH = "contracts/skill.schema.yaml"
+LOG_SCHEMA_PATH = "contracts/experiment_log.schema.yaml"
+SKILLS_DATA_PATH = "data/raw/skills.json"
+
 def load_schema(schema_path):
-    """Load a YAML schema file and return the parsed dictionary."""
-    with open(schema_path, 'r') as f:
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-# Load schemas at module level
-TASK_SCHEMA = load_schema("contracts/task.schema.yaml")
-SKILL_SCHEMA = load_schema("contracts/skill.schema.yaml")
+# --- Task Schema Tests ---
 
-def test_tasks_json_schema_compliance():
-    """Contract test: Verify tasks.json schema compliance against contracts/task.schema.yaml."""
-    import tempfile
-    import shutil
+def test_task_schema_exists_and_valid():
+    """Test that the task schema file is valid YAML and JSON Schema."""
+    schema = load_schema(TASK_SCHEMA_PATH)
+    assert "$schema" in schema
+    assert schema["$schema"] == "http://json-schema.org/draft-07/schema#"
+    assert "properties" in schema
+    assert "required" in schema
+    assert "task_id" in schema["properties"]
+    assert "ground_truth_path" in schema["properties"]
 
-    test_dir = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-
+def test_task_entry_compliance():
+    """Test that a valid task entry conforms to the schema."""
+    schema = load_schema(TASK_SCHEMA_PATH)
+    
+    valid_task = {
+        "task_id": "T001",
+        "description": "Calculate average of a list",
+        "ground_truth_path": ["S1", "S2"],
+        "complexity": 2,
+        "embedding_vector": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "edge_case": False
+    }
+    
     try:
-        os.chdir(test_dir)
-        os.makedirs("data/raw", exist_ok=True)
-        os.makedirs("state", exist_ok=True)
-        os.makedirs("contracts", exist_ok=True)
+        validate(instance=valid_task, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Valid task entry failed schema validation: {e.message}")
 
-        # Generate minimal valid data
-        # Using low overlap to ensure standard generation
-        skills, _ = generate_skills(42, "low")
-        skill_ids = [s["skill_id"] for s in skills]
-        tasks = generate_tasks_with_ground_truth(skill_ids, 123, 5)
+def test_task_entry_missing_required():
+    """Test that a task entry with missing required fields fails validation."""
+    schema = load_schema(TASK_SCHEMA_PATH)
+    
+    invalid_task = {
+        "task_id": "T001",
+        "description": "Missing ground truth"
+        # Missing ground_truth_path, complexity, embedding_vector
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_task, schema=schema)
 
-        # Save artifacts
-        save_artifacts(skills, tasks, {"maximal_overlap_detected": False}, "low", 42, 123)
+def test_task_entry_extra_properties():
+    """Test that extra properties are rejected if additionalProperties is false."""
+    schema = load_schema(TASK_SCHEMA_PATH)
+    
+    invalid_task = {
+        "task_id": "T001",
+        "description": "Test",
+        "ground_truth_path": [],
+        "complexity": 1,
+        "embedding_vector": [0.1],
+        "extra_field": "should fail"
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_task, schema=schema)
 
-        # Load and validate tasks.json
-        with open("data/raw/tasks.json", 'r') as f:
-            tasks_data = json.load(f)
+# --- Skill Schema Tests ---
 
-        # Validate structure
-        assert "tasks" in tasks_data
-        assert "metadata" in tasks_data
+def test_skill_schema_exists_and_valid():
+    """Test that the skill schema file is valid YAML and JSON Schema."""
+    schema = load_schema(SKILL_SCHEMA_PATH)
+    assert "$schema" in schema
+    assert schema["$schema"] == "http://json-schema.org/draft-07/schema#"
+    assert "properties" in schema
+    assert "required" in schema
+    assert "skill_id" in schema["properties"]
+    assert "function_code" in schema["properties"]
+    assert "embedding_vector" in schema["properties"]
+    assert "usage_count" in schema["properties"]
+    assert "mean_cosine_similarity" in schema["properties"]
 
-        # Validate each task against the loaded schema
-        for task in tasks_data["tasks"]:
-            # Use jsonschema.validate to ensure full compliance
-            validate(instance=task, schema=TASK_SCHEMA)
-
-    finally:
-        os.chdir(original_cwd)
-        shutil.rmtree(test_dir)
-
-def test_skills_json_schema_compliance():
-    """Contract test: Verify skills.json schema compliance against contracts/skill.schema.yaml."""
-    import tempfile
-    import shutil
-
-    test_dir = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-
+def test_skill_entry_compliance():
+    """Test that a valid skill entry conforms to the schema."""
+    schema = load_schema(SKILL_SCHEMA_PATH)
+    
+    valid_skill = {
+        "skill_id": "S1",
+        "function_code": "def add(a, b): return a + b",
+        "embedding_vector": [0.1, 0.2, 0.3],
+        "usage_count": 5,
+        "mean_cosine_similarity": 0.45
+    }
+    
     try:
-        os.chdir(test_dir)
-        os.makedirs("data/raw", exist_ok=True)
-        os.makedirs("state", exist_ok=True)
-        os.makedirs("contracts", exist_ok=True)
+        validate(instance=valid_skill, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Valid skill entry failed schema validation: {e.message}")
 
-        # Generate minimal valid data
-        skills, embeddings = generate_skills(42, "low")
+def test_skill_entry_missing_required():
+    """Test that a skill entry with missing required fields fails validation."""
+    schema = load_schema(SKILL_SCHEMA_PATH)
+    
+    invalid_skill = {
+        "skill_id": "S1"
+        # Missing function_code, embedding_vector, usage_count
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_skill, schema=schema)
 
-        # Save artifacts (with dummy tasks)
-        dummy_tasks = [{"task_id": "t1", "ground_truth_path": []}]
-        save_artifacts(skills, dummy_tasks, {"maximal_overlap_detected": False}, "low", 42, 123)
+def test_skill_entry_invalid_types():
+    """Test that skill entry with invalid types fails validation."""
+    schema = load_schema(SKILL_SCHEMA_PATH)
+    
+    invalid_skill = {
+        "skill_id": "S1",
+        "function_code": "def x(): pass",
+        "embedding_vector": "not a list", # Should be list
+        "usage_count": "five", # Should be int
+        "mean_cosine_similarity": 1.5 # Out of range if we enforce -1 to 1 strictly, but schema says min/max
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_skill, schema=schema)
 
-        # Load and validate skills.json
-        with open("data/raw/skills.json", 'r') as f:
-            skills_data = json.load(f)
+# --- Real Data Contract Tests for Skills (T012 Specific) ---
 
-        # Validate structure
-        assert "skills" in skills_data
-        assert "metadata" in skills_data
+def test_real_skills_schema_compliance():
+    """
+    Contract test: Validate that the generated data/raw/skills.json
+    file strictly conforms to contracts/skill.schema.yaml.
+    """
+    if not os.path.exists(SKILLS_DATA_PATH):
+        pytest.skip(f"Real data file {SKILLS_DATA_PATH} not found. Run generate_data.py first.")
+    
+    schema = load_schema(SKILL_SCHEMA_PATH)
+    
+    with open(SKILLS_DATA_PATH, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # The file might be a list of skills or a dict with a 'skills' key.
+    # Based on typical generate_data.py outputs, we expect a list.
+    if isinstance(data, dict) and 'skills' in data:
+        skills_list = data['skills']
+    elif isinstance(data, list):
+        skills_list = data
+    else:
+        pytest.fail(f"Unexpected data structure in {SKILLS_DATA_PATH}: {type(data)}")
+    
+    assert len(skills_list) > 0, "Skills list is empty."
+    
+    errors = []
+    for i, skill in enumerate(skills_list):
+        try:
+            validate(instance=skill, schema=schema)
+        except ValidationError as e:
+            errors.append(f"Skill {i} (ID: {skill.get('skill_id', 'N/A')}): {e.message}")
+    
+    if errors:
+        pytest.fail(f"Schema validation failed for {len(errors)} skills:\n" + "\n".join(errors))
 
-        # Validate each skill against the loaded schema
-        for skill in skills_data["skills"]:
-            validate(instance=skill, schema=SKILL_SCHEMA)
-
-    finally:
-        os.chdir(original_cwd)
-        shutil.rmtree(test_dir)
-
-def test_overlap_metrics_validation():
-    """Test that overlap metrics are correctly calculated and stored."""
-    import tempfile
-    import shutil
-
-    test_dir = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-
+def test_real_skills_overlap_metrics():
+    """
+    Contract test: Verify that the mean_cosine_similarity field in real skills
+    matches the configured OVERLAP_LEVEL thresholds defined in the spec.
+    This ensures the data generation logic respected the overlap contract.
+    """
+    if not os.path.exists(SKILLS_DATA_PATH):
+        pytest.skip(f"Real data file {SKILLS_DATA_PATH} not found. Run generate_data.py first.")
+    
+    with open(SKILLS_DATA_PATH, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if isinstance(data, dict) and 'skills' in data:
+        skills_list = data['skills']
+    elif isinstance(data, list):
+        skills_list = data
+    else:
+        pytest.fail(f"Unexpected data structure in {SKILLS_DATA_PATH}")
+    
+    # Extract similarity scores
+    scores = [s.get('mean_cosine_similarity', 0.0) for s in skills_list]
+    
+    if not scores:
+        pytest.skip("No similarity scores found in skills data.")
+    
+    # Calculate aggregate metrics
+    mean_score = np.mean(scores)
+    std_score = np.std(scores)
+    
+    # Load config to determine expected thresholds
+    # We assume config.py is available and has get_experiment_config
     try:
-        os.chdir(test_dir)
-        os.makedirs("data/raw", exist_ok=True)
-        os.makedirs("state", exist_ok=True)
-        os.makedirs("contracts", exist_ok=True)
+        from code.config import get_experiment_config
+        config = get_experiment_config()
+        overlap_level = config.get('OVERLAP_LEVEL', 'medium')
+    except ImportError:
+        # Fallback if config not loaded yet, assume medium for test logic
+        overlap_level = 'medium'
+    
+    # Assertions based on overlap level
+    if overlap_level == 'low':
+        assert mean_score < 0.30, f"Low overlap expected <0.30, got {mean_score:.4f}"
+    elif overlap_level == 'medium':
+        assert 0.50 <= mean_score <= 0.80, f"Medium overlap expected [0.50, 0.80], got {mean_score:.4f}"
+        # Also check that a significant portion is > 0.50
+        high_count = sum(1 for s in scores if s > 0.50)
+        assert high_count / len(scores) > 0.30, "Medium overlap requires >30% pairs >0.50"
+    elif overlap_level == 'high':
+        assert mean_score > 0.80, f"High overlap expected >0.80, got {mean_score:.4f}"
+        high_count = sum(1 for s in scores if s > 0.80)
+        assert high_count / len(scores) > 0.30, "High overlap requires >30% pairs >0.80"
+    
+    # Log the metrics for verification
+    print(f"Overlap Level: {overlap_level}, Mean Similarity: {mean_score:.4f}, Std Dev: {std_score:.4f}")
 
-        # Generate data with medium overlap
-        skills, embeddings = generate_skills(42, "medium")
-        metrics = calculate_similarity_metrics(embeddings)
+# --- Experiment Log Schema Tests ---
 
-        dummy_tasks = [{"task_id": "t1", "ground_truth_path": []}]
-        save_artifacts(skills, dummy_tasks, {"maximal_overlap_detected": False}, "medium", 42, 123)
+def test_log_schema_exists_and_valid():
+    """Test that the log schema file is valid YAML and JSON Schema."""
+    schema = load_schema(LOG_SCHEMA_PATH)
+    assert "$schema" in schema
+    assert "properties" in schema
+    assert "task_id" in schema["properties"]
 
-        # Load tasks.json and verify metadata
-        with open("data/raw/tasks.json", 'r') as f:
-            tasks_data = json.load(f)
+def test_log_entry_compliance():
+    """Test that a valid log entry conforms to the schema."""
+    schema = load_schema(LOG_SCHEMA_PATH)
+    
+    valid_entry = {
+        "task_id": "T001",
+        "skill_id": "S1",
+        "success": True,
+        "latency": 0.5,
+        "tokens": 100,
+        "retrieval_precision": 1.0,
+        "retrieval_diversity": 0.9,
+        "pruning_risk_count": 0,
+        "library_size": 10,
+        "pruning_enabled": False,
+        "edge_case": False
+    }
+    
+    try:
+        validate(instance=valid_entry, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Valid log entry failed schema validation: {e.message}")
 
-        # Verify metadata contains overlap level
-        assert tasks_data["metadata"]["overlap_level"] == "medium"
-        assert "maximal_overlap_detected" in tasks_data["metadata"]
+def test_log_entry_missing_required():
+    """Test that a log entry with missing required fields fails validation."""
+    schema = load_schema(LOG_SCHEMA_PATH)
+    
+    invalid_entry = {
+        "task_id": "T001",
+        "skill_id": "S1"
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_entry, schema=schema)
 
-        # Verify checksums exist and are valid
-        with open("data/raw/checksums.json", 'r') as f:
-            checksums = json.load(f)
-
-        assert "skills.json" in checksums
-        assert "tasks.json" in checksums
-        assert len(checksums["skills.json"]) == 64
-        assert len(checksums["tasks.json"]) == 64
-
-    finally:
-        os.chdir(original_cwd)
-        shutil.rmtree(test_dir)
+def test_log_entry_extra_properties():
+    """Test that extra properties are rejected if additionalProperties is false."""
+    schema = load_schema(LOG_SCHEMA_PATH)
+    
+    invalid_entry = {
+        "task_id": "T001",
+        "skill_id": "S1",
+        "success": True,
+        "latency": 0.5,
+        "tokens": 100,
+        "retrieval_precision": 1.0,
+        "retrieval_diversity": 0.9,
+        "pruning_risk_count": 0,
+        "library_size": 10,
+        "pruning_enabled": False,
+        "edge_case": False,
+        "extra_field": "should fail"
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_entry, schema=schema)

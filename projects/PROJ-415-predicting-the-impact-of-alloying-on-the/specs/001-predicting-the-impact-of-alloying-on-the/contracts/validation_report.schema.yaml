@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Report Schema"
+description: "Schema for the sensitivity analysis and stability report"
+type: "object"
+properties:
+  threshold_sweep:
+    type: "array"
+    description: "List of threshold values swept"
+    items:
+      type: "number"
+  classification_rates:
+    type: "array"
+    description: "Corresponding classification rates"
+    items:
+      type: "number"
+  stability_index:
+    type: "number"
+    description: "Standard deviation of rates divided by threshold range (1/eV)"
+  baseline_shift_mean:
+    type: "number"
+    description: "Mean baseline shift calculated from pure host data"
+required:
+  - threshold_sweep
+  - classification_rates
+  - stability_index
+  - baseline_shift_mean
+additionalProperties: false

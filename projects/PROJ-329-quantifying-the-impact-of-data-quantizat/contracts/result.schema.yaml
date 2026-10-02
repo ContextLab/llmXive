@@ -1,9 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Inference Result Schema
 description: |
-  Schema for Bayesian parameter estimation results.
-  Contains posterior samples, point estimates, and diagnostics for
-  each quantized signal processed.
+  Schema for storing the results of Bayesian parameter estimation on
+  quantized gravitational wave signals.
 type: object
 required:
   - metadata
@@ -11,171 +10,263 @@ required:
 properties:
   metadata:
     type: object
-    description: Run-level metadata
+    description: Metadata about the inference run
     required:
       - version
-      - created_at
       - seed
-      - inference_engine
-      - mcmc_steps
-      - burn_in_steps
+      - timestamp
+      - sampler
+      - n_steps
+      - n_walkers
     properties:
       version:
         type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-      created_at:
-        type: string
-        format: date-time
+        description: Schema version
       seed:
         type: integer
-      inference_engine:
+        description: Random seed used
+      timestamp:
         type: string
-        description: Engine used (e.g., "bilby", "pycbc")
-      mcmc_steps:
+        format: date-time
+        description: ISO 8601 timestamp
+      sampler:
+        type: string
+        description: Sampler used (e.g., "bilby", "pymc")
+      n_steps:
         type: integer
-        minimum: 1000
-      burn_in_steps:
+        description: Number of MCMC steps per walker
+      n_walkers:
         type: integer
-        minimum: 0
+        description: Number of walkers
       convergence_threshold:
         type: number
-        description: Gelman-Rubin or similar threshold used
+        description: Threshold for Gelman-Rubin statistic
+      resource_limits:
+        type: object
+        description: Resource constraints used
+        properties:
+          cpu_cores:
+            type: integer
+          memory_gb:
+            type: number
 
   results:
     type: array
-    description: List of inference results per signal
+    description: List of inference results for each signal
     items:
       type: object
       required:
         - signal_id
         - bit_depth
         - snr_bin
-        - status
-        - posterior_samples
+        - ground_truth
+        - posterior_mean
+        - credible_interval_90
+        - convergence_status
+        - mse
       properties:
         signal_id:
-          type: string
-          description: Reference to the input signal
+          type: integer
+          description: Unique identifier matching the waveform dataset
         bit_depth:
           type: integer
-          description: Bit depth of the quantized signal used
+          description: Bit depth of the quantized signal
         snr_bin:
-          type: array
-          items:
-            type: number
-          minItems: 2
-          maxItems: 2
-          description: SNR bin [min, max]
-        status:
           type: string
-          enum:
-            - converged
-            - failed
-            - non_detection
-          description: Inference status
-        injected_params:
+          description: SNR bin label (e.g., "8-14")
+        ground_truth:
           type: object
-          description: Ground truth for comparison
+          description: Injected ground truth parameters
           required:
             - chirp_mass
             - mass_ratio
-            - distance_mpc
+            - effective_spin
+            - luminosity_distance
+          properties:
+            chirp_mass:
+              type: number
+              description: Chirp mass in solar masses
+            mass_ratio:
+              type: number
+              description: Mass ratio q = m2/m1 (<= 1)
+            effective_spin:
+              type: number
+              description: Effective inspiral spin parameter
+            luminosity_distance:
+              type: number
+              description: Distance in Mpc
+        posterior_mean:
+          type: object
+          description: Mean of the posterior distribution
+          required:
+            - chirp_mass
+            - mass_ratio
+            - effective_spin
+            - luminosity_distance
           properties:
             chirp_mass:
               type: number
             mass_ratio:
               type: number
-            distance_mpc:
+            effective_spin:
               type: number
-        recovered_params:
+            luminosity_distance:
+              type: number
+        credible_interval_90:
           type: object
-          description: Point estimates (posterior means/medians)
+          description: 90% credible intervals for parameters
           required:
-            - chirp_mass_mean
-            - chirp_mass_std
-            - mass_ratio_mean
-            - mass_ratio_std
-            - distance_mpc_mean
-            - distance_mpc_std
-            - spin_1_mean
-            - spin_2_mean
+            - chirp_mass
+            - mass_ratio
+            - effective_spin
+            - luminosity_distance
           properties:
-            chirp_mass_mean:
-              type: number
-            chirp_mass_std:
-              type: number
-            mass_ratio_mean:
-              type: number
-            mass_ratio_std:
-              type: number
-            distance_mpc_mean:
-              type: number
-            distance_mpc_std:
-              type: number
-            spin_1_mean:
+            chirp_mass:
               type: array
               items:
                 type: number
-            spin_2_mean:
+              minItems: 2
+              maxItems: 2
+              description: [lower, upper]
+            mass_ratio:
               type: array
               items:
                 type: number
-            credible_interval_90:
-              type: object
-              description: 90% credible intervals
-              properties:
-                chirp_mass:
-                  type: array
-                  items:
-                    type: number
-                  minItems: 2
-                  maxItems: 2
-                mass_ratio:
-                  type: array
-                  items:
-                    type: number
-                  minItems: 2
-                  maxItems: 2
-                distance_mpc:
-                  type: array
-                  items:
-                    type: number
-                  minItems: 2
-                  maxItems: 2
-        diagnostics:
-          type: object
-          description: Convergence and quality metrics
-          properties:
-            gelman_rubin:
-              type: number
-              description: R-hat statistic
-            effective_sample_size:
-              type: integer
-              description: ESS for key parameters
-            log_likelihood_max:
-              type: number
-            log_prior_max:
-              type: number
-            log_evidence:
-              type: number
-              description: Log Bayes factor or evidence estimate
-        mse_metrics:
-          type: object
-          description: MSE against ground truth
-          properties:
-            mse_chirp_mass:
-              type: number
-            mse_mass_ratio:
-              type: number
-            mse_distance:
-              type: number
-            relative_bias_chirp_mass:
-              type: number
-              description: (recovered - injected) / injected
-            relative_bias_mass_ratio:
-              type: number
-            relative_bias_distance:
-              type: number
-        failure_reason:
+              minItems: 2
+              maxItems: 2
+            effective_spin:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+            luminosity_distance:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+        convergence_status:
           type: string
-          description: Reason for failure if status != 'converged'
+          enum:
+            - converged
+            - failed
+            - non_detection
+          description: Status of the MCMC convergence
+        gelman_rubin:
+          type: number
+          description: Gelman-Rubin statistic (1.0 = converged)
+          nullable: true
+        mse:
+          type: object
+          description: Mean Squared Error between ground truth and posterior mean
+          required:
+            - chirp_mass
+            - mass_ratio
+            - effective_spin
+            - luminosity_distance
+          properties:
+            chirp_mass:
+              type: number
+            mass_ratio:
+              type: number
+            effective_spin:
+              type: number
+            luminosity_distance:
+              type: number
+        run_time_seconds:
+          type: number
+          description: Time taken for inference
+        log_evidence:
+          type: number
+          description: Log evidence (if calculated)
+          nullable: true
+
+  summary_statistics:
+    type: object
+    description: Aggregated statistics across the batch
+    properties:
+      total_signals:
+        type: integer
+      successful_inferences:
+        type: integer
+      failed_inferences:
+        type: integer
+      mean_mse_by_bit_depth:
+        type: object
+        description: Average MSE for each parameter grouped by bit depth
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: number
+      crossover_thresholds:
+        type: array
+        items:
+          type: object
+          description: Detected crossover points for quantization dominance
+          properties:
+            bit_depth:
+              type: integer
+            snr_threshold:
+              type: number
+            description:
+              type: string
+examples:
+  - metadata:
+      version: "1.0.0"
+      seed: 42
+      timestamp: "2023-10-27T10:00:00Z"
+      sampler: "bilby"
+      n_steps: 500
+      n_walkers: 20
+    results:
+      - signal_id: 1
+        bit_depth: 8
+        snr_bin: "8-14"
+        ground_truth:
+          chirp_mass: 28.5
+          mass_ratio: 0.8
+          effective_spin: 0.01
+          luminosity_distance: 450.0
+        posterior_mean:
+          chirp_mass: 28.6
+          mass_ratio: 0.79
+          effective_spin: 0.02
+          luminosity_distance: 455.0
+        credible_interval_90:
+          chirp_mass: [28.2, 29.0]
+          mass_ratio: [0.75, 0.83]
+          effective_spin: [-0.01, 0.05]
+          luminosity_distance: [440.0, 470.0]
+        convergence_status: "converged"
+        gelman_rubin: 1.02
+        mse:
+          chirp_mass: 0.01
+          mass_ratio: 0.0001
+          effective_spin: 0.0001
+          luminosity_distance: 25.0
+        run_time_seconds: 120.5
+    summary_statistics:
+      total_signals: 1200
+      successful_inferences: 1150
+      failed_inferences: 50
+      mean_mse_by_bit_depth:
+        1:
+          chirp_mass: 15.5
+          mass_ratio: 0.2
+          effective_spin: 0.05
+          luminosity_distance: 2500.0
+        8:
+          chirp_mass: 0.05
+          mass_ratio: 0.001
+          effective_spin: 0.001
+          luminosity_distance: 50.0
+        16:
+          chirp_mass: 0.001
+          mass_ratio: 0.0001
+          effective_spin: 0.0001
+          luminosity_distance: 1.0
+      crossover_thresholds:
+        - bit_depth: 8
+          snr_threshold: 18.5
+          description: "Quantization noise exceeds 10% of instrumental error above SNR 18.5"

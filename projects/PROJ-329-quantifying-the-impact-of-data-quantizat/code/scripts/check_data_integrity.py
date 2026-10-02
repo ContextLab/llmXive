@@ -1,93 +1,68 @@
 """
 Script to check data integrity for raw and processed directories.
-
-Usage:
-    python scripts/check_data_integrity.py
+Usage: python scripts/check_data_integrity.py [raw|processed|all]
 """
 import argparse
 import logging
 from pathlib import Path
 import sys
+
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from src.data_hygiene import (
     get_data_directories,
-    verify_data_integrity
+    verify_data_integrity,
+    record_directory_state
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Check data integrity for raw and processed directories.'
-    )
-    parser.add_argument(
-        '--dirs',
-        nargs='+',
-        choices=['raw', 'processed', 'results', 'all'],
-        default=['all'],
-        help='Directories to check (default: all)'
-    )
-    parser.add_argument(
-        '--state-file',
-        type=Path,
-        default=None,
-        help='Path to state.yaml (default: auto-detect)'
-    )
+    parser = argparse.ArgumentParser(description="Check or update data integrity checksums.")
+    parser.add_argument('target', nargs='?', default='all', 
+                        choices=['raw', 'processed', 'results', 'all'],
+                        help="Which directory to check/update (default: all)")
+    parser.add_argument('--action', choices=['verify', 'record'], default='verify',
+                        help="Action to perform: verify checksums or record new state")
     
     args = parser.parse_args()
     
-    # Determine project root
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     
-    data_dirs = get_data_directories()
-    
-    # Determine which directories to check
-    if 'all' in args.dirs:
-        dirs_to_check = list(data_dirs.items())
+    # Determine directories
+    dirs_to_process = []
+    if args.target == 'all':
+        dirs_to_process = get_data_directories()
     else:
-        dirs_to_check = [(d, data_dirs[d]) for d in args.dirs if d in data_dirs]
+        # Map target to specific directory logic if needed, 
+        # but get_data_directories returns Path objects. 
+        # We filter based on name.
+        all_dirs = get_data_directories()
+        for d in all_dirs:
+            if d.name == args.target:
+                dirs_to_process.append(d)
+                break
     
-    if not dirs_to_check:
-        logger.error("No valid directories specified.")
+    if not dirs_to_process:
+        logging.error(f"No directories found for target '{args.target}'")
         sys.exit(1)
     
-    logger.info(f"Checking integrity for {len(dirs_to_check)} directories...")
-    
-    all_valid = True
-    
-    for dir_name, dir_path in dirs_to_check:
-        logger.info(f"Checking {dir_name} directory: {dir_path}")
+    for directory in dirs_to_process:
+        logging.info(f"Processing {directory.name} ({args.action})...")
         
-        if not dir_path.exists():
-            logger.warning(f"Directory does not exist: {dir_path}")
-            all_valid = False
-            continue
-        
-        is_valid, details = verify_data_integrity(dir_path, args.state_file)
-        
-        if is_valid:
-            logger.info(f"  ✓ {dir_name} integrity PASSED")
-        else:
-            logger.error(f"  ✗ {dir_name} integrity FAILED")
-            all_valid = False
-            if "missing" in details and details["missing"]:
-                logger.error(f"    Missing files: {details['missing']}")
-            if "modified" in details and details["modified"]:
-                logger.error(f"    Modified files: {details['modified']}")
-            if "error" in details:
-                logger.error(f"    Error: {details['error']}")
-    
-    if all_valid:
-        logger.info("All checks passed.")
-        sys.exit(0)
-    else:
-        logger.error("Some checks failed.")
-        sys.exit(1)
+        if args.action == 'verify':
+            is_valid, current, expected = verify_data_integrity(directory)
+            if is_valid:
+                logging.info(f"  [OK] {directory.name} integrity verified.")
+            else:
+                logging.error(f"  [FAIL] {directory.name} integrity check failed.")
+                if not expected:
+                    logging.error("  No previous state found. Run with --action record to initialize.")
+        elif args.action == 'record':
+            success = record_directory_state(directory)
+            if success:
+                logging.info(f"  [OK] State recorded for {directory.name}")
+            else:
+                logging.error(f"  [FAIL] Failed to record state for {directory.name}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

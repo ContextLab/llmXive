@@ -1,50 +1,44 @@
-# llmXive: From Chatbot to Digital Colleague
+# Quickstart Guide
 
-A reproducible research pipeline for simulating persistent digital colleagues with overlapping skill libraries.
+## Project: llmXive Follow-up
+**Title**: Extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Prerequisites
 
-- Python 3.9+
-- pip
-- System RAM: ≥ 8 GB recommended for full dataset generation
+Ensure you have Python 3.9+ and `pip` installed.
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-975-llmxive-follow-up-extending-from-chatbot
- ```
-
-2. **Create a virtual environment** (recommended):
+1. Clone the repository and navigate to the project root.
+2. Create a virtual environment (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Quick Start
+## Project Structure
 
-### 1. Project Setup
-Ensure the directory structure is created:
+- `data/raw/`: Generated synthetic datasets (tasks, skills)
+- `data/results/`: Experiment logs, analysis outputs, and figures
+- `code/`: Implementation modules (data generation, agent, analysis)
+- `tests/`: Unit and contract tests
+- `contracts/`: JSON schemas for data validation
+- `state/`: Project state tracking and artifact hashes
+
+## Running the Pipeline
+
+### 1. Setup Project Directories
+Ensure the required directory structure exists:
 ```bash
 python code/setup_directories.py
 ```
 
-### 2. Configure Seeds (Optional)
-Set environment variables to override defaults in `code/config.py`:
-```bash
-export SEED_A=42
-export SEED_B=123
-export OVERLAP_LEVEL=medium
-```
-
-### 3. Generate Synthetic Data
-Generate 500 multi-step tasks and a configurable skill library:
+### 2. Generate Synthetic Data (User Story 1)
+Generate 500 multi-step tasks and a skill library with configurable overlap:
 ```bash
 python code/generate_data.py
 ```
@@ -53,49 +47,45 @@ python code/generate_data.py
 - `data/raw/skills.json`
 - `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml` (checksums)
 
-### 4. Run Baseline Experiment (No Pruning)
-Execute the agent with pruning disabled across library sizes [10, 30, 50, 100]:
-```bash
-python code/run_baseline.py
-```
-**Outputs**:
-- `data/results/experiment_log_baseline.csv`
-- `data/results/baseline_metrics.json`
-
-### 5. Run Pruning Experiment
-Execute the agent with the "Safe Pruning" heuristic enabled:
+### 3. Run Agent Experiments (User Story 2)
+Execute the Digital Colleague agent across varying library sizes:
 ```bash
 python code/run_experiment.py
 ```
 **Outputs**:
-- `data/results/experiment_log.csv`
+- `data/results/experiment_log.csv` (detailed execution logs)
+- `data/results/baseline_metrics.json` (if baseline run)
 
-### 6. Analyze Results
+### 4. Analyze Results (User Story 3)
 Perform statistical analysis, calculate VIF, and identify the tipping point:
 ```bash
 python code/analyze.py
 ```
 **Outputs**:
 - `data/results/tipping_point.json`
-- `data/results/final_analysis.json`
 - `data/results/sensitivity_report.json`
-
-## Verification
-
-To verify the logging infrastructure:
-```bash
-python code/verify_logging.py
-```
+- `data/results/final_analysis.json`
 
 ## Configuration
 
-Edit `code/config.py` to modify:
-- `SEED_A`, `SEED_B`: Random seeds for reproducibility
-- `OVERLAP_LEVEL`: 'low', 'medium', or 'high' semantic overlap
-- `PRUNING_INTERVAL`: Number of tasks between pruning checks (default: 10)
+Environment variables can override defaults in `code/config.py`:
+- `SEED_A`: Random seed for skill generation (default: 42)
+- `SEED_B`: Random seed for task ground-truth assignment (default: 123)
+- `OVERLAP_LEVEL`: 'low', 'medium', or 'high' (default: 'medium')
+
+## Verification
+
+Run tests to ensure system integrity:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-- **Memory Errors**: The script checks for >7GB RAM usage. If exceeded, it will fail with "Memory Limit Exceeded". Reduce `OVERLAP_LEVEL` or run on a machine with more RAM.
-- **Missing Modules**: Ensure all dependencies in `requirements.txt` are installed.
-- **Data Integrity**: Checksums are stored in `state/projects/...yaml`. If data files are modified, regeneration is required.
+- **Memory Errors**: The system checks RAM usage. If you encounter "Memory Limit Exceeded", reduce the dataset size or run on a machine with more RAM.
+- **Schema Validation Errors**: Ensure `contracts/*.yaml` files are present and match the data structure.
+- **Missing Data**: Re-run `generate_data.py` if `data/raw/` is empty.
+
+## Next Steps
+
+Refer to `README.md` for detailed architecture and `specs/` for feature requirements.

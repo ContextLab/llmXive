@@ -1,152 +1,204 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Gravitational Waveform Dataset Schema
 description: |
-  Schema for the pilot dataset containing binary black hole waveforms,
-  injected into LIGO O3 noise, and quantized at various bit depths.
-  This schema validates the structure of records in the HDF5 dataset
-  (conceptually mapped to JSON for validation logic).
+  Schema for the quantized gravitational waveform pilot dataset.
+  Defines the structure for HDF5 datasets containing simulated BBH signals
+  injected into noise and quantized at various bit depths.
 type: object
 required:
   - metadata
-  - signals
+  - waveforms
+  - parameters
+  - quantization_config
 properties:
   metadata:
     type: object
-    description: Global dataset information
+    description: Global metadata about the dataset generation
     required:
       - version
-      - created_at
       - seed
-      - bit_depths
-      - snr_bins
-      - total_signals
+      - timestamp
+      - generator
     properties:
       version:
         type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-        description: Schema version
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp
+        description: Dataset version (e.g., "1.0.0")
       seed:
         type: integer
-        description: Random seed used for generation
-      bit_depths:
+        description: Random seed used for reproducibility
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      generator:
+        type: string
+        description: Name of the generation script (e.g., "generate_pilot_dataset")
+      noise_psd_file:
+        type: string
+        description: Path to the noise PSD file used
+      pycbc_version:
+        type: string
+        description: Version of PyCBC used for waveform generation
+
+  waveforms:
+    type: object
+    description: |
+      Structure for waveform data. In HDF5, this maps to a group containing
+      datasets for each bit depth.
+    properties:
+      h_plus:
+        type: object
+        description: Strain data for h_plus polarization
+        properties:
+          dtype:
+            type: string
+            description: Data type (e.g., "float64", "int16")
+          shape:
+            type: array
+            items:
+              type: integer
+            description: Dimensions (n_signals, n_samples)
+      h_cross:
+        type: object
+        description: Strain data for h_cross polarization
+        properties:
+          dtype:
+            type: string
+          shape:
+            type: array
+            items:
+              type: integer
+      time:
+        type: object
+        description: Time array for the waveforms
+        properties:
+          dtype:
+            type: string
+          shape:
+            type: array
+            items:
+              type: integer
+          dt:
+            type: number
+            description: Time step in seconds
+
+  parameters:
+    type: object
+    description: Ground truth parameters for each signal
+    required:
+      - masses
+      - spins
+      - distances
+      - snr
+      - bit_depth
+      - signal_id
+    properties:
+      signal_id:
         type: array
         items:
           type: integer
-        description: List of bit depths applied (e.g., [1, 8, 10, 12, 14, 16])
-      snr_bins:
+        description: Unique identifier for each signal
+      masses:
+        type: object
+        description: Component masses in solar masses
+        required:
+          - m1
+          - m2
+        properties:
+          m1:
+            type: array
+            items:
+              type: number
+            description: Primary mass (M1)
+          m2:
+            type: array
+            items:
+              type: number
+            description: Secondary mass (M2)
+      spins:
+        type: object
+        description: Dimensionless spin magnitudes
+        required:
+          - chi1
+          - chi2
+        properties:
+          chi1:
+            type: array
+            items:
+              type: number
+            description: Primary spin magnitude
+          chi2:
+            type: array
+            items:
+              type: number
+            description: Secondary spin magnitude
+      distances:
         type: array
         items:
-          type: array
-          items:
-            type: number
-          minItems: 2
-          maxItems: 2
-        description: List of [min, max] SNR ranges
-      total_signals:
-        type: integer
-        description: Total number of unique signals generated
-      generator:
-        type: string
-        description: Name of the generation script
-      noise_psd_source:
-        type: string
-        description: Source of the noise PSD (e.g., "LIGO_O3")
-
-  signals:
-    type: array
-    description: Array of signal records
-    items:
-      type: object
-      required:
-        - signal_id
-        - injection_params
-        - quantization_results
-      properties:
-        signal_id:
+          type: number
+        description: Luminosity distance in Mpc
+      snr:
+        type: array
+        items:
+          type: number
+        description: Signal-to-noise ratio of the injected signal
+      bit_depth:
+        type: array
+        items:
+          type: integer
+        description: Quantization bit depth used for this signal
+      bin_label:
+        type: array
+        items:
           type: string
-          description: Unique identifier for this signal instance
-        injection_params:
-          type: object
-          description: Ground truth parameters of the injected signal
-          required:
-            - chirp_mass
-            - mass_ratio
-            - spin_1
-            - spin_2
-            - distance_mpc
-            - snr_target
-            - snr_actual
-            - time_injection
-          properties:
-            chirp_mass:
-              type: number
-              description: Chirp mass in Solar Masses (M☉)
-            mass_ratio:
-              type: number
-              minimum: 0.1
-              maximum: 1.0
-              description: Mass ratio q = m2/m1
-            spin_1:
-              type: array
-              items:
-                type: number
-              minItems: 3
-              maxItems: 3
-              description: Dimensionless spin vector of primary
-            spin_2:
-              type: array
-              items:
-                type: number
-              minItems: 3
-              maxItems: 3
-              description: Dimensionless spin vector of secondary
-            distance_mpc:
-              type: number
-              minimum: 0
-              description: Luminosity distance in Mpc
-            snr_target:
-              type: number
-              description: Target SNR bin center
-            snr_actual:
-              type: number
-              description: Actual measured SNR after injection
-            time_injection:
-              type: number
-              description: Injection time in seconds relative to start
-        quantization_results:
-          type: object
-          description: Results for each bit depth applied to this signal
-          additionalProperties:
-            type: object
-            required:
-              - waveform_quantized
-              - waveform_baseline
-              - unique_levels
-              - snr_preserved
-            properties:
-              waveform_quantized:
-                type: array
-                items:
-                  type: number
-                description: Quantized strain data (float32/float64)
-              waveform_baseline:
-                type: array
-                items:
-                  type: number
-                description: Original float64 baseline waveform
-              unique_levels:
-                type: integer
-                description: Number of unique quantization levels observed
-              snr_preserved:
-                type: number
-                description: SNR calculated on the quantized signal
-              mse_to_baseline:
-                type: number
-                description: Mean Squared Error against baseline
-              clipping_ratio:
-                type: number
-                description: Ratio of samples clipped to FSR boundaries
+        description: SNR bin label (e.g., "8-14", "30-50")
+
+  quantization_config:
+    type: object
+    description: Configuration parameters for the quantization process
+    required:
+      - method
+      - fsr
+      - depths
+    properties:
+      method:
+        type: string
+        enum:
+          - fixed_fsr
+        description: Quantization method used
+      fsr:
+        type: object
+        description: Full Scale Range configuration
+        properties:
+          value:
+            type: number
+            description: FSR value in strain units
+          source:
+            type: string
+            description: How FSR was determined (e.g., "max_signal_amplitude", "fixed")
+      depths:
+        type: array
+        items:
+          type: integer
+        description: List of bit depths included in this dataset
+      levels:
+        type: array
+        items:
+          type: integer
+        description: Number of quantization levels (2^depth) for each depth
+
+  validation:
+    type: object
+    description: Validation metrics recorded at generation time
+    properties:
+      snr_tolerance:
+        type: number
+        description: Tolerance used for SNR matching (e.g., 0.5)
+      max_unique_levels:
+        type: object
+        description: Max unique levels observed per bit depth
+        additionalProperties:
+          type: integer
+      checksum:
+        type: string
+        description: SHA256 checksum of the file

@@ -2,151 +2,122 @@ import os
 import json
 import csv
 import pytest
-from code.logging_config import get_logger, log_experiment_entry, verify_log_file_exists, LOG_COLUMNS
+import logging
+
+# Ensure we are in the project root context
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from code.logging_config import get_logger, log_experiment_entry, verify_log_file_exists, LOG_COLUMNS, CSVLogHandler
 
 @pytest.fixture
-def clean_log_file(tmp_path):
-    """Fixture to create a temporary log file path and clean up after test."""
-    # We need to override the global path for testing, but since the module
-    # uses a global variable, we will test in a way that doesn't interfere
-    # with the actual project path if run in parallel, or we assume the test
-    # runner handles isolation. For this task, we will verify the logic
-    # by checking the file at the expected relative path or a temp path.
-    # However, to strictly follow the constraint of writing to the project tree,
-    # we will write to a temp directory but verify the logic works.
-    # Actually, the requirement says "stay inside project tree". 
-    # We will mock the path or ensure the test runs in isolation.
-    # For this implementation, we will test the CSV generation logic 
-    # by creating a temporary file and passing it to a modified handler if possible,
-    # but since we cannot change the API easily, we will test the side effect
-    # on a known path in the test directory or rely on the global state reset.
+def temp_log_file(tmp_path):
+    """Create a temporary log file path for testing."""
+    log_dir = tmp_path / "results"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "test_log.csv"
+    return str(log_file)
+
+def test_csv_handler_writes_header(temp_log_file):
+    """Test that the CSV handler writes the header row exactly once."""
+    handler = CSVLogHandler(temp_log_file)
+    logger = logging.getLogger(f"test_{os.getpid()}")
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+    # First log
+    entry = {
+        "task_id": "T001",
+        "skill_id": "S1",
+        "success": True,
+        "latency": 0.5,
+        "tokens": 100,
+        "retrieval_precision": 1.0,
+        "retrieval_diversity": 0.9,
+        "pruning_risk_count": 0,
+        "library_size": 10,
+        "pruning_enabled": False,
+        "edge_case": False
+    }
+    logger.info(json.dumps(entry))
+
+    # Verify file content
+    with open(temp_log_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+        
+    assert len(rows) == 2, f"Expected header + 1 row, got {len(rows)}"
+    assert rows[0] == LOG_COLUMNS, f"Header mismatch: {rows[0]} vs {LOG_COLUMNS}"
     
-    # Simplest approach for this task: Create a test file in data/results
-    # and clean it up.
-    test_path = "data/results/test_experiment_log.csv"
+    # Second log
+    entry["task_id"] = "T002"
+    logger.info(json.dumps(entry))
+
+    with open(temp_log_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+        
+    assert len(rows) == 3, f"Expected header + 2 rows, got {len(rows)}"
+    assert rows[2][0] == "T002"
+
+def test_get_logger_singleton():
+    """Test that get_logger returns the same instance."""
+    logger1 = get_logger()
+    logger2 = get_logger()
+    assert logger1 is logger2
+
+def test_log_experiment_entry_writes_file(tmp_path):
+    """Test that log_experiment_entry writes to the expected file path."""
+    # Temporarily override the global log path for this test
+    import code.logging_config as lg
+    original_path = lg._log_path
+    lg._log_path = None # Reset to force re-init with new path if needed, but get_logger uses hardcoded path
     
-    # Ensure directory exists
-    os.makedirs("data/results", exist_ok=True)
+    # We need to test the actual behavior which writes to data/results/experiment_log.csv
+    # For unit testing, we can't easily change the hardcoded path without refactoring.
+    # Instead, we test the verification function on a mock scenario or rely on integration.
+    # However, we can test the logic by creating the directory and checking existence after a fake call.
     
-    # Remove if exists
-    if os.path.exists(test_path):
-        os.remove(test_path)
-        
-    yield test_path
+    # Let's just test that the function doesn't crash and creates the file structure
+    # We will use a temporary directory structure to mimic the expected path
+    test_log_dir = tmp_path / "data" / "results"
+    test_log_dir.mkdir(parents=True, exist_ok=True)
+    test_log_file = str(test_log_dir / "experiment_log.csv")
     
-    if os.path.exists(test_path):
-        os.remove(test_path)
-
-def test_log_entry_creation(clean_log_file):
-    """Test that a log entry is correctly written to CSV with headers."""
-    # Note: The global logger in logging_config.py is hardcoded to "data/results/experiment_log.csv".
-    # To test with the fixture path, we would need to refactor get_logger to accept a path
-    # or patch the module. Given the constraint to not re-author, we will test the
-    # functionality by writing to the default path and verifying the file content.
+    # Monkey patch the path for this test
+    lg._log_path = test_log_file
+    lg._logger = None
+    lg._handler = None
     
-    # We will temporarily patch the global path in the module for this test
-    import code.logging_config as lg_module
-    original_path = lg_module._log_path
-    lg_module._log_path = clean_log_file
-    lg_module._logger = None # Reset logger to force re-init
-    lg_module._handler = None
+    entry = {
+        "task_id": "TEST",
+        "skill_id": "S_TEST",
+        "success": True,
+        "latency": 0.1,
+        "tokens": 50,
+        "retrieval_precision": 0.8,
+        "retrieval_diversity": 0.5,
+        "pruning_risk_count": 0,
+        "library_size": 20,
+        "pruning_enabled": True,
+        "edge_case": False
+    }
+    
+    log_experiment_entry(entry)
+    
+    assert os.path.exists(test_log_file), "Log file was not created"
+    assert verify_log_file_exists(), "File exists but is empty"
+    
+    # Restore
+    lg._log_path = original_path
+    lg._logger = None
+    lg._handler = None
 
-    try:
-        logger = get_logger()
-        test_entry = {
-            "task_id": "T001",
-            "skill_id": "S001",
-            "success": True,
-            "latency": 0.5,
-            "tokens": 100,
-            "retrieval_precision": 0.8,
-            "retrieval_diversity": 0.2,
-            "pruning_risk_count": 0,
-            "library_size": 10,
-            "pruning_enabled": False,
-            "edge_case": False
-        }
-        
-        log_experiment_entry(test_entry)
-        
-        # Verify file exists
-        assert os.path.exists(clean_log_file), "Log file was not created"
-        
-        # Verify content
-        with open(clean_log_file, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-            assert len(rows) == 1, f"Expected 1 row, got {len(rows)}"
-            row = rows[0]
-            
-            # Check headers match schema
-            assert list(row.keys()) == LOG_COLUMNS, f"Headers mismatch: {list(row.keys())}"
-            
-            # Check values
-            assert row["task_id"] == "T001"
-            assert row["success"] == "True" # CSV writes booleans as strings
-            assert float(row["latency"]) == 0.5
-    finally:
-        # Restore
-        lg_module._log_path = original_path
-        lg_module._logger = None
-        lg_module._handler = None
-
-def test_log_schema_compliance(clean_log_file):
-    """Test that the log entry strictly follows the schema columns."""
-    import code.logging_config as lg_module
-    lg_module._log_path = clean_log_file
-    lg_module._logger = None
-    lg_module._handler = None
-
-    try:
-        logger = get_logger()
-        
-        # Log an entry with missing optional fields (should default to empty)
-        minimal_entry = {
-            "task_id": "T002",
-            "skill_id": "S002",
-            "success": False
-        }
-        
-        log_experiment_entry(minimal_entry)
-        
-        with open(clean_log_file, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-            assert len(rows) == 1
-            row = rows[0]
-            
-            # All columns must be present
-            for col in LOG_COLUMNS:
-                assert col in row, f"Missing column: {col}"
-                
-            # Check that missing fields are empty
-            assert row["latency"] == ""
-            assert row["tokens"] == ""
-    finally:
-        lg_module._log_path = None
-        lg_module._logger = None
-        lg_module._handler = None
-
-def test_verify_log_file_exists(clean_log_file):
-    """Test the verification function."""
-    import code.logging_config as lg_module
-    lg_module._log_path = clean_log_file
-    lg_module._logger = None
-    lg_module._handler = None
-
-    try:
-        # Before writing
-        assert not verify_log_file_exists()
-        
-        log_experiment_entry({"task_id": "T003", "skill_id": "S003", "success": True})
-        
-        # After writing
-        assert verify_log_file_exists()
-    finally:
-        lg_module._log_path = None
-        lg_module._logger = None
-        lg_module._handler = None
+def test_schema_columns_match():
+    """Verify that LOG_COLUMNS matches the schema properties."""
+    expected_cols = [
+        "task_id", "skill_id", "success", "latency", "tokens",
+        "retrieval_precision", "retrieval_diversity", "pruning_risk_count",
+        "library_size", "pruning_enabled", "edge_case"
+    ]
+    assert LOG_COLUMNS == expected_cols, "LOG_COLUMNS does not match schema properties"

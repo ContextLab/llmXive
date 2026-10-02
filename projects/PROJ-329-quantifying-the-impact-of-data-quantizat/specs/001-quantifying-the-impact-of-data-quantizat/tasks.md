@@ -114,7 +114,7 @@
 - [ ] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
 - [ ] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
 - [ ] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
-- [~] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
+- [ ] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

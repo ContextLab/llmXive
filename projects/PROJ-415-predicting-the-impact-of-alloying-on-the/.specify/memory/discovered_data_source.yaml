@@ -1,17 +1,16 @@
 status: none
-intent: NIST SRD 168 diffusion data python package Materials Project diffusion API
+intent: download Materials Project diffusion data FCC self diffusion NIST validation
   python package dataset
 required_fields:
 - material_id
-- structure
+- composition
+- crystal_structure
 - diffusion_mode
 - activation_energy_eV_per_atom
-- solute_concentration_at_percent
-- host_element
-- solute_element
 - temperature_K
-- diffusion_coefficient
-- source
-cache_key: 372ac9788d76ad63d34f8acd6df09cfb3ca70be07dbe9d114978a7f2ff44d2c5
-searched_at: '2026-09-22T12:44:46.710104+00:00'
+- solute_concentration_at_percent
+- reference_source
+- dataset_id
+cache_key: e584b1dca758dea984df2f7a523479afedebd83101175477dfe118cb0422df83
+searched_at: '2026-10-02T03:30:43.714075+00:00'
 retry_count: 1

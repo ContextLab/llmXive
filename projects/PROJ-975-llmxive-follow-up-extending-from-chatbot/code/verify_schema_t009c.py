@@ -1,44 +1,34 @@
 """
-Standalone script to verify T009c: 
-1. Load the schema from contracts/experiment_log.schema.yaml
-2. Create a sample log entry matching the schema
-3. Validate the entry using jsonschema
-4. Print success or failure
+Verification script for T009c: Validates that a sample experiment log entry
+conforms to the contracts/experiment_log.schema.yaml schema.
 """
 import os
 import sys
 import yaml
 from jsonschema import validate, ValidationError
 
-# Add project root to path if running from script directory
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
-
-SCHEMA_PATH = os.path.join(project_root, "contracts", "experiment_log.schema.yaml")
+# Add parent directory to path if running as script
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def main():
-    print(f"Loading schema from: {SCHEMA_PATH}")
+    schema_path = os.path.join("contracts", "experiment_log.schema.yaml")
     
-    if not os.path.exists(SCHEMA_PATH):
-        print(f"ERROR: Schema file not found at {SCHEMA_PATH}")
-        return 1
+    if not os.path.exists(schema_path):
+        print(f"ERROR: Schema file not found at {schema_path}")
+        return False
 
-    try:
-        with open(SCHEMA_PATH, "r") as f:
-            schema = yaml.safe_load(f)
-        print("Schema loaded successfully.")
-    except Exception as e:
-        print(f"ERROR: Failed to parse schema YAML: {e}")
-        return 1
+    # Load the schema
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
 
-    # Construct a sample log entry matching the schema properties
+    # Define a valid sample log entry matching the schema properties
     sample_entry = {
-        "task_id": "task_001",
-        "skill_id": "skill_42",
+        "task_id": "T001_SAMPLE",
+        "skill_id": "SKILL_ADD_01",
         "success": True,
         "latency": 0.45,
         "tokens": 120,
-        "retrieval_precision": 0.85,
+        "retrieval_precision": 0.8,
         "retrieval_diversity": 2.5,
         "pruning_risk_count": 0,
         "library_size": 50,
@@ -46,14 +36,14 @@ def main():
         "edge_case": False
     }
 
-    print("Validating sample entry against schema...")
     try:
         validate(instance=sample_entry, schema=schema)
-        print("SUCCESS: Sample entry is valid according to contracts/experiment_log.schema.yaml")
-        return 0
+        print("SUCCESS: Sample entry validates correctly against experiment_log.schema.yaml")
+        return True
     except ValidationError as e:
-        print(f"FAILURE: Sample entry failed validation: {e.message}")
-        return 1
+        print(f"FAILED: Validation error - {e.message}")
+        return False
 
 if __name__ == "__main__":
-    exit(main())
+    success = main()
+    sys.exit(0 if success else 1)

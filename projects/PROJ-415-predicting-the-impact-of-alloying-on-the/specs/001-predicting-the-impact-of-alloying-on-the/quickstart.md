@@ -2,11 +2,11 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `git`
-*   Access to GitHub Actions (for CI execution)
+-   Python 3.11+
+-   Git
+-   Access to the "Verified datasets" URLs (see `research.md` for current status).
 
-## Setup
+## Installation
 
 1.  **Clone the repository**:
     ```bash
@@ -24,49 +24,54 @@
     ```bash
     pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` will pin `scikit-learn`, `pandas`, `numpy`, `mendeleev`, `pytest`.*
 
 ## Running the Pipeline
 
 ### 1. Data Ingestion & Curation
-Downloads real data from the verified source (or halts if unavailable) and filters for FCC/Self.
+This step filters the raw data and checks for validity.
 ```bash
-python code/data/ingestion.py
-python code/data/curation.py
+python code/ingestion/curation.py
 ```
-*Output*: `data/curated/filtered.csv`, `data/curated/data_provenance.json`
+-   **Output**: `data/curated/filtered.csv`, `data/curated/data_provenance.json`.
+-   **Failure Mode**: If no valid FCC self-diffusion data is found in the verified URLs, the script exits with `ERROR: No verified real dataset found...`.
 
 ### 2. Feature Engineering
 Computes atomic descriptors.
 ```bash
-python code/features/descriptors.py
+python code/features/engineering.py
 ```
-*Output*: `data/curated/enriched.csv`
+-   **Output**: `data/curated/enriched.csv`.
 
 ### 3. Model Training
-Trains RF, GB, and Linear models with Grid Search.
+Trains RF, GB, and Linear models.
 ```bash
 python code/models/train.py
 ```
-*Output*: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`
+-   **Output**: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
 
-### 4. Validation & Sensitivity
-Evaluates performance and runs threshold sensitivity analysis.
+### 4. Validation & Sensitivity Analysis
+Generates baseline reports and threshold stability plots.
 ```bash
 python code/validation/baseline.py
-python code/models/evaluate.py
 python code/validation/sensitivity.py
 ```
-*Output*: `results/metrics.json`, `results/sensitivity_plot.png`
+-   **Output**: `results/baseline_report.json`, `results/sensitivity_plot.png`, `results/stability_index.json`.
 
 ## Testing
 
-Run the test suite to verify data filtering and feature calculations:
+Run the full test suite:
 ```bash
 pytest tests/ -v
 ```
 
-## Expected Results
+Run specific unit tests:
+```bash
+pytest tests/unit/test_feature_engineering.py -v
+```
 
-*   **Linear Model**: Should show a statistically significant negative or positive coefficient for `size_mismatch` (p < 0.05), depending on the real data trend. If N < 50, results are labeled "Exploratory".
-*   **Sensitivity**: The classification rate for "significant shift" should vary smoothly as the threshold moves from 0.45 to 0.55 eV.
-*   **Resource Usage**: Total runtime < 15 minutes on a 2-core CPU.
+## Troubleshooting
+
+-   **"No verified real dataset found"**: The provided verified URLs do not contain the required metallurgical data. The pipeline correctly halts. Do not use synthetic data.
+-   **"Stratification failed"**: If the dataset contains only one host metal, the script will fallback to a random split and log a warning.
+-   **Memory Error**: The dataset size is expected to be small (<10 MB). If this error occurs, check for infinite loops or data leaks in the ingestion step.
