@@ -26,13 +26,6 @@ T012d:
     \ are missing, so the task\u2019s condition (existence and at least one row) is\
     \ not satisfied and no verification or critical error logging can have occurred.\
     \ The implementer must provide the two CSV files with data."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `metadata.json` file (or diff) showing the added `precision_from_registry`
-    flag and updated `precision_source` field is provided, nor any verification output
-    confirming that every record correctly records its provenance. The required artifact
-    and proof of its correctness are missing.
 T016a:
   c: false
   h: eea107deafa346035012ce2082efa41f0c69624c7befdd6505edfccb269255d8
@@ -93,11 +86,3 @@ T054:
     \ missing. Moreover, the `generate_missing_instrumentation_report` function is\
     \ incomplete (truncated) and does not contain the logic to read the log and write\
     \ the CSV. The task\u2019s core output is therefore not present."
-T061:
-  c: false
-  h: 537b5c898cf70e339520729f7d7717486cecdf74fb474b553540cb717931b315
-  r: "The `code/utils/uncertainty_calculator.py` file exists, but the required input\
-    \ file `data/raw/perovskites_merged.csv` and the output file `data/processed/descriptors_uncertainty.csv`\
-    \ are both missing, and the script does not contain logic that reads the raw data\
-    \ and writes the new CSV with a `total_uncertainty` column. The task\u2019s core\
-    \ output is therefore not present."

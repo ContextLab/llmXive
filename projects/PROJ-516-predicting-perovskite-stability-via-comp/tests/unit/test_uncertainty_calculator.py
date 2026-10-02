@@ -1,137 +1,167 @@
 """
-Unit tests for the uncertainty calculator module.
+Unit tests for the uncertainty_calculator module.
 """
 
 import math
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
-from pathlib import Path
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
+import pytest
 import pandas as pd
+import numpy as np
+
 from code.utils.uncertainty_calculator import (
     calculate_total_uncertainty,
     compute_uncertainties_for_dataframe,
     DEFAULT_PRECISION,
     DEFAULT_EXPERIMENTAL_ERROR
 )
-from code.utils.instrument_registry import get_precision
 
-class TestUncertaintyCalculator(unittest.TestCase):
-    """Test cases for uncertainty calculations."""
 
-    def test_calculate_total_uncertainty_both_provided(self):
-        """Test calculation when both precision and error are provided."""
+class TestCalculateTotalUncertainty:
+    """Tests for the calculate_total_uncertainty function."""
+
+    def test_both_values_provided(self):
+        """Test calculation with both precision and error provided."""
         precision = 5.0
-        experimental_error = 3.0
-        expected = math.sqrt(5.0**2 + 3.0**2)
+        error = 12.0
+        expected = math.sqrt(5.0**2 + 12.0**2)
+        result = calculate_total_uncertainty(precision, error)
+        assert math.isclose(result, expected, rel_tol=1e-9)
 
-        result = calculate_total_uncertainty(precision, experimental_error)
-        self.assertAlmostEqual(result, expected, places=6)
+    def test_missing_precision_uses_default(self):
+        """Test that missing precision defaults to 10.0."""
+        error = 0.0
+        expected = math.sqrt(DEFAULT_PRECISION**2 + error**2)
+        result = calculate_total_uncertainty(None, error)
+        assert math.isclose(result, expected, rel_tol=1e-9)
 
-    def test_calculate_total_uncertainty_missing_precision(self):
-        """Test calculation when precision is missing (should use default)."""
-        experimental_error = 2.0
-        expected = math.sqrt(DEFAULT_PRECISION**2 + experimental_error**2)
-
-        result = calculate_total_uncertainty(None, experimental_error)
-        self.assertAlmostEqual(result, expected, places=6)
-
-    def test_calculate_total_uncertainty_missing_error(self):
-        """Test calculation when experimental error is missing (should use 0)."""
+    def test_missing_error_uses_default(self):
+        """Test that missing error defaults to 0.0."""
         precision = 10.0
         expected = math.sqrt(precision**2 + DEFAULT_EXPERIMENTAL_ERROR**2)
-
         result = calculate_total_uncertainty(precision, None)
-        self.assertAlmostEqual(result, expected, places=6)
+        assert math.isclose(result, expected, rel_tol=1e-9)
 
-    def test_calculate_total_uncertainty_both_missing(self):
-        """Test calculation when both are missing (should use defaults)."""
-        expected = DEFAULT_PRECISION  # sqrt(10^2 + 0^2) = 10
+    def test_both_missing_uses_defaults(self):
+        """Test that both missing values use defaults."""
+        expected = math.sqrt(DEFAULT_PRECISION**2 + DEFAULT_EXPERIMENTAL_ERROR**2)
+        result = calculate_total_uncertainty(None, None)
+        assert math.isclose(result, expected, rel_tol=1e-9)
+
+    def test_non_negative_result(self):
+        """Test that the result is always non-negative."""
+        result = calculate_total_uncertainty(5.0, 5.0)
+        assert result >= 0
 
         result = calculate_total_uncertainty(None, None)
-        self.assertAlmostEqual(result, expected, places=6)
+        assert result >= 0
 
-    def test_calculate_total_uncertainty_invalid_precision(self):
-        """Test calculation with invalid (negative) precision."""
-        result = calculate_total_uncertainty(-5.0, 2.0)
-        # Should use default precision
-        expected = math.sqrt(DEFAULT_PRECISION**2 + 2.0**2)
-        self.assertAlmostEqual(result, expected, places=6)
+    def test_zero_values(self):
+        """Test calculation with zero values."""
+        result = calculate_total_uncertainty(0.0, 0.0)
+        assert result == 0.0
 
-    def test_calculate_total_uncertainty_invalid_error(self):
-        """Test calculation with invalid (negative) experimental error."""
-        result = calculate_total_uncertainty(5.0, -3.0)
-        # Should use default error (0)
-        expected = math.sqrt(5.0**2 + DEFAULT_EXPERIMENTAL_ERROR**2)
-        self.assertAlmostEqual(result, expected, places=6)
+    def test_large_values(self):
+        """Test calculation with large values."""
+        precision = 1000.0
+        error = 1000.0
+        expected = math.sqrt(precision**2 + error**2)
+        result = calculate_total_uncertainty(precision, error)
+        assert math.isclose(result, expected, rel_tol=1e-9)
 
-    def test_compute_uncertainties_for_dataframe(self):
-        """Test DataFrame uncertainty computation."""
-        # Create a mock DataFrame
+
+class TestComputeUncertaintiesForDataFrame:
+    """Tests for the compute_uncertainties_for_dataframe function."""
+
+    def test_basic_computation(self):
+        """Test basic uncertainty computation on a DataFrame."""
         data = {
-            'formula': ['CsPbI3', 'FAPbI3', 'MAPbBr3'],
-            'T_d': [300, 320, 350],
-            'instrument_model': ['TA Instruments', 'Mettler Toledo', 'Unknown Model']
-        }
-        df = pd.DataFrame(data)
-
-        # Mock get_precision to return specific values
-        with patch('code.utils.uncertainty_calculator.get_precision') as mock_get_precision:
-            mock_get_precision.side_effect = lambda x: 5.0 if 'TA' in x else (10.0 if 'Mettler' in x else 15.0)
-
-            result_df = compute_uncertainties_for_dataframe(df, 'instrument_model', None)
-
-            # Check that total_uncertainty column was added
-            self.assertIn('total_uncertainty', result_df.columns)
-
-            # Check that all values are non-negative
-            self.assertTrue((result_df['total_uncertainty'] >= 0).all())
-
-            # Check that the column has the right length
-            self.assertEqual(len(result_df['total_uncertainty']), len(df))
-
-    def test_compute_uncertainties_with_experimental_error(self):
-        """Test DataFrame computation with experimental error column."""
-        data = {
-            'formula': ['CsPbI3', 'FAPbI3'],
-            'T_d': [300, 320],
-            'instrument_model': ['TA Instruments', 'Mettler Toledo'],
+            'formula': ['ABX3', 'CDX3'],
+            'T_d': [500, 600],
+            'precision_celsius': [5.0, 10.0],
             'experimental_error': [2.0, 3.0]
         }
         df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(df)
 
-        with patch('code.utils.uncertainty_calculator.get_precision') as mock_get_precision:
-            mock_get_precision.side_effect = lambda x: 5.0
+        assert 'total_uncertainty' in result.columns
+        assert len(result) == 2
 
-            result_df = compute_uncertainties_for_dataframe(df, 'instrument_model', 'experimental_error')
+        # Check specific values
+        expected_0 = math.sqrt(5.0**2 + 2.0**2)
+        expected_1 = math.sqrt(10.0**2 + 3.0**2)
 
-            # Verify calculations manually for first row: sqrt(5^2 + 2^2) = sqrt(29)
-            expected_first = math.sqrt(5.0**2 + 2.0**2)
-            self.assertAlmostEqual(result_df.iloc[0]['total_uncertainty'], expected_first, places=6)
+        assert math.isclose(result.iloc[0]['total_uncertainty'], expected_0, rel_tol=1e-9)
+        assert math.isclose(result.iloc[1]['total_uncertainty'], expected_1, rel_tol=1e-9)
 
-            # Verify calculations manually for second row: sqrt(5^2 + 3^2) = sqrt(34)
-            expected_second = math.sqrt(5.0**2 + 3.0**2)
-            self.assertAlmostEqual(result_df.iloc[1]['total_uncertainty'], expected_second, places=6)
-
-    def test_compute_uncertainties_missing_columns(self):
-        """Test behavior when columns are missing."""
+    def test_missing_precision_column(self):
+        """Test behavior when precision column is missing (should use default)."""
         data = {
-            'formula': ['CsPbI3'],
-            'T_d': [300]
+            'formula': ['ABX3'],
+            'T_d': [500],
+            'experimental_error': [5.0]
         }
         df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(df)
 
-        # Should still work, using defaults
-        result_df = compute_uncertainties_for_dataframe(df, 'nonexistent_col', 'nonexistent_col2')
+        # Should use default precision (10.0)
+        expected = math.sqrt(DEFAULT_PRECISION**2 + 5.0**2)
+        assert math.isclose(result.iloc[0]['total_uncertainty'], expected, rel_tol=1e-9)
 
-        self.assertIn('total_uncertainty', result_df.columns)
-        # Should be sqrt(10^2 + 0^2) = 10
-        self.assertAlmostEqual(result_df.iloc[0]['total_uncertainty'], 10.0, places=6)
+    def test_missing_error_column(self):
+        """Test behavior when error column is missing (should use default)."""
+        data = {
+            'formula': ['ABX3'],
+            'T_d': [500],
+            'precision_celsius': [5.0]
+        }
+        df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(df)
 
-if __name__ == '__main__':
-    unittest.main()
+        # Should use default error (0.0)
+        expected = math.sqrt(5.0**2 + DEFAULT_EXPERIMENTAL_ERROR**2)
+        assert math.isclose(result.iloc[0]['total_uncertainty'], expected, rel_tol=1e-9)
+
+    def test_all_missing_values(self):
+        """Test behavior when all values are missing."""
+        data = {
+            'formula': ['ABX3'],
+            'T_d': [500]
+        }
+        df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(df)
+
+        # Should use both defaults
+        expected = math.sqrt(DEFAULT_PRECISION**2 + DEFAULT_EXPERIMENTAL_ERROR**2)
+        assert math.isclose(result.iloc[0]['total_uncertainty'], expected, rel_tol=1e-9)
+
+    def test_non_negative_results(self):
+        """Test that all results are non-negative."""
+        data = {
+            'formula': ['ABX3', 'CDX3', 'EFX3'],
+            'T_d': [500, 600, 700],
+            'precision_celsius': [5.0, None, 15.0],
+            'experimental_error': [None, 5.0, None]
+        }
+        df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(df)
+
+        assert all(result['total_uncertainty'] >= 0)
+
+    def test_custom_column_names(self):
+        """Test with custom column names."""
+        data = {
+            'formula': ['ABX3'],
+            'T_d': [500],
+            'my_precision': [5.0],
+            'my_error': [3.0]
+        }
+        df = pd.DataFrame(data)
+        result = compute_uncertainties_for_dataframe(
+            df,
+            precision_column='my_precision',
+            error_column='my_error',
+            output_column='my_uncertainty'
+        )
+
+        assert 'my_uncertainty' in result.columns
+        expected = math.sqrt(5.0**2 + 3.0**2)
+        assert math.isclose(result.iloc[0]['my_uncertainty'], expected, rel_tol=1e-9)

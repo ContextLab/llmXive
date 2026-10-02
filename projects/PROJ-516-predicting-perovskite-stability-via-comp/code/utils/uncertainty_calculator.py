@@ -1,8 +1,8 @@
 """
-Uncertainty Calculator Module for Perovskite Stability Analysis.
+Uncertainty Calculator Module
 
-This module computes the total uncertainty for thermal decomposition temperature (T_d)
-by combining instrument precision and reported experimental error using the root-sum-square method.
+Computes total uncertainty for T_d values by combining instrument precision
+and experimental error using the root-sum-square method.
 """
 
 import logging
@@ -13,209 +13,167 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
-# Import from existing API surface
-from .instrument_registry import get_precision
-from .uncertainty_parser import parse_temperature_precision
-
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
 # Default values as per specification
-DEFAULT_PRECISION = 10.0  # ±10°C default for missing instrument precision
+DEFAULT_PRECISION = 10.0  # ±10°C for missing instrument precision
 DEFAULT_EXPERIMENTAL_ERROR = 0.0  # 0 for missing experimental error
 
+
 def calculate_total_uncertainty(
-    instrument_precision: float,
-    experimental_error: float
+    instrument_precision: Optional[float],
+    experimental_error: Optional[float]
 ) -> float:
     """
-    Calculate the total uncertainty using the root-sum-square method.
+    Calculate total uncertainty using the root-sum-square method.
 
     Formula: sigma = sqrt(precision^2 + experimental_error^2)
 
     Args:
-        instrument_precision: The precision of the TGA instrument (±°C).
-        experimental_error: Any reported experimental error (±°C).
+        instrument_precision: Instrument precision in °C. If None, uses DEFAULT_PRECISION.
+        experimental_error: Experimental error in °C. If None, uses DEFAULT_EXPERIMENTAL_ERROR.
 
     Returns:
-        The combined standard uncertainty (sigma).
-    """
-    if instrument_precision < 0 or experimental_error < 0:
-        raise ValueError("Uncertainty components cannot be negative.")
+        Total uncertainty (sigma) in °C.
 
-    total_uncertainty = math.sqrt(
-        instrument_precision ** 2 + experimental_error ** 2
-    )
-    return total_uncertainty
+    Raises:
+        ValueError: If calculated uncertainty is negative (should not happen with sqrt).
+    """
+    # Apply defaults if values are missing
+    precision = instrument_precision if instrument_precision is not None else DEFAULT_PRECISION
+    error = experimental_error if experimental_error is not None else DEFAULT_EXPERIMENTAL_ERROR
+
+    # Log warnings for missing components
+    if instrument_precision is None:
+        logger.warning(f"Missing instrument precision, using default: {DEFAULT_PRECISION}°C")
+    if experimental_error is None:
+        logger.warning(f"Missing experimental error, using default: {DEFAULT_EXPERIMENTAL_ERROR}°C")
+
+    # Calculate combined uncertainty using root-sum-square
+    try:
+        sigma = math.sqrt(precision**2 + error**2)
+    except (ValueError, TypeError) as e:
+        logger.error(f"Error calculating uncertainty: precision={precision}, error={error}")
+        raise e
+
+    if sigma < 0:
+        raise ValueError(f"Calculated uncertainty cannot be negative: {sigma}")
+
+    return sigma
 
 
 def compute_uncertainties_for_dataframe(
     df: pd.DataFrame,
     precision_column: str = 'precision_celsius',
-    experimental_error_column: str = 'experimental_error',
+    error_column: str = 'experimental_error',
     output_column: str = 'total_uncertainty'
 ) -> pd.DataFrame:
     """
     Compute total uncertainty for each row in a DataFrame.
 
-    This function iterates through the DataFrame, extracting instrument precision
-    and experimental error, handling missing values with documented defaults,
-    and calculating the combined uncertainty.
-
     Args:
-        df: Input DataFrame containing perovskite data with instrumentation metadata.
-        precision_column: Name of the column containing instrument precision values.
-        experimental_error_column: Name of the column containing experimental error values.
+        df: Input DataFrame containing T_d measurements and uncertainty components.
+        precision_column: Name of the column containing instrument precision.
+        error_column: Name of the column containing experimental error.
         output_column: Name of the column to write the total uncertainty to.
 
     Returns:
-        The DataFrame with a new 'total_uncertainty' column added.
+        DataFrame with the new total_uncertainty column added.
     """
-    logger.info(f"Computing uncertainties for {len(df)} records...")
+    logger.info(f"Computing uncertainties for {len(df)} rows")
 
-    uncertainties = []
-    precision_used = []
-    error_used = []
+    # Apply the calculation row-wise
+    def calculate_row_uncertainty(row):
+        precision = row.get(precision_column)
+        error = row.get(error_column)
+        return calculate_total_uncertainty(precision, error)
 
-    for idx, row in df.iterrows():
-        formula = row.get('formula', 'Unknown')
-        source = row.get('source', 'Unknown')
+    # Compute and assign
+    df[output_column] = df.apply(calculate_row_uncertainty, axis=1)
 
-        # Extract instrument precision
-        if precision_column in row and pd.notna(row[precision_column]):
-            precision = float(row[precision_column])
-        else:
-            precision = DEFAULT_PRECISION
-            logger.warning(
-                f"WARNING: Missing precision for {formula} (source: {source}), "
-                f"defaulting to {DEFAULT_PRECISION}°C"
-            )
+    # Verify non-negative values
+    if (df[output_column] < 0).any():
+        raise ValueError("Detected negative uncertainty values after calculation")
 
-        # Extract experimental error
-        if experimental_error_column in row and pd.notna(row[experimental_error_column]):
-            error = float(row[experimental_error_column])
-        else:
-            error = DEFAULT_EXPERIMENTAL_ERROR
-            logger.debug(
-                f"INFO: Missing experimental error for {formula} (source: {source}), "
-                f"using default {DEFAULT_EXPERIMENTAL_ERROR}"
-            )
-
-        # Calculate total uncertainty
-        try:
-            total_unc = calculate_total_uncertainty(precision, error)
-        except ValueError as e:
-            logger.error(f"Error calculating uncertainty for {formula}: {e}")
-            total_unc = float('nan')
-
-        uncertainties.append(total_unc)
-        precision_used.append(precision)
-        error_used.append(error)
-
-    df = df.copy()
-    df[output_column] = uncertainties
-    df['_precision_used'] = precision_used
-    df['_experimental_error_used'] = error_used
-
-    logger.info(f"Uncertainty calculation complete. "
-                f"Min: {min([u for u in uncertainties if not math.isnan(u)]):.4f}, "
-                f"Max: {max([u for u in uncertainties if not math.isnan(u)]):.4f}, "
-                f"Mean: {sum([u for u in uncertainties if not math.isnan(u)])/len([u for u in uncertainties if not math.isnan(u)]):.4f}")
+    logger.info(f"Successfully computed {output_column} column")
+    logger.info(f"Uncertainty statistics: min={df[output_column].min():.2f}, max={df[output_column].max():.2f}, median={df[output_column].median():.2f}")
 
     return df
 
 
 def main():
     """
-    Main entry point for the uncertainty calculator.
+    Main entry point for the uncertainty calculator script.
 
-    Reads the merged perovskite dataset, computes total uncertainty,
-    and writes the result to the processed directory.
+    Reads data from data/raw/perovskites_merged.csv, computes total uncertainty,
+    and writes the result to data/processed/descriptors_uncertainty.csv.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / 'data' / 'raw' / 'perovskites_merged.csv'
-    output_path = project_root / 'data' / 'processed' / 'descriptors_uncertainty.csv'
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_path = project_root / "data" / "raw" / "perovskites_merged.csv"
+    output_path = project_root / "data" / "processed" / "descriptors_uncertainty.csv"
 
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Check if input file exists
+    logger.info(f"Reading input data from: {input_path}")
+
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T012e (merge_datasets) has been completed successfully.")
+        logger.error("Please ensure T012e (merge logic) has completed successfully.")
         sys.exit(1)
 
-    logger.info(f"Loading data from {input_path}...")
     try:
+        # Load the merged dataset
         df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} rows from {input_path}")
+
+        # Check for required columns
+        required_cols = ['formula', 'T_d']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            logger.error(f"Missing required columns in input: {missing_cols}")
+            sys.exit(1)
+
+        # Identify uncertainty columns (they might be named differently or missing)
+        # We look for 'precision_celsius' (from T042/T047c) and 'experimental_error'
+        # If 'precision_celsius' is missing, the function will use the default
+        # If 'experimental_error' is missing, the function will use the default
+
+        # Check if columns exist, if not, create them with NaN to trigger defaults
+        if 'precision_celsius' not in df.columns:
+            logger.warning(f"Column 'precision_celsius' not found. Using default precision for all rows.")
+            df['precision_celsius'] = None
+
+        if 'experimental_error' not in df.columns:
+            logger.warning(f"Column 'experimental_error' not found. Using default error (0) for all rows.")
+            df['experimental_error'] = None
+
+        # Compute uncertainties
+        df = compute_uncertainties_for_dataframe(
+            df,
+            precision_column='precision_celsius',
+            error_column='experimental_error',
+            output_column='total_uncertainty'
+        )
+
+        # Ensure output path exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write the result
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {len(df)} rows to {output_path}")
+        logger.info(f"Output columns: {list(df.columns)}")
+
     except Exception as e:
-        logger.error(f"Failed to read input CSV: {e}")
+        logger.error(f"Error processing data: {e}", exc_info=True)
         sys.exit(1)
 
-    # Verify required columns
-    required_cols = ['formula', 'T_d']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in input: {missing_cols}")
-        sys.exit(1)
 
-    # Determine precision column name (could be 'precision_celsius' or similar)
-    # Check for common variations
-    precision_col = None
-    possible_precision_cols = ['precision_celsius', 'temperature_precision', 'instrument_precision', 'precision']
-    for col in possible_precision_cols:
-        if col in df.columns:
-            precision_col = col
-            break
-
-    if precision_col is None:
-        logger.warning("No precision column found in input data. Using default ±10°C for all entries.")
-        precision_col = 'precision_celsius' # Will be created with defaults if needed
-        df[precision_col] = None
-
-    # Determine experimental error column name
-    error_col = None
-    possible_error_cols = ['experimental_error', 'error', 'uncertainty', 'T_d_error']
-    for col in possible_error_cols:
-        if col in df.columns:
-            error_col = col
-            break
-
-    if error_col is None:
-        logger.warning("No experimental error column found in input data. Using default 0.0 for all entries.")
-        error_col = 'experimental_error' # Will be created with defaults if needed
-        df[error_col] = None
-
-    # Compute uncertainties
-    df_processed = compute_uncertainties_for_dataframe(
-        df,
-        precision_column=precision_col,
-        experimental_error_column=error_col,
-        output_column='total_uncertainty'
-    )
-
-    # Clean up temporary columns before saving if desired, but keeping them for audit
-    # The task requires writing the new column to the output file.
-    # We will keep the audit columns for now as they are useful for validation.
-
-    logger.info(f"Writing output to {output_path}...")
-    try:
-        df_processed.to_csv(output_path, index=False)
-    except Exception as e:
-        logger.error(f"Failed to write output CSV: {e}")
-        sys.exit(1)
-
-    logger.info(f"Successfully wrote {len(df_processed)} records to {output_path}")
-    logger.info(f"Output columns: {list(df_processed.columns)}")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

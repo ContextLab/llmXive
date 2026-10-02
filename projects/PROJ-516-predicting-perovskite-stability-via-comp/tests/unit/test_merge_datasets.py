@@ -1,114 +1,86 @@
 """
 Unit tests for merge_datasets.py (T012c).
 """
+
 import os
 import sys
 import tempfile
-import pytest
-import pandas as pd
+import unittest
 from pathlib import Path
+import pandas as pd
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
-from merge_datasets import load_csv_safe, merge_perovskite_datasets
+from merge_datasets import load_csv_safe, merge_perovskite_datasets, remove_duplicates
 
-def test_load_csv_safe_missing_file():
-    """Test loading a non-existent file returns None."""
-    result = load_csv_safe(Path("/nonexistent/path.csv"))
-    assert result is None
+class TestMergeDatasets(unittest.TestCase):
 
-def test_load_csv_safe_empty_file():
-    """Test loading an empty file returns None."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        f.write("")
-        temp_path = Path(f.name)
-    
-    try:
-        result = load_csv_safe(temp_path)
-        assert result is None
-    finally:
-        os.unlink(temp_path)
+    def setUp(self):
+        """Set up temporary files for testing."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.nrel_path = Path(self.temp_dir.name) / "nrel_perovskites.csv"
+        self.mp_path = Path(self.temp_dir.name) / "mp_perovskites.csv"
 
-def test_load_csv_safe_valid():
-    """Test loading a valid CSV returns a DataFrame."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        f.write("formula,source\nCsPbI3,NREL\n")
-        temp_path = Path(f.name)
-    
-    try:
-        result = load_csv_safe(temp_path)
-        assert result is not None
-        assert len(result) == 1
-        assert "formula" in result.columns
-    finally:
-        os.unlink(temp_path)
+    def tearDown(self):
+        """Clean up temporary files."""
+        self.temp_dir.cleanup()
 
-def test_merge_logic_duplicate_detection():
-    """
-    Test that the merge logic correctly identifies duplicates.
-    This simulates the core logic of T012c without file I/O side effects on the real project.
-    """
-    # Create temporary files for NREL and MP
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        nrel_file = tmpdir_path / "nrel_perovskites.csv"
-        mp_file = tmpdir_path / "mp_perovskites.csv"
-        merged_file = tmpdir_path / "perovskites_merged.csv"
+    def test_load_csv_safe_missing_file(self):
+        """Test loading a non-existent file returns None."""
+        result = load_csv_safe(Path("non_existent_file.csv"))
+        self.assertIsNone(result)
 
-        # Write test data with a known duplicate
-        # NREL: 2 rows
-        nrel_df = pd.DataFrame({
-            "formula": ["CsPbI3", "FAPbI3"],
-            "source": ["NREL", "NREL"],
-            "T_d": [100, 120]
+    def test_load_csv_safe_empty_file(self):
+        """Test loading an empty file returns None."""
+        self.nrel_path.touch()  # Create empty file
+        result = load_csv_safe(self.nrel_path)
+        self.assertIsNone(result)
+
+    def test_load_csv_safe_valid(self):
+        """Test loading a valid CSV file."""
+        df = pd.DataFrame({"formula": ["ABX3"], "source": ["NREL"]})
+        df.to_csv(self.nrel_path, index=False)
+        result = load_csv_safe(self.nrel_path)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 1)
+
+    def test_merge_perovskite_datasets(self):
+        """Test concatenating two DataFrames."""
+        nrel_df = pd.DataFrame({"formula": ["A1"], "source": ["NREL"], "val": [1]})
+        mp_df = pd.DataFrame({"formula": ["A2"], "source": ["MP"], "val": [2]})
+        merged = merge_perovskite_datasets(nrel_df, mp_df)
+        self.assertEqual(len(merged), 2)
+        self.assertTrue("formula" in merged.columns)
+        self.assertTrue("source" in merged.columns)
+
+    def test_remove_duplicates(self):
+        """Test duplicate removal logic."""
+        df = pd.DataFrame({
+            "formula": ["A1", "A1", "A2"],
+            "source": ["NREL", "NREL", "MP"],
+            "val": [1, 1, 2]
         })
-        nrel_df.to_csv(nrel_file, index=False)
+        deduped, count = remove_duplicates(df)
+        self.assertEqual(count, 1)
+        self.assertEqual(len(deduped), 2)
 
-        # MP: 2 rows (one duplicate formula+source with NREL, one new)
-        # Note: T012c merges based on formula AND source. 
-        # If source is different, it's not a duplicate.
-        # Let's create a scenario where source is the same to test duplicate logic if we were merging same source.
-        # But the task says "Concatenate ... based on formula and source". 
-        # If source is different (NREL vs MP), they are distinct rows.
-        # The duplicate check in T012d is "based on formula and source".
-        # So if we have CsPbI3 from NREL and CsPbI3 from MP, they are NOT duplicates.
-        # We need to simulate a case where the SAME formula+source appears in both?
-        # That would imply the fetch logic is flawed or we are merging same source twice.
-        # However, T012c's job is to concatenate. T012d removes duplicates.
-        # Let's test the concatenation and the duplicate counting logic.
-        
-        mp_df = pd.DataFrame({
-            "formula": ["CsPbI3", "MAPbBr3"],
-            "source": ["MaterialsProject", "MaterialsProject"],
-            "T_d": [110, 130]
+    def test_remove_duplicates_no_duplicates(self):
+        """Test when there are no duplicates."""
+        df = pd.DataFrame({
+            "formula": ["A1", "A2"],
+            "source": ["NREL", "MP"],
+            "val": [1, 2]
         })
-        mp_df.to_csv(mp_file, index=False)
+        deduped, count = remove_duplicates(df)
+        self.assertEqual(count, 0)
+        self.assertEqual(len(deduped), 2)
 
-        # Mock the paths in the module
-        import merge_datasets
-        original_nrel = merge_datasets.NREL_PATH
-        original_mp = merge_datasets.MP_PATH
-        original_merged = merge_datasets.MERGED_PATH
+    def test_remove_duplicates_missing_columns(self):
+        """Test that missing columns raise an error."""
+        df = pd.DataFrame({"formula": ["A1"], "val": [1]})
+        with self.assertRaises(ValueError):
+            remove_duplicates(df)
 
-        merge_datasets.NREL_PATH = nrel_file
-        merge_datasets.MP_PATH = mp_file
-        merge_datasets.MERGED_PATH = merged_file
-
-        try:
-            success, message = merge_perovskite_datasets()
-            assert success
-            
-            # Check output file
-            assert merged_file.exists()
-            merged_df = pd.read_csv(merged_file)
-            assert len(merged_df) == 4 # 2 NREL + 2 MP
-            
-            # Verify no duplicates were dropped yet (T012c just concatenates, T012d drops)
-            # But T012c logs the duplicate count. Since source is different, count should be 0.
-            assert "Duplicate count" in message
-            assert "0" in message or "rows to be dropped" in message
-        finally:
-            merge_datasets.NREL_PATH = original_nrel
-            merge_datasets.MP_PATH = original_mp
-            merge_datasets.MERGED_PATH = original_merged
+if __name__ == "__main__":
+    unittest.main()
