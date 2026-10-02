@@ -4,10 +4,19 @@ T022:
   r: "The required integration test file `tests/integration/test_cross_species.py`\
     \ does not exist in the repository, so the artifact is missing and the task\u2019\
     s deliverable is not provided."
-T041:
+T063:
+  c: false
+  h: f81e8d89f1dc2dc12b5fe8a6dc67b0cd8806a586f82bfed0da98423aedacb754
+  r: The test file `tests/contract/test_mapping_schema.py` is present but its main
+    test function is empty (truncated) and does not actually load or validate `results/mapping_coverage.json`.
+    Moreover, the required data file `results/mapping_coverage.json` is missing entirely,
+    so the contract test cannot be executed as specified. The implementer must provide
+    a complete test that reads the JSON file and validates the required fields, and
+    ensure the `results/mapping_coverage.json` file exists with appropriate content.
+T078:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No profiling output (e.g., cProfile stats), no caching implementation for the\
-    \ T013/T014 data fetches, and no evidence (logs or CI run times) showing the pipeline\
-    \ runs under 6\u202Fhours on a GitHub Actions runner are present. These required\
-    \ artifacts are missing, so the performance\u2011optimization task is not satisfied."
+  r: "No evidence of a `quickstart.md` file (or its contents) was provided, and thus\
+    \ we cannot confirm that a \u201CTroubleshooting\u201D section listing the error\
+    \ codes, log messages from T073\u2011T076, and step\u2011by\u2011step resolution\
+    \ instructions has been added. The required documentation update is missing."

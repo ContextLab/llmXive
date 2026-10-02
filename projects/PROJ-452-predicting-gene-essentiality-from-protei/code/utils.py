@@ -1,11 +1,14 @@
 """
 Utility functions for the llmXive pipeline.
 
-Provides logging setup, SHA256 checksumming, and exponential backoff helpers.
+Provides logging setup, SHA256 checksumming, exponential backoff helpers,
+and deterministic random seed management for reproducibility.
 """
 import hashlib
 import logging
 import time
+import random
+import os
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, List, Optional, TypeVar, Union
@@ -141,3 +144,70 @@ def format_size(num_bytes: int) -> str:
             return f"{num_bytes:3.1f} {unit}"
         num_bytes /= 1024.0
     return f"{num_bytes:.1f} PB"
+
+def set_deterministic_seed(seed: int = 42) -> None:
+    """
+    Set deterministic random seeds for full reproducibility of streaming 
+    and sampling processes across runs.
+    
+    This function initializes seeds for:
+    - Python's built-in random module
+    - NumPy's random number generator (if available)
+    - The OS-level random seed environment variable (for subprocess reproducibility)
+    
+    Args:
+        seed: Integer seed value (default: 42). Must be non-negative.
+            
+    Raises:
+        ValueError: If seed is negative.
+    """
+    if seed < 0:
+        raise ValueError(f"Seed must be non-negative, got {seed}")
+    
+    logging.info(f"Setting deterministic random seed to {seed} for reproducibility")
+    
+    # Set Python random seed
+    random.seed(seed)
+    logging.debug(f"Python random module seeded with {seed}")
+    
+    # Set NumPy random seed if available
+    try:
+        import numpy as np
+        np.random.seed(seed)
+        logging.debug(f"NumPy random module seeded with {seed}")
+    except ImportError:
+        logging.warning("NumPy not available; skipping NumPy seed initialization")
+    
+    # Set environment variable for subprocess reproducibility
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ['RANDOM_SEED'] = str(seed)
+    logging.debug(f"Environment variables PYTHONHASHSEED and RANDOM_SEED set to {seed}")
+
+def get_deterministic_seed() -> int:
+    """
+    Retrieve the current deterministic seed from environment or return default.
+    
+    Returns:
+        The seed integer currently in use, or 42 if not set.
+    """
+    return int(os.environ.get('RANDOM_SEED', os.environ.get('PYTHONHASHSEED', '42')))
+
+def reset_random_state() -> None:
+    """
+    Reset all random number generators to an undefined state (non-deterministic).
+    
+    Useful for testing scenarios where reproducibility is not required.
+    """
+    random.seed()
+    try:
+        import numpy as np
+        np.random.seed(None)
+    except ImportError:
+        pass
+    
+    if 'RANDOM_SEED' in os.environ:
+        del os.environ['RANDOM_SEED']
+    if 'PYTHONHASHSEED' in os.environ:
+        del os.environ['PYTHONHASHSEED']
+    
+    logging.info("Random state reset to non-deterministic mode")

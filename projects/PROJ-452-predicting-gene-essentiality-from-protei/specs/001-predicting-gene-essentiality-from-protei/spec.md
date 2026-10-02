@@ -39,7 +39,7 @@ The system must compare the correlation coefficients obtained from different org
 
 ### User Story 3 - Sensitivity Analysis on Network Confidence (Priority: P3)
 
-The system must re-run the correlation analysis varying the STRING confidence score threshold (500, 700, 900) to assess the robustness of the findings to network construction parameters.
+The system must re-run the correlation analysis varying the STRING confidence score threshold across multiple levels. to assess the robustness of the findings to network construction parameters.
 
 **Why this priority**: This addresses the "network construction method" variable in the research question. It ensures the findings are not artifacts of a specific arbitrary cutoff, fulfilling the requirement for methodological robustness.
 
@@ -94,8 +94,8 @@ The system must re-run the correlation analysis varying the STRING confidence sc
 - **Dataset Variable Fit**: It is assumed that the STRING database contains interaction edges for the genes listed in the DEG database for the selected model organisms. If a required gene is missing from STRING, it will be excluded from the analysis (See FR-003).
 - **Inference Framing**: The analysis is observational; findings will be framed as associational correlations between network topology and essentiality, not as causal mechanisms. No randomization is applied.
 - **Power Limitation**: For organisms with small networks (n < 30), statistical power for correlation detection is limited; results for these organisms will be flagged as "Low Power" in the output.
-- **Compute Feasibility**: The analysis assumes that NetworkX centrality calculations for the selected organisms (max. on the order of tens of thousands of nodes) will complete within the 6-hour GitHub Actions limit on CPU-only hardware without requiring GPU acceleration.
-- **Threshold Justification**: The default confidence threshold of 700 is selected based on STRING's standard recommendation for high-confidence interactions; the sensitivity analysis (500, 900) covers the plausible range of community standards.
+- **Compute Feasibility**: The analysis assumes that NetworkX centrality calculations for the selected organisms (max. on the order of tens of thousands of nodes) will complete within the standard GitHub Actions time limit on CPU-only hardware. without requiring GPU acceleration.
+- **Threshold Justification**: The default confidence threshold is selected based on STRING's standard recommendation. for high-confidence interactions; the sensitivity analysis (500, 900) covers the plausible range of community standards.
 - **Measurement Validity**: The essentiality labels from DEG are assumed to be the ground truth for the analysis, despite potential experimental noise or context-specific essentiality not captured in the database.
 - **Predictor Collinearity**: Degree, betweenness, and eigenvector centralities are known to be correlated; the analysis will report joint descriptive statistics but will not claim independent predictive effects for highly collinear metrics without a collinearity diagnostic.
 - **Phylogenetic Data Availability**: It is assumed that a valid phylogenetic tree (Newick format) covering the selected organisms is available to perform PGLS. If unavailable, the comparative test (FR-006) will be skipped with a warning.

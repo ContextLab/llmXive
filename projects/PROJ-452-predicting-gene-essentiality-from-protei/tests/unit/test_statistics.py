@@ -78,6 +78,59 @@ class TestFisherZTransform:
         with pytest.raises(StatisticsError):
             fisher_z_transform(-1.0)
 
+    def test_boundary_stability_positive(self):
+        """Test numerical stability for correlations near +1."""
+        # Test values extremely close to 1.0
+        r_values = [0.9999, 0.99999, 0.999999]
+        for r in r_values:
+            z = fisher_z_transform(r)
+            r_back = fisher_z_to_r(z)
+            # Should recover original value within floating point precision
+            assert abs(r - r_back) < 1e-10, f"Failed for r={r}"
+            # z should be a large positive number
+            assert z > 0
+            assert np.isfinite(z)
+
+    def test_boundary_stability_negative(self):
+        """Test numerical stability for correlations near -1."""
+        # Test values extremely close to -1.0
+        r_values = [-0.9999, -0.99999, -0.999999]
+        for r in r_values:
+            z = fisher_z_transform(r)
+            r_back = fisher_z_to_r(z)
+            # Should recover original value within floating point precision
+            assert abs(r - r_back) < 1e-10, f"Failed for r={r}"
+            # z should be a large negative number
+            assert z < 0
+            assert np.isfinite(z)
+
+    def test_zero_correlation(self):
+        """Test transformation at r=0."""
+        r = 0.0
+        z = fisher_z_transform(r)
+        r_back = fisher_z_to_r(z)
+        assert abs(z) < 1e-10
+        assert abs(r - r_back) < 1e-10
+
+    def test_exact_boundaries_raise(self):
+        """Test that exactly 1.0 and -1.0 raise errors."""
+        with pytest.raises(StatisticsError):
+            fisher_z_transform(1.0)
+        with pytest.raises(StatisticsError):
+            fisher_z_transform(-1.0)
+
+        with pytest.raises(StatisticsError):
+            fisher_z_to_r(np.inf)  # z for r=1 is inf
+        with pytest.raises(StatisticsError):
+            fisher_z_to_r(-np.inf)  # z for r=-1 is inf
+
+    def test_out_of_range_values(self):
+        """Test that values outside [-1, 1] raise errors."""
+        with pytest.raises(StatisticsError):
+            fisher_z_transform(1.001)
+        with pytest.raises(StatisticsError):
+            fisher_z_transform(-1.001)
+
 class TestNullDistribution:
     """Tests for null distribution generation."""
 

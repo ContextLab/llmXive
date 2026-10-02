@@ -780,3 +780,312 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T06:51:56Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism IDs list contains 9606, 559292, 83333, 10090, 7227
+  claim_id: c_0da86d8d
+  context: 'Create `code/config.py` with hardcoded organism list: Define a Python
+    constant `ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']`
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and `CONFIDENCE_THRESHOLDS
+    = [500, 700, 900]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:46:22Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count N set to 1000
+  claim_id: c_514012a0
+  context: '**Determine permutation count N**: Set `N = 1000` in `code/config.py`
+    based on standard statistical practice for empirical null distributions. This
+    value **replaces** the ''[deferred]'' placeholder in SC-001 and is the **final,
+    hardcoded value** for the project scope.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N = 1000 in code/config.py based on standard statistical practice
+    for empirical null distributions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:46:46Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API confidence threshold set to 700
+  claim_id: c_654bb5e9
+  context: Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch
+    PPI networks from STRING API for each organism ID in `code/config.py` (from T004a).
+    Use confidence threshold >=700; if API fails for a specific organism, log a warning
+    and skip that organism.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use confidence threshold >=700 for STRING API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:47:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: K-sampling for betweenness centrality on networks exceeding 5000 nodes
+  claim_id: c_6486b005
+  context: Implement `compute_centrality` function in `code/network_analysis.py` to
+    compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling
+    for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact
+    calculation for smaller networks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use k-sampling for betweenness on networks >5,000 nodes to ensure <30min
+    runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:47:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Streaming data loader memory usage limit set to 7GB
+  claim_id: c_1b44a582
+  context: Refactor `code/data_loader.py` to handle large datasets using `urllib.request`
+    or `requests` with chunked reading for the specific FTP/API sources defined in
+    the plan (e.g., DEG). Ensure memory usage stays < 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_data_loader_memory_usage_limit_set_to_7GB
+  kind: entity_fact
+  raw_text: Ensure memory usage stays < 7GB for streaming data loader
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:47:36Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS skipped if effective sample size is less than 10
+  claim_id: c_33d125f7
+  context: Implement PGLS model in `code/statistics.py` using `statsmodels` and the
+    loaded phylogenetic tree (from T009a, validated by T009b and T047) to test for
+    differences in correlation strength. **Include logic to skip if effective sample
+    size n < 10 and log "Power insufficient" warning** (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_skipped_if_effective_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:48:28Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Confidence thresholds list contains 500, 700, 900
+  claim_id: c_ec1e7848
+  context: Refactor `code/main.py` to include a `run_sensitivity_analysis` function
+    that iterates over the list of confidence thresholds `[500, 700, 900]` defined
+    in `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over confidence thresholds [500, 700, 900]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:48:47Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sparse network handling threshold set to 500 edges
+  claim_id: c_3ae9bc25
+  context: Modify `code/network_analysis.py` to handle the specific case where a high
+    confidence threshold (e.g., 900) results in a network with < 500 edges. Instead
+    of just logging, the code must explicitly set `centrality_metrics` to `NaN` or
+    `0` for that organism/threshold combination.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle sparse networks with < 500 edges
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:48:48Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity limit set to 10
+  claim_id: c_5cc65ae0
+  context: Code cleanup and refactoring of `code/` modules (Refactor `code/data_loader.py`
+    to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/data_loader.py to reduce cyclomatic complexity < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:48:48Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality algorithm runtime requirement is 30 minutes for 25000 nodes
+  claim_id: c_1b4e86c3
+  context: 'Implement optimizations: Refactor `code/network_analysis.py` based on
+    T041a results to optimize centrality algorithms (T016) to meet the 30-minute runtime
+    requirement for 25k nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize centrality algorithms to meet 30-minute runtime requirement for
+    25k nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:49:06Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42
+  claim_id: c_aa9c7987
+  context: 'Implement `set_seed(seed)` in `code/utils.py` using `random.seed`, `numpy.random.seed`,
+    and `os.environ[''PYTHONHASHSEED'']`. **CRITICAL ORDERING**: This function must
+    be called at the **very start** of `main.py`. Update `code/config.py` to load
+    `random_seed = 42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_seed = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:49:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG database primary FTP URL is ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/
+  claim_id: c_3d7b72e3
+  context: 'Implement `fetch_deg_essentiality` function in `code/data_loader.py` to
+    fetch gene essentiality labels (binary) from the DEG database. **Fallback Strategy**:
+    Attempt primary FTP URL `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_database_primary_FTP_URL_is_ftp://ftp.ncbi.nlm.nih.gov/p
+  kind: entity_fact
+  raw_text: Use primary FTP URL ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/ for
+    DEG database
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:49:54Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Phylogenetic tree fetched from OpenTree of Life
+  claim_id: c_d9a7d82b
+  context: 'Implement `fetch_phylogenetic_tree` in `code/data_loader.py` to fetch
+    the Newick tree from OpenTree of Life dynamically. **Logic**: 1) Read organism
+    names from `code/config.py`. 2) Use OpenTree API to resolve names to tax_ids.
+    3) Use OpenTree API to fetch the tree.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q22661281
+        url: https://www.wikidata.org/wiki/Q22661281
+        value: Open Tree of Life
+      quote: 'OpenTree: A Python Package for Accessing and Analyzing Data from the
+        Open Tree of Life'
+      source_id: Q111149904
+      url: https://www.wikidata.org/wiki/Q111149904
+      value: OpenTree
+    filled: true
+  kind: entity_fact
+  raw_text: Use OpenTree of Life to fetch phylogenetic tree
+  resolved_value: OpenTree
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T14:50:04Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: ID mapping performed using Ensembl BioMart API
+  claim_id: c_72ef6631
+  context: Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart
+    API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ID_mapping_performed_using_Ensembl_BioMart_API
+  kind: entity_fact
+  raw_text: Use Ensembl BioMart API for ID mapping
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:50:23Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Graph rewiring uses Maslov-Sneppen algorithm
+  claim_id: c_751c2955
+  context: Implement graph rewiring in `code/network_analysis.py` to generate a set
+    of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs
+    to `results/null_distribution/{organism}/threshold_{threshold}/rewired_graphs/`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_rewiring_uses_Maslov-Sneppen_algorithm
+  kind: entity_fact
+  raw_text: Use Maslov-Sneppen algorithm for graph rewiring
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:50:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values
+  claim_id: c_eccfc6b6
+  context: Implement PGLS model in `code/statistics.py` using `statsmodels` and the
+    loaded phylogenetic tree (from T009a, validated by T009b and T047) to test for
+    differences in correlation strength. **Include logic to skip if effective sample
+    size n < 10 and log "Power insufficient" warning** (FR-009). **Calculate and save
+    Benjamini-Hochberg corrected p-values** (FR-008) as part of this function.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Calculate Benjamini-Hochberg corrected p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T14:51:11Z'
