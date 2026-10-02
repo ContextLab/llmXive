@@ -12,7 +12,7 @@ This plan implements a Bayesian hierarchical modeling pipeline to investigate ho
 **Primary Dependencies**: PyMC5 (for Bayesian inference), PyTensor (backend), pandas, polars (for data manipulation), datasets (HuggingFace), pydantic (schema validation), numpy, scipy (statistical baselines), scikit-learn (preprocessing).  
 **Storage**: Local `data/` directory (raw, processed, checksummed), HuggingFace Datasets cache.  
 **Testing**: `pytest` (unit tests for schema validation, integration tests for pipeline steps).  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, ~7 GB RAM) with automatic offload to Kaggle GPU for PyMC5 sampling if CUDA is detected and CPU fails.  
+**Target Platform**: Linux (GitHub Actions runner: multiple CPU cores, several GB RAM) with automatic offload to Kaggle GPU for PyMC5 sampling if CUDA is detected and CPU fails.  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete end-to-end run (data fetch -> model fit -> PPC) within 6 hours on CPU (sampled data) or 9 hours on Kaggle GPU (full data).  
 **Constraints**: 
