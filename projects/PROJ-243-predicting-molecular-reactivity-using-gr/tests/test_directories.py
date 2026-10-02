@@ -1,37 +1,41 @@
+"""
+Unit tests for T002: Directory Creation Verification.
+Verifies that the required project directories exist after running setup_directories.py.
+"""
 import os
 import pytest
-from code.config import get_config, ensure_directories
 
-def test_directory_structure_exists():
-    """
-    Verify that all required project directories exist after calling ensure_directories.
-    This test validates the output of T001a, T001b, T001c, and T002.
-    """
-    # Ensure directories are created (idempotent)
-    ensure_directories()
-    
-    config = get_config()
-    required_dirs = [
-        config.data_raw_dir,
-        config.data_processed_dir,
-        config.data_assets_dir,
-        config.code_dir,
-        config.artifacts_dir,
-        config.tests_dir
-    ]
-    
-    for directory in required_dirs:
-        assert os.path.isdir(directory), f"Required directory missing: {directory}"
+REQUIRED_DIRS = [
+    "code",
+    "artifacts",
+    "tests",
+    "data/raw",
+    "data/processed",
+    "data/assets"
+]
 
-def test_processed_data_directory():
-    """
-    Specific test for T001b: Verify data/processed directory exists.
-    """
-    config = get_config()
-    assert os.path.isdir(config.data_processed_dir), "data/processed directory does not exist"
-    
-    # Check for .gitkeep or any file to ensure it's tracked
-    files = os.listdir(config.data_processed_dir)
-    # We expect at least .gitkeep if we created it, or it's empty but exists
-    # The task requires the directory to exist.
-    assert os.path.isdir(config.data_processed_dir)
+@pytest.mark.parametrize("directory", REQUIRED_DIRS)
+def test_directory_exists(directory: str) -> None:
+    """Assert that a required project directory exists."""
+    full_path = os.path.join(os.getcwd(), directory)
+    assert os.path.isdir(full_path), f"Directory {full_path} does not exist."
+
+def test_artifacts_subdirectories_exist() -> None:
+    """Assert that artifacts has required subdirectories."""
+    base = os.path.join(os.getcwd(), "artifacts")
+    assert os.path.isdir(base), "Artifacts directory missing"
+
+    required_subdirs = ["logs", "weights", "metrics", "final_archive"]
+    for subdir in required_subdirs:
+        path = os.path.join(base, subdir)
+        assert os.path.isdir(path), f"Missing artifacts subdirectory: {subdir}"
+
+def test_code_subdirectories_exist() -> None:
+    """Assert that code has required subdirectories."""
+    base = os.path.join(os.getcwd(), "code")
+    assert os.path.isdir(base), "Code directory missing"
+
+    required_subdirs = ["data", "utils", "models"]
+    for subdir in required_subdirs:
+        path = os.path.join(base, subdir)
+        assert os.path.isdir(path), f"Missing code subdirectory: {subdir}"

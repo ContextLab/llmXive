@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Artifacts Module
-"""
+# Artifacts package initialization

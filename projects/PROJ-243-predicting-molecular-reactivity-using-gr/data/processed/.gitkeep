@@ -1,2 +1,3 @@
-# This directory is reserved for processed data (T001b).
-# Do not remove this file.
+# This directory is created by task T001b
+# It stores preprocessed molecular graphs and split indices.
+# Files: graphs_intermediate.pt, graphs.pt, splits/*.pt

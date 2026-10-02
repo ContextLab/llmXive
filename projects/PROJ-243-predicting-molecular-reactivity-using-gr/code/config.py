@@ -4,63 +4,116 @@ import logging
 from typing import Optional, Dict, Any
 import numpy as np
 
-# Default configuration
-DEFAULT_CONFIG = {
-    "base_dir": os.getcwd(),
-    "random_seed": 42,
-    "device": "cpu",
-    "log_level": "INFO",
-    "data_dir": "data",
-    "code_dir": "code",
-    "artifacts_dir": "artifacts",
-    "tests_dir": "tests",
-}
-
 _config: Dict[str, Any] = {}
+_logger: Optional[logging.Logger] = None
 
 def get_default_config() -> Dict[str, Any]:
-    """Return a copy of the default configuration."""
-    return DEFAULT_CONFIG.copy()
+    """
+    Returns the default configuration dictionary.
+    """
+    return {
+        "seed": 42,
+        "device": "cpu",
+        "data_dirs": {
+            "raw": "data/raw",
+            "processed": "data/processed",
+            "assets": "data/assets"
+        },
+        "code_dir": "code",
+        "artifacts_dir": "artifacts",
+        "tests_dir": "tests",
+        "log_dir": "artifacts/logs",
+        "weight_dir": "artifacts/weights",
+        "figure_dir": "artifacts/figures",
+        "max_memory_gb": 4.0,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "epochs": 100,
+        "early_stopping_patience": 5,
+        "qm9_split": "train",
+        "reaction_type_mapping": {
+            "EC 1.x.x.x": "oxidation_reduction",
+            "EC 2.x.x.x": "transferase",
+            "EC 3.x.x.x": "hydrolase",
+            "EC 4.x.x.x": "lyase",
+            "EC 5.x.x.x": "isomerase",
+            "EC 6.x.x.x": "ligase"
+        }
+    }
 
 def get_config() -> Dict[str, Any]:
-    """Return the current configuration, merging defaults with any overrides."""
+    """
+    Returns the current configuration, merging defaults with any overrides.
+    """
+    global _config
     if not _config:
-        _config.update(DEFAULT_CONFIG)
+        _config = get_default_config()
     return _config
 
 def set_config(new_config: Dict[str, Any]) -> None:
-    """Update the current configuration with new values."""
+    """
+    Updates the global configuration with new values.
+    """
     global _config
-    if not _config:
-        _config.update(DEFAULT_CONFIG)
     _config.update(new_config)
 
 def set_seed(seed: Optional[int] = None) -> None:
-    """Set random seeds for reproducibility."""
+    """
+    Sets the random seed for reproducibility.
+    """
     if seed is None:
-        seed = get_config().get("random_seed", 42)
+        seed = get_config().get("seed", 42)
     
     random.seed(seed)
     np.random.seed(seed)
-    # Note: torch seed setting would go here if torch is imported and available
-    # try:
-    #     import torch
-    #     torch.manual_seed(seed)
-    #     if torch.cuda.is_available():
-    #         torch.cuda.manual_seed_all(seed)
-    # except ImportError:
-    #     pass
+    # Note: torch and other libraries would be seeded here if imported
 
-def ensure_directories(dirs: list) -> None:
+def ensure_directories(config: Optional[Dict[str, Any]] = None) -> None:
     """
-    Ensure that a list of directory paths exist relative to the base_dir.
-    Creates them if they don't exist.
+    Ensures all directories defined in the configuration exist.
+    Creates them if they don't.
     """
-    base_dir = get_config().get("base_dir", os.getcwd())
-    for d in dirs:
-        full_path = os.path.join(base_dir, d)
-        os.makedirs(full_path, exist_ok=True)
-        # logging.info(f"Ensured directory: {full_path}")
+    if config is None:
+        config = get_config()
+    
+    dirs_to_create = []
+    
+    # Add data directories
+    if "data_dirs" in config:
+        for dir_key, dir_path in config["data_dirs"].items():
+            dirs_to_create.append(dir_path)
+    
+    # Add other standard directories
+    standard_dirs = [
+        config.get("code_dir", "code"),
+        config.get("artifacts_dir", "artifacts"),
+        config.get("tests_dir", "tests"),
+        config.get("log_dir", "artifacts/logs"),
+        config.get("weight_dir", "artifacts/weights"),
+        config.get("figure_dir", "artifacts/figures")
+    ]
+    
+    for dir_path in standard_dirs:
+        if dir_path and dir_path not in dirs_to_create:
+            dirs_to_create.append(dir_path)
+    
+    for dir_path in dirs_to_create:
+        if dir_path and not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            if _logger:
+                _logger.info(f"Created directory: {dir_path}")
 
-# Initialize config on import to ensure defaults are available
-_config = DEFAULT_CONFIG.copy()
+def init_config_logging() -> logging.Logger:
+    """
+    Initializes the config module logger.
+    """
+    global _logger
+    if _logger is None:
+        _logger = logging.getLogger("config")
+        _logger.setLevel(logging.INFO)
+        if not _logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            _logger.addHandler(handler)
+    return _logger

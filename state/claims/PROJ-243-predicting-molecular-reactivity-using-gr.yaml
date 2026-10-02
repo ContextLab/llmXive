@@ -4623,3 +4623,1929 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T04:04:08Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_e7252f53
+  context: 'T010a-fetch [P] [FR-008] **FETCH REFERENCE SOURCE DATA**: Implement `code/fetch_reference_source.py`
+    to programmatically fetch supplementary data from **DOI: 10.1038/s41597-020-00628-6**.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/fetch_reference_source.py` to programmatically fetch
+    supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:17:49Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch and parse data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_b382f651
+  context: 'T010d-script [P] [FR-009] **CURATE AND TAG KINETIC DATASET**: Implement
+    `code/curate_kinetic.py` to fetch and parse data from **DOI: 10.1093/nar/gky1079**
+    (Table 1) via a verified public mirror or API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/curate_kinetic.py` to fetch and parse data from DOI:
+    10.1093/nar/gky1079 (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:17:50Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 1.x.x.x maps to oxidation_reduction
+  claim_id: c_3ed77899
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 1.x.x.x` -> `oxidation_reduction`'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    1.x.x.x corresponds to oxidation_reduction.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:51Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 2.x.x.x maps to transferase
+  claim_id: c_f850b7da
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 2.x.x.x` -> `transferase`'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    2.x.x.x corresponds to transferase.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 3.x.x.x maps to hydrolase
+  claim_id: c_65518a1d
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 3.x.x.x` -> `hydrolase`'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    3.x.x.x corresponds to hydrolase.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 4.x.x.x maps to lyase
+  claim_id: c_2f38acc2
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 4.x.x.x` -> `lyase`'
+  evidence:
+    asserted: '4.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    4.x.x.x corresponds to lyase.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 5.x.x.x maps to isomerase
+  claim_id: c_db090b11
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 5.x.x.x` -> `isomerase`'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    5.x.x.x corresponds to isomerase.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:54Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: EC 6.x.x.x maps to ligase
+  claim_id: c_2f691a37
+  context: 'TAGGING: Add `reaction_type` column by mapping `reaction_ec` (EC number)
+    to categories using this EXPLICIT lookup table: - `EC 6.x.x.x` -> `ligase`'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset includes a mapping of EC numbers to reaction types where EC
+    6.x.x.x corresponds to ligase.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:17:55Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Primary statistical test is paired t-test
+  claim_id: c_6239b090
+  context: T007 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired
+    t-test (PRIMARY per FR-006)**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_statistical_test_is_paired_t-test
+  kind: entity_fact
+  raw_text: The primary statistical test for model comparison is the paired t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:18:29Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Sensitivity statistical test is Wilcoxon signed-rank test
+  claim_id: c_7f4c01ec
+  context: T007 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, paired
+    t-test (PRIMARY per FR-006), and **Wilcoxon signed-rank test (SENSITIVITY per
+    Plan.md Methodological Note)**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_statistical_test_is_Wilcoxon_signed-rank_test
+  kind: entity_fact
+  raw_text: The sensitivity statistical test for model comparison is the Wilcoxon
+    signed-rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:19:37Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha is 0.05 divided by 3
+  claim_id: c_feefe888
+  context: 'Apply Bonferroni correction (alpha_adj = 0.05/3, where **3** represents
+    the **3 models: Spectral GNN, Heterophily GNN, Random Forest**).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction for the statistical tests uses an adjusted alpha
+    of 0.05 divided by 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:19:57Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Number of models compared is 3
+  claim_id: c_03c004c3
+  context: 'Apply Bonferroni correction (alpha_adj = 0.05/3, where **3** represents
+    the **3 models: Spectral GNN, Heterophily GNN, Random Forest**).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of models compared in the statistical analysis is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:20:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target invalid SMILES exclusion rate is less than 0.1 percent
+  claim_id: c_1f87578f
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_invalid_SMILES_exclusion_rate_is_less_than_0.1_percen
+  kind: magnitude
+  raw_text: The target exclusion rate for invalid SMILES is less than 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:20:55Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory safety trigger threshold is 4 GB
+  claim_id: c_0bb642b0
+  context: During batch processing, if memory usage exceeds **4 GB**, trigger **subset
+    sampling**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory safety logic triggers subset sampling if memory usage exceeds
+    4 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:21:19Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory safety hard floor is 0.5 GB
+  claim_id: c_0705d7c5
+  context: trigger **subset sampling** (reduce total molecule count by a substantial
+    margin) with a hard floor at **0.5 GB** memory limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory safety logic has a hard floor at 0.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:21:41Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: VF2 benchmark time threshold is 1 hour
+  claim_id: c_a4de46ac
+  context: If VF2 execution time > 1 hour or memory > 2 GB, **FLAG** and instruct
+    T030c-calc to use the fallback heuristic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VF2 Subgraph Isomorphism benchmark flags feasibility if execution
+    time exceeds 1 hour.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:21:59Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: VF2 benchmark memory threshold is 2 GB
+  claim_id: c_31ab3949
+  context: If VF2 execution time > 1 hour or memory > 2 GB, **FLAG** and instruct
+    T030c-calc to use the fallback heuristic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VF2 Subgraph Isomorphism benchmark flags feasibility if memory usage
+    exceeds 2 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:22:17Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity match threshold is 0.85
+  claim_id: c_b56468ed
+  context: '**MATCH THRESHOLD**: A match is valid if Tanimoto similarity >= 0.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Tanimoto similarity threshold for a valid subgraph match is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:22:40Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score formula is valid matches divided by total reference substructures
+  claim_id: c_d8e28432
+  context: '**ALIGNMENT SCORE FORMULA**: `Alignment Score = (Count of Valid Matches)
+    / (Total Reference Substructures)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_formula_is_valid_matches_divided_by_total_re
+  kind: entity_fact
+  raw_text: The alignment score is calculated as the count of valid matches divided
+    by the total reference substructures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:23:11Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Filtered kinetic dataset minimum molecule count is 20
+  claim_id: c_690be3d0
+  context: If the filtered dataset contains **< 20 molecules**, **HARD FAILURE** with
+    error code 1
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtered_kinetic_dataset_minimum_molecule_count_is_20
+  kind: magnitude
+  raw_text: The validation of the filtered kinetic dataset requires at least 20 molecules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:23:41Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime limit is 6 hours
+  claim_id: c_bae045a7
+  context: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization verification requires an end-to-end runtime
+    of 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:24:02Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 4 GB
+  claim_id: c_e468c99b
+  context: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization verification requires a memory usage of 4
+    GB or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:24:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Error correlation p-value threshold is 0.05
+  claim_id: c_859acebb
+  context: If errors are correlated (p < 0.05), log a warning and recommend Wilcoxon
+    for sensitivity analysis.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "\u03B1\u2208{ 0.001, 0.01, 0.05}. The horizontal dashed line indicates\
+        \ power 1.Right: The asymptotic density"
+      source_id: '2203.15897'
+      url: https://arxiv.org/abs/2203.15897
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The model comparison report includes a p-value threshold of 0.05 for error
+    correlation checks.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:24:57Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score validation threshold is 0.7
+  claim_id: c_2fedbf17
+  context: Write `tests/contract/test_alignment_threshold.py` to assert that the score
+    in `artifacts/alignment_score.json` is >= 0.7 (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_validation_threshold_is_0.7
+  kind: magnitude
+  raw_text: The validation of attribution results requires an alignment score of at
+    least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:25:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: dataset DOI 10.1038/s41597-020-00628-6 source
+  claim_id: c_744954d5
+  context: 'Implement code/fetch_reference_source.py to programmatically fetch supplementary
+    data from DOI: 10.1038/s41597-020-00628-6.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The dataset DOI 10.1038/s41597-020-00628-6 is the source for supplementary
+    data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:26:31Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: dataset DOI 10.1093/nar/gky1079 Table 1 source
+  claim_id: c_454d95df
+  context: 'Implement code/curate_kinetic.py to fetch and parse data from DOI: 10.1093/nar/gky1079
+    (Table 1).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The dataset DOI 10.1093/nar/gky1079 contains Table 1 used for the kinetic
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:26:32Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: invalid SMILES exclusion rate target < 0.1%
+  claim_id: c_64bbb52d
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/invalid_SMILES_exclusion_rate_target_%3C_0.1%25
+  kind: magnitude
+  raw_text: The target exclusion rate for invalid SMILES is less than 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:26:33Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: memory safety threshold 4 GB trigger subset sampling
+  claim_id: c_3d02c17f
+  context: During batch processing, if memory usage exceeds 4 GB, trigger subset sampling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory safety logic triggers subset sampling if usage exceeds 4 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:26:34Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: memory safety hard floor 0.5 GB
+  claim_id: c_2d6a8198
+  context: reduce total molecule count by a substantial margin with a hard floor at
+    0.5 GB memory limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory safety logic enforces a hard floor at 0.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:27:03Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.0167 for 3 models
+  claim_id: c_4a5c025c
+  context: 'Apply Bonferroni correction (alpha_adj = 0.05/3, where 3 represents the
+    3 models: Spectral GNN, Heterophily GNN, Random Forest).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied with an adjusted alpha of 0.0167 (0.05/3)
+    for the three models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:27:20Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: number of models compared 3
+  claim_id: c_90d87555
+  context: 'alpha_adj = 0.05/3, where 3 represents the 3 models: Spectral GNN, Heterophily
+    GNN, Random Forest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of models being compared is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:27:43Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity match threshold 0.85
+  claim_id: c_4c4a259e
+  context: A match is valid if Tanimoto similarity >= 0.85.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Tanimoto similarity threshold for a valid match is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:28:02Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint radius 2
+  claim_id: c_0b1ea54c
+  context: 'Calculate Tanimoto similarity between the matched subgraph''s fingerprint
+    and the reference fingerprint. Parameters: Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint radius used for subgraph matching is 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:28:17Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint nBits 2048
+  claim_id: c_e7627a37
+  context: 'Calculate Tanimoto similarity between the matched subgraph''s fingerprint
+    and the reference fingerprint. Parameters: Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint nBits used for subgraph matching is 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:28:29Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: filtered kinetic dataset minimum 20 molecules
+  claim_id: c_6f75d1b8
+  context: If the filtered dataset contains < 20 molecules, HARD FAILURE with error
+    code 1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtered_kinetic_dataset_minimum_20_molecules
+  kind: magnitude
+  raw_text: The validation requires at least 20 molecules in the filtered kinetic
+    dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:28:31Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: end-to-end runtime target <= 6 hours
+  claim_id: c_546714c2
+  context: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end runtime target is 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:28:50Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: end-to-end memory target <= 4 GB
+  claim_id: c_d6e8392b
+  context: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end memory target is 4 GB or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:29:10Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 0
+  canonical: fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_263f0623
+  context: 'Implement code/fetch_reference_source.py to programmatically fetch supplementary
+    data from DOI: 10.1038/s41597-020-00628-6.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Fetch supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:30:07Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetch data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_396e5f25
+  context: 'Implement code/curate_kinetic.py to fetch and parse data from DOI: 10.1093/nar/gky1079
+    (Table 1) via a verified public mirror or API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: 'Fetch data from DOI: 10.1093/nar/gky1079 (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:30:11Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetch data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_cebbabd0
+  context: T010a-fetch task description for fetching reference source data.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Implement code/fetch_reference_source.py to programmatically fetch supplementary
+    data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:30:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetch data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_f8195bbb
+  context: T010d-script task description for curating and tagging the kinetic dataset.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: 'Implement code/curate_kinetic.py to fetch and parse data from DOI: 10.1093/nar/gky1079
+    (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:30:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: target less than 0.1 percent exclusion of invalid SMILES
+  claim_id: c_d02b25d7
+  context: T014a task description regarding memory safety and invalid SMILES handling.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_less_than_0.1_percent_exclusion_of_invalid_SMILES
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES during batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:31:17Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: trigger subset sampling if memory usage exceeds 4 GB
+  claim_id: c_6152c79d
+  context: T014a task description regarding memory safety logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger subset sampling if memory usage exceeds 4 GB during batch processing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:31:43Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: enforce 0.5 GB hard floor memory limit
+  claim_id: c_50d4d5ba
+  context: T014a task description regarding memory safety logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a hard floor at 0.5 GB memory limit during subset sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:32:04Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction alpha 0.05 over 3 models
+  claim_id: c_146e49dd
+  context: T023c-primary task description for executing the primary statistical test.
+  evidence:
+    asserted: '0.05'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: 'Apply Bonferroni correction with alpha_adj = 0.05/3 for 3 models: Spectral
+    GNN, Heterophily GNN, Random Forest.'
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:32:05Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: use Tanimoto similarity threshold of 0.85 for valid match
+  claim_id: c_b1d01a93
+  context: T030c-calc task description for calculating alignment scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Tanimoto similarity threshold of >= 0.85 for a valid match between
+    subgraph and reference fingerprints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:32:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: use Morgan fingerprint radius 2 and nBits 2048
+  claim_id: c_d9a8d5e0
+  context: T030c-calc task description for calculating alignment scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Morgan fingerprint parameters of Radius=2 and nBits=2048 for subgraph
+    matching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:32:37Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: hard failure if filtered kinetic dataset has less than 20 molecules
+  claim_id: c_111bc5ce
+  context: T031 task description for validating correlation between predicted gap
+    and experimental rates.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hard_failure_if_filtered_kinetic_dataset_has_less_than_20_mo
+  kind: magnitude
+  raw_text: If the filtered kinetic dataset contains < 20 molecules, trigger a hard
+    failure.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:33:30Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: verify end-to-end runtime is less than or equal to 6 hours
+  claim_id: c_daabce8d
+  context: T035 task description for performance optimization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_runtime_is_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Verify end-to-end runtime is <= 6 hours on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:33:49Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: verify end-to-end memory usage is less than or equal to 4 GB
+  claim_id: c_dec2755f
+  context: T035 task description for performance optimization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_memory_usage_is_less_than_or_equal_to_4_GB
+  kind: magnitude
+  raw_text: Verify end-to-end memory usage is <= 4 GB on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:34:09Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: assert alignment score is greater than or equal to 0.7
+  claim_id: c_e52c4c37
+  context: T030d task description for verifying alignment.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_alignment_score_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Assert that the alignment score in artifacts/alignment_score.json is >=
+    0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:34:32Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_c45e525e
+  context: 'T010a-fetch [P] [FR-008] FETCH REFERENCE SOURCE DATA: Implement code/fetch_reference_source.py
+    to programmatically fetch supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/fetch_reference_source.py` to programmatically fetch
+    supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:35:00Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch and parse data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_386a986f
+  context: 'T010d-script [P] [FR-009] CURATE AND TAG KINETIC DATASET: Implement code/curate_kinetic.py
+    to fetch and parse data from DOI: 10.1093/nar/gky1079 (Table 1) via a verified
+    public mirror or API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/curate_kinetic.py` to fetch and parse data from DOI:
+    10.1093/nar/gky1079 (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:35:01Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fail if filtered dataset contains less than 20 molecules
+  claim_id: c_72382276
+  context: 'T031 [US3] ... ERROR HANDLING: If the filtered dataset contains < 20 molecules,
+    HARD FAILURE with error code 1 and message ''FR-009 Violation: Filtered dataset
+    < 20 molecules''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fail_if_filtered_dataset_contains_less_than_20_molecules
+  kind: magnitude
+  raw_text: If the filtered dataset contains less than 20 molecules, the task must
+    fail with error code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:35:29Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity match threshold is 0.85
+  claim_id: c_8067496e
+  context: 'T030c-calc [US3] ... MATCH THRESHOLD: A match is valid if Tanimoto similarity
+    >= 0.85.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tanimoto_similarity_match_threshold_is_0.85
+  kind: magnitude
+  raw_text: A match is valid if Tanimoto similarity is greater than or equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:36:11Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint radius 2 and nBits 2048
+  claim_id: c_d9da8dc4
+  context: 'T030c-calc [US3] ... Calculate Tanimoto similarity between the matched
+    subgraph''s fingerprint and the reference fingerprint. PARAMETERS: Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprint parameters are set to Radius=2 and nBits=2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:36:27Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha adjusted to 0.05 divided by 3
+  claim_id: c_b46e9746
+  context: 'T023c-primary [US2] ... Apply Bonferroni correction (alpha_adj = 0.05/3,
+    where 3 represents the 3 models: Spectral GNN, Heterophily GNN, Random Forest).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction alpha_adj is calculated as 0.05 divided by 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:36:42Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_f34fe110
+  context: 'Implement `code/fetch_reference_source.py` to programmatically fetch supplementary
+    data from **DOI: 10.1038/s41597-020-00628-6**. **INSTRUCTIONS**: Use `requests`
+    to query the Zenodo API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/fetch_reference_source.py` to programmatically fetch
+    supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:37:32Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: fetch and parse data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_ed39b2b6
+  context: 'Implement `code/curate_kinetic.py` to fetch and parse data from **DOI:
+    10.1093/nar/gky1079** (Table 1) via a verified public mirror or API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: 'Implement `code/curate_kinetic.py` to fetch and parse data from DOI:
+    10.1093/nar/gky1079 (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:37:33Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: match valid if Tanimoto similarity >= 0.85
+  claim_id: c_0c6c54c9
+  context: '**MATCH THRESHOLD**: A match is valid if Tanimoto similarity >= 0.85.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/match_valid_if_Tanimoto_similarity_%3E=_0.85
+  kind: magnitude
+  raw_text: A match is valid if Tanimoto similarity is greater than or equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:37:34Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: alignment score formula is count of valid matches divided by total reference
+    substructures
+  claim_id: c_a2e46ae4
+  context: '**ALIGNMENT SCORE FORMULA**: `Alignment Score = (Count of Valid Matches)
+    / (Total Reference Substructures)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_formula_is_count_of_valid_matches_divided_by
+  kind: entity_fact
+  raw_text: The alignment score formula is the count of valid matches divided by the
+    total reference substructures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:37:57Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint parameters Radius 2 and nBits 2048
+  claim_id: c_8dc37127
+  context: '**PARAMETERS**: Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprint parameters are set to Radius=2 and nBits=2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:37:58Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: target exclusion rate less than 0.1 percent for invalid SMILES
+  claim_id: c_c8ef9101
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_exclusion_rate_less_than_0.1_percent_for_invalid_SMIL
+  kind: magnitude
+  raw_text: The system targets an exclusion rate of less than 0.1% for invalid SMILES.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:38:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: alignment score must be >= 0.7
+  claim_id: c_d2b0e9e7
+  context: Write `tests/contract/test_alignment_threshold.py` to assert that the score
+    in `artifacts/alignment_score.json` is >= 0.7 (SC-003).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/alignment_score_must_be_%3E=_0.7
+  kind: magnitude
+  raw_text: The alignment score in the artifact must be greater than or equal to 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:38:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: end-to-end runtime <= 6 hours
+  claim_id: c_f16ce0a5
+  context: "Performance optimization: Verify end-to-end runtime \u2264 6 hours and\
+    \ memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/end-to-end_runtime_%3C=_6_hours
+  kind: magnitude
+  raw_text: End-to-end runtime must be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:39:14Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: peak RSS memory <= 4 GB
+  claim_id: c_668899e9
+  context: "Performance optimization: Verify end-to-end runtime \u2264 6 hours and\
+    \ memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/peak_RSS_memory_%3C=_4_GB
+  kind: magnitude
+  raw_text: Peak RSS memory must be less than or equal to 4 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:39:29Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha_adj is 0.05 divided by 3
+  claim_id: c_93899862
+  context: 'Apply Bonferroni correction (alpha_adj = 0.05/3, where **3** represents
+    the **3 models: Spectral GNN, Heterophily GNN, Random Forest**).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction alpha_adj is calculated as 0.05 divided by 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:39:30Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: flag if VF2 execution time exceeds 1 hour
+  claim_id: c_86500b2e
+  context: If VF2 execution time > 1 hour or memory > 2 GB, **FLAG** and instruct
+    T030c-calc to use the fallback heuristic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VF2 execution time exceeds 1 hour, the system must flag and use a fallback
+    heuristic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:39:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: flag if VF2 execution memory exceeds 2 GB
+  claim_id: c_9c29c69f
+  context: If VF2 execution time > 1 hour or memory > 2 GB, **FLAG** and instruct
+    T030c-calc to use the fallback heuristic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VF2 execution memory exceeds 2 GB, the system must flag and use a fallback
+    heuristic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:40:05Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: trigger subset sampling if memory usage exceeds 4 GB
+  claim_id: c_e7b9f56c
+  context: During batch processing, if memory usage exceeds **4 GB**, trigger **subset
+    sampling** (reduce total molecule count by a substantial margin) with a hard floor
+    at **0.5 GB** memory limit, then re-attempt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory safety logic triggers subset sampling if memory usage exceeds 4
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:40:06Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: enforce hard floor at 0.5 GB memory limit
+  claim_id: c_000990fd
+  context: During batch processing, if memory usage exceeds **4 GB**, trigger **subset
+    sampling** (reduce total molecule count by a substantial margin) with a hard floor
+    at **0.5 GB** memory limit, then re-attempt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory safety logic enforces a hard floor at 0.5 GB memory limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:40:31Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_88cd8017
+  context: 'Task T010d-script [FR-009] **CURATE AND TAG KINETIC DATASET**: Implement
+    `code/curate_kinetic.py` to fetch and parse data from **DOI: 10.1093/nar/gky1079**
+    (Table 1) via a verified public mirror or API.'
+  evidence:
+    asserted: '10.1093'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'Implement `code/curate_kinetic.py` to fetch and parse data from DOI:
+    10.1093/nar/gky1079 (Table 1) via a verified public mirror or API.'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:41:36Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch reference source data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_98a02330
+  context: 'Task T010a-fetch [P] [FR-008] **FETCH REFERENCE SOURCE DATA**: Implement
+    `code/fetch_reference_source.py` to programmatically fetch supplementary data
+    from **DOI: 10.1038/s41597-020-00628-6**.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Implement `code/fetch_reference_source.py` to programmatically fetch
+    supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:41:40Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score formula definition
+  claim_id: c_1ac99423
+  context: 'Task T030c-calc [US3] **Calculate Alignment**: ... 6. **ALIGNMENT SCORE
+    FORMULA**: `Alignment Score = (Count of Valid Matches) / (Total Reference Substructures)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_formula_definition
+  kind: entity_fact
+  raw_text: The alignment score formula is defined as (Count of Valid Matches) / (Total
+    Reference Substructures).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:42:06Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity match threshold 0.85
+  claim_id: c_ed0cc584
+  context: 'Task T030c-calc [US3] ... 5. **MATCH THRESHOLD**: A match is valid if
+    Tanimoto similarity >= 0.85.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tanimoto_similarity_match_threshold_0.85
+  kind: magnitude
+  raw_text: A match is valid if Tanimoto similarity is greater than or equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:42:09Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint parameters radius 2 nBits 2048
+  claim_id: c_d2eea4b3
+  context: 'Task T030c-calc [US3] ... 4. Calculate **Tanimoto similarity** between
+    the matched subgraph''s fingerprint and the reference fingerprint. **PARAMETERS**:
+    Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprint parameters for subgraph matching are Radius=2 and nBits=2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:42:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.05 divided by 3 models
+  claim_id: c_4987bc52
+  context: 'Task T023c-primary [US2] ... Apply Bonferroni correction (alpha_adj =
+    0.05/3, where **3** represents the **3 models: Spectral GNN, Heterophily GNN,
+    Random Forest**).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction uses an adjusted alpha of 0.05/3 for the 3 models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:42:44Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Hard failure if filtered kinetic dataset has fewer than 20 molecules
+  claim_id: c_ce613881
+  context: 'Task T031 [US3] ... **ERROR HANDLING**: If the filtered dataset contains
+    **< 20 molecules**, **HARD FAILURE** with error code 1 and message "FR-009 Violation:
+    Filtered dataset < 20 molecules".'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hard_failure_if_filtered_kinetic_dataset_has_fewer_than_20_m
+  kind: magnitude
+  raw_text: If the filtered kinetic dataset contains less than 20 molecules, the task
+    must fail with error code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:43:10Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target invalid SMILES exclusion rate less than 0.1 percent
+  claim_id: c_39d44c4a
+  context: 'Task T014a [US1] ... 3. Invalid SMILES handling: Log and exclude molecules;
+    target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_invalid_SMILES_exclusion_rate_less_than_0.1_percent
+  kind: magnitude
+  raw_text: Target exclusion rate for invalid SMILES is less than 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:43:13Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory safety trigger threshold 4 GB
+  claim_id: c_74803230
+  context: 'Task T014a [US1] ... 1. **Memory Safety Logic**: During batch processing,
+    if memory usage exceeds **4 GB**, trigger **subset sampling**...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory safety logic triggers subset sampling if memory usage exceeds 4
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:43:14Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory safety hard floor 0.5 GB
+  claim_id: c_5692b29b
+  context: 'Task T014a [US1] ... 1. **Memory Safety Logic**: ... (reduce total molecule
+    count by a substantial margin) with a hard floor at **0.5 GB** memory limit...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory safety logic has a hard floor at 0.5 GB memory limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:43:37Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime limit 6 hours
+  claim_id: c_d5beb4a1
+  context: "Task T035 Performance optimization: Verify end-to-end runtime \u2264 6\
+    \ hours and memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_limit_6_hours
+  kind: magnitude
+  raw_text: Performance optimization requires verifying end-to-end runtime less than
+    or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:44:03Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory usage limit 4 GB
+  claim_id: c_71fc42d7
+  context: "Task T035 Performance optimization: Verify end-to-end runtime \u2264 6\
+    \ hours and memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_4_GB
+  kind: magnitude
+  raw_text: Performance optimization requires verifying memory usage less than or
+    equal to 4 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:44:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_9ab2e622
+  context: 'T010a-fetch [FR-008] FETCH REFERENCE SOURCE DATA: Implement code/fetch_reference_source.py
+    to programmatically fetch supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Implement code/fetch_reference_source.py to programmatically fetch supplementary
+    data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:45:13Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 2
+  canonical: Fetch and parse data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_582c8215
+  context: 'T010d-script [FR-009] CURATE AND TAG KINETIC DATASET: Implement code/curate_kinetic.py
+    to fetch and parse data from DOI: 10.1093/nar/gky1079 (Table 1) via a verified
+    public mirror or API.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: 'Implement code/curate_kinetic.py to fetch and parse data from DOI: 10.1093/nar/gky1079
+    (Table 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:45:14Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: '3 models: Spectral GNN, Heterophily GNN, Random Forest'
+  claim_id: c_d4ff229b
+  context: 'T023c-primary [US2] Execute Primary Statistical Test: ... Apply Bonferroni
+    correction (alpha_adj = 0.05/3, where 3 represents the 3 models: Spectral GNN,
+    Heterophily GNN, Random Forest).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset contains 3 models: Spectral GNN, Heterophily GNN, and Random
+    Forest.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:45:48Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target invalid SMILES exclusion rate less than 0.1%
+  claim_id: c_556828c8
+  context: 'T014a [US1] Preprocess Graphs: ... Invalid SMILES handling: Log and exclude
+    molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_invalid_SMILES_exclusion_rate_less_than_0.1%25
+  kind: magnitude
+  raw_text: The target exclusion rate for invalid SMILES is less than 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:45:51Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory safety trigger threshold 4 GB
+  claim_id: c_d654dfcd
+  context: 'T014a [US1] Preprocess Graphs: ... During batch processing, if memory
+    usage exceeds 4 GB, trigger subset sampling...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory safety logic triggers subset sampling if memory usage exceeds 4
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:45:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory limit hard floor 0.5 GB
+  claim_id: c_b275d473
+  context: 'T014a [US1] Preprocess Graphs: ... reduce total molecule count by a substantial
+    margin with a hard floor at 0.5 GB memory limit...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hard floor for memory limit during subset sampling is 0.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:46:12Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity match threshold 0.85
+  claim_id: c_52c8827e
+  context: 'T030c-calc [US3] Calculate Alignment: ... MATCH THRESHOLD: A match is
+    valid if Tanimoto similarity >= 0.85.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tanimoto_similarity_match_threshold_0.85
+  kind: entity_fact
+  raw_text: The alignment score match threshold is a Tanimoto similarity of 0.85.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:46:42Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint Radius 2 nBits 2048
+  claim_id: c_60adfee9
+  context: 'T030c-calc [US3] Calculate Alignment: ... Calculate Tanimoto similarity
+    between the matched subgraph''s fingerprint and the reference fingerprint. PARAMETERS:
+    Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint parameters for subgraph matching are Radius=2 and
+    nBits=2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:46:43Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Filtered dataset minimum 20 molecules
+  claim_id: c_8e46f28d
+  context: 'T031 [US3] Validate Correlation: ... If the filtered dataset contains
+    < 20 molecules, HARD FAILURE with error code 1...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtered_dataset_minimum_20_molecules
+  kind: magnitude
+  raw_text: The validation task requires a filtered dataset of at least 20 molecules
+    to avoid hard failure.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:47:34Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime target 6 hours
+  claim_id: c_ca294303
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_target_6_hours
+  kind: magnitude
+  raw_text: The end-to-end runtime performance target is less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:47:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory usage target 4 GB
+  claim_id: c_225b732a
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_target_4_GB
+  kind: magnitude
+  raw_text: The memory performance target is less than or equal to 4 GB on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:48:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 0
+  canonical: fetch supplementary data from DOI 10.1038/s41597-020-00628-6
+  claim_id: c_49665c69
+  context: 'T010a-fetch [FR-008] FETCH REFERENCE SOURCE DATA: Implement code/fetch_reference_source.py
+    to programmatically fetch supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Implement `code/fetch_reference_source.py` to programmatically fetch
+    supplementary data from DOI: 10.1038/s41597-020-00628-6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:49:02Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 0
+  canonical: fetch and parse data from DOI 10.1093/nar/gky1079 Table 1
+  claim_id: c_0e8a48dd
+  context: 'T010d-script [FR-009] CURATE AND TAG KINETIC DATASET: Implement code/curate_kinetic.py
+    to fetch and parse data from DOI: 10.1093/nar/gky1079 (Table 1) via a verified
+    public mirror or API.'
+  evidence:
+    asserted: '10.1093'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'Implement `code/curate_kinetic.py` to fetch and parse data from DOI:
+    10.1093/nar/gky1079 (Table 1) via a verified public mirror or API.'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T07:49:04Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: target less than 0.1 percent exclusion of invalid SMILES
+  claim_id: c_65d2d726
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.
+    CRITICAL: Write exclusion count and list of excluded IDs to artifacts/exclusion_report.json...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_less_than_0.1_percent_exclusion_of_invalid_SMILES
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES during preprocessing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:49:52Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: trigger subset sampling if memory usage exceeds 4 GB
+  claim_id: c_ec60e704
+  context: 'Memory Safety Logic: During batch processing, if memory usage exceeds
+    4 GB, trigger subset sampling (reduce total molecule count by a substantial margin)
+    with a hard floor at 0.5 GB memory limit...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger subset sampling if memory usage exceeds 4 GB during batch processing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:49:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: set hard floor at 0.5 GB memory limit for subset sampling
+  claim_id: c_a780bb92
+  context: During batch processing, if memory usage exceeds 4 GB, trigger subset sampling
+    (reduce total molecule count by a substantial margin) with a hard floor at 0.5
+    GB memory limit, then re-attempt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set hard floor at 0.5 GB memory limit for subset sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:50:08Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction with alpha_adj 0.05/3 for 3 models
+  claim_id: c_9d10c210
+  context: 'Apply Bonferroni correction (alpha_adj = 0.05/3, where 3 represents the
+    3 models: Spectral GNN, Heterophily GNN, Random Forest).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha_adj = 0.05/3 for 3 models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:50:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: flag VF2 execution as infeasible if execution time exceeds 1 hour or
+    memory exceeds 2 GB
+  claim_id: c_0f79dbcb
+  context: 'Run a benchmark of VF2 Subgraph Isomorphism on a representative subset
+    of the dataset. LOGIC: If VF2 execution time > 1 hour or memory > 2 GB, FLAG and
+    instruct T030c-calc to use the fallback heuristic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag VF2 execution as infeasible if execution time exceeds 1 hour or memory
+    exceeds 2 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:50:45Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: use Morgan fingerprint parameters Radius 2 and nBits 2048
+  claim_id: c_fe5d7cce
+  context: 'Calculate Tanimoto similarity between the matched subgraph''s fingerprint
+    and the reference fingerprint. PARAMETERS: Radius=2, nBits=2048.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Morgan fingerprint parameters Radius=2 and nBits=2048 for subgraph
+    matching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:50:46Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: define a match as valid if Tanimoto similarity is greater than or equal
+    to 0.85
+  claim_id: c_47d52596
+  context: 'MATCH THRESHOLD: A match is valid if Tanimoto similarity >= 0.85.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_a_match_as_valid_if_Tanimoto_similarity_is_greater_th
+  kind: magnitude
+  raw_text: Define a match as valid if Tanimoto similarity is >= 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:51:24Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: require at least 20 molecules in the filtered kinetic dataset for validation
+  claim_id: c_57a5b6a9
+  context: 'ERROR HANDLING: If the filtered dataset contains < 20 molecules, HARD
+    FAILURE with error code 1 and message FR-009 Violation: Filtered dataset < 20
+    molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_20_molecules_in_the_filtered_kinetic_datase
+  kind: magnitude
+  raw_text: Require at least 20 molecules in the filtered kinetic dataset for validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:51:27Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: verify end-to-end runtime is less than or equal to 6 hours
+  claim_id: c_eea3a60b
+  context: "Performance optimization: Verify end-to-end runtime \u2264 6 hours and\
+    \ memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_runtime_is_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Verify end-to-end runtime is less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:51:44Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: verify peak RSS memory usage is less than or equal to 4 GB on CI
+  claim_id: c_f1e7b77b
+  context: "Performance optimization: Verify end-to-end runtime \u2264 6 hours and\
+    \ memory \u2264 4 GB on CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RSS_memory_usage_is_less_than_or_equal_to_4_GB_o
+  kind: magnitude
+  raw_text: Verify peak RSS memory usage is less than or equal to 4 GB on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:52:05Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: assert alignment score is greater than or equal to 0.7
+  claim_id: c_7be05423
+  context: Write tests/contract/test_alignment_threshold.py to assert that the score
+    in artifacts/alignment_score.json is >= 0.7 (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_alignment_score_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Assert alignment score is >= 0.7 in the contract test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T07:52:29Z'

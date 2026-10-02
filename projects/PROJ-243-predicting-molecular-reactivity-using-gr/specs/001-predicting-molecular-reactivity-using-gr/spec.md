@@ -77,7 +77,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 - **Molecular Graph**: A graph structure representing a molecule, with nodes as atoms (features: atomic number, hybridization, formal charge) and edges as bonds (features: bond type, conjugation).
 - **DFT Property**: The target variable derived from quantum-mechanical calculations (e.g., HOMO-LUMO gap, reaction yield proxy) used as the ground truth for training and evaluation.
 - **Feature Attribution Map**: A data structure mapping specific subgraphs or node features to their importance scores in predicting the target property.
-- **Curated Reference Set**: A static dataset of 50 known reactive substructures used for independent validation of feature importance.
+- **Curated Reference Set**: A static dataset of known reactive substructures used for independent validation of feature importance.
 - **External Kinetic Dataset**: A static dataset of ≥20 molecules with experimental reaction rates used to validate the HOMO-LUMO gap proxy.
 
 ## Success Criteria
