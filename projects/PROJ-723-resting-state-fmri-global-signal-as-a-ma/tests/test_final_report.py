@@ -1,128 +1,151 @@
+import pytest
+import json
 import os
 import sys
-import json
-import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
 
-from run_final_report import aggregate_results, load_model_report, load_robustness_report, load_diagnostics, load_delta_r2
+from run_final_report import evaluate_success_criteria
 
-@pytest.fixture
-def mock_input_files(tmp_path):
-    """Create mock input files for testing."""
-    results_dir = tmp_path / "data" / "results"
-    results_dir.mkdir(parents=True)
-
-    # Mock model_report.json
-    model_data = {
-        "observed_mae": 12.5,
-        "observed_r": 0.35,
-        "observed_r_squared": 0.12,
-        "empirical_p_value": 0.02,
-        "null_distribution": {
-            "mean": 0.01,
-            "std": 0.05,
-            "count": 1000
-        }
-    }
-    with open(results_dir / "model_report.json", "w") as f:
-        json.dump(model_data, f)
-
-    # Mock robustness_report.json
-    robust_data = {
-        "alpha_sweep": {
-            "stable": True,
-            "mae_range": [12.4, 12.6]
-        },
-        "variance_metric_analysis": {
-            "pearson_r": 0.34,
-            "significant": True
-        },
-        "partial_correlation": {
-            "significant": True,
-            "r": 0.30,
-            "p_value": 0.01
-        }
-    }
-    with open(results_dir / "robustness_report.json", "w") as f:
-        json.dump(robust_data, f)
-
-    # Mock diagnostics.json
-    diag_data = {
-        "vif_values": {
-            "Global_Signal_SD": 1.2,
-            "FD": 1.5,
-            "DVARS": 1.3,
-            "Age": 1.1,
-            "Sex": 1.0
-        }
-    }
-    with open(results_dir / "diagnostics.json", "w") as f:
-        json.dump(diag_data, f)
-
-    # Mock delta_r2.json
-    delta_data = {
-        "delta_r2": 0.08,
-        "full_r2": 0.12,
-        "reduced_r2": 0.04
-    }
-    with open(results_dir / "delta_r2.json", "w") as f:
-        json.dump(delta_data, f)
-
-    return tmp_path
-
-def test_load_model_report(mock_input_files):
-    with patch("run_final_report.project_root", mock_input_files):
-        result = load_model_report()
-        assert result["observed_mae"] == 12.5
-        assert result["empirical_p_value"] == 0.02
-
-def test_load_robustness_report(mock_input_files):
-    with patch("run_final_report.project_root", mock_input_files):
-        result = load_robustness_report()
-        assert result["alpha_sweep"]["stable"] is True
-
-def test_load_diagnostics(mock_input_files):
-    with patch("run_final_report.project_root", mock_input_files):
-        result = load_diagnostics()
-        assert "Global_Signal_SD" in result["vif_values"]
-
-def test_load_delta_r2(mock_input_files):
-    with patch("run_final_report.project_root", mock_input_files):
-        result = load_delta_r2()
-        assert result["delta_r2"] == 0.08
-
-def test_aggregate_results_structure(mock_input_files):
-    with patch("run_final_report.project_root", mock_input_files):
-        with patch("run_final_report.output_path", mock_input_files / "data" / "results" / "final_report.json"):
-            report = aggregate_results()
-            
-            # Verify structure
-            assert "components" in report
-            assert "primary_model" in report["components"]
-            assert "robustness_analysis" in report["components"]
-            assert "collinearity_diagnostics" in report["components"]
-            assert "reduced_model_comparison" in report["components"]
-            
-            # Verify summary
-            assert "summary" in report
-            assert report["summary"]["key_findings"]["observed_mae"] == 12.5
-            assert report["summary"]["key_findings"]["delta_r2"] == 0.08
-            assert report["summary"]["robustness_check"]["alpha_sweep_stable"] is True
-
-def test_aggregate_results_file_creation(mock_input_files):
-    output_file = mock_input_files / "data" / "results" / "final_report.json"
+class TestSuccessCriteriaEvaluation:
     
-    with patch("run_final_report.project_root", mock_input_files):
-        with patch("run_final_report.output_path", output_file):
-            aggregate_results()
-            
-            assert output_file.exists()
-            with open(output_file) as f:
-                loaded = json.load(f)
-                assert loaded["status"] == "complete"
-                assert "project" in loaded
+    def test_sc001_significant_p_value(self):
+        """Test SC-001 when p-value < 0.05"""
+        mock_model = {"p_value": 0.03}
+        mock_robustness = {}
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert "SC-001" in result
+        assert result["SC-001"]["status"] == "met"
+        assert "Significant" in result["SC-001"]["narrative_summary"]
+        assert result["SC-001"]["metrics"]["p_value"] == 0.03
+
+    def test_sc001_null_p_value(self):
+        """Test SC-001 when p-value >= 0.05"""
+        mock_model = {"p_value": 0.12}
+        mock_robustness = {}
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-001"]["status"] == "not met"
+        assert "Null finding" in result["SC-001"]["narrative_summary"]
+
+    def test_sc003_stable_correlation(self):
+        """Test SC-003 when |r_var - r_sd| <= 0.05"""
+        mock_model = {"p_value": 0.03}
+        mock_robustness = {
+            "variance_metric_analysis": {
+                "correlation_sd": 0.30,
+                "correlation_var": 0.32
+            }
+        }
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-003"]["status"] == "met"
+        assert abs(result["SC-003"]["metrics"]["absolute_difference"] - 0.02) < 0.001
+
+    def test_sc003_unstable_correlation(self):
+        """Test SC-003 when |r_var - r_sd| > 0.05"""
+        mock_model = {"p_value": 0.03}
+        mock_robustness = {
+            "variance_metric_analysis": {
+                "correlation_sd": 0.30,
+                "correlation_var": 0.40
+            }
+        }
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-003"]["status"] == "not met"
+
+    def test_sc004_stable_mae(self):
+        """Test SC-004 when MAE variation < 10%"""
+        mock_model = {"p_value": 0.03}
+        mock_robustness = {
+            "alpha_sweep": {
+                "mean_mae": 1.0,
+                "max_mae": 1.05,
+                "min_mae": 0.95
+            }
+        }
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        # Variation = (1.05 - 0.95) / 1.0 = 0.10 = 10%. 
+        # Threshold is < 10%. So 10% exactly should be "not met".
+        # Let's adjust test data to be clearly under.
+        mock_robustness["alpha_sweep"]["max_mae"] = 1.04
+        mock_robustness["alpha_sweep"]["min_mae"] = 0.96
+        # Variation = 0.08 / 1.0 = 8%
+        
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-004"]["status"] == "met"
+        assert result["SC-004"]["metrics"]["variation_percentage"] < 10.0
+
+    def test_sc002_and_sc005_partial_corr(self):
+        """Test SC-002 and SC-005 using partial correlation p-value"""
+        mock_model = {"p_value": 0.03}
+        mock_robustness = {
+            "partial_correlation": {
+                "p_value": 0.04
+            }
+        }
+        mock_diagnostics = {}
+        mock_delta_r2 = {}
+        mock_null_dist = {}
+        mock_full_model = {"mae": 1.0, "r": 0.3, "r_squared": 0.09}
+
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-002"]["status"] == "met"
+        assert result["SC-005"]["status"] == "met"
+        
+        # Test null case
+        mock_robustness["partial_correlation"]["p_value"] = 0.15
+        result = evaluate_success_criteria(
+            mock_model, mock_robustness, mock_diagnostics, mock_delta_r2, mock_null_dist, mock_full_model
+        )
+        
+        assert result["SC-002"]["status"] == "not met"
+        assert result["SC-005"]["status"] == "not met"
+        assert "Null finding" in result["SC-002"]["narrative_summary"]

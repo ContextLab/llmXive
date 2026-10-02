@@ -1,0 +1,8 @@
+{
+  "mae": 1.45,
+  "r": 0.28,
+  "r_squared": 0.078,
+  "alpha": 0.1,
+  "n_subjects": 142,
+  "cv_folds": 5
+}

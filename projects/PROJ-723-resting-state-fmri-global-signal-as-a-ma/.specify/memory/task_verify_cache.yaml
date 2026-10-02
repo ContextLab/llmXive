@@ -15,8 +15,7 @@ T030:
 T034b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `final_report.json` file or any excerpt showing the asserted success criteria\
-    \ (p\u2011value <\u202F0.05, correlation stability, SC\u2011001\u2026SC\u2011\
-    005) is present. Without the actual JSON content we cannot confirm that the required\
-    \ checks were performed. The implementer must provide a non\u2011empty `final_report.json`\
-    \ containing the specified success\u2011criteria fields and their values."
+  r: No `final_report.json` containing the required `criteria_status` object is provided,
+    nor any evidence that the implementer read values from T021, T019, T029/T030 and
+    applied the specified thresholds. The artifact is missing, so the task is not
+    satisfied.

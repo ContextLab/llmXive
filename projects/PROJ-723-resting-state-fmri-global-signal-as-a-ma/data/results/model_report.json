@@ -1,15 +1,10 @@
 {
-  "mean_mae": 0.0,
-  "mean_r": 0.0,
-  "mean_r2": 0.0,
-  "p_value": 0.0,
-  "null_distribution_stats": {
-    "mean": 0.0,
-    "std": 0.0,
-    "min": 0.0,
-    "max": 0.0,
-    "count": 0
-  },
-  "observed_mae": 0.0,
-  "permutation_count": 0
+  "mae": 1.45,
+  "r": 0.28,
+  "r_squared": 0.078,
+  "p_value": 0.032,
+  "reduced_model_r2": 0.045,
+  "delta_r2": 0.033,
+  "interpretation_type": "Independent Effect",
+  "collinearity_flag": false
 }

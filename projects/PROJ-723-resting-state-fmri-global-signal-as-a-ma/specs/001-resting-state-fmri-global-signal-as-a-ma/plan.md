@@ -167,7 +167,7 @@ requirements.txt
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Nested Cross-Validation** | Required by FR-004 to tune $\alpha$ without data leakage. | Simple CV would overfit the hyperparameter, inflating performance estimates. |
-| **Permutations** | Required for robust p-value resolution and tail stability. | A set of permutations yields coarse p-values (min 0.01), insufficient for distinguishing p=0.04 vs 0.06. |
+| **Permutations** | Required for robust p-value resolution and tail stability. | A set of permutations yields coarse p-values., insufficient for distinguishing p=0.04 vs 0.06. |
 | **Reduced Model Comparison** | Required to isolate GSA effect from covariates (Methodology concern). | Permuting the full model only tests the *whole* model, not the specific contribution of GSA. |
 | **VIF Diagnostics** | Required to validate GSA interpretability against motion (Methodology concern). | Ridge shrinks coefficients but does not resolve collinearity ambiguity; diagnostics are needed to assess validity. |
 | **Motion Confound Regression** | Required by FR-003 and FR-008 to control for motion artifacts which correlate with global signal. | Ignoring motion would introduce a severe confound, invalidating the association. |
