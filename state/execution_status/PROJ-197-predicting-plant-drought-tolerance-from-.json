@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-197-predicting-plant-drought-tolerance-from-",
   "ok": false,
-  "reason": "15 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download.py: self-declared fabricated metric \u2014 \u201c\u2026int is met without hardcoding fake values. # We will use a direct link\u2026\u201d; code/config.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026lists, random seeds, and synthetic data parameters to ensure rep\u2026\u201d; code/config.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026requirements. # Used for synthetic data generation, train/test s\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/run_pipeline.py; 4 declared deliverable(s) absent: data/logs/metrics.json; data/processed/merged_dataset.csv; data/processed/synthetic_genomics.csv",
+  "reason": "21 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/models/compare.py: self-declared fabricated metric \u2014 \u201c\u2026ng(\"No CV scores found, using placeholder values\")                 t_stat, p_\u2026\u201d; code/models/compare.py: self-declared fabricated metric \u2014 \u201c\u2026results file not found, using placeholder values\")             t_stat, p_valu\u2026\u201d; code/config.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026on Mode # If True: allow synthetic data fallback if real fetch f\u2026\u201d; 1 command(s) failed: python code/run_pipeline.py (rc=1); 2 declared deliverable(s) absent: data/logs/feature_importance.json; data/logs/metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/run_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/run_pipeline.py': [Errno 2] No such file or directory"
+    "python code/run_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/run_pipeline.py\", line 31, in <module>\n    from data.download import download_try_data, fetch_ncbi_refseq, main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/data/download.py\", line 20, in <module>\n    logger = DataPipelineLog(\"download\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-197-pr"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-26T20:25:58Z"
+  "updated_at": "2026-10-02T00:17:22Z"
 }

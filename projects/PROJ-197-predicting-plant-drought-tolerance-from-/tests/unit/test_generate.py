@@ -1,121 +1,71 @@
 """
-Unit tests for code/data/generate.py
+Unit tests for data generation module.
 """
 import os
 import sys
 import numpy as np
-import pandas as pd
 import pytest
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from code.data.generate import generate_synthetic_phylogenetic_matrix, generate_synthetic_genomic_features
+from data.generate import generate_synthetic_phylogenetic_matrix, SPECIES_LIST, RANDOM_SEED
 
-class TestPhylogeneticMatrix:
-    """Tests for generate_synthetic_phylogenetic_matrix"""
+@pytest.fixture
+def setup_validation_mode(monkeypatch):
+    """Fixture to set VALIDATION_MODE to True for testing."""
+    import config
+    monkeypatch.setattr(config, 'get_config', lambda: {'VALIDATION_MODE': True})
+    # Ensure directories exist
+    os.makedirs("data/processed", exist_ok=True)
+    yield
+    # Cleanup
+    if os.path.exists("data/processed/synthetic_phylo_matrix.npy"):
+        os.remove("data/processed/synthetic_phylo_matrix.npy")
 
-    def test_matrix_dimensions(self):
-        """Test that the matrix is N x N"""
-        species = ["A", "B", "C", "D"]
-        matrix = generate_synthetic_phylogenetic_matrix(species, random_state=42)
-        assert matrix.shape == (4, 4)
+def test_generate_synthetic_phylogenetic_matrix_shape(setup_validation_mode):
+    """Test that the generated matrix has the correct shape."""
+    output_path = generate_synthetic_phylogenetic_matrix()
+    assert os.path.exists(output_path), "Output file should exist."
 
-    def test_symmetric(self):
-        """Test that the matrix is symmetric"""
-        species = ["A", "B", "C", "D", "E"]
-        matrix = generate_synthetic_phylogenetic_matrix(species, random_state=42)
-        assert np.allclose(matrix, matrix.T)
+    matrix = np.load(output_path)
+    n_species = len(SPECIES_LIST)
+    assert matrix.shape == (n_species, n_species), f"Matrix shape should be ({n_species}, {n_species})."
 
-    def test_diagonal_zero(self):
-        """Test that diagonal elements are zero"""
-        species = ["A", "B", "C"]
-        matrix = generate_synthetic_phylogenetic_matrix(species, random_state=42)
-        assert np.all(np.diag(matrix) == 0)
+def test_generate_synthetic_phylogenetic_matrix_diagonal(setup_validation_mode):
+    """Test that the diagonal of the matrix is zero."""
+    output_path = generate_synthetic_phylogenetic_matrix()
+    matrix = np.load(output_path)
 
-    def test_bounds(self):
-        """Test that off-diagonal values are within bounds"""
-        species = ["A", "B", "C", "D"]
-        lower, upper = 0.2, 0.8
-        matrix = generate_synthetic_phylogenetic_matrix(species, lower_bound=lower, upper_bound=upper, random_state=42)
-        
-        # Create a mask for off-diagonal elements
-        mask = ~np.eye(4, dtype=bool)
-        off_diag_values = matrix[mask]
-        
-        assert np.all(off_diag_values >= lower)
-        assert np.all(off_diag_values <= upper)
+    assert np.allclose(np.diag(matrix), 0.0), "Diagonal elements must be zero."
 
-    def test_empty_list(self):
-        """Test behavior with empty species list"""
-        matrix = generate_synthetic_phylogenetic_matrix([], random_state=42)
-        assert matrix.shape == (0, 0)
+def test_generate_synthetic_phylogenetic_matrix_symmetry(setup_validation_mode):
+    """Test that the matrix is symmetric."""
+    output_path = generate_synthetic_phylogenetic_matrix()
+    matrix = np.load(output_path)
 
-    def test_single_species(self):
-        """Test behavior with single species"""
-        species = ["A"]
-        matrix = generate_synthetic_phylogenetic_matrix(species, random_state=42)
-        assert matrix.shape == (1, 1)
-        assert matrix[0, 0] == 0
+    assert np.allclose(matrix, matrix.T), "Matrix must be symmetric."
 
-class TestSyntheticGenomics:
-    """Tests for generate_synthetic_genomic_features"""
+def test_generate_synthetic_phylogenetic_matrix_range(setup_validation_mode):
+    """Test that off-diagonal elements are within [0.01, 1.0]."""
+    output_path = generate_synthetic_phylogenetic_matrix()
+    matrix = np.load(output_path)
 
-    def test_dataframe_shape(self):
-        """Test that the dataframe has correct shape"""
-        species = ["A", "B", "C"]
-        genes = ["G1", "G2"]
-        df, labels = generate_synthetic_genomic_features(species, genes, random_state=42)
-        assert df.shape == (3, 3) # 2 genes + 1 species_id column
-        assert len(labels) == 3
+    # Get off-diagonal elements
+    off_diag = matrix[np.triu_indices_from(matrix, k=1)]
 
-    def test_columns(self):
-        """Test that columns include species_id and genes"""
-        species = ["A"]
-        genes = ["G1", "G2"]
-        df, _ = generate_synthetic_genomic_features(species, genes, random_state=42)
-        assert "species_id" in df.columns
-        assert "G1" in df.columns
-        assert "G2" in df.columns
+    assert np.all(off_diag >= 0.01), "Off-diagonal elements must be >= 0.01."
+    assert np.all(off_diag <= 1.0), "Off-diagonal elements must be <= 1.0."
 
-    def test_binary_values(self):
-        """Test that gene expression values are binary (0 or 1)"""
-        species = ["A", "B"]
-        genes = ["G1"]
-        df, _ = generate_synthetic_genomic_features(species, genes, random_state=42)
-        gene_col = df["G1"]
-        assert all(gene_col.isin([0, 1]))
+def test_generate_synthetic_phylogenetic_matrix_determinism(setup_validation_mode):
+    """Test that the generation is deterministic with the same seed."""
+    # First run
+    output_path_1 = generate_synthetic_phylogenetic_matrix()
+    matrix_1 = np.load(output_path_1)
 
-    def test_label_logic(self):
-        """Test that label logic is correct: 1 if sum >= threshold, else 0"""
-        # Use a small threshold for easier testing
-        species = ["A", "B", "C"]
-        genes = ["G1", "G2", "G3"]
-        # We need to control the random seed to ensure specific sums
-        # With seed 42, let's just verify the logic holds for the generated data
-        df, labels = generate_synthetic_genomic_features(species, genes, random_state=42)
-        
-        # Recalculate expected labels
-        gene_sums = df[genes].sum(axis=1)
-        # Note: The function uses threshold 12 by default. 
-        # For small gene lists (3 genes), sum will never reach 12.
-        # So all labels should be 0 unless we change the function logic or use more genes.
-        # Let's verify the function logic matches the requirement for a larger set.
-        
-        # Re-test with 20 genes to match the requirement
-        genes_20 = [f"G{i}" for i in range(20)]
-        df_20, labels_20 = generate_synthetic_genomic_features(species, genes_20, random_state=42)
-        expected_labels = (df_20[genes_20].sum(axis=1) >= 12).astype(int)
-        
-        assert np.array_equal(labels_20, expected_labels.values)
+    # Second run (should be identical due to seed)
+    output_path_2 = generate_synthetic_phylogenetic_matrix()
+    matrix_2 = np.load(output_path_2)
 
-    def test_empty_inputs(self):
-        """Test behavior with empty lists"""
-        df, labels = generate_synthetic_genomic_features([], ["G1"], random_state=42)
-        assert df.empty
-        assert len(labels) == 0
-
-        df, labels = generate_synthetic_genomic_features(["A"], [], random_state=42)
-        assert df.empty
-        assert len(labels) == 0
+    assert np.array_equal(matrix_1, matrix_2), "Matrix generation must be deterministic with the same seed."

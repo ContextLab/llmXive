@@ -865,3 +865,820 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T15:32:28Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 20 training genes list for synthetic genomic data generation
+  claim_id: c_a359970f
+  context: 'Logic: Trigger: Run ONLY if VALIDATION_MODE is True (from T006) AND T011b
+    returns FAILED. Gene List (20): NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A,
+    COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33,
+    MYB96.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Gene List (20): NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A,
+    LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:27:08Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 15 independent validation genes strictly disjoint from training genes
+  claim_id: c_a81facd6
+  context: 'Create code/config.py entry for 15 Independent Validation Genes. Logic:
+    Compile a curated list of ABA-signaling genes. (e.g., ABF2, DREB1B, NAC072, WRKY40,
+    bZIP28, bZIP63, ABI1, ABI2, PP2CA, SnRK2.1, SnRK2.5, SnRK2.7, RD26, RD29B, COR15B)
+    that are strictly disjoint from the 20 training genes in T012.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '15 Independent Validation Genes: ABF2, DREB1B, NAC072, WRKY40, bZIP28,
+    bZIP63, ABI1, ABI2, PP2CA, SnRK2.1, SnRK2.5, SnRK2.7, RD26, RD29B, COR15B'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:27:12Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic label distribution verification using Chi-Square Goodness-of-Fit
+    test with p-value > 0.05
+  claim_id: c_3ce3b8a2
+  context: 'Verification: Verify output CSV has N rows, columns match gene list, and
+    label distribution mean is within 5% of expected sigmoid probability using a Chi-Square
+    Goodness-of-Fit test (p-value > 0.05, expected mean=0.5, bins=10, uniform distribution
+    across bins).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Label distribution mean is within 5% of expected sigmoid probability using
+    a Chi-Square Goodness-of-Fit test (p-value > 0.05, expected mean=0.5, bins=10,
+    uniform distribution across bins)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:27:37Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic phylogenetic distance matrix off-diagonal values range from
+    0.01 to 1.0
+  claim_id: c_70889540
+  context: 'Logic: Generate an N x N symmetric matrix (N=species count) with a zero
+    diagonal and off-diagonal values uniformly distributed between 0.01 and 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate an N x N symmetric matrix with off-diagonal values uniformly
+    distributed between 0.01 and 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:27:52Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random seed 42 used for synthetic phylogenetic distance matrix generation
+  claim_id: c_ffe32f3e
+  context: 'Random Seed: Use random_state=42 for all random operations (including
+    the uniform distribution generation) to ensure determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for all random operations to ensure determinism
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:28:02Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Independent test requires models to train within 30 mins on 2-core CPU
+  claim_id: c_5b388848
+  context: 'Independent Test: Run code/models/train.py and code/models/evaluate.py;
+    verify models train without OOM/GPU errors, cross-validation scores are logged,
+    and DeLong''s test confirms significance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify models train without OOM/GPU errors, cross-validation scores are
+    logged, and DeLong's test confirms significance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:28:03Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution must complete within 30 minutes
+  claim_id: c_3875aa20
+  context: 'Run quickstart.md validation: Execute python code/run_pipeline.py --mode
+    validation (T041) and verify runtime < 30 minutes (FR-008, SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 30 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:28:03Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis calculated for N=50 sample size
+  claim_id: c_799870dc
+  context: Update code/models/compare.py to include a power analysis calculation in
+    the report, explicitly stating the statistical power of the test given the small
+    N=50 sample size, and marking the results as Preliminary if power < 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly stating the statistical power of the test given the small N=50
+    sample size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:30:58Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Results marked as preliminary if statistical power is less than 0.8
+  claim_id: c_761a5226
+  context: Update code/models/compare.py to include a power analysis calculation in
+    the report, explicitly stating the statistical power of the test given the small
+    N=50 sample size, and marking the results as Preliminary if power < 0.8.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_marked_as_preliminary_if_statistical_power_is_less_t
+  kind: magnitude
+  raw_text: Marking the results as Preliminary if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:10Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic label generation formula using sigmoid and noise with seed
+    42
+  claim_id: c_ebb3552b
+  context: 'Label Logic: prob = sigmoid(sum(hidden_genes) - 2) + noise(0.1, seed=42).
+    Hidden Genes: Select a subset of random genes from the training genes (deterministic
+    via seed) to generate the label., ensuring the model must discover the signal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Label Logic: prob = sigmoid(sum(hidden_genes) - 2) + noise(0.1, seed=42)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:14Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Feature selection logic uses top 10 features or all if fewer than 10
+  claim_id: c_54ca117b
+  context: 'Feature Selection: Select Top features as all available features if <
+    10, otherwise Top 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_selection_logic_uses_top_10_features_or_all_if_fewer
+  kind: magnitude
+  raw_text: Select Top features as all available features if < 10, otherwise Top 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:31Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth validation passes if overlap count is at least
+    3
+  claim_id: c_b0ac06a1
+  context: 'If Synthetic Data: Perform a proxy validation against the hidden subset
+    of 5 genes used to generate the label (from T012). If count >= 3, report Synthetic
+    Ground Truth Validated.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_ground_truth_validation_passes_if_overlap_count_is
+  kind: magnitude
+  raw_text: If count >= 3, report Synthetic Ground Truth Validated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:41Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Hidden subset of 5 genes used for synthetic label generation
+  claim_id: c_25dea47f
+  context: 'If Synthetic Data: Perform a proxy validation against the hidden subset
+    of 5 genes used to generate the label (from T012).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hidden subset of 5 genes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:50Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: KNN baseline model uses K=5
+  claim_id: c_1fc7b1df
+  context: Implement code/models/train.py to train KNN Baseline (K=5) using the phylogenetic
+    distance matrix.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: KNN Baseline (K=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:31:57Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: scikit-learn version requirement is >= 1.3.0
+  claim_id: c_c2ce59d9
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:38:36Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: xgboost version requirement is >= 2.0.0
+  claim_id: c_64f935f5
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: xgboost>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:41:10Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pandas version requirement is >= 2.0.0
+  claim_id: c_ed894240
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:42:11Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: numpy version requirement is >= 1.24.0
+  claim_id: c_fba3b3eb
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy>=1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:42:31Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: scipy version requirement is >= 1.11.0
+  claim_id: c_972fdd47
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy>=1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:42:58Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: requests version requirement is >= 2.31.0
+  claim_id: c_d5b436f2
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests>=2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:43:21Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: imblearn version requirement is >= 0.11.0
+  claim_id: c_147c6b9d
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: imblearn>=0.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:43:38Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pyyaml version requirement is >= 6.0.0
+  claim_id: c_28bf2ad1
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml>=6.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:43:54Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: joblib version requirement is >= 1.3.0
+  claim_id: c_e99eed3d
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: joblib>=1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:44:10Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: pytest version requirement is >= 7.4.0
+  claim_id: c_dd4d76da
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest>=7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:44:33Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: psutil version requirement is >= 5.9.0
+  claim_id: c_c22fa319
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil>=5.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:44:49Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: phylolm version requirement is >= 1.0.0
+  claim_id: c_0a7c0228
+  context: Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0,
+    xgboost>=2.0.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, requests>=2.31.0,
+    imblearn>=0.11.0, pyyaml>=6.0.0, joblib>=1.3.0, pytest>=7.4.0, psutil>=5.9.0,
+    phylolm>=1.0.0 (or mvMORPH), ete3 (for tree parsing)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: phylolm>=1.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:45:31Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: List of 20 training genes includes NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5,
+    RD29A, COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33,
+    and MYB96
+  claim_id: c_07419237
+  context: 'T012 [P] [Foundational] [US1] Implement code/data/generate.py to generate
+    synthetic genomic features and synthetic drought labels. Logic: Trigger: Run ONLY
+    if VALIDATION_MODE is True (from T006) AND T011b returns FAILED. Gene List (20):
+    NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1,
+    CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Gene List (20): NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A,
+    LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:47:17Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic genomic data label distribution mean must be within 5% of expected
+    sigmoid probability
+  claim_id: c_e6ddeec7
+  context: 'T012 [P] [Foundational] [US1] ... Verification: Verify output CSV has
+    N rows, columns match gene list, and label distribution mean is within 5% of expected
+    sigmoid probability using a Chi-Square Goodness-of-Fit test (p-value > 0.05, expected
+    mean=0.5, bins=10, uniform distribution across bins).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output CSV has N rows, columns match gene list, and label distribution
+    mean is within 5% of expected sigmoid probability using a Chi-Square Goodness-of-Fit
+    test (p-value > 0.05, expected mean=0.5, bins=10, uniform distribution across
+    bins).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:47:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic phylogenetic distance matrix off-diagonal values uniformly
+    distributed between 0.01 and 1.0
+  claim_id: c_adff146f
+  context: 'T016a [P] [Foundational] Implement code/data/generate.py to generate a
+    synthetic phylogenetic distance matrix for the species list. Logic: Generate an
+    N x N symmetric matrix (N=species count) with a zero diagonal and off-diagonal
+    values uniformly distributed between 0.01 and 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate an N x N symmetric matrix (N=species count) with a zero diagonal
+    and off-diagonal values uniformly distributed between 0.01 and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:48:47Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Feature selection selects Top 10 features or all if less than 10 available
+  claim_id: c_76b0c0b5
+  context: 'T029 [US3] ... Feature Selection: Select "Top features" as all available
+    features if < 10, otherwise Top 10. Check: Count overlap between Top features
+    and the 15 validation genes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_selection_selects_Top_10_features_or_all_if_less_tha
+  kind: magnitude
+  raw_text: Select Top features as all available features if < 10, otherwise Top 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:48:49Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Power analysis uses N=50 sample size and marks results as Preliminary
+    if power < 0.8
+  claim_id: c_db08436e
+  context: T039 [US3] Update code/models/compare.py to include a power analysis calculation
+    in the report, explicitly stating the statistical power of the test given the
+    small N=50 sample size, and marking the results as "Preliminary" if power < 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update code/models/compare.py to include a power analysis calculation
+    in the report, explicitly stating the statistical power of the test given the
+    small N=50 sample size, and marking the results as "Preliminary" if power < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:49:23Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Feature importance validation warns if top 10 features are all from one
+    category
+  claim_id: c_c0f974a9
+  context: 'T047 [US3] ... Logic: After calculating the feature importance, verify
+    that the top features are not all from the same category (e.g., all genomic or
+    all physiological). If the top 10 features are all from one category, log a warning
+    "Feature importance is dominated by one category; consider revising the model
+    or features".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the log contains the warning message if the feature importance
+    is dominated by one category.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:49:23Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 20 training genes used for synthetic label generation
+  claim_id: c_417428e4
+  context: 'T012 [P] [Foundational] [US1] Implement code/data/generate.py to generate
+    synthetic genomic features and synthetic drought labels. Logic: Trigger: Run ONLY
+    if VALIDATION_MODE is True (from T006) AND T011b returns FAILED. Gene List (20):
+    NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1,
+    CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Gene List (20): NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A,
+    LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:53:13Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic label probability calculation formula
+  claim_id: c_6f86d5de
+  context: 'T012 [P] [Foundational] [US1] Implement code/data/generate.py to generate
+    synthetic genomic features and synthetic drought labels. Logic: Trigger: Run ONLY
+    if VALIDATION_MODE is True (from T006) AND T011b returns FAILED. Gene List (20):
+    NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1,
+    CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96. Label Logic: prob = sigmoid(sum(hidden_genes)
+    - 2) + noise(0.1, seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Label Logic: prob = sigmoid(sum(hidden_genes) - 2) + noise(0.1, seed=42).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:53:13Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic label distribution verification criteria
+  claim_id: c_5aa8c25b
+  context: 'T012 [P] [Foundational] [US1] Implement code/data/generate.py to generate
+    synthetic genomic features and synthetic drought labels. ... Verification: Verify
+    output CSV has N rows, columns match gene list, and label distribution mean is
+    within 5% of expected sigmoid probability using a Chi-Square Goodness-of-Fit test
+    (p-value > 0.05, expected mean=0.5, bins=10, uniform distribution across bins).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Label distribution mean is within 5% of expected sigmoid probability using
+    a Chi-Square Goodness-of-Fit test (p-value > 0.05, expected mean=0.5, bins=10,
+    uniform distribution across bins).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:53:13Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 15 independent validation genes list
+  claim_id: c_9a034950
+  context: 'T011c [P] [Foundational] [US1] Create code/config.py entry for 15 Independent
+    Validation Genes. Logic: Compile a curated list of ABA-signaling genes. (e.g.,
+    ABF2, DREB1B, NAC072, WRKY40, bZIP28, bZIP63, ABI1, ABI2, PP2CA, SnRK2.1, SnRK2.5,
+    SnRK2.7, RD26, RD29B, COR15B) that are strictly disjoint from the 20 training
+    genes in T012.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compile a curated list of 15 Independent Validation Genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:05Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic phylogenetic distance matrix generation parameters
+  claim_id: c_3003c3c8
+  context: 'T016a [P] [Foundational] Implement code/data/generate.py to generate a
+    synthetic phylogenetic distance matrix for the species list. Logic: Generate an
+    N x N symmetric matrix (N=species count) with a zero diagonal and off-diagonal
+    values uniformly distributed between 0.01 and 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate an N x N symmetric matrix (N=species count) with a zero diagonal
+    and off-diagonal values uniformly distributed between 0.01 and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:06Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random seed 42 used for synthetic phylogenetic matrix
+  claim_id: c_3faaa991
+  context: 'T016a [P] [Foundational] Implement code/data/generate.py to generate a
+    synthetic phylogenetic distance matrix for the species list. Logic: Generate an
+    N x N symmetric matrix (N=species count) with a zero diagonal and off-diagonal
+    values uniformly distributed between 0.01 and 1.0. Random Seed: Use random_state=42
+    for all random operations (including the uniform distribution generation) to ensure
+    determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for all random operations (including the uniform distribution
+    generation) to ensure determinism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:06Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Model training time limit on 2-core CPU
+  claim_id: c_c243cbd0
+  context: T018 [P] [US2] Integration test verifying RF and XGBoost train within 30
+    mins on 2-core CPU without GPU errors in tests/integration/test_train.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RF and XGBoost within 30 mins on 2-core CPU without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:32Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: KNN baseline uses 5 neighbors
+  claim_id: c_b826840f
+  context: T021 [US2] Implement code/models/train.py to train KNN Baseline (K=5) using
+    the phylogenetic distance matrix.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train KNN Baseline (K=5) using the phylogenetic distance matrix.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:54Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Feature selection logic for top features
+  claim_id: c_b7bbc791
+  context: 'T029 [US3] Implement code/models/compare.py to generate a final report
+    at docs/reports/final_analysis.md. ... Feature Selection: Select ''Top features''
+    as all available features if < 10, otherwise Top 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select Top features as all available features if < 10, otherwise Top 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis for N=50 sample size
+  claim_id: c_975f2f95
+  context: T039 [US3] Update code/models/compare.py to include a power analysis calculation
+    in the report, explicitly stating the statistical power of the test given the
+    small N=50 sample size, and marking the results as 'Preliminary' if power < 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly stating the statistical power of the test given the small N=50
+    sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit of 30 minutes
+  claim_id: c_880bebb4
+  context: 'T034 Run quickstart.md validation: Execute python code/run_pipeline.py
+    --mode validation (T041) and verify runtime < 30 minutes (FR-008, SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic data validation p-value threshold
+  claim_id: c_34572d06
+  context: 'T045 [US3] Review Concern: Synthetic Data Validation. Update code/data/generate.py
+    inside the generate_synthetic_genomics() function to include a validation step
+    for the synthetic genomic data and labels. Logic: After generating the synthetic
+    data, run a Chi-Square Goodness-of-Fit test to verify that the label distribution
+    matches the expected sigmoid probability. If the p-value is < 0.05, log a warning
+    ''Synthetic data distribution deviates significantly from expected; consider adjusting
+    parameters''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the p-value is < 0.05, log a warning 'Synthetic data distribution deviates
+    significantly from expected; consider adjusting parameters'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:55Z'

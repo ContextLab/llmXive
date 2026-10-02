@@ -1,27 +1,21 @@
-T012:
-  c: false
-  h: d674b2bbe2f51c4933b5feaa75f610aedf837efe64596d30895d530d3e7e1601
-  r: "The provided `generate.py` does not include the required trigger (check T011b\
-    \ status and `VALIDATION_MODE`) nor does it log when synthetic data is used. Moreover,\
-    \ the expected output file `data/processed/synthetic_genomics.csv` is absent,\
-    \ indicating the script either was not run or failed to produce the file. These\
-    \ gaps mean the task\u2019s specifications are not fully satisfied."
-T016a:
-  c: false
-  h: 84aa2bb17eb1c13f4c0dd24bd3204c9334b16a3315626f59f98c490aeb2d9723
-  r: "The `data/processed/synthetic_phylo_matrix.npy` file does not exist, and the\
-    \ `generate_synthetic_phylogenetic_matrix` function in `code/data/generate.py`\
-    \ is truncated and does not show a complete implementation of the required symmetric\
-    \ matrix generation and saving logic. The task\u2019s core output is therefore\
-    \ missing."
 T016b:
   c: false
-  h: 9189f46055fb4f23b32c8a025ffb7e796573433e365064988efb63b97879d061
-  r: "The provided `code/data/generate.py` only contains synthetic data generation\
-    \ functions and is truncated before any logic for parsing `data/raw/phylo_tree.newick`\
-    \ or creating `data/processed/real_phylo_matrix.npy`. The required tree file and\
-    \ the resulting distance matrix are both absent, so the optional real\u2011phylogeny\
-    \ functionality is not implemented."
+  h: 01386b6a1c03f6fa627982cf46cd591406599c5970e9f6a65e41ea5b3fb1895b
+  r: "The provided `code/data/generate.py` contains only synthetic genomic feature\
+    \ generation and does not check for `data/raw/phylo_tree.newick`, compute a distance\
+    \ matrix, or log \u201CReal tree not found\u201D to `data/logs/metrics.json`.\
+    \ Moreover, the required files `data/raw/phylo_tree.newick`, `data/logs/metrics.json`,\
+    \ and `data/processed/real_phylo_matrix.npy` are absent. The task\u2019s core\
+    \ functionality is therefore not implemented."
+T016c:
+  c: false
+  h: f76c2a2d7de634529296fcb01ef8eaec422a60c325b0b62ef27e1b62fb390d5b
+  r: "The repository contains `code/data/download.py`, but the shown code is truncated\
+    \ and does not demonstrate the required function that fetches a tree, saves it\
+    \ to `data/raw/phylo_tree.newick`, and handles `VALIDATION_MODE` as specified.\
+    \ Moreover, the expected output file `data/raw/phylo_tree.newick` is absent. The\
+    \ task\u2019s core requirement\u2014producing a real phylogenetic tree file or\
+    \ logging the failure message\u2014is not met."
 T021:
   c: false
   h: b49d2262a0797b8405043de10a930febabf2dc2f062ff4d23b376e433fcf52db

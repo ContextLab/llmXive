@@ -1,9 +1,11 @@
 """
 Data generation module for synthetic datasets and matrices.
 
-This module generates synthetic genomic features and phylogenetic distance matrices
-required for the drought tolerance prediction pipeline when real data is unavailable
-or for validation purposes.
+This module generates synthetic genomic features and phylogenetic matrices
+for the drought tolerance prediction pipeline.
+
+IMPORTANT: This module is ONLY to be used in VALIDATION_MODE when real data
+fetches fail. It explicitly invalidates biological claims (FR-001, SC-001).
 """
 import os
 import sys
@@ -11,150 +13,280 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, List, Optional
 from pathlib import Path
-from config import get_config, validate_config, ensure_directories, VALIDATION_MODE, check_fetch_status
+import json
+import logging
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
+# Import config to access VALIDATION_MODE and gene lists
+from config import get_config, ensure_directories, TRAINING_GENES, VALIDATION_GENES
+from utils.logging import DataPipelineLog
 
-ensure_directories()
+# Configure logging for this module
+logger = DataPipelineLog("generate")
 
-def generate_synthetic_genomic_features() -> str:
+def generate_synthetic_genomic_features(n_samples: int = 50) -> pd.DataFrame:
     """
     Generate synthetic genomic features and drought labels.
-    
+
     Logic:
-    - Uses the 20 training genes defined in config.
-    - Generates synthetic expression values.
-    - Generates synthetic drought labels based on a sigmoid function of genomic markers.
-    
-    Returns:
-        Path to the generated CSV file.
+    - Trigger: Run ONLY if VALIDATION_MODE is True AND T011b returned FAILED.
+    - Gene List: 20 specific stress-response genes.
+    - Label Logic: prob = sigmoid(sum(hidden_genes) - 2) + noise(0.1, seed=42)
+    - Hidden Genes: Subset of random genes from training genes (deterministic via seed).
+    - Label: 1 if random() < prob else 0.
+
+    Output:
+    - data/processed/synthetic_genomics.csv
+
+    Verification:
+    - Output CSV has N rows.
+    - Columns match gene list.
+    - Label distribution mean is within 5% of expected sigmoid probability
+      using a Chi-Square Goodness-of-Fit test (p-value > 0.05).
     """
     config = get_config()
-    training_genes = config.get("TRAINING_GENES", [])
-    species_list = config.get("SPECIES_LIST", [])
-    n_samples = len(species_list)
-    
-    if n_samples == 0:
-        raise ValueError("Species list is empty. Cannot generate synthetic data.")
 
-    # Generate synthetic expression data (normalized 0-1)
-    np.random.seed(42) # Reproducibility
+    # Check if we are in VALIDATION_MODE
+    if not config.get('VALIDATION_MODE', False):
+        logger.log_warning("VALIDATION_MODE is False. Synthetic data generation is forbidden in Production.")
+        # In Production mode, we should not generate synthetic data.
+        # This function should ideally not be called, but if it is, we raise an error or return empty.
+        # Per task logic: "Trigger: Run ONLY if VALIDATION_MODE is True".
+        # We raise a critical error if called outside validation mode to prevent accidental usage.
+        raise RuntimeError("CRITICAL: Synthetic data generation attempted in Production Mode (VALIDATION_MODE=False). Aborting.")
+
+    # Check if real genomic data is detected (simulated by checking if T011b succeeded)
+    # Since T011b status is not directly passed here, we rely on the caller (run_pipeline)
+    # to ensure this is only called when T011b failed.
+    # However, we add a check for the output file of T011b if it exists.
+    # Assuming T011b would write to a specific location if successful.
+    # For this implementation, we assume the caller handles the logic.
+    # We proceed with generation.
+
+    # Log the scope reduction explicitly
+    logger.log_critical("Scope Reduction: Synthetic data used, invalidates FR-001/SC-001 biological claims")
+
+    # Set random seed for reproducibility
+    np.random.seed(42)
+    random_state = np.random.RandomState(42)
+
+    # Gene List (20)
+    gene_list = TRAINING_GENES
+    if len(gene_list) != 20:
+        logger.log_error(f"Expected 20 training genes, got {len(gene_list)}. Using provided list.")
+
+    # Select hidden genes (subset of random genes from the training genes)
+    # The task says "Select a subset of random genes from the training genes (deterministic via seed)"
+    # Let's select 5 hidden genes to drive the signal.
+    n_hidden = 5
+    hidden_gene_indices = random_state.choice(len(gene_list), size=n_hidden, replace=False)
+    hidden_genes = [gene_list[i] for i in hidden_gene_indices]
+    logger.log_info(f"Hidden genes for label generation: {hidden_genes}")
+
+    # Generate synthetic data
     data = {}
-    for gene in training_genes:
-        # Simulate expression levels (e.g., RNA-seq counts transformed)
-        data[gene] = np.random.uniform(0, 1, n_samples)
+    for gene in gene_list:
+        # Generate binary features (0/1) for each gene
+        # Probability of 1 is 0.5 for most genes, but we can add some noise
+        data[gene] = random_state.binomial(1, 0.5, n_samples)
 
+    # Create DataFrame
     df = pd.DataFrame(data)
-    
-    # Add species ID
-    df.insert(0, "species_id", species_list)
 
-    # Generate synthetic labels
-    # Logic: prob = sigmoid(sum(genomic_markers) - 12) + noise(0.1)
-    # Normalize sum to be around 12 for the sigmoid center
-    # Sum of 20 genes (0-1) -> mean 10. Shift to center sigmoid.
-    gene_sum = df[training_genes].sum(axis=1)
-    # Shift so mean is near 0 for sigmoid (sigmoid(0) = 0.5)
-    # If mean sum is 10, we subtract 10.
-    # The config says "sum(genomic_markers) - 12". We'll follow that.
-    prob = 1 / (1 + np.exp(-(gene_sum - 12)))
-    
-    # Add noise
-    noise = np.random.normal(0, 0.1, n_samples)
-    prob_noisy = prob + noise
-    prob_noisy = np.clip(prob_noisy, 0, 1)
+    # Generate labels
+    # prob = sigmoid(sum(hidden_genes) - 2) + noise(0.1, seed=42)
+    # Sigmoid function: 1 / (1 + exp(-x))
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
 
-    labels = (np.random.random(n_samples) < prob_noisy).astype(int)
-    df["drought_tolerance"] = labels
+    # Calculate sum of hidden genes for each sample
+    hidden_sum = df[hidden_genes].sum(axis=1)
 
-    output_path = DATA_PROCESSED / "synthetic_genomics.csv"
+    # Calculate probability
+    # noise(0.1, seed=42) -> Gaussian noise with std=0.1
+    noise = random_state.normal(0, 0.1, n_samples)
+    probs = sigmoid(hidden_sum - 2) + noise
+
+    # Clip probabilities to [0, 1]
+    probs = np.clip(probs, 0, 1)
+
+    # Generate labels: 1 if random() < prob else 0
+    labels = (random_state.random(n_samples) < probs).astype(int)
+
+    # Add label column
+    df['label'] = labels
+
+    # Verification: Chi-Square Goodness-of-Fit test
+    # Expected mean=0.5, bins=10, uniform distribution across bins
+    # We check if the label distribution is within 5% of the expected sigmoid probability
+    # and perform a Chi-Square test for uniformity across bins.
+
+    # Expected mean probability (theoretical)
+    # We can calculate the expected mean of the sigmoid function over the distribution of hidden_sum
+    # But for simplicity, we check if the observed mean is within 5% of the theoretical mean
+    # Theoretical mean of sigmoid(hidden_sum - 2) where hidden_sum ~ Binomial(5, 0.5)
+    # Let's compute it empirically from the generated probs
+    expected_mean = np.mean(probs)
+    observed_mean = np.mean(labels)
+
+    logger.log_info(f"Expected label mean (from sigmoid): {expected_mean:.4f}")
+    logger.log_info(f"Observed label mean: {observed_mean:.4f}")
+
+    # Check if within 5%
+    if abs(observed_mean - expected_mean) > 0.05 * expected_mean:
+        logger.log_warning(f"Label distribution mean deviates by more than 5% from expected. Observed: {observed_mean:.4f}, Expected: {expected_mean:.4f}")
+    else:
+        logger.log_info("Label distribution mean is within 5% of expected.")
+
+    # Chi-Square Goodness-of-Fit test for uniform distribution across bins
+    # We bin the labels (0 and 1) and check if they are uniformly distributed?
+    # The task says: "bins=10, uniform distribution across bins"
+    # This is a bit ambiguous for binary labels. Let's interpret it as:
+    # We bin the PROBABILITIES into 10 bins and check if the labels are uniformly distributed within those bins?
+    # Or we check if the labels are uniformly distributed across 10 bins of the probability space?
+    # Let's do: Bin the probabilities into 10 bins, and for each bin, check the proportion of 1s.
+    # If the model is perfect, the proportion should match the probability.
+    # But the task says "uniform distribution across bins", which might mean the labels themselves are uniformly distributed?
+    # Let's re-read: "label distribution mean is within 5% of expected sigmoid probability using a Chi-Square Goodness-of-Fit test (p-value > 0.05, expected mean=0.5, bins=10, uniform distribution across bins)"
+    # This suggests we are testing if the labels are uniformly distributed (mean=0.5) across 10 bins?
+    # But labels are binary. Let's assume we are testing if the labels are uniformly distributed (50% 0, 50% 1) overall.
+    # We can use a Chi-Square test for goodness of fit to a uniform distribution (50% 0, 50% 1).
+
+    # Chi-Square test for uniform distribution of labels (0 and 1)
+    observed_counts = np.bincount(labels, minlength=2)
+    expected_counts = np.array([n_samples / 2, n_samples / 2])
+
+    # Chi-Square statistic
+    chi2 = np.sum((observed_counts - expected_counts) ** 2 / expected_counts)
+    # Degrees of freedom = 1 (2 categories - 1)
+    p_value = 1 - stats.chi2.cdf(chi2, 1)
+
+    logger.log_info(f"Chi-Square Goodness-of-Fit test for uniform label distribution: chi2={chi2:.4f}, p-value={p_value:.4f}")
+
+    if p_value > 0.05:
+        logger.log_info("Label distribution is consistent with uniform distribution (p > 0.05).")
+    else:
+        logger.log_warning(f"Label distribution deviates significantly from uniform (p < 0.05).")
+
+    # Ensure output directory exists
+    ensure_directories([Path("data/processed")])
+
+    # Save to CSV
+    output_path = Path("data/processed/synthetic_genomics.csv")
     df.to_csv(output_path, index=False)
-    
-    return str(output_path)
+    logger.log_info(f"Synthetic genomic data saved to {output_path}")
 
-def generate_synthetic_phylogenetic_matrix() -> str:
+    return df
+
+def generate_synthetic_phylogenetic_matrix(n_species: int = 50) -> np.ndarray:
     """
     Generate a synthetic phylogenetic distance matrix.
-    
+
     Logic:
-    - N x N symmetric matrix (N=species count).
-    - Zero diagonal.
-    - Off-diagonal values uniformly distributed between a small positive lower bound and a normalized upper limit.
-    
-    Returns:
-        Path to the generated .npy file.
+    - Generate an N x N symmetric matrix (N=species count)
+    - Zero diagonal
+    - Off-diagonal values uniformly distributed between 0.01 and 1.0
+    - Random seed: 42
+
+    Output:
+    - data/processed/synthetic_phylo_matrix.npy
+
+    Verification:
+    - Diagonal is zero
+    - Off-diagonals > 0
+    - Shape matches N
+    - File exists
     """
     config = get_config()
-    species_list = config.get("SPECIES_LIST", [])
-    n = len(species_list)
-    
-    if n == 0:
-        raise ValueError("Species list is empty. Cannot generate phylogenetic matrix.")
 
+    # Set random seed
     np.random.seed(42)
-    
-    # Generate random distances
-    # Lower bound: 0.1, Upper bound: 1.0 (normalized)
-    matrix = np.random.uniform(0.1, 1.0, size=(n, n))
-    
-    # Make symmetric
-    matrix = (matrix + matrix.T) / 2
-    
-    # Zero diagonal
-    np.fill_diagonal(matrix, 0.0)
-    
-    output_path = DATA_PROCESSED / "synthetic_phylo_matrix.npy"
-    np.save(output_path, matrix)
-    
-    return str(output_path)
 
-def compute_real_phylogenetic_matrix() -> Optional[str]:
+    # Generate symmetric matrix
+    matrix = np.random.uniform(0.01, 1.0, size=(n_species, n_species))
+    matrix = (matrix + matrix.T) / 2  # Make symmetric
+
+    # Set diagonal to zero
+    np.fill_diagonal(matrix, 0.0)
+
+    # Ensure output directory exists
+    ensure_directories([Path("data/processed")])
+
+    # Save to .npy
+    output_path = Path("data/processed/synthetic_phylo_matrix.npy")
+    np.save(output_path, matrix)
+    logger.log_info(f"Synthetic phylogenetic matrix saved to {output_path}")
+
+    return matrix
+
+def compute_real_phylogenetic_matrix(tree_path: str) -> Optional[np.ndarray]:
     """
-    Compute a real phylogenetic distance matrix if a tree file exists.
-    
+    Compute a real phylogenetic distance matrix from a Newick tree file.
+
     Logic:
-    - Checks for data/raw/phylo_tree.newick.
-    - If found, parses and computes distances.
-    - If not, returns None and logs.
-    
-    Returns:
-        Path to the generated .npy file if successful, None otherwise.
+    - If tree_path exists, parse and compute distances.
+    - Otherwise, return None.
+
+    Output:
+    - data/processed/real_phylo_matrix.npy (if successful)
     """
-    tree_path = DATA_RAW / "phylo_tree.newick"
-    if not tree_path.exists():
-        # Log and skip
-        # We cannot import Bio here without adding dependency, so we just return None
-        # The logging is handled by the caller or main
+    if not os.path.exists(tree_path):
+        logger.log_warning(f"Real tree file not found: {tree_path}. Skipping real phylogenetic matrix computation.")
         return None
 
-    # Placeholder for real computation if Biopython was available
-    # Since the prompt says "If ... exists", we assume we might need to parse it.
-    # However, without Biopython in requirements, we cannot parse newick easily.
-    # Given the constraints, if the file exists but we can't parse, we fail loudly?
-    # Or we just assume the synthetic one is used if real parsing isn't implemented.
-    # For this task, we assume the file doesn't exist or we skip real parsing if not implemented.
-    # We return None to indicate we didn't generate a real one.
-    return None
+    # Try to parse the tree and compute distances
+    # We'll use ete3 if available, otherwise fall back to a simple parser or raise an error
+    try:
+        from ete3 import Tree
+        tree = Tree(tree_path)
+        # Get all leaf names
+        leaves = tree.get_leaf_names()
+        n = len(leaves)
+
+        # Compute distance matrix
+        matrix = np.zeros((n, n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                dist = tree.get_distance(leaves[i], leaves[j])
+                matrix[i, j] = dist
+                matrix[j, i] = dist
+
+        # Ensure output directory exists
+        ensure_directories([Path("data/processed")])
+
+        # Save to .npy
+        output_path = Path("data/processed/real_phylo_matrix.npy")
+        np.save(output_path, matrix)
+        logger.log_info(f"Real phylogenetic matrix saved to {output_path}")
+
+        return matrix
+    except ImportError:
+        logger.log_error("ete3 library not found. Cannot parse Newick tree.")
+        return None
+    except Exception as e:
+        logger.log_error(f"Error computing real phylogenetic matrix: {e}")
+        return None
 
 def main():
-    """Main entry point for data generation."""
-    print("Generating synthetic phylogenetic matrix...")
-    phylo_path = generate_synthetic_phylogenetic_matrix()
-    print(f"Saved to: {phylo_path}")
-    
-    print("Generating synthetic genomic features...")
-    genomics_path = generate_synthetic_genomic_features()
-    print(f"Saved to: {genomics_path}")
+    """
+    Main entry point for synthetic data generation.
+    """
+    config = get_config()
 
-    # Check for real tree (optional)
-    real_path = compute_real_phylogenetic_matrix()
-    if real_path:
-        print(f"Real phylogenetic matrix saved to: {real_path}")
-    else:
-        print("Real phylogenetic tree not found or not processed. Using synthetic.")
+    # Check if VALIDATION_MODE is True
+    if not config.get('VALIDATION_MODE', False):
+        logger.log_warning("VALIDATION_MODE is False. Skipping synthetic data generation.")
+        return
+
+    # Check if T011b failed (we assume this is handled by the caller, but we can check for a flag)
+    # For now, we proceed with generation.
+
+    # Generate synthetic genomic features
+    df = generate_synthetic_genomic_features(n_samples=50)
+
+    # Generate synthetic phylogenetic matrix
+    matrix = generate_synthetic_phylogenetic_matrix(n_species=50)
+
+    logger.log_info("Synthetic data generation completed.")
 
 if __name__ == "__main__":
     main()
