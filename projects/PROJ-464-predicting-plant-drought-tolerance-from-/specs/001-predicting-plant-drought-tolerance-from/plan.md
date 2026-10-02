@@ -25,7 +25,7 @@ The pipeline handles collinearity via PCA and phylogenetic non-independence via 
 **Project Type**: Computational Research Pipeline  
 **Performance Goals**: Process [deferred] images in <6h; Memory <7GB; Disk <14GB
 **Constraints**: No GPU/CUDA; No heavy LLM training; Strict adherence to verified dataset URLs; Reproducible random seeds.  
-**Scale/Scope**: ~10k images (NPPN/MGB3), ~50-100 species overlap with TRY (Minimum 55 for Power Analysis).
+**Scale/Scope**: A large-scale dataset (NPPN/MGB3), A substantial number of species overlap with TRY. (Minimum 55 for Power Analysis).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

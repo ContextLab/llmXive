@@ -1,85 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Merged Dataset Schema
-description: |
-  Validates the structure of the merged dataset combining RSA metrics and physiological traits.
-  References: FR-001, FR-002
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Dataset Schema
+description: Validates merged data structure for the pipeline.
 type: object
-required:
-  - $schema
-  - type
-  - properties
 properties:
-  $schema:
-    type: string
-    const: http://json-schema.org/draft-07/schema#
   type:
     type: string
-    const: object
-  properties:
-    type: object
-    required:
-      species_id
-      depth
-      branching_density
-      surface_area
-      stomatal_conductance
-      photosynthesis
-    properties:
-      species_id:
-        type: object
-        properties:
-          type:
-            type: string
-            const: string
-          description:
-            type: string
-      depth:
-        type: object
-        properties:
-          type:
-            type: string
-            const: number
-          description:
-            type: string
-          exclusiveMinimum:
-            type: number
-            const: 0
-      branching_density:
-        type: object
-        properties:
-          type:
-            type: string
-            const: number
-          description:
-            type: string
-          exclusiveMinimum:
-            type: number
-            const: 0
-      surface_area:
-        type: object
-        properties:
-          type:
-            type: string
-            const: number
-          description:
-            type: string
-          exclusiveMinimum:
-            type: number
-            const: 0
-      stomatal_conductance:
-        type: object
-        properties:
-          type:
-            type: string
-            const: number
-          description:
-            type: string
-      photosynthesis:
-        type: object
-        properties:
-          type:
-            type: string
-            const: number
-          description:
-            type: string
-additionalProperties: false
+    const: "application/json"
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - species_id
+        - depth
+        - branching_density
+        - surface_area
+        - conductance
+        - photosynthesis
+      properties:
+        species_id:
+          type: string
+          description: Unique species identifier
+        depth:
+          type: number
+          description: Root depth in cm
+          minimum: 0
+        branching_density:
+          type: number
+          description: Branching density metric
+          minimum: 0
+        surface_area:
+          type: number
+          description: Root surface area in cm^2
+          minimum: 0
+        conductance:
+          type: number
+          description: Stomatal conductance
+        photosynthesis:
+          type: number
+          description: Photosynthetic rate
+        pca_depth:
+          type: number
+          description: PCA transformed depth
+        pca_branching_density:
+          type: number
+          description: PCA transformed branching density
+        pca_surface_area:
+          type: number
+          description: PCA transformed surface area
+      additionalProperties: false
+required:
+  - type
+  - data

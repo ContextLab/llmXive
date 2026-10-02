@@ -1,45 +1,37 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: RSAMetrics Schema
-description: Validates the structure and types of the RSA metrics dataset generated from root image analysis.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RSA Metrics Schema
+description: Validates extracted root system architecture traits.
 type: object
 properties:
-  metadata:
-    type: object
-    properties:
-      generated_at:
-        type: string
-        format: date-time
-      source:
-        type: string
-      version:
-        type: string
-    required:
-      - generated_at
-      - source
-      - version
+  type:
+    type: string
+    const: "application/json"
   data:
     type: array
     items:
       type: object
-      properties:
-        species_id:
-          type: string
-          minLength: 1
-        depth:
-          type: number
-          exclusiveMinimum: 0
-        branching_density:
-          type: number
-          exclusiveMinimum: 0
-        surface_area:
-          type: number
-          exclusiveMinimum: 0
       required:
         - species_id
         - depth
         - branching_density
         - surface_area
+      properties:
+        species_id:
+          type: string
+          description: Unique species identifier
+        depth:
+          type: number
+          description: Root depth in cm
+          minimum: 0
+        branching_density:
+          type: number
+          description: Branching density metric
+          minimum: 0
+        surface_area:
+          type: number
+          description: Root surface area in cm^2
+          minimum: 0
       additionalProperties: false
 required:
-  - metadata
+  - type
   - data

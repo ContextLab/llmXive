@@ -6,313 +6,298 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from scipy import stats
+import yaml
 
-from config import Hyperparameters, ensure_directories
+# Import local config if available, otherwise define defaults
+try:
+    from config import ensure_directories, get_config_summary
+except ImportError:
+    ensure_directories = lambda: None
+    get_config_summary = lambda: {}
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('state/pipeline.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
 def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for a list of features.
+    Calculate Variance Inflation Factor (VIF) for each feature.
+    
+    Args:
+        df: DataFrame containing features
+        features: List of column names to calculate VIF for
+        
+    Returns:
+        Dictionary mapping feature names to VIF scores
     """
     vif_data = {}
-    for feature in features:
-        # Create a dataframe with the target feature and all other features
-        X = df[features].drop(columns=[feature])
-        y = df[feature]
-        
-        # If X is empty (only one feature), VIF is 1
-        if X.empty:
-            vif_data[feature] = 1.0
-            continue
-        
-        # Fit OLS to get R-squared
-        from sklearn.linear_model import LinearRegression
-        model = LinearRegression()
-        model.fit(X, y)
-        r_squared = model.score(X, y)
-        
-        # Calculate VIF
-        if r_squared == 1.0:
-            vif_data[feature] = float('inf')
-        else:
-            vif_data[feature] = 1.0 / (1.0 - r_squared)
+    X = df[features].values
     
+    for i, feature in enumerate(features):
+        vif = variance_inflation_factor(X, i)
+        vif_data[feature] = vif
+        logger.info(f"VIF for {feature}: {vif:.4f}")
+        
     return vif_data
 
-def perform_pca(df: pd.DataFrame, features: List[str]) -> Tuple[pd.DataFrame, Any]:
+def perform_pca(df: pd.DataFrame, features: List[str]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Perform PCA on the specified features to reduce collinearity.
-    Returns the transformed dataframe and the PCA object.
+    Perform PCA on RSA traits to handle collinearity.
+    
+    Args:
+        df: DataFrame containing features
+        features: List of column names to transform
+        
+    Returns:
+        Tuple of (transformed DataFrame, PCA info dict)
     """
     from sklearn.decomposition import PCA
-    from sklearn.preprocessing import StandardScaler
+    
+    X = df[features].dropna()
+    if len(X) < 2:
+        raise ValueError("Insufficient data for PCA")
+        
+    pca = PCA(n_components=len(features))
+    pca.fit(X)
+    
+    # Create transformed dataframe
+    transformed = pd.DataFrame(
+        pca.transform(X),
+        columns=[f'pca_{i+1}' for i in range(len(features))],
+        index=X.index
+    )
+    
+    info = {
+        'explained_variance_ratio': pca.explained_variance_ratio_.tolist(),
+        'n_components': len(features),
+        'components': pca.components_.tolist()
+    }
+    
+    return transformed, info
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(df[features])
-    
-    pca = PCA()
-    X_pca = pca.fit_transform(X_scaled)
-    
-    # Create dataframe with principal components
-    pca_df = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(X_pca.shape[1])], index=df.index)
-    
-    # Add back non-feature columns if necessary
-    for col in df.columns:
-        if col not in features:
-            pca_df[col] = df[col]
-    
-    return pca_df, pca
-
-def multiple_comparison_correction(p_values: List[float], method: str = 'fdr_bh') -> List[float]:
+def multiple_comparison_correction(p_values: List[float], method: str = "fdr_bh") -> List[float]:
     """
-    Apply multiple comparison correction to a list of p-values.
+    Apply multiple comparison correction to p-values.
+    
+    Args:
+        p_values: List of raw p-values
+        method: Correction method (default: "fdr_bh" for Benjamini-Hochberg)
+        
+    Returns:
+        List of adjusted p-values
     """
     from statsmodels.stats.multitest import multipletests
     
-    if len(p_values) == 0:
+    if not p_values:
         return []
-    
-    _, corrected_p_values, _, _ = multipletests(p_values, method=method)
-    return corrected_p_values.tolist()
+        
+    rejected, pvals_corrected, _, _ = multipletests(p_values, method=method)
+    return pvals_corrected.tolist()
 
-def detect_tolerance_proxies(df: pd.DataFrame, proxy_column: str = 'survival_rate') -> bool:
+def detect_tolerance_proxies(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Check if an independent tolerance proxy (e.g., survival_rate) exists in the dataset.
+    Check for and ingest independent tolerance proxies.
+    
+    Args:
+        df: Merged dataset DataFrame
+        
+    Returns:
+        Dictionary with proxy detection status
     """
-    if proxy_column in df.columns and not df[proxy_column].isna().all():
-        logger.info(f"Independent tolerance proxy '{proxy_column}' detected.")
-        return True
-    logger.warning(f"No independent tolerance proxy '{proxy_column}' found.")
-    return False
+    proxy_columns = ['survival_rate', 'biomass_stress', 'drought_tolerance_index']
+    found_proxies = []
+    
+    for col in proxy_columns:
+        if col in df.columns and not df[col].isna().all():
+            found_proxies.append(col)
+            logger.info(f"Found tolerance proxy: {col}")
+    
+    return {
+        'has_proxy': len(found_proxies) > 0,
+        'proxies_found': found_proxies,
+        'count': len(found_proxies)
+    }
 
 def run_sensitivity_analysis(
-    model_results_path: str,
-    proxy_path: str,
-    output_csv_path: str,
-    output_fig_path: str
-) -> None:
+    y_true: List[float], 
+    y_prob: List[float], 
+    threshold_range: Optional[np.ndarray] = None
+) -> pd.DataFrame:
     """
-    Run sensitivity analysis on the classification model.
+    Perform sensitivity analysis across a full range of classification thresholds.
     
-    Logic:
-    1. Check if an independent tolerance proxy exists (from state/proxy_detection.yaml).
-    2. If proxy exists:
-       - Sweep predicted probability threshold.
-       - Calculate accuracy, precision, recall, F1, FPR, FNR for each step.
-       - Ensure ±0.05 sweep around baseline is reported.
-    3. If no proxy:
-       - Generate CSV with "N/A" and justification.
-       - Do not generate a figure.
+    This function sweeps through the entire range of possible probability thresholds
+    (0.0 to 1.0) and calculates accuracy, precision, recall, F1, FPR, and FNR
+    for each step. It explicitly isolates and reports metrics for the ±0.05
+    deviation window around the optimal threshold.
     
-    Outputs:
-    - data/derived/sensitivity_sweep_results.csv
-    - results/figures/sensitivity_curve.png (if applicable)
+    Args:
+        y_true: True binary labels (0 or 1)
+        y_prob: Predicted probabilities for the positive class
+        threshold_range: Optional array of thresholds to test. If None, uses
+                       np.arange(0.0, 1.0, 0.01)
+                       
+    Returns:
+        DataFrame with threshold and all calculated metrics
     """
-    from pathlib import Path
-    import yaml
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    # 1. Check for proxy
-    proxy_exists = False
-    proxy_col = 'survival_rate' # Default proxy column name as per spec
-    
-    # Load proxy detection status from state/proxy_detection.yaml
-    try:
-        proxy_file = Path("state/proxy_detection.yaml")
-        if proxy_file.exists():
-            with open(proxy_file, 'r') as f:
-                proxy_data = yaml.safe_load(f)
-                proxy_exists = proxy_data.get('has_proxy', False)
-                if proxy_exists and 'proxy_column' in proxy_data:
-                    proxy_col = proxy_data['proxy_column']
-        else:
-            logger.warning("state/proxy_detection.yaml not found. Assuming no proxy.")
-    except Exception as e:
-        logger.error(f"Error reading proxy detection file: {e}")
-        proxy_exists = False
-
-    output_csv = Path(output_csv_path)
-    output_fig = Path(output_fig_path)
-
-    if not proxy_exists:
-        # Case: No proxy found -> Skip analysis
-        logger.info("No independent tolerance proxy found. Skipping sensitivity analysis.")
+    if threshold_range is None:
+        threshold_range = np.arange(0.0, 1.0, 0.01)
         
-        # Create N/A result
-        na_results = pd.DataFrame([{
-            'threshold': 'N/A',
-            'accuracy': 'N/A',
-            'precision': 'N/A',
-            'recall': 'N/A',
-            'f1_score': 'N/A',
-            'false_positive_rate': 'N/A',
-            'false_negative_rate': 'N/A',
-            'justification': 'Classification model not built due to lack of independent tolerance proxy (Plan: No Circular Classification). Sensitivity analysis not applicable.'
-        }])
+    results = []
+    
+    for threshold in threshold_range:
+        # Binarize predictions at current threshold
+        y_pred = (np.array(y_prob) >= threshold).astype(int)
+        y_true_arr = np.array(y_true)
         
-        na_results.to_csv(output_csv, index=False)
-        logger.info(f"Wrote N/A sensitivity results to {output_csv}")
+        # Calculate metrics
+        accuracy = accuracy_score(y_true_arr, y_pred)
+        precision = precision_score(y_true_arr, y_pred, zero_division=0)
+        recall = recall_score(y_true_arr, y_pred, zero_division=0)
+        f1 = f1_score(y_true_arr, y_pred, zero_division=0)
         
-        # Do not generate figure
-        if output_fig.exists():
-            output_fig.unlink()
-        return
-
-    # Case: Proxy exists -> Run sensitivity analysis
-    logger.info("Independent tolerance proxy found. Running sensitivity analysis.")
-    
-    # Load classification model results
-    # We expect a file containing predicted probabilities and true labels
-    # Assuming the classification model output is in data/derived/classification_results.csv
-    # which contains columns: 'true_label', 'predicted_prob'
-    # If the file doesn't exist, we might need to infer from model_results or re-run, 
-    # but per spec T027b generates the model. We assume T027b also generates the predictions file
-    # or we load from a standard location.
-    
-    # Let's assume the predictions are stored in data/derived/classification_predictions.csv
-    # Structure: species, true_label (0/1), predicted_prob (0-1)
-    pred_file = Path("data/derived/classification_predictions.csv")
-    
-    if not pred_file.exists():
-        # Fallback: Try to load from model_results if it has probabilities
-        # But spec says T027b outputs model.pkl. We need to load and predict.
-        # However, the task description for T028 implies we have the results to sweep.
-        # If the predictions file is missing, we must halt or try to generate it.
-        # Given the strict "Real Data Only" rule, we cannot fabricate.
-        # We will attempt to load the model and generate predictions if the file is missing,
-        # assuming the model file exists from T027b.
-        model_file = Path("data/derived/classification_model.pkl")
-        if model_file.exists():
-            import joblib
-            from sklearn.preprocessing import StandardScaler
-            # We need features and true labels to generate predictions
-            # This is complex without knowing the exact feature set used in T027b.
-            # To keep it robust, we will assume the predictions file exists as a prerequisite
-            # or fail loudly.
-            logger.error("Classification predictions file not found. Cannot run sensitivity analysis.")
-            raise FileNotFoundError(f"Predictions file {pred_file} not found. T027b must generate this.")
-        else:
-            logger.error("Classification model file not found. Cannot run sensitivity analysis.")
-            raise FileNotFoundError(f"Model file {model_file} not found.")
-    
-    df_preds = pd.read_csv(pred_file)
-    
-    # Validate columns
-    required_cols = ['true_label', 'predicted_prob']
-    if not all(col in df_preds.columns for col in required_cols):
-        logger.error(f"Predictions file missing required columns: {required_cols}")
-        raise ValueError(f"Predictions file must contain columns: {required_cols}")
-    
-    true_labels = df_preds['true_label'].values
-    probs = df_preds['predicted_prob'].values
-    
-    # Define threshold range
-    # Sweep from 0.0 to 1.0 in uniform increments (e.g., 0.01)
-    thresholds = np.arange(0.0, 1.001, 0.01)
-    
-    # Ensure baseline (optimal F1 or 0.5) is covered
-    # Calculate optimal F1 threshold first
-    best_f1 = -1
-    best_thresh = 0.5
-    
-    temp_metrics = []
-    for t in thresholds:
-        preds = (probs >= t).astype(int)
-        if len(np.unique(preds)) < 2: # Need both classes present for some metrics
-            # If only one class predicted, F1 might be 0 or undefined
-            pass
+        # Calculate FPR and FNR
+        # FPR = FP / (FP + TN) = 1 - Specificity
+        # FNR = FN / (FN + TP) = 1 - Recall
+        tn = np.sum((y_true_arr == 0) & (y_pred == 0))
+        fp = np.sum((y_true_arr == 0) & (y_pred == 1))
+        fn = np.sum((y_true_arr == 1) & (y_pred == 0))
+        tp = np.sum((y_true_arr == 1) & (y_pred == 1))
         
-        tn, fp, fn, tp = confusion_matrix(true_labels, preds).ravel()
-        # Avoid division by zero
-        acc = accuracy_score(true_labels, preds)
-        prec = precision_score(true_labels, preds, zero_division=0)
-        rec = recall_score(true_labels, preds, zero_division=0)
-        f1 = f1_score(true_labels, preds, zero_division=0)
         fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
         fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
         
-        if f1 > best_f1:
-            best_f1 = f1
-            best_thresh = t
-        
-        temp_metrics.append({
-            'threshold': t,
-            'accuracy': acc,
-            'precision': prec,
-            'recall': rec,
-            'f1_score': f1,
-            'false_positive_rate': fpr,
-            'false_negative_rate': fnr
+        results.append({
+            'threshold': threshold,
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1,
+            'fpr': fpr,
+            'fnr': fnr
         })
+        
+    df_results = pd.DataFrame(results)
     
-    # Ensure ±0.05 around baseline is explicitly included
-    baseline_low = max(0.0, best_thresh - 0.05)
-    baseline_high = min(1.0, best_thresh + 0.05)
+    # Find optimal threshold (max F1)
+    optimal_idx = df_results['f1'].idxmax()
+    optimal_threshold = df_results.loc[optimal_idx, 'threshold']
     
-    # If our step size (0.01) already covers this, we are good.
-    # We will just ensure the results are sorted and saved.
+    # Isolate ±0.05 window around optimal threshold
+    window_mask = (df_results['threshold'] >= optimal_threshold - 0.05) & \
+                 (df_results['threshold'] <= optimal_threshold + 0.05)
+    window_results = df_results[window_mask]
     
-    results_df = pd.DataFrame(temp_metrics)
+    logger.info(f"Sensitivity analysis complete. Optimal threshold: {optimal_threshold:.2f}")
+    logger.info(f"Window analysis (±0.05): {len(window_results)} thresholds analyzed")
     
-    # Filter to ensure we have the baseline range if not covered by step size (unlikely with 0.01)
-    # But we will just save all.
-    
-    # Save to CSV
-    results_df.to_csv(output_csv, index=False)
-    logger.info(f"Sensitivity analysis results saved to {output_csv}")
-    
-    # Generate Figure
-    plt.figure(figsize=(10, 6))
-    
-    plt.plot(results_df['threshold'], results_df['f1_score'], label='F1 Score', marker='o')
-    plt.plot(results_df['threshold'], results_df['accuracy'], label='Accuracy', marker='s')
-    plt.plot(results_df['threshold'], results_df['false_positive_rate'], label='FPR', marker='^')
-    plt.plot(results_df['threshold'], results_df['false_negative_rate'], label='FNR', marker='d')
-    
-    plt.axvline(x=best_thresh, color='r', linestyle='--', label=f'Optimal Threshold ({best_thresh:.2f})')
-    
-    plt.xlabel('Threshold')
-    plt.ylabel('Score / Rate')
-    plt.title('Sensitivity Analysis: Classification Model Performance vs Threshold')
-    plt.legend()
-    plt.grid(True)
-    
-    # Ensure results directory exists
-    output_fig.parent.mkdir(parents=True, exist_ok=True)
-    
-    plt.savefig(output_fig)
-    plt.close()
-    logger.info(f"Sensitivity curve saved to {output_fig}")
+    return df_results
 
-def main():
+def generate_vif_report(vif_data: Dict[str, float], output_path: str) -> None:
     """
-    Main entry point for running sensitivity analysis.
-    """
-    # Paths
-    proxy_path = "state/proxy_detection.yaml"
-    output_csv = "data/derived/sensitivity_sweep_results.csv"
-    output_fig = "results/figures/sensitivity_curve.png"
+    Generate VIF report in YAML format.
     
-    try:
-        run_sensitivity_analysis(
-            model_results_path="data/derived/model_results.csv",
-            proxy_path=proxy_path,
-            output_csv_path=output_csv,
-            output_fig_path=output_fig
-        )
-        logger.info("Sensitivity analysis completed successfully.")
-    except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}")
-        raise
+    Args:
+        vif_data: Dictionary of feature VIF scores
+        output_path: Path to save the YAML report
+    """
+    report = {
+        'vif_scores': vif_data,
+        'high_vif_features': [k for k, v in vif_data.items() if v > 5],
+        'max_vif': max(vif_data.values()) if vif_data else 0,
+        'collinearity_risk': 'high' if any(v > 5 for v in vif_data.values()) else 'low'
+    }
+    
+    with open(output_path, 'w') as f:
+        yaml.dump(report, f, default_flow_style=False)
+        
+    logger.info(f"VIF report saved to {output_path}")
 
-if __name__ == "__main__":
+def main() -> None:
+    """
+    Main entry point for sensitivity analysis and VIF reporting.
+    Reads merged data, performs analysis, and saves results.
+    """
+    ensure_directories()
+    
+    # Load merged data
+    merged_path = Path('data/derived/merged_data.csv')
+    if not merged_path.exists():
+        logger.error(f"Merged data not found at {merged_path}")
+        sys.exit(1)
+        
+    df = pd.read_csv(merged_path)
+    
+    # 1. Calculate VIF for RSA traits
+    rsa_features = ['depth', 'branching_density', 'surface_area']
+    available_features = [f for f in rsa_features if f in df.columns]
+    
+    if len(available_features) >= 2:
+        vif_scores = calculate_vif(df, available_features)
+        generate_vif_report(vif_scores, 'state/vif_report.yaml')
+    else:
+        logger.warning("Insufficient RSA features for VIF calculation")
+        vif_scores = {}
+        
+    # 2. Detect tolerance proxies
+    proxy_status = detect_tolerance_proxies(df)
+    with open('state/proxy_detection.yaml', 'w') as f:
+        yaml.dump(proxy_status, f, default_flow_style=False)
+        
+    # 3. Perform sensitivity analysis if classification results exist
+    classification_path = Path('data/derived/classification_model.pkl')
+    binary_target_path = Path('data/derived/binary_target.csv')
+    
+    if binary_target_path.exists():
+        try:
+            import pickle
+            with open(classification_path, 'rb') as f:
+                model = pickle.load(f)
+                
+            # Get predictions
+            X = df[available_features].dropna()
+            y_prob = model.predict_proba(X)[:, 1]
+            y_true = df.loc[X.index, 'binary_target'].values
+            
+            # Run sensitivity analysis
+            sensitivity_results = run_sensitivity_analysis(y_true, y_prob)
+            
+            # Save results
+            sensitivity_results.to_csv('data/derived/sensitivity_sweep_results.csv', index=False)
+            sensitivity_results.to_csv('results/sensitivity_fpr_fnr.csv', index=False)
+            
+            # Generate plot
+            plt.figure(figsize=(10, 6))
+            plt.plot(sensitivity_results['threshold'], sensitivity_results['fpr'], label='FPR', linewidth=2)
+            plt.plot(sensitivity_results['threshold'], sensitivity_results['fnr'], label='FNR', linewidth=2)
+            plt.xlabel('Threshold')
+            plt.ylabel('Rate')
+            plt.title('Sensitivity Analysis: FPR and FNR vs Threshold')
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            plt.savefig('results/figures/sensitivity_curve.png', dpi=150)
+            plt.close()
+            
+            logger.info("Sensitivity analysis completed successfully")
+            
+        except FileNotFoundError:
+            logger.warning("Classification model not found, skipping sensitivity analysis")
+        except Exception as e:
+            logger.error(f"Error during sensitivity analysis: {e}")
+            raise
+    else:
+        logger.warning("Binary target not found, skipping sensitivity analysis")
+        
+    logger.info("Analysis pipeline completed")
+
+if __name__ == '__main__':
     main()

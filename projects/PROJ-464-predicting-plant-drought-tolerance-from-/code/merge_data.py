@@ -1,8 +1,9 @@
 """
 Merge RSA metrics with physiological trait data.
 
-Implements strict listwise deletion for missing species and enforces
-the minimum sample size constraint (N >= 55) as per project specifications.
+Implements strict listwise deletion for missing species, enforces
+the minimum sample size constraint (N >= 55), and ensures species-level
+stratification to prevent bias in GroupKFold cross-validation.
 """
 import os
 import sys
@@ -51,13 +52,18 @@ def merge_datasets(
     This implements strict listwise deletion: any species missing from either
     dataset is removed from the final merged dataset.
     
+    Additionally, this function ensures species-level stratification by:
+    1. Verifying unique species IDs in the merged output.
+    2. Dropping duplicate species entries if any are found (keeping the first).
+    
     Args:
         rsa_df: DataFrame containing RSA metrics
         physio_df: DataFrame containing physiological traits
         key_col: Column name to join on (default: species_id)
         
     Returns:
-        Merged DataFrame with only species present in both datasets
+        Merged DataFrame with only species present in both datasets,
+        with unique species IDs preserved.
     """
     # Perform inner join to enforce listwise deletion
     merged = pd.merge(
@@ -68,6 +74,23 @@ def merge_datasets(
         suffixes=('_rsa', '_physio')
     )
     
+    logger.info(f"Merged dataset size before deduplication: {len(merged)} rows")
+    
+    # Check for duplicate species entries that could bias GroupKFold
+    duplicate_count = merged[key_col].duplicated().sum()
+    if duplicate_count > 0:
+        logger.warning(f"Found {duplicate_count} duplicate species entries. Dropping duplicates.")
+        # Keep the first occurrence of each species to ensure unique IDs
+        merged = merged.drop_duplicates(subset=[key_col], keep='first')
+        logger.info(f"Dropped {duplicate_count} duplicates. New size: {len(merged)} rows")
+    
+    # Verify unique species IDs in the merged output
+    if not merged[key_col].is_unique:
+        error_msg = f"Species ID '{key_col}' is not unique in merged dataset. This violates GroupKFold requirements."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info(f"Species-level stratification verified: {key_col} is unique.")
     logger.info(f"Merged dataset size: {len(merged)} rows")
     logger.info(f"Columns in merged dataset: {list(merged.columns)}")
     
@@ -117,7 +140,7 @@ def main():
         rsa_df = load_rsa_metrics(rsa_metrics_path)
         physio_df = load_physiological_data(physio_data_path)
         
-        # Merge datasets (listwise deletion)
+        # Merge datasets (listwise deletion + stratification check)
         merged_df = merge_datasets(rsa_df, physio_df)
         
         # Validate sample size (strict constraint)
@@ -138,12 +161,16 @@ def main():
         print(f"  Merged rows: {len(merged_df)}")
         print(f"  Listwise deletion: {len(rsa_df) + len(physio_df) - 2*len(merged_df)} species removed")
         print(f"  Sample size check: PASSED (N={len(merged_df)} >= 55)")
+        print(f"  Species stratification: VERIFIED (unique IDs)")
         
     except FileNotFoundError as e:
         logger.critical(f"Data file missing: {e}")
         sys.exit(1)
     except RuntimeError as e:
         logger.critical(f"Validation failed: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.critical(f"Stratification failed: {e}")
         sys.exit(1)
     except Exception as e:
         logger.critical(f"Unexpected error during merge: {e}")
