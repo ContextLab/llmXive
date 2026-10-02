@@ -3,61 +3,100 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-def get_config() -> Dict[str, Any]:
-    """
-    Load configuration from environment variables or defaults.
-    Returns a dictionary of configuration values.
-    """
-    config = {
-        'base_path': Path(os.getenv('PROJECT_ROOT', Path.cwd())),
-        'log_level': os.getenv('LOG_LEVEL', 'INFO'),
-        'mmse_threshold': int(os.getenv('MMSE_THRESHOLD', '24')),
-    }
-    return config
+logger = logging.getLogger(__name__)
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load configuration from a YAML/JSON file if provided."""
-    if config_path and config_path.exists():
-        # Placeholder for actual YAML/JSON loading
-        # In a real implementation, we'd use yaml or json library
-        pass
+# Default configuration values
+DEFAULT_CONFIG = {
+    "data_dir": "data",
+    "contracts_dir": "contracts",
+    "code_dir": "code",
+    "tests_dir": "tests",
+    "paper_dir": "paper",
+    "raw_dir": "data/raw",
+    "processed_dir": "data/processed",
+    "results_dir": "data/results",
+    "stimuli_dir": "data/stimuli",
+    "mmse_threshold": 24,
+    "age_threshold": 65,
+    "alpha": 0.05,
+    "power_target": 0.80,
+}
+
+_config: Optional[Dict[str, Any]] = None
+
+
+def get_config() -> Dict[str, Any]:
+    """Get the project configuration."""
+    global _config
+    if _config is None:
+        _config = DEFAULT_CONFIG.copy()
+        # Override with environment variables if set
+        for key in _config:
+            env_key = f"NXIVE_{key.upper()}"
+            if env_key in os.environ:
+                _config[key] = os.environ[env_key]
+    return _config
+
+
+def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file if it exists."""
+    import yaml
+    path = Path(config_path)
+    if path.exists():
+        with open(path, 'r') as f:
+            custom_config = yaml.safe_load(f)
+        config = get_config()
+        config.update(custom_config)
+        return config
     return get_config()
 
+
 def get_config_value(key: str, default: Any = None) -> Any:
-    """Get a specific config value by key."""
+    """Get a specific configuration value."""
     config = get_config()
     return config.get(key, default)
 
-def get_env_str(key: str, default: Optional[str] = None) -> str:
-    """Get an environment variable as a string."""
-    return os.getenv(key, default) if default else os.getenv(key)
 
-def get_env_int(key: str, default: int = 0) -> int:
-    """Get an environment variable as an integer."""
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
+def get_env_str(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get a string environment variable."""
+    return os.environ.get(key, default)
 
-def get_env_float(key: str, default: float = 0.0) -> float:
-    """Get an environment variable as a float."""
-    try:
-        return float(os.getenv(key, default))
-    except ValueError:
-        return default
+
+def get_env_int(key: str, default: Optional[int] = None) -> Optional[int]:
+    """Get an integer environment variable."""
+    value = os.environ.get(key)
+    if value is not None:
+        try:
+            return int(value)
+        except ValueError:
+            logger.warning(f"Invalid integer for env var {key}: {value}")
+    return default
+
+
+def get_env_float(key: str, default: Optional[float] = None) -> Optional[float]:
+    """Get a float environment variable."""
+    value = os.environ.get(key)
+    if value is not None:
+        try:
+            return float(value)
+        except ValueError:
+            logger.warning(f"Invalid float for env var {key}: {value}")
+    return default
+
 
 def get_env_bool(key: str, default: bool = False) -> bool:
-    """Get an environment variable as a boolean."""
-    val = os.getenv(key, str(default)).lower()
-    return val in ('true', '1', 'yes', 'on')
+    """Get a boolean environment variable."""
+    value = os.environ.get(key, "").lower()
+    return value in ('true', '1', 'yes', 'on')
+
 
 def get_mmse_threshold() -> int:
-    """Get the MMSE threshold from config."""
-    return get_config_value('mmse_threshold', 24)
+    """Get the MMSE threshold for cognitive impairment."""
+    return int(get_config_value("mmse_threshold", 24))
 
-def ensure_dirs(base_path: Optional[Path] = None) -> None:
-    """Ensure base directories exist (placeholder)."""
-    if base_path is None:
-        base_path = get_config_value('base_path')
-    # Actual directory creation is handled in setup_dirs.py
-    pass
+
+def ensure_dirs(dirs: list) -> None:
+    """Create directories if they don't exist."""
+    for dir_path in dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Ensured directory: {dir_path}")

@@ -1,8 +1,9 @@
 """
-Task T020: Effect Size Calculation
+T020: Calculate and report Cohen's d with 95% confidence intervals for all primary comparisons.
 
-Calculates Cohen's d with 95% confidence intervals for primary comparisons
-(perseverative_errors and categories_completed) between nostalgia and control groups.
+This script implements the effect size calculation logic required for User Story 2.
+It reads the cleaned dataset, groups by stimulus type, and computes Cohen's d
+for 'perseverative_errors' and 'categories_completed' using statsmodels.
 """
 import os
 import json
@@ -10,185 +11,172 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional
+from statsmodels.stats.weightstats import _tconfint_generic
 from scipy import stats
 
-from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
-
 # Configure logging
-logger = setup_logging()
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def load_cleaned_dataset() -> pd.DataFrame:
-    """Load the cleaned dataset from the processed directory."""
-    path = Path("data/processed/cleaned_dataset.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Required input file not found: {path}")
-    return pd.read_csv(path)
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+INPUT_FILE = DATA_PROCESSED_DIR / "final_cleaned_dataset.csv"
+OUTPUT_FILE = DATA_RESULTS_DIR / "effect_sizes.json"
 
-def calculate_cohen_d(group1: np.ndarray, group2: np.ndarray) -> Tuple[float, float, float]:
+def load_cleaned_dataset():
+    """Load the final cleaned dataset."""
+    if not INPUT_FILE.exists():
+        raise FileNotFoundError(f"Required input file not found: {INPUT_FILE}")
+    
+    df = pd.read_csv(INPUT_FILE)
+    
+    # Ensure required columns exist
+    required_cols = ['participant_id', 'stimulus_type', 'perseverative_errors', 'categories_completed', 'age']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in input data: {missing_cols}")
+    
+    logger.info(f"Loaded {len(df)} records from {INPUT_FILE}")
+    return df
+
+def calculate_cohen_d(group1, group2):
     """
-    Calculate Cohen's d effect size and 95% confidence interval.
-
-    Args:
-        group1: Array of values for group 1 (e.g., nostalgia)
-        group2: Array of values for group 2 (e.g., control)
-
-    Returns:
-        Tuple of (cohens_d, ci_lower, ci_upper)
+    Calculate Cohen's d for two independent groups.
+    Uses pooled standard deviation.
     """
     n1, n2 = len(group1), len(group2)
     mean1, mean2 = np.mean(group1), np.mean(group2)
     var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
-
+    
+    # Handle zero variance cases
+    if var1 == 0 and var2 == 0:
+        return 0.0, 0.0, 0.0 # d, ci_lower, ci_upper
+    
     # Pooled standard deviation
     pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-
+    
     if pooled_std == 0:
-        log_warning("Pooled standard deviation is zero; Cohen's d is undefined.")
         return 0.0, 0.0, 0.0
-
-    cohens_d = (mean1 - mean2) / pooled_std
-
+    
+    d = (mean1 - mean2) / pooled_std
+    
     # Calculate 95% CI for Cohen's d
-    # Using non-central t-distribution approximation
-    # Standard error of Cohen's d
-    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (cohens_d ** 2) / (2 * (n1 + n2)))
+    # Using non-central t-distribution approximation or standard error method
+    # Standard Error of d
+    # SE_d = sqrt((n1 + n2)/(n1*n2) + d^2/(2*(n1+n2)))
+    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (d**2) / (2 * (n1 + n2)))
+    
+    # Critical t-value for 95% CI (approximate with normal for large N, or use t-distribution)
+    # Degrees of freedom
+    df = n1 + n2 - 2
+    t_crit = stats.t.ppf(0.975, df)
+    
+    ci_lower = d - t_crit * se_d
+    ci_upper = d + t_crit * se_d
+    
+    return d, ci_lower, ci_upper
 
-    # 95% CI
-    z = 1.96  # Approximation for 95% CI
-    ci_lower = cohens_d - z * se_d
-    ci_upper = cohens_d + z * se_d
-
-    return cohens_d, ci_lower, ci_upper
-
-def calculate_effect_sizes(df: pd.DataFrame, metric: str, group_col: str = "stimulus_type") -> Dict[str, Any]:
-    """
-    Calculate effect sizes for a specific metric between two groups.
-
-    Args:
-        df: Cleaned dataframe
-        metric: Column name for the metric (e.g., 'perseverative_errors')
-        group_col: Column name defining groups (default: 'stimulus_type')
-
-    Returns:
-        Dictionary with effect size results
-    """
-    if metric not in df.columns:
-        raise ValueError(f"Metric column '{metric}' not found in dataframe")
-
-    # Filter out rows with missing values
-    valid_df = df[[metric, group_col]].dropna()
-
-    # Ensure we have both groups
-    groups = valid_df[group_col].unique()
-    if len(groups) < 2:
-        log_warning(f"Only one group found ({groups}); cannot calculate effect size.")
-        return {
-            "metric": metric,
-            "cohens_d": None,
-            "ci_lower": None,
-            "ci_upper": None,
-            "n_group1": 0,
-            "n_group2": 0,
-            "status": "insufficient_groups"
-        }
-
-    # Identify groups (assuming 'nostalgia' and 'control')
-    group1_name = groups[0]
-    group2_name = groups[1]
-
-    group1_data = valid_df[valid_df[group_col] == group1_name][metric].values
-    group2_data = valid_df[valid_df[group_col] == group2_name][metric].values
-
-    # Check for zero variance
-    if np.var(group1_data) == 0 or np.var(group2_data) == 0:
-        log_warning(f"Zero variance detected in one or both groups for {metric}")
-        return {
-            "metric": metric,
-            "cohens_d": None,
-            "ci_lower": None,
-            "ci_upper": None,
-            "n_group1": len(group1_data),
-            "n_group2": len(group2_data),
-            "status": "zero_variance"
-        }
-
-    # Calculate Cohen's d and CI
-    cohens_d, ci_lower, ci_upper = calculate_cohen_d(group1_data, group2_data)
-
+def calculate_effect_sizes(df, metric_name):
+    """Calculate effect sizes for a specific metric between nostalgia and control groups."""
+    if metric_name not in df.columns:
+        logger.warning(f"Metric {metric_name} not found in dataframe")
+        return None
+    
+    # Filter out NaN values for this metric
+    valid_df = df.dropna(subset=['stimulus_type', metric_name])
+    
+    if valid_df.empty:
+        logger.warning(f"No valid data for {metric_name}")
+        return None
+    
+    # Group by stimulus_type
+    # We assume 'nostalgia' and 'control' are the two groups
+    nostalgia_group = valid_df[valid_df['stimulus_type'] == 'nostalgia'][metric_name].values
+    control_group = valid_df[valid_df['stimulus_type'] == 'control'][metric_name].values
+    
+    if len(nostalgia_group) < 2 or len(control_group) < 2:
+        logger.warning(f"Insufficient sample size for {metric_name} (N_nostalgia={len(nostalgia_group)}, N_control={len(control_group)})")
+        return None
+    
+    d, ci_lower, ci_upper = calculate_cohen_d(nostalgia_group, control_group)
+    
     return {
-        "metric": metric,
-        "group1": group1_name,
-        "group2": group2_name,
-        "n_group1": len(group1_data),
-        "n_group2": len(group2_data),
-        "cohens_d": round(cohens_d, 4),
-        "ci_lower": round(ci_lower, 4),
-        "ci_upper": round(ci_upper, 4),
-        "ci_confidence": 0.95,
-        "status": "success"
+        "metric": metric_name,
+        "n_nostalgia": int(len(nostalgia_group)),
+        "n_control": int(len(control_group)),
+        "mean_nostalgia": float(np.mean(nostalgia_group)),
+        "mean_control": float(np.mean(control_group)),
+        "cohens_d": float(d),
+        "ci_95_lower": float(ci_lower),
+        "ci_95_upper": float(ci_upper)
     }
 
-def run_effect_size_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run effect size analysis for all primary metrics.
-
-    Args:
-        df: Cleaned dataframe
-
-    Returns:
-        Dictionary containing all effect size results
-    """
-    metrics = ["perseverative_errors", "categories_completed"]
+def run_effect_size_analysis(df):
+    """Run effect size analysis for all primary metrics."""
+    metrics = ['perseverative_errors', 'categories_completed']
     results = {}
-
+    
     for metric in metrics:
-        log_info(f"Calculating effect size for {metric}")
-        results[metric] = calculate_effect_sizes(df, metric)
-
+        logger.info(f"Calculating effect size for {metric}...")
+        effect_result = calculate_effect_sizes(df, metric)
+        if effect_result:
+            results[metric] = effect_result
+        else:
+            results[metric] = {
+                "metric": metric,
+                "status": "skipped",
+                "reason": "Insufficient data or sample size"
+            }
+    
     return results
 
-def save_results(results: Dict[str, Any], output_path: str = "data/results/effect_sizes.json") -> None:
+def save_results(results):
     """Save effect size results to JSON file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    output = {
-        "timestamp": get_timestamp(),
-        "task_id": "T020",
-        "description": "Effect Size Calculation (Cohen's d with 95% CI)",
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    
+    output_data = {
+        "task": "T020",
+        "description": "Effect Size Analysis (Cohen's d with 95% CI)",
+        "input_file": str(INPUT_FILE),
         "results": results
     }
-
-    with open(path, 'w') as f:
-        json.dump(output, f, indent=2)
-
-    log_info(f"Effect size results saved to {output_path}")
+    
+    with open(OUTPUT_FILE, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved effect size results to {OUTPUT_FILE}")
 
 def main():
-    """Main entry point for Task T020."""
-    logger.info("Starting Task T020: Effect Size Calculation")
-
+    """Main entry point for T020."""
     try:
-        # Load cleaned dataset
+        logger.info("Starting T020: Effect Size Analysis")
+        
+        # Load data
         df = load_cleaned_dataset()
-        log_info(f"Loaded dataset with {len(df)} records")
-
-        # Run effect size analysis
+        
+        # Run analysis
         results = run_effect_size_analysis(df)
-
+        
         # Save results
         save_results(results)
-
-        log_info("Task T020 completed successfully")
-        return results
-
+        
+        logger.info("T020 completed successfully")
+        return 0
+        
     except FileNotFoundError as e:
-        log_error(f"File not found: {e}")
-        raise
+        logger.error(f"File not found: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return 1
     except Exception as e:
-        log_error(f"Error during effect size calculation: {e}")
-        raise
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

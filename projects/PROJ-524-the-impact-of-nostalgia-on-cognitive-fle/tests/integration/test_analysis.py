@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from analysis import welch_t_test, calculate_cohen_d
+from analysis import welch_t_test, calculate_cohen_d, bonferroni_correction, calculate_power_and_mdes
 
 RESULTS_DIR = Path("data/results")
 
@@ -95,3 +95,58 @@ def test_analysis_output_structure(sample_cleaned_data, tmp_path):
     assert 'effect_sizes' in loaded_report
     assert 'perseverative_errors' in loaded_report['p_values']
     assert 'perseverative_errors' in loaded_report['effect_sizes']
+
+def test_bonferroni_correction(sample_cleaned_data):
+    """Test Bonferroni correction logic."""
+    # Simulate raw p-values
+    raw_p_values = [0.01, 0.04, 0.08, 0.15]
+    n_tests = len(raw_p_values)
+    
+    corrected_p_values = bonferroni_correction(raw_p_values)
+    
+    assert len(corrected_p_values) == n_tests
+    for p in corrected_p_values:
+        assert 0 <= p <= 1, "Corrected p-value must be between 0 and 1"
+    
+    # The corrected values should be larger than raw values (capped at 1)
+    for raw, corr in zip(raw_p_values, corrected_p_values):
+        assert corr >= raw, "Bonferroni correction should increase p-values"
+
+def test_power_and_mdes_calculation(sample_cleaned_data):
+    """Test power and MDES calculation."""
+    df = pd.read_csv(sample_cleaned_data)
+    
+    nostalgia_group = df[df['stimulus_type'] == 'nostalgia']['perseverative_errors']
+    control_group = df[df['stimulus_type'] == 'control']['perseverative_errors']
+    
+    power, mdes = calculate_power_and_mdes(nostalgia_group, control_group)
+    
+    assert isinstance(power, float), "Power should be a float"
+    assert isinstance(mdes, float), "MDES should be a float"
+    assert 0 <= power <= 1, "Power should be between 0 and 1"
+    assert mdes > 0, "MDES should be positive"
+
+def test_full_pipeline_integration(sample_cleaned_data, tmp_path):
+    """End-to-end integration test for the analysis pipeline."""
+    from analysis import run_analysis
+    
+    df = pd.read_csv(sample_cleaned_data)
+    
+    # Run the full analysis pipeline
+    results = run_analysis(df)
+    
+    # Verify the structure of the results
+    assert 'perseverative_errors' in results
+    assert 'categories_completed' in results
+    
+    # Check for expected keys in each metric
+    for metric in ['perseverative_errors', 'categories_completed']:
+        assert 't_statistic' in results[metric]
+        assert 'p_value' in results[metric]
+        assert 'cohen_d' in results[metric]
+        assert 'power' in results[metric]
+        assert 'mdes' in results[metric]
+    
+    # Verify types
+    assert isinstance(results['perseverative_errors']['p_value'], float)
+    assert isinstance(results['categories_completed']['p_value'], float)

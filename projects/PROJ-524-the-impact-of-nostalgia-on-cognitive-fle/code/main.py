@@ -2,8 +2,13 @@
 Pipeline Orchestrator for the Nostalgia-Cognitive Flexibility Study.
 
 This module orchestrates the ingestion pipeline, ensuring that the fetch attempt
-(T010b) occurs before any fallback logic (T010a) is triggered. It catches exceptions
+(T010b) occurs before any fallback logic (T010d) is triggered. It catches exceptions
 from the fetch step and triggers the fallback mechanism if necessary.
+
+Execution Flow:
+1. Attempt real data fetch (T010b logic via fetch_data).
+2. If RealDataFetchFailed (DataFetchError) is caught: Trigger T010d (Simulation).
+3. If fetch succeeds: Proceed to T011 (Validation/Cleaning).
 """
 import os
 import sys
@@ -19,7 +24,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.config import get_config, ensure_dirs, get_env_str
 from code.utils import setup_logging, log_info, log_warning, log_error, get_timestamp
-from code.ingestion.fetcher import fetch_data, save_metadata, DataFetchError, DataGapError
+from code.ingestion.fetcher import fetch_data, save_metadata, DataFetchError, DataGapError, generate_synthetic_fallback
 from code.ingestion.validator import validate_and_filter_dataset, clean_data
 
 # Configure logging
@@ -30,8 +35,8 @@ def run_orchestration():
     Main orchestration function.
     1. Ensures directories exist.
     2. Attempts to fetch data (T010b).
-    3. If fetch fails, triggers fallback (T010a logic).
-    4. Validates and cleans the data.
+    3. If fetch fails, triggers fallback (T010d logic).
+    4. Validates and cleans the data (T011).
     5. Saves intermediate artifacts.
     """
     start_time = time.time()
@@ -48,24 +53,23 @@ def run_orchestration():
 
     # 2. Attempt to fetch data (T010b logic)
     # The fetch_data function handles the canonical source attempt.
-    # If it fails, it raises DataFetchError.
+    # If it fails, it raises DataFetchError (which maps to RealDataFetchFailed requirement).
     try:
-        log_info(logger, "Attempting to fetch data from canonical source...")
+        log_info(logger, "Attempting to fetch data from canonical source (T010b)...")
         df, source_info = fetch_data()
         log_info(logger, f"Data fetched successfully from {source_info.get('source', 'unknown')}.")
         simulation_mode = False
     except DataFetchError as e:
-        log_error(logger, f"Canonical fetch failed: {e}. Triggering fallback (T010a logic).")
-        # Fallback logic: Generate synthetic data as per T010a requirements
-        # This block implements the "Methodological Simulation" fallback
+        # T010c Logic: Catch RealDataFetchFailed (DataFetchError) and trigger T010d
+        log_error(logger, f"Canonical fetch failed (T010b): {e}. Triggering fallback (T010d - Simulation).")
         try:
-            from code.ingestion.fetcher import generate_synthetic_fallback
-            log_warning(logger, "Generating synthetic fallback dataset.")
+            # T010d Logic: Generate synthetic fallback data
+            log_warning(logger, "Generating synthetic fallback dataset (T010d).")
             df, source_info = generate_synthetic_fallback(seed=42)
             simulation_mode = True
             log_info(logger, "Synthetic fallback generated successfully.")
         except Exception as fallback_err:
-            log_error(logger, f"Fallback generation failed: {fallback_err}")
+            log_error(logger, f"Fallback generation (T010d) failed: {fallback_err}")
             raise RuntimeError("Pipeline failed: Cannot fetch real data and fallback generation failed.")
 
     # 3. Save raw dataset
@@ -90,7 +94,7 @@ def run_orchestration():
     # Note: T010c orchestrates the flow, but the actual filtering logic is in validator.py
     # We call the validation and cleaning functions here to ensure the pipeline runs.
     try:
-        log_info(logger, "Running validation and cleaning...")
+        log_info(logger, "Running validation and cleaning (T011)...")
         # Filter by age >= 65
         df_age = clean_data(df, min_age=65)
         log_info(logger, f"Age filtering complete. Rows: {len(df_age)}")

@@ -1,8 +1,17 @@
 """
-T015b: Stimulus Validation
-Validates the presence of a validation_study_doi in data/raw/metadata.json.
-Logs INFO_STIMULUS_VALIDATED if found and not null, else WARN_STIMULUS_NO_VALIDATION.
+T015b: STIMULUS VALIDATION
+
+Validates the stimulus metadata by checking for the presence of a
+'validation_study_doi' in data/raw/metadata.json.
+
+Logic:
+1. Load data/raw/metadata.json.
+2. Check if 'validation_study_doi' exists and is not None/null.
+3. If valid DOI present: Log INFO_STIMULUS_VALIDATED.
+4. If missing or null: Log WARN_STIMULUS_NO_VALIDATION.
+5. Write validation status to data/results/stimulus_validation_status.json.
 """
+
 import os
 import json
 import logging
@@ -10,57 +19,88 @@ from pathlib import Path
 
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
-def load_metadata(metadata_path: Path) -> dict:
-    """Load metadata from the specified JSON file."""
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+# Paths relative to project root
+METADATA_PATH = Path("data/raw/metadata.json")
+RESULTS_DIR = Path("data/results")
+VALIDATION_STATUS_PATH = RESULTS_DIR / "stimulus_validation_status.json"
+
+def load_metadata() -> dict:
+    """
+    Loads the metadata file from data/raw/metadata.json.
+    Raises FileNotFoundError if the file does not exist.
+    """
+    if not METADATA_PATH.exists():
+        raise FileNotFoundError(
+            f"Metadata file not found at {METADATA_PATH}. "
+            "Ensure T015a has been executed successfully."
+        )
     
-    with open(metadata_path, 'r', encoding='utf-8') as f:
+    with open(META_DATA_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
-
 
 def validate_stimulus_doi(metadata: dict) -> bool:
     """
-    Check if 'validation_study_doi' exists and is not null.
-    Returns True if valid, False otherwise.
+    Checks if 'validation_study_doi' exists in metadata and is not null.
+    
+    Returns:
+        bool: True if DOI is present and valid, False otherwise.
     """
     doi = metadata.get('validation_study_doi')
-    return doi is not None
-
+    return doi is not None and doi != ""
 
 def main():
-    """Main entry point for T015b."""
+    """
+    Main entry point for T015b.
+    """
     setup_logging()
-    logger = logging.getLogger(__name__)
+    timestamp = get_timestamp()
     
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent
-    metadata_path = project_root / "data" / "raw" / "metadata.json"
+    logger.info(f"Starting T015b: Stimulus Validation at {timestamp}")
     
     try:
-        logger.info(f"Loading metadata from {metadata_path}")
-        metadata = load_metadata(metadata_path)
+        # 1. Load Metadata
+        metadata = load_metadata()
+        logger.info(f"Loaded metadata from {METADATA_PATH}")
         
-        # Validate DOI presence
+        # 2. Validate DOI
         is_validated = validate_stimulus_doi(metadata)
         
+        # 3. Log Result
         if is_validated:
-            log_info(logger, "INFO_STIMULUS_VALIDATED", "validation_study_doi found and is not null.")
-            logger.info(f"DOI found: {metadata.get('validation_study_doi')}")
+            doi = metadata.get('validation_study_doi')
+            log_info(f"INFO_STIMULUS_VALIDATED: Validation study DOI found ({doi})")
         else:
-            log_warning(logger, "WARN_STIMULUS_NO_VALIDATION", "validation_study_doi is missing or null.")
-            
+            log_warning("WARN_STIMULUS_NO_VALIDATION: No validation_study_doi found or it is null")
+        
+        # 4. Save Validation Status
+        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        
+        status_report = {
+            "task_id": "T015b",
+            "timestamp": timestamp,
+            "metadata_source": str(METADATA_PATH),
+            "stimulus_validated": is_validated,
+            "doi_found": metadata.get('validation_study_doi'),
+            "log_message": "INFO_STIMULUS_VALIDATED" if is_validated else "WARN_STIMULUS_NO_VALIDATION"
+        }
+        
+        with open(VALIDATION_STATUS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(status_report, f, indent=2)
+        
+        logger.info(f"Validation status saved to {VALIDATION_STATUS_PATH}")
+        
     except FileNotFoundError as e:
-        log_error(logger, "ERR_METADATA_MISSING", str(e))
+        log_error(f"File not found: {e}")
         raise
     except json.JSONDecodeError as e:
-        log_error(logger, "ERR_METADATA_INVALID", f"Invalid JSON in metadata file: {e}")
+        log_error(f"Invalid JSON in metadata file: {e}")
         raise
     except Exception as e:
-        log_error(logger, "ERR_UNKNOWN", f"Unexpected error during stimulus validation: {e}")
+        log_error(f"Unexpected error during stimulus validation: {e}")
         raise
-
 
 if __name__ == "__main__":
     main()

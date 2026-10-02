@@ -5,103 +5,110 @@ import pandas as pd
 from pathlib import Path
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 
-# Configuration paths
-SCORE_FILTERED_PATH = Path("data/processed/cleaned_score_filtered.csv")
-MMSE_FLAG_PATH = Path("data/processed/mmse_flag.json")
-EXCLUSION_LOG_PATH = Path("data/processed/exclusion_counts.json")
-
-def load_score_filtered_dataset():
+def load_raw_dataset(raw_path: str) -> pd.DataFrame:
     """
-    Loads the score-filtered dataset from disk.
-    Raises FileNotFoundError if the file does not exist.
-    """
-    if not SCORE_FILTERED_PATH.exists():
-        raise FileNotFoundError(f"Required input file not found: {SCORE_FILTERED_PATH}")
+    Load the raw dataset from the specified CSV path.
     
-    log_info(f"Loading score-filtered dataset from {SCORE_FILTERED_PATH}")
-    df = pd.read_csv(SCORE_FILTERED_PATH)
-    log_info(f"Loaded dataset with {len(df)} rows and columns: {list(df.columns)}")
+    Args:
+        raw_path: Path to the raw dataset CSV file.
+        
+    Returns:
+        pandas DataFrame containing the raw dataset.
+        
+    Raises:
+        FileNotFoundError: If the raw dataset file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+    """
+    if not os.path.exists(raw_path):
+        raise FileNotFoundError(f"Raw dataset not found at {raw_path}")
+    
+    df = pd.read_csv(raw_path)
+    log_info(f"Loaded raw dataset from {raw_path} with {len(df)} rows")
     return df
 
-def validate_mmse_presence(df):
+def validate_mmse_presence(df: pd.DataFrame) -> bool:
     """
-    Validates the presence of the 'MMSE' column and checks for at least one non-null value.
+    Check if the 'MMSE' column exists in the dataframe AND contains at least one non-null value.
     
+    Args:
+        df: The dataframe to check.
+        
     Returns:
-        bool: True if 'MMSE' column exists AND has at least one non-null value.
-              False otherwise.
+        True if 'MMSE' column exists and has at least one non-null value, False otherwise.
     """
     if 'MMSE' not in df.columns:
-        log_warning("ERR_MMSE_MISSING: Column 'MMSE' not found in dataset.")
+        log_warning("Column 'MMSE' not found in raw dataset.")
         return False
     
     has_non_null = df['MMSE'].notna().any()
     
     if not has_non_null:
-        log_warning("ERR_MMSE_MISSING: Column 'MMSE' exists but contains only null values.")
+        log_warning("Column 'MMSE' exists but all values are null.")
         return False
     
-    log_info("MMSE column present and contains valid data.")
     return True
 
-def save_mmse_flag(has_mmse):
+def save_mmse_flag(output_path: str, has_mmse: bool) -> None:
     """
-    Saves the MMSE flag status to the designated JSON file.
+    Write the MMSE flag to a JSON file.
     
     Args:
-        has_mmse (bool): True if MMSE data is valid, False otherwise.
+        output_path: Path to the output JSON file.
+        has_mmse: Boolean indicating if MMSE data is present.
     """
-    log_info(f"Saving MMSE flag: has_mmse={has_mmse}")
-    
-    data = {
-        "has_mmse": has_mmse,
-        "timestamp": get_timestamp()
-    }
+    flag_data = {"has_mmse": has_mmse}
     
     # Ensure directory exists
-    MMSE_FLAG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    with open(MMSE_FLAG_PATH, 'w') as f:
-        json.dump(data, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump(flag_data, f, indent=2)
     
-    log_info(f"MMSE flag saved to {MMSE_FLAG_PATH}")
+    log_info(f"Saved MMSE flag to {output_path}: {flag_data}")
 
 def main():
     """
-    Main entry point for T012d: MMSE Flag generation.
+    Main execution function for T012d: MMSE Flag task.
     
-    1. Loads cleaned_score_filtered.csv.
-    2. Checks for 'MMSE' column and non-null values.
-    3. Writes has_mmse boolean to mmse_flag.json.
+    Reads from data/raw/raw_dataset.csv, validates MMSE presence,
+    and writes result to data/processed/mmse_flag.json.
     """
     setup_logging()
-    log_info("Starting Task T012d: MMSE Flag Validation")
+    log_info(f"Starting T012d: MMSE Flag check at {get_timestamp()}")
+    
+    # Define paths
+    raw_dataset_path = "data/raw/raw_dataset.csv"
+    output_path = "data/processed/mmse_flag.json"
     
     try:
-        # Load the pre-processed dataset
-        df = load_score_filtered_dataset()
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Load raw dataset
+        log_info(f"Attempting to load raw dataset from {raw_dataset_path}")
+        df = load_raw_dataset(raw_dataset_path)
         
         # Validate MMSE presence
         has_mmse = validate_mmse_presence(df)
         
-        # Save the result
-        save_mmse_flag(has_mmse)
-        
-        if not has_mmse:
-            # Update exclusion counts if necessary (optional side effect per spec flow)
-            # The spec says "log ERR_MMSE_MISSING", which is done in validate_mmse_presence
-            log_info("T012d completed. MMSE data not available for filtering.")
+        # Log result
+        if has_mmse:
+            log_info("MMSE column is present and contains non-null values.")
         else:
-            log_info("T012d completed. MMSE data available for filtering.")
-            
-        return 0
+            log_error("ERR_MMSE_MISSING: MMSE column missing or all null.")
+        
+        # Save the flag
+        save_mmse_flag(output_path, has_mmse)
+        
+        log_info(f"T012d completed successfully. Result: has_mmse={has_mmse}")
         
     except FileNotFoundError as e:
-        log_error(f"Critical error: Input file missing - {e}")
-        return 1
+        log_error(f"Critical Error: {e}")
+        log_error("Cannot proceed with MMSE validation without raw dataset.")
+        raise
     except Exception as e:
         log_error(f"Unexpected error during T012d execution: {e}")
         raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

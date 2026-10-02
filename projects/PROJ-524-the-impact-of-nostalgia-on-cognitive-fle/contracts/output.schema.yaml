@@ -1,75 +1,113 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Analysis Output Schema"
-description: "Schema for the statistical analysis results including p-values, effect sizes, and power analysis."
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis output report."
 type: object
+required:
+  - metadata
+  - statistical_results
+  - power_analysis
+  - sensitivity_analysis
 properties:
-  p_values:
+  metadata:
     type: object
-    description: "P-values for each metric"
+    description: "Run metadata and configuration."
     properties:
-      perseverative_errors:
-        type: number
-        minimum: 0
-        maximum: 1
-      categories_completed:
-        type: number
-        minimum: 0
-        maximum: 1
-  corrected_p_values:
+      timestamp:
+        type: string
+        format: date-time
+      dataset_source:
+        type: string
+      total_records:
+        type: integer
+      excluded_records:
+        type: object
+        properties:
+          age_filter:
+            type: integer
+          score_filter:
+            type: integer
+          mmse_filter:
+            type: integer
+    required:
+      - timestamp
+      - dataset_source
+      - total_records
+  statistical_results:
     type: object
-    description: "Bonferroni corrected p-values"
-    properties:
-      perseverative_errors:
-        type: number
-        minimum: 0
-        maximum: 1
-      categories_completed:
-        type: number
-        minimum: 0
-        maximum: 1
-  effect_sizes:
-    type: object
-    description: "Effect sizes for each metric"
+    description: "Results of Welch's t-tests and effect sizes."
     properties:
       perseverative_errors:
         type: object
         properties:
-          cohen_d:
+          t_statistic:
+            type: number
+          p_value:
+            type: number
+          p_value_bonferroni:
+            type: number
+          cohens_d:
             type: number
           ci_95_lower:
             type: number
           ci_95_upper:
             type: number
+          significant:
+            type: boolean
+        required:
+          - t_statistic
+          - p_value
+          - cohens_d
       categories_completed:
         type: object
         properties:
-          cohen_d:
+          t_statistic:
+            type: number
+          p_value:
+            type: number
+          p_value_bonferroni:
+            type: number
+          cohens_d:
             type: number
           ci_95_lower:
             type: number
           ci_95_upper:
             type: number
-  power:
-    type: number
-    description: "Statistical power of the test"
-    minimum: 0
-    maximum: 1
-  MDES:
-    type: number
-    description: "Minimum Detectable Effect Size"
-    minimum: 0
+          significant:
+            type: boolean
+        required:
+          - t_statistic
+          - p_value
+          - cohens_d
+    required:
+      - perseverative_errors
+      - categories_completed
+  power_analysis:
+    type: object
+    description: "Statistical power and MDES results."
+    properties:
+      perseverative_errors:
+        type: object
+        properties:
+          achieved_power:
+            type: number
+          mdes:
+            type: number
+      categories_completed:
+        type: object
+        properties:
+          achieved_power:
+            type: number
+          mdes:
+            type: number
   sensitivity_analysis:
     type: object
-    description: "Results of sensitivity analysis"
+    description: "Sensitivity to threshold changes."
     properties:
-      thresholds:
+      thresholds_tested:
         type: array
         items:
           type: number
+      borderline_flag:
+        type: boolean
       is_sensitive_to_threshold:
         type: boolean
-required:
-  - p_values
-  - effect_sizes
-  - power
-  - MDES

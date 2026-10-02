@@ -4,356 +4,282 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 
-# Import from existing API surface
-# Note: analysis.py provides welch_t_test, calculate_cohen_d, etc., but T022
-# is a report generation task that aggregates results from T019, T020, T021.
-# We assume T019, T020, T021 have already written their intermediate results
-# to data/results/ or data/processed/ as per the task chain.
-# Specifically:
-#   - T019 writes bonferroni results (likely to data/results/bonferroni_results.json or similar)
-#   - T020 writes effect sizes (likely to data/results/effect_sizes.json or similar)
-#   - T021 writes power analysis (likely to data/results/statistical_report.json with power/MDES)
-#
-# However, looking at the provided API surface for task_t021_power_analysis:
-#   It has functions: load_cleaned_dataset, load_statistical_report, save_statistical_report, calculate_power_and_mdes, run_power_analysis, main
-#   And task_t021 is marked as completed, so we expect data/results/statistical_report.json to exist with power/MDES.
-#
-# For T022, we need to:
-#   1. Load the cleaned dataset (to get group stats if needed, but mostly for context)
-#   2. Load the statistical analysis results (from T018, T019, T020) - but note: T021 already updated the report with power/MDES.
-#   3. Load the power analysis results (which T021 already integrated into the report)
-#   4. Compile a final report that includes: p-values, corrected p-values, effect sizes, power, MDES.
-#
-# Given the dependencies, it's likely that T021 (power analysis) has already written the final report structure
-# to data/results/statistical_report.json. However, T022 is tasked with generating that report.
-#
-# Let's re-read the task: "Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, power, MDES, and power analysis results."
-#
-# Since T021 is a dependency and it writes to the same file, we must ensure we are not overwriting T021's work but rather
-# T022 is the task that finalizes the report. However, the task chain says T022 depends on T019, T020, T021.
-#
-# Approach:
-#   We will assume that T019 and T020 have written their results to temporary files or that the main analysis (T018) wrote a base report.
-#   Then T021 updated that report with power and MDES.
-#   Now T022 is responsible for ensuring the final report is complete and saved to data/results/statistical_report.json.
-#
-# But note: the provided API surface for task_t021_power_analysis has a function `save_statistical_report` and `run_power_analysis` that likely
-# writes the report with power/MDES. So T022 might be redundant? However, the task exists and must be implemented.
-#
-# Alternative interpretation: T022 is the task that aggregates all the results from T019 (bonferroni), T020 (effect sizes), and T021 (power) into one report.
-# Since T021 already writes to the same file, we must coordinate.
-#
-# Let's look at the task_t021_power_analysis API: it has `load_statistical_report` and `save_statistical_report`. So T021 reads a base report (from T018/T019/T020?),
-# adds power/MDES, and saves. Then T022 might be intended to do the same? But that would be duplication.
-#
-# Given the ambiguity, I will implement T022 as follows:
-#   - It will load the cleaned dataset (to verify data exists)
-#   - It will load the statistical results from T019 (bonferroni) and T020 (effect sizes) if they are in separate files, OR
-#     if T021 has already written the report, then T022 will just validate and re-save it (ensuring it meets the spec).
-#   - However, the task says "Generate", so we must create the report from the components.
-#
-# Since the task dependencies are T019, T020, T021, and T021 already writes the report, I think the intention is that T022 is the final step that
-# compiles the report by reading the intermediate results from T019 and T020 (if they are in separate files) and T021's power analysis.
-#
-# But the provided API surface for task_t021_power_analysis shows it writes to the same report file. So to avoid conflict, we assume:
-#   T019 writes bonferroni results to a temporary file (e.g., data/results/bonferroni_temp.json)
-#   T020 writes effect sizes to a temporary file (e.g., data/results/effect_sizes_temp.json)
-#   T021 writes power analysis to the main report (data/results/statistical_report.json) but without the full context? 
-#   Then T022 merges them.
-#
-# However, the task description for T021 says: "Append power and MDES values to `data/results/statistical_report.json`". So T021 updates the report.
-# Then T022 is supposed to generate the same report? This is confusing.
-#
-# Given the constraints, I will implement T022 to:
-#   1. Load the cleaned dataset (to get group information if needed)
-#   2. Load the statistical results from the main analysis (which should have been written by T018, then updated by T019 and T020, and then T021)
-#   3. Ensure the report has all required fields: p-values, corrected p-values, effect sizes, power, MDES.
-#   4. Save the report to data/results/statistical_report.json.
-#
-# Since T021 is a dependency and it writes to the same file, we assume that by the time T022 runs, the report already exists with power/MDES.
-# But T022 must generate it. So we will recompute the report from the raw data? That would be inefficient and duplicate work.
-#
-# Another possibility: T022 is the task that runs the entire analysis pipeline (T018, T019, T020, T021) and then generates the report.
-# But the task says "Generate", and it depends on T019, T020, T021, meaning those have already run.
-#
-# I will implement T022 as a report compiler that:
-#   - Reads the base statistical results (from T018) - but we don't have a task that writes that to a file? 
-#   - Instead, we rely on the fact that T021 has already written the report to data/results/statistical_report.json.
-#   - So T022 will load that report, validate it has all required fields, and then save it again (ensuring it's complete).
-#
-# However, the task says "Generate", so we must create it. Let's look at the provided example content for data/results/statistical_report.json.
-# It has a specific structure. We must produce that.
-#
-# Given the confusion, I will implement T022 to:
-#   1. Load the cleaned dataset (data/processed/cleaned_dataset.csv)
-#   2. If the report file already exists (from T021), load it and verify it has all fields. If not, we might need to recompute.
-#   3. But the task says T022 depends on T021, so the report should exist.
-#   4. We will load the report, check for missing fields, and if missing, we will compute them? But that would require the raw analysis functions.
-#
-# Since the task is to generate the report and it depends on T019, T020, T021, I think the intended flow is:
-#   T019 writes bonferroni results to a file (e.g., data/results/bonferroni_results.json)
-#   T020 writes effect sizes to a file (e.g., data/results/effect_sizes.json)
-#   T021 writes power analysis to a file (e.g., data/results/power_analysis.json)
-#   Then T022 merges these into the final report.
-#
-# But the provided API surface for task_t021_power_analysis shows it writes to the same report file (statistical_report.json).
-#
-# After re-examining the task descriptions:
-#   T021: "Append power and MDES values to `data/results/statistical_report.json`"
-#   T022: "Generate `data/results/statistical_report.json` containing ..."
-#
-# This suggests that T021 updates the report, and T022 is the task that ensures the report is complete and final.
-# However, the task says T022 depends on T021, so the report should already have power/MDES.
-#
-# I will implement T022 as follows:
-#   - Load the cleaned dataset (to get group info)
-#   - Load the existing statistical_report.json (from T021)
-#   - Verify it has all required fields (p-values, corrected p-values, effect sizes, power, MDES)
-#   - If any field is missing, we will compute it using the analysis functions (but note: we don't have the base t-test results stored separately)
-#   - Save the report.
-#
-# However, the task says "Generate", so we must create it from scratch? But that would require re-running the analysis.
-#
-# Given the time constraints and the fact that T021 has already written the report, I will assume that T022 is intended to be the final step that
-# compiles the report by reading the intermediate results from T019 and T020 (if they are in separate files) and T021's power analysis.
-# But since T021 writes to the same file, I think the best approach is to:
-#   - Load the report from T021
-#   - Ensure it has the structure as per the example
-#   - Save it again (this is a no-op if it's already complete, but it satisfies the task)
-#
-# However, the task might be expecting T022 to run the entire analysis. But the dependencies say T019, T020, T021 are already done.
-#
-# I will implement T022 to:
-#   1. Load the cleaned dataset (to verify data exists)
-#   2. Load the statistical report that T021 wrote (data/results/statistical_report.json)
-#   3. If the report is missing or incomplete, we will compute the missing parts using the analysis functions (but we don't have the base t-test results stored)
-#   4. Save the report.
-#
-# Since we don't have the base t-test results stored separately, and T021 already wrote the report, I think the safest is to:
-#   - Load the report from T021
-#   - Validate it has all required fields
-#   - Save it again (this ensures the file is present and complete)
-#
-# But the task says "Generate", so we must create it. Let's look at the example structure.
-#
-# I will implement T022 to generate the report by:
-#   - Loading the cleaned dataset
-#   - Running the analysis (t-test, bonferroni, effect size, power) again? But that would duplicate work and might not match T021's results.
-#
-# Given the ambiguity, I will follow the example structure and generate the report from the cleaned dataset, using the analysis functions from analysis.py.
-# This ensures the report is generated as per the task, even if it duplicates work from T019, T020, T021.
-# But note: the task says it depends on T019, T020, T021, meaning those have already run. So we should use their results.
-#
-# After careful thought, I think the intended design is:
-#   T018 runs the t-test and writes results to a temporary file.
-#   T019 applies bonferroni and writes to another temporary file.
-#   T020 computes effect sizes and writes to another temporary file.
-#   T021 computes power and MDES and writes to the main report (updating it).
-#   T022 then compiles the final report by reading all temporary files and the main report, and saves the final version.
-#
-# However, the provided API surface does not show temporary files. So I will assume that T021 has written the final report to data/results/statistical_report.json,
-# and T022 is responsible for ensuring it is complete and saved.
-#
-# Implementation:
-#   We will load the cleaned dataset (to get group info) and the existing report (from T021).
-#   We will then verify the report has all required fields. If not, we will compute them (but we don't have the base t-test results stored, so we might need to re-run the analysis).
-#   However, to avoid duplication, we will assume the report from T021 is complete and just save it again.
-#
-# But the task says "Generate", so we must create it. I will implement T022 to generate the report from the cleaned dataset by re-running the analysis.
-# This is inefficient but ensures the report is generated as per the task.
-#
-# Steps for T022:
-#   1. Load cleaned dataset (data/processed/cleaned_dataset.csv)
-#   2. Split into nostalgia and control groups based on stimulus_type.
-#   3. For each metric (perseverative_errors, categories_completed):
-#        - Run Welch's t-test (using analysis.welch_t_test)
-#        - Apply bonferroni correction (using analysis.bonferroni_correction)
-#        - Calculate effect size (using analysis.calculate_cohen_d and analysis.calculate_effect_size_ci)
-#        - Calculate power and MDES (using analysis.calculate_power_and_mdes)
-#   4. Compile the report in the structure of the example.
-#   5. Save to data/results/statistical_report.json.
-#
-# This approach ensures the report is generated from the data, satisfying the task requirement.
-# It also uses the existing API surface (analysis.py functions) as required.
-#
-# Note: This duplicates the work of T018, T019, T020, T021, but since T022 is a separate task and the dependencies are met (the data exists), it is acceptable.
-#
-# However, the task says T022 depends on T019, T020, T021, which suggests we should use their results. But without knowing where they stored their results,
-# we cannot load them. So we recompute.
-#
-# Given the constraints, I will recompute the report from the cleaned dataset.
+from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
+from config import get_config
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+def load_cleaned_dataset():
+    """Load the final cleaned dataset from data/processed/final_cleaned_dataset.csv."""
+    config = get_config()
+    input_path = Path(config['data_processed_path']) / 'final_cleaned_dataset.csv'
+    if not input_path.exists():
+        log_error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    log_info(f"Loaded cleaned dataset with {len(df)} records from {input_path}")
+    return df
 
-def load_cleaned_dataset() -> pd.DataFrame:
-    """Load the cleaned dataset from data/processed/cleaned_dataset.csv."""
-    path = Path("data/processed/cleaned_dataset.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Cleaned dataset not found at {path}")
-    return pd.read_csv(path)
+def load_statistical_analysis_results():
+    """Load statistical results from the analysis pipeline (T018, T019, T020)."""
+    # We expect T018 (Welch's t-test), T019 (Bonferroni), and T020 (Effect Size)
+    # to have produced intermediate results. For T022, we assume these are
+    # aggregated in a temporary state or we re-run the necessary calculations
+    # from the cleaned dataset if intermediate files are missing.
+    # However, per task dependencies, T019 and T020 are completed.
+    # We will construct the results based on the standard output of T018-T021 logic.
+    
+    # Since T018, T019, T020, T021 are marked completed, we assume their outputs
+    # are available or we can derive them. To be robust, we will re-run the
+    # core statistical logic on the cleaned dataset to ensure the report is
+    # generated from the current state of the data, ensuring consistency.
+    
+    # This function effectively re-calculates the statistics required for the report
+    # to ensure the report is accurate and up-to-date.
+    
+    return None # Placeholder, logic moved to run_analysis_pipeline
 
-def load_statistical_analysis_results() -> Optional[Dict[str, Any]]:
-    """
-    Load statistical analysis results from intermediate files (if they exist).
-    Since we are recomputing, we return None and compute from scratch.
-    """
-    # We don't use intermediate results; we compute from scratch.
+def load_power_analysis_results():
+    """Load power analysis results (T021)."""
+    # Similar to statistical results, we will ensure the power analysis is
+    # performed as part of the report generation to guarantee accuracy.
     return None
 
-def load_power_analysis_results() -> Optional[Dict[str, Any]]:
-    """
-    Load power analysis results from intermediate files (if they exist).
-    Since we are recomputing, we return None and compute from scratch.
-    """
-    return None
+def run_analysis_pipeline(df):
+    """Run the statistical analysis pipeline on the cleaned dataset."""
+    from scipy import stats
+    from statsmodels.stats.power import power_analysis
 
-def run_analysis_pipeline(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Run the analysis pipeline for each metric (perseverative_errors, categories_completed).
-    Returns a list of comparison results.
-    """
-    from analysis import welch_t_test, bonferroni_correction, calculate_cohen_d, calculate_effect_size_ci, calculate_power_and_mdes
+    results = []
+    
+    # Group by stimulus_type: 'nostalgia' and 'control'
+    nostalgia_group = df[df['stimulus_type'] == 'nostalgia']
+    control_group = df[df['stimulus_type'] == 'control']
+    
+    if nostalgia_group.empty or control_group.empty:
+        log_error("One or both groups are empty. Cannot perform analysis.")
+        return []
 
-    metrics = ["perseverative_errors", "categories_completed"]
-    comparisons = []
-
+    metrics = ['perseverative_errors', 'categories_completed']
+    
     for metric in metrics:
         if metric not in df.columns:
-            logger.error(f"Metric {metric} not found in dataset")
+            log_warning(f"Metric {metric} not found in dataset, skipping.")
             continue
-
-        # Split into groups
-        nostalgia_group = df[df["stimulus_type"] == "nostalgia"][metric].dropna()
-        control_group = df[df["stimulus_type"] == "control"][metric].dropna()
-
-        if len(nostalgia_group) < 2 or len(control_group) < 2:
-            logger.warning(f"Insufficient data for {metric}: nostalgia={len(nostalgia_group)}, control={len(control_group)}")
+        
+        y1 = nostalgia_group[metric].dropna()
+        y2 = control_group[metric].dropna()
+        
+        if len(y1) < 2 or len(y2) < 2:
+            log_warning(f"Sample size too small for {metric}, skipping.")
             continue
-
+        
         # Welch's t-test
-        t_stat, p_raw = welch_t_test(nostalgia_group, control_group)
+        t_stat, p_raw = stats.ttest_ind(y1, y2, equal_var=False)
+        
+        # Bonferroni correction (2 comparisons)
+        p_corr = p_raw * 2
+        if p_corr > 1.0:
+            p_corr = 1.0
+        
+        # Effect Size (Cohen's d)
+        # d = (mean1 - mean2) / pooled_std
+        # Using Hedges' g approximation or standard Cohen's d
+        n1, n2 = len(y1), len(y2)
+        mean1, mean2 = y1.mean(), y2.mean()
+        std1, std2 = y1.std(ddof=1), y2.std(ddof=1)
+        
+        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+        if pooled_std == 0:
+            cohens_d = 0.0
+        else:
+            cohens_d = (mean1 - mean2) / pooled_std
+        
+        # 95% CI for Cohen's d (approximation)
+        # Using non-central t-distribution or approximation
+        # Simple approximation: d +/- 1.96 * SE_d
+        # SE_d approx sqrt((n1+n2)/(n1*n2) + d^2/(2*(n1+n2)))
+        se_d = np.sqrt((n1 + n2) / (n1 * n2) + (cohens_d**2) / (2 * (n1 + n2)))
+        ci_lower = cohens_d - 1.96 * se_d
+        ci_upper = cohens_d + 1.96 * se_d
+        
+        results.append({
+            'metric': metric,
+            'group_nostalgia': {
+                'n': int(n1),
+                'mean': float(mean1),
+                'std': float(std1)
+            },
+            'group_control': {
+                'n': int(n2),
+                'mean': float(mean2),
+                'std': float(std2)
+            },
+            't_statistic': float(t_stat),
+            'p_value_raw': float(p_raw),
+            'p_value_corrected': float(p_corr),
+            'effect_size': {
+                'cohen_d': float(cohens_d),
+                'ci_95_lower': float(ci_lower),
+                'ci_95_upper': float(ci_upper)
+            }
+        })
+    
+    return results
 
-        # Bonferroni correction (we have 2 metrics, so correction factor is 2)
-        p_corrected = bonferroni_correction(p_raw, n_comparisons=2)
+def run_power_pipeline(df, analysis_results):
+    """Run power analysis and MDES calculation for each comparison."""
+    from statsmodels.stats.power import TTestIndPower
+    
+    power_results = []
+    alpha = 0.05
+    power_analysis_obj = TTestIndPower()
+    
+    for res in analysis_results:
+        n1 = res['group_nostalgia']['n']
+        n2 = res['group_control']['n']
+        d = res['effect_size']['cohen_d']
+        
+        # Calculate Power
+        # power = TTestIndPower().power(effect_size=d, n1=n1, n2=n2, alpha=alpha)
+        # Handle edge cases where d might be 0 or NaN
+        if d == 0 or np.isnan(d):
+            power = 0.0
+        else:
+            try:
+                power = power_analysis_obj.power(effect_size=abs(d), n1=n1, n2=n2, alpha=alpha)
+            except Exception:
+                power = 0.0
+        
+        # Calculate MDES (Minimum Detectable Effect Size) for 80% power
+        # Solve for effect_size given n1, n2, alpha, power=0.8
+        target_power = 0.8
+        try:
+            mdes = power_analysis_obj.solve_power(n1=n1, n2=n2, alpha=alpha, power=target_power)
+        except Exception:
+            mdes = float('inf')
+        
+        power_results.append({
+            'metric': res['metric'],
+            'statistical_power': float(power),
+            'minimum_detectable_effect_size': float(mdes) if mdes != float('inf') else None,
+            'alpha': alpha,
+            'sample_size_nostalgia': n1,
+            'sample_size_control': n2
+        })
+    
+    return power_results
 
-        # Effect size
-        cohen_d = calculate_cohen_d(nostalgia_group, control_group)
-        ci_lower, ci_upper = calculate_effect_size_ci(cohen_d, len(nostalgia_group), len(control_group), alpha=0.05)
-
-        # Power and MDES
-        power, mdes = calculate_power_and_mdes(
-            effect_size=cohen_d,
-            n1=len(nostalgia_group),
-            n2=len(control_group),
-            alpha=0.05,
-            power_target=0.8
-        )
-
+def compile_final_report(analysis_results, power_results):
+    """Compile the final statistical report."""
+    comparisons = []
+    significant_05 = 0
+    significant_01 = 0
+    total_power = 0.0
+    total_mdes = 0.0
+    count = 0
+    
+    for i, res in enumerate(analysis_results):
+        # Attach power analysis results
+        power_res = power_results[i]
         comparison = {
-            "metric": metric,
-            "group_nostalgia": {
-                "n": len(nostalgia_group),
-                "mean": float(nostalgia_group.mean()),
-                "std": float(nostalgia_group.std())
-            },
-            "group_control": {
-                "n": len(control_group),
-                "mean": float(control_group.mean()),
-                "std": float(control_group.std())
-            },
-            "t_statistic": float(t_stat),
-            "p_value_raw": float(p_raw),
-            "p_value_corrected": float(p_corrected),
-            "effect_size": {
-                "cohen_d": float(cohen_d),
-                "ci_95_lower": float(ci_lower),
-                "ci_95_upper": float(ci_upper)
-            },
-            "power_analysis": {
-                "statistical_power": float(power),
-                "minimum_detectable_effect_size": float(mdes),
-                "alpha": 0.05,
-                "sample_size_nostalgia": len(nostalgia_group),
-                "sample_size_control": len(control_group)
+            'metric': res['metric'],
+            'group_nostalgia': res['group_nostalgia'],
+            'group_control': res['group_control'],
+            't_statistic': res['t_statistic'],
+            'p_value_raw': res['p_value_raw'],
+            'p_value_corrected': res['p_value_corrected'],
+            'effect_size': res['effect_size'],
+            'power_analysis': {
+                'statistical_power': power_res['statistical_power'],
+                'minimum_detectable_effect_size': power_res['minimum_detectable_effect_size'],
+                'alpha': power_res['alpha'],
+                'sample_size_nostalgia': power_res['sample_size_nostalgia'],
+                'sample_size_control': power_res['sample_size_control']
             }
         }
         comparisons.append(comparison)
-
-    return comparisons
-
-def run_power_pipeline(comparisons: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Run power analysis pipeline (already included in comparisons, but we can aggregate).
-    """
-    # The power analysis is already done per comparison.
-    # We can compute summary statistics.
-    powers = [comp["power_analysis"]["statistical_power"] for comp in comparisons]
-    mdes_values = [comp["power_analysis"]["minimum_detectable_effect_size"] for comp in comparisons]
-
-    return {
-        "average_power": float(np.mean(powers)) if powers else 0.0,
-        "average_mdes": float(np.mean(mdes_values)) if mdes_values else 0.0
-    }
-
-def compile_final_report(comparisons: List[Dict[str, Any]], power_summary: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Compile the final report in the required structure.
-    """
-    significant_at_05 = sum(1 for comp in comparisons if comp["p_value_corrected"] < 0.05)
-    significant_at_01 = sum(1 for comp in comparisons if comp["p_value_corrected"] < 0.01)
-
+        
+        if comparison['p_value_corrected'] < 0.05:
+            significant_05 += 1
+        if comparison['p_value_corrected'] < 0.01:
+            significant_01 += 1
+        
+        total_power += comparison['power_analysis']['statistical_power']
+        if comparison['power_analysis']['minimum_detectable_effect_size'] is not None:
+            total_mdes += comparison['power_analysis']['minimum_detectable_effect_size']
+            count += 1
+    
+    avg_power = total_power / len(comparisons) if comparisons else 0.0
+    avg_mdes = total_mdes / count if count > 0 else 0.0
+    
     report = {
-        "report_metadata": {
-            "task_id": "T022",
-            "description": "Statistical Report: p-values, effect sizes, power, MDES",
-            "analysis_method": "Welch's independent samples t-test",
-            "correction_method": "Bonferroni"
+        'report_metadata': {
+            'task_id': 'T022',
+            'description': 'Statistical Report: p-values, effect sizes, power, MDES',
+            'analysis_method': "Welch's independent samples t-test",
+            'correction_method': 'Bonferroni',
+            'generated_at': get_timestamp()
         },
-        "comparisons": comparisons,
-        "summary": {
-            "total_comparisons": len(comparisons),
-            "significant_at_alpha_05": significant_at_05,
-            "significant_at_alpha_01": significant_at_01,
-            "average_power": power_summary["average_power"],
-            "average_mdes": power_summary["average_mdes"]
+        'comparisons': comparisons,
+        'summary': {
+            'total_comparisons': len(comparisons),
+            'significant_at_alpha_05': significant_05,
+            'significant_at_alpha_01': significant_01,
+            'average_power': round(avg_power, 3),
+            'average_mdes': round(avg_mdes, 3)
         }
     }
+    
     return report
 
-def save_report(report: Dict[str, Any], output_path: str = "data/results/statistical_report.json") -> None:
-    """Save the report to a JSON file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
+def save_report(report):
+    """Save the final report to data/results/statistical_report.json."""
+    config = get_config()
+    output_dir = Path(config['data_results_path'])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = output_dir / 'statistical_report.json'
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Report saved to {output_path}")
+    
+    log_info(f"Statistical report saved to {output_path}")
+    return output_path
 
 def main():
-    """Main function to generate the statistical report."""
-    logger.info("Starting T022: Generate statistical report")
-
-    # Load cleaned dataset
-    df = load_cleaned_dataset()
-    logger.info(f"Loaded {len(df)} records from cleaned dataset")
-
-    # Run analysis pipeline
-    comparisons = run_analysis_pipeline(df)
-    logger.info(f"Generated {len(comparisons)} comparisons")
-
-    # Run power pipeline (aggregate)
-    power_summary = run_power_pipeline(comparisons)
-
-    # Compile final report
-    report = compile_final_report(comparisons, power_summary)
-
-    # Save report
-    save_report(report)
-
-    logger.info("T022 completed successfully")
+    """Main entry point for T022."""
+    setup_logging()
+    log_info("Starting T022: Generate Statistical Report")
+    
+    try:
+        # 1. Load cleaned dataset
+        df = load_cleaned_dataset()
+        
+        # 2. Run analysis pipeline (T018, T019, T020 logic)
+        analysis_results = run_analysis_pipeline(df)
+        
+        if not analysis_results:
+            log_error("No analysis results generated. Aborting report generation.")
+            return
+        
+        # 3. Run power analysis pipeline (T021 logic)
+        power_results = run_power_pipeline(df, analysis_results)
+        
+        # 4. Compile final report
+        report = compile_final_report(analysis_results, power_results)
+        
+        # 5. Save report
+        save_report(report)
+        
+        log_info("T022 completed successfully.")
+        
+    except FileNotFoundError as e:
+        log_error(f"Data file missing: {e}")
+        raise
+    except Exception as e:
+        log_error(f"Error during report generation: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

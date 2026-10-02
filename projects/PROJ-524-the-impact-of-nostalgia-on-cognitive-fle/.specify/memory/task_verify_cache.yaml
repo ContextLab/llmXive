@@ -1,9 +1,10 @@
-T007:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `contracts/` directory or any files within it is presented;\
-    \ the implementer provided only the project specification, not the required directory\
-    \ structure or its contents. The task\u2019s artifact is missing."
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`,
+    `contracts/`, `code/`, `tests/`, `paper/`) actually exist; thus the claim cannot
+    be verified.
 T010a:
   c: false
   h: 7f945f21d9b9eb411dafcf0de763977546d333dd9946e1dd0778e236abc767f7
@@ -12,29 +13,12 @@ T010a:
     \ within this module, and the expected output files `data/raw/raw_dataset.csv`\
     \ and `data/raw/metadata.json` are missing. Consequently the task\u2019s critical\
     \ execution flow and required artifacts are not satisfied."
-T010b:
+T014a:
   c: false
-  h: 8b89dd126c3f0459d37cddd323c4e6d390c8e70cb3596321204e1232b751a8e4
-  r: The repository contains `code/ingestion.py`, but the required output file `data/raw/raw_dataset.csv`
-    is missing, so the ingestion step was never completed (or its result was not saved).
-    Consequently the schema validation cannot be confirmed. The next implementer must
-    run the ingestion script and ensure the CSV is created with the required columns.
-T012a:
-  c: false
-  h: b9f108a50d25b4a1bdec99595d6cb9fe1147c8f02ec9671202ce1ebdc9809c04
-  r: "The required input file `data/raw/raw_dataset.csv` does not exist, and the filtered\
-    \ output `data/processed/cleaned_age_filtered.csv` is also missing, so the age\u2011\
-    filtering step could not have been performed. The provided `exclusion_counts.json`\
-    \ is present but cannot be verified as genuine without the actual processing.\
-    \ The task therefore is not satisfied."
-T012b:
-  c: false
-  h: 38064dbbe080dc02a68a6982032e4ed9bae75aeb9931ddacac812dd5ad578ae8
-  r: The required input file `data/processed/cleaned_age_filtered.csv` does not exist,
-    and consequently the filtered output `data/processed/cleaned_score_filtered.csv`
-    is also missing. While an `exclusion_counts.json` is present, the core filtering
-    step could not be performed without the source data. The task is therefore not
-    completed.
+  h: a9705422a48f4dc754228a169dc9ed524e6439bac663ba4e60ad3635957e2837
+  r: The required file `data/processed/final_cleaned_dataset.csv` does not exist,
+    so the copy operation mandated by the task was not performed. The source file
+    is present, but the target artifact is missing.
 T014b:
   c: false
   h: 7c9b3e70db77951e20702e58c9ca933c41716bfdbab6f4796e642a4eab22cf29
@@ -43,11 +27,43 @@ T014b:
     s core artifact does not exist, indicating the work is not done."
 T015:
   c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `data/stimuli/` directory exists, let alone\
+    \ that its contents were inspected for integrity or generation. The implementer\u2019\
+    s claim lacks any artifact (directory listing, file checks, validation results)\
+    \ to verify the requirement."
+T015b:
+  c: false
   h: 726b3df5730ebebf6fb45b3d1f722441e59682a0da408bc981beebfb3c6997dc
-  r: "The required `data/raw/metadata.json` file is missing, so the stimulus checksum\
-    \ validation cannot be performed, and there is no evidence of the required error\
-    \ logging or conditional skip behavior. Without the metadata file (or logs showing\
-    \ the appropriate error handling), the task\u2019s requirements are not met."
+  r: "The required file `data/raw/metadata.json` is missing, so the stimulus validation\
+    \ logic cannot be executed and no logging can occur as specified. The task\u2019\
+    s artifact is absent, thus the requirement is not met."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the Bonferroni correction (e.g.,\
+    \ using `scipy.stats.multipletests` and reporting corrected p\u2011values for\
+    \ `perseverative_errors` and `categories_completed`) is present in the provided\
+    \ artifacts. The required implementation cannot be verified."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output file containing the computed Cohen's d\
+    \ values and their 95\u202F% confidence intervals is present. The task required\
+    \ concrete artifact(s) reporting these effect sizes, which are absent."
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-nostalgia-cognitive-fle/quickstart.md` file is presented, nor\
+    \ any excerpt showing installation steps, dependency list, or a runnable \u201C\
+    Hello World\u201D example for the ingestion pipeline. The required artifact is\
+    \ missing, so the task is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or logs were provided showing the required try/except blocks
+    around `scipy.stats` calls, nor any evidence of logging `ERR_ZERO_VARIANCE` or
+    `ERR_SMALL_SAMPLE` and skipping the affected test. The necessary artifact is missing.
 T025:
   c: false
   h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd
@@ -75,3 +91,14 @@ T031a:
   r: No README.md content was provided; without the file showing installation instructions,
     dependencies, and usage examples, we cannot confirm the task was fulfilled. The
     required artifact is missing.
+T044:
+  c: false
+  h: 8d007374dd3ab951e2293083bb7fa4109df529f3fb4ae34567d3a8a4e2af0153
+  r: "The provided `code/analysis.py` does not show any logic that loads `data/processed/final_cleaned_dataset.csv`\
+    \ or raises `DataNotFoundError` when the file is missing/empty, and the required\
+    \ CSV file is absent from the repository. Consequently, the task\u2019s core requirement\u2014\
+    computing metrics strictly from that real dataset and handling its absence\u2014\
+    is not met. The implementation must be extended to read the specified CSV, validate\
+    \ its presence and non\u2011emptiness, raise `DataNotFoundError` if it fails,\
+    \ and avoid any synthetic or random data generation. Additionally, the missing\
+    \ `final_cleaned_dataset"

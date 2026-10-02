@@ -1,0 +1,119 @@
+version: "1.0"
+spec_reference: "specs/001-nostalgia-cognitive-fle/spec.md"
+description: "Data model for the impact of nostalgia on cognitive flexibility in aging adults."
+entities:
+  Participant:
+    description: "Represents an individual aging adult (age >= 65) participating in the study."
+    fields:
+      - name: participant_id
+        type: string
+        description: "Unique identifier for the participant."
+        required: true
+      - name: age
+        type: integer
+        description: "Age of the participant in years."
+        required: true
+        constraints:
+          min: 65
+      - name: group
+        type: string
+        description: "Experimental group assignment."
+        required: true
+        enum:
+          - nostalgia
+          - control
+      - name: mmse_score
+        type: integer
+        description: "Mini-Mental State Examination score. Optional; used for exclusion if < 24."
+        required: false
+        constraints:
+          min: 0
+          max: 30
+
+  Stimulus:
+    description: "Represents the experimental stimulus (audio/text) presented to the participant."
+    fields:
+      - name: stimulus_id
+        type: string
+        description: "Unique identifier for the stimulus."
+        required: true
+      - name: stimulus_type
+        type: string
+        description: "Type of stimulus (nostalgia-inducing or neutral control)."
+        required: true
+        enum:
+          - nostalgia
+          - control
+      - name: content_path
+        type: string
+        description: "Relative path to the stimulus file in data/stimuli/."
+        required: true
+      - name: checksum
+        type: string
+        description: "SHA-256 checksum of the stimulus file for integrity verification."
+        required: true
+
+  Metric:
+    description: "Cognitive flexibility performance metrics derived from the WCST."
+    fields:
+      - name: participant_id
+        type: string
+        description: "Foreign key linking to Participant."
+        required: true
+      - name: stimulus_id
+        type: string
+        description: "Foreign key linking to Stimulus."
+        required: true
+      - name: perseverative_errors
+        type: integer
+        description: "Number of perseverative errors made by the participant."
+        required: true
+        constraints:
+          min: 0
+      - name: categories_completed
+        type: integer
+        description: "Number of categories successfully completed."
+        required: true
+        constraints:
+          min: 0
+      - name: total_tries
+        type: integer
+        description: "Total number of trials attempted."
+        required: false
+        constraints:
+          min: 0
+
+relationships:
+  - type: one-to-many
+    source: Participant
+    target: Metric
+    on: participant_id
+  - type: one-to-many
+    source: Stimulus
+    target: Metric
+    on: stimulus_id
+
+validation_rules:
+  - rule: "participant_age_check"
+    description: "Ensure all participants are 65 years or older."
+    entity: Participant
+    field: age
+    operator: ">="
+    value: 65
+  - rule: "mmse_exclusion"
+    description: "Exclude participants with MMSE < 24 if MMSE data is available."
+    entity: Participant
+    field: mmse_score
+    condition: "if present and not null, then value >= 24"
+  - rule: "metric_completeness"
+    description: "Ensure primary metrics are not null."
+    entity: Metric
+    fields:
+      - perseverative_errors
+      - categories_completed
+    condition: "not null"
+
+schema_metadata:
+  generated_by: "T020b Data Model Generator"
+  timestamp: "auto-generated-at-runtime"
+  version_control: "git"

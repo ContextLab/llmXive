@@ -1,144 +1,114 @@
+"""
+Unit tests for Task T012d: MMSE Flag Generation
+
+Tests the logic of validating MMSE presence in the raw dataset
+and generating the corresponding flag file.
+"""
+
 import os
 import json
+import tempfile
 import pytest
 import pandas as pd
 from pathlib import Path
-import sys
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the functions to test
+from code.task_t012d_mmse_flag import validate_mmse_presence, save_mmse_flag
 
-from task_t012d_mmse_flag import load_score_filtered_dataset, validate_mmse_presence, save_mmse_flag, main
 
-# Test Fixtures
-@pytest.fixture
-def temp_processed_dir(tmp_path):
-    """Creates a temporary processed directory structure."""
-    processed_dir = tmp_path / "data" / "processed"
-    processed_dir.mkdir(parents=True)
-    return processed_dir
-
-@pytest.fixture
-def score_filtered_file(temp_processed_dir):
-    """Creates a mock cleaned_score_filtered.csv file."""
-    file_path = temp_processed_dir / "cleaned_score_filtered.csv"
-    data = {
-        'participant_id': [1, 2, 3, 4],
-        'stimulus_type': ['nostalgia', 'control', 'nostalgia', 'control'],
-        'perseverative_errors': [5, 3, 6, 2],
-        'categories_completed': [4, 5, 3, 6],
-        'age': [68, 72, 65, 80],
-        'MMSE': [28, 29, None, 26] # One null, rest valid
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(file_path, index=False)
-    return file_path
-
-@pytest.fixture
-def score_filtered_no_mmse_col(temp_processed_dir):
-    """Creates a mock file without the MMSE column."""
-    file_path = temp_processed_dir / "cleaned_score_filtered.csv"
-    data = {
-        'participant_id': [1, 2],
-        'stimulus_type': ['nostalgia', 'control'],
-        'perseverative_errors': [5, 3],
-        'categories_completed': [4, 5],
-        'age': [68, 72]
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(file_path, index=False)
-    return file_path
-
-@pytest.fixture
-def score_filtered_all_null_mmse(temp_processed_dir):
-    """Creates a mock file with MMSE column but all nulls."""
-    file_path = temp_processed_dir / "cleaned_score_filtered.csv"
-    data = {
-        'participant_id': [1, 2],
-        'stimulus_type': ['nostalgia', 'control'],
-        'perseverative_errors': [5, 3],
-        'categories_completed': [4, 5],
-        'age': [68, 72],
-        'MMSE': [None, None]
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(file_path, index=False)
-    return file_path
-
-def test_validate_mmse_presence_present_and_valid(score_filtered_file, temp_processed_dir):
-    """Test that validation returns True when MMSE column exists and has values."""
-    # Temporarily patch the path constant to use temp dir
-    import task_t012d_mmse_flag as module
-    original_path = module.SCORE_FILTERED_PATH
-    module.SCORE_FILTERED_PATH = score_filtered_file
+class TestValidateMMSEPresence:
+    """Tests for the validate_mmse_presence function"""
     
-    try:
-        df = load_score_filtered_dataset()
+    def test_mmse_column_missing(self):
+        """Test when MMSE column is not present in the dataframe"""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'age': [65, 70, 75],
+            'stimulus_type': ['nostalgia', 'control', 'nostalgia']
+        })
+        
+        result = validate_mmse_presence(df)
+        assert result is False
+    
+    def test_mmse_column_all_null(self):
+        """Test when MMSE column exists but all values are null"""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'age': [65, 70, 75],
+            'MMSE': [None, None, None]
+        })
+        
+        result = validate_mmse_presence(df)
+        assert result is False
+    
+    def test_mmse_column_has_values(self):
+        """Test when MMSE column exists and has at least one non-null value"""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'age': [65, 70, 75],
+            'MMSE': [28, None, 26]
+        })
+        
         result = validate_mmse_presence(df)
         assert result is True
-    finally:
-        module.SCORE_FILTERED_PATH = original_path
-
-def test_validate_mmse_presence_missing_column(score_filtered_no_mmse_col, temp_processed_dir):
-    """Test that validation returns False when MMSE column is missing."""
-    import task_t012d_mmse_flag as module
-    original_path = module.SCORE_FILTERED_PATH
-    module.SCORE_FILTERED_PATH = score_filtered_no_mmse_col
     
-    try:
-        df = load_score_filtered_dataset()
-        result = validate_mmse_presence(df)
-        assert result is False
-    finally:
-        module.SCORE_FILTERED_PATH = original_path
-
-def test_validate_mmse_presence_all_null(score_filtered_all_null_mmse, temp_processed_dir):
-    """Test that validation returns False when MMSE column exists but is all null."""
-    import task_t012d_mmse_flag as module
-    original_path = module.SCORE_FILTERED_PATH
-    module.SCORE_FILTERED_PATH = score_filtered_all_null_mmse
-    
-    try:
-        df = load_score_filtered_dataset()
-        result = validate_mmse_presence(df)
-        assert result is False
-    finally:
-        module.SCORE_FILTERED_PATH = original_path
-
-def test_save_mmse_flag_creates_file(temp_processed_dir):
-    """Test that save_mmse_flag writes a valid JSON file."""
-    import task_t012d_mmse_flag as module
-    flag_path = temp_processed_dir / "mmse_flag.json"
-    module.MMSE_FLAG_PATH = flag_path
-    
-    try:
-        save_mmse_flag(True)
+    def test_mmse_column_all_values(self):
+        """Test when MMSE column exists and all values are non-null"""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'age': [65, 70, 75],
+            'MMSE': [28, 27, 26]
+        })
         
-        assert flag_path.exists()
-        with open(flag_path, 'r') as f:
-            data = json.load(f)
+        result = validate_mmse_presence(df)
+        assert result is True
+    
+    def test_mmse_column_with_zero_values(self):
+        """Test when MMSE column has valid numeric values including zero"""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'age': [65, 70, 75],
+            'MMSE': [0, 15, 30]
+        })
         
-        assert data['has_mmse'] is True
-        assert 'timestamp' in data
-    finally:
-        module.MMSE_FLAG_PATH = Path("data/processed/mmse_flag.json")
+        result = validate_mmse_presence(df)
+        assert result is True
 
-def test_main_integration_success(temp_processed_dir, score_filtered_file, monkeypatch):
-    """Integration test: Run main() and verify output file is created."""
-    import task_t012d_mmse_flag as module
+class TestSaveMMSEFlag:
+    """Tests for the save_mmse_flag function"""
     
-    # Patch paths to use temp directory
-    module.SCORE_FILTERED_PATH = score_filtered_file
-    flag_output = temp_processed_dir / "mmse_flag.json"
-    module.MMSE_FLAG_PATH = flag_output
+    def test_save_true_flag(self):
+        """Test saving has_mmse=True"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "mmse_flag.json"
+            save_mmse_flag(True, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data['has_mmse'] is True
+            assert 'timestamp' in data
+            assert data['task_id'] == 'T012d'
     
-    # Run main
-    result = module.main()
+    def test_save_false_flag(self):
+        """Test saving has_mmse=False"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "mmse_flag.json"
+            save_mmse_flag(False, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data['has_mmse'] is False
+            assert 'timestamp' in data
+            assert data['task_id'] == 'T012d'
     
-    assert result == 0
-    assert flag_output.exists()
-    
-    with open(flag_output, 'r') as f:
-        data = json.load(f)
-    
-    assert data['has_mmse'] is True
+    def test_creates_directory(self):
+        """Test that the function creates parent directories if they don't exist"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "subdir" / "mmse_flag.json"
+            save_mmse_flag(True, output_path)
+            
+            assert output_path.exists()

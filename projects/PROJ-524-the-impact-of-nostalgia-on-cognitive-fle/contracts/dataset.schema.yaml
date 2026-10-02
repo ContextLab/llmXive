@@ -1,39 +1,146 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Nostalgia Cognitive Flexibility Dataset Schema"
-description: "Schema for the raw and processed dataset containing participant data, stimulus types, and cognitive flexibility metrics."
+title: "WCST Nostalgia Dataset Schema"
+description: "Schema for the raw and processed dataset containing participant cognitive flexibility metrics and stimulus information."
 type: object
-properties:
-  participant_id:
-    type: string
-    description: "Unique identifier for the participant"
-    minLength: 1
-  age:
-    type: integer
-    description: "Age of the participant in years"
-    minimum: 0
-  stimulus_type:
-    type: string
-    description: "Type of stimulus presented (nostalgia or control)"
-    enum:
-      - nostalgia
-      - control
-  perseverative_errors:
-    type: integer
-    description: "Number of perseverative errors in WCST"
-    minimum: 0
-  categories_completed:
-    type: integer
-    description: "Number of categories completed in WCST"
-    minimum: 0
-  MMSE:
-    type: integer
-    description: "Mini-Mental State Examination score (optional)"
-    minimum: 0
-    maximum: 30
-    nullable: true
 required:
-  - participant_id
-  - age
-  - stimulus_type
-  - perseverative_errors
-  - categories_completed
+  - fields
+  - records
+properties:
+  fields:
+    type: object
+    description: "Definition of all columns in the dataset."
+    properties:
+      participant_id:
+        type: object
+        description: "Unique identifier for the participant."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "string"
+          description:
+            type: string
+          nullable:
+            type: boolean
+            const: false
+      age:
+        type: object
+        description: "Age of the participant in years."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "integer"
+          description:
+            type: string
+          minimum:
+            type: integer
+            const: 65
+          nullable:
+            type: boolean
+            const: false
+      stimulus_type:
+        type: object
+        description: "Type of stimulus presented (nostalgia or control)."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "string"
+          description:
+            type: string
+          enum:
+            - "nostalgia"
+            - "control"
+          nullable:
+            type: boolean
+            const: false
+      perseverative_errors:
+        type: object
+        description: "Number of perseverative errors made during the WCST."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "integer"
+          description:
+            type: string
+          minimum:
+            type: integer
+            const: 0
+          nullable:
+            type: boolean
+            const: false
+      categories_completed:
+        type: object
+        description: "Number of categories successfully completed in the WCST."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "integer"
+          description:
+            type: string
+          minimum:
+            type: integer
+            const: 0
+          nullable:
+            type: boolean
+            const: false
+      MMSE:
+        type: object
+        description: "Mini-Mental State Examination score (optional)."
+        required: [type, description]
+        properties:
+          type:
+            type: string
+            const: "integer"
+          description:
+            type: string
+          minimum:
+            type: integer
+            const: 0
+          maximum:
+            type: integer
+            const: 30
+          nullable:
+            type: boolean
+            const: true
+    required:
+      - participant_id
+      - age
+      - stimulus_type
+      - perseverative_errors
+      - categories_completed
+  records:
+    type: array
+    description: "List of participant records."
+    items:
+      type: object
+      required:
+        - participant_id
+        - age
+        - stimulus_type
+        - perseverative_errors
+        - categories_completed
+      properties:
+        participant_id:
+          type: string
+        age:
+          type: integer
+          minimum: 65
+        stimulus_type:
+          type: string
+          enum:
+            - "nostalgia"
+            - "control"
+        perseverative_errors:
+          type: integer
+          minimum: 0
+        categories_completed:
+          type: integer
+          minimum: 0
+        MMSE:
+          type: ["integer", "null"]
+          minimum: 0
+          maximum: 30
