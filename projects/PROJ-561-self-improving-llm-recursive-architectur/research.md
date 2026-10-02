@@ -1,70 +1,67 @@
-# Research Plan: Self-Improving LLM via Recursive Architecture Refinement
+# Research Design: Self-Improving LLM via Recursive Architecture Refinement
 
-## 1. Executive Summary
-This project investigates the feasibility of a recursive self-improving Large Language Model (LLM) system. The core hypothesis is that an LLM, given access to its own architecture definition and weights, can propose structural modifications, validate them against held-out benchmarks, and iteratively refine its own architecture to achieve lasting performance gains without external human intervention.
+This document defines the research methodology, operational constraints, and philosophical foundations for the automated recursive self-improvement pipeline. It serves as the immutable reference for all subsequent implementation tasks (T001–T131).
 
-## 2. Methodology for Parameter Limits
-To determine the maximum allowable parameter increase per cycle, we define a methodology based on parameter efficiency curves and hardware memory constraints.
+## Methodology for Parameter Limit
 
-The specific limit for `MAX_PARAM_INCREASE_RATIO` is currently **[deferred]** pending the outcome of the initial scaling law analysis (T099) and the empirical measurement of memory overhead during the first three training cycles. The methodology involves:
-1. Measuring the FLOPs-to-accuracy ratio for the baseline model.
-2. Simulating parameter growth to estimate RAM consumption against the 7GB limit (SC-005).
-3. Selecting a ratio that maximizes potential gain while strictly adhering to the safety constraint.
+The system operates under a strict constraint on architectural growth to prevent runaway resource consumption and ensure the "self-improvement" is genuine efficiency or capability gain rather than brute-force scaling.
 
-Until this analysis is complete, the default configuration (config.py) assumes a conservative ratio of 0.30, but the research definition remains open for adjustment based on the methodology described above.
+**Determination Strategy:**
+The maximum allowable parameter increase per cycle is determined by a configurable ratio (`MAX_PARAM_INCREASE_RATIO`).
+1. **Initial State:** The baseline model (GPT-2 124M) defines the initial parameter count $P_0$.
+2. **Constraint:** For any cycle $N$, the new parameter count $P_N$ must satisfy:
+ $P_N \le P_{N-1} \times (1 + R_{max})$
+ Where $R_{max}$ is the configured limit.
+3. **Current Value:** The specific numerical value for $R_{max}$ is marked as **[DEFERRED]** pending the completion of the "Minimality Search" analysis in the trajectory data.
+ * *Note:* Until the empirical analysis of the first three cycles is complete, the system will default to a provisional limit of 0.30 (30%), but this value is subject to revision based on the "Capacity Normalization" results (Task T131).
+4. **Hard Stop:** If a proposed modification exceeds this limit, the `External Oracle` (see below) must reject it immediately, regardless of predicted performance gain.
 
-## 3. External Oracle Protocol (FR-021)
-To prevent the model from optimizing for its own proposal generation process (a form of reward hacking or self-reinforcement), this system enforces a strict **External Oracle** protocol.
+## External Oracle Protocol
 
-- **Immutable Evaluation**: During each refinement cycle, the evaluation metric is provided by an external, immutable oracle. The model does not have access to the benchmark data or the evaluation logic during the proposal generation phase.
-- **Held-Out Benchmarks**: The datasets used for validation (GSM8K, ARC-Challenge, BoolQ) are strictly held-out from the training data and the proposal generation context.
-- **Verification**: The oracle validates the modified model's performance against these static benchmarks. A proposal is only accepted if it demonstrates a statistically significant improvement over the baseline according to this external metric.
+To address the "Source of Authority" and "Fixed-Point" concerns raised by John Von Neumann and Alan Turing, the system utilizes an immutable evaluation protocol that the model cannot modify.
 
-This separation ensures that the "improvement" is real and not an artifact of the model manipulating its own evaluation criteria.
+**Definition:**
+The External Oracle is a read-only, deterministic function $O(M)$ that maps a model state $M$ to a vector of benchmark scores $S = \{s_{gsm8k}, s_{arc}, s_{boolq}\}$.
 
-## 4. External Validation Protocol
-Complementing the External Oracle, the **External Validation Protocol** ensures that benchmarks remain immutable throughout the recursion.
+**Properties:**
+1. **Immutability:** The benchmark datasets (GSM8K, ARC-Challenge, BoolQ) and the evaluation logic are loaded from a locked source. The model's `ModificationProposal` logic has zero access to the benchmark definitions or the scoring function.
+2. **Invariance:** The Oracle does not adapt its criteria. A score of 50% on GSM8K is always 50%, regardless of how many cycles have passed.
+3. **Verification:** Before any model replacement occurs, the new model $M_{new}$ must satisfy:
+ $O(M_{new}) > O(M_{old}) + \delta$
+ Where $\delta$ is a statistically significant threshold determined by the paired bootstrap test (Task T007).
+4. **Fail-Safe:** If the Oracle cannot be contacted or the benchmark data is corrupted, the cycle aborts immediately. No "best guess" or synthetic fallback is permitted.
 
-- The benchmark datasets are loaded once at the start of the pipeline and checksummed to ensure integrity.
-- The model is never exposed to the raw benchmark samples during the `generate_proposal` step.
-- The validation function is a pure function that takes the model weights and returns a scalar score, preventing the model from "seeing" the validation logic.
+## Philosophical & Operational Definitions
 
-## 5. Definition of Lasting Improvement
-A single-cycle gain is insufficient to claim recursive self-improvement due to the volatility of stochastic optimization. We define **lasting improvement** as follows:
+This section clarifies the conceptual framework guiding the system's behavior, addressing specific concerns regarding computational irreducibility and thermodynamic bounds.
 
-A performance gain is considered "lasting" only if it persists across at least two subsequent training cycles (Turing Review). If a modification yields a gain in Cycle N but the performance drops in Cycle N+1 or N+2, the improvement is classified as transient noise, and the modification is rejected or rolled back.
+### Source of Authority
+The authority for any architectural change resides exclusively in the **External Oracle** and the **Statistical Significance Test**. The LLM generating the proposal is a "hypothesis generator" with no intrinsic authority to validate its own output. The "truth" of an improvement is defined solely by the immutable benchmark scores, not by the model's internal confidence or reasoning.
 
-## 6. Rollback Mechanism
-To ensure system stability, a **Rollback Mechanism** is implemented:
-- If the performance of a new cycle drops below a defined threshold (e.g., 5% degradation from the baseline or the previous stable checkpoint), the system MUST automatically revert to the previous stable checkpoint.
-- The rollback event is logged, and the failed proposal is added to the "distinctness history" to prevent re-occurrence.
+### Fixed-Point
+A **Fixed-Point** is reached when the system enters a state where no modification proposal yields a statistically significant improvement ($p < 0.05$) over the current state, despite exhaustive search of the allowed modification space.
+* **Detection:** If three consecutive cycles fail to produce a statistically significant gain while parameter counts increase, the system terminates with a "Fixed-Point Reached" status.
+* **Implication:** This indicates the current architecture has hit a local optimum for the given data and benchmark constraints, preventing infinite regress.
 
-## 7. Scaling Law Analysis (West Review)
-We expect the improvement gains (Δperformance) to follow a power-law decay relative to the iteration count, consistent with scaling laws observed in deep learning.
-- **Hypothesis**: $Gain(n) \approx A \cdot n^{-\alpha} + C$
-- We will empirically fit this curve to the trajectory data to determine the thermodynamic bounds of recursion and predict the point of diminishing returns.
+### Scaling Laws
+We assume that performance $P$ scales with parameter count $N$ and compute $C$ according to established power laws ($P \propto N^\alpha C^\beta$). However, this project seeks to violate the standard scaling assumption by finding **architectural efficiencies** where $P$ increases while $N$ and $C$ remain constant or decrease. The "Capacity Normalization" analysis (T131) will explicitly test whether observed gains are due to scaling or structural optimization.
 
-## 8. Computational Irreducibility (Wolfram Review)
-Acknowledging the principle of **Computational Irreducibility**, we explicitly state that no closed-form prediction of improvement trajectories exists.
-- The system cannot mathematically predict the outcome of an architecture modification before running the training cycle.
-- The methodology relies entirely on the empirical mining of the architecture rule space through iterative experimentation.
-- The "rules" of the system (the architecture) are simple, but the emergent behavior (performance trajectory) is complex and irreducible.
+### Computational Irreducibility
+As posited by Stephen Wolfram, the trajectory of this system's improvement cannot be predicted by a closed-form equation. The result of a modification is computationally irreducible; it must be simulated (trained and evaluated) to be known. The system acknowledges that no "shortcut" exists to predict the outcome of a structural change without empirical execution. The "Rule Space Exploration" metric will track the number of distinct modifications attempted to quantify this exploration.
 
-## 9. Recursive Improvement vs. Recursive Adaptation (Krakauer Review)
-We distinguish between two modes of operation:
-- **Recursive Improvement**: Optimization of a fixed objective function (e.g., minimizing loss on a static benchmark).
-- **Recursive Adaptation**: Evolutionary navigation of changing environments or blind spots.
+### Recursive Adaptation
+Distinct from "Recursive Improvement" (which implies a monotonic ascent to a global optimum), **Recursive Adaptation** acknowledges that the system may oscillate or plateau. The system is designed to adapt its architecture to the specific "fitness landscape" defined by the training data and benchmarks, potentially accepting temporary regressions if they lead to a broader basin of attraction (though the strict Oracle protocol currently forbids accepting a lower score).
 
-To measure the system's ability to adapt, we define a metric for **"stupidity"** (error cost) in changing environments. If the environment shifts (e.g., a new benchmark is introduced), the "stupidity" metric quantifies the cost of the system's failure to adapt its architecture to the new constraints.
+### Overfitting
+Overfitting is defined as a divergence between training loss and benchmark performance. The system monitors the **Generalization Gap**. If training loss decreases but benchmark scores stagnate or drop, the modification is flagged as overfitting. The "Distinctness Validator" (T020) helps mitigate this by preventing the model from making trivial changes that merely memorize the training set without altering general capability.
 
-## 10. Success Criteria
-- **SC-001**: The system successfully completes at least one full refinement cycle.
-- **SC-003**: Trajectory persistence is demonstrated (lasting improvement).
-- **SC-004**: Cost-effectiveness is maintained (performance gain > resource cost).
-- **SC-005**: Feasibility is confirmed (peak RAM < 7GB).
+### Minimality Search
+Before proposing a complex structural change (e.g., adding a layer), the system must first attempt the **simplest valid modification** (e.g., adjusting learning rate, batch size, or a single neuron count). This heuristic, inspired by Occam's Razor and Wolfram's "simplest rules" principle, ensures that complexity is only added when strictly necessary for performance gains.
 
-## 11. References
-- West, G. (2021). *Scaling: Why Animal Size is So Important*.
-- Wolfram, S. (2002). *A New Kind of Science*.
-- Krakauer, D. (2021). *Evolutionary Dynamics and Learning*.
-- Von Neumann, J. (1966). *Theory of Self-Reproducing Automata*.
+### Thermodynamic Bounds
+The efficiency of the system is bounded by the energy cost of computation. We define **Energy per Accuracy Unit** as the total FLOPs consumed divided by the accuracy gain. The system aims to minimize this ratio. If a modification yields a gain but increases the energy cost per unit of accuracy by more than a threshold, it may be rejected as thermodynamically inefficient, even if statistically significant.
+
+### Bird vs. Frog
+* **Bird View:** The high-level orchestration (the "Bird") observes the global trajectory, resource constraints, and convergence status. It decides when to stop or reset.
+* **Frog View:** The local modification generation (the "Frog") focuses on the immediate, granular details of the architecture (e.g., "increase hidden size by 8").
+* **Separation:** The "Bird" logic (Oracle, constraints, termination) is strictly separated from the "Frog" logic (proposal generation). The Frog cannot see the global state; it only receives the current benchmark score and the allowed modification space. This separation prevents the model from "cheating" by optimizing for the wrong metric.

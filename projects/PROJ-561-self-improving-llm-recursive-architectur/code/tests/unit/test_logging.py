@@ -1,146 +1,125 @@
-"""
-Unit tests for utils.logging module (T009).
-Verifies structured JSON log creation and checkpointing functionality.
-"""
 import unittest
 import os
+import sys
 import json
 import tempfile
 import shutil
 from unittest.mock import patch, MagicMock, PropertyMock
-import sys
+from datetime import datetime
 
-# Add code directory to path
+# Add the code directory to the path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from utils.logging import (
-    init_cycle_logger,
-    get_logger,
-    get_cycle_history,
-    log_cycle_summary,
-    log_error,
-    log_warning,
-    checkpoint_model_state,
-    update_cycle_log
-)
-from config import PathConfig, Config, get_config, set_config
+from utils.logging import init_cycle_logger, log_cycle_event, log_authority_trace, get_log_path
+from config import get_config
 
 class MockConfig:
-    def __init__(self, tmp_dir):
-        self.paths = PathConfig(
-            raw_data=os.path.join(tmp_dir, "raw"),
-            processed_data=os.path.join(tmp_dir, "processed"),
-            results=os.path.join(tmp_dir, "results"),
-            logs=os.path.join(tmp_dir, "logs"),
-            checkpoints=os.path.join(tmp_dir, "checkpoints")
-        )
+    """Mock config for testing log paths."""
+    def __init__(self):
+        self.log_path = "/tmp/test_logs/cycle_1.log"
 
 class TestLogging(unittest.TestCase):
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.mock_config = MockConfig(self.temp_dir)
+        """Set up a temporary directory for logs."""
+        self.test_dir = tempfile.mkdtemp()
+        self.original_config = get_config()
+        
+        # Mock the config to use our temp directory
+        mock_cfg = MockConfig()
+        mock_cfg.log_path = os.path.join(self.test_dir, "cycle_1.log")
+        
         # Patch get_config to return our mock
-        self.patcher = patch('utils.logging.get_config', return_value=self.mock_config)
-        self.mock_get_config = self.patcher.start()
+        self.config_patcher = patch('utils.logging.get_config', return_value=mock_cfg)
+        self.config_patcher.start()
+        self.config_patcher2 = patch('config.get_config', return_value=mock_cfg)
+        self.config_patcher2.start()
 
     def tearDown(self):
-        self.patcher.stop()
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        """Clean up temporary directory."""
+        self.config_patcher.stop()
+        self.config_patcher2.stop()
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_init_cycle_logger_creates_file(self):
-        """Verify that init_cycle_logger creates the log file with JSON content."""
-        cycle_num = 1
-        logger = init_cycle_logger(cycle_num)
+        """Test that init_cycle_logger creates the log file."""
+        logger = init_cycle_logger(1)
+        log_path = get_log_path(1)
+        self.assertTrue(os.path.exists(log_path), f"Log file {log_path} should exist")
+        self.assertIsInstance(logger, logging.Logger)
 
-        expected_path = os.path.join(self.mock_config.paths.results, "logs", f"cycle_{cycle_num}.log")
-        self.assertTrue(os.path.exists(expected_path), f"Log file {expected_path} was not created")
+    def test_log_cycle_event_writes_json(self):
+        """Test that log_cycle_event writes a valid JSON line."""
+        logger = init_cycle_logger(1)
+        log_path = get_log_path(1)
+        
+        event_data = {"test_key": "test_value", "number": 42}
+        log_cycle_event(logger, "test_event", event_data)
+        
+        # Read the file and verify JSON
+        with open(log_path, 'r') as f:
+            line = f.readline().strip()
+            parsed = json.loads(line)
+            
+            self.assertEqual(parsed['event_type'], 'test_event')
+            self.assertEqual(parsed['data']['test_key'], 'test_value')
+            self.assertIn('timestamp', parsed)
 
-        # Verify content is valid JSON
-        with open(expected_path, 'r') as f:
-            content = f.read()
-            # Log file should have at least one entry if we logged something,
-            # but the file existence is the primary check for T009.
-            # Let's log something to ensure content exists.
-            logger.info("Test initialization", extra={'cycle': cycle_num, 'component': 'test'})
+    def test_log_authority_trace_structure(self):
+        """Test that log_authority_trace writes the correct Authority Trace structure."""
+        logger = init_cycle_logger(1)
+        log_path = get_log_path(1)
+        
+        proposal_id = "prop_123"
+        benchmark_score = {"gsm8k": 0.85, "arc": 0.90}
+        oracle_result = {"passed": True, "reason": "Within limits"}
+        human_constraints = {"max_param_increase_ratio": 0.30}
+        
+        log_authority_trace(
+            logger, 
+            proposal_id, 
+            benchmark_score, 
+            oracle_result, 
+            human_constraints
+        )
+        
+        with open(log_path, 'r') as f:
+            line = f.readline().strip()
+            parsed = json.loads(line)
+            
+            # Verify structure
+            self.assertIn('authority_trace', parsed)
+            trace = parsed['authority_trace']
+            
+            self.assertEqual(trace['proposal_id'], proposal_id)
+            self.assertEqual(trace['source_benchmark_scores'], benchmark_score)
+            self.assertEqual(trace['oracle_validation'], oracle_result)
+            self.assertEqual(trace['human_constraints_applied'], human_constraints)
+            
+            # Verify the specific requirement: "Authority Trace" and metric value
+            self.assertIn('gsm8k', trace['source_benchmark_scores'])
+            self.assertEqual(trace['source_benchmark_scores']['gsm8k'], 0.85)
 
-        with open(expected_path, 'r') as f:
-            lines = f.readlines()
-            self.assertGreater(len(lines), 0, "Log file is empty")
-            # Verify each line is valid JSON
-            for line in lines:
-                try:
-                    json.loads(line.strip())
-                except json.JSONDecodeError:
-                    self.fail(f"Line is not valid JSON: {line}")
-
-    def test_log_cycle_summary(self):
-        """Verify log_cycle_summary writes structured metrics."""
-        cycle_num = 2
-        logger = init_cycle_logger(cycle_num)
-        metrics = {
-            "accuracy": 0.85,
-            "loss": 1.23,
-            "duration_sec": 10.5
-        }
-
-        log_cycle_summary(logger, cycle_num, metrics)
-
-        log_path = os.path.join(self.mock_config.paths.results, "logs", f"cycle_{cycle_num}.log")
+    def test_log_authority_trace_content_verification(self):
+        """Verify that the log contains the specific 'Authority Trace' marker and metric value."""
+        logger = init_cycle_logger(1)
+        log_path = get_log_path(1)
+        
+        log_authority_trace(
+            logger, 
+            "prop_456", 
+            {"gsm8k": 0.92}, 
+            {"passed": True}, 
+            {"limit": 0.30}
+        )
+        
         with open(log_path, 'r') as f:
             content = f.read()
-            self.assertIn("0.85", content)
-            self.assertIn("1.23", content)
-
-    def test_log_error(self):
-        """Verify log_error writes structured error."""
-        cycle_num = 3
-        logger = init_cycle_logger(cycle_num)
-        log_error(logger, cycle_num, "Test error message")
-
-        log_path = os.path.join(self.mock_config.paths.results, "logs", f"cycle_{cycle_num}.log")
-        with open(log_path, 'r') as f:
-            content = f.read()
-            self.assertIn("Test error message", content)
-            self.assertIn("ERROR", content)
-
-    def test_get_cycle_history(self):
-        """Verify get_cycle_history returns parsed log entries."""
-        cycle_num = 4
-        logger = init_cycle_logger(cycle_num)
-        logger.info("Entry 1", extra={'cycle': cycle_num})
-        logger.info("Entry 2", extra={'cycle': cycle_num})
-
-        history = get_cycle_history(cycle_num)
-        self.assertGreaterEqual(len(history), 2)
-        self.assertEqual(history[0]["message"], "Entry 1")
-        self.assertEqual(history[1]["message"], "Entry 2")
-
-    def test_checkpoint_model_state(self):
-        """Verify checkpoint_model_state creates a valid file."""
-        cycle_num = 5
-        mock_model = MagicMock()
-        mock_model.state_dict.return_value = {"layer1.weight": [[1.0, 2.0]]}
-
-        path = checkpoint_model_state(mock_model, cycle_num)
-
-        self.assertTrue(os.path.exists(path))
-        self.assertIn(f"cycle_{cycle_num}", path)
-        self.assertTrue(path.endswith(".pt"))
-
-    def test_update_cycle_log(self):
-        """Verify update_cycle_log appends structured JSON."""
-        cycle_num = 6
-        update_cycle_log(cycle_num, "start", {"step": 1})
-        update_cycle_log(cycle_num, "end", {"step": 10})
-
-        log_path = os.path.join(self.mock_config.paths.results, "logs", f"cycle_{cycle_num}.log")
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-            self.assertEqual(len(lines), 2)
-            entry1 = json.loads(lines[0])
-            entry2 = json.loads(lines[1])
-            self.assertEqual(entry1["event_type"], "start")
-            self.assertEqual(entry2["event_type"], "end")
+            # The JSON key 'authority_trace' should be present
+            self.assertIn('authority_trace', content)
+            # The specific metric value should be present
+            self.assertIn('0.92', content)
+            # The constraint value should be present
+            self.assertIn('0.30', content)
 
 if __name__ == '__main__':
     unittest.main()

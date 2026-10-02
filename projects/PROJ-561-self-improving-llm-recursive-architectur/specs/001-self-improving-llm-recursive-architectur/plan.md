@@ -120,8 +120,8 @@ The research question remains: To what extent can the proposed method improve re
 The method remains: We will employ a zero-shot prompting strategy with chain-of-thought reasoning on standard natural language understanding and reasoning benchmarks.
 
 References:
-Clark et al. (2018) [arXiv:1803.05457]
-Kwiatkowski et al. (2019) [DOI: 10.1162/tacl_a_00276].
+Clark et al. (2018) [arXiv identifier]
+Kwiatkowski et al. (2019) [DOI: /tacl_a_00276].
 8.  **Step 3.7: Statistical Analysis** (FR-006): Perform paired bootstrap with a sufficient number of resamples and Bonferroni correction. Calculate p-values.
 9.  **Step 3.8: Early Termination Check** (FR-015): If degradation >= 5% from baseline, terminate loop.
 10. **Step 3.9: State File Update** (Constitution V): Hash artifacts and update `state/...yaml`.

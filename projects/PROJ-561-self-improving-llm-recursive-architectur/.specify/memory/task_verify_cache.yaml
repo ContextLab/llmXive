@@ -1,3 +1,11 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The required `research.md` file is not present in the provided evidence, and\
+    \ therefore none of the mandated sections (e.g., Project requirements, Feature\
+    \ Specification, User Scenarios & Testing) can be verified. The implementer must\
+    \ create a non\u2011empty `research.md` containing all specified sections and\
+    \ details."
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +20,18 @@ T001b:
     \ dest_path)` were provided, nor any evidence that a SHA\u2011256 checksum file\
     \ is written or that a verification test was added. The required implementation\
     \ and its test are missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No `utils/data_loader.py` file containing a `verify_urls(urls: List[str])` implementation
+    is provided, nor is a unit test for this function shown. The required code and
+    its test are missing, so the task is not satisfied.'
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `download_and_checksum(dataset_name, dest_path)` or the accompanying\
+    \ unit test was provided; the required SHA\u2011256 file generation artifact is\
+    \ missing, so the task\u2019s deliverable cannot be confirmed."
 T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,13 +45,6 @@ T007:
   r: No code for `run_bootstrap_and_regression` is present, nor evidence that it reads
     `NUM_RESAMPLES` from `config.py` or that a verification test was added. The required
     implementation and test artifacts are missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `config.py` file containing the specified hyperparameters, constraint, and
-    path definitions was provided; the evidence contains only a textual description
-    of the task and no actual code artifact to verify. The required file is missing,
-    so the task is not satisfied.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -101,42 +114,24 @@ T059:
     % parameter increase rule, and no structural\u2011validity checks are present,\
     \ nor is there a verification test added. The required implementation and its\
     \ test are missing, so the task is not satisfied."
-T100:
+T124:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `research.md` file containing the phrase \u201CExternal Validation\
-    \ Protocol\u201D was provided; the claim cannot be verified without the actual\
-    \ file content. The required artifact is missing or empty."
-T101:
+  r: "No evidence of a modified `utils/logging.py` was provided, nor any sample log\
+    \ output showing the required \u201CAuthority Trace\u201D entries with benchmark\
+    \ scores, oracle results, and human constraints. The artifact is missing, so the\
+    \ task\u2019s logging requirement has not been demonstrated."
+T125:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` content was provided, and there is no evidence that the file\
-    \ contains an explicit definition of \u201Clasting improvement\u201D as persistence\
-    \ across at least two subsequent training cycles. The required artifact is missing\
-    \ or empty, so the task is not satisfied."
-T102:
+  r: "No code changes to `pipeline/evaluator.py` or accompanying unit test are provided;\
+    \ thus we cannot confirm that a read\u2011only, immutable benchmark loading mechanism\
+    \ was added or that a test asserting failure on modification exists. The required\
+    \ artifact is missing."
+T126:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` content was provided, and there is no evidence that the file\
-    \ contains the required \u201CRollback Mechanism\u201D specification; the grep\
-    \ check cannot be confirmed. The required artifact is missing or unverified."
-T103:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file content was provided, and there is no evidence that it\
-    \ contains a \u201CScaling Law Analysis\u201D section or the required \u201CScaling\
-    \ Law\u201D string. Without the artifact, the task cannot be verified as completed."
-T104:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No content from `research.md` was supplied, so we cannot confirm that the file\
-    \ contains the phrase \u201CComputational Irreducibility\u201D together with the\
-    \ required explicit statement about the lack of closed\u2011form prediction and\
-    \ reliance on empirical mining. The artifact is missing or unverified."
-T105:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide an updated `research.md`; the required phrase\
-    \ \u201CRecursive Adaptation\u201D is not present, and no metric for \u201Cstupidity\u201D\
-    \ or error cost is defined. Consequently the task\u2019s documentation requirement\
-    \ is unmet."
+  r: No code changes to `pipeline/attempt_tracker.py` implementing the rollback state
+    machine are provided, nor is an integration test that simulates a degradation
+    event and checks the cycle counter and new modification. The required artifact
+    and verification are missing.
