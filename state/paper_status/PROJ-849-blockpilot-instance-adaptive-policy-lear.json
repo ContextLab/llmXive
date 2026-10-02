@@ -11,12 +11,12 @@
         "page": 22
       }
     ],
-    "audited_at": "2026-10-02T17:03:45.597465+00:00"
+    "audited_at": "2026-10-02T17:27:00.868723+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-849-blockpilot-instance-adaptive-policy-lear",
-  "updated_at": "2026-10-02T17:03:45.597480+00:00"
+  "updated_at": "2026-10-02T17:27:00.868738+00:00"
 }
