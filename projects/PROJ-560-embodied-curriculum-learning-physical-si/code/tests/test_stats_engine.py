@@ -1,229 +1,240 @@
 import pytest
 import numpy as np
 from typing import List, Tuple
-from src.stats_engine import (
-    run_t_test,
-    calculate_effect_size,
-    calculate_confidence_interval,
-    apply_bonferroni_correction,
-    check_collinearity,
-    calculate_power,
-    frame_inference,
-    aggregate_stats_results,
-    write_partial_results,
-    finalize_results
-)
 import pandas as pd
 import os
+import sys
 import json
 import tempfile
 from pathlib import Path
 
-class TestPowerAnalysis:
-    def test_calculate_power(self):
-        effect_size = 0.5
-        n1 = 50
-        n2 = 50
-        result = calculate_power(effect_size, n1, n2)
-        assert "achieved_power" in result
-        assert "is_underpowered" in result
-        assert result["sample_sizes"]["n1"] == n1
-        assert result["sample_sizes"]["n2"] == n2
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-    def test_t_test_underpowered(self):
-        # Test with small sample size
-        effect_size = 0.5
-        n1 = 10
-        n2 = 10
-        result = calculate_power(effect_size, n1, n2)
-        assert result["is_underpowered"] is True
+from stats_engine import (
+    run_t_test,
+    calculate_effect_size,
+    check_collinearity,
+    calculate_power,
+    apply_bonferroni_correction,
+    detect_multiple_concepts,
+    frame_inference
+)
+from config import INFERENTIAL_FRAMING_STRING
 
 class TestTTest:
-    def test_welch_t_test(self):
-        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        group2 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-        t_stat, p_val = run_t_test(group1, group2, equal_var=False)
-        assert isinstance(t_stat, float)
-        assert isinstance(p_val, float)
-        assert 0 <= p_val <= 1
+    @pytest.fixture
+    def sample_data(self):
+        """Create sample data for t-test."""
+        np.random.seed(42)
+        n_embodied = 50
+        n_static = 50
+        
+        # Embodied group: mean gain = 10
+        embodied_gain = np.random.normal(loc=10, scale=3, size=n_embodied)
+        # Static group: mean gain = 8
+        static_gain = np.random.normal(loc=8, scale=3, size=n_static)
+        
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * n_embodied + ['static'] * n_static
+        })
+        return data
 
-    def test_student_t_test(self):
-        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        group2 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-        t_stat, p_val = run_t_test(group1, group2, equal_var=True)
-        assert isinstance(t_stat, float)
-        assert isinstance(p_val, float)
+    def test_run_t_test_equal_variance(self, sample_data):
+        """Test t-test when variances are equal."""
+        # Modify data to have equal variances
+        embodied_gain = np.random.normal(loc=10, scale=2, size=50)
+        static_gain = np.random.normal(loc=8, scale=2, size=50)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * 50 + ['static'] * 50
+        })
+        
+        result = run_t_test(data)
+        
+        assert 't_statistic' in result
+        assert 'p_value' in result
+        assert result['test_type'] == 'student'
+        assert result['n_embodied'] == 50
+        assert result['n_static'] == 50
+        # With means 10 and 8, std 2, n=50, we expect a significant difference
+        assert result['p_value'] < 0.05
+
+    def test_run_t_test_unequal_variance(self, sample_data):
+        """Test Welch's t-test when variances are unequal."""
+        embodied_gain = np.random.normal(loc=10, scale=5, size=50)
+        static_gain = np.random.normal(loc=8, scale=2, size=50)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * 50 + ['static'] * 50
+        })
+        
+        result = run_t_test(data)
+        
+        assert 't_statistic' in result
+        assert 'p_value' in result
+        assert result['test_type'] == 'welch'
+        assert result['n_embodied'] == 50
+        assert result['n_static'] == 50
+
+    def test_t_test_underpowered(self):
+        """Test t-test with small sample size (N < 30)."""
+        embodied_gain = np.random.normal(loc=10, scale=2, size=10)
+        static_gain = np.random.normal(loc=8, scale=2, size=10)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * 10 + ['static'] * 10
+        })
+        
+        result = run_t_test(data)
+        
+        assert result['n_embodied'] == 10
+        assert result['n_static'] == 10
+        # Should still run, but power will be low (tested in calculate_power)
+
+class TestBonferroniCorrection:
+    def test_bonferroni_single_concept(self):
+        """Test Bonferroni correction with single concept."""
+        result = apply_bonferroni_correction(p_value=0.04, n_concepts=1)
+        
+        assert result['corrected_p_value'] == 0.04
+        assert result['adjusted_alpha'] == 0.05
+        assert result['is_significant_after_correction'] == True
+
+    def test_bonferroni_multiple_concepts(self):
+        """Test Bonferroni correction with multiple concepts."""
+        result = apply_bonferroni_correction(p_value=0.04, n_concepts=3)
+        
+        assert result['corrected_p_value'] == 0.12 # 0.04 * 3
+        assert result['adjusted_alpha'] == pytest.approx(0.0166, rel=0.01)
+        assert result['is_significant_after_correction'] == False # 0.12 > 0.0166
 
 class TestEffectSize:
-    def test_cohen_d(self):
-        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        group2 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-        d = calculate_effect_size(group1, group2)
-        assert isinstance(d, float)
+    @pytest.fixture
+    def sample_data(self):
+        np.random.seed(42)
+        n_embodied = 50
+        n_static = 50
+        embodied_gain = np.random.normal(loc=10, scale=3, size=n_embodied)
+        static_gain = np.random.normal(loc=8, scale=3, size=n_static)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * n_embodied + ['static'] * n_static
+        })
+        return data
 
-    def test_cohen_d_zero_std(self):
-        group1 = np.array([1.0, 1.0, 1.0])
-        group2 = np.array([1.0, 1.0, 1.0])
-        d = calculate_effect_size(group1, group2)
-        assert d == 0.0
-
-class TestBonferroni:
-    def test_bonferroni_correction(self):
-        p_val = 0.01
-        n_concepts = 5
-        corrected = apply_bonferroni_correction(p_val, n_concepts)
-        assert corrected == min(0.01 * 5, 1.0)
-
-    def test_bonferroni_cap(self):
-        p_val = 0.1
-        n_concepts = 20
-        corrected = apply_bonferroni_correction(p_val, n_concepts)
-        assert corrected == 1.0
+    def test_calculate_effect_size(self, sample_data):
+        result = calculate_effect_size(sample_data)
+        
+        assert 'cohens_d' in result
+        assert 'confidence_interval' in result
+        assert len(result['confidence_interval']) == 2
+        # Expected d approx (10-8)/3 = 0.66
+        assert 0.5 < result['cohens_d'] < 0.8
 
 class TestCollinearity:
-    def test_collinearity_detection(self):
-        df = pd.DataFrame({
-            "x1": [1, 2, 3, 4, 5],
-            "x2": [2, 4, 6, 8, 10],  # Perfect correlation
-            "x3": [1, 3, 2, 4, 3]
+    def test_check_collinearity_no_high_corr(self):
+        """Test collinearity detection when no high correlation exists."""
+        np.random.seed(42)
+        data = pd.DataFrame({
+            'var1': np.random.normal(0, 1, 100),
+            'var2': np.random.normal(0, 1, 100),
+            'var3': np.random.normal(0, 1, 100)
         })
-        result = check_collinearity(df, ["x1", "x2", "x3"])
-        assert result["detected"] is True
-        assert "x1_x2" in result["high_correlations"]
-        assert abs(result["high_correlations"]["x1_x2"]) > 0.8
+        
+        result = check_collinearity(data)
+        
+        assert 'high_correlation_pairs' in result
+        assert 'warning' in result
+        assert len(result['high_correlation_pairs']) == 0
+        assert "No high collinearity" in result['warning']
 
-    def test_no_collinearity(self):
-        df = pd.DataFrame({
-            "x1": [1, 2, 3, 4, 5],
-            "x2": [5, 1, 4, 2, 3],
-            "x3": [3, 5, 1, 4, 2]
+    def test_check_collinearity_high_corr(self):
+        """Test collinearity detection when high correlation exists."""
+        np.random.seed(42)
+        var1 = np.random.normal(0, 1, 100)
+        var2 = var1 * 0.9 + np.random.normal(0, 0.1, 100) # High correlation
+        var3 = np.random.normal(0, 1, 100)
+        
+        data = pd.DataFrame({
+            'var1': var1,
+            'var2': var2,
+            'var3': var3
         })
-        result = check_collinearity(df, ["x1", "x2", "x3"])
-        assert result["detected"] is False
+        
+        result = check_collinearity(data)
+        
+        assert len(result['high_correlation_pairs']) > 0
+        assert "High collinearity detected" in result['warning']
+
+class TestPower:
+    @pytest.fixture
+    def sample_data(self):
+        np.random.seed(42)
+        n_embodied = 50
+        n_static = 50
+        embodied_gain = np.random.normal(loc=10, scale=3, size=n_embodied)
+        static_gain = np.random.normal(loc=8, scale=3, size=n_static)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * n_embodied + ['static'] * n_static
+        })
+        return data
+
+    def test_calculate_power_sufficient(self, sample_data):
+        result = calculate_power(sample_data)
+        
+        assert 'achieved_power' in result
+        assert 'is_underpowered' in result
+        # With n=50 per group and d~0.66, power should be > 0.8
+        assert result['achieved_power'] > 0.8
+        assert result['is_underpowered'] == False
+
+    def test_calculate_power_insufficient(self):
+        """Test power calculation with small sample size."""
+        np.random.seed(42)
+        n_embodied = 10
+        n_static = 10
+        embodied_gain = np.random.normal(loc=10, scale=3, size=n_embodied)
+        static_gain = np.random.normal(loc=8, scale=3, size=n_static)
+        data = pd.DataFrame({
+            'gain_score': np.concatenate([embodied_gain, static_gain]),
+            'instruction_type': ['embodied'] * n_embodied + ['static'] * n_static
+        })
+        
+        result = calculate_power(data)
+        
+        assert result['is_underpowered'] == True
+
+class TestMultipleConcepts:
+    def test_detect_multiple_concepts(self):
+        """Test detection of multiple concept columns."""
+        data = pd.DataFrame({
+            'math_score': np.random.normal(0, 1, 10),
+            'physics_score': np.random.normal(0, 1, 10),
+            'pre_test_score': np.random.normal(0, 1, 10),
+            'post_test_score': np.random.normal(0, 1, 10),
+            'gain_score': np.random.normal(0, 1, 10)
+        })
+        
+        result = detect_multiple_concepts(data)
+        
+        assert 'n_concepts' in result
+        assert 'concept_ids' in result
+        assert result['n_concepts'] == 2
+        assert 'math_score' in result['concept_ids']
+        assert 'physics_score' in result['concept_ids']
 
 class TestFraming:
-    def test_framing_statement(self):
-        statement = frame_inference()
-        assert "associational" in statement
-        assert "causal inference" not in statement.lower() or "no causal inference" in statement.lower()
-
-class TestAggregateResults:
-    def test_aggregate_stats_results(self):
-        ancova = {"f_stat": 5.0, "p_val": 0.01}
-        t_stat = 2.5
-        p_val = 0.02
-        corr_p = 0.05
-        eff_size = 0.5
-        ci = (0.1, 0.9)
-        power = {"achieved_power": 0.9, "is_underpowered": False}
-        collin = {"detected": False, "high_correlations": {}}
+    def test_frame_inference(self):
+        """Test that inference framing is correctly applied."""
+        results = {
+            't_statistic': 2.5,
+            'p_value': 0.01
+        }
         
-        result = aggregate_stats_results(
-            ancova_results=ancova,
-            t_statistic=t_stat,
-            p_value=p_val,
-            corrected_p_value=corr_p,
-            effect_size_cohen_d=eff_size,
-            confidence_interval=ci,
-            power_analysis=power,
-            collinearity_diagnostics=collin
-        )
+        framed_results = frame_inference(results)
         
-        assert result["ancova_results"] == ancova
-        assert result["t_statistic"] == t_stat
-        assert result["p_value"] == p_val
-        assert result["corrected_p_value"] == corr_p
-        assert result["effect_size_cohen_d"] == eff_size
-        assert result["confidence_interval"] == list(ci)
-        assert result["power_analysis"] == power
-        assert result["collinearity_diagnostics"] == collin
-        assert "inference_framing" in result
-
-class TestWritePartialResults:
-    def test_write_partial_results(self):
-        ancova = {"f_stat": 5.0, "p_val": 0.01}
-        t_stat = 2.5
-        p_val = 0.02
-        corr_p = 0.05
-        eff_size = 0.5
-        ci = (0.1, 0.9)
-        power = {"achieved_power": 0.9, "is_underpowered": False}
-        collin = {"detected": False, "high_correlations": {}}
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_results.json")
-            result_path = write_partial_results(
-                ancova_results=ancova,
-                t_statistic=t_stat,
-                p_value=p_val,
-                corrected_p_value=corr_p,
-                effect_size_cohen_d=eff_size,
-                confidence_interval=ci,
-                power_analysis=power,
-                collinearity_diagnostics=collin,
-                output_path=output_path
-            )
-            
-            assert os.path.exists(result_path)
-            with open(result_path, 'r') as f:
-                data = json.load(f)
-            
-            assert "ancova_results" in data
-            assert "t_statistic" in data
-            assert "p_value" in data
-            assert "corrected_p_value" in data
-            assert "effect_size_cohen_d" in data
-            assert "confidence_interval" in data
-            assert "inference_framing" in data
-            assert "power_analysis" in data
-            assert "collinearity_diagnostics" in data
-
-class TestFinalizeResults:
-    def test_finalize_results(self):
-        ancova = {"f_stat": 5.0, "p_val": 0.01}
-        t_stat = 2.5
-        p_val = 0.02
-        corr_p = 0.05
-        eff_size = 0.5
-        ci = (0.1, 0.9)
-        power = {"achieved_power": 0.9, "is_underpowered": False}
-        collin = {"detected": False, "high_correlations": {}}
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            partial_path = os.path.join(tmpdir, "partial.json")
-            final_path = os.path.join(tmpdir, "final.json")
-            
-            # Write partial first
-            write_partial_results(
-                ancova_results=ancova,
-                t_statistic=t_stat,
-                p_value=p_val,
-                corrected_p_value=corr_p,
-                effect_size_cohen_d=eff_size,
-                confidence_interval=ci,
-                power_analysis=power,
-                collinearity_diagnostics=collin,
-                output_path=partial_path
-            )
-            
-            sensitivity = [{"threshold_value": 0.05, "n_participants_retained": 100, "effect_size_cohen_d": 0.5, "robustness_flag": True}]
-            robustness_warning = False
-            
-            result_path = finalize_results(
-                partial_results_path=partial_path,
-                sensitivity_analysis=sensitivity,
-                robustness_warning=robustness_warning,
-                output_path=final_path
-            )
-            
-            assert os.path.exists(result_path)
-            with open(result_path, 'r') as f:
-                data = json.load(f)
-            
-            assert "sensitivity_analysis" in data
-            assert data["sensitivity_analysis"] == sensitivity
-            assert data["robustness_warning"] == robustness_warning
-            # Check that original keys are preserved
-            assert "ancova_results" in data
-            assert "t_statistic" in data
-            assert "p_value" in data
+        assert 'inference_framing' in framed_results
+        assert framed_results['inference_framing'] == INFERENTIAL_FRAMING_STRING

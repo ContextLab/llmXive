@@ -1,8 +1,7 @@
 """
-Embodied Curriculum Learning Analysis Package.
-
-This package provides tools for statistical analysis of embodied vs static
-instruction methods.
+llmXive Embodied Curriculum Learning Project Source
 """
-
-__version__ = "0.1.0"
+from .config import INFERENTIAL_FRAMING_STRING
+from .models import DatasetRecord, AnalysisResult, SensitivitySweep
+from .logging_config import setup_logging
+from .utils import set_seed

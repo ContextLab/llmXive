@@ -1,11 +1,10 @@
 status: none
-intent: download OpenML educational pre-test post-test dataset python package dataset
+intent: OpenML educational pre post test dataset download python package dataset
 required_fields:
-- participant_id
 - pre_test_score
 - post_test_score
 - condition
-- metadata
-cache_key: fc30cc84b6489a4aad1a8b9b1efb5bffa68dfb27dfb7f20b9433a547f273214d
-searched_at: '2026-10-01T02:25:38.310249+00:00'
+- student_id
+cache_key: d4b98c10baa75407820d22ab5a8a52da6162b0108bec8fee2e1b0638091c8aef
+searched_at: '2026-10-02T18:51:18.820219+00:00'
 retry_count: 1
