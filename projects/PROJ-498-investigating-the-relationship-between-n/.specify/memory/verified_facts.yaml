@@ -1,0 +1,5 @@
+'|iteration':
+  quote: max_iteration := 1000
+  source_id: Mandelbrot set
+  url: https://en.wikipedia.org/wiki/Mandelbrot_set
+  value: '1000'

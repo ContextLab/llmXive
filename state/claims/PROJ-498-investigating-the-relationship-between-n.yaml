@@ -280,3 +280,694 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T11:27:50Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: peak RSS less than or equal to 6.5 GB
+  claim_id: c_bf061303
+  context: "Independent Test: Run on a single subject; verify output contains valid\
+    \ epoch objects with correct time window and no NaN artifacts; verify peak RSS\
+    \ \u2264 6.5 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_or_equal_to_6.5_GB
+  kind: magnitude
+  raw_text: "Verify peak RSS \u2264 6.5 GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:30:01Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: minimum 10 subjects
+  claim_id: c_abc22080
+  context: 'Query the OpenNeuro API for datasets containing ''task-switching'' events
+    (matching the spec''s dynamic search requirement) with specific criteria: event_type
+    contains ''task-switching'', minimum 10 subjects, and must have both ''switch''
+    and ''stay'' event labels;'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 10 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:30:47Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: fallback dataset ID ds004173
+  claim_id: c_65d48f2c
+  context: If NO dataset is found via the API search, ATTEMPT TO DOWNLOAD the specified
+    fallback dataset ID ds004173 as mandated by FR-001 and the Spec's Assumptions;
+  evidence:
+    entailment_evidence: Fallback dataset ID ds004173
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_ID_ds004173
+  kind: entity_fact
+  raw_text: fallback dataset ID ds004173
+  resolved_value: fallback dataset ID ds004173
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T02:30:50Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: total runtime greater than 6 hours
+  claim_id: c_cde7d6f4
+  context: immediately log a timeout violation to logs/processing.log and data/metrics/runtime_log.json
+    and HALT execution if total runtime > 6 hours;
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_greater_than_6_hours
+  kind: magnitude
+  raw_text: total runtime > 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:31:22Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: 1 to 45 Hz bandpass filter
+  claim_id: c_784acee1
+  context: "Implement code/preprocess.py to apply a 1\u201345 Hz bandpass filter (low\
+    \ cutoff 1 Hz, high cutoff frequency) as mandated by FR-002 and US-1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1\u201345 Hz bandpass filter"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:31:46Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: exclude subjects with less than 10 valid trials per condition
+  claim_id: c_f8cfdf6b
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    ''insufficient trials'') or >50% artifact removal (reason: ''excessive artifact
+    removal'');'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_less_than_10_valid_trials_per_conditio
+  kind: magnitude
+  raw_text: exclude subjects with <10 valid trials/condition
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:32:20Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: greater than 50 percent artifact removal
+  claim_id: c_4796cae2
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    ''insufficient trials'') or >50% artifact removal (reason: ''excessive artifact
+    removal'');'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greater_than_50_percent_artifact_removal
+  kind: magnitude
+  raw_text: '>50% artifact removal'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:32:44Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: theta frequency band 4 to 7 Hz
+  claim_id: c_88d10cb2
+  context: "Implement frequency band filtering for theta (4\u20137 Hz) and gamma (30\u2013\
+    45 Hz) and compute wPLI in-memory without writing intermediate files."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In human EEG studies, the term theta refers to frequency components\
+        \ in the 4\u20137 Hz range, regardless of their source. Cortical theta is\
+        \ observed frequently in young children. In older children and adults, it\
+        \ tends to appear during meditative, drowsy, hypnotic or sleeping states,\
+        \ but not during the deepest stages of sleep. Theta from the midfrontal cortex\
+        \ is specifically related to cognitive control and alterations in these theta\
+        \ signals are found in multiple psychiatric and neurodevelopmental disorders."
+      source_id: Theta wave
+      url: https://en.wikipedia.org/wiki/Theta_wave
+      value: "4\u20137 Hz"
+    filled: true
+  kind: numeric
+  raw_text: "theta (4\u20137 Hz)"
+  resolved_value: "4\u20137 Hz"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T02:32:56Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: gamma frequency band 30 to 45 Hz
+  claim_id: c_f4b0f00b
+  context: "Implement frequency band filtering for theta (4\u20137 Hz) and gamma (30\u2013\
+    45 Hz) and compute wPLI in-memory without writing intermediate files."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "gamma (30\u201345 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:33:19Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: frequency resolution of 1 Hz bins
+  claim_id: c_701cd78e
+  context: "Verify power spectral density peaks exist within the defined theta (4\u2013\
+    7 Hz) and gamma (30\u201345 Hz) bands for the current subject's data using scipy.signal.find_peaks\
+    \ with prominence=3, frequency resolution of 1 Hz bins, and a threshold of >3dB\
+    \ relative to mean power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: frequency resolution of 1 Hz bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:33:52Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: threshold greater than 3 dB relative to mean power
+  claim_id: c_f2c9ae4e
+  context: "Verify power spectral density peaks exist within the defined theta (4\u2013\
+    7 Hz) and gamma (30\u201345 Hz) bands for the current subject's data using scipy.signal.find_peaks\
+    \ with prominence=3, frequency resolution of 1 Hz bins, and a threshold of >3dB\
+    \ relative to mean power."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_greater_than_3_dB_relative_to_mean_power
+  kind: magnitude
+  raw_text: threshold of >3dB relative to mean power
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:34:25Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: pre-stimulus window from negative 500 milliseconds to 0 milliseconds
+  claim_id: c_30a8e420
+  context: Implement code/synchrony.py to compute weighted Phase-Lag Index (wPLI)
+    for the pre-stimulus window (-500ms to 0ms) between the defined frontoparietal
+    electrode pairs for both theta and gamma bands.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pre-stimulus window (-500ms to 0ms)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:35:01Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: value rounded to 6 decimal places
+  claim_id: c_8f87add3
+  context: 'Save synchrony matrices to data/metrics/synchrony_metrics.csv with columns:
+    subject_id, pair_id, band, value. Schema: pair_id format must be ''F3_P3'' (underscore
+    separated). value must be rounded to 6 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: value must be rounded to 6 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:35:23Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: duration greater than 30 minutes per subject
+  claim_id: c_518ae363
+  context: Implement timing wrapper in code/synchrony.py that logs duration to data/metrics/synchrony_timing.json
+    and RAISES EXCEPTION if duration > 30 minutes per subject to verify US-2 Acceptance
+    3.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The examination is computer based, consisting of 200 mcqs multiple choice
+        questions (MCQ) with single response. The language is English only. It is
+        held in 162 test centres across India.  For each correct response, four marks
+        are allotted and for each wrong response one mark (25 percent) is deducted.
+        No marks awarded or deducted for an unattempted question. There will be 5
+        section of 40 question each with time slot of 42 minutes, then that part will
+        be auto submitted once the time slot is over. It can't be reviewed then, however,
+        this pattern has recently incorporated for NEET-PG 2024. The Time allotted
+        is 3.5 hours (210 minutes).
+      source_id: National Eligibility cum Entrance Test (Postgraduate)
+      url: https://en.wikipedia.org/wiki/National_Eligibility_cum_Entrance_Test_(Postgraduate)
+      value: 42 minutes
+    filled: true
+  kind: magnitude
+  raw_text: duration > 30 minutes per subject
+  resolved_value: 42 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T02:35:37Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Type I error rate less than or equal to 5 percent across 1000 iterations
+  claim_id: c_0e75aa22
+  context: "Independent Test: Run on a mock null dataset (randomly shuffled data);\
+    \ verify Type I error rate \u2264 5% across 1000 iterations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Type_I_error_rate_less_than_or_equal_to_5_percent_across_100
+  kind: magnitude
+  raw_text: "Type I error rate \u2264 5% across 1000 iterations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:36:55Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: r change less than 0.1
+  claim_id: c_9ed2818e
+  context: 'Implement code/analysis.py sensitivity analysis logic: repeat correlation
+    for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05)
+    against primary result.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R_change_less_than_0.1
+  kind: magnitude
+  raw_text: r change < 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:38:16Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis windows negative 600 to 0 and negative 400 to 0
+  claim_id: c_ea15b39c
+  context: 'Implement code/analysis.py sensitivity analysis logic: repeat correlation
+    for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05)
+    against primary result.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: windows [-600, 0] and [-400, 0]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:38:40Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 0
+  canonical: OpenNeuro fallback dataset ID ds004173
+  claim_id: c_e6c7acbb
+  context: If NO dataset is found via the API search, ATTEMPT TO DOWNLOAD the specified
+    fallback dataset ID ds004173 as mandated by FR-001 and the Spec's Assumptions
+  evidence:
+    entailment_evidence: Fallback dataset ID ds004173
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_ID_ds004173
+  kind: entity_fact
+  raw_text: fallback dataset ID ds004173
+  resolved_value: fallback dataset ID ds004173
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T02:41:36Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OpenNeuro task-switching dataset minimum 10 subjects
+  claim_id: c_0387361c
+  context: 'Query the OpenNeuro API for datasets containing ''task-switching'' events
+    with specific criteria: event_type contains ''task-switching'', minimum 10 subjects,
+    and must have both ''switch'' and ''stay'' event labels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 10 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:38Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timeout 6 hours
+  claim_id: c_7f2be420
+  context: immediately log a timeout violation to logs/processing.log and data/metrics/runtime_log.json
+    and HALT execution if total runtime > 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total runtime > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:38Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Memory constraint peak RSS 6.5 GB
+  claim_id: c_e8b95007
+  context: "Independent Test: Run on a single subject; verify output contains valid\
+    \ epoch objects with correct time window and no NaN artifacts; verify peak RSS\
+    \ \u2264 6.5 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RSS \u2264 6.5 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:38Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: EEG preprocessing bandpass filter 1 Hz to 45 Hz
+  claim_id: c_237eb556
+  context: "Implement code/preprocess.py to apply a 1\u201345 Hz bandpass filter (low\
+    \ cutoff 1 Hz, high cutoff frequency) as mandated by FR-002 and US-1"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1\u201345 Hz bandpass filter"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:38Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: ICA component rejection kurtosis threshold 5
+  claim_id: c_c85727d8
+  context: 'Implement code/preprocess.py component rejection logic: identify and remove
+    ICA components exhibiting a kurtosis > 5 or a spectral peak > 30 Hz'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: kurtosis > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:39Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: ICA component rejection spectral peak threshold 30 Hz
+  claim_id: c_b27eef50
+  context: 'Implement code/preprocess.py component rejection logic: identify and remove
+    ICA components exhibiting a kurtosis > 5 or a spectral peak > 30 Hz'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: spectral peak > 30 Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:39Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Subject exclusion threshold 10 valid trials per condition
+  claim_id: c_0beb3894
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    insufficient trials) or >50% artifact removal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: <10 valid trials/condition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:39Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Subject exclusion threshold 50% artifact removal
+  claim_id: c_b0ba3388
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition or
+    >50% artifact removal (reason: excessive artifact removal)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '>50% artifact removal'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:39Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Synchrony calculation pre-stimulus window -500ms to 0ms
+  claim_id: c_6bdf0761
+  context: Implement code/synchrony.py to compute weighted Phase-Lag Index (wPLI)
+    for the pre-stimulus window (-500ms to 0ms) between the defined frontoparietal
+    electrode pairs
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synchrony_calculation_pre-stimulus_window_-500ms_to_0ms
+  kind: entity_fact
+  raw_text: pre-stimulus window (-500ms to 0ms)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Gamma frequency band 30 Hz to 45 Hz
+  claim_id: c_c66898e3
+  context: "Implement frequency band filtering for theta and gamma (30\u201345 Hz)\
+    \ and compute wPLI in-memory"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "gamma (30\u201345 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Power spectral density frequency resolution 1 Hz
+  claim_id: c_24acc018
+  context: Verify power spectral density peaks exist within the defined bands for
+    the current subject's data using scipy.signal.find_peaks with prominence=3, frequency
+    resolution of 1 Hz bins
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: frequency resolution of 1 Hz bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Power spectral density peak threshold 3 dB
+  claim_id: c_693f303a
+  context: Verify power spectral density peaks exist within the defined bands using
+    scipy.signal.find_peaks with prominence=3, frequency resolution of 1 Hz bins,
+    and a threshold of >3dB relative to mean power
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold of >3dB relative to mean power
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Permutation testing Type I error rate 5 percent
+  claim_id: c_36302419
+  context: "Independent Test: Run on a mock null dataset (randomly shuffled data);\
+    \ verify Type I error rate \u2264 5% across 1000 iterations"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Type I error rate \u2264 5%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Permutation testing 1000 iterations
+  claim_id: c_e8e538b1
+  context: "Independent Test: Run on a mock null dataset (randomly shuffled data);\
+    \ verify Type I error rate \u2264 5% across 1000 iterations"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: max_iteration := 1000
+      source_id: Mandelbrot set
+      url: https://en.wikipedia.org/wiki/Mandelbrot_set
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 1000 iterations
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T02:41:55Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis correlation change threshold 0.1
+  claim_id: c_c7b1ffa4
+  context: 'Implement code/analysis.py sensitivity analysis logic: repeat correlation
+    for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05)
+    against primary result'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: r change < 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:41:55Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit of 6.5 GB
+  claim_id: c_56af80d0
+  context: 'Phase 3, Task T014 and T016: Memory constraints for single subject processing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `data/metrics/memory_profile.json` exists and `peak_rss_gb` <=
+    6.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:45:47Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: 'ICA component rejection criteria: kurtosis > 5 or spectral peak > 30
+    Hz'
+  claim_id: c_e1f40cd0
+  context: 'Phase 3, Task T015b: Logic for artifact removal using ICA.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/preprocess.py` to identify and remove ICA components exhibiting
+    a kurtosis > 5 or a spectral peak > 30 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:45:47Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: 'Subject exclusion criteria: <10 valid trials or >50% artifact removal'
+  claim_id: c_5d93f826
+  context: 'Phase 3, Task T017: Criteria for excluding subjects from analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    ''insufficient trials'') or >50% artifact removal (reason: ''excessive artifact
+    removal'').'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:45:47Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: wPLI calculation in pre-stimulus window -500ms to 0ms
+  claim_id: c_66cbb774
+  context: 'Phase 4, Task T024: Synchrony metric computation parameters.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WPLI_calculation_in_pre-stimulus_window_-500ms_to_0ms
+  kind: entity_fact
+  raw_text: Compute weighted Phase-Lag Index (wPLI) for the pre-stimulus window (-500ms
+    to 0ms) between the defined frontoparietal electrode pairs for both theta and
+    gamma bands.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:46:11Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: 'Power spectral density peak verification: 30-45 Hz gamma band, prominence
+    3, >3dB threshold'
+  claim_id: c_da45e3af
+  context: 'Phase 4, Task T023: Verification of frequency band filtering.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power spectral density peaks exist within the defined theta and\
+    \ gamma (30\u201345 Hz) bands for the current subject's data using `scipy.signal.find_peaks`\
+    \ with `prominence=3`, frequency resolution of 1 Hz bins, and a threshold of >3dB\
+    \ relative to mean power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:46:38Z'

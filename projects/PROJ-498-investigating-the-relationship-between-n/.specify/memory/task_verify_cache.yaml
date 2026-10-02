@@ -1,11 +1,14 @@
-T013:
+T012:
   c: false
-  h: 25c04dde55243645232629c45630c77599d573eea8672a131ad0972b51c7ad2a
-  r: "The required `data/selected_dataset_id.txt` file is absent, so the script cannot\
-    \ obtain the dataset ID. Moreover, the provided `code/download.py` is truncated\
-    \ and shows no concrete implementation of downloading files to `data/raw/` or\
-    \ computing a SHA\u2011256 checksum. Both the essential input file and the core\
-    \ functionality are missing."
+  h: 1532f9152167e6b396c20d514c8477463c3d86097fd28ed535f80928b2cf8f1d
+  r: "The provided `code/download.py` is truncated and does not show the full implementation\
+    \ of the required workflow (saving the selected dataset ID, handling the fallback\
+    \ download, and triggering T012b on failure). Moreover, the expected output files\
+    \ `data/selected_dataset_id.txt` and `data/data_gap_report.json` are absent, indicating\
+    \ the script\u2019s behavior has not been realized. The next implementer must\
+    \ complete the script with the full API query, selection, file writing, fallback\
+    \ download, and error\u2011handling logic, and ensure the runtime artifacts are\
+    \ generated as specified."
 T014:
   c: false
   h: dc0a5a07d3c251ee37b2fe359c2332fa3ab90e6f5377a8b7041e28b87222958c
@@ -49,11 +52,12 @@ T023:
     \ confirm the task was completed."
 T026:
   c: false
-  h: 4f72901fb4b791bb94ce575f925acb84ea7a6a46e862821de6fbf16b7c8d5176
-  r: "The repository lacks the required `data/metrics/synchrony_timing.json` file,\
-    \ and the provided `code/synchrony.py` does not contain a timing wrapper that\
-    \ logs durations to that JSON or raises an exception for runs exceeding 30\u202F\
-    minutes. The task\u2019s core functionality is therefore missing."
+  h: 593314a0310db618eb5fd46be0b3faff1a959bb9a4d2862c5195c2a5014a3b0c
+  r: The repository lacks the required `data/metrics/synchrony_timing.json` file,
+    and the shown portion of `code/synchrony.py` does not contain a timing wrapper
+    that measures the full synchrony calculation with `time.perf_counter`, logs the
+    duration to that JSON, or raises the specified exception. These core requirements
+    are missing.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
