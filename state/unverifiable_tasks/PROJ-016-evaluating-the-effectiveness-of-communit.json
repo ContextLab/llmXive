@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-016-evaluating-the-effectiveness-of-communit",
+  "tasks": [
+    {
+      "task_key": "T009",
+      "reject_count": 1,
+      "last_reason": "The required metadata file `data/processed/cbnrm_proxy_metadata.json` is missing, the CSV only contains data for 2000\u20112001 (not the full 2000\u20112020 range), and there is no evidence that the indicator was verified in the World Bank API or that errors were logged on failure.",
+      "first_seen": "2026-10-02T05:22:59.725593+00:00",
+      "last_seen": "2026-10-02T05:22:59.725593+00:00"
+    },
+    {
+      "task_key": "T009b",
+      "reject_count": 1,
+      "last_reason": "The `code/data/classify.py` script only defines helper functions (e.g., `validate_proxy_variance`) and does not contain code that loads `data/raw/cbnrm_proxy.csv`, runs the variance check, and writes the results to `data/processed/proxy_validation.json`. Moreover, the required output file `data/processed/proxy_validation.json` is missing entirely. The task\u2019s core requirement\u2014producing the JSON file with the excluded country list\u2014is therefore not satisfied.",
+      "first_seen": "2026-10-02T05:23:02.481381+00:00",
+      "last_seen": "2026-10-02T05:23:02.481381+00:00"
+    },
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "The required input files `data/processed/cbnrm_proxy_metadata.json`, `data/processed/proxy_validation.json`, and the output `data/processed/classified_panel.csv` are all absent, and the provided `classify.py` does not contain logic that checks for missing/empty metadata, raises the specified error message, applies the threshold\u2011based classification, or writes the classified panel to CSV. The task\u2019s core requirements are therefore not satisfied.",
+      "first_seen": "2026-10-02T05:23:04.964611+00:00",
+      "last_seen": "2026-10-02T05:23:04.964611+00:00"
+    },
+    {
+      "task_key": "T022",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required `data/processed/classified_panel.csv` input and the `data/processed/time_invariant_countries.json` output file. Moreover, while `regression.py` contains detection logic, it does not include code that loads the CSV and writes the JSON, so the end\u2011to\u2011end diagnostic is not realized.",
+      "first_seen": "2026-10-02T05:23:07.305628+00:00",
+      "last_seen": "2026-10-02T05:23:07.305628+00:00"
+    }
+  ],
+  "updated_at": "2026-10-02T05:23:07.305628+00:00"
+}

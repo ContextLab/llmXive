@@ -108,8 +108,10 @@ def main():
     logger.info("Starting T009b: Validate Proxy Variance")
 
     if not raw_data_path.exists():
-        logger.error(f"Raw data file not found: {raw_data_path}. Run T009 first.")
-        sys.exit(1)
+        logger.warning(f"Raw data file not found: {raw_data_path}. Run T009 first.")
+        # Produce empty list as per spec: "If the file is missing or empty, log a warning and produce an empty list"
+        save_validation_results({"excluded_countries": [], "reasons": {}, "total_countries_checked": 0, "total_excluded": 0}, validation_output_path)
+        return
 
     # Load data
     try:
@@ -118,6 +120,11 @@ def main():
     except Exception as e:
         logger.error(f"Failed to load raw data: {e}")
         sys.exit(1)
+
+    if df.empty:
+        logger.warning(f"Raw data file {raw_data_path} is empty.")
+        save_validation_results({"excluded_countries": [], "reasons": {}, "total_countries_checked": 0, "total_excluded": 0}, validation_output_path)
+        return
 
     # Validate variance
     try:
