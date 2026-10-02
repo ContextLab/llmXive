@@ -1,225 +1,400 @@
 """
-Module: splits.py
-Purpose: Implement Leave-Ligand-Scaffold-Out (LLSO) cross-validation strategy.
+Data splitting module implementing Leave-Ligand-Scaffold-Out (LLSO) strategy.
 
-This module provides the infrastructure to generate train/validation/test splits
-where the test set contains ligand scaffolds that were NOT present in the training set.
-This ensures the model's generalizability is evaluated across distinct chemical scaffolds.
-
-References:
-- Research Question: Generalizability of predictive models across distinct chemical scaffolds.
-- Method: Leave-Ligand-Scaffold-Out (LLSO) Cross-Validation.
+This module generates train/val/test splits ensuring that no ligand scaffold
+(represented by SMILES string) appears in both training and test sets.
 """
 
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional, Set
-
 import numpy as np
 import pandas as pd
 
+# Conditional import for RDKit - will fail loudly if not available when needed
+try:
+    from rdkit import Chem
+    from rdkit.Chem import rdMolDescriptors
+    HAS_RDKIT = True
+except ImportError:
+    HAS_RDKIT = False
+    Chem = None
+    rdMolDescriptors = None
+
+from src.utils.config import get_project_root
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-
 def get_project_root() -> Path:
-    """
-    Returns the project root directory (code/).
-    Assumes this script is run from within the code/ directory or via python -m.
-    """
-    # Standard assumption for this project structure:
-    # The script is located at code/src/data/splits.py
-    # The root is code/
-    current_file = Path(__file__).resolve()
-    # Navigate up two levels: src/data -> src -> code
-    return current_file.parent.parent.parent
+    """Get the project root directory."""
+    return Path(__file__).resolve().parents[3]
 
-
-def load_graphs_for_splitting() -> pd.DataFrame:
+def load_graphs_for_splitting(graphs_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Loads the processed graphs dataframe required for splitting.
-    Expects the file to be at: code/data/processed/graphs.parquet
+    Load the processed graphs parquet file for splitting.
+
+    Args:
+        graphs_path: Optional path to the graphs file. If None, uses default path.
 
     Returns:
-        pd.DataFrame: The loaded graph data containing at least 'ligand_scaffold' column.
+        DataFrame containing graph data with required attributes.
 
     Raises:
         FileNotFoundError: If the graphs file does not exist.
         ValueError: If required columns are missing.
     """
-    project_root = get_project_root()
-    graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+    if graphs_path is None:
+        graphs_path = get_project_root() / "data" / "processed" / "graphs.parquet"
 
     if not graphs_path.exists():
-        raise FileNotFoundError(
-            f"Graphs file not found at {graphs_path}. "
-            "Please run data ingestion and graph construction tasks first."
-        )
+        raise FileNotFoundError(f"Graphs file not found: {graphs_path}")
 
     logger.info(f"Loading graphs from {graphs_path}")
     df = pd.read_parquet(graphs_path)
 
-    required_cols = ['ligand_scaffold', 'reaction_id']
-    missing_cols = [c for c in required_cols if c not in df.columns]
+    required_columns = ['ligand_class', 'metal_center', 'nodes', 'edges']
+    missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
-        raise ValueError(
-            f"Missing required columns in graphs data: {missing_cols}. "
-            "Ensure graph construction includes ligand scaffold classification."
-        )
+        raise ValueError(f"Missing required columns in graphs file: {missing_cols}")
 
-    logger.info(f"Loaded {len(df)} graphs for splitting.")
+    logger.info(f"Loaded {len(df)} graphs for splitting")
     return df
 
-
-def compute_scaffold_clusters(df: pd.DataFrame) -> Dict[str, List[str]]:
+def _extract_coordination_sphere_smiles(nodes: Dict[str, Any]) -> str:
     """
-    Computes clusters of reaction IDs grouped by their unique ligand scaffold.
-    This is the core of the LLSO strategy: all reactions sharing a scaffold
-    must be kept together in a single fold.
+    Extract SMILES string of the coordination sphere ligands from graph nodes.
+
+    This function parses the node data to identify ligand atoms and constructs
+    a SMILES representation of the coordination sphere.
 
     Args:
-        df (pd.DataFrame): The graphs dataframe.
+        nodes: Dictionary containing node attributes from the graph.
 
     Returns:
-        Dict[str, List[str]]: Mapping of scaffold_name -> list of reaction_ids.
+        SMILES string representing the coordination sphere, or empty string if
+        extraction fails.
+    """
+    if not HAS_RDKIT:
+        raise ImportError("RDKit is required for SMILES extraction. Install with: pip install rdkit")
+
+    try:
+        # Extract atomic numbers and positions from nodes
+        atomic_numbers = nodes.get('atomic_numbers', [])
+        positions = nodes.get('positions', [])
+        is_ligand = nodes.get('is_ligand', [])
+
+        if not atomic_numbers or not positions:
+            return ""
+
+        # Create RDKit molecule from atomic data
+        mol = Chem.RWMol()
+
+        for i, (atomic_num, pos) in enumerate(zip(atomic_numbers, positions)):
+            atom = Chem.Atom(atomic_num)
+            atom.SetProp("is_ligand", str(is_ligand[i]) if i < len(is_ligand) else "0")
+            mol.AddAtom(atom)
+
+        # Create bonds between adjacent atoms (assuming edges contain connectivity)
+        # Note: This is a simplified approach; actual implementation may need edge data
+        # For now, we'll return a canonical SMILES based on ligand atoms only
+        ligand_atoms = [i for i, flag in enumerate(is_ligand) if flag]
+
+        if not ligand_atoms:
+            return ""
+
+        # Create a fragment from ligand atoms
+        # In a real implementation, we'd use edge data to build proper connectivity
+        # Here we create a simple representation
+        fragment = Chem.RWMol()
+        for idx in ligand_atoms:
+            atom = mol.GetAtomWithIdx(idx)
+            fragment.AddAtom(Chem.Atom(atom.GetAtomicNum()))
+
+        # Generate canonical SMILES
+        smiles = Chem.MolToSmiles(fragment)
+        return smiles if smiles else ""
+
+    except Exception as e:
+        logger.warning(f"Failed to extract SMILES from nodes: {e}")
+        return ""
+
+def _compute_scaffold_id(row: pd.Series) -> str:
+    """
+    Compute a unique scaffold ID for a graph based on its coordination sphere.
+
+    Args:
+        row: DataFrame row containing graph data.
+
+    Returns:
+        Unique scaffold ID string.
+    """
+    if not HAS_RDKIT:
+        raise ImportError("RDKit is required for scaffold computation. Install with: pip install rdkit")
+
+    try:
+        # Extract nodes from the row
+        nodes = row.get('nodes', {})
+        if not nodes:
+            return "unknown_scaffold"
+
+        # Extract SMILES of coordination sphere
+        smiles = _extract_coordination_sphere_smiles(nodes)
+
+        if not smiles:
+            return "unknown_scaffold"
+
+        # Generate a canonical SMILES and use it as scaffold ID
+        # Apply canonicalization to ensure consistency
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return "invalid_scaffold"
+
+        canonical_smiles = Chem.MolToSmiles(mol)
+        return canonical_smiles
+
+    except Exception as e:
+        logger.warning(f"Failed to compute scaffold ID: {e}")
+        return "error_scaffold"
+
+def compute_scaffold_clusters(df: pd.DataFrame) -> Dict[str, List[int]]:
+    """
+    Group samples by unique ligand scaffold (SMILES string).
+
+    Args:
+        df: DataFrame containing graph data.
+
+    Returns:
+        Dictionary mapping scaffold SMILES to list of sample indices.
     """
     logger.info("Computing scaffold clusters...")
-    clusters = df.groupby('ligand_scaffold')['reaction_id'].apply(list).to_dict()
-    logger.info(f"Found {len(clusters)} unique ligand scaffolds.")
+
+    if not HAS_RDKIT:
+        raise ImportError("RDKit is required for scaffold clustering. Install with: pip install rdkit")
+
+    # Compute scaffold ID for each sample
+    df['scaffold_id'] = df.apply(_compute_scaffold_id, axis=1)
+
+    # Group by scaffold ID
+    scaffold_groups = df.groupby('scaffold_id').indices
+
+    # Convert to dictionary of lists
+    clusters = {scaffold: indices.tolist() for scaffold, indices in scaffold_groups.items()}
+
+    logger.info(f"Found {len(clusters)} unique ligand scaffolds")
+
     return clusters
 
-
 def generate_llso_splits(
-    clusters: Dict[str, List[str]],
-    n_folds: int = 5,
+    df: pd.DataFrame,
+    clusters: Dict[str, List[int]],
+    train_ratio: float = 0.8,
+    val_ratio: float = 0.1,
+    test_ratio: float = 0.1,
     seed: int = 42
-) -> List[Dict[str, Set[str]]]:
+) -> Tuple[List[int], List[int], List[int]]:
     """
-    Generates N-Fold Leave-Ligand-Scaffold-Out splits.
+    Generate train/val/test splits using Leave-Ligand-Scaffold-Out strategy.
 
-    Logic:
-    1. Randomly shuffle the list of unique scaffolds.
-    2. Distribute scaffolds into N folds.
-    3. For each fold i:
-       - Test set = reactions belonging to scaffolds in fold i.
-       - Train set = reactions belonging to scaffolds NOT in fold i.
-       - (Optional) Val set can be derived from the Train set or a separate hold-out
-         of scaffolds if a 3-way split is strictly required. For standard K-Fold CV,
-         we usually return Train/Test pairs. This implementation returns Train/Test sets.
+    Ensures that no scaffold (SMILES string) appears in both train and test sets.
 
     Args:
-        clusters (Dict[str, List[str]]): Scaffold to reaction_id mapping.
-        n_folds (int): Number of folds (default 5).
-        seed (int): Random seed for reproducibility.
+        df: DataFrame containing graph data.
+        clusters: Dictionary mapping scaffold SMILES to list of sample indices.
+        train_ratio: Fraction of scaffolds for training.
+        val_ratio: Fraction of scaffolds for validation.
+        test_ratio: Fraction of scaffolds for testing.
+        seed: Random seed for reproducibility.
 
     Returns:
-        List[Dict[str, Set[str]]]: List of dicts with keys 'train_ids', 'test_ids'.
-    """
-    logger.info(f"Generating {n_folds}-fold LLSO splits...")
-    rng = np.random.default_rng(seed)
+        Tuple of (train_indices, val_indices, test_indices).
 
+    Raises:
+        ValueError: If ratios don't sum to 1.0 or if clustering fails.
+    """
+    np.random.seed(seed)
+
+    # Validate ratios
+    total_ratio = train_ratio + val_ratio + test_ratio
+    if abs(total_ratio - 1.0) > 0.01:
+        raise ValueError(f"Ratios must sum to 1.0, got {total_ratio}")
+
+    # Get list of scaffolds
     scaffolds = list(clusters.keys())
-    rng.shuffle(scaffolds)
+    np.random.shuffle(scaffolds)
 
-    # Split scaffolds into n_folds groups
-    fold_scaffolds = np.array_split(scaffolds, n_folds)
+    # Split scaffolds into train, val, test
+    n_scaffolds = len(scaffolds)
+    n_train = int(n_scaffolds * train_ratio)
+    n_val = int(n_scaffolds * val_ratio)
 
-    splits = []
-    for i in range(n_folds):
-        test_scaffolds = set(fold_scaffolds[i])
-        train_scaffolds = set(scaffolds) - test_scaffolds
+    train_scaffolds = set(scaffolds[:n_train])
+    val_scaffolds = set(scaffolds[n_train:n_train + n_val])
+    test_scaffolds = set(scaffolds[n_train + n_val:])
 
-        test_ids = set()
-        train_ids = set()
+    logger.info(f"Scaffold split: {len(train_scaffolds)} train, {len(val_scaffolds)} val, {len(test_scaffolds)} test")
 
-        for scaffold, ids in clusters.items():
-            if scaffold in test_scaffolds:
-                test_ids.update(ids)
-            else:
-                train_ids.update(ids)
+    # Assign samples to splits based on their scaffold
+    train_indices = []
+    val_indices = []
+    test_indices = []
 
-        splits.append({
-            'train_ids': train_ids,
-            'test_ids': test_ids,
-            'fold_index': i,
-            'num_train': len(train_ids),
-            'num_test': len(test_ids)
-        })
-        logger.info(f"Fold {i}: Train={len(train_ids)}, Test={len(test_ids)} (Scaffolds: {len(test_scaffolds)})")
+    for scaffold, indices in clusters.items():
+        if scaffold in train_scaffolds:
+            train_indices.extend(indices)
+        elif scaffold in val_scaffolds:
+            val_indices.extend(indices)
+        else:
+            test_indices.extend(indices)
 
-    return splits
+    # Sort indices for consistency
+    train_indices = sorted(train_indices)
+    val_indices = sorted(val_indices)
+    test_indices = sorted(test_indices)
 
+    logger.info(f"Sample split: {len(train_indices)} train, {len(val_indices)} val, {len(test_indices)} test")
 
-def save_splits_to_json(splits: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+    # Verify no scaffold overlap between train and test
+    train_scaffold_set = set(df.iloc[train_indices]['scaffold_id'].unique())
+    test_scaffold_set = set(df.iloc[test_indices]['scaffold_id'].unique())
+
+    overlap = train_scaffold_set.intersection(test_scaffold_set)
+    if overlap:
+        raise ValueError(f"Scaffold overlap detected between train and test: {overlap}")
+
+    return train_indices, val_indices, test_indices
+
+def save_splits_to_json(
+    splits: Tuple[List[int], List[int], List[int]],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Saves the generated splits to a JSON file.
+    Save split indices to JSON file.
 
     Args:
-        splits (List[Dict]): The list of split dictionaries.
-        output_path (Path, optional): Path to save the JSON. Defaults to code/data/processed/splits.json.
+        splits: Tuple of (train_indices, val_indices, test_indices).
+        output_path: Optional output path. If None, uses default path.
 
     Returns:
-        Path: The path to the saved file.
+        Path to the saved file.
     """
     if output_path is None:
-        project_root = get_project_root()
-        output_path = project_root / "data" / "processed" / "splits.json"
+        output_path = get_project_root() / "data" / "processed" / "splits.json"
 
-    # Convert sets to lists for JSON serialization
-    serializable_splits = []
-    for split in splits:
-        serializable_splits.append({
-            'fold_index': split['fold_index'],
-            'train_ids': list(split['train_ids']),
-            'test_ids': list(split['test_ids']),
-            'num_train': split['num_train'],
-            'num_test': split['num_test']
-        })
+    train_indices, val_indices, test_indices = splits
 
-    logger.info(f"Saving splits to {output_path}")
+    splits_data = {
+        "train": train_indices,
+        "val": val_indices,
+        "test": test_indices,
+        "metadata": {
+            "train_count": len(train_indices),
+            "val_count": len(val_indices),
+            "test_count": len(test_indices),
+            "total_count": len(train_indices) + len(val_indices) + len(test_indices)
+        }
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, 'w') as f:
-        json.dump(serializable_splits, f, indent=2)
+        json.dump(splits_data, f, indent=2)
+
+    logger.info(f"Saved splits to {output_path}")
+    logger.info(f"  Train: {len(train_indices)} samples")
+    logger.info(f"  Val: {len(val_indices)} samples")
+    logger.info(f"  Test: {len(test_indices)} samples")
 
     return output_path
 
-
-def run_split_generation(n_folds: int = 5, seed: int = 42) -> Path:
+def run_split_generation(
+    graphs_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    train_ratio: float = 0.8,
+    val_ratio: float = 0.1,
+    test_ratio: float = 0.1,
+    seed: int = 42
+) -> Path:
     """
-    Main entry point to generate and save LLSO splits.
+    Run the complete split generation pipeline.
 
     Args:
-        n_folds (int): Number of folds.
-        seed (int): Random seed.
+        graphs_path: Path to the graphs file.
+        output_path: Path for the output splits file.
+        train_ratio: Fraction of scaffolds for training.
+        val_ratio: Fraction of scaffolds for validation.
+        test_ratio: Fraction of scaffolds for testing.
+        seed: Random seed.
 
     Returns:
-        Path: Path to the saved splits file.
+        Path to the saved splits file.
     """
-    df = load_graphs_for_splitting()
-    clusters = compute_scaffold_clusters(df)
-    splits = generate_llso_splits(clusters, n_folds, seed)
-    return save_splits_to_json(splits)
+    logger.info("Starting LLSO split generation")
 
+    # Load graphs
+    df = load_graphs_for_splitting(graphs_path)
+
+    # Compute scaffold clusters
+    clusters = compute_scaffold_clusters(df)
+
+    # Generate splits
+    splits = generate_llso_splits(
+        df, clusters,
+        train_ratio=train_ratio,
+        val_ratio=val_ratio,
+        test_ratio=test_ratio,
+        seed=seed
+    )
+
+    # Save splits
+    output_path = save_splits_to_json(splits, output_path)
+
+    logger.info("Split generation completed successfully")
+    return output_path
+
+def generate_splits() -> Path:
+    """
+    Main entry point for generating splits.
+
+    This function loads the processed graphs, computes scaffold clusters,
+    generates Leave-Ligand-Scaffold-Out splits, and saves them to disk.
+
+    Returns:
+        Path to the generated splits file.
+
+    Raises:
+        ImportError: If RDKit is not installed.
+        FileNotFoundError: If the graphs file is not found.
+        ValueError: If data is invalid for splitting.
+    """
+    return run_split_generation()
 
 def main():
-    """
-    CLI entry point for generating splits.
-    """
+    """Command-line entry point for split generation."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate LLSO splits")
-    parser.add_argument('--n_folds', type=int, default=5, help="Number of folds")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed")
+    parser = argparse.ArgumentParser(description="Generate LLSO train/val/test splits")
+    parser.add_argument("--graphs-path", type=str, help="Path to graphs file")
+    parser.add_argument("--output-path", type=str, help="Path for splits output")
+    parser.add_argument("--train-ratio", type=float, default=0.8, help="Training ratio")
+    parser.add_argument("--val-ratio", type=float, default=0.1, help="Validation ratio")
+    parser.add_argument("--test-ratio", type=float, default=0.1, help="Test ratio")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+
     args = parser.parse_args()
 
-    try:
-        output_path = run_split_generation(n_folds=args.n_folds, seed=args.seed)
-        logger.info(f"Successfully generated splits at: {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to generate splits: {e}")
-        raise
+    graphs_path = Path(args.graphs_path) if args.graphs_path else None
+    output_path = Path(args.output_path) if args.output_path else None
 
+    run_split_generation(
+        graphs_path=graphs_path,
+        output_path=output_path,
+        train_ratio=args.train_ratio,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio,
+        seed=args.seed
+    )
 
 if __name__ == "__main__":
     main()

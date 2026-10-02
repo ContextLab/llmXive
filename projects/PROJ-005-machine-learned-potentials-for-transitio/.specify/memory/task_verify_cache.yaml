@@ -5,13 +5,58 @@ T008:
     \ and defines node and edge attributes as well as graph metadata fields including\
     \ `energy_dft`, `barrier_height`, `metal_center`, and `ligand_class`, satisfying\
     \ the requested schema."
-T018:
+T011a:
+  c: false
+  h: d1dee5ead6a366572f36b11c1d2858ab717cba63bf917eb09f3318e809f5e682
+  r: "The provided `code/src/data/splits.py` is truncated and contains an unfinished\
+    \ `for i, ` line, so it does not define a complete, executable `generate_splits()`\
+    \ function. Additionally, the required output file `code/data/processed/splits.json`\
+    \ is missing. Both artifacts needed by the task are absent or non\u2011functional."
+T012a:
+  c: false
+  h: 4722611e3d7260f8edd7eb85e477d33858315edf42c964e758b4478cdc34a910
+  r: The provided `test_graph_schema.py` file is truncated (ends with an incomplete
+    `def test_loa` line) and shows no complete test functions that actually invoke
+    the validation logic. Without full test implementations we cannot confirm that
+    the schema is being validated as required. The schema file itself exists, but
+    the contract test is not fully present.
+T017a:
+  c: false
+  h: 826c9edf8a04feba49b3637a2f10c143bc342f821186dc7a41d80db71c156b08
+  r: "The repository contains `code/src/data/graph_construction.py`, but the file\
+    \ is truncated and does not show the required sensitivity\u2011sweep implementation\
+    \ or JSON\u2011writing logic. Moreover, the expected output `code/data/results/cutoff_sensitivity_raw.json`\
+    \ is absent. Both the core functionality and the result artifact are missing."
+T017b:
+  c: false
+  h: 599adf323a829ab27f0b231e80ae79f151bcbef089f15018e5b46f8394312a2f
+  r: "The required input file `code/data/results/cutoff_sensitivity_raw.json` is missing,\
+    \ and the produced `cutoff_sensitivity.json` contains only placeholder entries\
+    \ with zero data and no computed variance metrics. The task\u2019s core computation\
+    \ was not performed."
+T017c:
+  c: false
+  h: cf24081669fc7616ffbb10fab3f3205ca22de301806e16f8b4437c26db5cb438
+  r: "The required `code/data/processed/graphs.parquet` file is missing, and the provided\
+    \ `cutoff_sensitivity.json` contains no processed samples (all entries have `samples_processed:\
+    \ 0` and `status: \"no_data\"`), so no optimal cutoff could be selected nor graphs\
+    \ generated. The task\u2019s core outputs are absent."
+T017d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or data artifact was provided that demonstrates the\
-    \ implementation of outlier handling (i.e., detecting samples with coordination\u202F\
-    >\u202F6, flagging them for exclusion from training while keeping them in the\
-    \ test set). Without such evidence, the requirement is not satisfied."
+  r: "No validation log or any quantitative evidence was provided showing that the\
+    \ cutoff selected in T017c reduces variance by at least 10\u202F% compared to\
+    \ the next best cutoff. Without such a log, the requirement to verify cutoff robustness\
+    \ is unmet. The implementer must supply a concrete validation output (e.g., a\
+    \ table or printed log with variance values for each candidate cutoff and the\
+    \ calculated \u226510\u202F% improvement)."
+T018:
+  c: false
+  h: 8f20289172c8be5505cb263c935b2d4820a78c868579def39b9c8cc0d56e2017
+  r: "The required `code/data/processed/graphs.parquet` file does not exist, and there\
+    \ is no evidence (e.g., log, report, or updated file) that a validation script\
+    \ was run against `code/contracts/dataset_graph.schema.yaml`. Without the parquet\
+    \ file and validation output, the task\u2019s requirement is not satisfied."
 T032:
   c: false
   h: d4694a535b8dbcafcd33ddebcb7127fa1373ff8e04b8457def94c8ada93c7ad0
@@ -26,10 +71,3 @@ T037:
     \ to show GNN inference time versus a fresh single\u2011point DFT calculation,\
     \ nor any computed speed\u2011up factor. The required artifact (speed analysis\
     \ data or report) is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (script output, log file, checksum report, or reproducibility checklist)
-    is present to demonstrate that a constitution check was actually performed; the
-    claim lacks any concrete evidence of citations verified, checksums computed, or
-    reproducibility steps documented. The required deliverable is missing.
