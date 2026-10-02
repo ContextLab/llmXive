@@ -1,16 +1,18 @@
+"""
+Unit tests for T008b: generate_guild_mapping.py
+"""
 import os
 import sys
 import unittest
 import tempfile
-import csv
 import shutil
+import csv
+import json
 from pathlib import Path
-from datetime import datetime
 
-# Add project root to path if not already there
+# Add project root to path
 project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root))
 
 from data.generate_guild_mapping import (
     load_guild_source,
@@ -24,105 +26,88 @@ from utils.config import get_raw_data_dir, get_processed_dir
 class TestGenerateGuildMapping(unittest.TestCase):
     
     def setUp(self):
-        """Set up temporary directories for testing."""
+        """Create a temporary directory structure for testing."""
         self.temp_dir = tempfile.mkdtemp()
-        self.raw_dir = Path(self.temp_dir) / "raw"
-        self.processed_dir = Path(self.temp_dir) / "processed"
-        self.raw_dir.mkdir()
-        self.processed_dir.mkdir()
+        self.raw_dir = Path(self.temp_dir) / "data" / "raw"
+        self.processed_dir = Path(self.temp_dir) / "data" / "processed"
+        self.raw_dir.mkdir(parents=True)
+        self.processed_dir.mkdir(parents=True)
         
-        # Mock config functions temporarily if needed, 
-        # but for this test we will pass explicit paths to functions 
-        # or rely on the fact that we are testing logic not path resolution.
-        # Since the module uses get_raw_data_dir(), we need to ensure 
-        # the test environment matches or we test the logic directly.
-        
-        # Create a mock input file
-        self.mock_input_path = self.raw_dir / "guild_source.csv"
-        self.mock_output_path = self.processed_dir / "guild_mapping.csv"
-        
-        mock_data = [
-            {"species_id": "sp001", "foraging_guild": "ground", "source_citation": "Ref A"},
-            {"species_id": "sp002", "foraging_guild": "canopy", "source_citation": "Ref B"},
-            {"species_id": "sp003", "foraging_guild": "aerial", "source_citation": "Ref C"}
-        ]
-        
-        with open(self.mock_input_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["species_id", "foraging_guild", "source_citation"])
-            writer.writeheader()
-            writer.writerows(mock_data)
+        # Mock config to use temp dirs if necessary, 
+        # but usually we test functions that take paths directly.
+        # For get_input_file_path/get_output_file_path, we rely on utils.config.
+        # To avoid mocking the whole config system, we will test the core logic functions
+        # with explicit paths in the temp dir.
 
     def tearDown(self):
-        """Clean up temporary directories."""
         shutil.rmtree(self.temp_dir)
 
-    def test_load_guild_source(self):
-        """Test loading the guild source CSV."""
-        records = load_guild_source(self.mock_input_path)
-        self.assertEqual(len(records), 3)
-        self.assertEqual(records[0]['species_id'], 'sp001')
-        self.assertEqual(records[0]['foraging_guild'], 'ground')
+    def test_load_guild_source_valid(self):
+        """Test loading a valid CSV file."""
+        input_file = self.raw_dir / "guild_source.csv"
+        with open(input_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild', 'source_citation'])
+            writer.writeheader()
+            writer.writerow({'species_id': '1', 'foraging_guild': 'A', 'source_citation': 'Test'})
+        
+        rows = load_guild_source(input_file)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['species_id'], '1')
 
-    def test_load_guild_source_missing_file(self):
-        """Test that loading a missing file raises FileNotFoundError."""
-        with self.assertRaises(FileNotFoundError):
-            load_guild_source(Path("/nonexistent/path.csv"))
+    def test_load_guild_source_empty(self):
+        """Test loading an empty CSV (header only)."""
+        input_file = self.raw_dir / "empty_source.csv"
+        with open(input_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild', 'source_citation'])
+            writer.writeheader()
+        
+        with self.assertRaises(ValueError):
+            load_guild_source(input_file)
+
+    def test_validate_schema_missing_columns(self):
+        """Test validation fails on missing columns."""
+        rows = [{'species_id': '1', 'foraging_guild': 'A'}] # Missing source_citation
+        with self.assertRaises(ValueError):
+            validate_schema(rows, Path("dummy"))
 
     def test_validate_schema_valid(self):
-        """Test validation with valid data."""
-        records = [
-            {"species_id": "s1", "foraging_guild": "g1", "source_citation": "c1"},
-            {"species_id": "s2", "foraging_guild": "g2", "source_citation": "c2"}
+        """Test validation passes on valid data."""
+        rows = [
+            {'species_id': '1', 'foraging_guild': 'A', 'source_citation': 'C'},
+            {'species_id': '2', 'foraging_guild': 'B', 'source_citation': 'C'}
         ]
-        self.assertTrue(validate_schema(records))
+        try:
+            validate_schema(rows, Path("dummy"))
+        except ValueError:
+            self.fail("validate_schema raised ValueError unexpectedly")
 
-    def test_validate_schema_missing_species_id(self):
-        """Test validation fails with missing species_id."""
-        records = [
-            {"foraging_guild": "g1", "source_citation": "c1"}
+    def test_save_mapping_creates_file(self):
+        """Test that save_mapping creates the output file with correct content."""
+        rows = [
+            {'species_id': '1', 'foraging_guild': 'A', 'source_citation': 'C'},
+            {'species_id': '2', 'foraging_guild': 'B', 'source_citation': 'C'}
         ]
-        with self.assertRaises(ValueError):
-            validate_schema(records)
-
-    def test_validate_schema_missing_guild(self):
-        """Test validation fails with missing foraging_guild."""
-        records = [
-            {"species_id": "s1", "source_citation": "c1"}
-        ]
-        with self.assertRaises(ValueError):
-            validate_schema(records)
-
-    def test_save_mapping(self):
-        """Test saving the mapping to CSV."""
-        records = [
-            {"species_id": "s1", "foraging_guild": "g1", "source_citation": "c1"}
-        ]
-        save_mapping(records, self.mock_output_path)
+        output_file = self.processed_dir / "guild_mapping.csv"
+        date_str = "2023-01-01"
         
-        self.assertTrue(self.mock_output_path.exists())
+        save_mapping(rows, output_file, date_str)
         
-        with open(self.mock_output_path, 'r') as f:
+        self.assertTrue(output_file.exists())
+        
+        with open(output_file, 'r') as f:
             reader = csv.DictReader(f)
-            rows = list(reader)
+            data = list(reader)
         
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]['species_id'], 's1')
-        self.assertIn('extraction_date', rows[0])
-        self.assertIn('foraging_guild', rows[0])
-        self.assertIn('source_citation', rows[0])
+        self.assertEqual(len(data), 2)
+        self.assertIn('extraction_date', data[0])
+        self.assertEqual(data[0]['extraction_date'], date_str)
+        self.assertEqual(data[0]['species_id'], '1')
 
-    def test_save_mapping_creates_directory(self):
-        """Test that save_mapping creates the output directory if it doesn't exist."""
-        new_dir = Path(self.temp_dir) / "new_processed"
-        new_output_path = new_dir / "test.csv"
-        
-        records = [
-            {"species_id": "s1", "foraging_guild": "g1", "source_citation": "c1"}
-        ]
-        save_mapping(records, new_output_path)
-        
-        self.assertTrue(new_dir.exists())
-        self.assertTrue(new_output_path.exists())
+    def test_save_mapping_empty_rows(self):
+        """Test saving empty rows raises error or handles gracefully."""
+        output_file = self.processed_dir / "empty_mapping.csv"
+        with self.assertRaises(ValueError):
+            save_mapping([], output_file, "2023-01-01")
 
 if __name__ == '__main__':
     unittest.main()

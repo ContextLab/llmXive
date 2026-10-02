@@ -32,7 +32,7 @@ This project implements a data science pipeline to predict avian foraging guilds
 - **III. Data Hygiene**: **PASS**. Plan includes checksumming steps for raw data and distinct filenames for derived data (e.g., `merged_observations.csv` vs `species_profiles.csv`).
 - **IV. Single Source of Truth**: **PASS**. All outputs (metrics, plots) will be generated programmatically from `data/` artifacts; no manual entry.
 - **V. Versioning**: **PASS**. Artifacts will carry content hashes; `state/` files updated upon artifact generation.
-- **VI. Habitat Data Provenance**: **PASS (with Spec Gap)**. Plan uses NLCD 2021 via HuggingFace as the *only* verified available source. The Spec's requirement for NLCD 2019 via USGS is flagged as a gap because the required source is unavailable/verified.
+- **VI. Habitat Data Provenance**: **PASS (with Spec Gap)**. Plan uses NLCD via HuggingFace as the *only* verified available source. The Spec's requirement for NLCD 2019 via USGS is flagged as a gap because the required source is unavailable/verified.
 - **VII. Model Evaluation Transparency**: **PASS**. Plan mandates `logistic_regression.pkl`, `training_metrics.json`, and `null_distribution.npy` with logged seeds and metrics.
 - **Spec Gap Note**: FR-004 mandates Random Forest, but N=25 makes it statistically unsound. Plan uses Logistic Regression. This is a deliberate deviation to ensure scientific validity, flagged for Spec amendment.
 

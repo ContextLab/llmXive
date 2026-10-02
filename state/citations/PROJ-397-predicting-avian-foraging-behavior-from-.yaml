@@ -20,3 +20,26 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/663132a73e584ce1d9750287/9be7dfff92bf5814624ff387691d2842f56b295a1e9009be4de6ecd4d1ed4305?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27nlcd_2021_land_cover_l48_20230630.zip%3B+filename%3D%22nlcd_2021_land_cover_l48_20230630.zip%22%3B&xip=5gqpI6bC_YU&X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fzip&Expires=1790621662&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzMTMyYTczZTU4NGNlMWQ5NzUwMjg3LzliZTdkZmZmOTJiZjU4MTQ2MjRmZjM4NzY5MWQyODQyZjU2YjI5NWExZTkwMDliZTRkZTZlY2Q0ZDFlZDQzMDVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bmxjZF8yMDIxX2xhbmRfY292ZXJfbDQ4XzIwMjMwNjMwLnppcCUzQitmaWxlbmFtZSUzRCUyMm5sY2RfMjAyMV9sYW5kX2NvdmVyX2w0OF8yMDIzMDYzMC56aXAlMjIlM0ImeGlwPTVncXBJNmJDX1lVJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwNjIxNjYyfX19XX0_&Signature=MEYCIQDFCCkwiB86YXAXFKSuLfNr8B0LYXNExttCnR9eg2HwJgIhAP1jYoPDOv8Z6HrlUIWaWVLmCf19ZshvkcH2mAYH8kd8&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-09-28T17:54:22.725465Z'
+- artifact_hash: 1a3f09e194edf3171aa83c0a6ff7e141357da06aa38ae08d4edfb4b8659b1120
+  artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bird - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bird
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Bird
+  verified_at: '2026-10-02T08:53:10.903197Z'
+- artifact_hash: 1a3f09e194edf3171aa83c0a6ff7e141357da06aa38ae08d4edfb4b8659b1120
+  artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1412.6216] An approach for improving the concept of Cyclomatic
+    Complexity for Object-Oriented Programming'
+  kind: url
+  value: https://arxiv.org/abs/1412.6216
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1412.6216
+  verified_at: '2026-10-02T08:53:10.903197Z'

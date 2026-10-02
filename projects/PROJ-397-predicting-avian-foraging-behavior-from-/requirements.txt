@@ -9,7 +9,4 @@ seaborn
 pyyaml
 jupyter
 s3fs
-boto3
-pytest
-pytest-cov
-psutil
+datasets>=2.14.0

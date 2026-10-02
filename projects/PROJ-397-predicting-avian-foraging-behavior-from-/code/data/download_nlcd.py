@@ -1,40 +1,41 @@
 """
-Download NLCD 2019 Land Cover data from USGS.
+Download NLCD 2021 land cover data from HuggingFace.
 
-This script fetches the NLCD 2019 land cover data for the contiguous United States
-(conus_2019) from the USGS EarthExplorer API / S3 mirror and saves it to the
-project's raw data directory. It records the download metadata (checksum, version,
-date) in data/metadata.yaml.
+This script implements Task T060, fetching the NLCD 2021 dataset from the
+verified HuggingFace repository 'usgs/nlcd_2021' instead of the unavailable
+USGS API. It adheres to the deviation from Constitution Principle VI and FR-002
+as documented in docs/decisions/003-nlcd-2021-amendment.md.
 
-The script fails loudly with FileNotFoundError if the download fails.
+The script downloads the landcover split, computes a SHA-256 hash for provenance,
+and records metadata. It raises FileNotFoundError if the fetch fails, with no fallback.
 """
+
 import os
 import sys
 import hashlib
 import yaml
 import logging
-import requests
 from pathlib import Path
 from datetime import datetime
 
-# Import project utilities
-from utils.config import get_project_root, get_raw_data_dir, get_metadata_file
-from utils.provenance import record_source_info
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+try:
+    from datasets import load_dataset
+except ImportError:
+    logging.error("The 'datasets' library is required. Install it via: pip install datasets")
+    sys.exit(1)
+
+from utils.config import get_project_root, get_raw_data_dir, get_metadata_file, get_logger
 
 # Constants
-# NLCD 2019 Conus data is available as a single zip file from USGS S3 mirror
-# Source: https://www.mrlc.gov/data/legacies/national-land-cover-database-nlcd-2019
-# Direct S3 link to the conus_2019 land cover data (LC2019)
-NLCD_URL = "https://s3-us-west-2.amazonaws.com/mrlc/USGS_NLCD_RELEASES/2019_REL/NLCD_Land_Cover/nlcd_2019_land_cover_20190618.zip"
-EXPECTED_FILENAME = "nlcd_2019.zip"
-CHUNK_SIZE = 1024 * 1024  # 1MB chunks
+DATASET_NAME = "usgs/nlcd_2021"
+DATASET_SPLIT = "landcover"
+DATASET_REVISION = "main"
+OUTPUT_FILENAME = "nlcd_2021_landcover.parquet"
+OUTPUT_DIR_RELATIVE = "data/raw"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -44,93 +45,82 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, output_path: Path) -> None:
-    """Download a file from URL with progress logging."""
-    logger.info(f"Downloading {url} to {output_path}")
-    try:
-        response = requests.get(url, stream=True, timeout=300)
-        response.raise_for_status()
-        
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-        
-        logger.info(f"Download complete: {output_path}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed: {e}")
-        raise FileNotFoundError(f"Failed to download NLCD data from {url}") from e
-
-def save_metadata(metadata_path: Path, version: str, download_date: str, checksum: str) -> None:
-    """Update metadata.yaml with NLCD dataset information."""
-    # Load existing metadata
+def save_metadata(metadata: dict, metadata_path: Path) -> None:
+    """Append NLCD provenance to the global metadata.yaml file."""
     if metadata_path.exists():
-        with open(metadata_path, 'r') as f:
-            metadata = yaml.safe_load(f) or {}
+        with open(metadata_path, 'r', encoding='utf-8') as f:
+            try:
+                current_metadata = yaml.safe_load(f) or {}
+            except yaml.YAMLError as e:
+                logging.warning(f"Could not parse existing metadata.yaml: {e}. Overwriting.")
+                current_metadata = {}
     else:
-        metadata = {}
-    
-    # Ensure datasets key exists
-    if 'datasets' not in metadata:
-        metadata['datasets'] = {}
-    
-    # Record NLCD dataset info
-    metadata['datasets']['nlcd_2019'] = {
-        'source_url': NLCD_URL,
-        'version': version,
-        'download_date': download_date,
-        'checksum': checksum,
-        'local_path': str(output_path)
-    }
-    
-    # Save updated metadata
-    with open(metadata_path, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False)
-    
-    logger.info(f"Metadata updated: {metadata_path}")
+        current_metadata = {}
+
+    current_metadata['nlcd_2021'] = metadata
+
+    with open(metadata_path, 'w', encoding='utf-8') as f:
+        yaml.safe_dump(current_metadata, f, default_flow_style=False, sort_keys=False)
+
+    logging.info(f"Updated metadata file: {metadata_path}")
 
 def main():
-    """Main entry point for NLCD download."""
+    logger = get_logger("download_nlcd")
     project_root = get_project_root()
-    raw_data_dir = get_raw_data_dir()
-    metadata_path = get_metadata_file()
-    
-    # Ensure directories exist
+    raw_data_dir = project_root / "data" / "raw"
     raw_data_dir.mkdir(parents=True, exist_ok=True)
     
-    output_path = raw_data_dir / EXPECTED_FILENAME
-    version = "nlcd_2019_land_cover_20190618"
-    download_date = datetime.utcnow().isoformat()
-    
+    metadata_path = project_root / "data" / "metadata.yaml"
+    output_path = raw_data_dir / OUTPUT_FILENAME
+
+    logger.info(f"Starting NLCD 2021 download from HuggingFace: {DATASET_NAME}")
+    logger.info(f"Dataset Split: {DATASET_SPLIT}, Revision: {DATASET_REVISION}")
+
     try:
-        # Download the file
-        download_file(NLCD_URL, output_path)
+        # Load the dataset from HuggingFace
+        # The task requires this exact fetch command structure
+        ds = load_dataset(DATASET_NAME, split=DATASET_SPLIT, revision=DATASET_REVISION)
         
-        # Compute checksum
-        checksum = compute_sha256(output_path)
-        logger.info(f"Checksum computed: {checksum}")
+        logger.info(f"Successfully loaded dataset. Size: {len(ds)} rows.")
         
-        # Save metadata
-        save_metadata(metadata_path, version, download_date, checksum)
+        # The dataset object might be a Dataset or DatasetDict. 
+        # For usgs/nlcd_2021, it typically returns a Dataset directly if split is specified.
+        # We need to save it to parquet.
         
-        # Record provenance
-        record_source_info(
-            dataset_name="nlcd_2019",
-            source_url=NLCD_URL,
-            version=version,
-            download_date=download_date,
-            checksum=checksum,
-            local_path=str(output_path)
-        )
+        logger.info(f"Saving dataset to: {output_path}")
         
-        logger.info("NLCD 2019 download and metadata recording completed successfully.")
+        # Ensure parent directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
-    except FileNotFoundError as e:
-        logger.error(f"NLCD download failed: {e}")
-        raise
+        # Save to parquet format
+        ds.to_parquet(str(output_path))
+        
+        logger.info(f"Dataset saved successfully to {output_path}")
+
     except Exception as e:
-        logger.error(f"Unexpected error during NLCD download: {e}")
-        raise FileNotFoundError(f"Failed to process NLCD data: {e}") from e
+        logger.error(f"Failed to fetch or save NLCD 2021 data: {e}")
+        # Fail loudly as per requirements - no fallback
+        raise FileNotFoundError(f"Could not retrieve NLCD 2021 data from {DATASET_NAME}. Error: {e}")
+
+    # Compute hash
+    file_hash = compute_sha256(output_path)
+    file_size = output_path.stat().st_size
+
+    # Record provenance
+    metadata_record = {
+        "source": f"HuggingFace: {DATASET_NAME}",
+        "split": DATASET_SPLIT,
+        "revision": DATASET_REVISION,
+        "extraction_date": datetime.utcnow().isoformat(),
+        "file_name": OUTPUT_FILENAME,
+        "file_path": str(output_path),
+        "file_size_bytes": file_size,
+        "sha256_hash": file_hash,
+        "deviation_note": "Using NLCD 2021 (HuggingFace) instead of NLCD 2019 (USGS API) per T066 amendment."
+    }
+
+    save_metadata(metadata_record, metadata_path)
+    logger.info(f"Provenance recorded. Hash: {file_hash}")
 
 if __name__ == "__main__":
     main()

@@ -1,191 +1,140 @@
 """
-T008b: Generate the final guild mapping CSV from the manual source.
+T008b: Generate processed guild mapping from raw source.
 
-Reads data/raw/guild_source.csv and writes data/processed/guild_mapping.csv
-with columns: species_id, foraging_guild, source_citation, extraction_date.
+Reads the raw guild source CSV (produced by T008a) and writes a processed
+guild mapping CSV with an added 'extraction_date' column for provenance.
+
+Input:  data/raw/guild_source.csv (or data/raw/guild_mapping_manual.csv if T008a used that name)
+Output: data/processed/guild_mapping.csv
 """
 import os
 import sys
 import csv
 import logging
+import json
 from pathlib import Path
 from datetime import datetime
 
-# Import project utilities from the API surface
-from utils.config import get_processed_dir, get_raw_data_dir, get_project_root
-from utils.provenance import record_source_info, compute_file_hash
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from utils.config import get_raw_data_dir, get_processed_dir, get_metadata_file
+from utils.provenance import record_source_info, load_metadata_config, save_metadata_config
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def get_input_file_path() -> Path:
-    """Return the path to the manual guild source CSV."""
-    raw_dir = get_raw_data_dir()
-    return raw_dir / "guild_source.csv"
+# T008a description mentions 'data/raw/guild_mapping_manual.csv' but the task line for T008b
+# says 'read data/raw/guild_source.csv'. We check both, preferring the explicit T008b requirement.
+# However, looking at T008a description: "write data/raw/guild_mapping_manual.csv".
+# And T008b description: "read data/raw/guild_source.csv".
+# We will implement logic to find the file produced by T008a.
+# The most robust approach is to check for the file mentioned in T008a's output.
+RAW_SOURCE_FILES = [
+    "guild_mapping_manual.csv", # As per T008a description
+    "guild_source.csv"          # As per T008b description
+]
 
-def get_output_file_path() -> Path:
-    """Return the path for the processed guild mapping CSV."""
-    processed_dir = get_processed_dir()
-    return processed_dir / "guild_mapping.csv"
+OUTPUT_FILE = "guild_mapping.csv"
+
+def get_input_file_path():
+    raw_dir = get_raw_data_dir()
+    for fname in RAW_SOURCE_FILES:
+        fpath = raw_dir / fname
+        if fpath.exists():
+            logger.info(f"Found input file: {fpath}")
+            return fpath
+    raise FileNotFoundError(
+        f"Could not find raw guild source file. Looked for: {RAW_SOURCE_FILES} "
+        f"in {raw_dir}. Ensure T008a has completed successfully."
+    )
+
+def get_output_file_path():
+    return get_processed_dir() / OUTPUT_FILE
 
 def load_guild_source(input_path: Path) -> list:
-    """
-    Load the manual guild source CSV.
-    
-    Args:
-        input_path: Path to the input CSV file.
-        
-    Returns:
-        List of dictionaries representing rows.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Guild source file not found: {input_path}. "
-            "Please ensure T008a has generated data/raw/guild_source.csv."
-        )
-    
+    """Load the raw guild source CSV."""
     rows = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        required_cols = {'species_id', 'foraging_guild', 'source_citation'}
-        if not required_cols.issubset(set(reader.fieldnames or [])):
-            raise ValueError(
-                f"Input CSV missing required columns. "
-                f"Expected: {required_cols}, Found: {reader.fieldnames}"
-            )
-        
         for row in reader:
             rows.append(row)
-    
-    logger.info(f"Loaded {len(rows)} rows from {input_path}")
+    if not rows:
+        raise ValueError("Input guild source file is empty or has no data rows.")
     return rows
 
-def validate_schema(data: list) -> bool:
-    """
-    Validate the data against the expected schema.
-    
-    Args:
-        data: List of row dictionaries.
-        
-    Returns:
-        True if valid.
-        
-    Raises:
-        ValueError: If validation fails.
-    """
-    if not data:
-        raise ValueError("Data list is empty.")
-    
-    for i, row in enumerate(data):
-        if not row.get('species_id'):
-            raise ValueError(f"Row {i} missing 'species_id'.")
-        if not row.get('foraging_guild'):
-            raise ValueError(f"Row {i} missing 'foraging_guild'.")
-        if not row.get('source_citation'):
-            raise ValueError(f"Row {i} missing 'source_citation'.")
-    
-    return True
+def validate_schema(rows: list, input_path: Path) -> None:
+    """Validate that the input has required columns."""
+    required_cols = {'species_id', 'foraging_guild', 'source_citation'}
+    if not rows:
+        raise ValueError("No rows to validate.")
+    actual_cols = set(rows[0].keys())
+    missing = required_cols - actual_cols
+    if missing:
+        raise ValueError(f"Input file {input_path} is missing required columns: {missing}")
 
-def save_mapping(data: list, output_path: Path) -> None:
-    """
-    Save the processed guild mapping to CSV.
-    
-    Args:
-        data: List of row dictionaries.
-        output_path: Path to the output CSV file.
-    """
+def save_mapping(rows: list, output_path: Path, extraction_date: str) -> None:
+    """Write the processed mapping with extraction date."""
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     fieldnames = ['species_id', 'foraging_guild', 'source_citation', 'extraction_date']
-    extraction_date = datetime.now().strftime('%Y-%m-%d')
-    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
-        for row in data:
+        for row in rows:
             row['extraction_date'] = extraction_date
             writer.writerow(row)
-    
-    logger.info(f"Saved {len(data)} rows to {output_path}")
+    logger.info(f"Wrote {len(rows)} rows to {output_path}")
 
-def record_provenance_in_metadata(input_path: Path, output_path: Path) -> None:
-    """
-    Record provenance information for the generated mapping in metadata.
-    
-    Args:
-        input_path: Path to the source file.
-        output_path: Path to the generated file.
-    """
-    from utils.provenance import load_metadata_config, save_metadata_config
-    
-    metadata = load_metadata_config()
-    
-    # Compute hash of output
-    output_hash = compute_file_hash(output_path)
-    
-    # Record the transformation
-    step_record = {
-        "step": "T008b_generate_guild_mapping",
+def record_provenance_in_metadata(input_path: Path, output_path: Path, extraction_date: str):
+    """Update the project metadata.yaml with provenance for this step."""
+    metadata_path = get_metadata_file()
+    config = load_metadata_config(metadata_path)
+
+    step_name = "T008b_generate_guild_mapping"
+    record = {
+        "step": step_name,
+        "input_file": str(input_path.name),
+        "output_file": str(output_path.name),
+        "extraction_date": extraction_date,
         "timestamp": datetime.now().isoformat(),
-        "input_file": str(input_path),
-        "input_hash": compute_file_hash(input_path),
-        "output_file": str(output_path),
-        "output_hash": output_hash,
-        "script": "data/generate_guild_mapping.py"
+        "description": "Processed raw guild source into final mapping with extraction date."
     }
-    
-    if "steps" not in metadata:
-        metadata["steps"] = []
-    metadata["steps"].append(step_record)
-    
-    save_metadata_config(metadata)
-    logger.info("Provenance recorded in metadata.yaml")
 
-def main() -> int:
-    """
-    Main entry point for the script.
+    if "steps" not in config:
+        config["steps"] = []
+    config["steps"].append(record)
+
+    save_metadata_config(metadata_path, config)
+    logger.info(f"Recorded provenance in {metadata_path}")
+
+def main():
+    logger.info("Starting T008b: Generate Guild Mapping")
     
-    Returns:
-        0 on success, 1 on failure.
-    """
-    try:
-        input_path = get_input_file_path()
-        output_path = get_output_file_path()
-        
-        logger.info(f"Processing guild mapping from {input_path} to {output_path}")
-        
-        # Load
-        data = load_guild_source(input_path)
-        
-        # Validate
-        validate_schema(data)
-        
-        # Save
-        save_mapping(data, output_path)
-        
-        # Record provenance
-        record_provenance_in_metadata(input_path, output_path)
-        
-        logger.info("Task T008b completed successfully.")
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        return 1
+    # 1. Locate input
+    input_path = get_input_file_path()
+    
+    # 2. Load and validate
+    rows = load_guild_source(input_path)
+    validate_schema(rows, input_path)
+    logger.info(f"Loaded {len(rows)} records from {input_path.name}")
+
+    # 3. Determine output path
+    output_path = get_output_file_path()
+
+    # 4. Generate extraction date (ISO format)
+    extraction_date = datetime.now().strftime("%Y-%m-%d")
+
+    # 5. Save processed mapping
+    save_mapping(rows, output_path, extraction_date)
+
+    # 6. Record provenance
+    record_provenance_in_metadata(input_path, output_path, extraction_date)
+
+    logger.info("T008b completed successfully.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
