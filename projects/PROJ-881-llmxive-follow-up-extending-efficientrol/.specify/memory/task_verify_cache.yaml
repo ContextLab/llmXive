@@ -1,28 +1,45 @@
-T008:
+T005:
   c: false
-  h: ae07c7cac189aec6ea7ce1ab5fca4d085674a0898b27495ec4fa64524ff76d66
-  r: "The provided artifact is a `code/src/utils/validators.py` file that only defines\
-    \ dataclasses and minimal `from_dict` checks; it lacks explicit schema\u2011validation\
-    \ functions for the three required types and is truncated. Moreover, the exact\
-    \ required path `src/utils/validators.py` (under the project root) is reported\
-    \ as missing. The deliverable is therefore not present in the correct location\
-    \ nor does it fully implement the requested validation logic."
+  h: f87a634f58a447a0c4edad32d95e41a73a27b14ae000c4f05d448ece26a65c48
+  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`\
+    \ does not exist, and the existing `code/requirements.txt` is missing several\
+    \ mandated packages (e.g., `huggingface_hub`) and any mention of Qwen1.5\u2011\
+    1.5B / 7B\u2011Int4 model compatibility. The task therefore remains unfinished."
+T007a:
+  c: true
+  h: 5cc0796b10a4d4f6f7e5d39730df25cfb0a5831bc60cb708e965f6aa3599e6c7
+  r: "The repository contains `code/src/utils/entropy_calc.py` (\u22485.8\u202FKB)\
+    \ with a fully implemented `calculate_entropy(probs)` that clamps probabilities\
+    \ <\u202F1e\u20119, works on CPU tensors (or NumPy arrays), handles 1\u2011D and\
+    \ 2\u2011D inputs, and returns a float without crashing on near\u2011zero values.\
+    \ This matches the task\u2019s specifications."
+T009:
+  c: false
+  h: 84a03dbdc9008e63f88de232f1203525ce31caea32de6acf6de52ab4b840cdc4
+  r: "The provided `code/src/data/preprocessing.py` contains a partial implementation\
+    \ of `stream_batch` but does not include the required `token_batch_stream` (or\
+    \ any function named similarly) and the adaptive token\u2011batch logic is not\
+    \ present. Moreover, the integration test imports and checks unrelated functions\
+    \ (`load_tokens_from_file`, `merge_entropy_profiles`, `stream_tokens_in_batches`)\
+    \ and never verifies the memory\u2011backoff behavior for either `stream_batch`\
+    \ or a token\u2011batching function. The task\u2019s core requirements are therefore\
+    \ unmet."
 T010:
   c: false
-  h: 24953131f071bf893ef4709fdd52894d835a1b418550847fd0105172b3216631
-  r: "The provided `code/src/data/download.py` is truncated and does not show a MiniGrid\
-    \ download function, nor does it demonstrably raise `ConnectionError`/`FileNotFoundError`\
-    \ on load failures. Moreover, the required path `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`\
-    \ is not present (the file exists only as `code/src/data/download.py`), and the\
-    \ sibling `src/data/download.py` is missing entirely. The task\u2019s deliverable\
-    \ is therefore not fully satisfied."
+  h: 631f3c4446ff11f257d602fb20999cbfd0b14bc16a79ed417b7e7e6ecead659a
+  r: "The required artifact `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`\
+    \ is not present at the specified location (the only file found is `code/src/data/download.py`).\
+    \ Moreover, the provided snippet shows only the GSM8K download logic; the MiniGrid\
+    \ download implementation is absent from the visible content, so the 500\u2011\
+    example capping for both datasets cannot be confirmed. The task therefore remains\
+    \ unfinished."
 T012:
-  c: false
-  h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
-  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py`\
-    \ either does not exist or is incomplete, and the presented `code/src/generation/generation.py`\
-    \ snippet does not contain a `label_validity` function. The deliverable therefore\
-    \ fails to provide the requested ground\u2011truth matching logic."
+  c: true
+  h: 7913e4a021aaa9fe487c49c604676f4e3b332d1488a195490ab8f4d3c262721a
+  r: "The file `code/contracts/dataset.schema.yaml` exists, is non\u2011empty (671\u202F\
+    bytes), and contains a full JSON\u2011Schema definition with required fields and\
+    \ property descriptions, matching the deliverable specification. No required artifact\
+    \ is missing."
 T015:
   c: true
   h: 221dbd000e23905a7ee9b86148dd9d490de34cd7759f345848bee3f796cf19d8

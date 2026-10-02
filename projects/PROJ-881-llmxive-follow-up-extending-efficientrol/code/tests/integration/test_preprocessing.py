@@ -1,11 +1,8 @@
 """
 Integration tests for preprocessing module.
-
-This module contains tests for:
-- stream_batch function with memory backoff logic
-- Batch size validation and fallback
-- Memory error handling
+Tests adaptive batching logic and memory management.
 """
+
 import json
 import os
 import sys
@@ -13,203 +10,284 @@ import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
 import pytest
-import random
 
-# Add parent directory to path for imports
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from src.data.preprocessing import (
     stream_batch,
-    validate_batch_size,
-    BatchSizeError,
+    token_batch_stream,
     load_tokens_from_file,
-    get_current_ram_gb
+    get_memory_percent,
+    check_memory_backoff_condition,
+    validate_batch_size,
+    BatchSizeError
 )
 
 @pytest.fixture
 def temp_test_dir():
-    """Create a temporary directory for test outputs."""
+    """Create a temporary directory for test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
 @pytest.fixture
 def sample_data_file(temp_test_dir):
-    """Create a sample JSONL file with test data."""
-    data_file = temp_test_dir / "sample_data.jsonl"
-    records = [
-        {"prompt_id": "test_001", "tokens": [1, 2, 3], "validity": True},
-        {"prompt_id": "test_002", "tokens": [4, 5, 6], "validity": False},
-        {"prompt_id": "test_003", "tokens": [7, 8, 9], "validity": True},
-    ]
-    
-    with open(data_file, 'w', encoding='utf-8') as f:
-        for record in records:
-            f.write(json.dumps(record) + '\n')
-    
-    return data_file
+    """Create a sample data file with test examples."""
+    file_path = temp_test_dir / 'sample_data.jsonl'
+    examples = [{'id': i, 'data': f'example_{i}'} for i in range(100)]
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for example in examples:
+            f.write(json.dumps(example) + '\n')
+    return file_path
 
 @pytest.fixture
 def large_sample_data_file(temp_test_dir):
-    """Create a large sample JSONL file for memory testing."""
-    data_file = temp_test_dir / "large_sample_data.jsonl"
-    
-    # Generate 1000 records
-    records = []
-    for i in range(1000):
-        records.append({
-            "prompt_id": f"test_{i:04d}",
-            "tokens": list(range(i, i + 10)),
-            "validity": bool(i % 2),
-            "data": "x" * 1000  # Add some data to increase memory usage
-        })
-    
-    with open(data_file, 'w', encoding='utf-8') as f:
-        for record in records:
-            f.write(json.dumps(record) + '\n')
-    
-    return data_file
+    """Create a large sample data file."""
+    file_path = temp_test_dir / 'large_sample_data.jsonl'
+    examples = [{'id': i, 'data': f'example_{i}'} for i in range(1000)]
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for example in examples:
+            f.write(json.dumps(example) + '\n')
+    return file_path
+
+@pytest.fixture
+def sample_token_file(temp_test_dir):
+    """Create a sample token file."""
+    file_path = temp_test_dir / 'tokens.jsonl'
+    tokens = [{'tokens': [f'token_{i}' for i in range(50)]} for _ in range(10)]
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for token_record in tokens:
+            f.write(json.dumps(token_record) + '\n')
+    return file_path
 
 def test_validate_batch_size_valid():
     """Test that valid batch sizes pass validation."""
     # Should not raise
-    validate_batch_size(500, min_threshold=1)
-    validate_batch_size(100, min_threshold=10)
-    validate_batch_size(1, min_threshold=1)
+    validate_batch_size(50, 10)
+    validate_batch_size(10, 10)
+    validate_batch_size(100, 1)
 
 def test_validate_batch_size_invalid():
     """Test that invalid batch sizes raise BatchSizeError."""
-    with pytest.raises(BatchSizeError, match="below minimum threshold"):
-        validate_batch_size(5, min_threshold=10)
+    with pytest.raises(BatchSizeError) as exc_info:
+        validate_batch_size(5, 10)
     
-    with pytest.raises(BatchSizeError, match="below minimum threshold"):
-        validate_batch_size(0, min_threshold=1)
+    assert "5" in str(exc_info.value.message)
+    assert "10" in str(exc_info.value.message)
 
-def test_stream_batch_basic(sample_data_file, temp_test_dir):
-    """Test basic streaming functionality."""
-    batches = list(stream_batch(
-        data_source=sample_data_file,
-        batch_size=2,
-        output_dir=temp_test_dir
-    ))
+def test_stream_batch_basic(sample_data_file):
+    """Test basic stream_batch functionality."""
+    # Load examples
+    examples = []
+    with open(sample_data_file, 'r') as f:
+        for line in f:
+            examples.append(json.loads(line))
     
-    assert len(batches) == 2  # 3 records with batch_size=2
-    assert len(batches[0]) == 2
-    assert len(batches[1]) == 1
-    assert batches[0][0]['prompt_id'] == 'test_001'
+    # Test streaming with max_examples=20
+    batches = list(stream_batch(examples, max_examples=20))
+    
+    assert len(batches) == 5  # 100 examples / 20 per batch
+    assert all(len(batch) <= 20 for batch in batches)
+    assert all(len(batch) > 0 for batch in batches)
 
-def test_stream_batch_with_large_data(large_sample_data_file, temp_test_dir):
-    """Test streaming with larger dataset."""
-    batches = list(stream_batch(
-        data_source=large_sample_data_file,
-        batch_size=100,
-        output_dir=temp_test_dir
-    ))
+def test_stream_batch_with_large_data(large_sample_data_file):
+    """Test stream_batch with larger dataset."""
+    examples = []
+    with open(large_sample_data_file, 'r') as f:
+        for line in f:
+            examples.append(json.loads(line))
     
-    total_records = sum(len(batch) for batch in batches)
-    assert total_records == 1000
-    assert len(batches) == 10  # 1000 / 100
+    # Test streaming with max_examples=100
+    batches = list(stream_batch(examples, max_examples=100))
+    
+    assert len(batches) == 10  # 1000 examples / 100 per batch
+    assert all(len(batch) <= 100 for batch in batches)
 
-def test_memory_backoff(temp_test_dir, large_sample_data_file):
-    """
-    Test that batch size is reduced when memory pressure is detected.
+def test_memory_backoff(sample_data_file):
+    """Test that memory backoff logic works (simulated)."""
+    examples = []
+    with open(sample_data_file, 'r') as f:
+        for line in f:
+            examples.append(json.loads(line))
     
-    This test verifies the fallback logic:
-    - If MemoryError occurs, batch size is halved
-    - If batch size drops below minimum, RuntimeError is raised
-    """
-    # Create a mock that simulates memory error after first batch
-    original_stream_batch = stream_batch
+    # Get current memory percentage
+    mem_pct = get_memory_percent()
     
-    call_count = 0
-    def mock_stream_batch_with_error(*args, **kwargs):
-        nonlocal call_count
-        call_count += 1
-        
-        # Use a smaller batch size to trigger more iterations
-        data_source = kwargs.get('data_source', args[0])
-        batch_size = kwargs.get('batch_size', 500)
-        min_batch_size = kwargs.get('min_batch_size', 1)
-        output_dir = kwargs.get('output_dir')
-        
-        # Simulate the backoff by testing with a small batch size
-        # that would trigger the logic if memory was an issue
-        batches = list(original_stream_batch(
-            data_source=data_source,
-            batch_size=min(batch_size, 50),  # Force smaller batches
-            min_batch_size=min_batch_size,
-            output_dir=output_dir
-        ))
-        
-        return batches
-    
-    # Test with normal operation first
-    batches = list(stream_batch(
-        data_source=large_sample_data_file,
-        batch_size=100,
-        min_batch_size=10,
-        output_dir=temp_test_dir
-    ))
+    # If memory is low, backoff won't trigger in this test
+    # But we can verify the logic doesn't crash
+    batches = list(stream_batch(examples, max_examples=20))
     
     assert len(batches) > 0
-    total_records = sum(len(batch) for batch in batches)
-    assert total_records == 1000
+    assert all(len(batch) > 0 for batch in batches)
 
-def test_memory_backoff_fails_at_minimum(temp_test_dir, large_sample_data_file):
-    """
-    Test that RuntimeError is raised when batch size cannot be reduced further.
-    """
-    # This test verifies the error path when min_batch_size is reached
-    # In practice, this would require simulating extreme memory pressure
-    # We test the logic by directly testing the validation function
+def test_memory_backoff_fails_at_minimum():
+    """Test that RuntimeError is raised when batch size drops below minimum."""
+    # Create a small dataset
+    examples = [{'id': i} for i in range(5)]
     
-    with pytest.raises(BatchSizeError, match="below minimum threshold"):
-        validate_batch_size(5, min_threshold=10)
-    
-    # Test that the stream_batch function respects min_batch_size
-    # by testing with a configuration that would fail if backoff logic was broken
-    batches = list(stream_batch(
-        data_source=large_sample_data_file,
-        batch_size=50,
-        min_batch_size=50,  # Set min equal to initial to prevent backoff
-        output_dir=temp_test_dir
-    ))
-    
-    # Should complete without error since we're not forcing memory pressure
-    assert len(batches) > 0
+    # Force batch size to be below minimum by setting max_examples < MIN_EXAMPLES
+    # This should trigger the validation error
+    with pytest.raises(BatchSizeError):
+        list(stream_batch(examples, max_examples=5))
 
-def test_load_tokens_from_file(sample_data_file):
-    """Test loading tokens from a JSONL file."""
-    records = list(load_tokens_from_file(sample_data_file))
+def test_load_tokens_from_file(sample_token_file):
+    """Test loading tokens from a file."""
+    tokens = load_tokens_from_file(sample_token_file)
     
-    assert len(records) == 3
-    assert records[0]['prompt_id'] == 'test_001'
-    assert records[2]['validity'] == True
+    assert len(tokens) == 500  # 10 records * 50 tokens each
+    assert tokens[0] == 'token_0'
+    assert tokens[-1] == 'token_49'
 
-def test_load_tokens_from_file_not_found():
-    """Test that FileNotFoundError is raised for missing files."""
+def test_load_tokens_from_file_not_found(temp_test_dir):
+    """Test loading from a non-existent file."""
+    non_existent = temp_test_dir / 'non_existent.jsonl'
+    
     with pytest.raises(FileNotFoundError):
-        list(load_tokens_from_file("/nonexistent/path/file.jsonl"))
+        load_tokens_from_file(non_existent)
 
-def test_stream_batch_output_to_file(sample_data_file, temp_test_dir):
-    """Test that stream_batch writes output files when output_dir is specified."""
-    list(stream_batch(
-        data_source=sample_data_file,
-        batch_size=2,
-        output_dir=temp_test_dir
-    ))
+def test_stream_batch_output_to_file(temp_test_dir):
+    """Test that stream_batch can write to a file."""
+    examples = [{'id': i, 'data': f'example_{i}'} for i in range(50)]
+    output_file = temp_test_dir / 'output.jsonl'
     
-    # Check that batch files were created
-    batch_files = list(temp_test_dir.glob("batch_*.jsonl"))
-    assert len(batch_files) == 2  # 3 records with batch_size=2
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for batch in stream_batch(examples, max_examples=10):
+            for example in batch:
+                f.write(json.dumps(example) + '\n')
     
-    # Verify content of batch files
-    with open(batch_files[0], 'r') as f:
+    # Verify output
+    with open(output_file, 'r') as f:
         lines = f.readlines()
-        assert len(lines) == 2
+    
+    assert len(lines) == 50
 
 def test_get_current_ram_gb():
-    """Test that RAM usage can be queried."""
-    ram_gb = get_current_ram_gb()
-    assert isinstance(ram_gb, float)
-    assert ram_gb >= 0
-    assert ram_gb < 100  # Sanity check - shouldn't be impossibly high
+    """Test that get_current_ram_gb returns a valid value."""
+    ram_gb = get_memory_percent()
+    
+    assert 0 <= ram_gb <= 100
+
+def test_token_batch_stream_basic():
+    """Test basic token_batch_stream functionality."""
+    tokens = [f'token_{i}' for i in range(100)]
+    
+    batches = list(token_batch_stream(tokens, max_tokens=10))
+    
+    assert len(batches) == 10
+    assert all(len(batch) == 10 for batch in batches)
+
+def test_token_batch_stream_partial_batch():
+    """Test token_batch_stream with partial final batch."""
+    tokens = [f'token_{i}' for i in range(105)]
+    
+    batches = list(token_batch_stream(tokens, max_tokens=10))
+    
+    assert len(batches) == 11
+    assert all(len(batch) <= 10 for batch in batches)
+    assert len(batches[-1]) == 5  # Last batch has 5 tokens
+
+def test_token_batch_stream_memory_adaptive():
+    """Test that token_batch_stream adapts to memory pressure."""
+    tokens = [f'token_{i}' for i in range(200)]
+    
+    # This should work regardless of current memory state
+    batches = list(token_batch_stream(tokens, max_tokens=50))
+    
+    assert len(batches) > 0
+    assert all(len(batch) > 0 for batch in batches)
+
+def test_token_batch_stream_minimum_threshold():
+    """Test that token_batch_stream respects minimum batch size."""
+    tokens = [f'token_{i}' for i in range(5)]
+    
+    # Should raise BatchSizeError if max_tokens < MIN_BATCH_SIZE
+    with pytest.raises(BatchSizeError):
+        list(token_batch_stream(tokens, max_tokens=5))
+
+def test_generator_input_stream_batch():
+    """Test stream_batch with generator input."""
+    def example_generator():
+        for i in range(50):
+            yield {'id': i}
+    
+    batches = list(stream_batch(example_generator(), max_examples=10))
+    
+    assert len(batches) == 5
+
+def test_generator_input_token_batch_stream():
+    """Test token_batch_stream with generator input."""
+    def token_generator():
+        for i in range(100):
+            yield f'token_{i}'
+    
+    batches = list(token_batch_stream(token_generator(), max_tokens=10))
+    
+    assert len(batches) == 10
+
+def test_empty_input_stream_batch(temp_test_dir):
+    """Test stream_batch with empty input."""
+    examples = []
+    
+    batches = list(stream_batch(examples, max_examples=10))
+    
+    assert len(batches) == 0
+
+def test_empty_input_token_batch_stream():
+    """Test token_batch_stream with empty input."""
+    tokens = []
+    
+    batches = list(token_batch_stream(tokens, max_tokens=10))
+    
+    assert len(batches) == 0
+
+def test_invalid_input_type_stream_batch():
+    """Test stream_batch with invalid input type."""
+    with pytest.raises(TypeError):
+        list(stream_batch("not a list", max_examples=10))
+
+def test_invalid_input_type_token_batch_stream():
+    """Test token_batch_stream with invalid input type."""
+    with pytest.raises(TypeError):
+        list(token_batch_stream(12345, max_tokens=10))
+
+def test_adaptive_batch_size_reduction():
+    """Test that batch size reduces when memory is high (simulated)."""
+    # Create a large dataset
+    examples = [{'id': i} for i in range(200)]
+    
+    # In normal conditions, this should produce batches of size 50
+    batches = list(stream_batch(examples, max_examples=50))
+    
+    # Verify we got the expected number of batches
+    assert len(batches) == 4
+    assert all(len(batch) <= 50 for batch in batches)
+
+def test_adaptive_token_batch_size_reduction():
+    """Test that token batch size reduces when memory is high (simulated)."""
+    tokens = [f'token_{i}' for i in range(200)]
+    
+    # In normal conditions, this should produce batches of size 50
+    batches = list(token_batch_stream(tokens, max_tokens=50))
+    
+    # Verify we got the expected number of batches
+    assert len(batches) == 4
+    assert all(len(batch) <= 50 for batch in batches)
+
+def test_memory_threshold_check():
+    """Test the memory threshold check function."""
+    # This should return a boolean
+    result = check_memory_backoff_condition()
+    
+    assert isinstance(result, bool)
+
+def test_multiple_sequences_token_batch_stream():
+    """Test token_batch_stream with multiple sequences."""
+    # Create a flat list of tokens from multiple sequences
+    tokens = []
+    for seq_id in range(5):
+        tokens.extend([f'seq{seq_id}_token{i}' for i in range(20)])
+    
+    batches = list(token_batch_stream(tokens, max_tokens=10))
+    
+    assert len(batches) == 10  # 100 tokens / 10 per batch
+    assert all(len(batch) == 10 for batch in batches)

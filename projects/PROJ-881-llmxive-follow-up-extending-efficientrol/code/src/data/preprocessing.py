@@ -1,8 +1,6 @@
 """
-Preprocessing utilities for dataset loading and batching.
-
-This module provides streaming and batching functions for processing
-dataset examples and token sequences with memory safety guarantees.
+Preprocessing module for dataset capping and token batching.
+Implements memory-adaptive batching logic as per T009 requirements.
 """
 
 import json
@@ -11,340 +9,327 @@ import sys
 import os
 import psutil
 from pathlib import Path
-from typing import List, Iterator, Any, Optional, Generator, Dict, Union
+from typing import List, Dict, Any, Iterator, Optional, Union
+from dataclasses import dataclass
+import math
 
-# Custom exception for batch size issues
+# Configure logging for this module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Constants
+DEFAULT_MAX_EXAMPLES = 500
+DEFAULT_MAX_TOKENS = 50
+MIN_BATCH_SIZE = 10  # Minimum viable batch size for token batching
+MIN_EXAMPLES = 1     # Minimum viable example batch size
+MEMORY_THRESHOLD = 90.0  # Percentage of RAM usage that triggers backoff
+
+@dataclass
 class BatchSizeError(Exception):
-    """Raised when batch size constraints cannot be met."""
-    pass
+    """Custom exception for batch size validation errors."""
+    message: str
+    current_size: int
+    min_size: int
 
-# Get current RAM usage in GB
 def get_current_ram_gb() -> float:
     """
-    Get the current RAM usage of the process in gigabytes.
+    Get current RAM usage in GB.
     
     Returns:
-        float: Current RAM usage in GB
+        float: Current RAM usage in GB.
     """
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 ** 3)
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 ** 3)
 
-# Validate batch size
-def validate_batch_size(batch_size: int, min_threshold: int = 1) -> None:
+def get_memory_percent() -> float:
     """
-    Validate that a batch size is above the minimum threshold.
-    
-    Args:
-        batch_size: The proposed batch size
-        min_threshold: Minimum acceptable batch size
-        
-    Raises:
-        BatchSizeError: If batch size is below minimum threshold
-    """
-    if batch_size < min_threshold:
-        raise BatchSizeError(f"Batch size {batch_size} is below minimum threshold {min_threshold}")
-
-# Check memory backoff condition
-def check_memory_backoff_condition() -> bool:
-    """
-    Check if we should trigger memory backoff based on current RAM usage.
+    Get current memory usage percentage.
     
     Returns:
-        bool: True if RAM usage is high (> 6GB), False otherwise
+        float: Memory usage percentage (0-100).
     """
-    current_ram = get_current_ram_gb()
-    return current_ram > 6.0
+    return psutil.virtual_memory().percent
 
-# Load tokens from file
-def load_tokens_from_file(file_path: Union[str, Path]) -> Generator[List[str], None, None]:
+def check_memory_backoff_condition() -> bool:
     """
-    Load token sequences from a JSONL file.
+    Check if memory usage exceeds the threshold for backoff.
+    
+    Returns:
+        bool: True if memory usage > 90%, False otherwise.
+    """
+    return get_memory_percent() > MEMORY_THRESHOLD
+
+def validate_batch_size(batch_size: int, min_size: int) -> None:
+    """
+    Validate that batch size is above minimum threshold.
     
     Args:
-        file_path: Path to the JSONL file
+        batch_size: The batch size to validate.
+        min_size: The minimum allowed batch size.
+        
+    Raises:
+        BatchSizeError: If batch size is below minimum.
+    """
+    if batch_size < min_size:
+        raise BatchSizeError(
+            f"Batch size {batch_size} is below minimum threshold {min_size}",
+            current_size=batch_size,
+            min_size=min_size
+        )
+
+def stream_batch(
+    examples: Union[List[Dict[str, Any]], Iterator[Dict[str, Any]]],
+    max_examples: int = DEFAULT_MAX_EXAMPLES
+) -> Iterator[List[Dict[str, Any]]]:
+    """
+    Stream examples in batches with adaptive memory management.
+    
+    If memory usage exceeds 90%, the batch size is halved until it reaches
+    the minimum threshold. If the batch size drops below the minimum,
+    a RuntimeError is raised.
+    
+    Args:
+        examples: List or iterator of example dictionaries.
+        max_examples: Maximum number of examples per batch (default: 500).
         
     Yields:
-        List[str]: Token sequences from the file
+        List[Dict[str, Any]]: Batches of examples.
+        
+    Raises:
+        RuntimeError: If batch size drops below minimum threshold.
     """
-    path = Path(file_path)
-    if not path.exists():
+    # Convert iterator to list if needed for length calculation
+    if not isinstance(examples, list):
+        examples = list(examples)
+    
+    total_examples = len(examples)
+    batch_size = min(max_examples, total_examples)
+    
+    # Validate initial batch size
+    validate_batch_size(batch_size, MIN_EXAMPLES)
+    
+    logger.info(f"Starting stream_batch with {total_examples} examples, initial batch_size={batch_size}")
+    
+    start_idx = 0
+    while start_idx < total_examples:
+        # Check memory before processing batch
+        if check_memory_backoff_condition():
+            logger.warning(f"High memory usage ({get_memory_percent():.1f}%), reducing batch size")
+            batch_size = max(MIN_EXAMPLES, batch_size // 2)
+            validate_batch_size(batch_size, MIN_EXAMPLES)
+            logger.info(f"Reduced batch size to {batch_size}")
+        
+        end_idx = min(start_idx + batch_size, total_examples)
+        batch = examples[start_idx:end_idx]
+        
+        if not batch:
+            break
+            
+        yield batch
+        start_idx = end_idx
+
+def token_batch_stream(
+    tokens: Union[List[str], Iterator[str]],
+    max_tokens: int = DEFAULT_MAX_TOKENS
+) -> Iterator[List[str]]:
+    """
+    Stream tokens in fixed-size batches with adaptive memory management.
+    
+    Enforces a fixed number of tokens per batch. If memory usage exceeds 90%,
+    the batch size is halved until it reaches the minimum of 10 tokens.
+    Only raises RuntimeError if batch size drops below the minimum viable threshold.
+    
+    Args:
+        tokens: List or iterator of token strings.
+        max_tokens: Maximum number of tokens per batch (default: 50).
+        
+    Yields:
+        List[str]: Batches of tokens.
+        
+    Raises:
+        RuntimeError: If batch size drops below minimum threshold (10 tokens).
+    """
+    # Convert iterator to list if needed for length calculation
+    if not isinstance(tokens, list):
+        tokens = list(tokens)
+    
+    total_tokens = len(tokens)
+    batch_size = min(max_tokens, total_tokens)
+    
+    # Validate initial batch size
+    validate_batch_size(batch_size, MIN_BATCH_SIZE)
+    
+    logger.info(f"Starting token_batch_stream with {total_tokens} tokens, initial batch_size={batch_size}")
+    
+    start_idx = 0
+    while start_idx < total_tokens:
+        # Check memory before processing batch
+        if check_memory_backoff_condition():
+            logger.warning(f"High memory usage ({get_memory_percent():.1f}%), reducing batch size")
+            batch_size = max(MIN_BATCH_SIZE, batch_size // 2)
+            validate_batch_size(batch_size, MIN_BATCH_SIZE)
+            logger.info(f"Reduced token batch size to {batch_size}")
+        
+        end_idx = min(start_idx + batch_size, total_tokens)
+        batch = tokens[start_idx:end_idx]
+        
+        if not batch:
+            break
+            
+        yield batch
+        start_idx = end_idx
+
+def load_tokens_from_file(file_path: Union[str, Path]) -> List[str]:
+    """
+    Load tokens from a JSONL file where each line is a JSON object with a 'tokens' field.
+    
+    Args:
+        file_path: Path to the JSONL file.
+        
+    Returns:
+        List[str]: List of tokens.
+        
+    Raises:
+        FileNotFoundError: If file does not exist.
+        json.JSONDecodeError: If file contains invalid JSON.
+    """
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"Token file not found: {file_path}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                try:
-                    data = json.loads(line)
-                    # Handle different possible formats
-                    if isinstance(data, dict):
-                        if 'tokens' in data:
-                            yield data['tokens']
-                        elif 'sequence' in data:
-                            yield data['sequence']
-                        elif 'text' in data:
-                            yield data['text'].split()
-                    elif isinstance(data, list):
-                        yield data
-                except json.JSONDecodeError:
-                    logging.warning(f"Skipping invalid JSON line: {line[:100]}")
-
-# Stream dataset examples in batches (from T009a)
-def stream_batch(data_file: Union[str, Path], batch_size: int = 500) -> Generator[List[Dict[str, Any]], None, None]:
-    """
-    Stream dataset examples in batches with memory backoff.
-    
-    This function implements the 500-example batching logic from T009a.
-    If a MemoryError is raised, the batch size is halved until a minimum
-    threshold is reached.
-    
-    Args:
-        data_file: Path to the JSONL data file
-        batch_size: Initial batch size (default: 500)
-        
-    Yields:
-        List[Dict[str, Any]]: Batches of dataset examples
-        
-    Raises:
-        RuntimeError: If batch size drops below minimum threshold
-    """
-    path = Path(data_file)
-    if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_file}")
-    
-    current_batch_size = batch_size
-    min_batch_size = 1
-    buffer: List[Dict[str, Any]] = []
-    
-    with open(path, 'r', encoding='utf-8') as f:
+    tokens = []
+    with open(file_path, 'r', encoding='utf-8') as f:
         for line_num, line in enumerate(f, 1):
-            if not line.strip():
+            line = line.strip()
+            if not line:
                 continue
-            
             try:
-                example = json.loads(line)
-                buffer.append(example)
-                
-                if len(buffer) >= current_batch_size:
-                    yield buffer
-                    buffer = []
-                    
-            except MemoryError:
-                logging.warning(f"MemoryError at line {line_num}, reducing batch size")
-                buffer = []
-                current_batch_size = max(current_batch_size // 2, min_batch_size)
-                
-                if current_batch_size < min_batch_size:
-                    raise RuntimeError(f"Batch size too small after memory backoff")
-            
+                record = json.loads(line)
+                if 'tokens' in record:
+                    tokens.extend(record['tokens'])
+                elif 'token' in record:
+                    tokens.append(record['token'])
             except json.JSONDecodeError as e:
-                logging.warning(f"Skipping invalid JSON at line {line_num}: {e}")
+                logger.error(f"Error parsing line {line_num}: {e}")
+                raise
     
-    # Yield remaining items
-    if buffer:
-        yield buffer
+    return tokens
 
-# NEW: Token-level batching function (T009b)
-def token_batch_stream(
-    tokens_source: Union[str, Path, Generator[List[str], None, None]],
-    batch_size: int = 50,
-    min_threshold: int = 8
-) -> Generator[List[str], None, None]:
-    """
-    Stream token sequences in batches with memory-aware fallback.
-    
-    This function implements the 50-token batching logic required by FR-007.
-    It processes sequences token-by-token, accumulating them into batches.
-    If a MemoryError is raised, the batch size is halved (50 -> 25 -> 12)
-    until the minimum threshold (8 tokens) is reached, at which point a
-    RuntimeError is raised.
-    
-    Args:
-        tokens_source: Either a file path to a JSONL file with token sequences,
-                     or a generator that yields lists of tokens.
-        batch_size: Initial batch size in tokens (default: 50)
-        min_threshold: Minimum batch size before raising RuntimeError (default: 8)
-        
-    Yields:
-        List[str]: Batches of tokens (lists of token strings)
-        
-    Raises:
-        RuntimeError: If batch size drops below min_threshold
-        FileNotFoundError: If tokens_source is a file path that doesn't exist
-        ValueError: If tokens_source is neither a file path nor a generator
-    """
-    current_batch_size = batch_size
-    token_buffer: List[str] = []
-    
-    # Handle different input types
-    if isinstance(tokens_source, (str, Path)):
-        token_gen = load_tokens_from_file(tokens_source)
-    elif hasattr(tokens_source, '__iter__') and hasattr(tokens_source, '__next__'):
-        # It's a generator
-        token_gen = tokens_source
-    else:
-        raise ValueError("tokens_source must be a file path or a generator")
-    
-    # Iterate through token sequences
-    for sequence in token_gen:
-        # Add each token from the sequence to the buffer
-        for token in sequence:
-            token_buffer.append(token)
-            
-            # Check if we have enough tokens for a batch
-            if len(token_buffer) >= current_batch_size:
-                try:
-                    yield token_buffer[:current_batch_size]
-                    token_buffer = token_buffer[current_batch_size:]
-                except MemoryError:
-                    logging.warning(f"MemoryError with batch size {current_batch_size}, reducing")
-                    token_buffer = []
-                    current_batch_size = max(current_batch_size // 2, min_threshold)
-                    
-                    if current_batch_size < min_threshold:
-                        raise RuntimeError("Batch size too small")
-    
-    # Yield remaining tokens if any
-    if token_buffer:
-        yield token_buffer
-
-# Stream tokens in batches (wrapper for token_batch_stream)
 def stream_tokens_in_batches(
-    data_file: Union[str, Path],
-    batch_size: int = 50,
-    min_threshold: int = 8
-) -> Generator[List[str], None, None]:
+    file_path: Union[str, Path],
+    max_tokens: int = DEFAULT_MAX_TOKENS
+) -> Iterator[List[str]]:
     """
-    Wrapper function to stream tokens from a file in batches.
+    Stream tokens from a file in batches.
     
     Args:
-        data_file: Path to JSONL file containing token sequences
-        batch_size: Initial batch size in tokens (default: 50)
-        min_threshold: Minimum batch size (default: 8)
+        file_path: Path to the JSONL file.
+        max_tokens: Maximum tokens per batch.
         
     Yields:
-        List[str]: Batches of tokens
+        List[str]: Batches of tokens.
     """
-    return token_batch_stream(data_file, batch_size, min_threshold)
+    tokens = load_tokens_from_file(file_path)
+    yield from token_batch_stream(tokens, max_tokens)
 
-# Merge entropy profiles (from T025)
 def merge_entropy_profiles(
-    generation_file: Union[str, Path],
-    entropy_files: List[Union[str, Path]],
-    output_file: Union[str, Path]
-) -> Dict[str, Any]:
+    generation_data: List[Dict[str, Any]],
+    entropy_data: List[Dict[str, Any]],
+    join_keys: List[str] = ['prompt_id', 'token_index']
+) -> List[Dict[str, Any]]:
     """
     Merge generation data with entropy profiles.
     
-    This function performs a 3-way join on prompt_id and token_index
-    between generation data and multiple entropy batch files.
-    
     Args:
-        generation_file: Path to the merged US1 JSONL file
-        entropy_files: List of paths to entropy batch JSONL files
-        output_file: Path to write the merged output
+        generation_data: List of generation records.
+        entropy_data: List of entropy profile records.
+        join_keys: Keys to join on (default: ['prompt_id', 'token_index']).
         
     Returns:
-        Dict[str, Any]: Summary statistics of the merge operation
+        List[Dict[str, Any]]: Merged records.
     """
-    # Load generation data into memory (keyed by prompt_id, token_index)
-    generation_data: Dict[tuple, Dict[str, Any]] = {}
-    with open(generation_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                record = json.loads(line)
-                key = (record.get('prompt_id'), record.get('token_index'))
-                generation_data[key] = record
+    # Create lookup dictionary for entropy data
+    entropy_lookup = {}
+    for record in entropy_data:
+        key = tuple(record.get(k) for k in join_keys)
+        entropy_lookup[key] = record
     
-    # Merge entropy data
-    merged_count = 0
-    unmatched_count = 0
+    merged = []
+    for gen_record in generation_data:
+        key = tuple(gen_record.get(k) for k in join_keys)
+        merged_record = gen_record.copy()
+        
+        if key in entropy_lookup:
+            merged_record.update(entropy_lookup[key])
+        
+        merged.append(merged_record)
     
-    with open(output_file, 'w', encoding='utf-8') as out_f:
-        for entropy_file in entropy_files:
-            with open(entropy_file, 'r', encoding='utf-8') as ent_f:
-                for line in ent_f:
-                    if line.strip():
-                        entropy_record = json.loads(line)
-                        key = (entropy_record.get('prompt_id'), entropy_record.get('token_index'))
-                        
-                        if key in generation_data:
-                            merged_record = {**generation_data[key], **entropy_record}
-                            out_f.write(json.dumps(merged_record) + '\n')
-                            merged_count += 1
-                        else:
-                            unmatched_count += 1
-    
-    return {
-        'merged_count': merged_count,
-        'unmatched_count': unmatched_count,
-        'total_entropy_records': merged_count + unmatched_count
-    }
+    return merged
 
-# Validate entropy profile
-def validate_entropy_profile(record: Dict[str, Any]) -> bool:
+def validate_entropy_profile(
+    profile: Dict[str, Any],
+    schema_path: Optional[Union[str, Path]] = None
+) -> bool:
     """
-    Validate that an entropy profile record has all required fields.
+    Validate an entropy profile record against the schema.
     
     Args:
-        record: Dictionary representing an entropy profile record
+        profile: The entropy profile record to validate.
+        schema_path: Optional path to schema file.
         
     Returns:
-        bool: True if valid, False otherwise
+        bool: True if valid, False otherwise.
         
     Raises:
-        ValueError: If the record is invalid
+        ValueError: If profile is invalid.
     """
-    required_fields = ['prompt_id', 'token_index', 'layer_entropy_map']
-    
+    # Check required fields
+    required_fields = ['prompt_id', 'token_index', 'sequence_length', 'layer_entropy_map']
     for field in required_fields:
-        if field not in record or record[field] is None:
+        if field not in profile:
             raise ValueError(f"Missing required field: {field}")
     
-    # Validate layer_entropy_map structure
-    if not isinstance(record['layer_entropy_map'], dict):
+    # Validate layer_entropy_map
+    layer_entropy_map = profile.get('layer_entropy_map')
+    if layer_entropy_map is None:
+        raise ValueError("layer_entropy_map cannot be None")
+    
+    if not isinstance(layer_entropy_map, dict):
         raise ValueError("layer_entropy_map must be a dictionary")
     
-    for layer_id, entropy_value in record['layer_entropy_map'].items():
+    # Check that all entropy values are not None
+    for layer_id, entropy_value in layer_entropy_map.items():
         if entropy_value is None:
             raise ValueError(f"Entropy value for layer {layer_id} is None")
         if not isinstance(entropy_value, (int, float)):
-            raise ValueError(f"Entropy value for layer {layer_id} is not numeric")
+            raise ValueError(f"Entropy value for layer {layer_id} must be numeric")
     
     return True
 
-# Main entry point for testing
 def main():
     """
-    Main function for testing the preprocessing module.
+    Main function for testing preprocessing functions.
     """
-    import argparse
+    logger.info("Testing preprocessing functions...")
     
-    parser = argparse.ArgumentParser(description='Test preprocessing functions')
-    parser.add_argument('--test-file', type=str, help='Path to test data file')
-    parser.add_argument('--batch-size', type=int, default=50, help='Initial batch size')
-    parser.add_argument('--min-threshold', type=int, default=8, help='Minimum batch size')
+    # Test stream_batch
+    test_examples = [{'id': i, 'data': f'example_{i}'} for i in range(100)]
+    batches = list(stream_batch(test_examples, max_examples=20))
+    logger.info(f"stream_batch produced {len(batches)} batches")
     
-    args = parser.parse_args()
+    # Test token_batch_stream
+    test_tokens = [f'token_{i}' for i in range(100)]
+    token_batches = list(token_batch_stream(test_tokens, max_tokens=10))
+    logger.info(f"token_batch_stream produced {len(token_batches)} batches")
     
-    if args.test_file:
-        logging.basicConfig(level=logging.INFO)
-        logging.info(f"Testing token_batch_stream with file: {args.test_file}")
-        
-        batch_count = 0
-        total_tokens = 0
-        
-        try:
-            for batch in token_batch_stream(args.test_file, args.batch_size, args.min_threshold):
-                batch_count += 1
-                total_tokens += len(batch)
-                if batch_count <= 5:  # Log first 5 batches
-                    logging.info(f"Batch {batch_count}: {len(batch)} tokens")
-            
-            logging.info(f"Completed: {batch_count} batches, {total_tokens} total tokens")
-        except RuntimeError as e:
-            logging.error(f"RuntimeError: {e}")
-        except Exception as e:
-            logging.error(f"Error: {e}")
+    # Test memory backoff simulation
+    logger.info(f"Current memory usage: {get_memory_percent():.1f}%")
+    
+    logger.info("Preprocessing tests completed successfully")
 
 if __name__ == '__main__':
     main()

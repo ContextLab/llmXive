@@ -4122,3 +4122,1351 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T04:51:24Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Benchmarks conducted on Intel Xeon E5-2686 v4 with 16GB RAM using transformers
+    and torch on CPU
+  claim_id: c_13205504
+  context: Methodology section describing the hardware and software environment used
+    for testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmarks were conducted on a standard CPU environment (Intel Xeon E5-2686
+    v4, 16GB RAM) using `transformers` with `torch` on CPU mode.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:19:48Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B FP16 disk size is 3.0 GB
+  claim_id: c_3a0272d4
+  context: Benchmark Results section listing metrics for the 1.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-1.5B (FP16/Default) has a disk size of ~3.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:20:07Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B FP16 peak RAM usage is 4.2 GB
+  claim_id: c_ee191cf6
+  context: Benchmark Results section listing metrics for the 1.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-1.5B (FP16/Default) has a peak RAM usage of ~4.2 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:20:32Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B FP16 inference speed is 12.5 TPS on 512 token sequence
+  claim_id: c_89a5bb2a
+  context: Benchmark Results section listing metrics for the 1.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-1.5B (FP16/Default) has an inference speed of ~12.5 TPS for a
+    512 token sequence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:21:01Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 disk size is 4.5 GB
+  claim_id: c_edf8b09a
+  context: Benchmark Results section listing metrics for the 7B quantized model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-7B-Int4 has a disk size of ~4.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:21:16Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 peak RAM usage is 6.8 GB
+  claim_id: c_3494dd88
+  context: Benchmark Results section listing metrics for the 7B quantized model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-7B-Int4 has a peak RAM usage of ~6.8 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:21:34Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 inference speed is 3.2 TPS on 512 token sequence
+  claim_id: c_63d9e4e3
+  context: Benchmark Results section listing metrics for the 7B quantized model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-7B-Int4 has an inference speed of ~3.2 TPS for a 512 token sequence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:21:59Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-0.5B FP16 disk size is 1.0 GB
+  claim_id: c_2b9c125e
+  context: Benchmark Results section listing metrics for the 0.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-0.5B (FP16) has a disk size of ~1.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:22:15Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-0.5B FP16 peak RAM usage is 1.8 GB
+  claim_id: c_04e74118
+  context: Benchmark Results section listing metrics for the 0.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-0.5B (FP16) has a peak RAM usage of ~1.8 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:22:32Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-0.5B FP16 inference speed is 22.0 TPS on 512 token sequence
+  claim_id: c_cfa68bdf
+  context: Benchmark Results section listing metrics for the 0.5B model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen1.5-0.5B (FP16) has an inference speed of ~22.0 TPS for a 512 token
+    sequence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:23:01Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: 500 example cap limit behavior for smaller datasets
+  claim_id: c_88e2ae2c
+  context: 'Task T010 describes fetching GSM8K and MiniGrid datasets with a 500-example
+    cap. Note: The 500 cap is a maximum limit; if the source dataset is smaller, islice
+    will return fewer examples.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/500_example_cap_limit_behavior_for_smaller_datasets
+  kind: entity_fact
+  raw_text: The 500 cap is a maximum limit; if the source dataset is smaller, islice
+    will return fewer examples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:24:07Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: BFS path generation for MiniGrid using minigrid version 2.3.0 or higher
+  claim_id: c_ef0b6c20
+  context: 'Task T012b requires generating BFS paths for MiniGrid. CRITICAL: This
+    task MUST use the start_state and goal_state from data/canonical_ground_truth.jsonl
+    (T012a) to generate valid shortest paths for MiniGrid using Breadth-First Search
+    (BFS) on the environment grid (version minigrid>=2.3.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST use the start_state and goal_state from data/canonical_ground_truth.jsonl
+    (T012a) to generate valid shortest paths for MiniGrid using Breadth-First Search
+    (BFS) on the environment grid (version minigrid>=2.3.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:24:26Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep range 0.1 with step size 0.01 cited from arxiv.org/abs/2309.06305
+  claim_id: c_8ff04555
+  context: 'Task T033 describes sensitivity analysis. Sweep Logic: MUST read the optimal
+    point from results/optimal_threshold.json (T032) and the corrected p-values from
+    results/fdr_report.json (T033). Requirement: Sweep range [optimal - 0.1, optimal
+    + 0.1] with step size 0.01 (Citation: arxiv.org/abs/2309.06305)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The sweep range [optimal - 0.1, optimal + 0.1] with step size 0.01 (Citation:
+    arxiv.org/abs/2309.06305).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:24:36Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Decile-based split using 10th and 90th percentiles for dataset splitting
+  claim_id: c_04ee8147
+  context: 'Task T035 implements decay analysis. Requirement: The task MUST implement
+    a decile-based split (10th percentile vs 90th percentile) to ensure distinct regimes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Decile-based_split_using_10th_and_90th_percentiles_for_datas
+  kind: entity_fact
+  raw_text: The task MUST implement a decile-based split (10th percentile vs 90th
+    percentile) to ensure distinct regimes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:25:35Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Fallback split threshold if percentiles differ by less than 20 tokens
+    to <100 vs >200 tokens
+  claim_id: c_c5c6cfb7
+  context: 'Task T035 describes decay analysis logic. Requirement: If the 10th and
+    90th percentiles are too close (e.g., difference < 20 tokens), the task MUST fall
+    back to a fixed-threshold split (<100 tokens vs >200 tokens).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_split_threshold_if_percentiles_differ_by_less_than
+  kind: magnitude
+  raw_text: If the 10th and 90th percentiles are too close (e.g., difference < 20
+    tokens), the task MUST fall back to a fixed-threshold split (<100 tokens vs >200
+    tokens).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:26:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Default alpha value set to conventional significance level
+  claim_id: c_a283fe75
+  context: 'Task T033 describes sensitivity analysis. Requirement: Default alpha value
+    for correction is set to a conventional significance level.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: entity_fact
+  raw_text: Default alpha value for correction is set to a conventional significance
+    level.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T08:26:25Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Log rotation settings 10MB maxBytes and 5 backupCount
+  claim_id: c_bebf0885
+  context: 'Task T017 describes exception handling and logging. Log level: WARNING.
+    Rotation: Use RotatingFileHandler with maxBytes=10MB and backupCount=5 and path
+    logs/generation.log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log rotation uses RotatingFileHandler with maxBytes=10MB and backupCount=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:26:28Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Checksum recorder integrated as main.py post-pipeline hook
+  claim_id: c_103b0eba
+  context: 'Task T036 describes checksum recording. Requirement: The script MUST be
+    integrated into main.py as a post-pipeline hook to run automatically after every
+    pipeline stage, ensuring the updated_at timestamp is updated on every artifact
+    change without manual intervention, satisfying Constitution Principle V.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checksum_recorder_integrated_as_main.py_post-pipeline_hook
+  kind: entity_fact
+  raw_text: The script MUST be integrated into main.py as a post-pipeline hook to
+    run automatically after every pipeline stage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:26:35Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 0
+  canonical: Default alpha for multiple-comparison correction is conventional significance
+    level
+  claim_id: c_edc5c29e
+  context: 'T033 ... Requirement: Default alpha value for correction is set to a conventional
+    significance level.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: entity_fact
+  raw_text: The default alpha value for correction is set to a conventional significance
+    level.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T08:28:13Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Mixed-effects logistic regression supports layer_index continuous covariate
+    and layer_pooling strategies
+  claim_id: c_384e0a0e
+  context: 'T030 [US3] [FR-004] Implement ... using pymer4 for Mixed-Effects Logistic
+    Regression (GLMM) ... CRITICAL: The implementation MUST support BOTH strategies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The implementation MUST support BOTH strategies: (1) layer_index as a
+    continuous covariate, and (2) layer_pooling (early/mid/late).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:28:54Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Layer pooling strategy triggers automatically if >50% of layers have
+    <5 samples
+  claim_id: c_087e5680
+  context: 'T030 ... Logic: The code MUST check for layer sparsity. If >50% of layers
+    have <5 samples, it MUST automatically switch to the pooling strategy...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If >50% of layers have <5 samples, it MUST automatically switch to the
+    pooling strategy (average early/mid/late layers).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:28:55Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep range is optimal +/- 0.1 with step size 0.01
+  claim_id: c_1df259ae
+  context: 'T033 ... Sweep Logic: MUST read the optimal point ... Sweep range [optimal
+    - 0.1, optimal + 0.1] with step size 0.01 (Citation: arxiv.org/abs/2309.06305)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sweep range is [optimal - 0.1, optimal + 0.1] with step size 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:28:56Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Decay analysis uses decile-based split (10th vs 90th percentile)
+  claim_id: c_3c6392a2
+  context: 'T035 ... Requirement: The task MUST implement a decile-based split (10th
+    percentile vs 90th percentile)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Decay_analysis_uses_decile-based_split_(10th_vs_90th_percent
+  kind: entity_fact
+  raw_text: The task MUST implement a decile-based split (10th percentile vs 90th
+    percentile) to ensure distinct regimes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:28:58Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Decay analysis falls back to fixed threshold split if percentile difference
+    < 20 tokens
+  claim_id: c_2f458b7f
+  context: T035 ... If the 10th and 90th percentiles are too close (e.g., difference
+    < 20 tokens), the task MUST fall back to a fixed-threshold split...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 10th and 90th percentiles are too close (e.g., difference < 20
+    tokens), the task MUST fall back to a fixed-threshold split (<100 tokens vs >200
+    tokens).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:28:59Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy extraction processes sequences in 50-token chunks
+  claim_id: c_91de6578
+  context: T024 ... Implement incremental token processing ... to process sequences
+    in chunks of 50 tokens with an internal 50-token batching loop...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST process sequences in chunks of 50 tokens with an internal
+    50-token batching loop for memory safety.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:06Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: System handles full sequences up to 512 tokens in length
+  claim_id: c_499e2b9e
+  context: T024 ... This task MUST handle full sequences up to 512 tokens in length,
+    processing them in 50-token chunks incrementally...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST handle full sequences up to 512 tokens in length, processing
+    them in 50-token chunks incrementally.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Memory profile verifies RAM usage < 6.5GB for 512-token sequences in
+    50-token batches
+  claim_id: c_94e7bcf4
+  context: T027 ... profiles ... verifies RAM usage stays < 6.5GB for sequences up
+    to 512 tokens processed in batches of 50 tokens...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST verify RAM usage stays < 6.5GB for sequences up to 512 tokens
+    processed in batches of 50 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: MiniGrid environment version must be >= 2.3.0
+  claim_id: c_4c758a45
+  context: T012b ... using Breadth-First Search (BFS) on the environment grid (version
+    minigrid>=2.3.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use minigrid version >= 2.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:12Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Entropy calculation clamps probability values < 1e-9 to 1e-9
+  claim_id: c_a4ea61f5
+  context: T007a ... clamp probability values < 1e-9 to 1e-9 before taking the logarithm
+    to prevent log(0) errors...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST clamp probability values < 1e-9 to 1e-9 before taking the
+    logarithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:15Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Model switch to Qwen1.5-7B-Int4 triggered if peak RAM > 7GB
+  claim_id: c_b280f850
+  context: T012c ... If peak RAM > 7GB, the task MUST automatically switch to Qwen1.5-7B-Int4...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST switch to Qwen1.5-7B-Int4 if peak RAM > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:18Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Model switch to Qwen1.5-0.5B triggered if 7B-Int4 exceeds 7GB
+  claim_id: c_b46e32f6
+  context: T012c ... If B-Int also exceeds 7GB, switch to Qwen1.5-0.5B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST switch to Qwen1.5-0.5B if the 7B-Int4 model also exceeds
+    7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:21Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Batch size reduced by half if virtual memory percent > 90
+  claim_id: c_80d8005d
+  context: T009 ... If psutil.virtual_memory().percent > 90, halve batch size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST reduce the batch size by half if psutil.virtual_memory().percent
+    > 90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:22Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if batch size drops below 10 tokens
+  claim_id: c_4ce2749c
+  context: T009 ... until memory usage is safe or a minimum of 10 tokens is reached.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST raise a RuntimeError if the batch size drops below a minimum
+    of 10 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:29Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Log rotation uses maxBytes 10MB and backupCount 5
+  claim_id: c_e3aeaf6c
+  context: T017 ... Use RotatingFileHandler with maxBytes=10MB and backupCount=5...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log rotation must use RotatingFileHandler with maxBytes=10MB and backupCount=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:32Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Data integrity verified by comparing SHA-256 checksum against local manifest
+  claim_id: c_563e0d8a
+  context: T047 ... compares the SHA-256 checksum of the downloaded dataset file against
+    the hash recorded in data/.checksums...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST compare the SHA-256 checksum of the downloaded dataset file
+    against the hash recorded in data/.checksums.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:36Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if RAM usage > 7GB or virtual memory percent > 90
+  claim_id: c_32face45
+  context: 'T051 ... If the full dataset cannot be processed within the compute budget
+    (trigger: RAM usage > 7GB, detected via psutil.virtual_memory().percent > 90)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST raise a RuntimeError if RAM usage > 7GB detected via psutil.virtual_memory().percent
+    > 90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:37Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Default multiple-comparison correction method is benjamini-hochberg
+  claim_id: c_07afcce5
+  context: T033 ... with benjamini-hochberg as the default.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_multiple-comparison_correction_method_is_benjamini-h
+  kind: entity_fact
+  raw_text: The task MUST use benjamini-hochberg as the default correction method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:45Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Report compares estimated FDR against nominal alpha level 0.05
+  claim_id: c_d5b28838
+  context: 'T055 ... explicitly calculate and report the estimated FDR ... comparing
+    it against the nominal alpha level (0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST explicitly calculate and report the estimated FDR comparing
+    it against the nominal alpha level (0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:29:52Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Fetch canonical ground truth from HuggingFace datasets
+  claim_id: c_6e37aae6
+  context: 'T012a [P] [Cross-Cut] Download Canonical Ground Truth (GSM8K/MiniGrid).
+    CRITICAL: This task MUST fetch the *canonical* ground-truth solutions (GSM8K answer
+    strings, MiniGrid goal states) from the HuggingFace datasets using datasets.load_dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_canonical_ground_truth_from_HuggingFace_datasets
+  kind: entity_fact
+  raw_text: The task MUST fetch the *canonical* ground-truth solutions (GSM8K answer
+    strings, MiniGrid goal states) from the HuggingFace datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:34:47Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Use minigrid version 2.3.0 or higher
+  claim_id: c_8e2d3645
+  context: 'T012b [P] [Cross-Cut] Generate BFS Paths for MiniGrid. CRITICAL: This
+    task MUST use the start_state and goal_state from data/canonical_ground_truth.jsonl
+    (T012a) to generate valid shortest paths for MiniGrid using Breadth-First Search
+    (BFS) on the environment grid (version minigrid>=2.3.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use minigrid version 2.3.0 or higher for generating
+    valid shortest paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:34:50Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Clamp probabilities below 1e-9 to 1e-9
+  claim_id: c_cafe82de
+  context: 'T007a [P] [US1/US2] Implement projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/entropy_calc.py
+    with Shannon entropy logic (-sum p_i log p_i). Input: The function calculate_entropy(probs)
+    MUST accept softmax-normalized probability distributions (tensor) of shape [batch,
+    vocab_size] or [vocab_size] on CPU, clamp probability values < 1e-9 to 1e-9 before
+    taking the logarithm to prevent log(0) errors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clamp_probabilities_below_1e-9_to_1e-9
+  kind: magnitude
+  raw_text: The entropy calculation function clamps probability values less than 1e-9
+    to 1e-9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:34:57Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Enforce 500-example cap per task
+  claim_id: c_ff57ab78
+  context: 'T010 [P] [US1/US2] [FR-001] Implement projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py
+    to fetch GSM8K and MiniGrid from HuggingFace Datasets. CRITICAL: This task MUST
+    enforce the 500-example cap per task (GSM8K and MiniGrid) as required by FR-001
+    by default using itertools.islice within the streaming logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset download task enforces a 500-example cap per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:03Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Process sequences in 50-token chunks
+  claim_id: c_3620b7d6
+  context: T024 [US2] Implement incremental token processing in projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py
+    to process sequences in chunks of 50 tokens with an internal 50-token batching
+    loop for memory safety during entropy extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entropy extraction task processes sequences in chunks of 50 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:08Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Handle sequences up to 512 tokens
+  claim_id: c_10311903
+  context: 'T024 [US2] ... CRITICAL: This task MUST handle full sequences up to 512
+    tokens in length, processing them in 50-token chunks incrementally (not loading
+    full context).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entropy extraction task must handle full sequences up to 512 tokens
+    in length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:14Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Sweep range optimal plus/minus 0.1 with step 0.01
+  claim_id: c_6a4367e3
+  context: 'T033 [US3] [FR-006] ... Sweep Logic: MUST read the optimal point from
+    results/optimal_threshold.json (T032) and the corrected p-values from results/fdr_report.json
+    (T033). Requirement: Sweep range [optimal - 0.1, optimal + 0.1] with step size
+    0.01 (Citation: arxiv.org/abs/2309.06305).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_range_optimal_plus/minus_0.1_with_step_0.01
+  kind: entity_fact
+  raw_text: The sensitivity sweep range is defined as [optimal - 0.1, optimal + 0.1]
+    with a step size of 0.01.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:23Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Split using 10th and 90th percentiles
+  claim_id: c_5eaca490
+  context: 'T035 [US3] [SC-004] Implement projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/decay_analysis.py
+    to split the dataset into short and long subsets. Requirement: The task MUST implement
+    a decile-based split (10th percentile vs 90th percentile) to ensure distinct regimes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split_using_10th_and_90th_percentiles
+  kind: entity_fact
+  raw_text: The decile-based split for decay analysis uses the 10th and 90th percentiles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:27Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Fallback split if difference less than 20 tokens
+  claim_id: c_69b2f722
+  context: T035 [US3] [SC-004] ... If the 10th and 90th percentiles are too close
+    (e.g., difference < 20 tokens), the task MUST fall back to a fixed-threshold split
+    (<100 tokens vs >200 tokens).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_split_if_difference_less_than_20_tokens
+  kind: magnitude
+  raw_text: The fallback split threshold for decay analysis is a sequence length difference
+    of less than 20 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:35Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Trigger memory reduction at 90% virtual memory
+  claim_id: c_32bb2c3b
+  context: 'T009 [P] [US1/US2] ... Logic for stream_batch: If psutil.virtual_memory().percent
+    > 90, halve batch size. ... Logic for token_batch_stream: If psutil.virtual_memory().percent
+    > 90, the function MUST reduce the batch size by half.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory usage threshold for adaptive batch size reduction is 90% virtual
+    memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:36Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Default alpha significance level 0.05
+  claim_id: c_0d2e2049
+  context: 'T033 [US3] [FR-006] ... Output Schema: results/fdr_report.json with schema
+    {''adjusted_p_values'': [{''hypothesis_id'': str, ''p_value'': float}], ''estimated_fdr'':
+    float, ''alpha'': 0.05, ''significant'': bool}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default significance level alpha for multiple-comparison correction
+    is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:35:42Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Log rotation 10MB max 5 backups
+  claim_id: c_cb1c258e
+  context: 'T017 [US1] ... Log level: WARNING. Rotation: Use RotatingFileHandler with
+    maxBytes=10MB and backupCount=5 and path logs/generation.log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log rotation configuration uses a maximum file size of 10MB and 5
+    backup files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:36:08Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Verify RAM usage below 6.5GB
+  claim_id: c_b3c3d4ce
+  context: T027 [P] [US2] Create projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/profile_memory.py
+    that profiles src/generation/generation.py using cProfile, verifies RAM usage
+    stays < 6.5GB for sequences up to 512 tokens processed in batches of 50 tokens.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory verification profile checks that RAM usage stays below 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:36:29Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Compare 1.5B and 7B-quantized models
+  claim_id: c_a4c926ea
+  context: 'T002 [Plan] Select model for CPU feasibility. CRITICAL: Select a primary
+    candidate model, but MUST explicitly test and compare against a heavily quantized
+    variant and a smaller-scale variant. Deliverable: docs/model_selection.md justifying
+    the choice based on CPU memory footprint and inference speed benchmarks, explicitly
+    comparing 1.5B vs 7B-quantized options as per FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model selection task compares 1.5B vs 7B-quantized options.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:36:45Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Switch to pooling if 50% of layers have fewer than 5 samples
+  claim_id: c_9e157c0a
+  context: 'T030 [US3] [FR-004] ... Logic: The code MUST check for layer sparsity.
+    If >50% of layers have <5 samples, it MUST automatically switch to the pooling
+    strategy (average early/mid/late layers).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_pooling_if_50%25_of_layers_have_fewer_than_5_samples
+  kind: magnitude
+  raw_text: The logistic regression implementation switches to pooling strategy if
+    more than 50% of layers have fewer than 5 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:37:21Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Default correction method Benjamini-Hochberg
+  claim_id: c_b540f386
+  context: 'T033 [US3] [FR-006] ... Requirement: MUST accept a --correction-method
+    CLI argument (choices: bonferroni, benjamini-hochberg) to select the method, with
+    benjamini-hochberg as the default.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_correction_method_Benjamini-Hochberg
+  kind: entity_fact
+  raw_text: The default correction method for sensitivity analysis is Benjamini-Hochberg.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:37:52Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 0
+  canonical: sensitivity analysis default alpha is conventional significance level
+  claim_id: c_c9fd1f68
+  context: 'T033... Requirement: Default alpha value for correction is set to a conventional
+    significance level.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: entity_fact
+  raw_text: The default alpha value for correction is set to a conventional significance
+    level.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T08:38:47Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: logistic regression supports layer_index covariate and layer_pooling
+    strategies
+  claim_id: c_bb64e6d5
+  context: 'T030 [US3] [FR-004] Implement logistic_model.py using pymer4 for Mixed-Effects
+    Logistic Regression (GLMM)... CRITICAL: The implementation MUST support BOTH strategies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The implementation MUST support BOTH strategies: (1) layer_index as a
+    continuous covariate, and (2) layer_pooling (early/mid/late).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:03Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: pooling strategy auto-switch threshold is >50% of layers with <5 samples
+  claim_id: c_a705ca9d
+  context: 'T030... Logic: The code MUST check for layer sparsity. If >50% of layers
+    have <5 samples, it MUST automatically switch to the pooling strategy...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If >50% of layers have <5 samples, it MUST automatically switch to the
+    pooling strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:04Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis defaults to benjamini-hochberg correction method
+  claim_id: c_02f5fa30
+  context: 'T033... Requirement: MUST accept a --correction-method CLI argument (choices:
+    bonferroni, benjamini-hochberg) to select the method, with benjamini-hochberg
+    as the default.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_defaults_to_benjamini-hochberg_correcti
+  kind: entity_fact
+  raw_text: The task MUST accept a --correction-method CLI argument with benjamini-hochberg
+    as the default.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:33Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep range is optimal +/- 0.1 with step size 0.01
+  claim_id: c_436b6ef8
+  context: 'T033... Sweep range [optimal - 0.1, optimal + 0.1] with step size 0.01
+    (Citation: arxiv.org/abs/2309.06305)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sweep range is [optimal - 0.1, optimal + 0.1] with step size 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:34Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: decay analysis uses 10th vs 90th percentile decile split
+  claim_id: c_30e67030
+  context: 'T035... Requirement: The task MUST implement a decile-based split (10th
+    percentile vs 90th percentile) to ensure distinct regimes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Decay_analysis_uses_10th_vs_90th_percentile_decile_split
+  kind: entity_fact
+  raw_text: The task MUST implement a decile-based split (10th percentile vs 90th
+    percentile) to ensure distinct regimes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:37Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: decay analysis fallback split is <100 tokens vs >200 tokens if percentiles
+    differ by <20
+  claim_id: c_5fbfe98e
+  context: T035... If the 10th and 90th percentiles are too close (e.g., difference
+    < 20 tokens), the task MUST fall back to a fixed-threshold split (<100 tokens
+    vs >200 tokens).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 10th and 90th percentiles are too close (e.g., difference < 20
+    tokens), the task MUST fall back to a fixed-threshold split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:38Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: memory profile constraint is <6.5GB RAM for 512 token sequences in 50
+    token batches
+  claim_id: c_9e954d67
+  context: T027... profiles src/generation/generation.py using cProfile, verifies
+    RAM usage stays < 6.5GB for sequences up to 512 tokens processed in batches of
+    50 tokens...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST profile RAM usage staying < 6.5GB for sequences up to
+    512 tokens processed in batches of 50 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:39Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: batch size reduction triggers at 90% virtual memory usage
+  claim_id: c_7d0b6849
+  context: T009... If psutil.virtual_memory().percent > 90, the function MUST reduce
+    the batch size by half...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If psutil.virtual_memory().percent > 90, the function MUST reduce the
+    batch size by half.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:39:40Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: model feasibility test loads Qwen-1.5B on CPU to measure peak RAM
+  claim_id: c_061506e2
+  context: 'T012c... CRITICAL: This task MUST attempt to load the Qwen-1.5B model
+    on CPU and measure peak RAM usage...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST attempt to load the Qwen-1.5B model on CPU and measure peak
+    RAM usage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:40:00Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: model fallback to 7B-Int4 if peak RAM exceeds 7GB
+  claim_id: c_75d47467
+  context: 'T012c... Criteria: If peak RAM > 7GB, the task MUST automatically switch
+    to Qwen1.5-7B-Int4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak RAM > 7GB, the task MUST automatically switch to Qwen1.5-7B-Int4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:40:17Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: entropy extraction enforces 50 token batch size
+  claim_id: c_3a8eb721
+  context: T024... Implement incremental token processing... to process sequences
+    in chunks of 50 tokens...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST strictly enforce a fixed number of tokens per batch of 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:40:41Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: entropy extraction handles sequences up to 512 tokens
+  claim_id: c_dbca31f2
+  context: 'T024... CRITICAL: This task MUST handle full sequences up to 512 tokens
+    in length...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST handle full sequences up to 512 tokens in length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:41:04Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: entropy calculation clamps probabilities below 1e-9 to prevent log(0)
+  claim_id: c_bb3a07dd
+  context: T007a... clamp probability values < 1e-9 to 1e-9 before taking the logarithm
+    to prevent log(0) errors...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST clamp probability values < 1e-9 to 1e-9 before
+    taking the logarithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:41:27Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: log rotation configured for 10MB max size and 5 backups
+  claim_id: c_d89f26cf
+  context: T017... Use RotatingFileHandler with maxBytes=10MB and backupCount=5...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log rotation uses maxBytes=10MB and backupCount=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:41:46Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: layer sparsity check triggers if >50% of layers have <5 samples
+  claim_id: c_1401872d
+  context: 'T030... Logic: The code MUST check for layer sparsity. If >50% of layers
+    have <5 samples...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST check for layer sparsity where >50% of layers have <5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:41:47Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: MiniGrid BFS generation requires minigrid version >=2.3.0
+  claim_id: c_134d3f45
+  context: T012b... generate valid shortest paths for MiniGrid using Breadth-First
+    Search (BFS) on the environment grid (version minigrid>=2.3.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST use minigrid>=2.3.0 for BFS path generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:42:06Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: dataset fetch targets train split for GSM8K and MiniGrid
+  claim_id: c_6182e798
+  context: 'T010... Dataset Config: Must fetch ''train'' split for GSMK and ''train''
+    split for MiniGrid...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetch_targets_train_split_for_GSM8K_and_MiniGrid
+  kind: entity_fact
+  raw_text: The task MUST fetch 'train' split for GSM8K and 'train' split for MiniGrid.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:42:33Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: model selection requires testing primary, quantized, and smaller variants
+  claim_id: c_e2d4f223
+  context: T002... Select a primary candidate model, but MUST explicitly test and
+    compare against a heavily quantized variant and a smaller-scale variant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_selection_requires_testing_primary,_quantized,_and_sma
+  kind: entity_fact
+  raw_text: The task MUST select a primary candidate model and test against a heavily
+    quantized variant and a smaller-scale variant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:43:04Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: model selection compares 1.5B vs 7B-quantized options
+  claim_id: c_134fc332
+  context: T002... explicitly comparing 1.5B vs 7B-quantized options as per FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST compare 1.5B vs 7B-quantized options.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:43:23Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: verification requires RAM usage < 6.5GB for 512 token sequences
+  claim_id: c_d485e2db
+  context: T027... verifies RAM usage stays < 6.5GB for sequences up to 512 tokens...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST verify RAM usage stays < 6.5GB for sequences up to 512 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T08:43:24Z'

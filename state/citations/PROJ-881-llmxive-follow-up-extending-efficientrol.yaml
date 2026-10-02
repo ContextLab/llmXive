@@ -42,3 +42,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/jaekwon/pymer4
   verified_at: '2026-09-27T04:41:16.510261Z'
+- artifact_hash: 0c850304d6c216aa92dfb4088334e71f6073d9c4720476395d81162c248ddd01
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-10-02T09:05:50.136567Z'

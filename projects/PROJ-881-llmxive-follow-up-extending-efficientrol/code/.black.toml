@@ -1,29 +1,21 @@
-# Black configuration file for llmXive project
-# This file extends settings from pyproject.toml but can be used for
-# specific overrides if needed by the editor or CI.
-
-[tool.black]
+# Black configuration (extends pyproject.toml defaults)
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-  | results
-  | logs
-  | state
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
 )/
 '''
-# Force the use of stable formatting
-skip-string-normalization = false
-# Preview style for future-proofing (optional, currently stable is default)
-preview = false
+# Force line length for consistency
+force-exclude = true

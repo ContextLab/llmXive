@@ -1,27 +1,21 @@
 """
-Dataset download module for GSM8K and MiniGrid.
+Dataset download module for llmXive pipeline.
 
-This module provides functions to fetch datasets from HuggingFace Datasets
-with strict constraints on sample size and memory usage.
+Fetches GSM8K and MiniGrid datasets from HuggingFace Datasets with
+streaming support and strict example capping.
 
-CRITICAL: This module does NOT provide any synthetic fallbacks. If the
-real data source is unavailable, it raises an exception immediately.
+CRITICAL: No synthetic fallbacks. If data fetch fails, raises ConnectionError
+or FileNotFoundError immediately.
 """
-
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Iterator
-
-# Use the project root to determine paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-
-# Ensure directories exist
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+from itertools import islice
+from datasets import load_dataset
+import psutil
 
 # Configure logging
 logging.basicConfig(
@@ -31,227 +25,243 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-GSM8K_DATASET_ID = "gsm8k"
-GSM8K_CONFIG = "main"  # Default config for GSM8K
-MINIGRID_DATASET_ID = "Minigrid"  # Using the standard MiniGrid dataset from HuggingFace
-MINIGRID_CONFIG = "minigrid"  # Default config
+DEFAULT_MAX_EXAMPLES = 500
+GSM8K_DATASET_NAME = "gsm8k"
+GSM8K_CONFIG = "main"
+MINIGRID_DATASET_NAME = "MiniGrid"
+MINIGRID_CONFIG = "MiniGrid-BlockedEmpty-8x8-v0"  # Specific subset as per common usage
 
-# Sample size limit as per FR-001
-DEFAULT_SAMPLE_SIZE = 500
+# Output paths relative to project root
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "data" / "raw"
+GSM8K_OUTPUT = OUTPUT_DIR / "gsm8k_subset.jsonl"
+MINIGRID_OUTPUT = OUTPUT_DIR / "minigrid_subset.jsonl"
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    logger.error("The 'datasets' package is required. Install it with: pip install datasets")
-    raise
+def _ensure_output_dir():
+    """Ensure output directory exists."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+def _check_memory_usage():
+    """Check if memory usage is critically high (>90%)."""
+    memory_percent = psutil.virtual_memory().percent
+    if memory_percent > 90:
+        logger.warning(f"Memory usage critical: {memory_percent}%")
+    return memory_percent
 
 def download_gsm8k_subset(
-    output_path: Optional[Path] = None,
-    sample_size: int = DEFAULT_SAMPLE_SIZE,
-    streaming: bool = True
+    max_examples: int = DEFAULT_MAX_EXAMPLES,
+    output_path: Optional[Path] = None
 ) -> Path:
     """
-    Download a subset of the GSM8K dataset from HuggingFace.
+    Download GSM8K dataset with streaming and example capping.
     
     Args:
-        output_path: Path to save the dataset. Defaults to data/raw/gsm8k.jsonl
-        sample_size: Maximum number of examples to download. Defaults to 500.
-        streaming: If True, stream the dataset instead of loading all at once.
-    
+        max_examples: Maximum number of examples to fetch (default 500).
+        output_path: Optional custom output path.
+        
     Returns:
-        Path to the saved JSONL file.
-    
+        Path to the downloaded JSONL file.
+        
     Raises:
-        ConnectionError: If the dataset cannot be fetched from HuggingFace.
-        FileNotFoundError: If the dataset is not found.
+        ConnectionError: If dataset fetch fails.
+        FileNotFoundError: If dataset not found.
     """
     if output_path is None:
-        output_path = RAW_DATA_DIR / "gsm8k.jsonl"
+        output_path = GSM8K_OUTPUT
+        
+    _ensure_output_dir()
+    _check_memory_usage()
     
-    logger.info(f"Downloading GSM8K dataset (sample size: {sample_size})...")
+    logger.info(f"Downloading GSM8K subset (max {max_examples} examples)...")
     
     try:
-        # Load dataset in streaming mode to handle large datasets efficiently
+        # Load dataset in streaming mode to avoid loading entire dataset into memory
         dataset = load_dataset(
-            GSM8K_DATASET_ID,
+            GSM8K_DATASET_NAME,
             GSM8K_CONFIG,
             split="train",
-            streaming=streaming
+            streaming=True
         )
         
-        # Apply sample size limit using itertools.islice
-        # This ensures we only process the specified number of examples
-        from itertools import islice
-        sampled_data = list(islice(dataset, sample_size))
-        
-        logger.info(f"Successfully downloaded {len(sampled_data)} examples from GSM8K")
+        # Apply example cap using islice
+        limited_dataset = islice(dataset, max_examples)
         
         # Write to JSONL file
         with open(output_path, 'w', encoding='utf-8') as f:
-            for example in sampled_data:
-                f.write(json.dumps(example) + '\n')
-        
-        logger.info(f"GSM8K dataset saved to {output_path}")
+            count = 0
+            for example in limited_dataset:
+                # Convert to JSONL format
+                json_line = json.dumps(example, ensure_ascii=False)
+                f.write(json_line + '\n')
+                count += 1
+                
+                # Check memory periodically
+                if count % 50 == 0:
+                    _check_memory_usage()
+                    
+        logger.info(f"Successfully downloaded {count} GSM8K examples to {output_path}")
         return output_path
         
     except Exception as e:
-        # Re-raise with specific error types to fail loudly
-        error_msg = str(e)
-        if "404" in error_msg or "not found" in error_msg.lower():
-            raise FileNotFoundError(f"Dataset '{GSM8K_DATASET_ID}' not found on HuggingFace: {e}")
-        elif "connection" in error_msg.lower() or "timeout" in error_msg.lower():
-            raise ConnectionError(f"Failed to connect to HuggingFace: {e}")
-        else:
-            raise ConnectionError(f"Failed to download GSM8K dataset: {e}")
-
+        # Fail loudly - no synthetic fallback
+        error_msg = f"Failed to download GSM8K dataset: {str(e)}"
+        logger.error(error_msg)
+        if "404" in str(e) or "not found" in str(e).lower():
+            raise FileNotFoundError(error_msg) from e
+        raise ConnectionError(error_msg) from e
 
 def download_minigrid_subset(
-    output_path: Optional[Path] = None,
-    sample_size: int = DEFAULT_SAMPLE_SIZE,
-    streaming: bool = True
+    max_examples: int = DEFAULT_MAX_EXAMPLES,
+    output_path: Optional[Path] = None
 ) -> Path:
     """
-    Download a subset of the MiniGrid dataset from HuggingFace.
+    Download MiniGrid dataset with streaming and example capping.
     
     Args:
-        output_path: Path to save the dataset. Defaults to data/raw/minigrid.jsonl
-        sample_size: Maximum number of examples to download. Defaults to 500.
-        streaming: If True, stream the dataset instead of loading all at once.
-    
+        max_examples: Maximum number of examples to fetch (default 500).
+        output_path: Optional custom output path.
+        
     Returns:
-        Path to the saved JSONL file.
-    
+        Path to the downloaded JSONL file.
+        
     Raises:
-        ConnectionError: If the dataset cannot be fetched from HuggingFace.
-        FileNotFoundError: If the dataset is not found.
+        ConnectionError: If dataset fetch fails.
+        FileNotFoundError: If dataset not found.
     """
     if output_path is None:
-        output_path = RAW_DATA_DIR / "minigrid.jsonl"
+        output_path = MINIGRID_OUTPUT
+        
+    _ensure_output_dir()
+    _check_memory_usage()
     
-    logger.info(f"Downloading MiniGrid dataset (sample size: {sample_size})...")
+    logger.info(f"Downloading MiniGrid subset (max {max_examples} examples)...")
     
     try:
         # Load dataset in streaming mode
+        # Note: Using a specific MiniGrid environment config
         dataset = load_dataset(
-            MINIGRID_DATASET_ID,
+            MINIGRID_DATASET_NAME,
             MINIGRID_CONFIG,
             split="train",
-            streaming=streaming
+            streaming=True
         )
         
-        # Apply sample size limit using itertools.islice
-        from itertools import islice
-        sampled_data = list(islice(dataset, sample_size))
-        
-        logger.info(f"Successfully downloaded {len(sampled_data)} examples from MiniGrid")
+        # Apply example cap using islice
+        limited_dataset = islice(dataset, max_examples)
         
         # Write to JSONL file
         with open(output_path, 'w', encoding='utf-8') as f:
-            for example in sampled_data:
-                f.write(json.dumps(example) + '\n')
-        
-        logger.info(f"MiniGrid dataset saved to {output_path}")
+            count = 0
+            for example in limited_dataset:
+                # Convert to JSONL format
+                json_line = json.dumps(example, ensure_ascii=False)
+                f.write(json_line + '\n')
+                count += 1
+                
+                # Check memory periodically
+                if count % 50 == 0:
+                    _check_memory_usage()
+                    
+        logger.info(f"Successfully downloaded {count} MiniGrid examples to {output_path}")
         return output_path
         
     except Exception as e:
-        # Re-raise with specific error types to fail loudly
-        error_msg = str(e)
-        if "404" in error_msg or "not found" in error_msg.lower():
-            raise FileNotFoundError(f"Dataset '{MINIGRID_DATASET_ID}' not found on HuggingFace: {e}")
-        elif "connection" in error_msg.lower() or "timeout" in error_msg.lower():
-            raise ConnectionError(f"Failed to connect to HuggingFace: {e}")
-        else:
-            raise ConnectionError(f"Failed to download MiniGrid dataset: {e}")
-
+        # Fail loudly - no synthetic fallback
+        error_msg = f"Failed to download MiniGrid dataset: {str(e)}"
+        logger.error(error_msg)
+        if "404" in str(e) or "not found" in str(e).lower():
+            raise FileNotFoundError(error_msg) from e
+        raise ConnectionError(error_msg) from e
 
 def download_all_datasets(
-    gsm8k_output: Optional[Path] = None,
-    minigrid_output: Optional[Path] = None,
-    sample_size: int = DEFAULT_SAMPLE_SIZE,
-    streaming: bool = True
+    max_examples_gsm8k: int = DEFAULT_MAX_EXAMPLES,
+    max_examples_minigrid: int = DEFAULT_MAX_EXAMPLES,
+    output_dir: Optional[Path] = None
 ) -> Dict[str, Path]:
     """
     Download both GSM8K and MiniGrid datasets.
     
     Args:
-        gsm8k_output: Path to save GSM8K dataset.
-        minigrid_output: Path to save MiniGrid dataset.
-        sample_size: Maximum number of examples for each dataset.
-        streaming: If True, stream datasets instead of loading all at once.
-    
+        max_examples_gsm8k: Max examples for GSM8K.
+        max_examples_minigrid: Max examples for MiniGrid.
+        output_dir: Optional custom output directory.
+        
     Returns:
-        Dictionary mapping dataset name to output path.
+        Dictionary mapping dataset names to their output paths.
     """
     results = {}
     
+    if output_dir:
+        global GSM8K_OUTPUT, MINIGRID_OUTPUT
+        GSM8K_OUTPUT = output_dir / "gsm8k_subset.jsonl"
+        MINIGRID_OUTPUT = output_dir / "minigrid_subset.jsonl"
+        
     try:
-        gsm8k_path = download_gsm8k_subset(gsm8k_output, sample_size, streaming)
-        results["gsm8k"] = gsm8k_path
+        results['gsm8k'] = download_gsm8k_subset(max_examples_gsm8k)
     except Exception as e:
-        logger.error(f"Failed to download GSM8K: {e}")
+        logger.error(f"GSM8K download failed: {e}")
         raise
-    
+        
     try:
-        minigrid_path = download_minigrid_subset(minigrid_output, sample_size, streaming)
-        results["minigrid"] = minigrid_path
+        results['minigrid'] = download_minigrid_subset(max_examples_minigrid)
     except Exception as e:
-        logger.error(f"Failed to download MiniGrid: {e}")
+        logger.error(f"MiniGrid download failed: {e}")
         raise
-    
+        
     return results
 
-
 def main():
-    """
-    Main entry point for downloading datasets.
-    
-    Downloads both GSM8K and MiniGrid datasets with default parameters
-    and prints the output paths.
-    """
+    """Main entry point for dataset download."""
     import argparse
     
     parser = argparse.ArgumentParser(description="Download GSM8K and MiniGrid datasets")
     parser.add_argument(
-        "--sample-size",
+        "--max-examples",
         type=int,
-        default=DEFAULT_SAMPLE_SIZE,
-        help=f"Number of examples to download per dataset (default: {DEFAULT_SAMPLE_SIZE})"
+        default=DEFAULT_MAX_EXAMPLES,
+        help=f"Maximum examples per dataset (default: {DEFAULT_MAX_EXAMPLES})"
     )
     parser.add_argument(
-        "--no-stream",
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Custom output directory"
+    )
+    parser.add_argument(
+        "--only-gsm8k",
         action="store_true",
-        help="Disable streaming mode (load entire dataset into memory)"
+        help="Download only GSM8K"
     )
     parser.add_argument(
-        "--gsm8k-output",
-        type=str,
-        default=None,
-        help="Path to save GSM8K dataset"
-    )
-    parser.add_argument(
-        "--minigrid-output",
-        type=str,
-        default=None,
-        help="Path to save MiniGrid dataset"
+        "--only-minigrid",
+        action="store_true",
+        help="Download only MiniGrid"
     )
     
     args = parser.parse_args()
     
-    gsm8k_path = Path(args.gsm8k_output) if args.gsm8k_output else None
-    minigrid_path = Path(args.minigrid_output) if args.minigrid_output else None
-    
-    results = download_all_datasets(
-        gsm8k_output=gsm8k_path,
-        minigrid_output=minigrid_path,
-        sample_size=args.sample_size,
-        streaming=not args.no_stream
-    )
-    
-    print("\nDownload Summary:")
-    for dataset_name, path in results.items():
-        print(f"  {dataset_name}: {path}")
-
+    try:
+        if args.only_gsm8k:
+            path = download_gsm8k_subset(args.max_examples, args.output_dir)
+            print(f"Downloaded GSM8K to: {path}")
+        elif args.only_minigrid:
+            path = download_minigrid_subset(args.max_examples, args.output_dir)
+            print(f"Downloaded MiniGrid to: {path}")
+        else:
+            results = download_all_datasets(
+                args.max_examples,
+                args.max_examples,
+                args.output_dir
+            )
+            print("Downloaded datasets:")
+            for name, path in results.items():
+                print(f"  {name}: {path}")
+                
+    except (ConnectionError, FileNotFoundError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
