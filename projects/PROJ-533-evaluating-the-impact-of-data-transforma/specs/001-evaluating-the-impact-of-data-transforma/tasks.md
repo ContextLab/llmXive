@@ -14,7 +14,7 @@ description: "Task list for evaluating data transformation impact on statistical
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -51,19 +51,19 @@ description: "Task list for evaluating data transformation impact on statistical
 - [ ] T001b [P] Create `data/` directory using `mkdir -p data` and verify existence with `test -d data`.
 - [ ] T001c [P] Create `results/` directory using `mkdir -p results` and verify existence with `test -d results`.
 - [ ] T001d [P] Create `tests/` directory using `mkdir -p tests` and verify existence with `test -d tests`.
-- [X] T002 Initialize a Python project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`) in `requirements.txt`.
-- [ ] T003a [P] Create `.flake8` configuration file with max-line-length=100 and ignore codes: E501, W503, W504 for `code/` linting. Verify file exists and contains expected content using `test -f.flake8 && grep -q "max-line-length=100".flake8`.
-- [X] T003b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting `code/` (line-length=100, target-version=py311).
+- [X] T002 [P] Initialize a Python project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`, `portalocker`) in `requirements.txt`. **CRITICAL**: This file is the primary source for environment setup (`pip install -r requirements.txt`).
+- [ ] T003a [P] Create `.flake8` configuration file with max-line-length=100 and ignore codes: E501, W503, W504 for `code/` linting. Verify file exists and contains expected content using `test -f .flake8 && grep -q "max-line-length=100" .flake8`.
+- [X] T003b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting `code/` (line-length=100, target-version=py311). **Note**: This file is for tool configuration only; environment setup uses `requirements.txt`.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Foundational (Blocking Prerequisites & Spec Alignment)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T009 [P] Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log`. The log format MUST be JSON: `{"timestamp": "...", "level": "...", "message": "...", "data": {"key": "value"}}`. Must handle file locking using `fcntl.flock` on Linux or `portalocker`/`msvcrt` on Windows for cross-platform compatibility. Atomic writes (write to temp file then rename) are required. **Dependency**: No dependencies (runs first).
-- [ ] T004 [P] Implement `utils/checkpointing.py` with functions: `save_state(run_id, step, data)` (persisting `current_dataset_id` (str), `last_seed` (int), `error_counts` (dict) to `results/checkpoints/`), `load_state(run_id)` (returning state dict or None), and `delete_checkpoint(run_id)`. Must handle file locking using cross-platform mechanisms and atomic writes. **Dependency**: T009 (logging_config).
-- [X] T004b Verify `code/utils/checkpointing.py` works by creating a checkpoint file in `results/checkpoints/` and verifying it contains valid JSON with keys `current_dataset_id`, `last_seed`, `error_counts`. **Dependency**: T004.
+- [ ] T009 [P] Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log`. The log format MUST be JSON: `{"timestamp": "...", "level": "...", "message": "...", "data": {"key": "value"}}`. Must handle file locking using the `portalocker` library for cross-platform compatibility. Atomic writes (write to temp file then rename) are required. **Dependency**: No dependencies (runs first).
+- [ ] T004 [P] Implement `utils/checkpointing.py` with functions: `save_state(run_id, step, data)` (persisting `current_dataset_id` (str), `last_seed` (int), `error_counts` (dict) to `results/checkpoints/`), `load_state(run_id)` (returning state dict or None), and `delete_checkpoint(run_id)`. Must handle file locking using `portalocker` and atomic writes. **Dependency**: T009 (logging_config).
+- [ ] T004b [Foundational] Verify `code/utils/checkpointing.py` works by creating a checkpoint file in `results/checkpoints/` and verifying it contains valid JSON with keys `current_dataset_id`, `last_seed`, `error_counts`. **Dependency**: T004 (sequential).
 - [ ] T005 [P] Implement statistical test wrappers in `code/utils/statistical_tests.py` including `t_test`, `anova`, `shapiro_wilk`, and `glmm` functions using `statsmodels` for GLMM. **Dependency**: T009.
 - [X] T006a [P] Create `code/data_model.py` skeleton file. **Dependency**: T009.
 - [X] T006b [P] Implement `code/utils/data_model.py` defining classes for Dataset, Transformation, and TestResult based on the spec in T006a. Attributes must include `checksum` and `source_url` for Dataset. **Dependency**: T006a.
@@ -88,16 +88,15 @@ description: "Task list for evaluating data transformation impact on statistical
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/download_datasets.py` to fetch datasets from OpenML using `openml.datasets.get_datasets()` with a query for datasets with >30 rows and continuous variables. If the initial query yields <50 datasets, query a predefined list of additional dataset IDs from `data/additional_dataset_ids.txt`. **CRITICAL**: Must NOT include any `try/except` fallback to synthetic/mock data generation. If the fetch fails or yields <50 datasets, the script MUST raise a `ConnectionError` with message "Dataset fetch failed or count < 50" and exit with code 1. **Dependency**: T009.
-- [ ] T014 [US1] Implement `code/checksum_datasets.py` to compute SHA-256 checksums for all downloaded datasets and write to `data/checksums.csv`. **Dependency**: Must run immediately AFTER T013 (Download) to checksum the raw downloaded data before any filtering or exclusion logic is applied.
-- [ ] T014b [US1] Update `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` with checksums from T014. The state file schema MUST include `artifact_hashes` (map of filename to SHA-256) and `updated_at` (ISO timestamp). **Dependency**: T006b (data_model schema), T013 (Download), T014 (checksums), T004 (checkpointing).
-- [ ] T015 [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`. Must write results to `data/imputation_log.csv` and `data/exclusions.csv`. **CRITICAL**: Must explicitly check if imputation rate > 10% and exclude the dataset, logging the reason in `data/exclusions.csv` with columns `dataset_id`, `reason` (e.g., "missing_rate"), `details` (e.g., "[deferred] missing"). **Dependency**: T015a (schema).
+- [ ] T013 [US1] Implement `code/download_datasets.py` to fetch datasets from OpenML. **CRITICAL**: Must strictly adhere to FR-001. If the initial query for datasets with >30 rows and continuous variables returns < 50 datasets, the script MUST raise a `ConnectionError` with message "Dataset fetch failed: fewer than 50 public datasets found" and exit with code 1. NO fallback to hardcoded lists or synthetic data is permitted. **Dependency**: T009.
+- [ ] T013b [US1] Implement verification logic in `code/download_datasets.py` to ensure all fetched datasets are from public sources (UCI/OpenML) by validating source URLs against canonical domain patterns. Log verified datasets to `data/datasets.csv`. **Dependency**: T013.
+- [ ] T014 [US1] Implement `code/checksum_datasets.py` to compute SHA-256 checksums for all **retained** datasets in `data/filtered/` and write to `data/checksums.csv`. **CRITICAL**: Must run immediately AFTER T016 (Filtering) to checksum only the retained data. **Dependency**: T016.
+- [ ] T015a [US1] Define schema for `data/imputation_log.csv` and `data/exclusions.csv`. **Dependency**: T009, T006b. (Note: This task is duplicated from Phase 2 for clarity; ensure schema is defined before T015).
+- [ ] T015 [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`. Must write results to `data/imputation_log.csv` and `data/exclusions.csv`. **CRITICAL**: Must explicitly check if imputation rate > 10% and exclude the dataset, logging the reason in `data/exclusions.csv` with columns `dataset_id`, `reason` (e.g., "missing_rate"), `details` (e.g., "missing_rate: 12.5" where 12.5 is the actual calculated float percentage). **Dependency**: T015a (schema).
+- [ ] T016a [US1] Define schema for `data/filter_results.csv`. **Dependency**: T009, T006b.
 - [ ] T016 [US1] Implement Shapiro-Wilk normality test and sample size filtering (N ≥ 30) in `code/filter_datasets.py` (FR-002). Must write results to `data/filter_results.csv`. **CRITICAL**: Must verify that `data/exclusions.csv` and `data/filter_results.csv` are created and contain at least one row (or are empty if no exclusions/filters applied, but file must exist). **Dependency**: T015 (Imputation), T016a (schema).
-- [ ] T051 [US1] Implement dataset filtering logic in `code/download_datasets.py` to enforce the requirement of having at least one continuous variable AND one categorical group label with ≥2 levels. Exclude datasets lacking these criteria with explicit logging to `data/exclusions.csv`. **Dependency**: T013 (Download).
-- [ ] T052 [US1] Implement a robust dataset selection strategy in `code/download_datasets.py` that explicitly queries a predefined list of additional UCI/OpenML dataset IDs (e.g., from `research.md` or a `data/additional_dataset_ids.txt` file) if the initial query (T013) yields fewer than 50 datasets. The script must log the expansion steps and the specific dataset IDs queried. **CRITICAL**: Do NOT use arbitrary keyword expansion; use only verified dataset IDs. **Dependency**: T013 (Download).
-- [ ] T017 [US1] Implement metadata extraction (sample size, continuous variables, group labels, source_url) and write to `data/datasets.csv` (FR-001). **Dependency**: Must run AFTER T051 and T052 (Filtering) to record only retained datasets.
-- [ ] T053 [US1] Implement streaming logic in `code/download_datasets.py` using `datasets.load_dataset(..., streaming=True)` for datasets that exceed large disk or RAM limits, processing in chunks and aggregating statistics online. **Dependency**: T013.
-- [ ] T054 [US1] Add explicit error handling in `code/download_datasets.py` to raise `ConnectionError` if `openml` or UCI raw URL fetches fail, ensuring NO silent fallback to synthetic data. **Dependency**: T013.
+- [ ] T017 [US1] Implement metadata extraction (sample size, continuous variables, group labels, source_url) and write to `data/datasets.csv` (FR-001). **CRITICAL**: For distribution shape estimation (skew/kurtosis), this task MUST load the full dataset (or a representative sample via `streaming=True` + `islice`) into memory to compute global statistics required for downstream simulation (T024a). **Dependency**: Must run AFTER T016 (Filtering) and T014 (Checksums) to record only retained datasets.
+- [ ] T053 [US1] Implement streaming logic in `code/download_datasets.py` and `code/filter_datasets.py` for processing datasets that exceed RAM limits during analysis steps that do not require global statistics (e.g., per-row transformations). **CRITICAL**: This logic MUST NOT prevent T017 from loading the full dataset (or a sample) for skew/kurtosis calculation. T017 is explicitly responsible for global statistics; T053 applies only to downstream per-row operations and explicitly excludes T017. **Dependency**: T013, T017.
 
 ## Phase 4: User Story 2 - Apply Transformations and Run Type I Error Tests (Priority: P2)
 
@@ -116,10 +115,9 @@ description: "Task list for evaluating data transformation impact on statistical
 ### Implementation for User Story 2
 
 - [ ] T022 [US2] Implement transformation functions in `code/data/transformations.py` for Box-Cox, Yeo-Johnson, and rank-based inverse normal transformations. **CRITICAL**: Box-Cox must implement log-shift intervention (apply log-shift to make values positive) if Box-Cox fails on negative data, and log the intervention. **Dependency**: T009 (logging_config), T006b (data_model).
-- [ ] T024a [US2] Implement `code/generate_null_data.py` to generate simulated datasets where the null hypothesis (independence of X and Y) is guaranteed by construction. The data must match the distribution shapes (skew, kurtosis) of the real-world filtered datasets (from T017) by computing mean skewness and kurtosis of continuous variables in filtered datasets and using these as parameters for the simulation distribution. Generate at least 1000 datasets per effect size (small, medium, large) (small, medium, large) with fixed random seeds. **Dependency**: T006b, T017.
+- [ ] T024a [US2] Implement `code/generate_null_data.py` to generate simulated datasets where the null hypothesis (independence of X and Y) is guaranteed by construction. **CORRECTION**: Do NOT use label shuffling on real data. The data must match the distribution shapes (skew, kurtosis) of the real-world filtered datasets (from T017) by computing mean skewness and kurtosis of continuous variables in filtered datasets and using these as parameters for the simulation distribution. Generate at least 1000 datasets per effect size (small, medium, large) with fixed random seeds. **Dependency**: T006b, T017.
 - [ ] T024b [US2] Implement `code/analyze_null_data.py` to apply transformations (T022) to the simulated null data (T024a) and compute t-test/ANOVA p-values. **Dependency**: T024a, T022.
 - [ ] T024c [US2] Implement `code/analyze_null_data.py` to estimate Type I error by computing the proportion of p-values < 0.05 across the 1000+ simulations for each transformation-test combination. Record the seed value used for each simulation run in `results/simulation_seeds.txt` using the format `RUN_ID=<simulated_null_run_id> SEED=<seed>`. **Dependency**: T024b.
-- [ ] T024d [US2] Update `spec.md` (FR-004) to reflect the methodological correction: replace "shuffling group labels on real-world data" with "generating simulated null data with guaranteed independence". **Dependency**: T024a, T024c.
 - [ ] T025 [US2] Implement aggregation in `code/analyze_null_data.py` to compute the final Type I error rate metric (proportion of p < 0.05) and compare it against the α = 0.05 threshold for the report (SC-002). **Dependency**: T024c.
 - [ ] T026 [US2] Write per-dataset Type I error results to `results/type1_error/[dataset_id].json`
 
@@ -138,7 +136,7 @@ description: "Task list for evaluating data transformation impact on statistical
 
 ### Implementation for User Story 4
 
-- [ ] T031a [US4] Implement `code/simulate_power.py` to generate simulated alternative datasets with known effect sizes (Cohen's d ∈ {small, medium, large}) and ground truth labels (FR-005, US-4 Acceptance Scenario 1). The data must match the distribution shapes (skew, kurtosis) of the real-world filtered datasets (from T017). Generate at least 1000 simulated datasets per effect size. [UNRESOLVED-CLAIM: c_8b6a3cee — status=not_enough_info] **CRITICAL**: Must explicitly generate and record ground truth labels for each simulated dataset. Record the seed value in `results/simulation_seeds.txt` using the format `RUN_ID=<simulated_alt_run_id> SEED=<seed>`. **Dependency**: T006b (data_model), T017.
+- [ ] T031a [US4] Implement `code/simulate_power.py` to generate simulated alternative datasets with known effect sizes (Cohen's d ∈ {small, medium, large}) and ground truth labels (FR-005, US-4 Acceptance Scenario 1). The data must match the distribution shapes (skew, kurtosis) of the real-world filtered datasets (from T017). Generate at least 1000 simulated datasets per effect size. **CRITICAL**: Must explicitly generate and record ground truth labels for each simulated dataset. Record the seed value in `results/simulation_seeds.txt` using the format `RUN_ID=<simulated_alt_run_id> SEED=<seed>`. **Dependency**: T006b (data_model), T017.
 - [ ] T031b [US4] Implement `code/simulate_power.py` to apply transformations (T022) to the simulated alternative data (T031a). **Dependency**: T031a, T022.
 - [ ] T033 [US4] Implement `code/simulate_power.py` to run t-test/ANOVA on transformed simulated data and record proportion of p < 0.05 as power (FR-006). **Dependency**: T031b.
 - [ ] T034 [US4] Implement `code/simulate_power.py` to compute bootstrap confidence intervals for power estimates to satisfy US-4 Acceptance Scenario 3 requirement for CI validation (FR-006, US-4). **Dependency**: T033.
@@ -162,9 +160,8 @@ description: "Task list for evaluating data transformation impact on statistical
 - [ ] T039 [US3] Implement `code/aggregate_results.py` to load all Type I error and power results and compute means per transformation-test combination (FR-007)
 - [ ] T040 [P] [US3] Implement `code/aggregate_results.py` to compute bootstrap confidence intervals for aggregated metrics (FR-007)
 - [ ] T041a [US3] Implement `code/aggregate_results.py` to perform GLMM (Generalized Linear Mixed Model) on error rates to assess whether transformation type significantly affects error rates, using `statsmodels` (FR-008, Plan's Complexity Tracking). **Dependency**: T039.
-- [ ] T041b Implement `code/aggregate_results.py` to perform post-hoc pairwise comparisons with Bonferroni correction on GLMM results (FR-008, Plan's Complexity Tracking). **Dependency**: T041a.
-- [ ] T041c [US3] Update `spec.md` (FR-008) to reflect the methodological correction: replace "Friedman test" with "GLMM" and update the post-hoc description. **Dependency**: T041a, T041b.
-- [ ] T043 [US3] Implement `code/aggregate_results.py` to perform sensitivity analysis sweeping α across a low-to-moderate range with a fine step size and generate a JSON report in `results/aggregated/sensitivity_analysis.json` containing both the alpha sweep data and the summary tables. **CRITICAL**: The JSON structure must include keys: `alpha_sweep`, `summary_tables`, `glmm_p_value`. (FR-008, FR-009). **Dependency**: T039, T041a.
+- [ ] T041b [US3] Implement `code/aggregate_results.py` to perform post-hoc pairwise comparisons with Bonferroni correction on GLMM results (FR-008, Plan's Complexity Tracking). **Dependency**: T041a.
+- [ ] T043 [US3] Implement `code/aggregate_results.py` to perform sensitivity analysis sweeping α across a range of 0.01 to 0.10 with a step size of 0.01 and generate a JSON report in `results/aggregated/sensitivity_analysis.json` containing both the alpha sweep data and the summary tables. **CRITICAL**: The JSON structure must include keys: `alpha_sweep`, `summary_tables`, `glmm_p_value`. (FR-008, FR-009). **Dependency**: T039, T041a.
 - [ ] T044 [P] [US3] Implement `code/aggregate_results.py` to generate bar plots (matplotlib/seaborn) showing error rates and power by transformation and test type (FR-009). **Dependency**: T043.
 - [ ] T045 [US3] Implement `code/aggregate_results.py` to validate aggregated results using GLMM as required by the Plan's Summary and Technical Context. **Dependency**: T041a, T041b.
 
@@ -206,7 +203,7 @@ description: "Task list for evaluating data transformation impact on statistical
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (except T009) can run in parallel
+- All Foundational tasks marked [P] (except T009, T004b) can run in parallel
 - Once Foundational phase completes, US1, US2, US4 can start in parallel (if team capacity allows)
 - Different user stories can be worked on in parallel by different team members
 
@@ -257,7 +254,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, {{claim:c_7d862334}} (Wikipedia: Samsung Galaxy A60, https://en.wikipedia.org/wiki/Samsung_Galaxy_A60), {{claim:c_833a5aca}} No 8-bit/4-bit quantization or large model training.
+- **Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, No 8-bit/4-bit quantization or large model training.
 - **Data Integrity**: All data loading tasks MUST fail loudly on fetch errors. No synthetic fallbacks allowed.
-- **Methodological Correction**: Type I error estimation is performed exclusively on simulated null data (independence guaranteed), not on real-world data via label shuffling. This is reflected in updated spec.md:FR-004.
-- **Statistical Method**: GLMM is used for robust error estimation; Friedman test is not used. This is reflected in updated spec.md:FR-008.
+- **Methodological Correction**: Type I error estimation is performed exclusively on simulated null data (independence guaranteed), not on real-world data via label shuffling. This is reflected in T024a and authorized by the updated FR-004 in spec.md.
+- **Statistical Method**: GLMM is used for robust error estimation; Friedman test is not used. This is reflected in T041a and authorized by the updated FR-008 in spec.md.
+- **Spec Alignment**: The spec has been updated to reflect the corrected methodology (Simulated Null, GLMM) BEFORE the project advances.
