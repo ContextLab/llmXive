@@ -1,3 +1,3 @@
 """
-Utility functions (logging, motion correction, etc.).
+Utility functions (motion, logging, validation, etc.).
 """

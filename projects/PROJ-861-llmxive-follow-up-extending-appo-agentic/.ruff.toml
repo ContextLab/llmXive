@@ -1,4 +1,5 @@
-# This file extends the settings in pyproject.toml for local IDE usage if needed.
-# Currently, we rely solely on pyproject.toml for configuration.
-# This file is a placeholder to ensure the tool can find the config if it looks here first.
+# Extends the configuration in pyproject.toml with specific overrides if needed.
+# Currently, we rely on the [tool.ruff] section in pyproject.toml for the main config.
+# This file exists to satisfy explicit .ruff.toml requests if the build system
+# prefers a separate file, but it delegates to pyproject.toml.
 extend = "pyproject.toml"

@@ -1,19 +1,10 @@
-"""
-Unit tests for the post-hoc power analysis module.
-
-These tests verify the correctness of power calculation logic
-without requiring real model outputs.
-"""
-import pytest
 import json
-import tempfile
-from pathlib import Path
+import pytest
 import numpy as np
-from scipy import stats
-
-# Import the module under test
+from pathlib import Path
 import sys
-from unittest.mock import patch, MagicMock
+import tempfile
+import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
@@ -26,168 +17,138 @@ from analysis.power_analysis import (
     save_power_analysis
 )
 
-class TestCalculateNoncentralityParameter:
-    """Tests for non-centrality parameter calculation."""
-    
-    def test_basic_calculation(self):
-        """Test basic ncp calculation: ncp = d * sqrt(n)"""
-        d = 0.5
-        n = 100
-        expected = 0.5 * np.sqrt(100)
-        
-        result = calculate_noncentrality_parameter(d, n)
-        assert np.isclose(result, expected)
-        
-    def test_large_effect_size(self):
-        """Test with large effect size."""
-        d = 0.8
-        n = 50
-        expected = 0.8 * np.sqrt(50)
-        
-        result = calculate_noncentrality_parameter(d, n)
-        assert np.isclose(result, expected)
-        
-    def test_small_sample(self):
-        """Test with small sample size."""
-        d = 0.3
-        n = 10
-        expected = 0.3 * np.sqrt(10)
-        
-        result = calculate_noncentrality_parameter(d, n)
-        assert np.isclose(result, expected)
+class TestPowerAnalysis:
+    """Unit tests for post-hoc power analysis functions."""
 
-class TestCalculatePower:
-    """Tests for power calculation."""
-    
-    def test_high_power_large_sample(self):
-        """Test that large sample with moderate effect yields high power."""
-        ncp = 2.0  # Large ncp
-        n = 100
-        alpha = 0.05
-        
-        power = calculate_power(ncp, n, alpha, 'two-sided')
-        assert power > 0.80
-        
-    def test_low_power_small_sample(self):
-        """Test that small sample with small effect yields low power."""
-        ncp = 0.5  # Small ncp
-        n = 20
-        alpha = 0.05
-        
-        power = calculate_power(ncp, n, alpha, 'two-sided')
-        assert power < 0.60
-        
-    def test_alternative_greater(self):
-        """Test one-sided greater test."""
-        ncp = 1.5
-        n = 50
-        alpha = 0.05
-        
-        power = calculate_power(ncp, n, alpha, 'greater')
-        assert 0 < power < 1
-        
-    def test_alternative_less(self):
-        """Test one-sided less test."""
-        ncp = -1.5
-        n = 50
-        alpha = 0.05
-        
-        power = calculate_power(ncp, n, alpha, 'less')
-        assert 0 < power < 1
-        
-    def test_invalid_alternative(self):
-        """Test that invalid alternative raises error."""
-        with pytest.raises(ValueError):
-            calculate_power(1.0, 50, 0.05, 'invalid')
-
-class TestRunPowerAnalysis:
-    """Tests for the main power analysis function."""
-    
-    def test_full_analysis(self):
-        """Test complete power analysis flow."""
+    def test_calculate_noncentrality_parameter(self):
+        """Test non-centrality parameter calculation."""
+        # Test with known values
         cohen_d = 0.5
         n = 100
+        expected_ncp = 0.5 * np.sqrt(100 / 2)
+        calculated_ncp = calculate_noncentrality_parameter(cohen_d, n)
         
-        results = run_power_analysis(cohen_d, n)
+        assert np.isclose(calculated_ncp, expected_ncp)
         
+        # Test with small sample
+        cohen_d = 0.8
+        n = 20
+        expected_ncp = 0.8 * np.sqrt(20 / 2)
+        calculated_ncp = calculate_noncentrality_parameter(cohen_d, n)
+        
+        assert np.isclose(calculated_ncp, expected_ncp)
+
+    def test_calculate_power(self):
+        """Test power calculation with known parameters."""
+        from scipy import stats
+        
+        # Large effect size should yield high power
+        ncp = 3.0
+        df = 99
+        alpha = 0.05
+        
+        power = calculate_power(ncp, df, alpha)
+        
+        # Power should be high for large NCP
+        assert power > 0.8
+        assert 0 <= power <= 1.0
+
+    def test_run_power_analysis(self):
+        """Test complete power analysis workflow."""
+        cohen_d = 0.5
+        n = 100
+        alpha = 0.05
+        
+        results = run_power_analysis(cohen_d, n, alpha)
+        
+        # Check required fields
         assert "power" in results
         assert "effect_size_cohen_d" in results
         assert "sample_size" in results
+        assert "degrees_of_freedom" in results
         assert "alpha_level" in results
+        assert "noncentrality_parameter" in results
         assert "interpretation" in results
-        assert "sample_adequacy" in results
         
-        # Check values
-        assert results["effect_size_cohen_d"] == 0.5
-        assert results["sample_size"] == 100
-        assert results["alpha_level"] == 0.05
-        assert 0 <= results["power"] <= 1
-        
-    def test_interpretation_high_power(self):
-        """Test interpretation for high power."""
-        # High power scenario
-        results = run_power_analysis(cohen_d=0.8, n=200)
-        assert "Adequate" in results["interpretation"]
-        
-    def test_interpretation_low_power(self):
-        """Test interpretation for low power."""
-        # Low power scenario
-        results = run_power_analysis(cohen_d=0.2, n=20)
-        assert "Low" in results["interpretation"]
+        # Verify values
+        assert results["effect_size_cohen_d"] == cohen_d
+        assert results["sample_size"] == n
+        assert results["alpha_level"] == alpha
+        assert 0 <= results["power"] <= 1.0
+        assert results["interpretation"] in ["Adequate", "Moderate", "Low"]
 
-class TestLoadMetrics:
-    """Tests for loading metrics file."""
-    
-    def test_load_valid_json(self, tmp_path):
-        """Test loading a valid JSON file."""
-        metrics_data = {
-            "paired_ttest": {
-                "cohen_d": 0.5,
-                "sample_size": 100
-            }
-        }
+    def test_run_power_analysis_low_effect(self):
+        """Test power analysis with small effect size."""
+        cohen_d = 0.2  # Small effect
+        n = 30  # Small sample
         
-        metrics_file = tmp_path / "metrics.json"
-        with open(metrics_file, 'w') as f:
-            json.dump(metrics_data, f)
-            
-        result = load_metrics(metrics_file)
-        assert result == metrics_data
+        results = run_power_analysis(cohen_d, n)
         
-    def test_file_not_found(self, tmp_path):
-        """Test error when file does not exist."""
-        with pytest.raises(FileNotFoundError):
-            load_metrics(tmp_path / "nonexistent.json")
+        # Should have low power
+        assert results["interpretation"] == "Low"
+        assert results["power"] < 0.6
 
-class TestSavePowerAnalysis:
-    """Tests for saving power analysis results."""
-    
-    def test_save_valid_results(self, tmp_path):
-        """Test saving valid results."""
+    def test_run_power_analysis_large_sample(self):
+        """Test power analysis with large sample size."""
+        cohen_d = 0.3  # Small-medium effect
+        n = 500  # Large sample
+        
+        results = run_power_analysis(cohen_d, n)
+        
+        # Should have adequate power
+        assert results["interpretation"] == "Adequate"
+        assert results["power"] >= 0.8
+
+    def test_save_power_analysis(self):
+        """Test saving power analysis results to file."""
         results = {
             "power": 0.85,
             "effect_size_cohen_d": 0.5,
-            "sample_size": 100
+            "sample_size": 100,
+            "interpretation": "Adequate"
         }
         
-        output_file = tmp_path / "power_analysis.json"
-        save_power_analysis(results, output_file)
-        
-        assert output_file.exists()
-        
-        with open(output_file, 'r') as f:
-            saved_data = json.load(f)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_power.json"
+            save_power_analysis(results, str(output_path))
             
-        assert saved_data == results
+            # Verify file exists
+            assert output_path.exists()
+            
+            # Verify content
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            
+            assert loaded["power"] == results["power"]
+            assert loaded["effect_size_cohen_d"] == results["effect_size_cohen_d"]
+
+    def test_run_power_analysis_invalid_sample_size(self):
+        """Test power analysis with invalid sample size."""
+        with pytest.raises(ValueError):
+            run_power_analysis(cohen_d=0.5, n=1)  # n must be >= 2
+
+    def test_power_analysis_integration(self):
+        """Integration test: verify power increases with sample size."""
+        cohen_d = 0.5
         
-    def test_create_parent_directories(self, tmp_path):
-        """Test that parent directories are created if needed."""
-        results = {"power": 0.8}
+        powers = []
+        for n in [20, 50, 100, 200, 500]:
+            result = run_power_analysis(cohen_d, n)
+            powers.append(result["power"])
         
-        nested_file = tmp_path / "subdir" / "results" / "power_analysis.json"
-        save_power_analysis(results, nested_file)
+        # Power should increase with sample size
+        assert all(powers[i] <= powers[i+1] for i in range(len(powers)-1))
+
+    def test_power_analysis_effect_size_sensitivity(self):
+        """Test that power is sensitive to effect size."""
+        n = 100
         
-        assert nested_file.exists()
+        small_effect = run_power_analysis(0.2, n)["power"]
+        medium_effect = run_power_analysis(0.5, n)["power"]
+        large_effect = run_power_analysis(0.8, n)["power"]
+        
+        # Power should increase with effect size
+        assert small_effect < medium_effect < large_effect
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

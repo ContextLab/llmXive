@@ -5,103 +5,127 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 import numpy as np
 
+# Default configuration values
+DEFAULT_TIMEOUT_SECONDS = 300  # 5 minutes per task
+DEFAULT_MAX_EXCLUSION_RATE = 0.10  # 10% exclusion threshold
+
 class Config:
-    """Configuration manager for the project."""
+    """Configuration manager for the llmXive project."""
     
     def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
-        """Initialize configuration with optional dictionary."""
-        self.config = config_dict or {}
-        self._set_defaults()
-    
-    def _set_defaults(self):
-        """Set default configuration values."""
-        defaults = {
-            "random_seed": 42,
-            "task_timeout_seconds": 300,  # 5 minutes per task
-            "max_exclusion_rate": 0.20,   # 20% of tasks can be excluded
-            "input_path": "data/processed/sampled_tasks.json",
-            "output_path": "data/processed/static_scores.json",
-            "model_path": "microsoft/phi-2",
-            "device": "cpu",
-            "batch_size": 32,
-            "num_workers": 4,
-            "log_level": "INFO",
-            "log_file": "logs/batch_processor.log"
+        self._config = config_dict or {}
+        
+        # Set defaults
+        self._config.setdefault('seed', 42)
+        self._config.setdefault('device', 'cpu')
+        self._config.setdefault('model_path', 'microsoft/phi-2')
+        self._config.setdefault('epsilon', 1e-9)
+        self._config.setdefault('task_timeout_seconds', DEFAULT_TIMEOUT_SECONDS)
+        self._config.setdefault('max_exclusion_rate', DEFAULT_MAX_EXCLUSION_RATE)
+        self._config.setdefault('static_input_path', 'data/processed/sampled_tasks.json')
+        self._config.setdefault('static_output_path', 'data/processed/static_scores.json')
+        self._config.setdefault('dynamic_input_path', 'data/processed/sampled_tasks.json')
+        self._config.setdefault('dynamic_output_path', 'data/processed/dynamic_scores.json')
+        self._config.setdefault('correlation_output_path', 'data/results/correlation_results.csv')
+        
+        # Apply environment variable overrides
+        self._apply_env_overrides()
+        
+    def _apply_env_overrides(self):
+        """Override config with environment variables if present."""
+        env_mappings = {
+            'LLMXIVE_SEED': 'seed',
+            'LLMXIVE_DEVICE': 'device',
+            'LLMXIVE_MODEL_PATH': 'model_path',
+            'LLMXIVE_EPSILON': 'epsilon',
+            'LLMXIVE_TIMEOUT_SECONDS': 'task_timeout_seconds',
+            'LLMXIVE_MAX_EXCLUSION_RATE': 'max_exclusion_rate',
+            'LLMXIVE_STATIC_INPUT': 'static_input_path',
+            'LLMXIVE_STATIC_OUTPUT': 'static_output_path',
+            'LLMXIVE_DYNAMIC_INPUT': 'dynamic_input_path',
+            'LLMXIVE_DYNAMIC_OUTPUT': 'dynamic_output_path',
+            'LLMXIVE_CORRELATION_OUTPUT': 'correlation_output_path',
         }
         
-        # Update with provided config
-        for key, value in defaults.items():
-            if key not in self.config:
-                self.config[key] = value
-        
-        # Override with environment variables if present
-        self._load_env_overrides()
-    
-    def _load_env_overrides(self):
-        """Load configuration overrides from environment variables."""
-        env_mapping = {
-            "RANDOM_SEED": "random_seed",
-            "TASK_TIMEOUT_SECONDS": "task_timeout_seconds",
-            "MAX_EXCLUSION_RATE": "max_exclusion_rate",
-            "INPUT_PATH": "input_path",
-            "OUTPUT_PATH": "output_path",
-            "MODEL_PATH": "model_path",
-            "DEVICE": "device",
-            "BATCH_SIZE": "batch_size",
-            "NUM_WORKERS": "num_workers",
-            "LOG_LEVEL": "log_level",
-            "LOG_FILE": "log_file"
-        }
-        
-        for env_var, config_key in env_mapping.items():
-            env_value = os.getenv(env_var)
-            if env_value is not None:
+        for env_var, config_key in env_mappings.items():
+            if env_var in os.environ:
+                value = os.environ[env_var]
                 # Try to convert to appropriate type
-                if config_key in ["random_seed", "task_timeout_seconds", "batch_size", "num_workers"]:
+                if config_key in ['seed', 'task_timeout_seconds']:
                     try:
-                        self.config[config_key] = int(env_value)
+                        value = int(value)
                     except ValueError:
                         pass
-                elif config_key in ["max_exclusion_rate"]:
+                elif config_key == 'max_exclusion_rate':
                     try:
-                        self.config[config_key] = float(env_value)
+                        value = float(value)
                     except ValueError:
                         pass
-                else:
-                    self.config[config_key] = env_value
+                elif config_key == 'epsilon':
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        pass
+                self._config[config_key] = value
     
     def get(self, key: str, default: Any = None) -> Any:
         """Get a configuration value."""
-        return self.config.get(key, default)
+        return self._config.get(key, default)
     
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any):
         """Set a configuration value."""
-        self.config[key] = value
+        self._config[key] = value
     
-    def get_random_seed(self) -> int:
-        """Get random seed and set it for reproducibility."""
-        seed = self.config["random_seed"]
-        random.seed(seed)
-        np.random.seed(seed)
-        return seed
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the full configuration as a dictionary."""
+        return self._config.copy()
+    
+    def validate(self) -> Tuple[bool, str]:
+        """Validate the configuration."""
+        # Check device
+        if self._config['device'] not in ['cpu', 'cuda']:
+            return False, f"Invalid device: {self._config['device']}. Must be 'cpu' or 'cuda'."
+        
+        # Check timeout
+        if self._config['task_timeout_seconds'] <= 0:
+            return False, "task_timeout_seconds must be positive."
+        
+        # Check exclusion rate
+        if not (0 <= self._config['max_exclusion_rate'] <= 1):
+            return False, "max_exclusion_rate must be between 0 and 1."
+        
+        return True, "Configuration is valid."
+
+_global_config: Optional[Config] = None
 
 def get_config(config_dict: Optional[Dict[str, Any]] = None) -> Config:
-    """Get or create a configuration instance."""
-    return Config(config_dict)
+    """Get or create the global configuration instance."""
+    global _global_config
+    if _global_config is None:
+        _global_config = Config(config_dict)
+    elif config_dict is not None:
+        # Update existing config with new values
+        for key, value in config_dict.items():
+            _global_config.set(key, value)
+    return _global_config
+
+def reset_config():
+    """Reset the global configuration."""
+    global _global_config
+    _global_config = None
 
 def main():
     """Main entry point for configuration testing."""
     config = get_config()
+    valid, message = config.validate()
     
-    # Print configuration
-    print("Current Configuration:")
-    for key, value in config.config.items():
+    print(f"Configuration validation: {'PASSED' if valid else 'FAILED'}")
+    print(f"Message: {message}")
+    print("\nCurrent configuration:")
+    for key, value in sorted(config.to_dict().items()):
         print(f"  {key}: {value}")
     
-    # Test environment variable override
-    os.environ["TASK_TIMEOUT_SECONDS"] = "600"
-    config = get_config()
-    print(f"\nAfter env override - task_timeout_seconds: {config.get('task_timeout_seconds')}")
+    return 0 if valid else 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

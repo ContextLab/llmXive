@@ -29,14 +29,6 @@ T025:
     value, performance metrics, or scripts) are present to demonstrate that a paired\
     \ t\u2011test on prediction errors between the GNN and RF baseline was actually\
     \ performed. The required artifact is missing, so the task is not satisfied."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a generated comparative report, notebook, PDF, or data file)\
-    \ was provided that maps GNN\u2011identified substructures to the Random Forest\
-    \ descriptor importance. Without such a document or output, the requirement of\
-    \ FR\u2011009 is not satisfied. The implementer must produce the comparative report\
-    \ containing the mapping and any supporting visualizations or tables."
 T031b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,13 +36,6 @@ T031b:
     the GNN vs. Random Forest performance metrics, statistical significance test,
     and interpretation results) was provided. The evidence consists only of the specification
     text; the required output document is missing.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files in `results/figures/` was provided; the claim lacks\
-    \ the required heatmap or bar\u2011chart visualizations of feature importance.\
-    \ The implementer must add the actual figure files (non\u2011empty images) in\
-    \ the specified directory."
 T034a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -63,3 +48,23 @@ T034b:
   r: "No evidence of a modified\u202FREADME.md containing a \u201CModel Training &\
     \ Evaluation\u201D section was provided; the artifact is missing, so the requirement\
     \ to detail how to run training and interpret metrics is not satisfied."
+T034c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for an updated `README.md` containing a new \u201CInterpretability\
+    \ Analysis\u201D section that explains how to generate and read feature importance\
+    \ reports, but no such file or excerpt was provided. The required documentation\
+    \ artifact is missing, so the task is not satisfied."
+T034d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `results.md` file or excerpt was provided, and there is no evidence that an
+    "Experimental Setup" section detailing dataset source, target variable, and split
+    strategy was added. The required documentation artifact is missing.
+T034e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `results.md` file or excerpt was provided, and there is no evidence that\
+    \ a \u201CResults & Discussion\u201D section addressing SC\u2011001 through SC\u2011\
+    005 with measured values and power\u2011analysis context has been added. The required\
+    \ documentation artifact is missing."

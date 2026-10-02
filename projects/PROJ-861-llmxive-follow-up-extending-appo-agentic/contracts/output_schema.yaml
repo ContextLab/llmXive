@@ -1,45 +1,62 @@
 ReasoningTrace:
-  task_id:
-    type: str
-    required: true
-  tokens:
-    type: list
-    required: true
-  static_scores:
-    type: list
-    required: true
-  dynamic_scores:
-    type: list
-    required: true
+  type: object
+  required:
+    - task_id
+    - tokens
+    - static_scores
+    - dynamic_scores
+  properties:
+    task_id:
+      type: string
+    tokens:
+      type: array
+      items:
+        type: string
+    static_scores:
+      type: array
+      items:
+        type: number
+    dynamic_scores:
+      type: array
+      items:
+        type: number
 
 BranchingScore:
-  task_id:
-    type: str
-    required: true
-  position:
-    type: int
-    required: true
-  score:
-    type: float
-    required: true
-  type:
-    type: str
-    required: true
-    enum: [static, dynamic]
+  type: object
+  required:
+    - task_id
+    - position
+    - score
+    - type
+  properties:
+    task_id:
+      type: string
+    position:
+      type: integer
+    score:
+      type: number
+    type:
+      type: string
+      enum: [static, dynamic]
 
 CorrelationResult:
-  pearson:
-    type: float
-    required: true
-  spearman:
-    type: float
-    required: true
-  p_value:
-    type: float
-    required: true
-  seeds:
-    type: list
-    required: true
-  inconclusive_flag:
-    type: bool
-    required: true
+  type: object
+  required:
+    - pearson
+    - spearman
+    - p_value
+    - seeds
+    - inconclusive_flag
+  properties:
+    pearson:
+      type: number
+    spearman:
+      type: number
+    p_value:
+      type: number
+    seeds:
+      type: array
+      items:
+        type: integer
+    inconclusive_flag:
+      type: boolean

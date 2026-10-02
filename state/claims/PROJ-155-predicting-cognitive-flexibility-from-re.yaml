@@ -2225,3 +2225,364 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T17:12:39Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 reported no low-bit models, no deep
+    net training, and no large LLMs
+  claim_id: c_e70fcdca
+  context: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net training,
+    no large LLMs.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T12:30:32Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: pipeline processes HCP 1200 subjects data
+  claim_id: c_ae707a3b
+  context: The pipeline processes HCP 1200 subjects data, computes sliding-window
+    connectivity variability, and performs statistical association analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline processes HCP 1200 subjects data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:30:59Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Real HCP 1200 data required; synthetic data forbidden
+  claim_id: c_37eebe4e
+  context: Data Source | COMPLIANT | Real HCP 1200 data required; synthetic data forbidden.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Real HCP 1200 data required; synthetic data forbidden.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:31:22Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Sliding window correlation uses 60s window and 1s step
+  claim_id: c_a4907fbd
+  context: Sliding Window Correlation | IMPLEMENTED | Window=60s, step=1s.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sliding_window_correlation_uses_60s_window_and_1s_step
+  kind: entity_fact
+  raw_text: Window=60s, step=1s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:31:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Phase-shuffling null model uses 1000 surrogates
+  claim_id: c_0b14ac6b
+  context: Phase-Shuffling Null Model | IMPLEMENTED | Mandated by FR-008; 1000 surrogates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 surrogates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:32:31Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Permutation test uses 10000 iterations
+  claim_id: c_436ac6dc
+  context: Permutation Test | IMPLEMENTED | 10,000 iterations for stable null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 iterations for stable null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:33:03Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Batch processing uses batch size of 50
+  claim_id: c_49c9cd37
+  context: Batch Processing | IMPLEMENTED | Batch size=50 to meet RAM constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Batch size=50 to meet RAM constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:33:28Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: CPU-only CI environment has 7GB RAM and no GPU
+  claim_id: c_7aeb1641
+  context: CPU-only CI (limited cores, 7GB RAM, no GPU)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_CI_environment_has_7GB_RAM_and_no_GPU
+  kind: entity_fact
+  raw_text: CPU-only CI (limited cores, 7GB RAM, no GPU)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:34:07Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Peak RAM constraint is less than 7GB
+  claim_id: c_8e55f607
+  context: Peak RAM < 7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_constraint_is_less_than_7GB
+  kind: magnitude
+  raw_text: Peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:34:27Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Full pipeline execution time constraint is less than 6 hours
+  claim_id: c_f7ba133b
+  context: Execution time < 6h for full pipeline
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_constraint_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Execution time < 6h for full pipeline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:34:50Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on low-bit models and deep
+    net training
+  claim_id: c_fbd56ec8
+  context: Notes section cites 'Smith et al. (2023) [arXiv:2301.12345] No low-bit
+    models, no deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T12:34:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Default short-duration window statistically invalid for Schaefer 200
+    atlas
+  claim_id: c_f792eb87
+  context: 'T004a requires creating docs/technical-design.md to justify the 60s window
+    deviation, stating: ''The default short-duration window is statistically invalid
+    for the Schaefer 200 atlas due to rank deficiency and insufficient time points
+    for stable correlation estimation.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:35:49Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: HCP 1200 Subjects Release data used
+  claim_id: c_c76269ce
+  context: 'Data Source: HCP 1200 Subjects Release (real data only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses data from the HCP 1200 Subjects Release.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:36:43Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Sample size greater than 1000 subjects
+  claim_id: c_75cfcb65
+  context: III. Statistical Power | COMPLIANT | Sample size > 1000 subjects.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_greater_than_1000_subjects
+  kind: magnitude
+  raw_text: The sample size is greater than 1000 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:37:29Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: 1000 phase-shuffling surrogates used
+  claim_id: c_ac0f296f
+  context: Phase-Shuffling Surrogates | IMPLEMENTED | FFT-based phase randomization
+    (n=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses 1000 phase-shuffling surrogates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:37:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: 10000 iterations for permutation test
+  claim_id: c_d83a80e5
+  context: Permutation Test | IMPLEMENTED | 10,000 iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses 10,000 iterations for the permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:38:19Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Short-duration window invalid for Schaefer 200 atlas due to rank deficiency
+  claim_id: c_b479e1cc
+  context: VII. Window Length | DEVIATION | The default short-duration window is statistically
+    invalid for the Schaefer 200 atlas due to rank deficiency and insufficient time
+    points for stable correlation estimation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:38:19Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 study found no low-bit models, no deep net training,
+    and no large LLMs
+  claim_id: c_6d41cede
+  context: 'Notes section: Smith et al. (2023) [arXiv:2301.12345] No low-bit models,
+    no deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T12:38:28Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Generate 1000 phase-shuffled surrogates per subject using FFT-based phase
+    randomization
+  claim_id: c_f3c58aa9
+  context: 'T024: Implement code/features/null_model.py to generate phase-shuffled
+    surrogate null models and validate metric significance (p < 0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use nitime.utils.phase_shuffle to generate 1000 surrogates per subject
+    using FFT-based phase randomization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:38:56Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Short-duration window statistically invalid for Schaefer 200 atlas
+  claim_id: c_0ecace31
+  context: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation. A 60s window is mandated by FR-003 to ensure robust metric stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:39:10Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 reported no low-bit models deep net training or large
+    LLMs
+  claim_id: c_709d7bd5
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep
+    net training, no large LLMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Smith et al. (2023) reported no low-bit models, no deep net training,
+    and no large LLMs in the context of computational constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:39:30Z'

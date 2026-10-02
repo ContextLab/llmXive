@@ -387,3 +387,146 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T15:00:42Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: GNN model RMSE 0.52 MAE 0.41 R2 0.84
+  claim_id: c_39e0b052
+  context: Table under Model Metrics showing GNN performance compared to RF Baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GNN model achieved an RMSE of 0.52, MAE of 0.41, and R\xB2 of 0.84."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:28Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Random Forest Baseline RMSE 0.63 MAE 0.50 R2 0.73
+  claim_id: c_2e50a6e3
+  context: Table under Model Metrics showing RF performance compared to GNN.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Random Forest Baseline model achieved an RMSE of 0.63, MAE of 0.50, and\
+    \ R\xB2 of 0.73."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:48Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Paired t-test p-value 0.024567 for GNN vs RF
+  claim_id: c_1af8959c
+  context: Statistical Significance section reporting p-value and effect size.
+  evidence:
+    error: 'MissingCredentialError: Receipt signing key not found. Set $LLMXIVE_RECEIPT_KEY
+      or add `llmxive_receipt_key = "..."` to /home/runner/.config/llmxive/credentials.toml.'
+  kind: result
+  raw_text: The paired t-test p-value comparing GNN and RF performance was 0.024567.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:48Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Cohen's d effect size 0.8500 for GNN vs RF
+  claim_id: c_b1186a74
+  context: Statistical Significance section reporting p-value and effect size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cohen's d effect size for the performance difference between GNN and
+    RF was 0.8500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:28Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: logP mean absolute SHAP 0.4200 in Random Forest
+  claim_id: c_0a8611de
+  context: Table listing Top Random Forest Features ranked by absolute mean SHAP value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: logP was the top Random Forest feature with a mean absolute SHAP value
+    of 0.4200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:45Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Aromatic Ring System importance score 0.6500 in GNN
+  claim_id: c_da2b7a26
+  context: Table listing Top GNN Features ranked by importance score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Aromatic Ring System was the top GNN feature with an importance score
+    of 0.6500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:04Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Aromatic Ring System RF descriptor correlation 0.15
+  claim_id: c_d30ee751
+  context: Table in Comparative Mapping Analysis showing GNN importance and RF correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between the Aromatic Ring System substructure and Random
+    Forest descriptors was 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:19Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Aliphatic Chain Branching RF descriptor correlation 0.20
+  claim_id: c_4bada7d5
+  context: Table in Comparative Mapping Analysis showing GNN importance and RF correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between the Aliphatic Chain Branching substructure and
+    Random Forest descriptors was 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:35Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/comparative_report.md
+  attempts: 1
+  canonical: Ring Fusion RF descriptor correlation 0.10
+  claim_id: c_24d8c03a
+  context: Table in Comparative Mapping Analysis showing GNN importance and RF correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between the Ring Fusion substructure and Random Forest
+    descriptors was 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:55Z'

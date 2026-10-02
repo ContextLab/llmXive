@@ -1,3 +1,3 @@
 """
-Statistical analysis and modeling.
+Statistical analysis and modeling module.
 """

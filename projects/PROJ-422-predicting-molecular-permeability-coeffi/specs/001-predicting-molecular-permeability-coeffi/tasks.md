@@ -212,9 +212,9 @@
 
 - [ ] T034a [US1] Documentation: Update `README.md` with "Data Pipeline Usage" section, explicitly detailing how to run the ingestion and preprocessing steps (US1).
 - [ ] T034b [US2] Documentation: Update `README.md` with "Model Training & Evaluation" section, explicitly detailing how to run training and interpret metrics (US2).
-- [~] T034c [US3] Documentation: Update `README.md` with "Interpretability Analysis" section, explicitly detailing how to generate and read feature importance reports (US3).
-- [~] T034d [US1, US2, US3] Documentation: Update `results.md` with "Experimental Setup" section, detailing the dataset source, target variable (experimental vs proxy), and split strategy.
-- [~] T034e [US1, US2, US3] Documentation: Update `results.md` with "Results & Discussion" section, explicitly addressing SC-001 through SC-005 with measured values and power analysis context.
+- [ ] T034c [US3] Documentation: Update `README.md` with "Interpretability Analysis" section, explicitly detailing how to generate and read feature importance reports (US3).
+- [ ] T034d [US1, US2, US3] Documentation: Update `results.md` with "Experimental Setup" section, detailing the dataset source, target variable (experimental vs proxy), and split strategy.
+- [ ] T034e [US1, US2, US3] Documentation: Update `results.md` with "Results & Discussion" section, explicitly addressing SC-001 through SC-005 with measured values and power analysis context.
 - [ ] T035a [P] Run `ruff check --fix code/` to resolve all PEP8/linting violations in the code directory.
 - [ ] T035b [P] Run `black code/` to format all Python files according to project standards.
 - [ ] T036 [P] Run full pipeline end-to-end on CI to verify reproducibility and artifact generation.

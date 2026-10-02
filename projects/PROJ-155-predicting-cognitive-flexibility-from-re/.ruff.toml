@@ -1,27 +1,4 @@
-# Ruff configuration for llmXive project
-# Targeting Python 3.11 as per project requirements
-
 target-version = "py311"
-
-select = [
-    "E",  # pycodestyle errors
-    "F",  # Pyflakes
-    "W",  # pycodestyle warnings
-    "I",  # isort
-]
-
-# Optional: Ignore specific rules if needed (none currently)
-# ignore = []
-
-# Line length (default is 88, matching Black)
+select = ["E", "F", "W", "I"]
+ignore = []
 line-length = 88
-
-# Exclude generated files and build artifacts
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-]

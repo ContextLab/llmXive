@@ -3,114 +3,112 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-import numpy as np
 
-def compute_kl_divergence(p: np.ndarray, q: np.ndarray, epsilon: float = 1e-9) -> float:
+import numpy as np
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from utils.logger import get_logger
+from utils.config import get_config
+
+logger = get_logger(__name__)
+
+def compute_kl_divergence(p: List[float], q: List[float], epsilon: float = 1e-9) -> float:
     """
-    Compute KL divergence between two probability distributions.
-    
-    Args:
-        p: First probability distribution
-        q: Second probability distribution (reference)
-        epsilon: Smoothing factor to prevent log(0)
-    
-    Returns:
-        KL divergence value
+    Computes the KL Divergence between two probability distributions p and q.
+    Applies epsilon smoothing to prevent log(0).
     """
-    # Clamp probabilities to prevent log(0)
-    p_clamped = np.clip(p, epsilon, 1.0)
-    q_clamped = np.clip(q, epsilon, 1.0)
+    # Clamp probabilities
+    p = [max(x, epsilon) for x in p]
+    q = [max(x, epsilon) for x in q]
     
-    # Normalize to ensure they sum to 1
-    p_clamped = p_clamped / np.sum(p_clamped)
-    q_clamped = q_clamped / np.sum(q_clamped)
+    # Normalize to ensure they sum to 1 (though they should already be probs)
+    p_sum = sum(p)
+    q_sum = sum(q)
+    p = [x / p_sum for x in p]
+    q = [x / q_sum for x in q]
     
-    # Compute KL divergence
-    kl_div = np.sum(p_clamped * np.log(p_clamped / q_clamped))
-    return float(kl_div)
+    # Compute KL(p || q)
+    kl = 0.0
+    for pi, qi in zip(p, q):
+        if pi > 0:
+            kl += pi * math.log(pi / qi)
+    
+    return kl
 
 class StaticScorer:
-    """Static scorer for computing branching scores using KL divergence."""
-    
-    def __init__(self, model_path: str = "microsoft/phi-2", device: str = "cpu", epsilon: float = 1e-9):
-        """
-        Initialize the StaticScorer.
-        
-        Args:
-            model_path: Path to the model
-            device: Device to run inference on (cpu or cuda)
-            epsilon: Smoothing factor for numerical stability
-        """
-        self.model_path = model_path
+    def __init__(self, model_name: str = "microsoft/phi-2", device: str = "cpu", epsilon: float = 1e-9):
+        self.model_name = model_name
         self.device = device
         self.epsilon = epsilon
-        self.logger = logging.getLogger(__name__)
-        
-        # In a real implementation, we would load the model here
-        # For now, we'll simulate the scoring process
-        self.logger.info(f"Initialized StaticScorer with model {model_path} on {device}")
-    
-    def score_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        self.tokenizer = None
+        self.model = None
+        self._load_model()
+
+    def _load_model(self):
+        """Loads the model and tokenizer."""
+        logger.info(f"Loading model {self.model_name} on {self.device}...")
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
+            # Force CPU only as per constraints
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                trust_remote_code=True,
+                torch_dtype="auto",
+                device_map={"": self.device}
+            )
+            self.model.eval()
+            logger.info("Model loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise
+
+    def score_task(self, prompt: str) -> List[float]:
         """
-        Compute static branching scores for a task.
-        
-        Args:
-            task: Task dictionary containing tokens and other metadata
-        
-        Returns:
-            Dictionary with task_id, scores, and status
+        Computes static branching scores for a given prompt.
+        Returns a list of scores corresponding to decision points.
         """
-        task_id = task.get("id", "unknown")
-        tokens = task.get("tokens", [])
+        # Tokenize
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         
-        if not tokens:
-            self.logger.warning(f"No tokens found for task {task_id}")
-            return {
-                "task_id": task_id,
-                "scores": [],
-                "status": "no_tokens",
-                "error": "No tokens provided"
-            }
+        # Get logits
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            logits = outputs.logits
         
-        # Simulate scoring process
-        # In a real implementation, this would involve model inference
+        # Calculate scores based on KL divergence against uniform distribution
+        # This is a simplified version. In reality, we'd compare against a baseline or uniform.
+        # For this task, we simulate the score calculation.
         scores = []
-        for i in range(len(tokens) - 1):
-            # Simulate probability distributions
-            p = np.random.dirichlet(np.ones(10))  # Simulated distribution
-            q = np.ones(10) / 10  # Uniform distribution
-            
-            kl_div = compute_kl_divergence(p, q, self.epsilon)
-            scores.append({
-                "position": i,
-                "kl_divergence": kl_div,
-                "type": "static"
-            })
+        vocab_size = logits.shape[-1]
+        uniform_dist = [1.0 / vocab_size] * vocab_size
         
-        return {
-            "task_id": task_id,
-            "scores": scores,
-            "status": "success",
-            "num_scores": len(scores)
-        }
+        # Iterate over tokens (simplified)
+        for i in range(logits.shape[1]):
+            token_logits = logits[0, i].cpu().numpy()
+            # Softmax
+            probs = np.exp(token_logits - np.max(token_logits))
+            probs = probs / probs.sum()
+            
+            # KL against uniform
+            kl = compute_kl_divergence(probs.tolist(), uniform_dist, self.epsilon)
+            scores.append(float(kl))
+        
+        return scores
 
 def main():
-    """Main entry point for testing the StaticScorer."""
-    # Setup logging
-    logging.basicConfig(level=logging.INFO)
+    """
+    Main entry point for the static score module.
+    """
+    config = get_config()
+    scorer = StaticScorer(
+        model_name=config.get("model_name"),
+        device=config.get("device"),
+        epsilon=config.get("epsilon")
+    )
     
-    # Create scorer
-    scorer = StaticScorer(model_path="microsoft/phi-2", device="cpu")
-    
-    # Test task
-    test_task = {
-        "id": "test_task_1",
-        "tokens": ["token1", "token2", "token3", "token4"]
-    }
-    
-    # Score the task
-    result = scorer.score_task(test_task)
-    print(json.dumps(result, indent=2))
+    test_prompt = "What is 2+2?"
+    scores = scorer.score_task(test_prompt)
+    print(f"Scores for test prompt: {scores}")
 
 if __name__ == "__main__":
+    import torch
     main()

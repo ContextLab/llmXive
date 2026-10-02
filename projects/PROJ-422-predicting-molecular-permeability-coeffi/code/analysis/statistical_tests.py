@@ -6,214 +6,191 @@ from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
 from scipy import stats
 
-from utils.logging import log_result_artifact
-
+# Ensure the logger is configured if not already
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_predictions(predictions_file: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+def load_predictions(predictions_file: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
     """
-    Load prediction errors from the predictions file.
-    Returns: (errors_gnn, errors_rf_baseline, errors_rf_ablation, n_samples)
+    Loads prediction errors from the predictions file.
+    Returns: (gnn_errors, rf_errors, y_true, target_type)
     """
-    logger.info(f"Loading predictions from {predictions_file}")
-    
     if not predictions_file.exists():
         raise FileNotFoundError(f"Predictions file not found: {predictions_file}")
     
     with open(predictions_file, 'r') as f:
         data = json.load(f)
     
-    # Extract errors for GNN and RF-Baseline
-    # The file structure is expected to have 'errors' keys for each model
-    errors_gnn = np.array(data.get('errors', {}).get('gnn', []))
-    errors_rf_baseline = np.array(data.get('errors', {}).get('rf_baseline', []))
+    # Expecting a structure like:
+    # {
+    #   "target_type": "logP",
+    #   "models": {
+    #     "GNN": {"predictions": [...], "actuals": [...]},
+    #     "RF_Baseline": {"predictions": [...], "actuals": [...]}
+    #   }
+    # }
     
-    if len(errors_gnn) == 0 or len(errors_rf_baseline) == 0:
-        raise ValueError("Prediction errors are empty in the loaded file.")
+    target_type = data.get("target_type", "unknown")
+    models = data.get("models", {})
     
-    if len(errors_gnn) != len(errors_rf_baseline):
-        raise ValueError("GNN and RF-Baseline error arrays have different lengths.")
+    if "GNN" not in models or "RF_Baseline" not in models:
+        raise ValueError("Missing GNN or RF_Baseline in predictions file")
     
-    n_samples = len(errors_gnn)
-    logger.info(f"Loaded {n_samples} prediction errors for paired t-test")
+    gnn_preds = np.array(models["GNN"]["predictions"])
+    gnn_actuals = np.array(models["GNN"]["actuals"])
+    rf_preds = np.array(models["RF_Baseline"]["predictions"])
+    rf_actuals = np.array(models["RF_Baseline"]["actuals"])
     
-    return errors_gnn, errors_rf_baseline, None, n_samples
+    # Ensure lengths match
+    if len(gnn_actuals) != len(rf_actuals):
+        raise ValueError("GNN and RF actuals have different lengths")
+    
+    # Calculate errors (absolute or signed? Usually for paired t-test on performance,
+    # we look at the difference in errors. Let's use signed errors for the test
+    # to see if one is systematically better (lower error) than the other.
+    # However, standard practice for "error" comparison is often absolute error (MAE-like)
+    # or squared error (MSE-like). The prompt asks for "prediction errors".
+    # Let's use signed errors (pred - actual) to test if the mean difference is non-zero.
+    # If we want to test MAE difference, we'd use abs(pred - actual).
+    # Given SC-002 mentions "performance gap", let's calculate the error metric (e.g., squared error)
+    # and compare those. But "paired t-test on prediction errors" usually implies the raw residuals.
+    # Let's use squared errors (MSE components) as it's standard for regression comparison,
+    # but the prompt says "prediction errors". Let's stick to residuals (pred - actual).
+    # Actually, to compare models, we often compare |error| or error^2.
+    # Let's compute the difference in squared errors (MSE contribution) as it's more sensitive to outliers
+    # and standard in regression analysis.
+    # Wait, the task says "Paired t-test on prediction errors".
+    # Let's compute the absolute errors (MAE components) to be robust, or just residuals.
+    # Let's use residuals (pred - actual) and test if mean(residual_gnn) != mean(residual_rf).
+    # But typically we want to know if GNN error is LOWER.
+    # Let's calculate the error metric: Squared Error (SE) for each point.
+    # diff = SE_gnn - SE_rf. If mean(diff) < 0, GNN is better.
+    
+    gnn_se = (gnn_preds - gnn_actuals) ** 2
+    rf_se = (rf_preds - rf_actuals) ** 2
+    
+    return gnn_se, rf_se, gnn_actuals, target_type
 
 def calculate_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """
-    Calculate Cohen's d (effect size) for the difference between two groups.
-    Uses the pooled standard deviation.
+    Calculates Cohen's d effect size for two groups.
+    d = (mean1 - mean2) / pooled_std
     """
-    n1, n2 = len(group1), len(group2)
     mean1, mean2 = np.mean(group1), np.mean(group2)
     std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+    n1, n2 = len(group1), len(group2)
     
     # Pooled standard deviation
     pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     
     if pooled_std == 0:
-        logger.warning("Pooled standard deviation is zero. Cohen's d cannot be calculated.")
         return 0.0
     
-    cohens_d = (mean1 - mean2) / pooled_std
-    return float(cohens_d)
+    return (mean1 - mean2) / pooled_std
 
-def calculate_confidence_interval(diff_mean: float, diff_std: float, n: int, confidence: float = 0.95) -> Tuple[float, float]:
+def calculate_confidence_interval(data: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
     """
-    Calculate the confidence interval for the mean difference.
+    Calculates the confidence interval for the mean of the data.
     """
-    if n <= 1:
-        logger.warning("Sample size is too small for CI calculation.")
-        return (float('-inf'), float('inf'))
-    
-    # Standard error of the mean difference
-    se = diff_std / np.sqrt(n)
-    
-    # T-critical value
-    dof = n - 1
-    t_crit = stats.t.ppf((1 + confidence) / 2.0, dof)
-    
-    ci_lower = diff_mean - t_crit * se
-    ci_upper = diff_mean + t_crit * se
-    
-    return float(ci_lower), float(ci_upper)
+    n = len(data)
+    mean = np.mean(data)
+    std_err = stats.sem(data)
+    h = std_err * stats.t.ppf((1 + confidence) / 2., n-1)
+    return mean - h, mean + h
 
-def run_paired_ttest(errors_a: np.ndarray, errors_b: np.ndarray) -> Dict[str, Any]:
+def run_paired_ttest(group1: np.ndarray, group2: np.ndarray) -> Dict[str, Any]:
     """
-    Perform a paired t-test between two sets of errors.
-    Returns a dictionary with t-statistic, p-value, mean difference, and std difference.
+    Runs a paired t-test between two groups.
+    Returns: dict with statistic, pvalue, mean_diff, cohens_d, ci
     """
-    if len(errors_a) != len(errors_b):
-        raise ValueError("Input arrays must have the same length for paired t-test.")
+    if len(group1) != len(group2):
+        raise ValueError("Groups must have the same length for paired t-test")
     
-    # Calculate the differences
-    differences = errors_a - errors_b
-    mean_diff = np.mean(differences)
-    std_diff = np.std(differences, ddof=1)
-    n = len(differences)
+    # Paired t-test
+    t_stat, p_value = stats.ttest_rel(group1, group2)
     
-    # Perform paired t-test
-    t_stat, p_value = stats.ttest_rel(errors_a, errors_b)
+    mean_diff = np.mean(group1 - group2)
+    cohens_d = calculate_cohens_d(group1, group2)
     
-    result = {
-        "t_statistic": float(t_stat),
-        "p_value": float(p_value),
+    # Confidence Interval for the mean difference
+    diff_data = group1 - group2
+    ci_low, ci_high = calculate_confidence_interval(diff_data, 0.95)
+    
+    return {
+        "statistic": float(t_stat),
+        "pvalue": float(p_value),
         "mean_difference": float(mean_diff),
-        "std_difference": float(std_diff),
-        "n_samples": int(n),
-        "degrees_of_freedom": int(n - 1)
+        "cohens_d": float(cohens_d),
+        "confidence_interval_95": {
+            "lower": float(ci_low),
+            "upper": float(ci_high)
+        }
     }
-    
-    return result
 
-def update_metrics_file(metrics_file: Path, ttest_results: Dict[str, Any], cohens_d: float, ci: Tuple[float, float], target_type: str) -> None:
+def update_metrics_file(metrics_file: Path, test_results: Dict[str, Any], target_type: str):
     """
-    Update the metrics.json file with statistical test results.
+    Updates the metrics.json file with the statistical test results.
     """
-    logger.info(f"Updating metrics file at {metrics_file} with statistical results")
-    
     if not metrics_file.exists():
-        # If metrics file doesn't exist, create a new one with the results
-        new_metrics = {
-            "statistical_tests": {
-                "paired_ttest_gnn_vs_rf_baseline": ttest_results,
-                "cohens_d": cohens_d,
-                "confidence_interval_95": {
-                    "lower": ci[0],
-                    "upper": ci[1]
-                },
-                "target_variable_type": target_type
-            }
-        }
+        logger.warning(f"Metrics file not found: {metrics_file}. Creating new one.")
+        base_metrics = {}
     else:
-        # Load existing metrics and update
         with open(metrics_file, 'r') as f:
-            metrics = json.load(f)
-        
-        if "statistical_tests" not in metrics:
-            metrics["statistical_tests"] = {}
-        
-        metrics["statistical_tests"]["paired_ttest_gnn_vs_rf_baseline"] = ttest_results
-        metrics["statistical_tests"]["cohens_d"] = cohens_d
-        metrics["statistical_tests"]["confidence_interval_95"] = {
-            "lower": ci[0],
-            "upper": ci[1]
-        }
-        metrics["statistical_tests"]["target_variable_type"] = target_type
+            base_metrics = json.load(f)
     
-    # Save updated metrics
+    # Ensure structure
+    if "statistical_tests" not in base_metrics:
+        base_metrics["statistical_tests"] = {}
+    
+    base_metrics["statistical_tests"]["gnn_vs_rf_baseline"] = test_results
+    base_metrics["statistical_tests"]["target_variable_type"] = target_type
+    base_metrics["statistical_tests"]["test_type"] = "paired_ttest_squared_errors"
+    
     with open(metrics_file, 'w') as f:
-        json.dump(metrics, f, indent=2)
+        json.dump(base_metrics, f, indent=2)
     
-    logger.info("Metrics file updated successfully")
+    logger.info(f"Updated metrics file: {metrics_file}")
 
 def main():
     """
-    Main entry point for running the statistical tests.
+    Main entry point for T025: Paired t-test on prediction errors.
     """
-    # Define paths
-    base_path = Path(__file__).resolve().parent.parent.parent
-    predictions_file = base_path / "results" / "predictions_errors.json"
-    metrics_file = base_path / "results" / "metrics.json"
+    project_root = Path(__file__).resolve().parents[2]
+    predictions_file = project_root / "results" / "predictions_errors.json"
+    metrics_file = project_root / "results" / "metrics.json"
     
-    # Load target type from metrics if available, otherwise default to unknown
-    target_type = "unknown"
-    if metrics_file.exists():
-        try:
-            with open(metrics_file, 'r') as f:
-                metrics_data = json.load(f)
-                target_type = metrics_data.get("target_variable_type", "unknown")
-        except Exception as e:
-            logger.warning(f"Could not read target type from metrics: {e}")
+    logging.info("Starting T025: Paired t-test on prediction errors (GNN vs RF-Baseline)")
     
     try:
-        # Load predictions
-        errors_gnn, errors_rf_baseline, _, n_samples = load_predictions(predictions_file)
+        # 1. Load predictions
+        gnn_se, rf_se, y_true, target_type = load_predictions(predictions_file)
+        logger.info(f"Loaded predictions. Target type: {target_type}. Sample size: {len(gnn_se)}")
         
-        # Run paired t-test
-        logger.info("Running paired t-test between GNN and RF-Baseline errors")
-        ttest_results = run_paired_ttest(errors_gnn, errors_rf_baseline)
+        # 2. Log target type
+        logger.info(f"Target variable type: {target_type} (Experimental: {target_type != 'logP_proxy'})")
         
-        # Calculate Cohen's d
-        logger.info("Calculating Cohen's d (effect size)")
-        cohens_d = calculate_cohens_d(errors_gnn, errors_rf_baseline)
+        # 3. Run paired t-test
+        # We are comparing Squared Errors. 
+        # H0: Mean(SE_gnn) == Mean(SE_rf)
+        # H1: Mean(SE_gnn) != Mean(SE_rf)
+        test_results = run_paired_ttest(gnn_se, rf_se)
         
-        # Calculate Confidence Interval
-        logger.info("Calculating 95% Confidence Interval")
-        diff = errors_gnn - errors_rf_baseline
-        ci = calculate_confidence_interval(np.mean(diff), np.std(diff, ddof=1), n_samples)
+        logger.info(f"T-test Statistic: {test_results['statistic']:.4f}")
+        logger.info(f"P-value: {test_results['pvalue']:.4e}")
+        logger.info(f"Mean Difference (GNN - RF): {test_results['mean_difference']:.4f}")
+        logger.info(f"Cohen's d: {test_results['cohens_d']:.4f}")
+        logger.info(f"95% CI: [{test_results['confidence_interval_95']['lower']:.4f}, {test_results['confidence_interval_95']['upper']:.4f}]")
         
-        # Update metrics file
-        update_metrics_file(metrics_file, ttest_results, cohens_d, ci, target_type)
+        # 4. Update metrics file
+        update_metrics_file(metrics_file, test_results, target_type)
         
-        # Log results
-        logger.info(f"T-test Results: t={ttest_results['t_statistic']:.4f}, p={ttest_results['p_value']:.4f}")
-        logger.info(f"Cohen's d: {cohens_d:.4f}")
-        logger.info(f"95% CI: [{ci[0]:.4f}, {ci[1]:.4f}]")
-        
-        # Log artifact
-        log_result_artifact(
-            artifact_type="statistical_test",
-            artifact_name="paired_ttest_gnn_vs_rf",
-            data={
-                "t_statistic": ttest_results["t_statistic"],
-                "p_value": ttest_results["p_value"],
-                "cohens_d": cohens_d,
-                "ci_lower": ci[0],
-                "ci_upper": ci[1]
-            }
-        )
-        
-        print("Statistical tests completed successfully.")
+        logger.info("T025 completed successfully.")
         
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
         sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Error during T025 execution: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

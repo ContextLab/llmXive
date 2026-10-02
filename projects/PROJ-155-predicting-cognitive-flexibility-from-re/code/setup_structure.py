@@ -1,9 +1,6 @@
 """
-Project Structure Setup Module.
-
-This module provides utilities to create and verify the project directory structure
-as defined in plan.md. It ensures that the required directories exist and are ready
-for data, code, documentation, and testing artifacts.
+Project structure setup and verification utilities.
+Creates the required directory tree and verifies its existence.
 """
 import os
 import sys
@@ -19,107 +16,140 @@ logger = logging.getLogger(__name__)
 
 def get_project_root() -> str:
     """
-    Get the absolute path to the project root directory.
-    
-    The project root is assumed to be the directory containing this module's parent 'code' folder.
     Returns the absolute path to the project root.
+    Assumes this file is at code/setup_structure.py.
     """
-    current_file_path = os.path.abspath(__file__)
-    code_dir = os.path.dirname(current_file_path)
-    project_root = os.path.dirname(code_dir)
-    return project_root
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.abspath(os.path.join(current_dir, ".."))
 
-def ensure_dir(dir_path: str) -> None:
+def ensure_dir(path: str) -> None:
     """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        dir_path: Absolute or relative path to the directory.
+    Creates a directory if it does not exist.
     """
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path, exist_ok=True)
-        logger.info(f"Created directory: {dir_path}")
+    if not os.path.exists(path):
+        os.makedirs(path)
+        logger.info(f"Created directory: {path}")
     else:
-        logger.debug(f"Directory already exists: {dir_path}")
+        logger.debug(f"Directory already exists: {path}")
 
-def create_project_structure() -> List[str]:
+def create_project_structure() -> None:
     """
-    Create the standard project directory structure.
-    
-    Creates the following directories under the project root:
+    Creates the standard project directory structure:
     - code/
     - data/
     - docs/
     - tests/
-    
-    Returns:
-        List of created directory paths.
     """
-    project_root = get_project_root()
+    root = get_project_root()
+    logger.info(f"Project root identified at: {root}")
+
     required_dirs = [
-        'code',
-        'data',
-        'docs',
-        'tests'
+        os.path.join(root, "code"),
+        os.path.join(root, "data"),
+        os.path.join(root, "docs"),
+        os.path.join(root, "tests")
     ]
-    
-    created_dirs = []
-    for dir_name in required_dirs:
-        dir_path = os.path.join(project_root, dir_name)
+
+    # Create subdirectories for data organization
+    data_subdirs = [
+        os.path.join(root, "data", "raw"),
+        os.path.join(root, "data", "processed"),
+        os.path.join(root, "data", "reports"),
+        os.path.join(root, "data", "results"),
+        os.path.join(root, "data", "figures")
+    ]
+    required_dirs.extend(data_subdirs)
+
+    # Create code subdirectories
+    code_subdirs = [
+        os.path.join(root, "code", "data"),
+        os.path.join(root, "code", "features"),
+        os.path.join(root, "code", "analysis"),
+        os.path.join(root, "code", "utils")
+    ]
+    required_dirs.extend(code_subdirs)
+
+    for dir_path in required_dirs:
         ensure_dir(dir_path)
-        created_dirs.append(dir_path)
-        
-    logger.info(f"Project structure verified/created at: {project_root}")
-    return created_dirs
+
+    logger.info("Project structure creation complete.")
 
 def verify_structure() -> bool:
     """
-    Verify that the required project directories exist.
-    
-    Returns:
-        True if all required directories exist, False otherwise.
+    Verifies that the required project directories exist.
+    Returns True if all exist, False otherwise.
+    Prints a tree-like listing of the 'code/' directory for verification.
     """
-    project_root = get_project_root()
-    required_dirs = ['code', 'data', 'docs', 'tests']
-    
-    missing = []
-    for dir_name in required_dirs:
-        dir_path = os.path.join(project_root, dir_name)
-        if not os.path.isdir(dir_path):
-            missing.append(dir_name)
-    
-    if missing:
-        logger.error(f"Missing required directories: {missing}")
-        return False
-    
-    logger.info("All required project directories exist.")
-    return True
+    root = get_project_root()
+    required_dirs = [
+        "code",
+        "data",
+        "docs",
+        "tests"
+    ]
 
-def main() -> None:
+    all_exist = True
+    logger.info("Verifying project structure...")
+
+    for dir_name in required_dirs:
+        dir_path = os.path.join(root, dir_name)
+        if os.path.isdir(dir_path):
+            logger.info(f"  [OK] {dir_name}/ exists")
+        else:
+            logger.error(f"  [MISSING] {dir_name}/ does not exist")
+            all_exist = False
+
+    if all_exist:
+        # Print a tree-like listing of the code/ directory
+        print("\n--- Directory Listing (code/) ---")
+        _print_tree(root, "code")
+        print("--- End Listing ---\n")
+    else:
+        logger.error("Project structure verification FAILED.")
+
+    return all_exist
+
+def _print_tree(root: str, directory: str, prefix: str = "") -> None:
     """
-    Main entry point for project structure setup.
-    
-    Creates the required directories and verifies the structure.
-    Prints a tree-like listing of the created structure to stdout for verification.
+    Helper to print a directory tree structure.
+    """
+    dir_path = os.path.join(root, directory)
+    if not os.path.isdir(dir_path):
+        return
+
+    try:
+        items = sorted(os.listdir(dir_path))
+    except PermissionError:
+        logger.warning(f"Permission denied: {dir_path}")
+        return
+
+    for i, item in enumerate(items):
+        item_path = os.path.join(dir_path, item)
+        is_last = i == len(items) - 1
+        connector = "└── " if is_last else "├── "
+        print(f"{prefix}{connector}{item}")
+
+        if os.path.isdir(item_path):
+            extension = "    " if is_last else "│   "
+            _print_tree(root, os.path.join(directory, item), prefix + extension)
+
+def main() -> int:
+    """
+    Main entry point for the script.
+    Creates the structure if missing, then verifies it.
     """
     logger.info("Starting project structure setup...")
-    
-    # Create directories
-    create_project_structure()
-    
-    # Verify
-    if not verify_structure():
-        logger.error("Project structure verification failed.")
-        sys.exit(1)
-    
-    # Print tree-like output for verification
-    project_root = get_project_root()
-    print(f"\nProject Structure at: {project_root}\n")
-    print("code/")
-    print("data/")
-    print("docs/")
-    print("tests/")
-    print("\nVerification successful: All required directories exist.\n")
 
-if __name__ == '__main__':
-    main()
+    # Attempt to create structure
+    create_project_structure()
+
+    # Verify
+    if verify_structure():
+        logger.info("SUCCESS: Project structure is valid.")
+        return 0
+    else:
+        logger.error("FAILURE: Project structure is incomplete.")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

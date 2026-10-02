@@ -1,4 +1,4 @@
-- artifact_hash: 21b54ee87718e47b59c3af164243b2cdd66fd4c5af7631b69ff7b6e1389a2a8e
+- artifact_hash: 0c8c4de04bf1c1de8758930e1c18a3fcfad7dc1dfef2239761cf363711c2ed85
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-01T17:06:04.080197Z'
-- artifact_hash: 06572ef723cdb9c390c5f019ab59fc24c35ab1fd2ea82db5c8ba803854beba32
+  verified_at: '2026-10-02T12:38:20.043359Z'
+- artifact_hash: 9afb9e3de48c3f138916c0b468891797fe41bec2c1499ffdf096a504fd527d7f
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://db.humanconnectome.org/api/projects/HCP_1200_Subjects/subjects/{subject_id}/files/{file_id}`
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-09-01T17:13:38.266520Z'
-- artifact_hash: 06572ef723cdb9c390c5f019ab59fc24c35ab1fd2ea82db5c8ba803854beba32
+  verified_at: '2026-10-02T12:39:30.631866Z'
+- artifact_hash: 9afb9e3de48c3f138916c0b468891797fe41bec2c1499ffdf096a504fd527d7f
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-01T17:13:38.266520Z'
+  verified_at: '2026-10-02T12:39:30.631866Z'
