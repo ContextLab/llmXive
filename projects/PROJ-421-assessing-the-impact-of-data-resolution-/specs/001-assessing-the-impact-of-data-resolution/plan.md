@@ -37,7 +37,7 @@ This project implements a computational pipeline to quantify how spatial data re
 
 ## Memory Management Strategy
 
-The full high-resolution NLCD for Colorado (large-scale grid) exceeds the 7GB RAM limit if loaded entirely into a NumPy array. The implementation MUST:
+The full high-resolution NLCD for Colorado (large-scale grid) exceeds available system memory if loaded entirely into a NumPy array. The implementation MUST:
 1. **Memory-Mapped I/O**: Use `rasterio` windowed reads to process the raster in tiles (e.g., 2000x2000 pixels) rather than loading the whole file.
 2. **Lazy Evaluation**: Utilize `dask` or generator-based pipelines for the permutation steps where possible to avoid materializing full permutation matrices.
 3. **Chunked Analysis**: Process each resolution level sequentially, clearing memory between levels.
@@ -123,7 +123,7 @@ projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/
 *Addresses: FR-006, FR-007, SC-001, SC-004*
 1. **Plot**: Generate Power-vs-Resolution curve.
 2. **Identify**: Locate resolution where power < 0.80.
-3. **Calculate Type II Error Delta**: Compute the percentage point increase in Type II error (1 - power) relative to the 30m baseline. (Addresses SC-002).
+3. **Calculate Type II Error Delta**: Compute the percentage point increase in Type II error (- power) relative to the 30m baseline. (Addresses SC-002).
 4. **Sensitivity Analysis (Mandatory)**: Sweep the resolution aggregation factor by ±10% around the identified inflection point. Verify the threshold does not vary by more than one resolution step. (Addresses SC-004).
 5. **Multi-Class Sensitivity**: Repeat the analysis for at least one other distinct land cover class (e.g., Urban) to ensure results are not artifacts of a single binary threshold. (Addresses Scientific Soundness).
 6. **Report**: Output specific resolution threshold and delta metrics.
@@ -137,7 +137,7 @@ projects/PROJ-421-assessing-the-impact-of-data-resolution-/tests/
 
 ## Compute Feasibility Plan
 
-- **Environment**: GitHub Actions free-tier (2 CPU, 7 GB RAM).
+- **Environment**: GitHub Actions free-tier (moderate CPU, 7 GB RAM).
 - **Strategy**:
  - Use `pysal` (pure Python/Cython) which is CPU-native.
  - **Memory**: Strictly use `rasterio` windowed reads and chunked processing.

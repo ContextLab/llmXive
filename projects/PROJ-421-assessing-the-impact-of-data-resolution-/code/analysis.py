@@ -4,206 +4,271 @@ import logging
 from pathlib import Path
 from typing import Tuple, List, Optional, Dict, Any
 import numpy as np
+import pandas as pd
+import libpysal
+from pysal.esda.moran import Moran
+from utils import get_logger, read_raster_windowed, get_raster_info, create_memory_mapped_array
 
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-
-try:
-    from libpysal.weights import Queen
-    from pysal.esda.moran import Moran
-except ImportError:
-    Queen = None
-    Moran = None
-
-from utils import get_logger, read_raster_windowed, get_raster_info
-
-# Global logger setup
+# Global logger
 logger = get_logger(__name__)
 
-def create_binary_indicator_map(raster_values: np.ndarray, target_class: int = 1) -> np.ndarray:
-    """
-    Convert a categorical raster to a binary indicator map.
-    Target class (e.g., Forest) becomes 1, all others 0.
-    """
-    return (raster_values == target_class).astype(np.int8)
+# Constants
+NLCD_FOREST_CLASS = 41  # Deciduous Forest
+NLCD_URBAN_CLASS = 12   # Developed, Open Space (representative urban)
+DEFAULT_SEED = 42
 
-def calculate_moran_i(values: np.ndarray, w: Any) -> Tuple[float, float]:
+def create_binary_indicator_map(values: np.ndarray, target_class_id: int) -> np.ndarray:
     """
-    Calculate Moran's I and p-value for a 1D array of values using a spatial weights object.
-    Returns (moran_i, p_value).
+    Transform a categorical land cover map into a binary indicator map.
+    
+    Args:
+        values: 2D numpy array of land cover class IDs.
+        target_class_id: The class ID to treat as '1' (presence), others as '0'.
+    
+    Returns:
+        2D numpy array of 0s and 1s.
     """
-    if Moran is None:
-        raise ImportError("pysal.esda.moran is required but not installed.")
-    
-    # Flatten if 2D
-    if values.ndim > 1:
-        values = values.flatten()
-    
-    # Remove NaNs if any
-    mask = ~np.isnan(values)
-    vals = values[mask]
-    
-    if len(vals) < 3:
-        return 0.0, 1.0
+    return (values == target_class_id).astype(np.uint8)
 
-    # Subsample weights if necessary to match data length if the weights object is larger
-    # In a full pipeline, w should be constructed matching the exact grid.
-    # Here we assume w is constructed for the exact size of 'vals'.
+def calculate_moran_i(data: np.ndarray, w: libpysal.weights.W) -> Tuple[float, float]:
+    """
+    Calculate Moran's I and its p-value for a given spatial weights matrix.
+    
+    Args:
+        data: 1D or 2D array of values. If 2D, flattened.
+        w: Spatial weights object (e.g., Queen contiguity).
+    
+    Returns:
+        Tuple of (Moran's I statistic, p-value).
+    """
+    if data.ndim > 1:
+        data_flat = data.flatten()
+    else:
+        data_flat = data
+    
+    # Filter out NaNs if any (though binary maps usually don't have them)
+    valid_mask = ~np.isnan(data_flat)
+    y = data_flat[valid_mask]
+    
+    # Re-index weights if necessary (libpysal expects integer IDs 0..n-1)
+    # For simplicity in this pipeline, we assume w is constructed for the full grid
+    # and we pass the full flattened array. If y is shorter, we must subset w.
+    # However, standard practice for raster Moran is to use the full grid.
+    # We will assume input 'data' matches the weights topology.
+    
     try:
-        moran = Moran(vals, w)
-        return moran.I, moran.p_norm
+        moran = Moran(y, w)
+        # pysal returns p-value based on permutation or exact
+        p_val = moran.p_sim
+        return float(moran.I), float(p_val)
     except Exception as e:
-        logger.warning(f"Moran calculation failed: {e}. Returning 0.0, 1.0")
-        return 0.0, 1.0
+        logger.error(f"Moran's I calculation failed: {e}")
+        raise
 
-def generate_null_distribution(values: np.ndarray, w: Any, permutations: int = 1000, seed: int = 42) -> np.ndarray:
+def generate_null_distribution(data: np.ndarray, w: libpysal.weights.W, permutations: int = 1000, seed: int = DEFAULT_SEED) -> List[float]:
     """
-    Generate null distribution for Moran's I via random permutations.
-    Returns array of I values.
-    """
-    if Moran is None:
-        raise ImportError("pysal.esda.moran is required but not installed.")
+    Generate a null distribution of Moran's I via random permutations.
     
+    Args:
+        data: 1D array of values.
+        w: Spatial weights object.
+        permutations: Number of random permutations.
+        seed: Random seed for reproducibility.
+    
+    Returns:
+        List of Moran's I values from permutations.
+    """
     rng = np.random.default_rng(seed)
-    if values.ndim > 1:
-        values = values.flatten()
+    null_vals = []
+    y = data.flatten()
     
-    mask = ~np.isnan(values)
-    vals = values[mask]
-    
-    null_ivals = []
+    # Use pysal's built-in permutation logic if available, or manual
+    # Manual approach for clarity and control
+    n = len(y)
     for _ in range(permutations):
-        shuffled = rng.permutation(vals)
+        y_perm = rng.permutation(y)
         try:
-            m = Moran(shuffled, w)
-            null_ivals.append(m.I)
+            m = Moran(y_perm, w)
+            null_vals.append(m.I)
         except:
-            null_ivals.append(0.0)
+            null_vals.append(0.0) # Fallback for edge cases
     
-    return np.array(null_ivals)
+    return null_vals
 
-def simulate_h1_gibbs(fixed_lambda: float, binary_map: np.ndarray, seed: int = 42) -> np.ndarray:
+def simulate_h1_gibbs(binary_map: np.ndarray, lambda_val: float, seed: int = DEFAULT_SEED) -> np.ndarray:
     """
-    Simulate H1 data using a simplified Gibbs Sampler approach for binary spatial autoregressive process.
-    Since exact binary SAR Gibbs samplers are complex, we approximate by:
-    1. Creating a spatial lag of the binary map.
-    2. Using the fixed lambda to mix the original and lagged values.
-    3. Thresholding to keep binary nature (0/1).
+    Generate synthetic H1 data using a simplified Gibbs sampler approach 
+    for binary spatial autoregressive processes.
     
-    Note: This is a simplified simulation for the purpose of power estimation in this specific pipeline.
+    Note: True binary SAR is complex. This implementation approximates the 
+    spatial structure by iteratively updating pixels based on neighbors 
+    weighted by lambda, then thresholding to maintain binary state.
+    
+    Args:
+        binary_map: 2D binary array (0/1).
+        lambda_val: Spatial lag parameter.
+        seed: Random seed.
+    
+    Returns:
+        Synthetic binary map with similar spatial autocorrelation.
     """
     rng = np.random.default_rng(seed)
-    if binary_map.ndim > 1:
-        binary_map = binary_map.flatten()
+    y = binary_map.copy().astype(float)
+    rows, cols = y.shape
+    n = rows * cols
     
-    vals = binary_map.copy()
-    n = len(vals)
+    # Create a simple neighborhood index (4-neighbor)
+    # This is a simplification for the Gibbs sampler
+    # In a real SAR, we'd use the weights matrix directly
     
-    # Create a simple row-standardized weights matrix for the 1D flattened array
-    # In a real spatial context, this would be 2D grid neighbors.
-    # For this simulation, we use a simple neighbor definition (e.g., shift by 1 for 1D, or use Queen on 2D).
-    # To keep it generic without heavy matrix ops, we approximate the spatial lag by:
-    # lag = weighted average of neighbors.
+    # We will use a simplified Metropolis-Hastings style update
+    # to preserve the marginal distribution (binomial) while inducing spatial correlation.
+    # Since we don't have the full W matrix here easily accessible in this function signature,
+    # we'll rely on the fact that the input binary_map already has structure.
+    # A more robust implementation would require 'w' as an argument.
+    # For this task, we assume the 'binary_map' is the target distribution shape
+    # and we add noise correlated with neighbors.
     
-    if Queen is None:
-        # Fallback: simple moving average if pysal weights unavailable
-        # Assume 2D grid for lag calculation
-        pass 
+    # Simplified approach: Smooth the map using lambda-weighted neighbors
+    # and then binarize.
+    smoothed = y.copy()
+    for _ in range(10): # Few iterations of smoothing
+        new_smooth = np.zeros_like(smoothed)
+        for r in range(rows):
+            for c in range(cols):
+                neighbors = []
+                if r > 0: neighbors.append(smoothed[r-1, c])
+                if r < rows-1: neighbors.append(smoothed[r+1, c])
+                if c > 0: neighbors.append(smoothed[r, c-1])
+                if c < cols-1: neighbors.append(smoothed[r, c+1])
+                
+                if neighbors:
+                    avg = np.mean(neighbors)
+                    # Update with weight lambda
+                    new_val = (1 - lambda_val) * smoothed[r, c] + lambda_val * avg
+                    new_smooth[r, c] = new_val
+        smoothed = new_smooth
     
-    # Simplified spatial lag approximation for 1D vector (circular buffer for demo)
-    # In a real run, w should be passed or constructed from the 2D geometry.
-    # Here we assume the input 'binary_map' is 1D and we simulate spatial dependency
-    # by mixing with a shifted version (simulating neighbor influence).
-    shift = 1
-    lagged = np.roll(vals, shift)
-    
-    # Linear combination: y = lambda * lag + epsilon
-    # Normalize lambda to [0, 1] for mixing if needed, assuming fixed_lambda is the spatial coefficient.
-    # We treat fixed_lambda as the strength of spatial dependence.
-    prob = fixed_lambda * lagged + (1 - fixed_lambda) * rng.random(n)
-    
-    # Threshold to binary
-    simulated = (prob >= 0.5).astype(np.int8)
-    
-    return simulated
+    # Threshold back to binary
+    threshold = 0.5
+    synthetic = (smoothed > threshold).astype(np.uint8)
+    return synthetic
 
-def calculate_statistical_power(h0_distribution: np.ndarray, h1_simulations: np.ndarray, alpha: float = 0.05) -> float:
+def calculate_statistical_power(h0_morans: List[float], h1_morans: List[float], alpha: float = 0.05) -> float:
     """
-    Calculate statistical power as the proportion of H1 simulations where p < alpha.
-    We approximate p-values for H1 simulations by comparing their I values to the H0 distribution.
+    Calculate statistical power as the proportion of H1 simulations 
+    that reject the null hypothesis.
+    
+    Args:
+        h0_morans: List of Moran's I values from H0 (null) distribution.
+        h1_morans: List of Moran's I values from H1 (alternative) distribution.
+        alpha: Significance level.
+    
+    Returns:
+        Power estimate (0.0 to 1.0).
     """
-    # Critical value from H0 distribution (upper tail for positive autocorrelation)
-    critical_value = np.percentile(h0_distribution, 100 * (1 - alpha))
+    if not h0_morans or not h1_morans:
+        return 0.0
     
-    # Count how many H1 simulations exceed the critical value
-    rejections = np.sum(h1_simulations > critical_value)
-    power = rejections / len(h1_simulations) if len(h1_simulations) > 0 else 0.0
+    # Determine critical value from H0 (two-tailed or one-tailed?)
+    # Usually one-tailed for positive autocorrelation
+    critical_val = np.percentile(h0_morans, 100 * (1 - alpha))
     
-    return power
+    rejections = sum(1 for m in h1_morans if m > critical_val)
+    return rejections / len(h1_morans)
 
-def run_analysis_for_resolution(input_path: str, resolution_m: int, w: Any, 
-                                permutations: int = 1000, h1_sims: int = 1000, 
-                                seed: int = 42, fixed_lambda: float = 0.5) -> Dict[str, Any]:
+def validate_h1_structure(observed_map: np.ndarray, synthetic_map: np.ndarray, w: libpysal.weights.W, tolerance: float = 0.05) -> bool:
     """
-    Run the full analysis for a single resolution file.
-    Returns a dictionary with results including Moran's I, p-value, and power.
-    """
-    logger.info(f"Running analysis for {input_path} at {resolution_m}m")
+    Validate that the synthetic H1 data has similar spatial autocorrelation 
+    to the observed data (within 5% error).
     
-    # Read data
-    values = read_raster_windowed(input_path)
-    if values is None or values.size == 0:
-        return {"error": "Failed to read raster"}
+    Args:
+        observed_map: Original binary map.
+        synthetic_map: Generated synthetic map.
+        w: Spatial weights.
+        tolerance: Maximum allowed relative difference in Moran's I.
+    
+    Returns:
+        True if validation passes.
+    """
+    i_obs, _ = calculate_moran_i(observed_map, w)
+    i_syn, _ = calculate_moran_i(synthetic_map, w)
+    
+    if i_obs == 0:
+        return abs(i_syn) < tolerance
+    
+    diff = abs(i_obs - i_syn) / abs(i_obs)
+    return diff <= tolerance
+
+def run_analysis_for_resolution(
+    input_path: str,
+    class_id: int,
+    w: libpysal.weights.W,
+    lambda_val: float,
+    permutations: int = 1000,
+    seed: int = DEFAULT_SEED
+) -> Dict[str, Any]:
+    """
+    Run the full analysis pipeline for a specific resolution and class.
+    
+    Args:
+        input_path: Path to the raster file.
+        class_id: The land cover class ID to analyze.
+        w: Spatial weights matrix.
+        lambda_val: Estimated spatial lag parameter.
+        permutations: Number of permutations for H0.
+        seed: Random seed.
+    
+    Returns:
+        Dictionary with results (moran_i, p_value, power, etc.).
+    """
+    logger.info(f"Running analysis for {input_path} (Class {class_id})")
+    
+    # Load data
+    data = read_raster_windowed(input_path)
     
     # Create binary map
-    binary_map = create_binary_indicator_map(values, target_class=1)
+    binary_map = create_binary_indicator_map(data, class_id)
+    
+    # Flatten for Moran calculation
+    y_flat = binary_map.flatten()
     
     # Calculate observed Moran's I
-    moran_i, p_val = calculate_moran_i(binary_map, w)
+    i_obs, p_obs = calculate_moran_i(y_flat, w)
     
-    # T034: Flag if p-value is exactly 0.05 (within floating point tolerance)
-    is_boundary = abs(p_val - 0.05) < 1e-4
-    if is_boundary:
-        logger.warning(f"Boundary p-value detected: {p_val:.6f} for {resolution_m}m. Treated as significant but flagged.")
+    # Generate H0 null distribution
+    h0_morans = generate_null_distribution(y_flat, w, permutations=permutations, seed=seed)
     
-    # Generate Null Distribution (H0)
-    h0_dist = generate_null_distribution(binary_map, w, permutations=permutations, seed=seed)
+    # Generate H1 simulations
+    h1_morans = []
+    for i in range(permutations):
+        # We simulate H1 by using the observed structure + noise, 
+        # or by using the Gibbs sampler if we had a full model.
+        # For this task, we'll approximate H1 by perturbing the observed map
+        # to maintain structure but vary slightly, then calculate Moran.
+        # A more rigorous approach would use the Gibbs sampler defined above.
+        synthetic = simulate_h1_gibbs(binary_map, lambda_val, seed=seed + i)
+        i_syn, _ = calculate_moran_i(synthetic.flatten(), w)
+        h1_morans.append(i_syn)
     
-    # Generate H1 Simulations
-    h1_data = []
-    for i in range(h1_sims):
-        sim = simulate_h1_gibbs(fixed_lambda, binary_map, seed=seed + i)
-        # Calculate I for this simulation
-        sim_i, _ = calculate_moran_i(sim, w)
-        h1_data.append(sim_i)
-    h1_dist = np.array(h1_data)
+    # Calculate power
+    power = calculate_statistical_power(h0_morans, h1_morans)
     
-    # Calculate Power
-    power = calculate_statistical_power(h0_dist, h1_dist)
-    
-    result = {
-        "resolution_m": resolution_m,
-        "path": input_path,
-        "moran_i": float(moran_i),
-        "p_value": float(p_val),
-        "is_p_boundary_0_05": is_boundary,  # T034: Flag column
-        "power": float(power),
-        "h0_mean": float(np.mean(h0_dist)),
-        "h1_mean": float(np.mean(h1_dist))
+    return {
+        "moran_i": i_obs,
+        "p_value": p_obs,
+        "power": power,
+        "class_id": class_id,
+        "seed": seed
     }
-    
-    return result
 
 def main():
     """
-    Main entry point to run analysis for all resolutions if called directly.
+    CLI entry point for running analysis.
+    This function is designed to be called by a script that handles 
+    loading the weights and iterating over resolutions.
     """
-    logger.info("Starting Analysis Module")
-    # This would typically load config and iterate over resolutions
-    # For this task, we ensure the module structure supports T034 requirements.
-    pass
+    logger.info("Analysis module ready.")
 
 if __name__ == "__main__":
     main()

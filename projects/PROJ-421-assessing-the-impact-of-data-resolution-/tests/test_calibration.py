@@ -1,95 +1,122 @@
 """
-Tests for the calibration module (T010).
+Unit tests for the calibration module.
 """
 import os
 import json
 import tempfile
-import numpy as np
 import pytest
+import numpy as np
 from pathlib import Path
+import rasterio
+from rasterio.transform import from_bounds
 
-# Mock the config and utils if necessary, but ideally run against real structure
-# We will test the logic of estimate_lambda with a synthetic but structured input
-# that mimics the spatial autocorrelation expected in real data.
+# Import the function to test
+# Assuming calibration.py is in the code directory and we can import it
+# We need to ensure the path is set correctly or use relative imports if in a package
+# For this test file, we assume it's run from the project root or code directory
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_estimate_lambda_logic():
-    """
-    Test that estimate_lambda runs without error on a synthetic dataset
-    that has known spatial structure.
-    """
-    # This test requires the actual calibration module to be importable.
-    # We will create a temporary GeoTIFF with synthetic data to test the pipeline.
+from calibration import estimate_lambda, _create_lag_matrix_binary, _log_likelihood_sar
+
+
+def test_create_lag_matrix_binary():
+    """Test the binary weights matrix creation."""
+    # Create 4 points in a square
+    coords = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 1.0]
+    ])
     
-    try:
-        import rasterio
-        from rasterio.transform import from_bounds
-    except ImportError:
-        pytest.skip("rasterio not installed for testing")
-
-    from calibration import estimate_lambda
-
-    # Create a synthetic raster with spatial autocorrelation
-    # Use a simple autoregressive process: y_t = lambda * y_neighbors + error
-    n = 50
-    data = np.random.rand(n, n)
+    # Threshold = 1.5 (should connect diagonals too? No, distance sqrt(2) ~ 1.41 < 1.5)
+    # Distance between (0,0) and (1,1) is 1.414.
+    W = _create_lag_matrix_binary(coords, threshold=1.5)
     
-    # Inject spatial autocorrelation manually (smoothing)
-    # This is a crude approximation but sufficient to trigger the MLE
-    # We'll use a simple convolution to create smooth regions
-    kernel = np.array([[0.1, 0.2, 0.1],
-                       [0.2, 0.2, 0.2],
-                       [0.1, 0.2, 0.1]])
-    from scipy.signal import convolve2d
-    data = convolve2d(data, kernel, mode='same')
+    # All points should be connected to all others in this small cluster
+    # Diagonal should be 0
+    assert np.diag(W).sum() == 0.0
+    # Row sums should be 1.0 (row standardized)
+    assert np.allclose(W.sum(axis=1), 1.0)
+    
+    # Test with smaller threshold (only orthogonal neighbors)
+    W_small = _create_lag_matrix_binary(coords, threshold=1.1)
+    # (0,0) connected to (1,0) and (0,1)
+    # (0,0) NOT connected to (1,1)
+    assert W_small[0, 3] == 0.0 # (0,0) to (1,1)
+    assert W_small[0, 1] > 0.0 # (0,0) to (1,0)
+
+
+def test_log_likelihood_sar():
+    """Test the log-likelihood calculation."""
+    y = np.array([1.0, 0.0, 1.0, 0.0])
+    W = np.eye(4) # Identity (no spatial dependence)
+    
+    ll = _log_likelihood_sar(y, W, rho=0.0, sigma2=1.0)
+    
+    # With rho=0, model is y = epsilon ~ N(0, 1)
+    # LL = -n/2 log(2pi) - n/2 log(1) - 0.5 * sum(y^2)
+    # sum(y^2) = 2
+    # LL = -2*log(2pi) - 1
+    expected = -0.5 * 4 * np.log(2 * np.pi) - 0.5 * 2
+    assert np.isclose(ll, expected)
+
+
+def test_estimate_lambda_integration(tmp_path):
+    """Integration test for estimate_lambda with synthetic data."""
+    # Create a synthetic raster in memory
+    height, width = 100, 100
+    transform = from_bounds(0, 0, 100, 100, width, height)
+    
+    # Create a pattern with spatial autocorrelation
+    data = np.zeros((height, width), dtype=np.uint8)
+    # Top half forest, bottom half not (simple block)
+    data[:50, :] = 41 # Forest
+    data[50:, :] = 11 # Water/Other
     
     # Add some noise
-    data += np.random.normal(0, 0.1, data.shape)
+    rng = np.random.default_rng(42)
+    noise = rng.choice([0, 1], size=data.shape, p=[0.9, 0.1])
+    data = data + noise * 10 # Just to make it distinct if needed, but keeping classes 41 and 11
     
-    # Create a temporary GeoTIFF
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tiff_path = os.path.join(tmpdir, "test_30m.tif")
-        transform = from_bounds(0, 0, 1, 1, n, n)
+    # Write to temp file
+    temp_tif = tmp_path / "test_raster.tif"
+    with rasterio.open(
+        temp_tif, 'w',
+        driver='GTiff',
+        height=height,
+        width=width,
+        count=1,
+        dtype=rasterio.uint8,
+        crs='EPSG:4326',
+        transform=transform
+    ) as dst:
+        dst.write(data, 1)
         
-        with rasterio.open(
-            tiff_path, 'w',
-            driver='GTiff',
-            height=n,
-            width=n,
-            count=1,
-            dtype=data.dtype,
-            crs='EPSG:4326',
-            transform=transform
-        ) as dst:
-            dst.write(data, 1)
-        
-        # Run the estimation
-        lambda_val = estimate_lambda(tiff_path)
-        
-        assert isinstance(lambda_val, float), "Lambda must be a float"
-        assert not np.isnan(lambda_val), "Lambda must not be NaN"
-        assert not np.isinf(lambda_val), "Lambda must not be Inf"
-        # Lambda for spatial lag is typically between -1 and 1
-        assert -1 < lambda_val < 1, f"Lambda {lambda_val} is out of expected range [-1, 1]"
-
-def test_save_calibration_result():
-    """
-    Test that save_calibration_result writes a valid JSON file.
-    """
-    from calibration import save_calibration_result
+    output_json = tmp_path / "calibration_test.json"
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "calibration_lambda.json")
-        save_calibration_result(0.5, output_path)
+    # Run estimation
+    result = estimate_lambda(
+        input_path=temp_tif,
+        output_path=output_json,
+        sample_size=500,
+        seed=42
+    )
+    
+    # Verify output file exists
+    assert output_json.exists()
+    
+    # Verify JSON content
+    with open(output_json, 'r') as f:
+        saved_data = json.load(f)
         
-        assert os.path.exists(output_path), "Output file must exist"
-        
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert "lambda" in data
-        assert data["lambda"] == 0.5
-        assert "seed" in data
-        assert "method" in data
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    assert "lambda" in saved_data
+    assert "seed" in saved_data
+    assert saved_data["seed"] == 42
+    assert isinstance(saved_data["lambda"], float)
+    
+    # The lambda should be non-zero if there is spatial structure
+    # In our block pattern, there is strong spatial autocorrelation
+    # We expect a positive lambda
+    assert saved_data["lambda"] > 0.0

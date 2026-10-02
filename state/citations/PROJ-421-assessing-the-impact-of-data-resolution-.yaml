@@ -53,3 +53,14 @@
   verification_status: verified
   verified_against_url: https://www.contributor-covenant.org/version/1/4/code-of-conduct/
   verified_at: '2026-07-05T11:15:36.779405Z'
+- artifact_hash: 4a39bd01251bbbbe06b6379126f2f253162aa51ba68380d04ea91f810f2e9241
+  artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/specs/001-assessing-the-impact-of-data-resolution/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif
+  verified_at: '2026-10-02T02:37:23.738839Z'

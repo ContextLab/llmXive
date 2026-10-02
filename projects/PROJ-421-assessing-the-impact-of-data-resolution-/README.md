@@ -1,139 +1,105 @@
 # Assessing the Impact of Data Resolution on Statistical Power in Publicly Available Spatial Datasets
 
-## Project Overview
-This research project investigates how data resolution affects statistical power in spatial datasets, using National Land Cover Database (NLCD) data for Colorado as a case study. The project analyzes the relationship between spatial resolution and the ability to detect spatial autocorrelation patterns.
+This project investigates how spatial data resolution affects statistical power in detecting spatial autocorrelation, using publicly available land cover datasets (NLCD).
 
-## Research Question
-How does modulating the resolution of publicly available spatial datasets impact the statistical power to detect spatial autocorrelation?
+## Prerequisites
 
-## Methodology
-
-### Data Source
-- **Dataset**: NLCD 2019 Land Cover (30m resolution)
-- **Region**: Colorado, USA
-- **Source**: HuggingFace (verified URL)
-
-### Analysis Pipeline
-1. **Data Ingestion**: Download and validate NLCD 30m data
-2. **Resolution Aggregation**: Generate coarser resolutions (60m, 120m, 240m, 480m) using nearest-neighbor resampling
-3. **Binary Transformation**: Create binary indicator maps (Forest vs. Others)
-4. **Spatial Autocorrelation**: Calculate Moran's I statistics
-5. **Null Distribution**: Generate 1,000 random permutations for H0
-6. **Alternative Simulation**: Use Gibbs Sampler with calibrated λ for H1 (1,000 simulations)
-7. **Power Calculation**: Compute rejection rate of H1 simulations
-8. **Threshold Identification**: Find resolution where power < 0.80
-9. **Sensitivity Analysis**: ±10% sweep around inflection point
-
-### Key Metrics
-- **Moran's I**: Measure of spatial autocorrelation
-- **p-value**: Significance of spatial pattern
-- **Statistical Power**: Probability of correctly rejecting H0 when H1 is true
-- **Type II Error**: 1 - power (false negative rate)
-
-## Project Structure
-```
-PROJ-421-assessing-the-impact-of-data-resolution-/
-├── code/
-│ ├── analysis.py # Core spatial analysis
-│ ├── calibration.py # Lambda estimation
-│ ├── config.py # Configuration settings
-│ ├── data_ingestion.py # Data download
-│ ├── models.py # Data models
-│ ├── resampling.py # Resolution aggregation
-│ ├── utils.py # Utilities
-│ ├── visualization.py # Plotting and reporting
-│ └──... (additional modules)
-├── data/
-│ ├── raw/ # Original NLCD data
-│ ├── derived/ # Resampled rasters
-│ └── results/ # Analysis outputs
-├── tests/
-│ └── unit/ # Unit tests
-└── docs/
- └── IMPLEMENTATION_GUIDE.md
-```
+- Python 3.9+
+- `pip install -r code/requirements.txt`
 
 ## Quick Start
 
-### Prerequisites
-- Python 3.8+
-- pip
-- 7GB+ RAM (for full dataset processing)
-
-### Installation
+### 1. Setup Directories
 ```bash
-# Clone repository
-git clone <repository-url>
-cd PROJ-421-assessing-the-impact-of-data-resolution-
-
-# Install dependencies
-pip install -r code/requirements.txt
+python -m code.setup_dirs
 ```
 
-### Running the Pipeline
+### 2. Validate Data Sources
 ```bash
-# 1. Setup directories
-python code/setup_dirs.py
-
-# 2. Calibrate lambda parameter
-python code/calibration.py
-
-# 3. Download data
-python code/data_ingestion.py
-
-# 4. Generate coarser resolutions
-python code/resampling.py
-
-# 5. Run analysis
-python code/analysis.py
-
-# 6. Generate visualizations and reports
-python code/visualization.py
-python code/generate_final_report.py
+python -m code.reference_validator --input data/ --config code/config.py
 ```
 
-### Running Tests
+### 3. Ingest Data
+Downloads the high-resolution (30m) NLCD data for Colorado.
 ```bash
-pytest tests/unit/
+python -m code.data_ingestion
 ```
 
-## Key Findings
-- Statistical power decreases as resolution becomes coarser
-- Threshold identified where power drops below 0.80
-- Sensitivity analysis confirms threshold stability within one resolution step
-- Type II error increases significantly at lower resolutions
+### 4. Generate Coarser Resolutions
+Creates aggregated rasters at 60m, 120m, 240m, and 480m using nearest-neighbor resampling.
+```bash
+python -m code.resampling --input data/raw/nlcd_30m_colorado.tif --factors 2,4,8,16 --output data/derived/
+```
 
-## Outputs
-- `data/results/power_results.csv`: Statistical metrics for each resolution
-- `data/results/threshold_report.txt`: Resolution threshold where power < 0.80
-- `data/results/final_report.md`: Comprehensive analysis report
-- `data/results/sensitivity_report.txt`: Sensitivity analysis results
-- `figures/power_curve.png`: Power vs. Resolution visualization
+### 5. Run Calibration (Phase 0)
+Estimates the spatial lag parameter ($\lambda$) from the 30m data.
+```bash
+python -m code.calibration --input data/raw/nlcd_30m_colorado.tif --output data/results/calibration_lambda.json
+```
 
-## Dependencies
-- rasterio
-- geopandas
-- pysal
-- numpy
-- scipy
-- matplotlib
-- pandas
-- libpysal
-- datasets (HuggingFace)
+### 6. Run Full Analysis (US2)
+Computes Moran's I, generates null/alternative distributions, and calculates statistical power.
+```bash
+python -m code.analysis --input-dir data/derived/ --lambda-file data/results/calibration_lambda.json --output data/results/results.csv
+```
+
+### 7. Generate Reports (US3)
+Creates the power curve visualization and threshold report.
+```bash
+python -m code.visualization --input data/results/results.csv --output data/results/
+python -m code.generate_sensitivity_report --input data/results/results.csv --output data/results/sensitivity_report.md
+python -m code.generate_final_report --input data/results/results.csv --output data/results/final_report.md
+```
+
+## CLI Usage Examples
+
+### Resampling with Custom Factors
+```bash
+python -m code.resampling --input data/raw/nlcd_30m_colorado.tif --factors 2,3,4 --output data/derived_custom/
+```
+
+### Analysis with Specific Seed
+```bash
+python -m code.analysis --input-dir data/derived/ --lambda-file data/results/calibration_lambda.json --seed 42 --output data/results/results.csv
+```
+
+### Sensitivity Sweep
+```bash
+python -m code.sensitivity_analysis --input data/results/results.csv --output data/results/sensitivity_report.md --sweep-factors 1.8,2.2
+```
+
+## Project Structure
+
+```
+.
+├── code/
+│ ├── analysis.py # Moran's I, power calculation, simulation
+│ ├── calibration.py # Lambda estimation
+│ ├── config.py # Project configuration
+│ ├── data_ingestion.py # Data download and validation
+│ ├── resampling.py # Resolution aggregation
+│ ├── visualization.py # Power curve generation
+│ ├── utils.py # IO helpers, logging, retry logic
+│ └──...
+├── data/
+│ ├── raw/ # Original downloaded data
+│ ├── derived/ # Aggregated rasters
+│ └── results/ # Analysis outputs, reports
+├── tests/
+│ ├── test_analysis.py
+│ ├── test_resampling.py
+│ └──...
+├── README.md
+└── requirements.txt
+```
+
+## Validation
+
+Run the quickstart validator to ensure all components are functional:
+```bash
+python -m code.quickstart_validator
+```
 
 ## License
-This project is for research purposes. NLCD data is subject to USGS licensing terms.
 
-## Citation
-If you use this code or findings in your research, please cite:
-```
-[Project Name]: Assessing the Impact of Data Resolution on Statistical Power in Publicly Available Spatial Datasets
-```
-
-## Contact
-For questions or issues, please open an issue in the repository.
-
-## Acknowledgments
-- USGS/National Land Cover Database for data
-- HuggingFace for dataset hosting
-- PySAL team for spatial analysis tools
+This project is for research purposes using public domain data (NLCD).

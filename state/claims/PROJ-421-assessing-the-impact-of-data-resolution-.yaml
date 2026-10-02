@@ -245,3 +245,95 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T06:04:36Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Shannon Entropy at 30m resolution is 2.85
+  claim_id: c_0479ae97
+  context: Table row for Factor 1 shows Resolution 30m with Shannon Entropy 2.8500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shannon Entropy at 30m resolution (Factor 1) is 2.8500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:15:35Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Variance at 30m resolution is 0.45
+  claim_id: c_170bf68e
+  context: Table row for Factor 1 shows Resolution 30m with Variance 0.4500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance at 30m resolution (Factor 1) is 0.4500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:16:02Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Shannon Entropy at 480m resolution is 1.9
+  claim_id: c_e298a5e8
+  context: Table row for Factor 16 shows Resolution 480m with Shannon Entropy 1.9000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shannon Entropy at 480m resolution (Factor 16) is 1.9000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:16:17Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Variance at 480m resolution is 0.18
+  claim_id: c_73db9757
+  context: Table row for Factor 16 shows Resolution 480m with Variance 0.1800.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance at 480m resolution (Factor 16) is 0.1800.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:16:55Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Shannon Entropy decreased 33.33% from 30m resolution
+  claim_id: c_7ff53b0c
+  context: 'Observed Trends section states ''Entropy Change: 0.9500 (33.33% decrease
+    from 30m)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shannon Entropy showed a 33.33% decrease from 30m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:16:55Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/docs/maup_analysis.md
+  attempts: 1
+  canonical: Variance decreased 60% from 30m resolution
+  claim_id: c_0dff8230
+  context: 'Observed Trends section states ''Variance Change: 0.2700 (60.00% decrease
+    from 30m)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance showed a 60.00% decrease from 30m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T02:16:55Z'
