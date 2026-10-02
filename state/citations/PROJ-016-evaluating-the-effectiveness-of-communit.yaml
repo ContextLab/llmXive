@@ -43,3 +43,14 @@
   verification_status: verified
   verified_against_url: https://www.worldbank.org/ext/en/topic/environment/forests-and-landscapes
   verified_at: '2026-07-07T06:45:12.409033Z'
+- artifact_hash: 685dbfc2c69755b1376302cae1687c4bd8888afc25efc364377255a1ae87af8a
+  artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1906.01701] On Benjamini-Hochberg procedure applied to mid p-values'
+  kind: url
+  value: https://arxiv.org/abs/1906.01701
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1906.01701
+  verified_at: '2026-10-02T21:02:21.782720Z'

@@ -3059,3 +3059,226 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T18:29:50Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: "Generate 1000 Gaussian random field realizations with 5.0 arcmin FWHM\
+    \ beam smoothing and 1.1 \u03BCK\xB2 noise variance"
+  claim_id: c_5f8e66e7
+  context: "T030 [US3] Implement `code/simulate.py`: Generate N=1,000 Gaussian random\
+    \ field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2\
+    =1.1 \u03BCK\xB2) using streaming/batch processing to ensure runtime \u22646h\
+    \ (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:09:50Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Simulation processing runtime limit of 6 hours
+  claim_id: c_e193f505
+  context: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2) using streaming/batch\
+    \ processing to ensure runtime \u22646h (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process simulations in batches to ensure runtime \u22646h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:09:51Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Fetch COM_CMB_ILM-NR1-000_R2.01.fits SMICA map with Nside=128 from Planck
+    Legacy Archive
+  claim_id: c_aa2ccbd3
+  context: 'T012 [US1] Implement `code/download.py`: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits`
+    (SMICA Nside=128) from Planck Legacy Archive with retry logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (SMICA Nside=128) from Planck Legacy
+    Archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:10:39Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 1000 Gaussian random field realizations with 5.0 arcmin beam smoothing
+    and 1.1 microKelvin squared noise
+  claim_id: c_de5038b0
+  context: 'Phase 5, User Story 3, Task T030: Implement code/simulate.py to generate
+    realizations matching Planck beam/noise.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:13:01Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 1000 Gaussian simulations runtime 6 hours
+  claim_id: c_a3e14332
+  context: 'Phase 5, User Story 3, Task T030: Process simulations in batches to stay
+    under available RAM constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations ... to ensure runtime\
+    \ \u22646h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:13:23Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Generate 1000 Gaussian random field realizations with 5.0 arcmin FWHM
+    beam smoothing and 1.1 microKelvin squared noise variance
+  claim_id: c_d75ff84f
+  context: "Task T030 [US3] Implement code/simulate.py: Generate N=1,000 Gaussian\
+    \ random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\
+    \xB2=1.1 \u03BCK\xB2) using streaming/batch processing to ensure runtime \u2264\
+    6h (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:14:22Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Download Planck 2015/2018 SMICA CMB temperature map at Nside 128
+  claim_id: c_bb168226
+  context: 'Goal: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128,
+    validate integrity, apply Galactic mask, and verify pixel counts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:15:21Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Compute Minkowski Functionals at thresholds plus or minus 0.5 sigma,
+    plus or minus 1 sigma, and 0 sigma
+  claim_id: c_9311ad91
+  context: "Goal: Compute all three Minkowski Functionals (area, perimeter, genus)\
+    \ on the masked CMB map at thresholds {\xB10.5\u03C3, \xB11\u03C3, 0\u03C3} with\
+    \ mask-corrected estimators."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute Minkowski Functionals at thresholds {\xB10.5\u03C3, \xB11\u03C3\
+    , 0\u03C3}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:15:46Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Generate 1000 Gaussian random field realizations with FWHM 5.0 arcmin
+    and noise sigma squared 1.1 microK squared
+  claim_id: c_a48d5b64
+  context: "T030 [US3] Implement code/simulate.py: Generate N=1,000 Gaussian random\
+    \ field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2\
+    =1.1 \u03BCK\xB2) using streaming/batch processing to ensure runtime \u22646h\
+    \ (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:17:25Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: "1000 Gaussian random field realizations with 5.0 arcmin FWHM beam smoothing\
+    \ and 1.1 \u03BCK\xB2 noise variance"
+  claim_id: c_2f6e5660
+  context: "T030 [US3] Implement code/simulate.py: Generate N=1,000 Gaussian random\
+    \ field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2\
+    =1.1 \u03BCK\xB2) using streaming/batch processing to ensure runtime \u22646h\
+    \ (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:17:56Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Generate 1000 Gaussian random field realizations with FWHM 5.0 arcmin
+    beam smoothing and noise variance 1.1 microKelvin squared
+  claim_id: c_2193efdd
+  context: "T030 [US3] Implement code/simulate.py: Generate N=1,000 Gaussian random\
+    \ field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2\
+    =1.1 \u03BCK\xB2) using streaming/batch processing to ensure runtime \u22646h\
+    \ (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:19:09Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 1000 Gaussian random field realizations with 5.0 arcmin beam smoothing
+    and 1.1 microkelvin squared noise
+  claim_id: c_c55761e4
+  context: Task T030 describes generating simulations matching Planck beam/noise with
+    specific parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=1,000 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:20:39Z'

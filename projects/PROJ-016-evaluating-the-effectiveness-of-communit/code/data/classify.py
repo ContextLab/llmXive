@@ -3,148 +3,151 @@ import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import pandas as pd
-
-# Add project root to path for imports if running as script
-if "code" not in sys.path:
-    code_dir = Path(__file__).resolve().parent
-    project_root = code_dir.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
 
 from logging_config import get_logger
 
+# Configuration paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+LOGS_DIR = PROJECT_ROOT / "logs"
+
+# Ensure directories exist
+PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 logger = get_logger(__name__)
 
-def load_metadata(metadata_path: Path) -> Dict[str, Any]:
-    """Load CBNRM proxy metadata."""
+def load_metadata() -> Dict[str, Any]:
+    """
+    Load CBNRM proxy metadata from the processed directory.
+    Expected file: data/processed/cbnrm_proxy_metadata.json
+    """
+    metadata_path = PROCESSED_DATA_DIR / "cbnrm_proxy_metadata.json"
+    
     if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
-    with open(metadata_path, 'r') as f:
-        return json.load(f)
+        logger.error(f"CBNRM Proxy metadata missing: {metadata_path}. Cannot derive regime_type.")
+        raise FileNotFoundError(f"CBNRM Proxy metadata missing. Cannot derive regime_type.")
+    
+    try:
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        
+        if not data:
+            logger.error("CBNRM Proxy metadata is empty. Cannot derive regime_type.")
+            raise ValueError("CBNRM Proxy metadata missing. Cannot derive regime_type.")
+        
+        # Validate required fields
+        if 'threshold' not in data:
+            logger.error("Threshold not found in CBNRM Proxy metadata. Cannot derive regime_type.")
+            raise ValueError("CBNRM Proxy metadata missing. Cannot derive regime_type.")
+        
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in CBNRM Proxy metadata: {e}")
+        raise
 
-def load_validation_results(validation_path: Path) -> Dict[str, Any]:
-    """Load proxy validation results (excluded countries)."""
+def load_validation_results() -> Dict[str, Any]:
+    """
+    Load proxy validation results from the processed directory.
+    Expected file: data/processed/proxy_validation.json
+    """
+    validation_path = PROCESSED_DATA_DIR / "proxy_validation.json"
+    
     if not validation_path.exists():
-        # If file doesn't exist, assume no exclusions yet (for T009b run first)
-        return {"excluded_countries": [], "reasons": {}}
-    with open(validation_path, 'r') as f:
-        return json.load(f)
+        logger.warning(f"Proxy validation results missing: {validation_path}. Proceeding without exclusion list.")
+        return {"excluded_countries": []}
+    
+    try:
+        with open(validation_path, 'r') as f:
+            data = json.load(f)
+        return data
+    except json.JSONDecodeError as e:
+        logger.warning(f"Invalid JSON in proxy validation results: {e}. Proceeding without exclusion list.")
+        return {"excluded_countries": []}
 
 def classify_regime(proxy_value: float, threshold: float) -> int:
     """
-    Derive binary regime_type.
-    If proxy_value > threshold, regime_type = 1 (CBNRM), else 0 (State-led).
+    Classify regime type based on proxy value and threshold.
+    Logic: If proxy_value > threshold, set regime_type=1 (CBNRM), else 0 (State-led).
     """
     if pd.isna(proxy_value):
         return None
     return 1 if proxy_value > threshold else 0
 
-def apply_classification(df: pd.DataFrame, threshold: float) -> pd.DataFrame:
-    """Apply classification logic to a dataframe."""
-    df = df.copy()
+def apply_classification(df: pd.DataFrame, metadata: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Apply regime classification to the dataframe.
+    Expects 'proxy_value' column to exist.
+    """
+    threshold = metadata['threshold']
+    
+    # Handle potential missing proxy values
     df['regime_type'] = df['proxy_value'].apply(lambda x: classify_regime(x, threshold))
+    
     return df
-
-def validate_proxy_variance(df: pd.DataFrame, min_variance_threshold: float = 0.0) -> Dict[str, Any]:
-    """
-    Step 1 of T009b: Check variance of the fetched CBNRM proxy.
-    If a country has zero variance (constant value) over time, exclude it.
-    Returns a dict with excluded countries and reasons.
-    """
-    if 'country_code' not in df.columns or 'proxy_value' not in df.columns:
-        raise ValueError("DataFrame must contain 'country_code' and 'proxy_value' columns.")
-
-    excluded_countries = []
-    reasons = {}
-
-    # Group by country
-    grouped = df.groupby('country_code')
-
-    for country, group in grouped:
-        # Remove NaN values for variance calculation
-        valid_values = group['proxy_value'].dropna()
-        
-        if len(valid_values) < 2:
-            # Not enough data points to calculate variance
-            excluded_countries.append(country)
-            reasons[country] = "Insufficient data points (< 2) to calculate variance"
-            continue
-
-        variance = valid_values.var()
-        
-        if variance == 0.0 or variance < min_variance_threshold:
-            excluded_countries.append(country)
-            reasons[country] = f"Zero variance (constant value: {valid_values.iloc[0]})"
-
-    return {
-        "excluded_countries": excluded_countries,
-        "reasons": reasons,
-        "total_countries_checked": len(grouped),
-        "total_excluded": len(excluded_countries)
-    }
-
-def save_validation_results(validation_results: Dict[str, Any], output_path: Path):
-    """Save validation results to JSON."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(validation_results, f, indent=2)
-    logger.info(f"Saved validation results to {output_path}")
 
 def main():
     """
-    Main execution for T009b: Validate Proxy.
-    This script validates the CBNRM proxy data fetched by T009.
-    It checks for zero-variance countries, excludes them, logs the exclusions,
-    and saves the results to data/processed/proxy_validation.json.
+    Main execution for T014: Regime Classification.
+    1. Load metadata (fail loud if missing).
+    2. Load validation results (warn if missing).
+    3. Load merged panel data.
+    4. Apply classification.
+    5. Save classified panel.
     """
-    config_path = Path("code/config.py")
-    # Fallback paths if config not loaded dynamically
-    raw_data_path = Path("data/raw/cbnrm_proxy.csv")
-    processed_dir = Path("data/processed")
-    validation_output_path = processed_dir / "proxy_validation.json"
-
-    logger.info("Starting T009b: Validate Proxy Variance")
-
-    if not raw_data_path.exists():
-        logger.warning(f"Raw data file not found: {raw_data_path}. Run T009 first.")
-        # Produce empty list as per spec: "If the file is missing or empty, log a warning and produce an empty list"
-        save_validation_results({"excluded_countries": [], "reasons": {}, "total_countries_checked": 0, "total_excluded": 0}, validation_output_path)
-        return
-
-    # Load data
+    logger.info("Starting T014: Regime Classification")
+    
+    # Step 1: Load Metadata (Fail Loud)
     try:
-        df = pd.read_csv(raw_data_path)
-        logger.info(f"Loaded {len(df)} rows from {raw_data_path}")
+        metadata = load_metadata()
+    except (FileNotFoundError, ValueError) as e:
+        logger.critical(str(e))
+        sys.exit(1)
+    
+    # Step 2: Load Validation Results
+    validation_data = load_validation_results()
+    excluded_countries = validation_data.get('excluded_countries', [])
+    
+    if excluded_countries:
+        logger.info(f"Excluding {len(excluded_countries)} countries based on validation: {excluded_countries}")
+    
+    # Step 3: Load Merged Panel
+    merged_panel_path = PROCESSED_DATA_DIR / "merged_panel.csv"
+    if not merged_panel_path.exists():
+        logger.error(f"Merged panel not found: {merged_panel_path}. T013 must run first.")
+        sys.exit(1)
+    
+    try:
+        df = pd.read_csv(merged_panel_path)
     except Exception as e:
-        logger.error(f"Failed to load raw data: {e}")
+        logger.error(f"Failed to load merged panel: {e}")
         sys.exit(1)
-
-    if df.empty:
-        logger.warning(f"Raw data file {raw_data_path} is empty.")
-        save_validation_results({"excluded_countries": [], "reasons": {}, "total_countries_checked": 0, "total_excluded": 0}, validation_output_path)
-        return
-
-    # Validate variance
+    
+    # Check for required columns
+    required_cols = ['proxy_value']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns in merged panel: {missing_cols}")
+        sys.exit(1)
+    
+    # Step 4: Apply Classification
+    df_classified = apply_classification(df, metadata)
+    
+    # Step 5: Save Classified Panel
+    output_path = PROCESSED_DATA_DIR / "classified_panel.csv"
     try:
-        validation_results = validate_proxy_variance(df)
-    except ValueError as e:
-        logger.error(f"Validation failed due to missing columns: {e}")
+        df_classified.to_csv(output_path, index=False)
+        logger.info(f"Successfully saved classified panel to {output_path}")
+        logger.info(f"Total rows processed: {len(df_classified)}")
+        logger.info(f"Rows with regime_type=1 (CBNRM): {df_classified['regime_type'].sum()}")
+        logger.info(f"Rows with regime_type=0 (State-led): {(df_classified['regime_type'] == 0).sum()}")
+    except Exception as e:
+        logger.error(f"Failed to save classified panel: {e}")
         sys.exit(1)
-
-    # Log exclusions
-    if validation_results['excluded_countries']:
-        logger.warning(f"Excluding {validation_results['total_excluded']} countries due to zero variance.")
-        for country, reason in validation_results['reasons'].items():
-            logger.warning(f"  - {country}: {reason}")
-    else:
-        logger.info("No countries excluded based on variance.")
-
-    # Save results
-    save_validation_results(validation_results, validation_output_path)
-
-    logger.info("T009b completed successfully.")
+    
+    logger.info("T014 completed successfully.")
 
 if __name__ == "__main__":
     main()

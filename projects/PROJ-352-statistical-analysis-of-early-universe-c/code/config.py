@@ -1,7 +1,8 @@
 """
-Configuration management for the CMB analysis pipeline.
+Configuration module for the CMB analysis project.
 """
 import os
+import logging
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
@@ -9,41 +10,61 @@ import json
 
 @dataclass
 class Config:
-    """Project configuration container."""
-    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
-    data_dir: Path = field(default_factory=lambda: Path("data"))
-    data_raw_dir: Path = field(default_factory=lambda: Path("data/raw"))
-    data_processed_dir: Path = field(default_factory=lambda: Path("data/processed"))
-    output_dir: Path = field(default_factory=lambda: Path("output"))
-    log_level: str = "INFO"
-    random_seed: int = 42
-    planck_release: str = "2018"
-    nside: int = 128
-    beam_fwhm_arcmin: float = 5.0
-    noise_sigma_muK: float = 1.1
+    """Project configuration."""
+    paths: Dict[str, str] = field(default_factory=dict)
+    parameters: Dict[str, Any] = field(default_factory=dict)
     
     def __post_init__(self):
-        # Ensure paths are absolute relative to project root
-        self.data_dir = self.project_root / self.data_dir
-        self.data_raw_dir = self.project_root / self.data_raw_dir
-        self.data_processed_dir = self.project_root / self.data_processed_dir
-        self.output_dir = self.project_root / self.output_dir
+        # Set default paths if not provided
+        if not self.paths:
+            self.paths = {
+                "project_root": str(Path(__file__).parent.parent),
+                "data_raw": str(Path(__file__).parent.parent / "data" / "raw"),
+                "data_processed": str(Path(__file__).parent.parent / "data" / "processed"),
+                "output": str(Path(__file__).parent.parent / "output"),
+                "masked_map_path": str(Path(__file__).parent.parent / "data" / "processed" / "masked_cmb_n128.fits"),
+                "mask_path": str(Path(__file__).parent.parent / "data" / "raw" / "galactic_mask.fits"),
+                "mf_output_path": str(Path(__file__).parent.parent / "data" / "processed" / "minkowski_functionals_observed.json"),
+                "checksum_report_path": str(Path(__file__).parent.parent / "data" / "raw" / "checksum_report.json"),
+                "coverage_report_path": str(Path(__file__).parent.parent / "data" / "processed" / "coverage_report.json"),
+                "map_stats_path": str(Path(__file__).parent.parent / "data" / "processed" / "map_stats.json"),
+                "theoretical_genus_path": str(Path(__file__).parent.parent / "data" / "processed" / "theoretical_genus_curve.json"),
+                "precision_report_path": str(Path(__file__).parent.parent / "data" / "processed" / "precision_report.json"),
+                "results_path": str(Path(__file__).parent.parent / "output" / "results.json"),
+                "mask_verification_log": str(Path(__file__).parent.parent / "data" / "processed" / "mask_verification.log"),
+            }
 
 _config: Optional[Config] = None
 
 def get_config() -> Config:
-    """Get or create the global configuration instance."""
+    """Get the global configuration instance."""
     global _config
     if _config is None:
         _config = Config()
     return _config
 
-def update_config(**kwargs) -> Config:
-    """Update configuration with provided values."""
+def update_config(new_config: Dict[str, Any]):
+    """Update the global configuration."""
+    global _config
+    if _config is None:
+        _config = Config()
+    if "paths" in new_config:
+        _config.paths.update(new_config["paths"])
+    if "parameters" in new_config:
+        _config.parameters.update(new_config["parameters"])
+
+def setup_logging():
+    """Setup logging for the project."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+def main():
+    """Main entry point for configuration."""
     config = get_config()
-    for key, value in kwargs.items():
-        if hasattr(config, key):
-            setattr(config, key, value)
-        else:
-            raise ValueError(f"Unknown config key: {key}")
-    return config
+    print("Project Configuration:")
+    print(json.dumps(config.paths, indent=2))
+
+if __name__ == "__main__":
+    main()

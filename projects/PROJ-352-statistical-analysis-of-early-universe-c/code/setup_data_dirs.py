@@ -1,34 +1,34 @@
-"""
-Setup script to initialize the data directory structure for the CMB analysis project.
-Creates raw and processed data directories as per project specifications.
-"""
 import os
 from pathlib import Path
 
 def main():
     """
-    Creates the required data directory structure:
+    Create the required data directory structure for the project.
+    
+    Creates:
     - data/raw/
     - data/processed/
+    - output/
     
-    Also initializes __init__.py files in these directories to mark them as Python packages.
+    These directories are essential for storing raw downloaded data,
+    processed intermediate results, and final outputs.
     """
-    base_path = Path(__file__).resolve().parent.parent
-    data_root = base_path / "data"
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
-
+    # Define the project root (parent of code/)
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define the directories to create
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "output",
+    ]
+    
     # Create directories if they don't exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create __init__.py files to mark as packages
-    (raw_dir / "__init__.py").touch()
-    (processed_dir / "__init__.py").touch()
-
-    print(f"Created data directory structure:")
-    print(f"  - {raw_dir}")
-    print(f"  - {processed_dir}")
+    for dir_path in data_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

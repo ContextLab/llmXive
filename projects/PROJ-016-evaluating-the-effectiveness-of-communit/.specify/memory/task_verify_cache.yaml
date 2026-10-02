@@ -14,13 +14,46 @@ T013:
     variables, and writing the result to `data/processed/merged_panel.csv`. Moreover,
     the expected output file `data/processed/merged_panel.csv` is absent. The task
     therefore remains unfinished.
+T023a:
+  c: false
+  h: 22b7452fbf7aa7756cd1724dfe213db4e6b7543d8e905c02015207f0689d2b79
+  r: "The provided `regression.py` does not contain any PanelOLS/RandomEffects logic,\
+    \ does not check for time\u2011invariant countries, and never writes results to\
+    \ `data/processed/regression_results_primary.json` (the file is missing). Consequently\
+    \ the required fixed\u2011effects (or fallback random\u2011effects) regression\
+    \ and result saving are not implemented."
+T024a:
+  c: false
+  h: 813465cf97f8e1861f821db1af629fb4259e1d6bc2340327efc72cac184247dd
+  r: The repository contains a `run_sensitivity_analysis_no_gdp` function that computes
+    the model but never writes the raw coefficients to `data/processed/sensitivity_coefficients.json`,
+    and that JSON file is absent from the project. Hence the required artifact is
+    missing and the task is not fulfilled.
+T024b:
+  c: false
+  h: 813465cf97f8e1861f821db1af629fb4259e1d6bc2340327efc72cac184247dd
+  r: "The required output file `data/processed/sensitivity_coefficients.json` does\
+    \ not exist, and the provided `code/analysis/regression.py` is truncated and lacks\
+    \ the logic to load the full\u2011model coefficients, invoke the sensitivity calculation,\
+    \ and write the percentage change to that JSON file. The task\u2019s core functionality\
+    \ is therefore not implemented."
+T025b:
+  c: false
+  h: cdd4a0d1ed870f5ca113f1b0f2a76294d099ecd6ac0bfcd6576b150e0e583c1a
+  r: "The repository lacks the required `data/processed/regression_results_nonlinear.json`\
+    \ file, and the shown portion of `code/analysis/regression.py` does not contain\
+    \ any implementation that tests a quadratic term or saves such results. The task\u2019\
+    s core requirement\u2014non\u2011linearity robustness check and persisting its\
+    \ output\u2014is therefore not satisfied."
 T027:
   c: false
-  h: 2ad5c1796f2f01ca506a0c421d66bc9dd20e35d167b2dde4056545e9d99b8a78
-  r: The repository lacks the required `data/processed/regression_metadata.json` file,
-    and the provided `code/analysis/regression.py` excerpt does not show any code
-    that creates an `is_associational = True` flag or writes it to that JSON. Consequently,
-    the explicit associational flag generation and saving step is not implemented.
+  h: cec75e6dcf29f217551e8802c5cb5f7d31320ae874946a08e428731f1d372383
+  r: "The repository contains a `generate_associational_flag` function that can write\
+    \ the required JSON, but the file `data/processed/regression_metadata.json` does\
+    \ not exist, and there is no evidence that the function is called to create it.\
+    \ The task\u2019s core requirement\u2014to generate and save the associational\
+    \ flag at the specified location\u2014is therefore unmet. The missing JSON file\
+    \ (or code invoking the function to create it) must be added."
 T036:
   c: false
   h: ce7e5b5e90619f7929ee108f4a8e3f438ea075642c80c6bd572f0476c5cb3e92

@@ -1,182 +1,201 @@
-"""
-Module to fetch CBNRM proxy data from World Bank API.
-Implements "Fail Loud" logic: verifies indicator existence, fetches data,
-and exits with error if verification or fetching fails.
-"""
 import json
 import os
 import sys
 import time
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Optional, Dict, Any, List
+import pandas as pd
 import requests
 
-# Add project root to path for imports if run as script
-if __name__ == "__main__":
-    code_path = Path(__file__).resolve().parent.parent
-    if str(code_path) not in sys.path:
-        sys.path.insert(0, str(code_path))
-
-from config import get_config
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from logging_config import get_logger
+from config import get_config
 
 logger = get_logger(__name__)
-CONFIG = get_config()
-
-INDICATOR_CODE = "AG.LND.FRST.CF"
-START_YEAR = 2000
-END_YEAR = 2020
 
 def validate_indicator_code(indicator_code: str) -> bool:
     """
-    Step 1: Verify if the specific indicator exists in World Bank API metadata.
-    Returns True if found, False otherwise.
+    Step 1: Verify if the specific CBNRM policy indicator exists in the World Bank API metadata.
+    Uses the World Bank API to check if the indicator metadata is available.
     """
-    url = f"https://api.worldbank.org/v2/indicator/{indicator_code}?format=json"
+    config = get_config()
+    base_url = config.get("API_BASE_URL", "https://api.worldbank.org/v2")
+    url = f"{base_url}/indicator/{indicator_code}"
+    
+    params = {
+        "format": "json",
+        "per_page": 1,
+        "page": 1
+    }
+
     try:
-        response = requests.get(url, timeout=30)
+        response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()
         data = response.json()
         
-        # World Bank API returns a list: [metadata, [list of indicators or empty]]
-        if len(data) < 2:
-            logger.error(f"Data Gap: Unexpected API response format for {indicator_code}")
-            return False
+        # Check if we got actual indicator metadata (not just pagination info)
+        if isinstance(data, list) and len(data) > 1:
+            indicator_info = data[1]
+            if isinstance(indicator_info, dict) and "id" in indicator_info:
+                logger.info(f"Indicator {indicator_code} verified in World Bank API metadata.")
+                return True
         
-        indicators = data[1]
-        if isinstance(indicators, list) and len(indicators) > 0:
-            logger.info(f"Indicator {indicator_code} verified in World Bank metadata.")
-            return True
-        else:
-            logger.error(f"Data Gap: Indicator {indicator_code} not found in World Bank metadata.")
-            return False
+        logger.warning(f"Indicator {indicator_code} not found in World Bank API metadata.")
+        return False
     except requests.exceptions.RequestException as e:
-        logger.error(f"Data Gap: Failed to connect to World Bank API to verify {indicator_code}: {e}")
+        logger.error(f"Error verifying indicator {indicator_code}: {e}")
+        return False
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        logger.error(f"Error parsing response for indicator {indicator_code}: {e}")
         return False
 
-def fetch_world_bank_indicator(indicator_code: str, start_year: int, end_year: int) -> Optional[Dict[str, Any]]:
+def fetch_world_bank_indicator(indicator_code: str, start_year: int, end_year: int) -> Optional[pd.DataFrame]:
     """
-    Step 2: Fetch data for the indicator for the specified year range.
-    Uses pagination to ensure all data is retrieved.
-    Returns the raw data dictionary or None if fetch fails.
+    Step 2: Fetch the indicator data for years 2000-2020.
+    Returns a DataFrame with columns: countryiso3code, date, value, and metadata.
     """
-    base_url = "https://api.worldbank.org/v2/country/all/indicator/"
-    url = f"{base_url}{indicator_code}?format=json&date={start_year}:{end_year}&per_page=300"
+    config = get_config()
+    base_url = config.get("API_BASE_URL", "https://api.worldbank.org/v2")
+    url = f"{base_url}/indicator/{indicator_code}"
     
+    params = {
+        "format": "json",
+        "date": f"{start_year}:{end_year}",
+        "per_page": 5000,  # Fetch max records
+        "page": 1
+    }
+
     all_data = []
     page = 1
-    max_pages = 10  # Safety limit
     
-    while page <= max_pages:
+    while True:
+        params["page"] = page
         try:
-            response = requests.get(url, params={"page": page}, timeout=60)
+            response = requests.get(url, params=params, timeout=60)
             response.raise_for_status()
             data = response.json()
             
-            if len(data) < 2:
-                logger.error(f"Data Gap: Invalid response structure from World Bank API for {indicator_code}")
-                return None
-            
-            page_data = data[1]
-            if not page_data:
+            if not isinstance(data, list) or len(data) < 2:
                 break
             
-            all_data.extend(page_data)
+            indicators_data = data[1]
+            if not indicators_data:
+                break
+            
+            for item in indicators_data:
+                if item.get("value") is not None:
+                    all_data.append({
+                        "country_code": item.get("countryiso3code"),
+                        "country_name": item.get("country", {}).get("value", ""),
+                        "year": item.get("date"),
+                        "value": item.get("value"),
+                        "indicator_code": indicator_code
+                    })
             
             # Check if there are more pages
-            metadata = data[0]
-            total_pages = metadata.get('pages', 1)
+            pagination = data[0]
+            total_pages = pagination.get("pages", 1)
             if page >= total_pages:
                 break
             
             page += 1
+            time.sleep(0.5)  # Rate limiting
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"Data Gap: Failed to fetch data for {indicator_code} from World Bank: {e}")
-            return None
+            logger.error(f"Error fetching data for page {page}: {e}")
+            raise
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.error(f"Error parsing response: {e}")
+            raise
+
+    if not all_data:
+        return None
     
-    return {"indicator": indicator_code, "data": all_data}
+    df = pd.DataFrame(all_data)
+    df["year"] = pd.to_numeric(df["year"], errors="coerce")
+    df = df.dropna(subset=["year", "value"])
+    df["year"] = df["year"].astype(int)
+    
+    # Filter to requested year range (safety check)
+    df = df[(df["year"] >= start_year) & (df["year"] <= end_year)]
+    
+    return df
 
-def save_outputs(fetched_data: Dict[str, Any], output_csv_path: Path, metadata_json_path: Path) -> bool:
+def save_outputs(df: pd.DataFrame, indicator_code: str, raw_path: Path, metadata_path: Path) -> None:
     """
-    Step 3: Save raw data to CSV and metadata to JSON.
+    Step 3: Save the raw data to CSV and metadata JSON.
     """
-    try:
-        # Ensure directories exist
-        output_csv_path.parent.mkdir(parents=True, exist_ok=True)
-        metadata_json_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Process and save CSV
-        df_data = []
-        for record in fetched_data["data"]:
-            if record.get("value") is not None:
-                df_data.append({
-                    "countryiso3code": record.get("countryiso3code"),
-                    "date": record.get("date"),
-                    "value": record.get("value"),
-                    "unit": record.get("unit", ""),
-                    "obs_status": record.get("obs_status", ""),
-                    "decimal": record.get("decimal", 0)
-                })
-        
-        if not df_data:
-            logger.warning(f"No data records found for {fetched_data['indicator']}")
-            # Still save an empty CSV with headers to indicate we tried
-            import pandas as pd
-            pd.DataFrame(columns=["countryiso3code", "date", "value", "unit", "obs_status", "decimal"]).to_csv(output_csv_path, index=False)
-        else:
-            import pandas as pd
-            df = pd.DataFrame(df_data)
-            df.to_csv(output_csv_path, index=False)
-            logger.info(f"Saved {len(df)} records to {output_csv_path}")
-
-        # Save metadata
-        metadata = {
-            "status": "success",
-            "indicator": fetched_data["indicator"],
-            "source": "World Bank API",
-            "year_range": f"{START_YEAR}-{END_YEAR}",
-            "record_count": len(df_data)
+    # Ensure directories exist
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save raw data
+    df.to_csv(raw_path, index=False)
+    logger.info(f"Saved raw CBNRM proxy data to {raw_path}")
+    
+    # Save metadata
+    metadata = {
+        "status": "success",
+        "indicator": indicator_code,
+        "rows_fetched": len(df),
+        "year_range": {
+            "start": int(df["year"].min()) if not df.empty else None,
+            "end": int(df["year"].max()) if not df.empty else None
         }
-        with open(metadata_json_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        
-        logger.info(f"Saved metadata to {metadata_json_path}")
-        return True
+    }
+    
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Saved metadata to {metadata_path}")
 
+def main() -> int:
+    """
+    Main entry point for T009: Fetch CBNRM Proxy.
+    Returns 0 on success, 1 on failure.
+    """
+    config = get_config()
+    indicator_code = config.get("WB_CBNRM_INDICATOR", "AG.LND.FRST.CF")
+    start_year = config.get("DATA_YEARS_START", 2000)
+    end_year = config.get("DATA_YEARS_END", 2020)
+    
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    raw_path = project_root / "data" / "raw" / "cbnrm_proxy.csv"
+    metadata_path = project_root / "data" / "processed" / "cbnrm_proxy_metadata.json"
+    
+    logger.info(f"Starting T009: Fetch CBNRM Proxy for indicator {indicator_code}")
+    
+    # Step 1: Verify indicator exists
+    if not validate_indicator_code(indicator_code):
+        logger.error(f"Data Gap: Indicator {indicator_code} not found in World Bank API metadata.")
+        logger.error("Exiting with non-zero code as per 'Fail Loud' requirement.")
+        return 1
+    
+    # Step 2: Fetch data
+    logger.info(f"Fetching data for {indicator_code} from {start_year} to {end_year}")
+    try:
+        df = fetch_world_bank_indicator(indicator_code, start_year, end_year)
+    except Exception as e:
+        logger.error(f"Data Gap: Failed to fetch indicator {indicator_code}: {e}")
+        logger.error("Exiting with non-zero code as per 'Fail Loud' requirement.")
+        return 1
+    
+    if df is None or df.empty:
+        logger.error(f"Data Gap: No data returned for indicator {indicator_code} in range {start_year}-{end_year}.")
+        logger.error("Exiting with non-zero code as per 'Fail Loud' requirement.")
+        return 1
+    
+    # Step 3: Save outputs
+    try:
+        save_outputs(df, indicator_code, raw_path, metadata_path)
     except Exception as e:
         logger.error(f"Failed to save outputs: {e}")
-        return False
-
-def main():
-    """
-    Main execution function for T009.
-    Implements the 4-step logic: Verify -> Fetch -> Output -> Fail Loud.
-    """
-    logger.info(f"Starting T009: Fetch CBNRM Proxy ({INDICATOR_CODE})")
+        return 1
     
-    # Step 1: Verify
-    if not validate_indicator_code(INDICATOR_CODE):
-        logger.error(f"Data Gap: Indicator {INDICATOR_CODE} missing or API unreachable. Halting pipeline.")
-        sys.exit(1)
-    
-    # Step 2: Fetch
-    fetched_data = fetch_world_bank_indicator(INDICATOR_CODE, START_YEAR, END_YEAR)
-    
-    if fetched_data is None:
-        logger.error(f"Data Gap: Failed to fetch data for {INDICATOR_CODE}. Halting pipeline.")
-        sys.exit(1)
-    
-    # Step 3: Output
-    raw_csv_path = Path("data/raw/cbnrm_proxy.csv")
-    metadata_json_path = Path("data/processed/cbnrm_proxy_metadata.json")
-    
-    if not save_outputs(fetched_data, raw_csv_path, metadata_json_path):
-        logger.error(f"Data Gap: Failed to save outputs for {INDICATOR_CODE}. Halting pipeline.")
-        sys.exit(1)
-    
-    logger.info("T009 completed successfully.")
+    logger.info(f"T009 completed successfully. Fetched {len(df)} rows for {indicator_code}.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

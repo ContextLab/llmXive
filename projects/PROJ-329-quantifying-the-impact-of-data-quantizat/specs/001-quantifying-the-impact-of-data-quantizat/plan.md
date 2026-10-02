@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a computational study to quantify how data quantization (bit-depth reduction) affects the reconstruction of gravitational wave (GW) signals from binary black hole (BBH) mergers. The approach involves generating synthetic BBH waveforms using PyCBC, injecting them into real LIGO O3 noise (from verified GWOSC sources), applying controlled quantization at specific bit depths (1, 8, 10, 12, 14, 16) using a **fixed full-scale range**, and performing **Uniform Bayesian Parameter Estimation** (MCMC) to measure the bias in recovered parameters (chirp mass, spin, distance). The study identifies the Signal-to-Noise Ratio (SNR) threshold where quantization noise adds >10% to the total reconstruction error.
+This project implements a computational study to quantify how data quantization (bit-depth reduction) affects the reconstruction of gravitational wave (GW) signals from binary black hole (BBH) mergers. The approach involves generating synthetic BBH waveforms using PyCBC, injecting them into real LIGO O3 noise (from verified GWOSC sources), applying controlled quantization at specific bit depths (8, 10, 12, 14, 16) using a **fixed full-scale range**, and performing **Uniform Bayesian Parameter Estimation** (MCMC) to measure the bias in recovered parameters (chirp mass, spin, distance). The study identifies the Signal-to-Noise Ratio (SNR) threshold where quantization noise adds >10% to the total reconstruction error.
 
 ## Technical Context
 
@@ -14,7 +14,7 @@ This project implements a computational study to quantify how data quantization 
 **Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline flow).
 **Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU cores, ~7 GB RAM, no GPU).
 **Project Type**: Computational Research Pipeline / CLI
-**Performance Goals**: Complete analysis of a representative sample (scaled to fit 6h runtime) within the CI limit.
+**Performance Goals**: Complete analysis of a representative sample (scaled to fit a reasonable runtime) within the CI limit.
 **Constraints**: No GPU usage; all inference must be CPU-tractable; data must be subset to fit ~7 GB RAM.
 **Scale/Scope**: Simulation of a stratified batch of signals to identify SNR thresholds; full target sample size deferred to post-CI validation.
 
@@ -32,7 +32,7 @@ This project implements a computational study to quantify how data quantization 
 | **IV. Single Source of Truth** | **PASS** | All results traced to `data/` artifacts; no hand-typed numbers in paper generation. Baselines persisted. |
 | **V. Versioning Discipline** | **PASS** | Artifact hashes are recorded by `src/state_manager.py` after each phase. |
 | **VI. Numerical Precision** | **PASS** | Plan explicitly distinguishes quantization error from instrumental error via fixed FSR quantization and float64 baselines. |
-| **VII. Simulation Alignment** | **PASS** | Parameters (low to high stellar mass ranges, 100-1000 Mpc) and O3 noise source match the spec and verified dataset. |
+| **VII. Simulation Alignment** | **PASS** | Parameters (low to high stellar mass ranges, -1000 Mpc) and O3 noise source match the spec and verified dataset. |
 
 ## Project Structure
 
@@ -69,9 +69,9 @@ projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/
 ## Phase Breakdown
 
 ### Phase 0: Research & Data Strategy
-- **Task: Address 10k Signal Deferral**: Formally document that the [deferred] signal requirement is deferred to post-CI validation due to runtime constraints. The pilot (N=1,800) is the approved substitute.
+- **Task: Address k Signal Deferral**: Formally document that the [deferred] signal requirement is deferred to post-CI validation due to runtime constraints. The pilot (N=1,800) is the approved substitute.
 - **FR-001, FR-002**: Verify LIGO O3 noise availability via the verified GWOSC source.
-- **FR-006**: Design a CPU-tractable inference strategy (Uniform MCMC with fixed steps) to meet the 6h runtime limit.
+- **FR-006**: Design a CPU-tractable inference strategy (Uniform MCMC with fixed steps) to meet the runtime limit.
 - **SC-003**: Define the sampling size (N=1,800) that fits within 6 hours.
 
 ### Phase 1: Data Model & Contracts

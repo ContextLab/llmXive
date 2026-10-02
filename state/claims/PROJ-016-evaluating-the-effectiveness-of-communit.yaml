@@ -1995,3 +1995,521 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T05:22:57Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank API contains CBNRM proxy indicator AG.LND.FRST.CF
+  claim_id: c_50c9716e
+  context: 'Step 1: Verify: Check if the specific CBNRM policy indicator AG.LND.FRST.CF
+    (Community Forestry Area Share) exists in the World Bank API metadata.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_API_contains_CBNRM_proxy_indicator_AG.LND.FRST.CF
+  kind: entity_fact
+  raw_text: The CBNRM proxy indicator AG.LND.FRST.CF (Community Forestry Area Share)
+    exists in the World Bank API metadata.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T20:57:24Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT API contains Forest Area Change indicator AG.LND.FRST.ZS
+  claim_id: c_30a6d7da
+  context: Implement a pre-flight check in code/data/download.py to verify that the
+    'Forest Area Change' indicator (AG.LND.FRST.ZS) exists in the FAO STAT API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_API_contains_Forest_Area_Change_indicator_AG.LND.FR
+  kind: entity_fact
+  raw_text: The Forest Area Change indicator AG.LND.FRST.ZS exists in the FAO STAT
+    API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T20:57:46Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied with alpha 0.05
+  claim_id: c_f176f02e
+  context: aggregate p-values from Primary (T023a) and Non-linearity (T025b) tests
+    and apply correction using alpha=0.05 (1906.01701, https://arxiv.org/abs/1906.01701)
+    and the Benjamini-Hochberg step-up method.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction method was applied using an alpha
+    of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T20:58:15Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction described in arXiv 1906.01701
+  claim_id: c_f031ece7
+  context: apply correction using alpha=0.05 (1906.01701, https://arxiv.org/abs/1906.01701)
+    and the Benjamini-Hochberg step-up method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction method is described in the paper
+    with arXiv ID 1906.01701.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T20:58:34Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank indicator AG.LND.FRST.CF exists in API metadata
+  claim_id: c_e6fce091
+  context: 'Step 1: Verify: Check if the specific CBNRM policy indicator AG.LND.FRST.CF
+    (Community Forestry Area Share) exists in the World Bank API metadata.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_AG.LND.FRST.CF_exists_in_API_metadata
+  kind: entity_fact
+  raw_text: The World Bank CBNRM proxy indicator 'AG.LND.FRST.CF' (Community Forestry
+    Area Share) exists in the World Bank API metadata.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T20:59:27Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT indicator AG.LND.FRST.ZS code
+  claim_id: c_0d1729b6
+  context: "Fetch 'Forest Area Change' with indicator code AG.LND.FRST.ZS (exact code,\
+    \ no 'or equivalent') for the period 2000\u20132020 from the FAO STAT API."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_indicator_AG.LND.FRST.ZS_code
+  kind: entity_fact
+  raw_text: The FAO STAT 'Forest Area Change' indicator code is 'AG.LND.FRST.ZS'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T20:59:55Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank indicator NY.GDP.PCAP.CD code
+  claim_id: c_dc07fd5a
+  context: "Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) data from\
+    \ the World Bank API for 2000\u20132020."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_NY.GDP.PCAP.CD_code
+  kind: entity_fact
+  raw_text: The World Bank GDP per capita indicator code is 'NY.GDP.PCAP.CD'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:00:30Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank indicator SP.POP.DENS code
+  claim_id: c_54f174fa
+  context: "Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) data from\
+    \ the World Bank API for 2000\u20132020."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_SP.POP.DENS_code
+  kind: entity_fact
+  raw_text: The World Bank Population Density indicator code is 'SP.POP.DENS'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:01:02Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR method reference arXiv 1906.01701
+  claim_id: c_fec2e198
+  context: apply correction using alpha=0.05 (1906.01701, https://arxiv.org/abs/1906.01701)
+    and the Benjamini-Hochberg step-up method.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The Benjamini-Hochberg FDR correction method is described in arXiv:1906.01701.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T21:01:05Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit 7GB
+  claim_id: c_77ff94a7
+  context: Compare the peak memory usage against the 7GB limit defined in SC-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The pipeline memory success criterion is a limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:01:55Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 0
+  canonical: Benjamini-Hochberg FDR correction alpha 0.05
+  claim_id: c_f2318c10
+  context: Apply correction using alpha=0.05 (1906.01701, https://arxiv.org/abs/1906.01701)
+    and the Benjamini-Hochberg step-up method.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T21:02:53Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: CBNRM proxy indicator code AG.LND.FRST.CF
+  claim_id: c_63c7b13b
+  context: 'Step 1: Verify: Check if the specific CBNRM policy indicator AG.LND.FRST.CF
+    (Community Forestry Area Share) exists in the World Bank API metadata.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CBNRM_proxy_indicator_code_AG.LND.FRST.CF
+  kind: entity_fact
+  raw_text: The CBNRM proxy indicator code is AG.LND.FRST.CF (Community Forestry Area
+    Share).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:03:38Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: FAO STAT Forest Area Change indicator code AG.LND.FRST.ZS
+  claim_id: c_0cdfb633
+  context: Verify that the 'Forest Area Change' indicator (AG.LND.FRST.ZS) exists
+    in the FAO STAT API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FAO_STAT_Forest_Area_Change_indicator_code_AG.LND.FRST.ZS
+  kind: entity_fact
+  raw_text: The FAO STAT 'Forest Area Change' indicator code is AG.LND.FRST.ZS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:03:40Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank GDP indicator code NY.GDP.PCAP.CD
+  claim_id: c_3bda3e2f
+  context: Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) data from
+    the World Bank API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_GDP_indicator_code_NY.GDP.PCAP.CD
+  kind: entity_fact
+  raw_text: The World Bank GDP indicator code is NY.GDP.PCAP.CD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:04:02Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: World Bank Population Density indicator code SP.POP.DENS
+  claim_id: c_e61c0e79
+  context: Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) data from
+    the World Bank API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_Population_Density_indicator_code_SP.POP.DENS
+  kind: entity_fact
+  raw_text: The World Bank Population Density indicator code is SP.POP.DENS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:04:04Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Data acquisition period 2000 to 2020
+  claim_id: c_7f2435d2
+  context: "Fetch it for years 2000\u20132020."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The data acquisition period is the years 2000\u20132020."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:04:30Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3 required
+  claim_id: c_d2939076
+  context: 'Create code/requirements.txt containing: pandas==2.0.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library pandas version 2.0.3 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:04:54Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3 required
+  claim_id: c_9b8d3e98
+  context: 'Create code/requirements.txt containing: numpy==1.24.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library numpy version 1.24.3 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:05:16Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0 required
+  claim_id: c_e256626e
+  context: 'Create code/requirements.txt containing: statsmodels==0.14.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library statsmodels version 0.14.0 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:05:36Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2 required
+  claim_id: c_42d490cf
+  context: 'Create code/requirements.txt containing: matplotlib==3.7.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library matplotlib version 3.7.2 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:06:06Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 required
+  claim_id: c_add51170
+  context: 'Create code/requirements.txt containing: requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library requests version 2.31.0 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:06:24Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1 required
+  claim_id: c_e1fca9a3
+  context: 'Create code/requirements.txt containing: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library pyyaml version 6.0.1 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:06:41Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0 required
+  claim_id: c_45ffb669
+  context: 'Create code/requirements.txt containing: pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python library pytest version 7.4.0 is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:06:59Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Synthetic data test seed 42
+  claim_id: c_c88ac12d
+  context: "Run regression script on synthetic dataset (seed=42, \u03B2=0.15, \u03C3\
+    =0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data test uses a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:07:18Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Synthetic data test beta 0.15
+  claim_id: c_9b736a5e
+  context: "Run regression script on synthetic dataset (seed=42, \u03B2=0.15, \u03C3\
+    =0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic data test uses a beta (\u03B2) of 0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:07:37Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Synthetic data test sigma 0.1
+  claim_id: c_c0bbde99
+  context: "Run regression script on synthetic dataset (seed=42, \u03B2=0.15, \u03C3\
+    =0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic data test uses a sigma (\u03C3) of 0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:07:58Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Country exclusion threshold 20% missing primary variables
+  claim_id: c_7e9eede8
+  context: If >20% of a country's years are missing for a primary variable, exclude
+    the entire country.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The country exclusion threshold for primary variables is 20% missing years.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:07:58Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 2
+  canonical: Pipeline runtime limit 6 hours
+  claim_id: c_e64fce8a
+  context: Compare the total runtime against the 6-hour limit defined in SC-003.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_limit_6_hours
+  kind: entity_fact
+  raw_text: The pipeline runtime success criterion is a limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:08:00Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit 7 GB
+  claim_id: c_37a22ce4
+  context: Compare the peak memory usage against the 7GB limit defined in SC-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_7_GB
+  kind: entity_fact
+  raw_text: The pipeline memory success criterion is a 7GB limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:08:02Z'
+- artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/tasks.md
+  attempts: 1
+  canonical: Regression coefficient verification tolerance 1%
+  claim_id: c_7d2a0c4a
+  context: Verify output coefficient matches synthetic truth within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression coefficient verification tolerance is 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T21:08:02Z'

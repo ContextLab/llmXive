@@ -10,3 +10,16 @@ T002b:
   r: No `.pylintrc` configuration file was presented in the evidence; the required
     artifact is missing, so the task of creating a linting configuration has not been
     satisfied.
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/`, `data/processed/`, or `output/` directories
+    is provided; the claim is unsubstantiated and the artifacts are missing.
+T015b:
+  c: false
+  h: 5f917565c8f0d4b3b293611a49b1f4cc5fb2f08ff1599076204adb47df50fe9e
+  r: "The provided `code/mask.py` does not contain the required secondary verification\
+    \ step that compares T015 output to analytical expectations, nor does it write\
+    \ any results to `data/processed/mask_verification.log` (the log file is missing).\
+    \ The buffer\u2011zone function is present but does not enforce a 2\u2011pixel\
+    \ buffer nor perform the mandated verification and logging."

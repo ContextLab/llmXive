@@ -46,7 +46,7 @@ As a researcher, I need to analyze the error vs. SNR curves across different bit
 
 **Why this priority**: This is the final analysis and output generation. It synthesizes the results to answer the primary research question. Without this, the project produces raw data but no scientific conclusion.
 
-**Independent Test**: Can be fully tested by plotting the error curves for a subset of data (e.g., 100 signals) and visually verifying that the error for lower bit depths (8-bit) diverges from higher bit depths (16-bit) at a specific SNR value, matching the hypothesis that quantization noise dominates at low SNR.
+**Independent Test**: Can be fully tested by plotting the error curves for a subset of data and visually verifying that the error for lower bit depths diverges from higher bit depths at a specific SNR value, matching the hypothesis that quantization noise dominates at low SNR.
 
 **Acceptance Scenarios**:
 
@@ -96,6 +96,6 @@ As a researcher, I need to analyze the error vs. SNR curves across different bit
 - **Assumption about data**: The LIGO Open Science Center (LOSC) provides the O3 noise power spectral density data in a format directly usable by PyCBC without requiring additional preprocessing or conversion steps.
 - **Assumption about scope**: The study focuses exclusively on binary black hole mergers; binary neutron star mergers or neutron star-black hole systems are out of scope for this specific iteration.
 - **Assumption about method**: The PyCBC-Inference or Bilby Bayesian pipelines can converge on parameter estimates for SNR > 10 even with 8-bit quantization, though the estimates may be biased; the system assumes convergence is possible for the defined SNR range.
-- **Assumption about compute**: The 10,000 signal simulations and parameter estimations can be parallelized or batched to complete within the 6-hour CI job limit on a 2-core CPU runner.
+- **Assumption about compute**: The signal simulations and parameter estimations can be parallelized or batched to complete within the 6-hour CI job limit on a 2-core CPU runner.
 - **Assumption about noise model**: The LIGO O3 noise PSD is representative enough of the "instrumental noise floor" to serve as the baseline for comparing quantization noise effects, provided that the signal-dependent nature of quantization noise is accounted for by comparing against a signal-specific float64 baseline.
 - **Assumption about threshold**: The 10% error threshold (relative to instrumental error) is a defensible community-standard proxy for when systematic errors become significant enough to bias population studies.

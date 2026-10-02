@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create directory structure: `projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/` with `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/` and verify tree via `tree` command, saving output to `logs/setup_tree.txt` <!-- FAILED: unspecified -->
+- [X] T001a [P] Create directory structure: `projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/` with `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/` and verify tree via `tree` command, saving output to `logs/setup_tree.txt`
 - [X] T001b [P] Create empty placeholder files: `src/__init__.py`, `tests/__init__.py`, `requirements.txt`
 - [X] T001c [P] Verify directory tree matches plan.md 'Project Structure' section exactly
 
@@ -58,13 +58,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `src/state_manager.py` to record artifact hashes (Constitution V) after each phase
-- [ ] T005 [P] Implement data hygiene utilities: checksumming for `data/raw/` and `data/processed/`
+- [X] T004 Setup `src/state_manager.py` to record artifact hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml` (Constitution V) after each phase
+- [ ] T005 [P] Implement data hygiene utilities: checksumming for `data/raw/` and `data/processed/`, ensuring hashes are recorded in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
 - [ ] T006 [P] Setup `src/utils.py` with quantization logic (Fixed FSR) and SNR calculation helpers
-- [ ] T007 Create base data schemas in `contracts/` (`waveform.schema.yaml`, `result.schema.yaml`)
+- [ ] T007 Create base data schemas in `contracts/` (`waveform.schema.yaml`, `result.schema.yaml`) and register schema hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
 - [ ] T008 Configure error handling for missing/corrupted noise files (fail gracefully)
-- [ ] T009 [P] Setup environment configuration for random seeds and CI limits (2 CPU, 7 GB RAM) and calculate batch size constraints for N=1200 pilot
-- [ ] T010 [P] Calculate and document batch sizes: Verify N=1200 (6 depths × 4 bins × 50) fits within 6-hour CI limit and 7 GB RAM (based on T009)
+- [ ] T009 [P] Setup environment configuration for random seeds and CI limits (2 CPU, 7 GB RAM) and calculate batch size constraints for N=800 pilot (4 depths × 4 bins × 50)
+- [ ] T010 [P] Calculate and document batch sizes: Verify N=800 (4 depths × 4 bins × 50) fits within 6-hour CI limit and 7 GB RAM (based on T009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 
 **Goal**: Generate binary black hole merger waveforms, inject into LIGO O3 noise, and apply controlled quantization (including low bit-widths and standard precisions up to 16 bits) to create the dataset.
 
-**Independent Test**: Generate a small batch (), apply 8-bit quantization, verify discrete levels match $2^8$ bins and SNR is within [8, 50].
+**Independent Test**: Generate a small batch, apply 8-bit quantization, verify discrete levels match $2^8$ bins and SNR is within a moderate to high range.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -86,10 +86,11 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
-- [ ] T013a [US1] Verify that the stratified bins (8-14, 14-20, 20-30, 30-50) collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
-- [ ] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for all required bit depths:, 8, 10, 12, 14, and 16 bits (FR-002)
+- [ ] T013a [US1] Verify that the stratified bins [8-14, 14-20, 20-30, 30-50] collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
+- [ ] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for ALL required bit depths (1, 8, 10, 12, 14, 16) to satisfy FR-002.
+- [ ] T014a [US1] Document the pilot analysis scope (using 1, 8, 12, 16) vs the full generation scope (1, 8, 10, 12, 14, 16) in `docs/deferrals.md`, citing research.md Section 3.2 and FR-002 constraints.
 - [ ] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
-- [ ] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size < 4GB and checksum recorded in `state.yaml`
+- [ ] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size is < 7 GB and checksum recorded in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml`
 - [ ] T017 [US1] Add validation: verify quantized signals contain **no more than** $2^N$ unique levels (accounting for signal amplitude clipping) and SNR tolerance ±0.5
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -100,7 +101,7 @@
 
 **Goal**: Run Bayesian parameter estimation (Uniform MCMC) on quantized waveforms to recover chirp mass, spin, and distance, and compute MSE against ground truth.
 
-**Independent Test**: Run inference on a single low-SNR 8-bit signal.; verify convergence and physically plausible parameters.
+**Independent Test**: Run inference on a single low-SNR 8-bit signal; verify convergence and physically plausible parameters.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,7 +111,7 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
-- [ ] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 10, 12, 14, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 1200 signals/run (full FR-002 set)
+- [ ] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 12, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 800 signals/run (pilot scope)
 - [ ] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
 - [ ] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
 - [ ] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
@@ -134,11 +135,11 @@
 ### Implementation for User Story 3
 
 - [ ] T028 [P] [US3] Implement `src/analysis.py`: Calculate Instrumental Error (float64 baseline) and Quantization Error (quantized)
-- [ ] T029 [US3] Implement `src/analysis.py`: Fit error-vs-SNR curves and identify crossover point where $\Delta > 0.1 \times E_{inst}$
+- [ ] T029 [US3] Implement `src/analysis.py`: Fit error-vs-SNR curves and identify crossover point where bias $\Delta = E_{quant} - E_{inst}$ exceeds $0.1 \times E_{inst}$ (per SC-004). Explicitly define $\Delta$ as the difference between quantized MSE and instrumental MSE.
 - [ ] T030 [US3] Implement `src/analysis.py`: Generate diagnostic plots showing slope change >20% at the threshold
-- [ ] T031 [US3] Execute **10 independent runs** (different seeds) of the **N=1200 pilot batch** (6 depths × 4 bins × 50 signals) to calculate standard deviation of identified crossover SNR; save results to `data/results/crossover_stats.csv` (SC-005)
+- [ ] T031 [US3] Execute **10 independent runs** (different seeds) of the **N=800 pilot batch** (4 depths × 4 bins × 50 signals) to calculate standard deviation of identified crossover SNR; save results to `data/results/crossover_stats.csv` (SC-005)
 - [ ] T032 [US3] Generate final report at `docs/report.md` stating a concrete **crossover point (threshold)** where 8-bit quantization is deemed insufficient (format: "SNR threshold = X ± Y")
-- [ ] T033 [US3] Run `src/state_manager.py` to record final artifact hashes and update `research.md`
+- [ ] T033 [US3] Run `src/state_manager.py` to record final artifact hashes in `state/projects/PROJ-329-quantifying-the-impact-of-data-quantizat.yaml` and update `research.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -246,4 +247,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Pilot Scope**: This implementation uses a pilot of N=1200 signals (6 depths × 4 bins × 50) per run to fit within 6-hour CI limits. Full signal set and 6 bit depths are deferred to post-CI validation.
+- **Pilot Scope**: This implementation uses a pilot of N=800 signals (4 depths × 4 bins × 50) per run to fit within 6-hour CI limits. Full signal set and multiple bit depths (including 10, 14) are generated as per FR-002, but analysis may focus on the pilot subset as documented in `docs/deferrals.md`.

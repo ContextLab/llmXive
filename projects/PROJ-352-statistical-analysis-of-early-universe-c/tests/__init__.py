@@ -1,1 +1,1 @@
-# Tests for CMB Analysis Pipeline
+# Tests package for PROJ-352
