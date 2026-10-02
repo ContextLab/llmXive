@@ -1,30 +1,34 @@
-T004a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/`
-    directory or a `.gitkeep` file is provided; without a file listing or content,
-    we cannot confirm the required artifact exists.
-T004b:
+  r: No evidence of a Git repository, .gitignore file, or an initial commit is provided;
+    the required artifacts (the .git directory and commit history) are missing.
+T002a:
+  c: false
+  h: e5fb440ea4dcd39ca895d63e0016fded1a0cff1d681b0680e4d9aaee9e9b34bb
+  r: The required file `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt`
+    does not exist, even though a similarly named `code/requirements.txt` with the
+    correct contents is present elsewhere. The task specifically demanded the file
+    at the given project path, which is missing.
+T002b:
+  c: false
+  h: 0c96433a48a645a6f6c5f96998bc3ce2bd5d92ee074d13d0512e8c65e738039f
+  r: The repository lacks a `requirements.txt` file, so the implementer could not
+    run `pip install -r requirements.txt`, and there is no evidence of a virtual environment
+    creation, installation logs, or a `pip freeze` output confirming successful dependency
+    installation. The required artifact and verification steps are missing.
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer only supplied narrative text about user stories and did not provide
-    any evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/`
-    or a `.gitkeep` file inside it. The artifact is missing, so the task is not satisfied.
-T004c:
+  r: No evidence was provided that a `state/` directory exists in the repository root;
+    the claim is unsubstantiated and the required artifact is missing.
+T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented that the directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/`
-    exists or contains a `.gitkeep` file; the response only discusses feature specifications
-    without showing the required filesystem artifact.
-T013a:
-  c: false
-  h: 2df2dbe0898a151a35e6a5929313e81d35f88c236fd0a9474a6dab208772ea8a
-  r: The `download_guava.py` file is present but its code is truncated and does not
-    show the logic that writes `data/raw/guava/checksums.json`. Moreover, the required
-    `checksums.json` file is missing from the repository, so the script has not yet
-    produced the expected output. The implementation must be completed so that running
-    the script creates the checksums file (and raises `DatasetUnavailableError` on
-    failure).
+  r: "No code, configuration, or documentation was provided that implements the required\
+    \ graceful\u2011handling logic for a missing dataset (checking `DATASET_AVAILABLE`,\
+    \ logging, setting the flag, and enabling downstream tasks to skip or use mock\
+    \ data). Without such an artifact, the task\u2019s requirement is not satisfied."
 T015a:
   c: false
   h: 69fb449f80c9bb79089907c222a55b34d94307c22eacbdad80e7c8194cd3ea11
@@ -32,14 +36,6 @@ T015a:
     script is truncated (e.g., `verify_checksum` is incomplete and the latency benchmark
     code is not present). Consequently the download, checksum verification, and latency
     test requirements are not fulfilled.
-T015b:
-  c: false
-  h: 03d55251e21e95233716331a69cb4635ba1e93ccb74becb8b82e102b9579ecd1
-  r: The repository lacks the required `code/models/yolo_tiny.onnx` model file, so
-    the inference code cannot load the model. Moreover, the provided `transform_symbolic.py`
-    does not contain a visible implementation of the `run_yolo_inference(frame)` function
-    that returns class, bbox, centroid, and color histogram as specified. Both the
-    model asset and the concrete function implementation are missing.
 T016c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,3 +43,15 @@ T016c:
     T016b is present; the claim lacks any concrete code artifact, so the required
     integration cannot be verified. The next implementer must provide the updated
     `transform_symbolic.py` with the combined functionality.
+T020:
+  c: false
+  h: 35929d941179de6fe6fbe95d9fe7fe5ad46c31c2d6f044077068b9449d350a1d
+  r: "The required file `data/raw/guava/ground_truth_annotations.json` is missing,\
+    \ so the download and checksum verification steps have not been performed. The\
+    \ task\u2019s core requirement is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation script, report, or log for `ground_truth_annotations.json` was
+    provided, nor any evidence (e.g., command output, test results) showing the file
+    was checked against its schema. Consequently the required artifact is missing.

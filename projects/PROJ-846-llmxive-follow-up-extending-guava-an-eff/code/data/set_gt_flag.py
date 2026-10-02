@@ -1,83 +1,119 @@
-"""
-T013d: GT Flag Set
-Implements logic to set the global flag PERCEPTION_GT_AVAILABLE in config.py
-based on the existence of the ground truth annotations file.
-"""
 import os
 import sys
+import json
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add project root to path to ensure imports work when run as script
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
+# Import project utilities
 from utils.config import set_hyperparameter, get_path, initialize_paths
-from utils.exceptions import DatasetUnavailableError
+from utils.errors import DatasetUnavailableError
+import logging
 
-def check_ground_truth_availability(gt_path: Path) -> bool:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def check_ground_truth_availability() -> bool:
     """
-    Checks if the ground truth annotations file exists at the specified path.
+    Check if the ground truth annotations file exists and is valid.
+    
+    Returns:
+        bool: True if ground truth is available, False otherwise.
+    """
+    try:
+        gt_path = get_path("ground_truth_annotations")
+        if not gt_path or not gt_path.exists():
+            logger.warning(f"Ground truth file not found at: {gt_path}")
+            return False
+        
+        # Basic validation: try to load as JSON
+        with open(gt_path, 'r') as f:
+            data = json.load(f)
+            if not isinstance(data, dict) and not isinstance(data, list):
+                logger.warning(f"Ground truth file is not a valid JSON structure: {gt_path}")
+                return False
+            
+        logger.info(f"Ground truth file validated successfully: {gt_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error validating ground truth file: {e}")
+        return False
+
+def set_gt_flag(is_available: bool) -> None:
+    """
+    Set the DATASET_AVAILABLE flag in the project configuration.
     
     Args:
-        gt_path: Path to the expected ground truth annotations file.
+        is_available (bool): Whether the dataset/ground truth is available.
+    """
+    try:
+        # Initialize paths to ensure config is ready
+        initialize_paths()
         
-    Returns:
-        bool: True if file exists, False otherwise.
-    """
-    if not gt_path.exists():
-        return False
-    if not gt_path.is_file():
-        return False
-    return True
-
-def set_gt_flag() -> bool:
-    """
-    Main logic for T013d.
-    Checks for the existence of data/raw/guava/ground_truth_annotations.json.
-    Updates the global configuration flag PERCEPTION_GT_AVAILABLE accordingly.
-    
-    Returns:
-        bool: The value set for PERCEPTION_GT_AVAILABLE (True if available, False otherwise).
-    """
-    # Ensure paths are initialized
-    initialize_paths()
-    
-    # Construct the expected path for ground truth annotations
-    # Based on T013c output: data/raw/guava/ground_truth_annotations.json
-    gt_file_path = get_path("raw_guava") / "ground_truth_annotations.json"
-    
-    is_available = check_ground_truth_availability(gt_file_path)
-    
-    # Update the global config flag
-    # The config module uses a global dict to store hyperparameters/flags
-    set_hyperparameter("PERCEPTION_GT_AVAILABLE", is_available)
-    
-    return is_available
+        # Set the hyperparameter
+        set_hyperparameter("DATASET_AVAILABLE", str(is_available).lower())
+        
+        status = "AVAILABLE" if is_available else "UNAVAILABLE"
+        logger.info(f"Dataset availability flag set to: {status}")
+        
+        # Also write a status file for easy downstream checking
+        status_file = get_path("dataset_status")
+        if status_file:
+            status_data = {
+                "dataset_available": is_available,
+                "checked_at": str(Path().resolve()),
+                "reason": "Ground truth validation" if is_available else "Ground truth missing or invalid"
+            }
+            with open(status_file, 'w') as f:
+                json.dump(status_data, f, indent=2)
+            logger.info(f"Dataset status written to: {status_file}")
+            
+    except Exception as e:
+        logger.error(f"Failed to set dataset availability flag: {e}")
+        raise
 
 def main():
     """
-    Entry point for the script.
-    Executes the GT flag check and prints the result.
+    Main entry point for checking ground truth availability and setting the flag.
+    
+    This task (T013c) handles missing dataset gracefully:
+    1. Checks if ground truth annotations exist
+    2. Logs the condition
+    3. Sets DATASET_AVAILABLE flag accordingly
+    4. Allows downstream tasks to skip or use mock data based on the flag
     """
+    logger.info("Starting ground truth availability check (Task T013c)...")
+    
     try:
-        is_available = set_gt_flag()
-        status = "AVAILABLE" if is_available else "UNAVAILABLE"
-        print(f"[T013d] Ground Truth Status: {status}")
-        print(f"[T013d] Flag PERCEPTION_GT_AVAILABLE set to: {is_available}")
+        # Initialize paths
+        initialize_paths()
+        
+        # Check availability
+        is_available = check_ground_truth_availability()
+        
+        # Set the flag gracefully - never raise DatasetUnavailableError here
+        # This task is specifically for graceful handling
+        set_gt_flag(is_available)
         
         if not is_available:
-            # Log a warning but do not fail the script execution itself,
-            # as the research pipeline is designed to handle missing GT
-            # by setting gt_missing=true in later steps (T016).
-            print("[T013d] WARNING: Ground truth annotations not found. "
-                  "Downstream perception validation will skip GT comparison.")
+            logger.warning("Dataset is NOT available. Downstream tasks should handle this gracefully.")
+            logger.warning("Consider using mock data or skipping processing for this run.")
+        else:
+            logger.info("Dataset is available. Proceeding with normal processing.")
+            
+        return 0 if is_available else 1  # Return 1 if unavailable, but don't crash
         
-        return 0
     except Exception as e:
-        print(f"[T013d] ERROR: Failed to set GT flag: {e}")
-        # Do not raise DatasetUnavailableError here; the flag logic is
-        # designed to handle missing files gracefully by setting False.
-        return 1
+        logger.error(f"Unexpected error during dataset availability check: {e}")
+        # Even on unexpected error, try to set flag to false gracefully
+        try:
+            set_gt_flag(False)
+        except:
+            pass
+        return 2
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,67 +1,52 @@
-"""
-Setup script to create the 'state/' directory in the repository root.
-
-This script implements Task T005a:
-- Creates `state/` directory in repository root.
-- Verifies the directory exists after creation.
-
-Usage:
-    python code/setup_state_directory.py
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_state_directory() -> Path:
     """
-    Creates the 'state/' directory in the repository root if it does not exist.
+    Create the 'state/' directory in the repository root if it does not exist.
     
     Returns:
-        Path: The absolute path to the created/existing state directory.
-        
+        Path: The absolute path to the created (or existing) state directory.
+    
     Raises:
-        RuntimeError: If the directory cannot be created or verified.
+        RuntimeError: If the directory cannot be created due to permissions or other OS errors.
     """
-    # Determine repository root (parent of 'code/')
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    repo_root = code_dir.parent
-
+    repo_root = Path.cwd()
     state_dir = repo_root / "state"
-
-    if state_dir.exists():
-        if state_dir.is_dir():
-            print(f"State directory already exists: {state_dir}")
-            return state_dir
-        else:
-            raise RuntimeError(f"Path exists but is not a directory: {state_dir}")
-
-    try:
-        state_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Successfully created state directory: {state_dir}")
-    except OSError as e:
-        raise RuntimeError(f"Failed to create state directory {state_dir}: {e}")
-
-    # Verification step
-    if not state_dir.exists() or not state_dir.is_dir():
-        raise RuntimeError(f"Verification failed: State directory {state_dir} was not created successfully.")
-
+    
+    if not state_dir.exists():
+        try:
+            state_dir.mkdir(parents=True, exist_ok=True)
+            # Create a .gitkeep to ensure the directory is tracked by git
+            gitkeep = state_dir / ".gitkeep"
+            gitkeep.touch(exist_ok=True)
+        except OSError as e:
+            raise RuntimeError(f"Failed to create state directory at {state_dir}: {e}")
+    
     return state_dir
 
-def main():
-    """Entry point for the script."""
+def main() -> int:
+    """
+    Entry point for the script. Creates the state directory and verifies its existence.
+    
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
+    """
     try:
-        state_path = create_state_directory()
-        print(f"Verification: Directory '{state_path}' exists and is valid.")
-        # List contents to prove existence (empty or not)
-        contents = list(state_path.iterdir())
-        if not contents:
-            print("Directory is empty (as expected for initial creation).")
-        else:
-            print(f"Directory contents: {[p.name for p in contents]}")
+        state_dir = create_state_directory()
+        print(f"State directory created/verified at: {state_dir}")
+        
+        # Verification: Ensure the directory exists
+        if not state_dir.is_dir():
+            print(f"ERROR: Verification failed. {state_dir} is not a directory.")
+            return 1
+        
+        print("Verification successful: state/ directory exists.")
         return 0
-    except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        
+    except Exception as e:
+        print(f"ERROR: {e}")
         return 1
 
 if __name__ == "__main__":

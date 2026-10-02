@@ -1,2 +1,2 @@
-# This directory stores generated artifacts such as training metrics, evaluation results, and logs.
-# It is tracked in git to ensure the directory structure exists, even when empty.
+# This directory is for generated artifacts (JSON, CSV, logs, models).
+# Do not remove this file; it ensures the directory is tracked by Git.

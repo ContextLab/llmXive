@@ -1,3 +1,18 @@
+"""
+Symbolic Transformation Pipeline for Guava Dataset.
+
+This module ingests raw video frames from the Guava dataset, runs YOLO-tiny
+inference to extract symbolic observations (bounding boxes, class labels,
+centroids, color histograms), and emits the results as JSON files.
+
+Dependencies:
+- code/data/models.py (SymbolicObservation, PerceptionLog, Trajectory, TaskOutcome)
+- code/utils/config.py (get_path, get_hyperparameter)
+- code/utils/errors.py (DatasetUnavailableError)
+- code/utils/env_config.py (check_cpu_constraints)
+- code/data/download_yolo.py (for model path verification)
+"""
+
 import json
 import os
 import sys
@@ -5,299 +20,311 @@ import time
 import glob
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+
 import numpy as np
+import onnxruntime as ort
+from PIL import Image
 
-# Local imports from existing API surface
-from utils.config import get_path, get_hyperparameter
-from utils.logger import compare_with_gt, log_perception_ground_truth, log_latency
-from utils.errors import DatasetUnavailableError, PerceptionInferenceError
-from data.models import SymbolicObservation, Trajectory, PerceptionLog
-from data.models import serialize_trajectory, serialize_perception_log
+# Project relative imports
+from data.models import (
+    SymbolicObservation,
+    Trajectory,
+    TaskOutcome,
+    PerceptionLog,
+    serialize_trajectory,
+    serialize_outcome,
+    FailureType,
+    PerceptionQuality
+)
+from utils.config import get_path, get_hyperparameter, ensure_directories
+from utils.errors import DatasetUnavailableError
+from utils.env_config import check_cpu_constraints
 
-# YOLO imports (defined in this file or imported from download_yolo if available)
-# Assuming YOLOv8ONNX class is defined locally or imported as per T015a/b context
-# We define it here to ensure the file is self-contained for execution if the module isn't fully loaded elsewhere yet,
-# but strictly following the API surface, we assume the class exists or is defined in a way compatible with T015b.
-# Since T015b asked for implementation in transform_symbolic.py, we ensure the logic is here.
+# Constants
+DEFAULT_IMAGE_SIZE = (640, 640)
+LATENCY_THRESHOLD_MS = 150.0
+CONFIDENCE_THRESHOLD = 0.25
 
-try:
-    import onnxruntime as ort
-except ImportError:
-    raise ImportError("onnxruntime is required. Install via requirements.txt")
 
 class YOLOv8ONNX:
-    """Wrapper for YOLOv8 ONNX model inference."""
-    def __init__(self, model_path: str):
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"YOLO model not found at {model_path}")
-        
-        self.session = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
+    """Wrapper for YOLOv8n ONNX model inference."""
+
+    def __init__(self, model_path: str, img_size: Tuple[int, int] = DEFAULT_IMAGE_SIZE):
+        self.model_path = model_path
+        self.img_size = img_size
+        self.session = None
+        self.input_name = None
+        self.output_name = None
+        self._load_model()
+
+    def _load_model(self):
+        """Load the ONNX model and verify it exists."""
+        if not os.path.exists(self.model_path):
+            raise FileNotFoundError(f"YOLO model not found at {self.model_path}. "
+                                    "Run T015a to download the model.")
+
+        # Enforce CPU-only execution as per project constraints
+        opts = ort.SessionOptions()
+        opts.intra_op_num_threads = 2
+        sess_options = ort.InferenceSession(self.model_path, sess_options=opts, providers=['CPUExecutionProvider'])
+
+        self.session = sess_options
         self.input_name = self.session.get_inputs()[0].name
-        self.input_shape = self.session.get_inputs()[0].shape
-        
-        # Class labels for Guava dataset (assuming standard COCO or specific Guava classes)
-        # T015a implies a specific model, we use a standard mapping or load from config if needed.
-        # For this implementation, we assume a standard 80-class COCO mapping or similar.
-        # In a real scenario, this might be loaded from a config or a specific file.
-        self.labels = [
-            'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat',
-            'traffic light', 'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat',
-            'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack',
-            'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-            'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-            'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-            'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake',
-            'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
-            'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink',
-            'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
-        ]
+        self.output_name = self.session.get_outputs()[0].name
 
-    def preprocess(self, frame: np.ndarray) -> np.ndarray:
-        """Resize and normalize frame for ONNX input."""
-        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) if len(frame.shape) == 3 and frame.shape[2] == 3 else frame
-        img = cv2.resize(img, (640, 640)) # Standard YOLOv8 input size
-        img = img.astype(np.float32) / 255.0
-        img = np.transpose(img, (2, 0, 1)) # CHW
-        img = np.expand_dims(img, axis=0)
-        return img
+    def infer(self, image: np.ndarray) -> np.ndarray:
+        """
+        Run inference on a single image.
+        Args:
+            image: numpy array of shape (H, W, 3) in uint8.
+        Returns:
+            numpy array of detections.
+        """
+        if self.session is None:
+            raise RuntimeError("Model not loaded.")
 
-    def postprocess(self, output: np.ndarray, conf_thres: float = 0.5) -> List[Dict[str, Any]]:
-        """Parse ONNX output into detections."""
-        # Output shape depends on model, typically [1, 84, 8400] for YOLOv8n
-        # 84 = 4 (bbox) + 80 (classes)
-        if output.shape[1] == 84:
-            output = output[0].T # [8400, 84]
-            boxes = output[:, :4]
-            scores = output[:, 4:]
-            classes = np.argmax(scores, axis=1)
-            confidences = np.max(scores, axis=1)
-            
-            detections = []
-            for i, conf in enumerate(confidences):
-                if conf > conf_thres:
-                    x1, y1, w, h = boxes[i]
-                    # Convert from center-x, center-y, w, h to x1, y1, x2, y2
-                    x_center, y_center, width, height = boxes[i]
-                    x1 = x_center - width / 2
-                    y1 = y_center - height / 2
-                    x2 = x1 + width
-                    y2 = y1 + height
-                    
-                    detections.append({
-                        'class_id': int(classes[i]),
-                        'class_name': self.labels[classes[i]] if classes[i] < len(self.labels) else 'unknown',
-                        'confidence': float(conf),
-                        'bbox': [float(x1), float(y1), float(x2), float(y2)]
-                    })
-            return detections
-        else:
-            # Fallback for different output formats
-            raise ValueError(f"Unexpected output shape: {output.shape}")
+        # Preprocess: Resize, Normalize, CHW, Batch
+        img_pil = Image.fromarray(image)
+        img_resized = img_pil.resize(self.img_size, Image.LANCZOS)
+        img_array = np.array(img_resized).astype(np.float32) / 255.0
+        img_array = np.transpose(img_array, (2, 0, 1))
+        img_array = np.expand_dims(img_array, axis=0)
 
-# Global instance to avoid reloading model on every call if used in a loop
-_yolo_instance: Optional[YOLOv8ONNX] = None
+        # Run inference
+        start_time = time.perf_counter()
+        outputs = self.session.run(None, {self.input_name: img_array})
+        inference_time = (time.perf_counter() - start_time) * 1000.0
 
-def get_yolo_instance(model_path: str) -> YOLOv8ONNX:
-    global _yolo_instance
-    if _yolo_instance is None:
-        _yolo_instance = YOLOv8ONNX(model_path)
-    return _yolo_instance
+        return outputs[0], inference_time
 
-def run_yolo_inference(frame: np.ndarray, model_path: Optional[str] = None) -> List[Dict[str, Any]]:
+
+def get_yolo_instance() -> YOLOv8ONNX:
+    """Factory function to get a configured YOLO instance."""
+    model_path = get_path("yolo_model_path")
+    if not model_path:
+        # Fallback to default if config is missing, though T015a should set it
+        model_path = str(get_path("models_dir") / "yolo_tiny.onnx")
+    return YOLOv8ONNX(model_path)
+
+
+def run_yolo_inference(yolo_model: YOLOv8ONNX, frame_path: str) -> Tuple[List[Dict[str, Any]], float]:
     """
     Run YOLO inference on a single frame.
-    T015b Implementation: Load model, run inference, return class, bbox, centroid, color histogram.
+    Returns:
+        Tuple of (list of detection dicts, inference_time_ms)
     """
-    if model_path is None:
-        model_path = get_path("yolo_model")
-    
     try:
-        yolo = get_yolo_instance(model_path)
-        input_data = yolo.preprocess(frame)
-        outputs = yolo.session.run(None, {yolo.input_name: input_data})
-        detections = yolo.postprocess(outputs[0])
-        
-        # Enhance detections with centroid and color histogram if needed for SymbolicObservation
-        for det in detections:
-            # Calculate centroid
-            bbox = det['bbox']
-            det['centroid'] = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
-            
-            # Simple color histogram (mean color in bbox)
-            # Assuming frame is BGR or RGB numpy array
-            x1, y1, x2, y2 = [int(v) for v in bbox]
-            roi = frame[y1:y2, x1:x2]
-            if roi.size > 0:
-                mean_color = np.mean(roi, axis=(0, 1)).tolist()
-                det['color_histogram'] = mean_color
-            else:
-                det['color_histogram'] = [0, 0, 0]
-                
-        return detections
+        image = np.array(Image.open(frame_path).convert("RGB"))
     except Exception as e:
-        raise PerceptionInferenceError(f"YOLO inference failed: {str(e)}")
+        raise RuntimeError(f"Failed to load image {frame_path}: {e}")
 
-def find_trajectories(raw_data_dir: str) -> List[Path]:
-    """Find all trajectory files (videos or image sequences) in the raw data directory."""
-    trajectory_files = []
-    # Support common video extensions and image sequence directories
-    for ext in ['*.mp4', '*.avi', '*.mov', '*.mkv']:
-        trajectory_files.extend(glob.glob(os.path.join(raw_data_dir, '**', ext), recursive=True))
-    
-    # Check for directories that might contain image sequences
-    for item in os.listdir(raw_data_dir):
-        item_path = os.path.join(raw_data_dir, item)
-        if os.path.isdir(item_path):
+    detections_raw, inference_time = yolo_model.infer(image)
+
+    # Post-processing: YOLOv8 output shape is usually (1, 84, 8400) -> (84, 8400)
+    # 84 = 4 bbox + 80 classes
+    # We need to transpose and filter
+    if detections_raw.shape[1] == 84:
+        detections_raw = detections_raw[0].T  # (8400, 84)
+
+    detections = []
+    num_classes = 80 # Assuming COCO classes for YOLOv8n
+
+    for det in detections_raw:
+        # det: [x_center, y_center, w, h, class_probs...]
+        conf = float(np.max(det[4:]))
+        if conf < CONFIDENCE_THRESHOLD:
+            continue
+
+        cls_id = int(np.argmax(det[4:]))
+        x_c, y_c, w, h = det[:4]
+
+        # Convert to x_min, y_min, x_max, y_max
+        x_min = max(0, int(x_c - w / 2))
+        y_min = max(0, int(y_c - h / 2))
+        x_max = int(x_c + w / 2)
+        y_max = int(y_c + h / 2)
+
+        # Centroid
+        centroid_x = int((x_min + x_max) / 2)
+        centroid_y = int((y_min + y_max) / 2)
+
+        # Color histogram (simple mean color in bbox)
+        roi = image[y_min:y_max, x_min:x_max]
+        if roi.size > 0:
+            mean_color = tuple(map(int, np.mean(roi, axis=(0, 1))))
+        else:
+            mean_color = (0, 0, 0)
+
+        detections.append({
+            "class_id": cls_id,
+            "bbox": [x_min, y_min, x_max, y_max],
+            "centroid": [centroid_x, centroid_y],
+            "confidence": conf,
+            "color_mean": mean_color,
+            "inference_time_ms": inference_time
+        })
+
+    return detections, inference_time
+
+
+def find_trajectories(raw_data_dir: Path) -> List[Path]:
+    """
+    Scan the raw data directory for trajectory directories.
+    Expected structure: raw_data_dir / {trajectory_id} / frame_*.jpg
+    """
+    if not raw_data_dir.exists():
+        raise DatasetUnavailableError(f"Raw data directory not found: {raw_data_dir}")
+
+    trajectories = []
+    # Assuming each subdirectory is a trajectory
+    for item in raw_data_dir.iterdir():
+        if item.is_dir():
             # Check if it contains images
-            images = glob.glob(os.path.join(item_path, '*.jpg')) + glob.glob(os.path.join(item_path, '*.png'))
-            if images:
-                trajectory_files.append(Path(item_path))
-                
-    return [Path(p) for p in trajectory_files]
+            if list(item.glob("*.jpg")) or list(item.glob("*.png")):
+                trajectories.append(item)
+    return sorted(trajectories)
+
+
+def process_frame(frame_path: Path, yolo_model: YOLOv8ONNX) -> SymbolicObservation:
+    """
+    Process a single frame and return a SymbolicObservation.
+    """
+    detections, latency = run_yolo_inference(yolo_model, str(frame_path))
+
+    # Create objects list
+    objects = [
+        SymbolicObservation(
+            class_id=d["class_id"],
+            bbox=d["bbox"],
+            centroid=d["centroid"],
+            confidence=d["confidence"],
+            color_mean=d["color_mean"]
+        )
+        for d in detections
+    ]
+
+    # Determine scene status
+    is_empty = len(objects) == 0
+
+    return SymbolicObservation(
+        timestamp=datetime.now().isoformat(),
+        frame_path=str(frame_path),
+        objects=objects,
+        is_empty=is_empty,
+        latency_ms=latency,
+        latency_exceeded=latency > LATENCY_THRESHOLD_MS
+    )
+
 
 class SymbolicTransformer:
-    """
-    Main class to transform raw Guava trajectories into SymbolicObservations.
-    Integrates T016a (GT Comparison) and T016b (Log Generation).
-    """
-    def __init__(self, raw_data_dir: str, output_dir: str, yolo_model_path: str):
-        self.raw_data_dir = Path(raw_data_dir)
-        self.output_dir = Path(output_dir)
-        self.yolo_model_path = yolo_model_path
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Load Ground Truth if available
-        gt_path = get_path("ground_truth_annotations")
-        self.gt_data = None
-        if os.path.exists(gt_path):
-            try:
-                with open(gt_path, 'r') as f:
-                    self.gt_data = json.load(f)
-            except Exception as e:
-                print(f"Warning: Could not load ground truth: {e}")
-        else:
-            print("Warning: Ground truth annotations not found. GT comparison will be skipped.")
+    """Main orchestrator for the symbolic transformation pipeline."""
 
-    def _load_gt_for_trajectory(self, trajectory_id: str) -> Optional[Dict[str, Any]]:
-        """Retrieve ground truth data for a specific trajectory."""
-        if not self.gt_data:
-            return None
-        # Assuming gt_data structure: {"annotations": { "trajectory_id": [...] }}
-        annotations = self.gt_data.get("annotations", {})
-        return annotations.get(trajectory_id)
+    def __init__(self):
+        self.yolo_model = get_yolo_instance()
+        self.raw_data_dir = get_path("raw_data_dir")
+        self.output_dir = get_path("processed_symbolic_dir")
+        ensure_directories([self.output_dir])
+        self.processed_count = 0
+        self.latency_failures = 0
 
-    def _process_frame(self, frame: np.ndarray, timestamp: float, trajectory_id: str) -> Dict[str, Any]:
-        """Process a single frame: inference, GT comparison, logging."""
-        start_time = time.time()
-        
-        # 1. Run YOLO Inference
-        detections = run_yolo_inference(frame, self.yolo_model_path)
-        
-        # 2. Compare with Ground Truth (T016a)
-        gt_info = self._load_gt_for_trajectory(trajectory_id)
-        gt_objects = gt_info.get("bboxes", []) if gt_info else []
-        
-        comparison_result = compare_with_gt(
-            detected_objects=detections,
-            ground_truth_objects=gt_objects,
-            iou_threshold=0.5
-        )
-        
-        # 3. Log Perception and GT (T016b)
-        log_entry = log_perception_ground_truth(
-            timestamp=timestamp,
-            detected_objects=detections,
-            comparison_result=comparison_result
-        )
-        
-        # 4. Log Latency
-        latency = time.time() - start_time
-        log_latency(timestamp, latency, "perception_inference")
-        
-        return log_entry
-
-    def transform_trajectory(self, trajectory_path: Path):
-        """Transform a single trajectory file into symbolic JSON."""
-        trajectory_id = trajectory_path.stem
-        print(f"Processing trajectory: {trajectory_id}")
-        
-        symbolic_observations = []
-        
-        # Logic to read frames depends on file type (video vs directory)
-        # For this implementation, we assume a generic frame iterator or video reader
-        # In a real scenario, we'd use cv2.VideoCapture for videos or iterate images for directories
-        
-        try:
-            if trajectory_path.suffix.lower() in ['.mp4', '.avi', '.mov', '.mkv']:
-                import cv2
-                cap = cv2.VideoCapture(str(trajectory_path))
-                frame_count = 0
-                while True:
-                    ret, frame = cap.read()
-                    if not ret:
-                        break
-                    timestamp = frame_count / cap.get(cv2.CAP_PROP_FPS)
-                    log_entry = self._process_frame(frame, timestamp, trajectory_id)
-                    symbolic_observations.append(log_entry)
-                    frame_count += 1
-                cap.release()
-            elif trajectory_path.is_dir():
-                # Handle image sequence directory
-                images = sorted([p for p in trajectory_path.iterdir() if p.suffix.lower() in ['.jpg', '.png', '.jpeg']])
-                for i, img_path in enumerate(images):
-                    import cv2
-                    frame = cv2.imread(str(img_path))
-                    if frame is None:
-                        continue
-                    timestamp = i # Assuming 1fps or index-based time
-                    log_entry = self._process_frame(frame, timestamp, trajectory_id)
-                    symbolic_observations.append(log_entry)
-            else:
-                print(f"Skipping unsupported trajectory format: {trajectory_path}")
-                return
-        except Exception as e:
-            print(f"Error processing trajectory {trajectory_id}: {e}")
+    def transform(self):
+        """
+        Run the full transformation pipeline.
+        1. Find trajectories.
+        2. Process each frame in each trajectory.
+        3. Aggregate into Trajectory object.
+        4. Save to JSON.
+        5. Save TaskOutcome.
+        """
+        trajectories = find_trajectories(self.raw_data_dir)
+        if not trajectories:
+            print(f"Warning: No trajectories found in {self.raw_data_dir}")
             return
 
-        # Save output
-        output_file = self.output_dir / f"{trajectory_id}.json"
-        with open(output_file, 'w') as f:
-            json.dump({
-                "trajectory_id": trajectory_id,
-                "observations": symbolic_observations,
-                "metadata": {
-                    "source": str(trajectory_path),
-                    "processed_at": datetime.now().isoformat(),
-                    "model_used": self.yolo_model_path
-                }
-            }, f, indent=2)
-        print(f"Saved symbolic observations to {output_file}")
+        print(f"Found {len(trajectories)} trajectories. Starting transformation...")
+
+        for traj_path in trajectories:
+            traj_id = traj_path.name
+            print(f"Processing trajectory: {traj_id}")
+
+            frame_paths = sorted(list(traj_path.glob("*.jpg")) + list(traj_path.glob("*.png")))
+            if not frame_paths:
+                print(f"  No frames found for {traj_id}")
+                continue
+
+            symbolic_observations = []
+            total_frame_latency = 0.0
+            max_frame_latency = 0.0
+            has_latency_failure = False
+
+            for frame_path in frame_paths:
+                try:
+                    obs = process_frame(frame_path, self.yolo_model)
+                    symbolic_observations.append(obs)
+
+                    total_frame_latency += obs.latency_ms
+                    if obs.latency_ms > max_frame_latency:
+                        max_frame_latency = obs.latency_ms
+                    if obs.latency_exceeded:
+                        has_latency_failure = True
+                        self.latency_failures += 1
+
+                except Exception as e:
+                    print(f"  Error processing {frame_path.name}: {e}")
+                    # Continue to next frame, but log error
+                    continue
+
+            # Create Trajectory object
+            trajectory = Trajectory(
+                trajectory_id=traj_id,
+                frame_count=len(symbolic_observations),
+                observations=symbolic_observations,
+                avg_latency_ms=total_frame_latency / len(symbolic_observations) if symbolic_observations else 0.0,
+                max_latency_ms=max_frame_latency,
+                has_latency_failure=has_latency_failure,
+                processed_at=datetime.now().isoformat()
+            )
+
+            # Serialize and save
+            output_file = self.output_dir / f"{traj_id}.json"
+            with open(output_file, 'w') as f:
+                json.dump(trajectory.model_dump(), f, indent=2)
+            
+            self.processed_count += 1
+            print(f"  Saved: {output_file}")
+
+        # Generate a summary TaskOutcome for the whole run
+        total_time = time.time() - self.start_time if hasattr(self, 'start_time') else 0
+        outcome = TaskOutcome(
+            run_id=datetime.now().strftime("%Y%m%d_%H%M%S"),
+            status="completed",
+            total_trajectories=len(trajectories),
+            processed_trajectories=self.processed_count,
+            total_latency_failures=self.latency_failures,
+            latency_threshold_ms=LATENCY_THRESHOLD_MS,
+            execution_time_seconds=total_time,
+            success_rate=(self.processed_count / len(trajectories)) if trajectories else 0.0
+        )
+
+        outcome_file = self.output_dir / "transformation_outcome.json"
+        with open(outcome_file, 'w') as f:
+            json.dump(outcome.model_dump(), f, indent=2)
+        
+        print(f"Transformation complete. Outcome saved to {outcome_file}")
 
     def run(self):
-        """Run transformation on all found trajectories."""
-        trajectories = find_trajectories(str(self.raw_data_dir))
-        print(f"Found {len(trajectories)} trajectories.")
-        
-        for traj in trajectories:
-            self.transform_trajectory(traj)
+        """Entry point."""
+        self.start_time = time.time()
+        check_cpu_constraints() # Enforce CPU constraint
+        self.transform()
+
 
 def main():
-    """Entry point for the transformation pipeline."""
-    # Initialize paths from config
-    raw_dir = get_path("raw_data")
-    out_dir = get_path("processed_data")
-    yolo_path = get_path("yolo_model")
-    
-    # Check constraints
-    from utils.env_config import check_cpu_constraints
-    check_cpu_constraints()
-    
-    if not os.path.exists(yolo_path):
-        raise FileNotFoundError(f"YOLO model not found at {yolo_path}. Run T015a first.")
-    
-    transformer = SymbolicTransformer(raw_dir, out_dir, yolo_path)
+    """Main entry point for the script."""
+    transformer = SymbolicTransformer()
     transformer.run()
+
 
 if __name__ == "__main__":
     main()

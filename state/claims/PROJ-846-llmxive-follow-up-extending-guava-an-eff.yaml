@@ -2872,3 +2872,725 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T00:50:30Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Symbolic pipeline processing time less than or equal to 150 ms per frame
+    on CPU
+  claim_id: c_f3a617ea
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\
+    \ ms/frame on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_pipeline_processing_time_less_than_or_equal_to_150
+  kind: magnitude
+  raw_text: "Processing time \u2264 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:14:41Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO precision and recall greater than or equal to 90 percent
+  claim_id: c_0f98d171
+  context: "Validation: Implement validate_perception.py to ensure YOLO precision/recall\
+    \ \u2265 90 % and total transformation completes \u2264 4 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO_precision_and_recall_greater_than_or_equal_to_90_percen
+  kind: magnitude
+  raw_text: "YOLO precision/recall \u2265 90 %"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:15:06Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total symbolic transformation completes in less than or equal to 4 hours
+  claim_id: c_3af8cd99
+  context: "Validation: Implement validate_perception.py to ensure YOLO precision/recall\
+    \ \u2265 90 % and total transformation completes \u2264 4 h."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_symbolic_transformation_completes_in_less_than_or_equa
+  kind: magnitude
+  raw_text: "total transformation completes \u2264 4 h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:16:58Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning convergence with loss decrease greater than or equal to 15
+    percent within 4 hours on CPU
+  claim_id: c_bf89f7ce
+  context: "Independent Test: Fine\u2011tuning converges (loss decrease \u226515 %)\
+    \ within 4 h on CPU. Model accepts symbolic JSON input without crashing."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_convergence_with_loss_decrease_greater_than_or_e
+  kind: magnitude
+  raw_text: "Fine\u2011tuning converges (loss decrease \u226515 %) within 4 h on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:18:50Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Held-out split file contains exactly 50 task IDs
+  claim_id: c_ed8d4247
+  context: 'Verify: Output file data/processed/heldout_split.json contains exactly
+    50 IDs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output file data/processed/heldout_split.json contains exactly 50 IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:19:16Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations and convergence standard deviation
+    less than 0.001
+  claim_id: c_539245e2
+  context: 'Permutation Test: Perform a permutation test (1000 iterations, convergence
+    std < 0.001) comparing Symbolic success rates vs. Visual baseline success rates
+    using scipy.stats.permutation_test.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_1000_iterations_and_convergence_standa
+  kind: magnitude
+  raw_text: Perform a permutation test (1000 iterations, convergence std < 0.001)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:20:02Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time less than or equal to 6 hours
+  claim_id: c_7ee28222
+  context: "SC\u2011005 Threshold: Implement validate_compute.py to verify total compute\
+    \ time \u2264 6 h. Read timestamps from training and evaluation logs; assert total\
+    \ \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_compute_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "verify total compute time \u2264 6 h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:21:48Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Output JSON contains valid bounding boxes and class labels
+  claim_id: c_33def9ce
+  context: 'Independent Test: The pipeline runs on a subset of trajectories. Output
+    JSON contains valid bounding boxes/class labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_contains_valid_bounding_boxes_and_class_labels
+  kind: entity_fact
+  raw_text: Output JSON contains valid bounding boxes/class labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:25:59Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Processing time is less than or equal to 150 ms per frame on CPU
+  claim_id: c_22bcb794
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\
+    \ ms/frame on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_is_less_than_or_equal_to_150_ms_per_frame_on
+  kind: magnitude
+  raw_text: "Processing time \u2264 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:26:01Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning converges with loss decrease greater than or equal to 15%
+    within 4 hours on CPU
+  claim_id: c_e63c9b46
+  context: "Independent Test: Fine\u2011tuning converges (loss decrease \u226515%)\
+    \ within 4 h on CPU. Model accepts symbolic JSON input without crashing."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_converges_with_loss_decrease_greater_than_or_equ
+  kind: magnitude
+  raw_text: "Fine\u2011tuning converges (loss decrease \u226515%) within 4 h on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:26:03Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Output file data/processed/heldout_split.json contains exactly 50 IDs
+  claim_id: c_9a93bcb2
+  context: 'Verify: Output file data/processed/heldout_split.json contains exactly
+    50 IDs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output file data/processed/heldout_split.json contains exactly 50 IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:26:03Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations and convergence standard deviation
+    less than 0.001 compares Symbolic and Visual baseline success rates
+  claim_id: c_2e9c60b0
+  context: Perform a permutation test (1000 iterations, convergence std < 0.001) comparing
+    Symbolic success rates vs. Visual baseline success rates using scipy.stats.permutation_test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_1000_iterations_and_convergence_standa
+  kind: magnitude
+  raw_text: Perform a permutation test (1000 iterations, convergence std < 0.001)
+    comparing Symbolic success rates vs. Visual baseline success rates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:26:51Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time is less than or equal to 6 hours
+  claim_id: c_f6a74727
+  context: "Implement projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/validate_compute.py\
+    \ to verify total compute time \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_compute_time_is_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Verify total compute time \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:26:53Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Output JSON contains valid bounding boxes and class labels
+  claim_id: c_653e00b4
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\
+    \ ms/frame on CPU."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_contains_valid_bounding_boxes_and_class_labels
+  kind: entity_fact
+  raw_text: Output JSON contains valid bounding boxes/class labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:50Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Processing time less than or equal to 150 milliseconds per frame on CPU
+  claim_id: c_e5af5058
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\
+    \ ms/frame on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_less_than_or_equal_to_150_milliseconds_per_f
+  kind: magnitude
+  raw_text: "Processing time \u2264 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:52Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning converges with loss decrease greater than or equal to 15
+    percent within 4 hours on CPU
+  claim_id: c_035a458e
+  context: "Independent Test: Fine\u2011tuning converges (loss decrease \u226515%)\
+    \ within 4 h on CPU. Model accepts symbolic JSON input without crashing."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_converges_with_loss_decrease_greater_than_or_equ
+  kind: magnitude
+  raw_text: "Fine\u2011tuning converges (loss decrease \u226515%) within 4 h on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Output file contains exactly 50 task IDs
+  claim_id: c_b8e23c9a
+  context: 'Verify: Output file `data/processed/heldout_split.json` contains exactly
+    50 IDs. **Depends on**: T013a (or T013b if mock).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output file data/processed/heldout_split.json contains exactly 50 IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations and convergence standard deviation
+    less than 0.001
+  claim_id: c_61d85537
+  context: '**Permutation Test**: Perform a permutation test (1000 iterations, convergence
+    std < 0.001) comparing Symbolic success rates vs. Visual baseline success rates
+    using `scipy.stats.permutation_test`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_1000_iterations_and_convergence_standa
+  kind: magnitude
+  raw_text: Perform a permutation test (1000 iterations, convergence std < 0.001)
+    comparing Symbolic success rates vs. Visual baseline success rates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:56Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time less than or equal to 6 hours
+  claim_id: c_0a43c0a5
+  context: "**SC\u2011005 Threshold**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/validate_compute.py`\
+    \ to verify total compute time \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_compute_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Verify total compute time \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:27:58Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Symbolic pipeline processing time <= 150 ms per frame on CPU
+  claim_id: c_a070b797
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\u202F\
+    ms/frame on CPU. No raw pixel data in output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline runs on a subset of trajectories with processing time \u2264\
+    \ 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:28:51Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: LLM fine-tuning converges with >= 15% loss decrease within 4 hours on
+    CPU
+  claim_id: c_0f5e5a49
+  context: "Independent Test: Fine\u2011tuning converges (loss decrease \u226515\u202F\
+    %) within 4\u202Fh on CPU. Model accepts symbolic JSON input without crashing."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fine\u2011tuning converges (loss decrease \u226515\u202F%) within 4\u202F\
+    h on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:28:51Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Held-out split file contains exactly 50 task IDs
+  claim_id: c_2e678ba5
+  context: 'Verify: Output file data/processed/heldout_split.json contains exactly
+    50 IDs. Depends on: T013a (or T013b if mock).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output file data/processed/heldout_split.json contains exactly 50
+    IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:28:52Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations and convergence std < 0.001
+  claim_id: c_902718df
+  context: "Perform a permutation test (1000 iterations, convergence std\u202F<\u202F\
+    0.001) comparing Symbolic success rates vs. Visual baseline success rates using\
+    \ scipy.stats.permutation_test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 1000 iterations with convergence std < 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:29:27Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time <= 6 hours
+  claim_id: c_78693b0b
+  context: "Verify total compute time \u2264 6\u202Fh. Read timestamps from training\
+    \ and evaluation logs; assert total \u2264 6\u202Fh."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total compute time must be \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:29:28Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Examples include test tasks
+  claim_id: c_018388b7
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:52Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Processing time 150 ms per frame on CPU
+  claim_id: c_573103bb
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150\u202F\
+    ms/frame on CPU. No raw pixel data in output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing time \u2264 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:53Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning converges with loss decrease 15 percent within 4 hours on
+    CPU
+  claim_id: c_ffbe8ad4
+  context: "Independent Test: Fine\u2011tuning converges (loss decrease \u226515\u202F\
+    %) within 4\u202Fh on CPU. Model accepts symbolic JSON input without crashing."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fine\u2011tuning converges (loss decrease \u226515\u202F%) within 4\u202F\
+    h on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:53Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Held-out split file contains 50 IDs
+  claim_id: c_7ee183ce
+  context: 'Verify: Output file `data/processed/heldout_split.json` contains exactly
+    50 IDs. **Depends on**: T013a (or T013b if mock).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output file data/processed/heldout_split.json contains exactly 50 IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test 1000 iterations with convergence standard deviation
+    less than 0.001
+  claim_id: c_9ebe43bf
+  context: '**Permutation Test**: Perform a permutation test (1000 iterations, convergence
+    std < 0.001) comparing Symbolic success rates vs. Visual baseline success rates
+    using `scipy.stats.permutation_test`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_1000_iterations_with_convergence_standard_d
+  kind: magnitude
+  raw_text: Perform a permutation test (1000 iterations, convergence std < 0.001).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:56Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time 6 hours
+  claim_id: c_be894f52
+  context: "**SC\u2011005 Threshold**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/validate_compute.py`\
+    \ to verify total compute time \u2264\u202F6\u202Fh. Read timestamps from training\
+    \ and evaluation logs; assert total \u2264\u202F6\u202Fh."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify total compute time \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:31:57Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Processing time less than or equal to 150 milliseconds per frame on CPU
+  claim_id: c_c92a0fd5
+  context: "The pipeline runs on a subset of trajectories. Output JSON contains valid\
+    \ bounding boxes/class labels. Processing time \u2264 150 ms/frame on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_less_than_or_equal_to_150_milliseconds_per_f
+  kind: magnitude
+  raw_text: "Processing time \u2264 150 ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:32:57Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO tiny inference average latency less than 150 milliseconds on 2-core
+    3.0 GHz CPU
+  claim_id: c_873cf234
+  context: "Run inference on the first 100 frames of the downloaded Guava dataset\
+    \ using a 2\u2011core 3.0 GHz CPU profile; assert average latency < 150 ms."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO_tiny_inference_average_latency_less_than_150_millisecon
+  kind: magnitude
+  raw_text: average latency < 150 ms
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:36Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO precision recall greater than or equal to 90 percent and total transformation
+    completes within 4 hours
+  claim_id: c_408c0472
+  context: "Implement validate_perception.py to ensure YOLO precision/recall \u2265\
+    \ 90 % and total transformation completes \u2264 4 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO_precision_recall_greater_than_or_equal_to_90_percent_an
+  kind: magnitude
+  raw_text: "total transformation completes \u2264 4 h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:38Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO precision and recall greater than or equal to 90 percent
+  claim_id: c_b2b2a2a8
+  context: "Implement validate_perception.py to ensure YOLO precision/recall \u2265\
+    \ 90 % and total transformation completes \u2264 4 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO_precision_and_recall_greater_than_or_equal_to_90_percen
+  kind: magnitude
+  raw_text: "Yolo precision/recall \u2265 90 %"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:40Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning converges with loss decrease greater than or equal to 15
+    percent
+  claim_id: c_55ae72af
+  context: "Fine-tuning converges (loss decrease \u226515 %) within 4 h on CPU."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_converges_with_loss_decrease_greater_than_or_equ
+  kind: magnitude
+  raw_text: "loss decrease \u226515 %"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:50Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning converges within 4 hours on CPU
+  claim_id: c_edfea124
+  context: "Fine-tuning converges (loss decrease \u226515 %) within 4 h on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 4 h on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:57Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Held-out split selection output file contains exactly 50 task IDs
+  claim_id: c_4be350e5
+  context: 'Verify: Output file data/processed/heldout_split.json contains exactly
+    50 IDs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output file data/processed/heldout_split.json contains exactly 50 IDs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:35:57Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test performed with 1000 iterations and convergence standard
+    deviation less than 0.001
+  claim_id: c_6466ecc0
+  context: Perform a permutation test (1000 iterations, convergence std < 0.001) comparing
+    Symbolic success rates vs. Visual baseline success rates using scipy.stats.permutation_test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_performed_with_1000_iterations_and_converge
+  kind: magnitude
+  raw_text: Permutation test (1000 iterations, convergence std < 0.001)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:36:03Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Total compute time less than or equal to 6 hours
+  claim_id: c_42d1b77d
+  context: "Implement validate_compute.py to verify total compute time \u2264 6 h.\
+    \ Read timestamps from training and evaluation logs; assert total \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_compute_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "total compute time \u2264 6 h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:36:10Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 2
+  canonical: Cyclomatic complexity reduced to less than 10
+  claim_id: c_5878955d
+  context: Refactor identified functions in logger.py to reduce cyclomatic complexity
+    to <10.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_reduced_to_less_than_10
+  kind: magnitude
+  raw_text: reduce cyclomatic complexity to <10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T05:36:12Z'

@@ -1,83 +1,36 @@
-"""
-Git operations utility module.
-
-Provides functions to interact with git repositories programmatically.
-"""
-
 import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
 
+def run_git_command(command: list, cwd: Optional[Path] = None) -> str:
+    """Execute a git command and return the output."""
+    try:
+        result = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e.stderr}", file=sys.stderr)
+        raise
 
-def run_git_command(args: list[str], cwd: Optional[Path] = None) -> str:
-    """
-    Run a git command and return the output.
+def init_repository(repo_path: Path) -> None:
+    """Initialize a new git repository."""
+    run_git_command(['git', 'init'], cwd=repo_path)
 
-    Args:
-        args: List of git command arguments (excluding 'git').
-        cwd: Working directory for the command.
+def stage_all_files(repo_path: Path) -> None:
+    """Stage all files in the repository."""
+    run_git_command(['git', 'add', '.'], cwd=repo_path)
 
-    Returns:
-        Standard output of the command.
+def commit_changes(repo_path: Path, message: str) -> str:
+    """Commit staged changes with the given message."""
+    return run_git_command(['git', 'commit', '-m', message], cwd=repo_path)
 
-    Raises:
-        subprocess.CalledProcessError: If the command fails.
-    """
-    cmd = ["git"] + args
-    result = subprocess.run(
-        cmd,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    return result.stdout
-
-
-def init_repository(cwd: Optional[Path] = None) -> None:
-    """
-    Initialize a new git repository.
-
-    Args:
-        cwd: Working directory for the command. Defaults to current directory.
-    """
-    run_git_command(["init"], cwd=cwd)
-    print(f"Initialized git repository in {cwd or Path.cwd()}")
-
-
-def stage_all_files(cwd: Optional[Path] = None) -> None:
-    """
-    Stage all files in the repository.
-
-    Args:
-        cwd: Working directory for the command.
-    """
-    run_git_command(["add", "."], cwd=cwd)
-    print("Staged all files.")
-
-
-def commit_changes(message: str, cwd: Optional[Path] = None) -> None:
-    """
-    Commit staged changes with a message.
-
-    Args:
-        message: Commit message.
-        cwd: Working directory for the command.
-    """
-    run_git_command(["commit", "-m", message], cwd=cwd)
-    print(f"Committed changes: {message}")
-
-
-def add_remote(name: str, url: str, cwd: Optional[Path] = None) -> None:
-    """
-    Add a remote repository.
-
-    Args:
-        name: Remote name (e.g., 'origin').
-        url: Remote URL.
-        cwd: Working directory for the command.
-    """
-    run_git_command(["remote", "add", name, url], cwd=cwd)
-    print(f"Added remote '{name}'")
+def add_remote(repo_path: Path, name: str, url: str) -> None:
+    """Add a remote repository."""
+    run_git_command(['git', 'remote', 'add', name, url], cwd=repo_path)

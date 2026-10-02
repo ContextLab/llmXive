@@ -1,13 +1,14 @@
-# Byte-compiled / optimized / DLL files
+# Python bytecode and cache
 *.pyc
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyo
+*.pyd
+.Python
 
-# Environment variables
+# Environment variables and secrets
 .env
-.env.local
-.env.*.local
+*.pem
+*.key
 
 # Data directories (raw and artifacts)
 data/raw/*
@@ -17,44 +18,36 @@ data/artifacts/*
 
 # Logs
 *.log
+logs/
 
-# Model weights / PyTorch checkpoints
+# Model weights and binaries
 *.pth
 *.pt
+*.onnx
 *.bin
 *.safetensors
 
-# IDE / Editor files
-.vscode/
+# IDE and OS artifacts
 .idea/
+.vscode/
 *.swp
 *.swo
-*~
-
-# OS files
 .DS_Store
 Thumbs.db
+
+# Build and distribution
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Coverage and testing
+.coverage
+htmlcov/
+pytest_cache/
+.mypy_cache/
 
 # Virtual environments
 venv/
 .venv/
 env/
-.env/
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-# Testing
-.pytest_cache/
-htmlcov/
-.coverage
-coverage.xml
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Ruff / Linter caches
-.ruff_cache/

@@ -1,6 +1,6 @@
 """
-Configuration management for llmXive project.
-Handles seeds, paths, and hyperparameters.
+Configuration management for the project.
+Handles paths, seeds, and hyperparameters.
 """
 import os
 from pathlib import Path
@@ -9,75 +9,63 @@ import random
 import numpy as np
 import torch
 
-# Global configuration state
-_config = {
+# Global configuration dictionary
+_CONFIG: Dict[str, Any] = {
     "seed": 42,
     "paths": {},
     "hyperparameters": {
-        "latency_threshold_ms": 150,
-        "training_epochs": 10,
-        "learning_rate": 1e-4,
-        "batch_size": 8,
-        "perception_threshold": 0.5,
+        "io_safety_factor": 2.0,
+        "max_latency_ms": 150.0,
+        "max_dataset_hours": 4.0,
+        "estimated_frame_count": 100000,
     }
 }
 
 def initialize_paths(project_root: Optional[Path] = None):
-    """Initialize all standard project paths."""
+    """Initialize standard directory paths."""
     if project_root is None:
-        # Default to parent of code/ directory
-        project_root = Path(__file__).resolve().parents[2]
+        # Default to current directory if not specified
+        project_root = Path.cwd()
     
-    # Define base directories
-    base_dirs = {
-        "project_root": project_root,
+    # Define standard paths relative to project root
+    # Adjust based on actual project structure
+    _CONFIG["paths"] = {
+        "root": project_root,
         "code": project_root / "code",
         "data": project_root / "data",
         "data_raw": project_root / "data" / "raw",
         "data_processed": project_root / "data" / "processed",
         "data_artifacts": project_root / "data" / "artifacts",
+        "models": project_root / "code" / "models",
         "tests": project_root / "tests",
-        "specs": project_root / "specs",
         "state": project_root / "state",
     }
     
-    # Define specific file paths
-    file_paths = {
-        "requirements": base_dirs["code"] / "requirements.txt",
-        "checksums": base_dirs["data_raw"] / "guava" / "checksums.json",
-        "ground_truth_annotations": base_dirs["data_raw"] / "guava" / "ground_truth_annotations.json",
-        "symbolic_dataset": base_dirs["data_processed"] / "symbolic_guava",
-        "perception_log": base_dirs["data_artifacts"] / "perception_log.json",
-        "training_metrics": base_dirs["data_artifacts"] / "training_metrics.json",
-        "evaluation_outcomes_raw": base_dirs["data_artifacts"] / "evaluation_outcomes_raw.json",
-        "categorized_outcomes": base_dirs["data_artifacts"] / "categorized_outcomes.json",
-        "filtered_evaluation_outcomes": base_dirs["data_processed"] / "evaluation_outcomes.json",
-        "latency_exclusion_verified": base_dirs["data_artifacts"] / "latency_exclusion_verified.json",
-        "gpu_escape_log": base_dirs["data_artifacts"] / "gpu_escape_log.json",
-        "evaluation_results": base_dirs["data_artifacts"] / "evaluation_results.json",
-        "sc004_verification": base_dirs["data_artifacts"] / "sc004_verification.json",
-    }
-    
-    _config["paths"].update(base_dirs)
-    _config["paths"].update(file_paths)
+    # Ensure directories exist
+    ensure_directories()
 
 def get_path(key: str) -> Path:
-    """Get a specific path by key."""
-    if key not in _config["paths"]:
-        raise KeyError(f"Path key '{key}' not found in configuration.")
-    return _config["paths"][key]
+    """Get a configured path."""
+    if key not in _CONFIG["paths"]:
+        raise ValueError(f"Path key '{key}' not found in configuration.")
+    return _CONFIG["paths"][key]
 
 def set_hyperparameter(key: str, value: Any):
     """Set a hyperparameter value."""
-    _config["hyperparameters"][key] = value
+    _CONFIG["hyperparameters"][key] = value
 
 def get_hyperparameter(key: str, default: Any = None) -> Any:
     """Get a hyperparameter value."""
-    return _config["hyperparameters"].get(key, default)
+    if key in _CONFIG["hyperparameters"]:
+        return _CONFIG["hyperparameters"][key]
+    return default
 
-def set_global_seed(seed: int):
-    """Set global random seeds for reproducibility."""
-    _config["seed"] = seed
+def set_global_seed(seed: Optional[int] = None):
+    """Set the random seed for reproducibility."""
+    if seed is None:
+        seed = _CONFIG.get("seed", 42)
+    
+    _CONFIG["seed"] = seed
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -85,33 +73,19 @@ def set_global_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
 
 def ensure_directories():
-    """Ensure all required directories exist."""
-    for path in _config["paths"].values():
-        if isinstance(path, Path) and "directory" in str(path).lower() or path.suffix == "":
-            # Heuristic: if it looks like a directory path or has no extension
-            # Actually, let's be explicit: only create known directories
-            pass
-    
-    # Explicit directory creation
-    dirs_to_create = [
-        _config["paths"]["data_raw"],
-        _config["paths"]["data_processed"],
-        _config["paths"]["data_artifacts"],
-        _config["paths"]["state"],
-        _config["paths"]["code"],
-    ]
-    
-    for d in dirs_to_create:
-        if d:
-            d.mkdir(parents=True, exist_ok=True)
+    """Create all required directories if they don't exist."""
+    for key, path in _CONFIG["paths"].items():
+        if isinstance(path, Path):
+            path.mkdir(parents=True, exist_ok=True)
 
 def get_config_summary() -> Dict[str, Any]:
     """Return a summary of the current configuration."""
     return {
-        "seed": _config["seed"],
-        "hyperparameters": _config["hyperparameters"],
-        "paths": {k: str(v) for k, v in _config["paths"].items()}
+        "seed": _CONFIG["seed"],
+        "paths": {k: str(v) for k, v in _CONFIG["paths"].items()},
+        "hyperparameters": _CONFIG["hyperparameters"].copy()
     }
 
-# Initialize paths on module load
-initialize_paths()
+# Initialize paths on module load if __main__ or if explicitly called
+# For library usage, users should call initialize_paths() explicitly
+# initialize_paths()
