@@ -10,6 +10,13 @@ T001:
   r: No directory structure was presented; the response contains only a feature specification
     and test scenarios, but no evidence that any folders were created under `projects/PROJ-308-quantifying-entanglement-entropy-in-rand/`.
     The required artifact (the initialized directories) is missing.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` containing the term \u201CAIC\u201D nor an `amendment.md` file\
+    \ was provided; without either artifact the required formal record of the deviation\
+    \ from FR\u2011005 cannot be verified. The implementer must add the amendment\
+    \ (or update `spec.md`) and ensure it includes the AIC justification."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

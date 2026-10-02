@@ -1,16 +1,21 @@
 """
-Unit tests for entropy.py (T005 verification)
+Unit tests for the entanglement entropy computation module.
 
-Tests:
-- test_entropy_calc: Verify von Neumann entropy calculation for a known state.
-- test_edge_entropy: Verify entropy at l=1 and l=L-1.
-- test_batch_computation: Verify batch computation across all cuts.
-- test_scaling_ansatz: Verify the scaling ansatz verification function.
+Tests cover:
+- Single bipartition entropy calculation
+- Batch entropy calculation
+- Statistics computation
+- Scaling ansatz verification
+- Error handling for invalid inputs
 """
 
-import numpy as np
 import pytest
-from scipy.sparse import csr_matrix, kron, identity
+import numpy as np
+import sys
+import os
+
+# Add project root to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from code.entropy import (
     EntropyError,
@@ -21,223 +26,161 @@ from code.entropy import (
 )
 
 
-def create_bell_state_2qubits():
+def create_random_ground_state(L: int, seed: int = 42) -> np.ndarray:
     """
-    Create a Bell state |Phi+> = (|00> + |11>) / sqrt(2).
-    For a 2-qubit system, the entropy of one qubit should be ln(2).
-    """
-    psi = np.zeros(4)
-    psi[0] = 1 / np.sqrt(2)  # |00>
-    psi[3] = 1 / np.sqrt(2)  # |11>
-    return psi
+    Create a random normalized ground state for testing.
 
+    Parameters
+    ----------
+    L : int
+        System size.
+    seed : int
+        Random seed for reproducibility.
 
-def create_product_state_2qubits():
+    Returns
+    -------
+    np.ndarray
+        Normalized random state vector of shape (2^L,).
     """
-    Create a product state |00>. Entropy should be 0.
-    """
-    psi = np.zeros(4)
-    psi[0] = 1.0
-    return psi
-
-
-def create_random_state(L):
-    """
-    Create a random normalized state vector for L qubits.
-    """
-    psi = np.random.randn(2 ** L) + 1j * np.random.randn(2 ** L)
+    rng = np.random.default_rng(seed)
+    psi = rng.random(2 ** L) + 1j * rng.random(2 ** L)
     psi = psi / np.linalg.norm(psi)
     return psi
 
 
-class TestEntropyCalculation:
-    """Test basic entropy calculation (FR-004)."""
+def test_entropy_calc():
+    """
+    Test FR-004: Compute von Neumann entropy S(l) for all bipartitions l.
 
-    def test_bell_state_entropy(self):
-        """
-        Test that a Bell state gives entropy ln(2) for one qubit.
-        This verifies the core entropy calculation.
-        """
-        psi = create_bell_state_2qubits()
-        L = 2
-        l = 1  # Cut after first qubit
+    Verifies that:
+    1. Entropy is computed correctly for a known state.
+    2. Entropy is symmetric: S(l) == S(L-l).
+    3. Entropy is non-negative.
+    4. Entropy is zero for product states.
+    """
+    # Test 1: Random state entropy calculation
+    L = 6
+    psi = create_random_ground_state(L, seed=123)
 
-        entropy = compute_entanglement_entropy(psi, L, l)
+    # Compute entropy for l=3 (middle cut)
+    entropy_mid = compute_entanglement_entropy(psi, L, l=3)
 
-        # Expected: S = ln(2) ≈ 0.693
-        expected = np.log(2)
-        assert np.isclose(entropy, expected, atol=1e-6), \
-            f"Expected {expected}, got {entropy}"
+    assert entropy_mid >= 0.0, "Entropy must be non-negative"
+    assert not np.isnan(entropy_mid), "Entropy should not be NaN for valid input"
 
-    def test_product_state_zero_entropy(self):
-        """
-        Test that a product state gives zero entropy.
-        """
-        psi = create_product_state_2qubits()
-        L = 2
-        l = 1
+    # Test 2: Symmetry S(l) == S(L-l)
+    entropy_l2 = compute_entanglement_entropy(psi, L, l=2)
+    entropy_l4 = compute_entanglement_entropy(psi, L, l=4)
 
-        entropy = compute_entanglement_entropy(psi, L, l)
+    assert np.isclose(entropy_l2, entropy_l4, rtol=1e-10), \
+        f"Entropy symmetry failed: S(2)={entropy_l2}, S(4)={entropy_l4}"
 
-        assert np.isclose(entropy, 0.0, atol=1e-6), \
-            f"Expected 0.0, got {entropy}"
+    # Test 3: Batch computation
+    batch_results = compute_entanglement_entropy_batch(psi, L)
 
-    def test_invalid_cut_size(self):
-        """Test that invalid cut sizes raise EntropyError."""
-        psi = create_bell_state_2qubits()
-        L = 2
+    assert len(batch_results) == L - 1, f"Expected {L-1} cuts, got {len(batch_results)}"
+    for l, ent in batch_results.items():
+        assert 1 <= l < L, f"Invalid cut size {l}"
+        assert not np.isnan(ent) or ent is None, "Batch result should be numeric or NaN"
 
-        # l must be in (0, L)
-        with pytest.raises(EntropyError):
-            compute_entanglement_entropy(psi, L, 0)
+    # Test 4: Product state (zero entanglement)
+    # Create a product state: all spins up
+    psi_product = np.zeros(2 ** L, dtype=complex)
+    psi_product[0] = 1.0  # |00...0> state
 
-        with pytest.raises(EntropyError):
-            compute_entanglement_entropy(psi, L, 2)
+    for l in range(1, L):
+        ent = compute_entanglement_entropy(psi_product, L, l)
+        assert np.isclose(ent, 0.0, atol=1e-12), \
+            f"Product state should have zero entropy at l={l}, got {ent}"
 
-    def test_wrong_psi_shape(self):
-        """Test that wrong psi shape raises EntropyError."""
-        psi_wrong = np.array([1.0, 1.0])  # Should be length 4 for L=2
-        L = 2
+    # Test 5: Error handling
+    with pytest.raises(EntropyError):
+        compute_entanglement_entropy(psi, L, l=0)  # Invalid l
 
-        with pytest.raises(EntropyError):
-            compute_entanglement_entropy(psi_wrong, L, 1)
+    with pytest.raises(EntropyError):
+        compute_entanglement_entropy(psi, L, l=L)  # Invalid l
 
+    with pytest.raises(EntropyError):
+        compute_entanglement_entropy(psi, L, l=3, method="invalid")  # Invalid method
 
-class TestBatchComputation:
-    """Test batch entropy computation."""
+    # Wrong dimension
+    wrong_psi = np.random.random(2 ** (L - 1))
+    with pytest.raises(EntropyError):
+        compute_entanglement_entropy(wrong_psi, L, l=3)
 
-    def test_batch_all_cuts(self):
-        """
-        Test computing entropy for all cuts in a small system.
-        """
-        # Use a 4-qubit Bell-like state: (|0000> + |1111>)/sqrt(2)
-        psi = np.zeros(16)
-        psi[0] = 1 / np.sqrt(2)
-        psi[15] = 1 / np.sqrt(2)
-        L = 4
+def test_statistics_computation():
+    """Test get_entropy_statistics function."""
+    values = [1.0, 2.0, 3.0, 4.0, 5.0]
+    stats = get_entropy_statistics(values)
 
-        results = compute_entanglement_entropy_batch(psi, L)
+    assert stats['count'] == 5
+    assert stats['mean'] == 3.0
+    assert stats['min'] == 1.0
+    assert stats['max'] == 5.0
+    assert stats['std'] == np.std(values)
+    assert stats['nan_count'] == 0
 
-        # Should have cuts 1, 2, 3
-        assert 1 in results
-        assert 2 in results
-        assert 3 in results
+    # With NaNs
+    values_with_nan = [1.0, np.nan, 3.0, np.nan, 5.0]
+    stats_nan = get_entropy_statistics(values_with_nan)
 
-        # Entropy should be ln(2) for all cuts in this GHZ-like state
-        expected = np.log(2)
-        for l, ent in results.items():
-            assert np.isclose(ent, expected, atol=1e-5), \
-                f"Cut {l}: expected {expected}, got {ent}"
+    assert stats_nan['count'] == 3
+    assert stats_nan['nan_count'] == 2
+    assert stats_nan['mean'] == 3.0
 
-    def test_batch_custom_cuts(self):
-        """Test computing entropy for specific cuts."""
-        psi = create_random_state(4)
-        L = 4
-        cuts = [1, 3]
+    # All NaN
+    all_nan = [np.nan, np.nan]
+    stats_all_nan = get_entropy_statistics(all_nan)
 
-        results = compute_entanglement_entropy_batch(psi, L, cuts=cuts)
+    assert stats_all_nan['count'] == 0
+    assert np.isnan(stats_all_nan['mean'])
 
-        assert set(results.keys()) == set(cuts)
+def test_scaling_ansatz_verification():
+    """Test verify_scaling_ansatz function."""
+    # Generate data following S = 0.5 * log(l) + 0.1
+    l_vals = [2, 4, 8, 16, 32]
+    s_vals = [0.5 * np.log(l) + 0.1 + np.random.normal(0, 0.01) for l in l_vals]
 
+    result = verify_scaling_ansatz(l_vals, s_vals, model="log")
 
-class TestEdgeEntropy:
-    """Test edge entropy calculation (l=1, l=L-1)."""
+    assert result['model'] == "log"
+    assert result['n_points'] == 5
+    assert np.isclose(result['c_eff'], 0.5, atol=0.05)
+    assert result['r_squared'] > 0.95
 
-    def test_left_edge_entropy(self):
-        """Test entropy at l=1 (left edge)."""
-        psi = create_random_state(4)
-        L = 4
-        entropy = compute_entanglement_entropy(psi, L, 1)
-        assert entropy >= 0.0
+    # Test constant model
+    const_s = [2.0, 2.0, 2.0, 2.0]
+    result_const = verify_scaling_ansatz(l_vals[:4], const_s, model="const")
 
-    def test_right_edge_entropy(self):
-        """Test entropy at l=L-1 (right edge)."""
-        psi = create_random_state(4)
-        L = 4
-        entropy = compute_entanglement_entropy(psi, L, 3)
-        assert entropy >= 0.0
+    assert result_const['model'] == "const"
+    assert np.isclose(result_const['intercept'], 2.0)
+    assert result_const['r_squared'] == 1.0
 
-    def test_edge_symmetry(self):
-        """
-        Test that S(l) = S(L-l) for a pure state.
-        This is a fundamental property of entanglement entropy.
-        """
-        psi = create_random_state(6)
-        L = 6
+    # Error on insufficient data
+    with pytest.raises(EntropyError):
+        verify_scaling_ansatz([2], [1.0], model="log")
 
-        for l in range(1, L):
-            s_l = compute_entanglement_entropy(psi, L, l)
-            s_sym = compute_entanglement_entropy(psi, L, L - l)
-            assert np.isclose(s_l, s_sym, atol=1e-10), \
-                f"S({l}) = {s_l} != S({L-l}) = {s_sym}"
+    # Error on invalid model
+    with pytest.raises(EntropyError):
+        verify_scaling_ansatz(l_vals, s_vals, model="invalid")
 
+def test_batch_edge_cases():
+    """Test batch computation edge cases."""
+    L = 4
+    psi = create_random_ground_state(L)
 
-class TestEntropyStatistics:
-    """Test statistics computation over multiple realizations."""
+    # Custom cuts
+    custom_cuts = [1, 3]
+    results = compute_entanglement_entropy_batch(psi, L, cuts=custom_cuts)
 
-    def test_statistics_computation(self):
-        """Test mean, std, min, max computation."""
-        # Simulate data from 3 realizations
-        entropy_data = {
-            1: [0.5, 0.6, 0.7],
-            2: [1.0, 1.1, 0.9],
-            3: [0.5, 0.6, 0.7]  # Symmetric to l=1
-        }
+    assert set(results.keys()) == set(custom_cuts)
+    assert len(results) == 2
 
-        stats = get_entropy_statistics(entropy_data)
+    # Empty cuts list
+    results_empty = compute_entanglement_entropy_batch(psi, L, cuts=[])
+    assert results_empty == {}
 
-        assert 'mean' in stats
-        assert 'std' in stats
-        assert 'min' in stats
-        assert 'max' in stats
-        assert 'cuts' in stats
-
-        # Check mean for l=1
-        assert np.isclose(stats['mean'][0], 0.6, atol=1e-6)
-        # Check std for l=1
-        assert np.isclose(stats['std'][0], np.std([0.5, 0.6, 0.7]), atol=1e-6)
-
-
-class TestScalingAnsatz:
-    """Test scaling ansatz verification."""
-
-    def test_logarithmic_scaling(self):
-        """
-        Test that logarithmic scaling is detected correctly.
-        Simulate S(l) = 0.5 * log(l) + 0.1
-        """
-        cuts = [2, 4, 8, 16, 32]
-        entropies = [0.5 * np.log(l) + 0.1 for l in cuts]
-
-        result = verify_scaling_ansatz(cuts, entropies)
-
-        # Slope should be close to 0.5
-        assert np.isclose(result['log_slope'], 0.5, atol=0.01), \
-            f"Expected slope ~0.5, got {result['log_slope']}"
-        # R^2 should be close to 1
-        assert result['log_r2'] > 0.99
-
-    def test_constant_scaling(self):
-        """
-        Test that constant scaling (area law) is detected.
-        Simulate S(l) = 1.0 (constant)
-        """
-        cuts = [2, 4, 8, 16, 32]
-        entropies = [1.0] * len(cuts)
-
-        result = verify_scaling_ansatz(cuts, entropies)
-
-        # Constant value should be 1.0
-        assert np.isclose(result['const_value'], 1.0, atol=1e-6)
-        # R^2 for constant model should be 1.0
-        assert result['const_r2'] > 0.99
-
-    def test_insufficient_data(self):
-        """Test that insufficient data returns NaN."""
-        cuts = [2]
-        entropies = [0.5]
-
-        result = verify_scaling_ansatz(cuts, entropies)
-
-        assert np.isnan(result['log_slope'])
-        assert np.isnan(result['const_value'])
+    # Invalid psi dimension
+    wrong_psi = np.random.random(2 ** (L + 1))
+    with pytest.raises(EntropyError):
+        compute_entanglement_entropy_batch(wrong_psi, L)

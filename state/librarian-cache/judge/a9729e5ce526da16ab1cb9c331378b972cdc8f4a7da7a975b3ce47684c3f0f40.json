@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.23951",
+  "judged_at": "2026-10-02T22:27:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"spatialbench: is your spatial foundation model an all-round player?\" computer science",
+  "rationale": "The paper is a technical report on a specific image generation model (HunyuanImage 3.0) and does not address the user's specific question regarding the \"llmXive follow-up\" or the \"SpatialBench\" evaluation framework for spatial foundation models. While both involve foundation models, the candidate paper lacks the specific mechanism (spatial reasoning benchmarks), the specific domain context (the llmXive/SpatialBench lineage), or the canonical methodology required to be included in a literature re",
+  "relevant": false
+}

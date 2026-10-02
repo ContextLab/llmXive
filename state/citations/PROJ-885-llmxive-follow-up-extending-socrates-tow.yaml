@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/SoCRATES/socrates-eval
   verified_at: '2026-07-30T01:51:40.989438Z'
-- artifact_hash: 430fc2bfdf306cdcbd81802b9afe5151f4d85606b91acdaa1ab245b5a6c81ac3
+- artifact_hash: 802f962f2ddefcf3133d755ecedcc4b90051b175a4c7040008f1c6679a70603f
   artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,8 +20,8 @@
   value: https://arxiv.org/abs/2511.14546
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2511.14546
-  verified_at: '2026-08-02T05:00:16.520779Z'
-- artifact_hash: 430fc2bfdf306cdcbd81802b9afe5151f4d85606b91acdaa1ab245b5a6c81ac3
+  verified_at: '2026-10-02T21:55:43.450488Z'
+- artifact_hash: 802f962f2ddefcf3133d755ecedcc4b90051b175a4c7040008f1c6679a70603f
   artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -31,4 +31,4 @@
   value: https://physics.nist.gov/cgi-bin/cuu/Value?na
   verification_status: pending
   verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  verified_at: '2026-08-02T05:00:16.520779Z'
+  verified_at: '2026-10-02T21:55:43.450488Z'

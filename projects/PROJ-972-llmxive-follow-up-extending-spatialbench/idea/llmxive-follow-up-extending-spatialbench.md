@@ -9,7 +9,7 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does training a parameter-efficient adapter exclusively on the identified failure modes of spatial foundation models yield robust generalization on unseen embodied and egocentric tasks comparable to full-scale fine-tuning?
+Does training exclusively on identified failure modes of spatial foundation models yield robust generalization on unseen embodied and egocentric tasks comparable to training on a random subset of equivalent size?
 
 ## Motivation
 
@@ -18,19 +18,18 @@ Current spatial foundation models exhibit significant generalization gaps in emb
 ## Related work
 
 - [SpatialBench: Is Your Spatial Foundation Model an All-Round Player? (2026)](https://arxiv.org/abs/2605.27367) — Establishes that current spatial models lack robustness in embodied/egocentric tasks and provides the benchmark and dataset (DA-Next-5M) required to identify specific failure modes for this study.
-- [Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models (2025)](https://arxiv.org/abs/2511.13782) — Discusses reasoning efficiency in VLMs, offering context on how computational constraints impact spatial intelligence, though it does not focus on failure-case-specific training.
-- [Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences (2026)](https://arxiv.org/abs/2603.13100) — Highlights the critical role of spatial relations in robot planning, reinforcing the practical necessity of improving model robustness in embodied tasks where errors have physical consequences.
+- [Benchmarking Foundation Models with Language-Model-as-an-Examiner (2023)](https://arxiv.org/abs/2306.04181) — Provides a methodological precedent for using automated, model-based evaluation to systematically identify performance gaps and failure cases, which informs our strategy for extracting the specific training subset.
 
 ## Expected results
 
-We expect the lightweight adapter trained on failure cases to achieve performance parity with full fine-tuning on the specific embodied/egocentric tasks while requiring significantly less compute time and memory. A positive result would show a >15% relative gain on failure modes compared to the baseline, while a null result would suggest that failure cases alone are insufficient to capture the necessary generalization patterns, implying that broad data diversity remains critical.
+We expect the lightweight adapter trained on failure cases to achieve performance parity with a random-subset baseline on specific embodied/egocentric tasks while requiring significantly less compute time and memory. A positive result would show a >15% relative gain on failure modes compared to the random baseline, while a null result would suggest that failure cases alone are insufficient to capture the necessary generalization patterns, implying that broad data diversity remains critical.
 
 ## Methodology sketch
 
-- **Data Extraction**: Parse the SpatialBench evaluation logs to identify the specific scenes where models scored below the 30th percentile in "Embodied" and "Egocentric" suites; extract the corresponding input scenes and ground-truth spatial representations from the DA-Next-5M dataset (available via the SpatialBench repository).
+- **Data Extraction**: Parse the SpatialBench evaluation logs to identify scenes where models scored below the 30th percentile in "Embodied" and "Egocentric" suites; extract the corresponding input scenes and ground-truth spatial representations from the DA-Next-5M dataset (available via the SpatialBench repository).
 - **Model Construction**: Initialize a frozen DA-Next backbone and attach a lightweight transformer adapter (<10M parameters) with learnable projection layers; ensure the architecture fits within 7GB RAM and runs on 2 CPU cores.
 - **Training Protocol**: Train the adapter for 50 epochs using a contrastive loss function that maximizes the distance between the model's original incorrect predictions and the ground-truth spatial representations; restrict the batch size to 4 to maintain CPU feasibility.
-- **Baseline Comparison**: Train a second control model using a random subset of DA-Next-5M of identical size (matched to the failure-case count) and reference the original paper's full fine-tuning metrics on the full dataset as the upper-bound baseline.
+- **Baseline Construction**: Construct a control training set by sampling a random subset of DA-Next-5M of identical size (matched to the failure-case count) to ensure a fair comparison of data efficiency rather than data volume.
 - **Evaluation**: Evaluate all models on the full SpatialBench test suite, specifically tracking accuracy on the original failure cases and generalization to unseen embodied tasks to measure robustness transfer.
 - **Statistical Analysis**: Perform a paired t-test comparing the accuracy of the failure-case adapter against the random-subset baseline on the failure cases to determine statistical significance (p < 0.05).
 - **Resource Measurement**: Log total CPU time, peak RAM usage, and wall-clock time for both training and inference to quantify the compute efficiency gain relative to the full-scale baseline.
@@ -44,39 +43,38 @@ We expect the lightweight adapter trained on failure cases to achieve performanc
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-09-06T03:42:29Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-02T22:27:59Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?" computer science
-**Verified citation count**: 3
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?" computer science | 0 |
-| 1 | spatial reasoning evaluation benchmarks for foundation models | 4 |
-| 2 | multimodal spatial understanding assessment | 0 |
-| 3 | geometric reasoning capabilities of large language models | 0 |
-| 4 | spatial intelligence testing for vision-language models | 0 |
-| 5 | comprehensive spatial reasoning benchmarks | 0 |
-| 6 | 3D spatial understanding in foundation models | 0 |
-| 7 | spatial question answering datasets for AI models | 0 |
-| 8 | evaluation of spatial cognition in generative models | 0 |
-| 9 | benchmarking spatial perception in multimodal LLMs | 0 |
-| 10 | spatial task performance of foundation models | 0 |
-| 11 | geometric reasoning benchmarks for neural networks | 0 |
-| 12 | spatial reasoning generalization in AI systems | 0 |
-| 13 | multimodal benchmarking for spatial tasks | 0 |
-| 14 | spatial reasoning limitations of current foundation models | 0 |
-| 15 | holistic evaluation of spatial reasoning in AI | 0 |
-| 16 | spatial visual reasoning datasets and metrics | 0 |
-| 17 | cross-domain spatial reasoning evaluation | 0 |
-| 18 | spatial capability profiling of large multimodal models | 0 |
-| 19 | spatial reasoning robustness in foundation models | 0 |
-| 20 | benchmarking 3D and 2D spatial understanding in AI | 0 |
+| 1 | Spatial foundation model evaluation benchmarks | 5 |
+| 2 | Comprehensive spatial reasoning assessment for multimodal models | 0 |
+| 3 | Benchmarking vision-language models on spatial tasks | 0 |
+| 4 | Generalization capabilities of spatial AI foundation models | 0 |
+| 5 | Multi-task spatial understanding in large multimodal models | 0 |
+| 6 | Spatial reasoning datasets for deep learning evaluation | 0 |
+| 7 | Limitations of current spatial foundation models | 0 |
+| 8 | Holistic evaluation framework for visual spatial intelligence | 0 |
+| 9 | Cross-domain spatial reasoning in transformer-based models | 0 |
+| 10 | Robustness testing of spatial perception models | 0 |
+| 11 | Spatial benchmark diversity for generative AI | 0 |
+| 12 | All-round performance metrics for spatial vision models | 0 |
+| 13 | Evaluating spatial consistency in large language models | 0 |
+| 14 | Geometric reasoning benchmarks for foundation models | 0 |
+| 15 | Spatial task generalization in computer vision | 0 |
+| 16 | Multimodal spatial understanding evaluation protocols | 0 |
+| 17 | Comparative analysis of spatial reasoning in AI models | 0 |
+| 18 | Spatial intelligence gaps in current foundation models | 0 |
+| 19 | Benchmarking 3D spatial reasoning in 2D models | 0 |
+| 20 | Unified evaluation suite for spatial AI agents | 0 |
 
 ### Verified citations
 
 1. **SpatialBench: Is Your Spatial Foundation Model an All-Round Player?** (2026). Haosong Peng, Hao Li, Jiaqi Chen, Yuhao Pan, Runmao Yao, et al.. arXiv. [2605.27367](https://arxiv.org/abs/2605.27367). PDF-sampled: No.
-2. **Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models** (2025). Xiaoxing Lian, Aidong Yang, Jun Zhu, Peng Wang, Yue Zhang. arXiv. [2511.13782](https://arxiv.org/abs/2511.13782). PDF-sampled: No.
-3. **Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences** (2026). Wenxi Wu, Jingjing Zhang, Martim Brandão. arXiv. [2603.13100](https://arxiv.org/abs/2603.13100). PDF-sampled: No.
+2. **Benchmarking Foundation Models with Language-Model-as-an-Examiner** (2023). Yushi Bai, Jiahao Ying, Yixin Cao, Xin Lv, Yuze He, et al.. arXiv. [2306.04181](https://arxiv.org/abs/2306.04181). PDF-sampled: No.

@@ -1378,3 +1378,89 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T01:04:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/METHODOLOGY.md
+  attempts: 1
+  canonical: ensembles of 500 agents generated for 3 random graph models
+  claim_id: c_06fcc9d9
+  context: "To isolate topological effects, we generate ensembles of N=500 agents\
+    \ using three distinct random graph models: 1. Erd\u0151s-R\xE9nyi (ER)... 2.\
+    \ Barab\xE1si-Albert (BA)... 3. Watts-Strogatz (WS)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We generate ensembles of N=500 agents using three distinct random graph
+    models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:29:51Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/METHODOLOGY.md
+  attempts: 1
+  canonical: each topology instantiated 50 times with fixed random seeds
+  claim_id: c_8dcd4fb3
+  context: Each topology is instantiated 50 times with fixed random seeds to ensure
+    reproducibility and statistical robustness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each topology is instantiated 50 times with fixed random seeds to ensure
+    reproducibility and statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:30:20Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/RESULTS.md
+  attempts: 1
+  canonical: 'critical thresholds for network topologies: ER 0.15, BA 0.12, WS 0.18'
+  claim_id: c_9a345ddc
+  context: "Section 2.1 Observed \u03B5c Values describing grid-search results."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Our grid-search algorithm identified distinct critical thresholds for\
+    \ each topology: Erd\u0151s-R\xE9nyi (ER): \u03B5c \u2248 0.15; Barab\xE1si-Albert\
+    \ (BA): \u03B5c \u2248 0.12; Watts-Strogatz (WS): \u03B5c \u2248 0.18."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:32:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/RESULTS.md
+  attempts: 1
+  canonical: 'scaling exponent gamma for network topologies: ER 1.8, BA 1.4, WS 2.1'
+  claim_id: c_cd140da6
+  context: Section 3.1 Topology Dependence reporting Model A results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Model A (Topology-only regression) revealed significant differences in\
+    \ \u03B3: ER Networks: \u03B3 \u2248 1.8 \xB1 0.2; BA Networks: \u03B3 \u2248\
+    \ 1.4 \xB1 0.3; WS Networks: \u03B3 \u2248 2.1 \xB1 0.2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:35:57Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/RESULTS.md
+  attempts: 1
+  canonical: mean variation of scaling exponent gamma 2.3 percent across convergence
+    thresholds
+  claim_id: c_fc86db8f
+  context: Section 4 Sensitivity Analysis reporting robustness results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-running simulations with convergence thresholds \u03B4 \u2208 [10^-3,\
+    \ 10^-5] resulted in a mean variation of \u03B3 of 2.3%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:02Z'

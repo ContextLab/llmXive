@@ -5,28 +5,6 @@ T011:
     \ is missing from the repository, so no test code exists to verify the oversampling\
     \ distribution as specified. Without this artifact, the task\u2019s acceptance\
     \ criteria cannot be satisfied."
-T014:
-  c: false
-  h: b12f769e7391bf0ecd71fef35116bd4521763f465c207e3b47933fc0ca1cd706
-  r: The repository contains `code/data/generator.py`, but the required output files
-    `data/processed/trajectories.json` and `data/processed/generation_stats.json`
-    are absent, so the writer functionality and the required summary (counts and percentages
-    per category) have not been produced. The task is therefore not fulfilled.
-T015:
-  c: false
-  h: c0c61abfc3d0859724610075b380352147095a48e82a1815bd55f76685506eaa
-  r: "The repository contains an updated `code/data/generator.py`, but the required\
-    \ output file `data/processed/trajectories.json` is missing, so we cannot confirm\
-    \ that exactly 500 unique trajectories are produced or that an error is raised\
-    \ when fewer are generated. The task\u2019s primary output is absent."
-T019:
-  c: false
-  h: aad431d9c0b011c366c4a16105d06833a2cc336057da969837ed1654180da566
-  r: "The `data/processed/classifier_training_data.json` file does not exist, so no\
-    \ dataset with `turn_text`, `label`, and `trajectory_id` was saved. Moreover,\
-    \ the provided `code/data/generator.py` is truncated and only outlines trajectory\
-    \ generation, not the creation of turn\u2011level records or writing them to the\
-    \ required JSON file. The task\u2019s core output is therefore missing."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

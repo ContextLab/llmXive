@@ -1,11 +1,35 @@
-- artifact_hash: c3f7fdd95a632739e82e6e3b0e732f4e5f10e09ffd19d299260dc13c8a7dcfa1
+- artifact_hash: 1681d872250f7b893593c241afbdc7cb6b99ca16ad04aad8cc0e3201da3c84e3
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Entanglement Entropy of Random Quantum Critical Points in One Dimension
+  fetched_title: 'Matrix Product Density Operators: Simulation of Finite-Temperature
+    and Dissipative Systems'
   kind: doi
-  value: 10.1103/PhysRevLett.93.260602
+  value: 10.1103/PhysRevLett.93.207204
   verification_status: pending
-  verified_against_url: https://doi.org/10.1103/physrevlett.93.260602
-  verified_at: '2026-09-29T15:53:03.734556Z'
+  verified_against_url: https://doi.org/10.1103/physrevlett.93.207204
+  verified_at: '2026-10-02T22:04:35.847305Z'
+- artifact_hash: 1681d872250f7b893593c241afbdc7cb6b99ca16ad04aad8cc0e3201da3c84e3
+  artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Entanglement entropy and quantum field theory
+  kind: doi
+  value: 10.1088/1742-5468/2004/06/P06002
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1088/1742-5468/2004/06/p06002
+  verified_at: '2026-10-02T22:04:35.847305Z'
+- artifact_hash: 1681d872250f7b893593c241afbdc7cb6b99ca16ad04aad8cc0e3201da3c84e3
+  artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Area laws in a many-body localized state and its implications for
+    topological order
+  kind: doi
+  value: 10.1088/1742-5468/2013/09/P09005
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1088/1742-5468/2013/09/p09005
+  verified_at: '2026-10-02T22:04:35.847305Z'

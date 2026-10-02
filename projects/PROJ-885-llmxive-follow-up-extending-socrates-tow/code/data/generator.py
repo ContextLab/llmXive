@@ -1,16 +1,12 @@
 """
-Data generation module for the llmXive Socio-Cognitive State Injection pipeline.
+Data Generation Module for Dynamic Socio-Cognitive State Injection.
 
-This module generates conflict dialogue trajectories using the SoCRATES pipeline,
-specifically oversampling scenarios with "high emotional reactivity" and "diverse cultural identity" attributes.
-It enforces a strict sample size of N=500 trajectories to satisfy the Repeated Measures Design constraint.
+This module generates synthetic conflict dialogue trajectories using the SoCRATES pipeline,
+with specific oversampling of scenarios with "high emotional reactivity" and "diverse cultural identity" attributes.
+It also derives turn-level training pairs for the classifier from these trajectories.
 
-IMPORTANT: This module generates SYNTHETIC but schema-compliant data to simulate real conflict
-scenarios for the purpose of this research pipeline. The data is not "fake" in the sense of being
-random noise; it is structured, realistic dialogue generated based on sociological principles
-defined in the spec (emotional reactivity, cultural identity diversity).
-
-The generated trajectories are saved to data/processed/trajectories.json.
+IMPORTANT: This module generates synthetic data for the purpose of simulating conflict scenarios
+as defined in the research protocol. It does not use real-world private data.
 """
 import json
 import logging
@@ -20,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from config import ensure_directories
+from config import ensure_directories, get_config_summary
 from models.entities import (
     ConflictTrajectory,
     SocioCognitiveState,
@@ -28,405 +24,343 @@ from models.entities import (
     EmotionalReactivityLevel,
     CulturalIdentityDiversity
 )
-from data.loader import validate_trajectory_batch
-
-# Configuration constants
-TARGET_SAMPLE_SIZE = 500
-MIN_TARGET_CATEGORY_PERCENTAGE = 0.40
-RANDOM_SEED = 42
-
-# Set random seed for reproducibility
-random.seed(RANDOM_SEED)
 
 logger = logging.getLogger(__name__)
 
-# Dialogue templates for synthetic generation
+# Configuration Constants
+NUM_TURNS_PER_TRAJECTORY = 10
+TURN_WINDOW_SIZE = 3  # Used for sliding window derivation in T019
+TARGET_SAMPLE_SIZE = 500
+
+# Templates for synthetic dialogue generation
 DIALOGUE_TEMPLATES = {
     "high_reactivity": [
-        "I can't believe you're saying this! It's completely disrespectful!",
-        "You always do this! You never listen to what I actually mean!",
-        "This is exactly why I get so frustrated with you!",
-        "Stop interrupting me! I'm not finished speaking!",
-        "You're making a huge mistake here, and you know it!",
-        "I'm done trying to reason with you when you're like this!"
+        "I can't believe you would say something so insensitive!",
+        "This is exactly the kind of behavior I was worried about.",
+        "You're completely missing the point here!",
+        "I'm getting frustrated with this conversation.",
+        "Why do you always have to be so dismissive?"
     ],
     "cultural_friction": [
-        "In my culture, we would never approach this problem that way.",
-        "You don't seem to understand the cultural context here.",
-        "That comment might be acceptable where you're from, but not here.",
-        "We have different values when it comes to this issue.",
-        "I feel like my background is being dismissed right now.",
-        "This isn't just about the facts; it's about our different perspectives."
+        "In my culture, we would never approach it that way.",
+        "I think there's a misunderstanding of the norms here.",
+        "That comment feels disrespectful to my background.",
+        "We have different expectations about this situation.",
+        "I'm not sure we're interpreting this the same way."
     ],
     "neutral": [
-        "I see your point. Let me think about that for a moment.",
-        "Can you explain that a bit more? I want to make sure I understand.",
-        "That's an interesting perspective. How do you think we should proceed?",
-        "I appreciate you sharing that. Let's find a solution together.",
-        "Okay, I hear what you're saying. What if we tried this approach?",
-        "Let's take a step back and look at the bigger picture."
+        "Let's try to understand each other's perspective.",
+        "I see your point, let me think about that.",
+        "Perhaps we can find common ground here.",
+        "I appreciate you sharing your view.",
+        "Let's continue discussing this constructively."
     ]
 }
 
-CONFLICT_SCENARIOS = [
-    "Workplace disagreement over project direction",
-    "Family dispute about holiday traditions",
-    "Neighbor conflict regarding noise levels",
-    "Team disagreement on resource allocation",
-    "Friendship tension over unmet expectations",
-    "Community debate about local policy changes"
-]
-
 def generate_trajectory_id() -> str:
-    """Generate a unique trajectory ID."""
+    """Generate a unique identifier for a trajectory."""
     return str(uuid.uuid4())
 
-def generate_turn_text(
-    reactivity_level: EmotionalReactivityLevel,
-    cultural_diversity: CulturalIdentityDiversity,
-    turn_index: int
-) -> str:
+def generate_turn_text(metadata: Dict[str, Any]) -> str:
     """
-    Generates a synthetic dialogue turn based on metadata attributes.
-    
-    This function creates realistic dialogue snippets that reflect the specified
-    emotional reactivity and cultural diversity levels. The dialogue is
-    constructed from templates that are sociologically plausible.
+    Generates a synthetic dialogue turn based on metadata tags.
     
     Args:
-        reactivity_level: The emotional reactivity level (LOW, MEDIUM, HIGH)
-        cultural_diversity: The cultural identity diversity level (LOW, MEDIUM, HIGH)
-        turn_index: The position of this turn in the dialogue sequence
-    
+        metadata: Dictionary containing emotional_reactivity and cultural_identity tags.
+        
     Returns:
-        A string containing the generated dialogue turn
+        A string representing a dialogue turn.
     """
-    # Select template based on reactivity level
-    if reactivity_level == EmotionalReactivityLevel.HIGH:
-        base_template = random.choice(DIALOGUE_TEMPLATES["high_reactivity"])
-    elif reactivity_level == EmotionalReactivityLevel.MEDIUM:
-        # Mix of neutral and high reactivity
-        if turn_index % 3 == 0:
-            base_template = random.choice(DIALOGUE_TEMPLATES["high_reactivity"])
-        else:
-            base_template = random.choice(DIALOGUE_TEMPLATES["neutral"])
-    else:  # LOW
-        base_template = random.choice(DIALOGUE_TEMPLATES["neutral"])
+    reactivity = metadata.get("emotional_reactivity", EmotionalReactivityLevel.LOW)
+    cultural = metadata.get("cultural_identity", CulturalIdentityDiversity.HOMOGENEOUS)
     
-    # Add cultural context if diversity is high
-    if cultural_diversity == CulturalIdentityDiversity.HIGH:
-        cultural_addition = random.choice(DIALOGUE_TEMPLATES["cultural_friction"])
-        # Combine with a separator
-        full_turn = f"{base_template} {cultural_addition}"
+    # Select template based on metadata to ensure schema compliance
+    if reactivity == EmotionalReactivityLevel.HIGH:
+        pool = DIALOGUE_TEMPLATES["high_reactivity"]
+    elif cultural == CulturalIdentityDiversity.DIVERSE:
+        pool = DIALOGUE_TEMPLATES["cultural_friction"]
     else:
-        full_turn = base_template
-    
-    return full_turn
+        pool = DIALOGUE_TEMPLATES["neutral"]
+        
+    return random.choice(pool)
 
 def generate_socio_cognitive_state(
-    reactivity_level: EmotionalReactivityLevel,
-    cultural_diversity: CulturalIdentityDiversity
+    emotional_reactivity: EmotionalReactivityLevel,
+    cultural_identity: CulturalIdentityDiversity
 ) -> SocioCognitiveState:
     """
-    Generate a socio-cognitive state based on the trajectory attributes.
+    Generate a socio-cognitive state based on trajectory metadata.
     
     Args:
-        reactivity_level: The emotional reactivity level
-        cultural_diversity: The cultural identity diversity level
-    
+        emotional_reactivity: The emotional reactivity level of the trajectory.
+        cultural_identity: The cultural identity diversity of the trajectory.
+        
     Returns:
-        A SocioCognitiveState object with appropriate type and confidence
+        A SocioCognitiveState object.
     """
-    # Determine state type based on attributes
-    if reactivity_level == EmotionalReactivityLevel.HIGH:
+    # Determine state type based on metadata (independent of evaluator)
+    if emotional_reactivity == EmotionalReactivityLevel.HIGH:
         state_type = SocioCognitiveStateType.HIGH_REACTIVITY
-        confidence = 0.85 + random.uniform(0, 0.1)
-    elif cultural_diversity == CulturalIdentityDiversity.HIGH:
+    elif cultural_identity == CulturalIdentityDiversity.DIVERSE:
         state_type = SocioCognitiveStateType.CULTURAL_FRICTION
-        confidence = 0.80 + random.uniform(0, 0.1)
     else:
         state_type = SocioCognitiveStateType.NEUTRAL
-        confidence = 0.90 + random.uniform(0, 0.05)
-    
+        
     return SocioCognitiveState(
         state_type=state_type,
-        confidence_score=round(confidence, 2),
-        timestamp=datetime.now().isoformat()
+        confidence=1.0, # Synthetic data has high confidence
+        timestamp=datetime.now()
     )
 
 def generate_conflict_trajectory(
-    target_reactivity: Optional[EmotionalReactivityLevel] = None,
-    target_cultural: Optional[CulturalIdentityDiversity] = None
+    emotional_reactivity: EmotionalReactivityLevel,
+    cultural_identity: CulturalIdentityDiversity
 ) -> ConflictTrajectory:
     """
-    Generate a single conflict trajectory with specified attributes.
-    
-    If target attributes are provided, the trajectory will be biased towards
-    those characteristics. Otherwise, attributes are sampled randomly.
+    Generate a single conflict trajectory with specified metadata.
     
     Args:
-        target_reactivity: Optional target emotional reactivity level
-        target_cultural: Optional target cultural diversity level
-    
+        emotional_reactivity: The emotional reactivity level for this trajectory.
+        cultural_identity: The cultural identity diversity for this trajectory.
+        
     Returns:
-        A ConflictTrajectory object with generated dialogue and metadata
+        A ConflictTrajectory object.
     """
     trajectory_id = generate_trajectory_id()
+    metadata = {
+        "emotional_reactivity": emotional_reactivity,
+        "cultural_identity": cultural_identity
+    }
     
-    # Determine attributes
-    if target_reactivity:
-        reactivity = target_reactivity
-    else:
-        reactivity = random.choice(list(EmotionalReactivityLevel))
-    
-    if target_cultural:
-        cultural = target_cultural
-    else:
-        cultural = random.choice(list(CulturalIdentityDiversity))
-    
-    # Generate dialogue turns (3-7 turns per trajectory)
-    num_turns = random.randint(3, 7)
+    # Generate turns
     turns = []
-    for i in range(num_turns):
-        turn_text = generate_turn_text(reactivity, cultural, i)
-        turns.append(turn_text)
+    for i in range(NUM_TURNS_PER_TRAJECTORY):
+        turn_text = generate_turn_text(metadata)
+        turns.append({
+            "turn_id": i,
+            "text": turn_text,
+            "speaker": "A" if i % 2 == 0 else "B"
+        })
+        
+    state = generate_socio_cognitive_state(emotional_reactivity, cultural_identity)
     
-    # Generate socio-cognitive state
-    state = generate_socio_cognitive_state(reactivity, cultural)
-    
-    # Create trajectory object
-    trajectory = ConflictTrajectory(
+    return ConflictTrajectory(
         trajectory_id=trajectory_id,
-        scenario=random.choice(CONFLICT_SCENARIOS),
-        emotional_reactivity=reactivity,
-        cultural_identity_diversity=cultural,
         turns=turns,
         socio_cognitive_state=state,
-        created_at=datetime.now().isoformat()
+        metadata=metadata,
+        created_at=datetime.now()
     )
-    
-    return trajectory
 
 def generate_trajectories_batch(
-    target_sample_size: int = TARGET_SAMPLE_SIZE,
-    target_reactivity: Optional[EmotionalReactivityLevel] = None,
-    target_cultural: Optional[CulturalIdentityDiversity] = None
+    count: int,
+    target_oversample: bool = True
 ) -> List[ConflictTrajectory]:
     """
-    Generate a batch of trajectories with enforced sample size.
-    
-    This function ensures that exactly `target_sample_size` trajectories are
-    generated. If the oversampling logic produces fewer than the target,
-    it will raise an error.
+    Generate a batch of conflict trajectories with oversampling logic.
     
     Args:
-        target_sample_size: The exact number of trajectories to generate (default: 500)
-        target_reactivity: Optional bias towards a specific reactivity level
-        target_cultural: Optional bias towards a specific cultural diversity level
-    
+        count: Total number of trajectories to generate.
+        target_oversample: If True, ensure >=40% fall into target categories.
+        
     Returns:
-        A list of ConflictTrajectory objects
-    
-    Raises:
-        ValueError: If the generated count is less than target_sample_size
+        List of ConflictTrajectory objects.
     """
-    logger.info(f"Starting trajectory generation for {target_sample_size} samples...")
-    
     trajectories = []
-    target_count = 0
-    neutral_count = 0
     
-    # Strategy: Oversample target categories to ensure >= 40%
-    # We'll generate 60% target category, 40% neutral
-    target_ratio = 0.60
-    neutral_ratio = 0.40
+    # Calculate target counts for oversampling
+    target_count = int(count * 0.4) # 40% target
+    remaining = count - target_count
     
-    # Calculate how many of each we need
-    num_target = int(target_sample_size * target_ratio)
-    num_neutral = target_sample_size - num_target
+    # Generate target category trajectories first
+    target_categories = [
+        (EmotionalReactivityLevel.HIGH, CulturalIdentityDiversity.HOMOGENEOUS),
+        (EmotionalReactivityLevel.HIGH, CulturalIdentityDiversity.DIVERSE),
+        (EmotionalReactivityLevel.LOW, CulturalIdentityDiversity.DIVERSE)
+    ]
     
-    logger.info(f"Generating {num_target} target-category and {num_neutral} neutral trajectories")
-    
-    # Generate target category trajectories
-    for _ in range(num_target):
-        traj = generate_conflict_trajectory(
-            target_reactivity=EmotionalReactivityLevel.HIGH,
-            target_cultural=CulturalIdentityDiversity.HIGH
-        )
+    for _ in range(target_count):
+        reactivity, cultural = random.choice(target_categories)
+        traj = generate_conflict_trajectory(reactivity, cultural)
         trajectories.append(traj)
-        if traj.emotional_reactivity == EmotionalReactivityLevel.HIGH or \
-           traj.cultural_identity_diversity == CulturalIdentityDiversity.HIGH:
-            target_count += 1
+        
+    # Fill remaining with random distribution
+    all_categories = [
+        (EmotionalReactivityLevel.HIGH, CulturalIdentityDiversity.HOMOGENEOUS),
+        (EmotionalReactivityLevel.HIGH, CulturalIdentityDiversity.DIVERSE),
+        (EmotionalReactivityLevel.LOW, CulturalIdentityDiversity.HOMOGENEOUS),
+        (EmotionalReactivityLevel.LOW, CulturalIdentityDiversity.DIVERSE)
+    ]
     
-    # Generate neutral trajectories
-    for _ in range(num_neutral):
-        traj = generate_conflict_trajectory(
-            target_reactivity=EmotionalReactivityLevel.LOW,
-            target_cultural=CulturalIdentityDiversity.LOW
-        )
+    for _ in range(remaining):
+        reactivity, cultural = random.choice(all_categories)
+        traj = generate_conflict_trajectory(reactivity, cultural)
         trajectories.append(traj)
-        if traj.emotional_reactivity == EmotionalReactivityLevel.LOW and \
-           traj.cultural_identity_diversity == CulturalIdentityDiversity.LOW:
-            neutral_count += 1
-    
-    # Validate sample size
-    actual_count = len(trajectories)
-    if actual_count != target_sample_size:
-        error_msg = f"Generated {actual_count} trajectories, but expected exactly {target_sample_size}. " \
-                   "This violates the Repeated Measures Design constraint."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    # Validate target category percentage
-    target_percentage = target_count / actual_count
-    if target_percentage < MIN_TARGET_CATEGORY_PERCENTAGE:
-        error_msg = f"Target category percentage ({target_percentage:.2%}) is below minimum " \
-                   f"({MIN_TARGET_CATEGORY_PERCENTAGE:.2%})."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info(f"Successfully generated {actual_count} trajectories. "
-               f"Target category percentage: {target_percentage:.2%}")
-    
+        
+    # Shuffle to mix order
+    random.shuffle(trajectories)
     return trajectories
 
-def write_trajectories(
-    trajectories: List[ConflictTrajectory],
-    output_path: Optional[Path] = None
-) -> Path:
+def write_trajectories(trajectories: List[ConflictTrajectory], output_path: Path) -> None:
     """
     Write trajectories to a JSON file.
     
     Args:
-        trajectories: List of ConflictTrajectory objects to save
-        output_path: Optional custom output path (defaults to data/processed/trajectories.json)
-    
-    Returns:
-        The path to the written file
+        trajectories: List of ConflictTrajectory objects.
+        output_path: Path to the output JSON file.
     """
-    if output_path is None:
-        output_path = Path("data/processed/trajectories.json")
-    
-    ensure_directories()
-    
-    # Convert dataclasses to dictionaries
     data = []
     for traj in trajectories:
-        traj_dict = {
+        data.append({
             "trajectory_id": traj.trajectory_id,
-            "scenario": traj.scenario,
-            "emotional_reactivity": traj.emotional_reactivity.value,
-            "cultural_identity_diversity": traj.cultural_identity_diversity.value,
             "turns": traj.turns,
             "socio_cognitive_state": {
                 "state_type": traj.socio_cognitive_state.state_type.value,
-                "confidence_score": traj.socio_cognitive_state.confidence_score,
-                "timestamp": traj.socio_cognitive_state.timestamp
+                "confidence": traj.socio_cognitive_state.confidence,
+                "timestamp": traj.socio_cognitive_state.timestamp.isoformat()
             },
-            "created_at": traj.created_at
-        }
-        data.append(traj_dict)
-    
-    with open(output_path, "w", encoding="utf-8") as f:
+            "metadata": {
+                "emotional_reactivity": traj.metadata["emotional_reactivity"].value,
+                "cultural_identity": traj.metadata["cultural_identity"].value
+            },
+            "created_at": traj.created_at.isoformat()
+        })
+        
+    with open(output_path, 'w') as f:
         json.dump(data, f, indent=2)
-    
-    logger.info(f"Written {len(trajectories)} trajectories to {output_path}")
-    return output_path
+    logger.info(f"Wrote {len(trajectories)} trajectories to {output_path}")
 
-def write_generation_stats(
-    trajectories: List[ConflictTrajectory],
-    output_path: Optional[Path] = None
-) -> Path:
+def write_generation_stats(trajectories: List[ConflictTrajectory], output_path: Path) -> None:
     """
     Write generation statistics to a JSON file.
     
     Args:
-        trajectories: List of ConflictTrajectory objects to analyze
-        output_path: Optional custom output path (defaults to data/processed/generation_stats.json)
-    
-    Returns:
-        The path to the written file
+        trajectories: List of ConflictTrajectory objects.
+        output_path: Path to the output JSON file.
     """
-    if output_path is None:
-        output_path = Path("data/processed/generation_stats.json")
-    
-    ensure_directories()
-    
-    # Calculate statistics
-    total_count = len(trajectories)
-    high_reactivity_count = sum(
-        1 for t in trajectories if t.emotional_reactivity == EmotionalReactivityLevel.HIGH
-    )
-    high_cultural_count = sum(
-        1 for t in trajectories if t.cultural_identity_diversity == CulturalIdentityDiversity.HIGH
-    )
-    target_category_count = sum(
-        1 for t in trajectories 
-        if t.emotional_reactivity == EmotionalReactivityLevel.HIGH or 
-           t.cultural_identity_diversity == CulturalIdentityDiversity.HIGH
-    )
+    total = len(trajectories)
+    high_reactivity = sum(1 for t in trajectories if t.metadata["emotional_reactivity"] == EmotionalReactivityLevel.HIGH)
+    diverse_cultural = sum(1 for t in trajectories if t.metadata["cultural_identity"] == CulturalIdentityDiversity.DIVERSE)
     
     stats = {
-        "total_trajectories": total_count,
-        "high_emotional_reactivity": {
-            "count": high_reactivity_count,
-            "percentage": round(high_reactivity_count / total_count, 4)
-        },
-        "high_cultural_diversity": {
-            "count": high_cultural_count,
-            "percentage": round(high_cultural_count / total_count, 4)
-        },
-        "target_category_combined": {
-            "count": target_category_count,
-            "percentage": round(target_category_count / total_count, 4)
-        },
-        "generation_timestamp": datetime.now().isoformat(),
-        "sample_size_constraint": TARGET_SAMPLE_SIZE,
-        "constraint_satisfied": total_count == TARGET_SAMPLE_SIZE
+        "total_trajectories": total,
+        "high_reactivity_count": high_reactivity,
+        "high_reactivity_pct": (high_reactivity / total) * 100 if total > 0 else 0,
+        "diverse_cultural_count": diverse_cultural,
+        "diverse_cultural_pct": (diverse_cultural / total) * 100 if total > 0 else 0,
+        "timestamp": datetime.now().isoformat()
     }
     
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, 'w') as f:
         json.dump(stats, f, indent=2)
+    logger.info(f"Wrote generation stats to {output_path}")
+
+def split_trajectory_into_turns(trajectory: ConflictTrajectory, window_size: int = TURN_WINDOW_SIZE) -> List[Dict[str, Any]]:
+    """
+    Split a full trajectory history into sliding windows of N turns.
     
-    logger.info(f"Written generation statistics to {output_path}")
-    return output_path
+    This function creates turn-level training pairs for the classifier.
+    It uses ONLY trajectory metadata tags (emotional_reactivity, cultural_identity)
+    to derive the label, ensuring independence from the ConsensusGapScore evaluator.
+    
+    Args:
+        trajectory: The ConflictTrajectory object to split.
+        window_size: Number of turns in each window (default: 3).
+        
+    Returns:
+        List of dictionaries containing 'turn_text', 'label', 'trajectory_id',
+        'confidence_score', and 'threshold_used'.
+    """
+    training_pairs = []
+    turns = trajectory.turns
+    trajectory_id = trajectory.trajectory_id
+    
+    # Derive label strictly from metadata (FR-005 Independence Check)
+    # Mapping Logic: {{claim:c_0e3b527c}}
+    reactivity = trajectory.metadata.get("emotional_reactivity", EmotionalReactivityLevel.LOW)
+    cultural = trajectory.metadata.get("cultural_identity", CulturalIdentityDiversity.HOMOGENEOUS)
+    
+    if reactivity == EmotionalReactivityLevel.HIGH:
+        label = "high_reactivity"
+    elif cultural == CulturalIdentityDiversity.DIVERSE:
+        label = "cultural_friction"
+    else:
+        label = "neutral"
+    
+    # Create sliding windows
+    # We create a pair for each turn where we have enough history (window_size)
+    # The 'turn_text' will be the concatenation of the last N turns
+    for i in range(window_size - 1, len(turns)):
+        window_turns = turns[i - window_size + 1 : i + 1]
+        turn_text = " | ".join([t["text"] for t in window_turns])
+        
+        # Assign a fixed confidence score and threshold for derived data
+        # These are placeholders that will be used by the classifier training
+        # and downstream sensitivity analysis (T039)
+        confidence_score = 0.95
+        threshold_used = 0.80
+        
+        training_pairs.append({
+            "turn_text": turn_text,
+            "label": label,
+            "trajectory_id": trajectory_id,
+            "turn_index": i,
+            "confidence_score": confidence_score,
+            "threshold_used": threshold_used
+        })
+        
+    return training_pairs
+
+def derive_classifier_training_data(trajectories: List[ConflictTrajectory], output_path: Path) -> None:
+    """
+    Derive turn-level training pairs from generated trajectories and save to JSON.
+    
+    Args:
+        trajectories: List of ConflictTrajectory objects.
+        output_path: Path to the output JSON file.
+    """
+    all_pairs = []
+    
+    for traj in trajectories:
+        pairs = split_trajectory_into_turns(traj)
+        all_pairs.extend(pairs)
+        
+    with open(output_path, 'w') as f:
+        json.dump(all_pairs, f, indent=2)
+        
+    logger.info(f"Derived {len(all_pairs)} training pairs from {len(trajectories)} trajectories")
+    logger.info(f"Wrote training data to {output_path}")
 
 def main():
-    """
-    Main entry point for trajectory generation.
+    """Main entry point for data generation and derivation."""
+    config = get_config_summary()
+    ensure_directories()
     
-    This function:
-    1. Generates exactly 500 trajectories with oversampling
-    2. Validates the sample size constraint
-    3. Writes trajectories to data/processed/trajectories.json
-    4. Writes statistics to data/processed/generation_stats.json
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    # Set seeds for reproducibility
+    random.seed(config["seed"])
     
-    try:
-        # Generate trajectories
-        trajectories = generate_trajectories_batch(target_sample_size=TARGET_SAMPLE_SIZE)
+    # 1. Generate Trajectories (T012, T013, T014, T015)
+    logger.info(f"Generating {TARGET_SAMPLE_SIZE} trajectories...")
+    trajectories = generate_trajectories_batch(TARGET_SAMPLE_SIZE)
+    
+    # Verify sample size (T015)
+    if len(trajectories) < TARGET_SAMPLE_SIZE:
+        raise ValueError(f"Generated {len(trajectories)} trajectories, expected {TARGET_SAMPLE_SIZE}.")
         
-        # Validate
-        if len(trajectories) != TARGET_SAMPLE_SIZE:
-            raise ValueError(f"Generated {len(trajectories)} trajectories, expected {TARGET_SAMPLE_SIZE}")
-        
-        # Write outputs
-        trajectories_path = write_trajectories(trajectories)
-        stats_path = write_generation_stats(trajectories)
-        
-        logger.info(f"Generation complete. Files written:")
-        logger.info(f"  - Trajectories: {trajectories_path}")
-        logger.info(f"  - Statistics: {stats_path}")
-        
-        return True
-        
-    except Exception as e:
-        logger.error(f"Generation failed: {str(e)}")
-        raise
+    # Write trajectories (T014)
+    trajectories_path = Path("data/processed/trajectories.json")
+    write_trajectories(trajectories, trajectories_path)
+    
+    # Write stats (T014)
+    stats_path = Path("data/processed/generation_stats.json")
+    write_generation_stats(trajectories, stats_path)
+    
+    # 2. Derive Training Data (T019)
+    logger.info("Deriving turn-level training data...")
+    training_data_path = Path("data/processed/classifier_training_data.json")
+    derive_classifier_training_data(trajectories, training_data_path)
+    
+    logger.info("Data generation and derivation complete.")
 
 if __name__ == "__main__":
     main()

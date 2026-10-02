@@ -1,33 +1,20 @@
-"""
-Project initialization script for PROJ-308-quantifying-entanglement-entropy-in-rand.
-Creates the required directory structure and verification artifacts.
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def create_directory_structure(base_path: str = None) -> bool:
+def create_directory_structure(base_path: str) -> bool:
     """
-    Creates the full directory structure required for the project.
-
+    Creates the required directory structure for the project.
+    
     Args:
-        base_path: The root directory for the project. Defaults to
-                   'projects/PROJ-308-quantifying-entanglement-entropy-in-rand'
-                   relative to the current working directory.
-
+        base_path: The root directory where the project structure will be created.
+        
     Returns:
         True if all directories were created successfully, False otherwise.
     """
-    if base_path is None:
-        # Determine the project root relative to the script location or cwd
-        # The task specifies the path relative to project root
-        base_path = "projects/PROJ-308-quantifying-entanglement-entropy-in-rand"
-
-    root = Path(base_path)
-    root.mkdir(parents=True, exist_ok=True)
-
-    # Define all required directories relative to root
+    project_root = Path(base_path)
+    
+    # Define all required directories relative to project root
     directories = [
         "code",
         "data",
@@ -42,86 +29,78 @@ def create_directory_structure(base_path: str = None) -> bool:
         "tools",
         "reviews"
     ]
-
-    created_count = 0
-    failed_dirs = []
-
+    
+    success = True
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
+            print(f"Created directory: {full_path}")
         except OSError as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            failed_dirs.append(str(full_path))
+            print(f"ERROR: Failed to create directory {full_path}: {e}")
+            success = False
+    
+    return success
 
-    if failed_dirs:
-        print(f"Failed to create {len(failed_dirs)} directories.", file=sys.stderr)
-        return False
-
-    print(f"Successfully created {created_count} directories under {root}.")
-    return True
-
-
-def write_setup_log(base_path: str = None, log_filename: str = "setup_log.txt") -> None:
+def write_setup_log(base_path: str, success: bool) -> str:
     """
-    Writes a verification log file confirming the directory structure.
-
+    Writes the setup log file indicating the result of directory creation.
+    
     Args:
-        base_path: The root directory for the project.
-        log_filename: The name of the log file to create.
+        base_path: The root directory where the log file will be written.
+        success: Boolean indicating if directory creation was successful.
+        
+    Returns:
+        Path to the created log file.
     """
-    if base_path is None:
-        base_path = "projects/PROJ-308-quantifying-entanglement-entropy-in-rand"
+    log_path = Path(base_path) / "setup_log.txt"
+    status = "SUCCESS" if success else "FAILED"
+    timestamp = __import__('datetime').datetime.now().isoformat()
+    
+    content = f"""Project Directory Initialization Log
+=====================================
+Timestamp: {timestamp}
+Status: {status}
+Project Root: {base_path}
 
-    root = Path(base_path)
-    log_path = root / log_filename
+Directories Created:
+- code/
+- data/
+- state/
+- tests/
+- docs/
+- data/raw/
+- data/processed/
+- tests/unit/
+- tests/integration/
+- state/projects/
+- tools/
+- reviews/
 
-    # List all expected directories to verify
-    expected_dirs = [
-        "code", "data", "state", "tests", "docs",
-        "data/raw", "data/processed",
-        "tests/unit", "tests/integration",
-        "state/projects", "tools", "reviews"
-    ]
-
+Verification:
+All required directories were {'successfully' if success else 'NOT successfully'} created.
+"""
+    
     with open(log_path, 'w') as f:
-        f.write(f"Setup Log for {root}\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Status: SUCCESS\n")
-        f.write(f"Directories verified:\n")
-        for d in expected_dirs:
-            full_path = root / d
-            if full_path.is_dir():
-                f.write(f"  [OK] {d}\n")
-            else:
-                f.write(f"  [FAIL] {d}\n")
-        f.write("=" * 40 + "\n")
-        f.write("Verification complete.\n")
-
-    print(f"Setup log written to {log_path}")
-
+        f.write(content)
+        
+    print(f"Setup log written to: {log_path}")
+    return str(log_path)
 
 def main():
-    """
-    Entry point for the script.
-    Creates directories and generates the setup log.
-    """
-    # Default project path as per task specification
-    project_root = "projects/PROJ-308-quantifying-entanglement-entropy-in-rand"
-
-    print(f"Initializing project structure at: {project_root}")
-
-    success = create_directory_structure(project_root)
-
-    if success:
-        write_setup_log(project_root)
-        print("Project initialization complete.")
-        sys.exit(0)
-    else:
-        print("Project initialization failed due to directory creation errors.", file=sys.stderr)
+    """Main entry point for project initialization."""
+    # Determine project root based on task description
+    # The task specifies creating directories in: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/
+    base_path = Path("projects/PROJ-308-quantifying-entanglement-entropy-in-rand")
+    
+    print(f"Initializing project structure at: {base_path}")
+    
+    if not create_directory_structure(str(base_path)):
+        write_setup_log(str(base_path), False)
         sys.exit(1)
-
+    
+    write_setup_log(str(base_path), True)
+    print("Project initialization complete.")
 
 if __name__ == "__main__":
     main()
