@@ -1,4 +1,7 @@
+# Ruff configuration
+# See https://beta.ruff.rs/docs/configuration/ for details
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "W", "C90"]
 ignore = []
+target-version = "py311"

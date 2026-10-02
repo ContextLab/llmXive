@@ -579,3 +579,493 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T19:46:11Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: pilot study recruits 20 participants for visual complexity rating
+  claim_id: c_720f828e
+  context: "Phase 3: User Story 0 - Conduct Human Pilot Study for Metric Validation\
+    \ (Priority: P0) Goal: Recruit a small cohort (n=20) to rate background images\
+    \ for perceived visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study recruits a small cohort (n=20) to rate background images
+    for perceived visual complexity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:18:39Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: first 500 items from train split of video-conference-backgrounds dataset
+    downloaded
+  claim_id: c_49191b3a
+  context: 'T014a [US0] One-time Setup: Fetch and Archive Real Stimuli: Implement
+    src/metrics/fetch_and_archive.py as a one-time setup script (not part of the standard
+    runtime pipeline). It downloads the first 500 items from the ''train'' split of
+    the HuggingFace video-conference-backgrounds dataset...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The first 500 items from the 'train' split of the HuggingFace 'video-conference-backgrounds'
+    dataset are downloaded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:19:01Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: images with no detectable objects produce object_count 0
+  claim_id: c_e7d5d735
+  context: "T020 [US1] Handle No\u2011Object Images: Ensure that images with no detectable\
+    \ objects produce object_count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Images with no detectable objects produce an object_count of 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:19:25Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 images at 1080p completes within 30 seconds
+  claim_id: c_928ab8b1
+  context: "T061 [P] NFR\u2011001 Performance Test: Verify that processing 10 images\
+    \ at 1080p completes within 30 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processing 10 images at 1080p resolution must complete within 30 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:20:08Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: RAM usage stays below 2 GB during metric extraction
+  claim_id: c_ba30787f
+  context: "T061b [P] NFR\u2011001 RAM Test: Verify RAM usage stays below 2 GB during\
+    \ metric extraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM usage must stay below 2 GB during metric extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:20:44Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: main study recruits 50 to 100 participants
+  claim_id: c_f7e5bd5c
+  context: "T056 [US4] Conduct Main Study: Recruit n=50\u2011100 participants, run\
+    \ the deployed app (from T011d), and store all collected data in data/measurements/raw/main_study_sessions.csv\
+    \ flagged as 'Real Human Data'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The main study recruits 50 to 100 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:22:07Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps alpha thresholds 0.01, 0.05, and 0.1
+  claim_id: c_b0a44bac
+  context: "T041 [P] [US3] Implement src/analysis/sensitivity.py to sweep \u03B1 thresholds\
+    \ explicitly hardcoded as {0.01, 0.05, 0.1} and output data/derived/stability_report.csv..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps alpha thresholds explicitly hardcoded as 0.01,
+    0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:22:35Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: family-wise error rate controlled at alpha 0.05
+  claim_id: c_4610a12e
+  context: "T042d [US3] FWER vs Alpha Comparison & Report: Verify that the corrected\
+    \ p\u2011values control the family\u2011wise error rate at \u03B1 = 0.05 across\
+    \ all tests."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "when\u03B1is small (e.g.,0.05). This is provably more powerful than\
+        \ the closure of"
+      source_id: '2501.09015'
+      url: https://arxiv.org/abs/2501.09015
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Family-wise error rate is controlled at an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T11:23:01Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: pilot gate flags if Pearson r is less than 0.5
+  claim_id: c_b9e7a009
+  context: 'T013b [US0] Automated Pilot Gate: Implement src/experiment/pilot_gate.py
+    to check the pilot correlation; if r < 0.5, FLAG_REVIEW (write to logs/pilot_review_flag.log
+    and exit with code 0)...'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pilot gate flags for review if the Pearson correlation (r) is less
+    than 0.5.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T11:23:01Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: predictors with VIF greater than 5 are flagged
+  claim_id: c_2d475dd0
+  context: T038 [US3] Implement VIF calculation in src/analysis/models.py; flag any
+    predictor with VIF > 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictors_with_VIF_greater_than_5_are_flagged
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:24:02Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: corrected p-values control family-wise error rate at alpha=0.05
+  claim_id: c_8549b62f
+  context: "In the analysis phase, a validation step checks that the corrected p-values\
+    \ control the family-wise error rate at \u03B1\u202F=\u202F0.05 across all tests,\
+    \ citing arXiv:2501.09015."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Verify that the corrected p\u2011values control the family\u2011wise\
+    \ error rate at \u03B1\u202F=\u202F0.05 (2501.09015, https://arxiv.org/abs/2501.09015)\
+    \ across all tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:26:13Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: corrected p-values control family-wise error rate at alpha 0.05
+  claim_id: c_20406d63
+  context: "Task T042d in Phase 7 specifies verifying that the corrected p-values\
+    \ control the family-wise error rate at \u03B1 = 0.05 across all tests, referencing\
+    \ arXiv paper 2501.09015."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Verify that the corrected p-values control the family-wise error rate\
+    \ at \u03B1 = 0.05 (2501.09015, https://arxiv.org/abs/2501.09015) across all tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:26:29Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from HuggingFace video-conference-backgrounds
+    train split
+  claim_id: c_ae929213
+  context: Implementation for User Story 0 includes a one-time setup script that fetches
+    and archives real stimuli.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "It downloads the first 500 items from the 'train' split of the HuggingFace\
+    \ video-conference-backgrounds dataset, verifies dataset authenticity via checksums\
+    \ against a known manifest, computes SHA\u2011256 checksums, and stores them in\
+    \ data/stimuli/raw/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:27:31Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process 10 images at 1080p within 30 seconds
+  claim_id: c_afad82b3
+  context: "NFR\u2011001 Performance Test verifies that processing 10 images at 1080p\
+    \ completes within 30\u202Fs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30\u202Fs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:28:10Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: RAM usage under 2 GB during metric extraction
+  claim_id: c_b28c6738
+  context: "NFR\u2011001 RAM Test verifies that RAM usage stays below 2\u202FGB during\
+    \ metric extraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "RAM usage stays below 2\u202FGB during metric extraction."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:28:35Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: FWER controlled at alpha 0.05 according to arXiv 2501.09015
+  claim_id: c_035bb303
+  context: "FWER vs Alpha Comparison & Report verifies that the corrected p\u2011\
+    values control the family\u2011wise error rate at \u03B1\u202F=\u202F0.05 (2501.09015,\
+    \ https://arxiv.org/abs/2501.09015) across all tests."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "FWER is controlled at \u03B1\u202F=\u202F0.05 across all tests, as reported\
+    \ in https://arxiv.org/abs/2501.09015."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:28:52Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to entropy, variance, object count
+    tests
+  claim_id: c_bfb74583
+  context: "Implementation includes Benjamini\u2011Hochberg correction in src/analysis/corrections.py,\
+    \ applied to all three metrics."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_entropy,_variance,
+  kind: entity_fact
+  raw_text: "Benjamini\u2011Hochberg correction is applied to entropy, variance, and\
+    \ object count hypothesis tests."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:29:22Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 50 to 100 participants
+  claim_id: c_4030186c
+  context: "Conduct Main Study: Recruit n=50\u2011100 participants, run the deployed\
+    \ app (from T011d), and store all collected data in data/measurements/raw/main_study_sessions.csv\
+    \ flagged as 'Real Human Data'."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Nielsen does not advocate stopping after a single test with five users;
+        his point is that testing with five users, fixing the problems they uncover,
+        and then testing the revised site with five different users is a better use
+        of limited resources than running a single usability test with 10 users. In
+        practice, the tests are run once or twice per week during the entire development
+        cycle, using three to five test subjects per round, and with the results delivered
+        within 24 hours to the designers.  The number of users actually tested over
+        the course of the project can thus easily reach 50 to 100 people. Research
+        shows that user testing conducted by organisations most commonly involves
+        the recruitment of 5-10 participants.
+      source_id: Usability testing
+      url: https://en.wikipedia.org/wiki/Usability_testing
+      value: 50 to 100
+    filled: true
+  kind: numeric
+  raw_text: "Recruit n=50\u2011100 participants, run the deployed app (from T011d)"
+  resolved_value: 50 to 100
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T11:30:22Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: FWER control at alpha 0.05
+  claim_id: c_e66a2125
+  context: "FWER vs Alpha Comparison & Report: Verify that the corrected p\u2011values\
+    \ control the family\u2011wise error rate at \u03B1\u202F=\u202F0.05 (2501.09015,\
+    \ https://arxiv.org/abs/2501.09015) across all tests."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "\u03B1 = 0.05. The method of Halle et al. (2016) controls the FWER at\
+        \ level \u03B1 when the vector of"
+      source_id: '1612.04535'
+      url: https://arxiv.org/abs/1612.04535
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "FWER control at \u03B1\u202F=\u202F0.05 (2501.09015, https://arxiv.org/abs/2501.09015)"
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T11:32:46Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from video-conference-backgrounds train split
+  claim_id: c_543fc2e9
+  context: 'One-time Setup: Fetch and Archive Real Stimuli implements src/metrics/fetch_and_archive.py
+    as a one-time setup script that downloads the first 500 items from the ''train''
+    split of the HuggingFace video-conference-backgrounds dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:33:11Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 2
+  canonical: recruit 20 participants
+  claim_id: c_ab894daa
+  context: Implement src/experiment/recruitment_manager.py to recruit n=20 participants
+    via a configured platform (e.g., Prolific API wrapper), manage the cohort list
+    in data/measurements/cohort.json, and track recruitment status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit n=20 participants via a configured platform (e.g., Prolific API
+    wrapper)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:33:43Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from train split of video-conference-backgrounds
+    dataset
+  claim_id: c_0feef8b1
+  context: Implement src/metrics/fetch_and_archive.py as a one-time setup script that
+    downloads the first 500 items from the 'train' split of the HuggingFace video-conference-backgrounds
+    dataset, verifies dataset authenticity via checksums, and stores them locally.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:33:44Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 images at 1080p completes within 30 seconds
+  claim_id: c_1b710bf8
+  context: "NFR\u2011001 Performance Test: Verify that processing 10 images at 1080p\
+    \ completes within 30\u202Fs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "processing 10 images at 1080p completes within 30\u202Fs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:33:44Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: RAM usage stays below 2 GB during metric extraction
+  claim_id: c_e3190053
+  context: "NFR\u2011001 RAM Test: Verify RAM usage stays below 2\u202FGB during metric\
+    \ extraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "RAM usage stays below 2\u202FGB during metric extraction"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:33:44Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: corrected p-values control family-wise error rate at alpha 0.05 across
+    all tests
+  claim_id: c_c690579e
+  context: "FWER vs Alpha Comparison & Report: Verify that the corrected p\u2011values\
+    \ control the family\u2011wise error rate at \u03B1\u202F=\u202F0.05 (1612.04535,\
+    \ https://arxiv.org/abs/1612.04535) across all tests."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: As a concrete example, taking v = 4 would provide 10-FWER control at
+        level 0.05. As one may
+      source_id: '1505.06549'
+      url: https://arxiv.org/abs/1505.06549
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "the corrected p\u2011values control the family\u2011wise error rate at\
+    \ \u03B1\u202F=\u202F0.05 (1612.04535, https://arxiv.org/abs/1612.04535) across\
+    \ all tests"
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T11:35:48Z'

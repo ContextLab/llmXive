@@ -1,15 +1,11 @@
 ultralytics
 opencv-python-headless
+statsmodels
+scikit-learn
 pandas
 numpy
 pillow
 requests
 streamlit
-scikit-learn
-statsmodels
-tqdm
-matplotlib
-scipy
-black
 ruff
-# other existing dependencies are assumed to be present from earlier tasks
+black

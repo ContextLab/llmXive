@@ -1,24 +1,10 @@
-T001a:
+T006a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`src/lib/`, `src/metrics/`, `src/experiment/`,
-    `src/analysis/`, `tests/`) is presented; the implementer did not provide any file
-    listings or screenshots showing that the structure exists. The task remains unfinished
-    until the full directory hierarchy is created and verified.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`data/stimuli/`, `data/processed/`, `data/measurements/`, `data/raw/`)
-    actually exist; thus the claim cannot be verified. The implementer must create
-    and show the directory structure.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or related setup scripts) are presented
-    in the provided evidence, so the claim that linting (ruff) and formatting (black)
-    have been configured cannot be verified. The required artifacts are missing.
+  h: e889e004704359f8319a4fd1a0871c3935ce18ec227c6792a55233b11a713f1f
+  r: The required `src/config.py` file (defining `GLOBAL_SEED`) is missing, and the
+    provided `tests/test_seed_enforcement.py` is truncated and contains a typo (`cpu().n`)
+    and does not include the statsmodels verification portion, so the test is not
+    fully implemented.
 T012:
   c: false
   h: 555b6557cfd5fd4474afaa3427ac25471a3a20cfeeaccbda5b31cfdffcf28be7

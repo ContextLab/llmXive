@@ -1,32 +1,20 @@
 """
-setup_linting_formatting.py
----------------------------
-This module provides a small CLI utility that creates the linting and formatting
-configuration files required by the project and (optionally) adds the corresponding
-packages to ``requirements.txt``.
+Linting and formatting configuration helper.
 
-The public API matches the signature declared in the project description:
+This module provides utilities to ensure that Ruff (linting) and Black
+(code formatting) configuration files exist at the repository root and
+that the required packages are listed in ``requirements.txt``.
 
-* ``ensure_config_dir`` – ensures a directory exists (used for future extensions).
-* ``create_ruff_config`` – writes a minimal ``.ruff.toml`` to the repository root.
-* ``create_black_config`` – writes a ``pyproject.toml`` containing Black settings.
-* ``update_requirements`` – appends ``ruff`` and ``black`` to ``requirements.txt`` if
-  they are not already present.
-* ``main`` – orchestrates the above steps.
+The public API matches the names declared in the project’s API surface:
 
-The script is deliberately side‑effectful: it writes files *outside* the ``code/``
-directory (to the repository root) because the test suite expects the configuration
-files to live there.  All paths are computed relative to the location of this file,
-so the script works regardless of the current working directory.
-
-Running the script:
-
-.. code-block:: console
-
-    $ python code/setup_linting_formatting.py
-
-will create (or overwrite) the two configuration files and update
-``requirements.txt``.
+- ``ensure_config_dir`` – prepares the directory where configuration files
+  will be written (the repository root in this case).
+- ``create_ruff_config`` – writes a minimal ``.ruff.toml`` file.
+- ``create_black_config`` – writes a ``pyproject.toml`` containing Black
+  configuration.
+- ``update_requirements`` – adds ``ruff`` and ``black`` to
+  ``requirements.txt`` if they are not already present.
+- ``main`` – orchestrates the above steps.
 """
 
 import os
@@ -35,41 +23,45 @@ import subprocess
 from pathlib import Path
 from typing import Tuple
 
-# ---------------------------------------------------------------------------
-# Helper utilities
-# ---------------------------------------------------------------------------
 
-def _project_root() -> Path:
+def _repo_root() -> Path:
     """
-    Return the absolute path to the repository root (the parent of the ``code/``
-    directory that contains this file).
+    Return the absolute path to the repository root (the directory that
+    contains this script's ``code`` folder).  This function works when the
+    script is executed from any working directory.
     """
-    return Path(__file__).resolve().parent.parent
+    # ``__file__`` points to ``code/setup_linting_formatting.py``.
+    # The repository root is two levels up.
+    return Path(__file__).resolve().parents[1]
+
 
 def ensure_config_dir() -> Path:
     """
-    Ensure that a ``.config`` directory exists at the repository root.
-    This directory is not strictly required for the current configuration files
-    but provides a convenient place for future extensions (e.g., pre‑commit hooks).
-    The function returns the path to the directory.
+    Ensure that the repository root directory exists (it always does) and
+    return its ``Path`` object.  This function exists for API compatibility
+    and future extensibility.
     """
-    config_dir = _project_root() / ".config"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    return config_dir
+    root = _repo_root()
+    if not root.is_dir():
+        raise FileNotFoundError(f"Repository root not found: {root}")
+    return root
 
-# ---------------------------------------------------------------------------
-# Configuration file creators
-# ---------------------------------------------------------------------------
 
-def create_ruff_config() -> Path:
+def create_ruff_config(root: Path = None) -> Path:
     """
-    Create a minimal ``.ruff.toml`` file at the repository root.
-    
-    The configuration enables the default rule set, selects the ``flake8`` and
-    ``pycodestyle`` plugins, and formats the output as ``concise``.
+    Create a ``.ruff.toml`` configuration file at ``root`` (defaults to
+    the repository root).  If the file already exists, it is overwritten
+    with the canonical configuration defined in this repository.
+
+    Returns:
+        Path to the created ``.ruff.toml`` file.
     """
-    ruff_path = _project_root() / ".ruff.toml"
+    if root is None:
+        root = ensure_config_dir()
+    ruff_path = root / ".ruff.toml"
     ruff_content = """\
+# Ruff configuration
+# See https://beta.ruff.rs/docs/configuration/ for details
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "W", "C90"]
@@ -79,101 +71,98 @@ target-version = "py311"
     ruff_path.write_text(ruff_content, encoding="utf-8")
     return ruff_path
 
-def create_black_config() -> Path:
+
+def create_black_config(root: Path = None) -> Path:
     """
-    Create a ``pyproject.toml`` file containing Black configuration.
-    
-    If a ``pyproject.toml`` already exists, the function merges the Black section
-    into the existing file without overwriting unrelated content.
+    Create a ``pyproject.toml`` file containing Black configuration at
+    ``root`` (defaults to the repository root).  Existing files are
+    overwritten.
+
+    Returns:
+        Path to the created ``pyproject.toml`` file.
     """
-    pyproject_path = _project_root() / "pyproject.toml"
-    black_section = """\
+    if root is None:
+        root = ensure_config_dir()
+    pyproject_path = root / "pyproject.toml"
+    black_content = """\
+# Pyproject configuration for Black formatting
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.
-    |\\.git
-    |\\.hg
-    |\\.mypy_cache
-    |\\.tox
-    |\\.venv
-    |_build
-    |buck-out
-    |build
-    |dist
+    \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 """
-    if pyproject_path.exists():
-        # Append the Black section if not already present.
-        existing = pyproject_path.read_text(encoding="utf-8")
-        if "[tool.black]" not in existing:
-            with pyproject_path.open("a", encoding="utf-8") as f:
-                f.write("\n" + black_section)
-    else:
-        # Write a fresh pyproject.toml containing only the Black config.
-        pyproject_path.write_text(black_section, encoding="utf-8")
+    pyproject_path.write_text(black_content, encoding="utf-8")
     return pyproject_path
 
-# ---------------------------------------------------------------------------
-# Requirements updater
-# ---------------------------------------------------------------------------
 
-def update_requirements() -> Path:
+def update_requirements(root: Path = None) -> Path:
     """
-    Ensure that ``ruff`` and ``black`` are listed in ``requirements.txt`` at the
-    repository root.  The function adds the packages only if they are missing.
+    Ensure that ``ruff`` and ``black`` are listed in ``requirements.txt``.
+    If the file does not exist, it is created.  Duplicate entries are
+    avoided.
+
+    Returns:
+        Path to the (potentially updated) ``requirements.txt`` file.
     """
-    req_path = _project_root() / "requirements.txt"
-    # If the file does not exist yet, create a minimal one.
-    if not req_path.exists():
-        req_path.write_text("", encoding="utf-8")
+    if root is None:
+        root = ensure_config_dir()
+    req_path = root / "requirements.txt"
+    needed = {"ruff", "black"}
 
-    existing = {line.strip() for line in req_path.read_text(encoding="utf-8").splitlines() if line.strip()}
-    additions = []
-    for pkg in ("ruff", "black"):
-        if pkg not in existing:
-            additions.append(pkg)
+    if req_path.is_file():
+        existing = {line.strip() for line in req_path.read_text().splitlines() if line.strip()}
+    else:
+        existing = set()
 
-    if additions:
+    missing = needed - existing
+    if missing:
+        # Append missing requirements, each on its own line.
         with req_path.open("a", encoding="utf-8") as f:
-            for pkg in additions:
+            for pkg in sorted(missing):
                 f.write(f"{pkg}\\n")
     return req_path
 
-# ---------------------------------------------------------------------------
-# Main entry point
-# ---------------------------------------------------------------------------
 
 def main(argv: Tuple[str, ...] = ()) -> int:
     """
-    Execute the configuration steps.
-    
+    Entry‑point for the script.  It creates the configuration files and
+    updates ``requirements.txt``.  The function returns an exit code
+    compatible with ``sys.exit``.
+
     Parameters
     ----------
-    argv: Tuple[str, ...]
-        Command‑line arguments (currently ignored; present for future extensibility).
-    
+    argv : Tuple[str, ...]
+        Command‑line arguments (ignored; present for testability).
+
     Returns
     -------
     int
-        Exit code (0 for success, non‑zero for failure).
+        ``0`` on success, non‑zero on unexpected failure.
     """
     try:
-        # Step 1: ensure optional config directory exists
-        ensure_config_dir()
-        # Step 2: create the linting and formatting configuration files
-        create_ruff_config()
-        create_black_config()
-        # Step 3: record the tools in requirements.txt
-        update_requirements()
+        root = ensure_config_dir()
+        create_ruff_config(root)
+        create_black_config(root)
+        update_requirements(root)
     except Exception as exc:
-        sys.stderr.write(f"Error while setting up linting/formatting: {exc}\\n")
+        print(f"Error configuring linting/formatting: {exc}", file=sys.stderr)
         return 1
     return 0
 
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
