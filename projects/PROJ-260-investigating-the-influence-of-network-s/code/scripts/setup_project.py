@@ -1,16 +1,17 @@
+"""
+Script to initialize the project directory structure for PROJ-260.
+Creates all required directories for data, code, tests, and outputs.
+"""
 import os
 import sys
 from pathlib import Path
 
 def create_directories():
-    """
-    Creates the full project directory structure as defined in T001a.
-    All paths are relative to the project root (current working directory).
-    """
-    base = Path(".")
+    """Create the full project directory hierarchy."""
+    base = Path(__file__).resolve().parent.parent.parent
     
-    # Core directories
-    dirs = [
+    # Define all required directories
+    directories = [
         "src",
         "tests",
         "data/raw",
@@ -25,23 +26,22 @@ def create_directories():
         "outputs/reports",
     ]
     
-    created_count = 0
-    for dir_path in dirs:
+    created = []
+    for dir_path in directories:
         full_path = base / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+        full_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(full_path.relative_to(base)))
     
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return True
+    return created
 
 def main():
-    """Entry point for script execution."""
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    """Main entry point."""
+    print("Creating project directory structure...")
+    created = create_directories()
+    print(f"Created {len(created)} directories:")
+    for d in sorted(created):
+        print(f"  - {d}")
+    print("Directory structure initialization complete.")
 
 if __name__ == "__main__":
     main()

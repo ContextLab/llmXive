@@ -1,90 +1,51 @@
 """
-Script to create essential placeholder files for the project.
-
-This ensures that the project structure is not only directories
-but also contains the necessary __init__.py files and basic
-configuration placeholders.
+Script to create placeholder __init__.py files for all required packages.
+This ensures the directory structure is recognized as Python packages.
 """
 import os
 import sys
 from pathlib import Path
 
-
-def create_placeholder_files(base_path: str = None) -> list:
-    """
-    Create __init__.py files and other necessary placeholders.
+def create_placeholder_files():
+    """Create __init__.py files for all package directories."""
+    base = Path(__file__).resolve().parent.parent.parent
     
-    Args:
-        base_path: Optional base path. Defaults to current working directory.
-                    
-    Returns:
-        list: List of created file paths.
-    """
-    if base_path is None:
-        base_path = os.getcwd()
-    
-    base = Path(base_path)
-    
-    # Define files to create
-    files_to_create = [
-        # Source __init__.py files
-        "code/src/__init__.py",
-        "code/src/models/__init__.py",
-        "code/src/services/__init__.py",
-        "code/src/lib/__init__.py",
-        "code/src/cli/__init__.py",
-        
-        # Test __init__.py files
-        "code/tests/__init__.py",
-        "code/tests/unit/__init__.py",
-        "code/tests/integration/__init__.py",
-        "code/tests/contract/__init__.py",
-        
-        # Data __init__.py files
-        "code/data/__init__.py",
-        
-        # Output __init__.py files
-        "code/outputs/__init__.py",
-        
-        # Scripts __init__.py file
-        "code/scripts/__init__.py",
-        
-        # Specs __init__.py file
-        "code/specs/__init__.py",
+    # Define all package directories that need __init__.py
+    package_dirs = [
+        "src",
+        "src/models",
+        "src/services",
+        "src/cli",
+        "src/lib",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
     
-    created_files = []
-    for file_path in files_to_create:
-        full_path = base / file_path
-        if not full_path.exists():
-            full_path.touch()
-            # Add a docstring to __init__.py files
-            if file_path.endswith("__init__.py"):
-                with open(full_path, 'w') as f:
-                    f.write(f'"""Package initialization for {file_path}."""\n')
-            created_files.append(str(full_path.resolve()))
-        else:
-            created_files.append(str(full_path.resolve()))
-            
-    return created_files
-
+    created = []
+    for dir_path in package_dirs:
+        full_path = base / dir_path
+        init_file = full_path / "__init__.py"
+        
+        # Ensure directory exists first
+        full_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create __init__.py if it doesn't exist or is empty
+        if not init_file.exists() or init_file.stat().st_size == 0:
+            init_file.write_text(f'"""{dir_path} package."""\n')
+            created.append(str(init_file.relative_to(base)))
+    
+    return created
 
 def main():
-    """
-    Main entry point for creating placeholder files.
-    """
-    print("Creating placeholder files...")
-    
-    created_files = create_placeholder_files()
-    
-    print(f"Successfully created {len(created_files)} placeholder files.")
-    print("\nFiles created:")
-    for file_path in sorted(created_files):
-        print(f"  - {file_path}")
-        
-    print("\nPlaceholder file creation complete.")
-    return 0
-
+    """Main entry point."""
+    print("Creating placeholder __init__.py files...")
+    created = create_placeholder_files()
+    print(f"Created {len(created)} __init__.py files:")
+    for f in sorted(created):
+        print(f"  - {f}")
+    print("Placeholder file creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,7 +1,14 @@
-T009:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`tests/unit/`, `tests/integration/`,\
-    \ `tests/contract/`) is present in the provided artifacts; the implementer\u2019\
-    s claim cannot be verified. The missing folder structure must be created in the\
-    \ repository."
+  r: "No directory tree or list of created folders was provided; the evidence does\
+    \ not show that the required `src/`, `tests/`, `data/raw/`, `data/derived/`, `outputs/`,\
+    \ and all sub\u2011directories actually exist. The implementer must supply a concrete\
+    \ proof (e.g., a printed tree, a manifest file, or a screenshot) that the full\
+    \ hierarchy has been created and is non\u2011empty."
+T001b:
+  c: false
+  h: ea801d757d4580bae965b6440fb96cfc89532d053557453452c27c9a60d536ac
+  r: "The implementer supplied non\u2011empty `__init__.py` files for `src`, `src/models`,\
+    \ `src/services`, and `src/cli`, but the required `src/lib/__init__.py` file is\
+    \ absent from the repository. Without this file the task is not fully satisfied."

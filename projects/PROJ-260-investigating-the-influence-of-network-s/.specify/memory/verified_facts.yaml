@@ -1,0 +1,5 @@
+'|bootstrap confidence estimation execute interval iteration':
+  quote: 0.95, and simulated 1000 random samples of size n from each of three un-
+  source_id: math/0504516
+  url: https://arxiv.org/abs/math/0504516
+  value: '1000'

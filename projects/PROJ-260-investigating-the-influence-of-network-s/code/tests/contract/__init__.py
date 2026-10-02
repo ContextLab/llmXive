@@ -1,3 +1,1 @@
-"""
-Contract tests for schema and API compliance.
-"""
+"""contract tests package."""

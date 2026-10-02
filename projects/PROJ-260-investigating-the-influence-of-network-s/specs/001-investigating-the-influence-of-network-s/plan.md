@@ -111,7 +111,7 @@ outputs/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Bootstrap Resampling (iterations)** | Required by FR-005 and SC-001 to estimate 95% confidence intervals robustly on N≥30 samples. | Standard parametric tests (t-test) assume normality which may not hold for complex topological metrics; non-parametric bootstrap is safer. |
+| **Bootstrap Resampling (iterations)** | Required by FR-005 and SC-001 to estimate % confidence intervals robustly on N≥30 samples. | Standard parametric tests (t-test) assume normality which may not hold for complex topological metrics; non-parametric bootstrap is safer. |
 | **RDF-based Dynamic Cutoff** | Required by Constitution Principle VII to avoid systematic bias across different amorphous structures. | A fixed global cutoff (e.g., 2.5 Å) would fail to adapt to thermal expansion or structural variations, invalidating the correlation. |
 | **Separate Topology and VDOS Services** | Allows independent testing and potential reuse of topology extraction if only structural metrics are needed. | A monolithic script would make unit testing of the VDOS calculation (which depends on velocities, not just topology) difficult. |
 | **Reference Generator Service** | Required by FR-008 and Constitution Principle I to ensure κ values are independent and reproducible without manual CSVs. | Manual CSV entry violates reproducibility and introduces human error; using the same trajectory for κ and topology creates circular validation. |
