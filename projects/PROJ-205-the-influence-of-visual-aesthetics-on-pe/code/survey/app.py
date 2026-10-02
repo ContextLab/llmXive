@@ -1,9 +1,8 @@
 """
-Streamlit Survey Application for Visual Aesthetics Study.
-
-This module implements the full survey flow: Consent -> Demographics -> Stimuli -> Ratings -> Submission.
-It strictly uses in-memory `st.session_state` for client-side state management.
+Main Streamlit application for the survey.
+Implements the complete workflow: Consent -> Demographics -> Stimuli -> Ratings -> Submission.
 """
+
 import streamlit as st
 import os
 import sys
@@ -15,310 +14,290 @@ from datetime import datetime
 from pathlib import Path
 
 # Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.utils.helpers import (
-    hash_ip,
+from utils.helpers import (
     generate_user_id,
-    get_submissions_csv_path,
-    ensure_data_dirs,
+    hash_ip,
     format_timestamp,
-    truncate_user_agent
+    get_education_code,
+    truncate_user_agent,
+    prepare_submission_row,
+    append_to_submissions_csv,
+    get_submissions_csv_path,
+    get_project_root,
+    ensure_data_dirs
 )
-from code.utils.config import get_consent_file_path, get_irb_protocol_id
-from code.survey.constants import LATIN_SQUARE_MATRIX
+from utils.config import load_consent_text, get_irb_protocol_id
+from survey.constants import METADATA_SCHEMA, LATIN_SQUARE_SEQUENCES
+from survey.randomization import select_sequence
 
-# Constants
-SESSION_TIMEOUT_SECONDS = 300  # 5 minutes
-REQUIRED_RATINGS_COUNT = 4
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="Visual Aesthetics Survey",
+    page_icon="📊",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-def get_project_root():
-    return PROJECT_ROOT
+# --- Helper Functions ---
 
 def init_session_state():
     """Initialize session state variables if they don't exist."""
     if 'participant_id' not in st.session_state:
         st.session_state.participant_id = str(uuid.uuid4())
-    
-    if 'current_step' not in st.session_state:
-        st.session_state.current_step = 'consent'
-    
-    if 'stimuli_order' not in st.session_state:
-        # Default to a random order if not set, but will be overwritten by selection logic
-        st.session_state.stimuli_order = []
-    
+    if 'start_time' not in st.session_state:
+        st.session_state.start_time = time.time()
+    if 'current_stimulus_index' not in st.session_state:
+        st.session_state.current_stimulus_index = 0
+    if 'stimuli_sequence' not in st.session_state:
+        # Will be set after demographics
+        st.session_state.stimuli_sequence = []
     if 'ratings' not in st.session_state:
-        st.session_state.ratings = {}  # {stimulus_name: {'credibility': val, 'professionalism': val}}
-    
-    if 'demographics' not in st.session_state:
-        st.session_state.demographics = {'age': None, 'education': None}
-    
-    if 'last_active' not in st.session_state:
-        st.session_state.last_active = time.time()
-    
-    if 'session_status' not in st.session_state:
-        st.session_state.session_status = 'active'
-    
-    if 'submission_status' not in st.session_state:
-        st.session_state.submission_status = 'pending'
-
-def update_last_active():
-    """Update the last active timestamp."""
-    st.session_state.last_active = time.time()
-
-def check_session_timeout():
-    """Check if the session has timed out."""
-    if 'last_active' in st.session_state:
-        if time.time() - st.session_state.last_active > SESSION_TIMEOUT_SECONDS:
-            st.session_state.session_status = 'timeout'
-            st.session_state.submission_status = 'incomplete'
-            return True
-    return False
+        st.session_state.ratings = {}
+    if 'consent_given' not in st.session_state:
+        st.session_state.consent_given = False
+    if 'demographics_submitted' not in st.session_state:
+        st.session_state.demographics_submitted = False
 
 def extract_and_validate_ip():
-    """Extract IP from headers, hash it, and validate existence."""
-    ip_header = st.context.headers.get('X-Forwarded-For')
-    if not ip_header:
-        # Fallback for local testing if header is missing (only in dev)
-        if os.getenv('MODE') == 'development':
-            ip_header = "127.0.0.1"
-        else:
-            st.error("Session Rejected: Unable to verify identity.")
-            st.stop()
+    """Extract IP from headers and hash it."""
+    # Try standard headers first
+    forwarded = st.context.headers.get('X-Forwarded-For')
+    real_ip = st.context.headers.get('X-Real-IP')
     
-    hashed_ip = hash_ip(ip_header)
-    return hashed_ip
+    ip_address = forwarded if forwarded else real_ip
+    
+    # Fallback for local testing or specific proxy configs
+    if not ip_address:
+        ip_address = st.context.headers.get('Remote-Addr', '127.0.0.1')
+    
+    if not ip_address:
+        st.error("Session Rejected: Unable to verify identity.")
+        st.stop()
+    
+    # Take the first IP if multiple are forwarded
+    if ',' in ip_address:
+        ip_address = ip_address.split(',')[0].strip()
+    
+    return hash_ip(ip_address)
 
 def show_consent_form():
     """Display the IRB-approved consent form."""
-    st.header("Informed Consent")
-    consent_path = get_consent_file_path()
-    
-    if not os.path.exists(consent_path):
-        st.error(f"Consent form not found at {consent_path}")
+    try:
+        consent_text = load_consent_text()
+        irb_id = get_irb_protocol_id()
+    except Exception as e:
+        st.error(f"Error loading consent form: {str(e)}")
         st.stop()
-    
-    with open(consent_path, 'r', encoding='utf-8') as f:
-        consent_text = f.read()
-    
+
+    st.markdown(f"### 📜 Informed Consent (IRB Protocol: {irb_id})")
+    st.markdown("---")
     st.markdown(consent_text)
-    
-    protocol_id = get_irb_protocol_id()
-    st.info(f"Protocol ID: {protocol_id}")
-    
+    st.markdown("---")
+
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("I Agree", key="consent_agree"):
-            st.session_state.current_step = 'demographics'
+        if st.button("I Agree", type="primary"):
+            st.session_state.consent_given = True
+            st.session_state.demographics_submitted = False
             st.rerun()
     
     with col2:
-        if st.button("I Do Not Agree", key="consent_disagree"):
-            st.session_state.session_status = 'withdrawn'
-            st.session_state.submission_status = 'withdrawn'
-            st.rerun()
+        if st.button("I Do Not Agree"):
+            # Redirect to withdrawal page
+            st.session_state.consent_given = False
+            st.switch_page("code/survey/withdrawal.py")
 
 def show_demographics():
-    """Render and handle demographic input form."""
-    st.header("Participant Information")
+    """Render the demographic input form."""
+    st.markdown("### 👤 Participant Information")
+    st.markdown("Please provide the following information to help us analyze the data.")
     
-    with st.form(key="demographics_form"):
-        age = st.number_input("Age (years)", min_value=18, max_value=100, step=1)
-        education = st.selectbox(
-            "Education Level",
-            ["High School", "Bachelor's", "Master's", "PhD"],
-            index=None,
-            placeholder="Select your education level"
-        )
+    with st.form("demographics_form"):
+        col1, col2 = st.columns(2)
         
-        submitted = st.form_submit_button("Continue")
+        with col1:
+            age = st.number_input("Age", min_value=18, max_value=100, step=1, help="Your age in years")
+        
+        with col2:
+            education = st.selectbox(
+                "Highest Level of Education",
+                options=["High School", "Some College", "Bachelor's Degree", "Master's Degree", "Doctorate"],
+                help="Your highest completed level of education"
+            )
+
+        submitted = st.form_submit_button("Continue to Survey")
         
         if submitted:
-            if age and education:
-                st.session_state.demographics['age'] = age
-                st.session_state.demographics['education'] = education
-                st.session_state.current_step = 'stimuli'
-                st.rerun()
-            else:
-                st.error("Please fill in all fields.")
+            if age is None:
+                st.error("Please enter your age.")
+                return
+            
+            # Store demographics
+            st.session_state.age = age
+            st.session_state.education = education
+            st.session_state.demographics_submitted = True
+            
+            # Initialize stimuli sequence
+            stimuli_list = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+            st.session_state.stimuli_sequence = select_sequence(stimuli_list, st.session_state.participant_id)
+            
+            st.rerun()
 
-def render_stimulus(stimulus_name, stimulus_path):
-    """Render a single stimulus HTML file."""
+def render_stimulus(stimulus_name):
+    """Render the HTML content for a specific stimulus."""
+    stimulus_path = PROJECT_ROOT / "code" / "stimuli" / f"{stimulus_name}.html"
+    
+    if not stimulus_path.exists():
+        st.error(f"Stimulus file not found: {stimulus_name}")
+        return None
+    
+    with open(stimulus_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    
+    # Use a container to ensure proper rendering
     st.markdown(f"### Stimulus: {stimulus_name}")
-    
-    if os.path.exists(stimulus_path):
-        with open(stimulus_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        st.components.v1.html(html_content, height=600, scrolling=True)
-    else:
-        st.error(f"Stimulus file not found: {stimulus_path}")
+    st.markdown("---")
+    st.components.v1.html(html_content, height=600, scrolling=True)
+    st.markdown("---")
 
-def show_ratings(current_stimulus_index):
-    """Display rating inputs for the current stimulus."""
-    stimulus_name = st.session_state.stimuli_order[current_stimulus_index]
-    st.header(f"Rate: {stimulus_name}")
+def show_ratings():
+    """Render the rating inputs for the current stimulus."""
+    stimulus_name = st.session_state.stimuli_sequence[st.session_state.current_stimulus_index]
     
-    if stimulus_name not in st.session_state.ratings:
-        st.session_state.ratings[stimulus_name] = {'credibility': None, 'professionalism': None}
+    st.markdown(f"## Rate the following on Credibility and Professionalism")
+    st.markdown(f"*Stimulus {st.session_state.current_stimulus_index + 1} of {len(st.session_state.stimuli_sequence)}*")
     
-    current_ratings = st.session_state.ratings[stimulus_name]
+    render_stimulus(stimulus_name)
     
-    credibility = st.slider(
-        "Credibility (1-7)", 
-        min_value=1, 
-        max_value=7, 
-        value=current_ratings['credibility'] if current_ratings['credibility'] else 4,
-        key=f"cred_{stimulus_name}"
-    )
-    
-    professionalism = st.slider(
-        "Professionalism (1-7)", 
-        min_value=1, 
-        max_value=7, 
-        value=current_ratings['professionalism'] if current_ratings['professionalism'] else 4,
-        key=f"prof_{stimulus_name}"
-    )
-    
-    # Update state
-    st.session_state.ratings[stimulus_name]['credibility'] = credibility
-    st.session_state.ratings[stimulus_name]['professionalism'] = professionalism
-
     col1, col2 = st.columns(2)
+    
     with col1:
-        if current_stimulus_index > 0:
-            if st.button("Previous"):
-                st.session_state.current_stimulus_index = current_stimulus_index - 1
-                st.rerun()
+        credibility = st.slider(
+            "Credibility",
+            min_value=1,
+            max_value=7,
+            value=4,
+            help="1 = Not at all credible, 7 = Extremely credible"
+        )
     
     with col2:
-        if current_stimulus_index < len(st.session_state.stimuli_order) - 1:
-            if st.button("Next"):
-                st.session_state.current_stimulus_index = current_stimulus_index + 1
-                st.rerun()
+        professionalism = st.slider(
+            "Professionalism",
+            min_value=1,
+            max_value=7,
+            value=4,
+            help="1 = Not at all professional, 7 = Extremely professional"
+        )
+    
+    if st.button("Next Stimulus", type="primary"):
+        # Save ratings
+        st.session_state.ratings[stimulus_name] = {
+            "credibility": credibility,
+            "professionalism": professionalism
+        }
+        
+        # Move to next stimulus
+        st.session_state.current_stimulus_index += 1
+        
+        if st.session_state.current_stimulus_index < len(st.session_state.stimuli_sequence):
+            st.rerun()
         else:
-            if st.button("Submit Survey"):
-                if validate_all_rated():
-                    st.session_state.current_step = 'submission'
-                    st.rerun()
-                else:
-                    st.error("Please rate all stimuli before submitting.")
+            # All stimuli rated
+            st.session_state.current_stimulus_index = -1 # Mark as complete
+            st.rerun()
 
 def validate_all_rated():
-    """Check if all stimuli have been rated."""
-    if 'stimuli_order' not in st.session_state:
-        return False
+    """
+    Validate that all stimuli have been rated.
+    Returns True if all 4 stimuli are rated, False otherwise.
+    """
+    required_stimuli = {"Professional", "Minimalist", "Low-Quality", "Neutral"}
+    rated_stimuli = set(st.session_state.ratings.keys())
     
-    for stimulus in st.session_state.stimuli_order:
-        if stimulus not in st.session_state.ratings:
-            return False
-        if st.session_state.ratings[stimulus]['credibility'] is None:
-            return False
-        if st.session_state.ratings[stimulus]['professionalism'] is None:
-            return False
-    
-    return True
+    return required_stimuli.issubset(rated_stimuli)
 
 def submit_survey():
-    """Handle final submission and data export."""
-    st.session_state.submission_status = 'complete'
-    st.session_state.session_status = 'completed'
+    """Handle the final submission of survey data."""
+    if not validate_all_rated():
+        st.error("⚠️ Please rate all stimuli before submitting.")
+        return False
     
-    # Prepare data row
-    participant_id = st.session_state.participant_id
-    hashed_ip = extract_and_validate_ip()
-    demographics = st.session_state.demographics
-    timestamp = format_timestamp()
-    user_agent = truncate_user_agent(st.context.headers.get('User-Agent', ''))
-    
-    rows = []
-    for stimulus_name in st.session_state.stimuli_order:
-        rating = st.session_state.ratings[stimulus_name]
-        row = {
-            'participant_id': participant_id,
-            'stimulus_id': stimulus_name,
-            'credibility': rating['credibility'],
-            'professionalism': rating['professionalism'],
-            'timestamp': timestamp,
-            'hashed_ip': hashed_ip,
-            'age': demographics['age'],
-            'education': demographics['education'],
-            'duplicate_flag': 'N/A', # Will be set by audit
-            'session_status': st.session_state.session_status,
-            'submission_status': st.session_state.submission_status,
-            'user_agent': user_agent
-        }
-        rows.append(row)
-    
-    # Write to CSV
-    ensure_data_dirs()
-    csv_path = get_submissions_csv_path()
-    file_exists = os.path.isfile(csv_path)
-    
-    with open(csv_path, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=rows[0].keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerows(rows)
-    
-    # Clear session state to prevent resubmission
-    st.session_state.clear()
-    st.success("Thank you for your participation! Your responses have been recorded.")
-    st.stop()
+    try:
+        # Extract metadata
+        hashed_ip = extract_and_validate_ip()
+        user_agent = st.context.headers.get("User-Agent", "Unknown")
+        browser_version = truncate_user_agent(user_agent)
+        session_duration = int(time.time() - st.session_state.start_time)
+        timestamp = format_timestamp(datetime.now())
+        
+        # Prepare submission row
+        submission_row = prepare_submission_row(
+            participant_id=st.session_state.participant_id,
+            age=st.session_state.age,
+            education=st.session_state.education,
+            hashed_ip=hashed_ip,
+            timestamp=timestamp,
+            browser_version=browser_version,
+            session_duration=session_duration,
+            ratings=st.session_state.ratings
+        )
+        
+        # Ensure directories exist
+        ensure_data_dirs()
+        
+        # Append to CSV
+        append_to_submissions_csv(submission_row)
+        
+        # Success message
+        st.success("✅ Thank you for completing the survey! Your data has been recorded.")
+        st.balloons()
+        
+        # Clear session state for next user (optional, but good practice)
+        # st.session_state.clear()
+        
+        return True
+        
+    except Exception as e:
+        st.error(f"❌ An error occurred during submission: {str(e)}")
+        return False
 
 def main():
-    """Main entry point for the Streamlit app."""
-    st.set_page_config(page_title="Visual Aesthetics Study", layout="wide")
-    
+    """Main application flow."""
     init_session_state()
-    update_last_active()
     
-    if check_session_timeout():
-        st.error("Session timed out due to inactivity. Please restart.")
-        st.stop()
-    
-    # Handle withdrawal
-    if st.session_state.session_status == 'withdrawn':
-        st.info("Thank you for your time. You have withdrawn from the study.")
-        st.stop()
-    
-    # Determine current step
-    step = st.session_state.current_step
-    
-    if step == 'consent':
+    # Check consent
+    if not st.session_state.consent_given:
         show_consent_form()
-    elif step == 'demographics':
+        return
+    
+    # Check demographics
+    if not st.session_state.demographics_submitted:
         show_demographics()
-    elif step == 'stimuli':
-        # Initialize stimuli order if not set
-        if not st.session_state.stimuli_order:
-            # Use hash of participant ID to select Latin Square row
-            row_index = hash(st.session_state.participant_id) % 4
-            st.session_state.stimuli_order = LATIN_SQUARE_MATRIX[row_index]
-            st.session_state.current_stimulus_index = 0
+        return
+    
+    # Check if all stimuli are rated
+    if st.session_state.current_stimulus_index == -1:
+        # All stimuli rated, show submission screen
+        st.markdown("## 🎉 Survey Complete!")
+        st.markdown("You have successfully rated all stimuli.")
         
-        current_idx = st.session_state.get('current_stimulus_index', 0)
-        stimulus_name = st.session_state.stimuli_order[current_idx]
+        if st.button("Submit Survey Data", type="primary"):
+            if submit_survey():
+                # Optionally show a 'Thank You' page or end
+                st.info("You may now close this tab.")
+        else:
+            # Auto-submit or show status
+            st.info("Review your ratings below before submitting.")
+            for stim, data in st.session_state.ratings.items():
+                st.write(f"**{stim}**: Credibility {data['credibility']}/7, Professionalism {data['professionalism']}/7")
         
-        # Map stimulus name to file path
-        stimulus_map = {
-            'Professional': 'code/stimuli/professional.html',
-            'Minimalist': 'code/stimuli/minimalist.html',
-            'Low-Quality': 'code/stimuli/low_quality.html',
-            'Neutral': 'code/stimuli/neutral.html'
-        }
-        
-        stimulus_path = stimulus_map.get(stimulus_name)
-        if not stimulus_path:
-            st.error(f"Stimulus path not found for {stimulus_name}")
-            st.stop()
-        
-        render_stimulus(stimulus_name, stimulus_path)
-        show_ratings(current_idx)
-    elif step == 'submission':
-        submit_survey()
-    else:
-        st.error("Unknown state. Please refresh the page.")
+        return
+    
+    # Render current stimulus and ratings
+    show_ratings()
 
 if __name__ == "__main__":
     main()

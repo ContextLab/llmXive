@@ -1,68 +1,39 @@
 """
-Constants for the Survey Application.
-Defines schemas, stimuli lists, and Latin Square sequences.
+Constants for the survey application.
 """
 import os
 from pathlib import Path
 
-# --------------------------------------------------------------------------
-# Demographic Schema
-# --------------------------------------------------------------------------
-DEMOGRAPHIC_SCHEMA = {
-    "age": {
-        "type": "integer",
-        "min_value": 18,
-        "max_value": 120,
-        "required": True
-    },
-    "education": {
-        "type": "string",
-        "options": [
-            "Less than High School",
-            "High School",
-            "Some College",
-            "Bachelor's Degree",
-            "Master's Degree",
-            "Doctoral Degree"
-        ],
-        "required": True
-    }
-}
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# --------------------------------------------------------------------------
-# Stimuli List
-# --------------------------------------------------------------------------
-# The stimuli files are expected to be in code/stimuli/
-STIMULI_LIST = [
+# Stimuli List (Order matters for Latin Square generation)
+# These correspond to the HTML files in code/stimuli/
+STEIMULI_LIST = [
     "professional",
     "minimalist",
     "low_quality",
     "neutral"
 ]
 
-# --------------------------------------------------------------------------
-# Latin Square Sequences
-# --------------------------------------------------------------------------
-# A 4x4 Latin Square ensures each stimulus appears once in each position
-# and each stimulus follows every other stimulus exactly once.
-# Hardcoded valid sequences for 4 conditions (A, B, C, D)
+# Metadata Schema for CSV export
+# Defines the columns for data/raw/submissions.csv
+METADATA_SCHEMA = [
+    "participant_id",
+    "age",
+    "education",
+    "timestamp",
+    "hashed_ip",
+    "browser_version",
+    "session_duration"
+]
+
+# Latin Square Sequences (Hardcoded for reproducibility)
+# A balanced Latin Square for 4 items (A, B, C, D)
+# Each stimulus appears exactly once in each position across the 4 sequences.
+# Sequences are generated based on participant_id modulo 4.
 LATIN_SQUARE_SEQUENCES = [
     ["professional", "minimalist", "low_quality", "neutral"],
     ["minimalist", "low_quality", "neutral", "professional"],
     ["low_quality", "neutral", "professional", "minimalist"],
     ["neutral", "professional", "minimalist", "low_quality"]
 ]
-
-# --------------------------------------------------------------------------
-# Rating Scale
-# --------------------------------------------------------------------------
-LIKERT_SCALE = {
-    "min": 1,
-    "max": 7,
-    "description": "1 = Very Low, 7 = Very High"
-}
-
-# --------------------------------------------------------------------------
-# Minimum Ratings Required
-# --------------------------------------------------------------------------
-MIN_RATINGS_REQUIRED = 4

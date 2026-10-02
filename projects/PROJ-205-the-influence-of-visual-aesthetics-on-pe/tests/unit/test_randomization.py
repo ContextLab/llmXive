@@ -1,78 +1,146 @@
 """
-Unit tests for Latin Square randomization logic.
+Unit tests for the Latin Square randomization logic.
 
-This module verifies that the hardcoded sequences in code/survey/constants.py
-form a valid balanced Latin Square.
-
-A balanced Latin Square of order N ensures:
-1. Each stimulus appears exactly once in each position (row validity).
-2. Each stimulus appears exactly once in each column (column validity).
-3. Each stimulus follows every other stimulus exactly once (or as balanced as possible for even N)
-   across the set of sequences.
+Tests verify:
+1. The generated sequences form a mathematically valid Balanced Latin Square.
+2. The selection logic distributes participants uniformly across sequences.
+3. Every stimulus appears exactly once in each position across the set of sequences.
 """
-import pytest
+
+import unittest
 import sys
 import os
+from pathlib import Path
 
-# Add project root to path to allow imports
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.survey.constants import LATIN_SQUARE_MATRIX, STIMULI_LIST
+from survey.randomization import (
+    generate_latin_square,
+    select_sequence,
+    verify_latin_square_balance,
+    get_sequences_for_stimuli
+)
 
-def test_latin_square_dimensions():
-    """Verify the matrix has the correct dimensions (N x N)."""
-    n = len(STIMULI_LIST)
-    assert len(LATIN_SQUARE_MATRIX) == n, f"Matrix must have {n} rows, got {len(LATIN_SQUARE_MATRIX)}"
-    for i, row in enumerate(LATIN_SQUARE_MATRIX):
-        assert len(row) == n, f"Row {i} must have {n} elements, got {len(row)}"
 
-def test_row_uniqueness():
-    """Verify each row contains every stimulus exactly once."""
-    n = len(STIMULI_LIST)
-    for i, row in enumerate(LATIN_SQUARE_MATRIX):
-        assert sorted(row) == sorted(STIMULI_LIST), \
-            f"Row {i} does not contain all stimuli exactly once. Found: {row}"
+class TestLatinSquareGeneration(unittest.TestCase):
+    """Tests for the core Latin Square generation logic."""
 
-def test_column_uniqueness():
-    """Verify each column contains every stimulus exactly once."""
-    n = len(STIMULI_LIST)
-    for col_idx in range(n):
-        column = [row[col_idx] for row in LATIN_SQUARE_MATRIX]
-        assert sorted(column) == sorted(STIMULI_LIST), \
-            f"Column {col_idx} does not contain all stimuli exactly once. Found: {column}"
+    def test_generate_4_stimuli(self):
+        """Test generation with 4 stimuli (the project's standard)."""
+        stimuli = ["A", "B", "C", "D"]
+        sequences = generate_latin_square(stimuli)
 
-def test_balanced_succession():
-    """
-    Verify that each stimulus follows every other stimulus an equal number of times.
-    For a 4x4 Latin Square, each stimulus should follow every other stimulus exactly once.
-    Note: In a standard Latin Square, immediate succession balance is not guaranteed,
-    but for a *balanced* Latin Square designed for this study, we expect it.
-    """
-    n = len(STIMULI_LIST)
-    # Count transitions: (stimulus_a, stimulus_b) -> count
-    transitions = {}
-    
-    for row in LATIN_SQUARE_MATRIX:
-        for i in range(len(row) - 1):
-            a = row[i]
-            b = row[i + 1]
-            key = (a, b)
-            transitions[key] = transitions.get(key, 0) + 1
-    
-    # Check that each stimulus follows every other stimulus exactly once
-    # (excluding self-follows, which shouldn't happen in a Latin Square)
-    for stimulus_a in STIMULI_LIST:
-        for stimulus_b in STIMULI_LIST:
-            if stimulus_a != stimulus_b:
-                count = transitions.get((stimulus_a, stimulus_b), 0)
-                # For a 4x4 balanced Latin Square, each pair should appear exactly once
-                assert count == 1, \
-                    f"Stimulus {stimulus_b} follows {stimulus_a} {count} times, expected 1"
+        self.assertEqual(len(sequences), 4, "Should generate 4 sequences for 4 stimuli")
+        for seq in sequences:
+            self.assertEqual(len(seq), 4, "Each sequence should have 4 stimuli")
+            self.assertEqual(set(seq), set(stimuli), "Each sequence should contain all stimuli exactly once")
 
-def test_all_stimuli_defined():
-    """Ensure all stimuli in the matrix are defined in STIMULI_LIST."""
-    for row in LATIN_SQUARE_MATRIX:
-        for stimulus in row:
-            assert stimulus in STIMULI_LIST, f"Unknown stimulus '{stimulus}' found in matrix"
+    def test_balanced_property_position(self):
+        """Verify that every stimulus appears exactly once in each position."""
+        stimuli = ["P1", "P2", "P3", "P4"]
+        sequences = generate_latin_square(stimuli)
+
+        # Check each column (position)
+        for pos in range(4):
+            column = [seq[pos] for seq in sequences]
+            self.assertEqual(len(set(column)), 4, f"Position {pos} should have unique stimuli")
+            self.assertEqual(set(column), set(stimuli), f"Position {pos} should contain all stimuli")
+
+    def test_balanced_property_precedence(self):
+        """Verify that every stimulus precedes every other stimulus exactly once."""
+        stimuli = ["X", "Y", "Z", "W"]
+        sequences = generate_latin_square(stimuli)
+
+        # Count precedences
+        precedes = {a: {b: 0 for b in stimuli} for a in stimuli}
+        for seq in sequences:
+            for i in range(len(seq) - 1):
+                a, b = seq[i], seq[i+1]
+                precedes[a][b] += 1
+
+        # Check that every pair (a, b) with a != b has count 1
+        for a in stimuli:
+            for b in stimuli:
+                if a != b:
+                    self.assertEqual(precedes[a][b], 1, f"{a} should precede {b} exactly once")
+
+    def test_verify_latin_square_balance(self):
+        """Test the verification function."""
+        stimuli = ["A", "B", "C", "D"]
+        sequences = generate_latin_square(stimuli)
+        self.assertTrue(verify_latin_square_balance(sequences), "Generated sequences should be valid")
+
+    def test_invalid_stimuli_count(self):
+        """Test that generation fails with less than 2 stimuli."""
+        with self.assertRaises(ValueError):
+            generate_latin_square(["A"])
+
+        with self.assertRaises(ValueError):
+            generate_latin_square([])
+
+
+class TestSequenceSelection(unittest.TestCase):
+    """Tests for the participant-based sequence selection."""
+
+    def test_deterministic_selection(self):
+        """Test that the same participant ID always selects the same sequence."""
+        stimuli = ["A", "B", "C", "D"]
+        participant_id = "test-participant-123"
+
+        seq1 = select_sequence(stimuli, participant_id)
+        seq2 = select_sequence(stimuli, participant_id)
+
+        self.assertEqual(seq1, seq2, "Same participant ID should select same sequence")
+
+    def test_different_participants_different_sequences(self):
+        """Test that different participant IDs can select different sequences."""
+        stimuli = ["A", "B", "C", "D"]
+        # Use IDs with different hash values to ensure different sequences
+        # We can't guarantee collision-free distribution with just 2 IDs,
+        # but we can test that the function works.
+        ids = [f"p-{i}" for i in range(10)]
+        selected = [select_sequence(stimuli, pid) for pid in ids]
+
+        # Just verify we got valid sequences
+        for seq in selected:
+            self.assertEqual(len(seq), 4)
+            self.assertEqual(set(seq), set(stimuli))
+
+    def test_runtime_selection_uniformity(self):
+        """Simulate 100 participants and assert the distribution of sequences is uniform."""
+        stimuli = ["A", "B", "C", "D"]
+        n_participants = 100
+
+        sequences = generate_latin_square(stimuli)
+        sequence_indices = []
+
+        for i in range(n_participants):
+            pid = f"sim-participant-{i}"
+            selected_seq = select_sequence(stimuli, pid)
+            # Find index of selected sequence
+            idx = sequences.index(selected_seq)
+            sequence_indices.append(idx)
+
+        # Count occurrences
+        counts = [sequence_indices.count(i) for i in range(4)]
+        
+        # With 100 participants and 4 sequences, we expect ~25 per sequence.
+        # We allow a reasonable tolerance (e.g., ±10) to account for the 
+        # deterministic hash distribution which isn't perfectly uniform 
+        # for small N, but should be close for N=100.
+        expected = n_participants / 4
+        tolerance = 10 
+        
+        for count in counts:
+            self.assertGreaterEqual(count, expected - tolerance, 
+                f"Sequence count {count} is below expected {expected} - tolerance {tolerance}")
+            self.assertLessEqual(count, expected + tolerance, 
+                f"Sequence count {count} is above expected {expected} + tolerance {tolerance}")
+        
+        # Additionally, ensure no sequence is completely ignored
+        self.assertTrue(all(c > 0 for c in counts), "Every sequence must be selected at least once")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -20,27 +20,38 @@ T015:
   r: "No code, configuration, or documentation showing that the \u201CI Do Not Agree\u201D\
     \ button now redirects to a withdrawal page was provided; the required implementation\
     \ artifact is missing. The task cannot be verified as completed."
-T022e:
+T024b:
   c: false
-  h: 79f153aed92b42b1c2870f61214318bce89d557365e1f8823d27e3b2eb8f00e3
-  r: The required file `data/raw/submissions.csv` is missing, so no data capture implementation
-    can be verified. Without the CSV (or any evidence of rows being appended with
-    the specified columns), the task is not satisfied.
-T022h:
+  h: c6bc246b414037fa149c26d4d8a2d3c8f1929f6019d686d9c6365cee8190f737
+  r: The script `code/analysis/00_verify_dependencies.py` exists, but it checks the
+    checksum against a `checksums.json` file rather than the required `data/raw/submissions.csv`.
+    Moreover, the expected `data/raw/submissions.csv` (and the processed CSV) are
+    missing, and the script does not implement the exact verification logic stipulated
+    in the task. The implementation must be corrected to read the checksum from `submissions.csv`
+    and handle the missing files as specified.
+T025a:
   c: false
-  h: 6854f22444e9375c994e97e126944a4bfa908425742aba788b06f75b162d80fc
-  r: "The repository contains `code/analysis/05_audit.py` but the required script\
-    \ `code/analysis/audit.py` is missing, and the dependent data files `data/raw/submissions.csv`\
-    \ and the expected output `data/raw/duplicate_audit.csv` do not exist, so the\
-    \ task\u2019s verification step cannot be performed."
-T024a:
+  h: 00ed2d793dd2b6b011ea58157b20732d504d347e34e1bf46ff0a451cbac97e3b
+  r: The repository contains `code/analysis/01_anova.py`, but the required input file
+    `data/processed/clean_data.csv` does not exist, and the script never produces
+    the expected `data/processed/anova_results.json`. Consequently the ANOVA pipeline
+    cannot be executed nor verified against the JSON schema. The missing data file
+    (and resulting output) must be added and the script completed to satisfy the task.
+T025b:
   c: false
-  h: bace1f679a159d1a9ef4c0e728197f75ab336c9895f6f9e48fced419ae728049
-  r: The `code/analysis/00_preprocess.py` file exists, but it defines its own checksum
-    functions instead of importing/calling the checksum verification logic from T057,
-    and there is no visible call to such verification before processing. Moreover,
-    the required input file `data/raw/submissions.csv` is missing, so the script cannot
-    actually perform the intended preprocessing.
+  h: 29571ec4e4555f1f84603cff37500e8a26ab5d45e2ce3e5a9d43daea77140ddb
+  r: The repository contains the ANOVA script, but the required unit test `tests/unit/test_anova_output.py`
+    is absent, and there is no evidence that the script was actually executed on sample
+    data or that its output was verified. The missing test file prevents the verification
+    step from being satisfied.
+T032:
+  c: false
+  h: 4feb3ae704ab695646c707621964af1b724873def51cca71bf5329304cbb0d05
+  r: "The repository contains a partially shown `03_mixed_effects.py`, but it does\
+    \ not include a visible `run_mixed_effects()` implementation, and the required\
+    \ output file `data/processed/mixed_effects_results.json` is absent. Consequently\
+    \ the mixed\u2011effects model is not actually executed nor are its results saved,\
+    \ so the task is not fulfilled."
 T043b:
   c: false
   h: 8257fbf57bd7cf23f7fc58f1f028fa2309c256d5b8934c581e38a8be0afa5ffc
@@ -55,3 +66,19 @@ T043c:
     \ but the dependent file `data/raw/submissions.csv` is absent, so the assertion\
     \ cannot be evaluated and the task\u2019s prerequisite is unmet. The missing CSV\
     \ file must be provided for the task to be considered complete."
+T064:
+  c: false
+  h: 16a3c2f5886e278af6ca4fe22d2f8402a6d9efe1063d41f912319fa2eccd0fb1
+  r: "The `code/analysis/04_power_analysis.py` file exists but is truncated, contains\
+    \ errors (e.g., `np.stats.norm`), and does not demonstrably write the required\
+    \ `data/processed/power_analysis_report.json`. Moreover, the JSON report file\
+    \ is missing from the repository. The task\u2019s output artifact is therefore\
+    \ not present or correctly generated."
+T069:
+  c: true
+  h: 3aec228d671e3a19dd60bbe20a860fbe8709addad16b628bbfaaa412fb0a0762
+  r: "The `code/survey/constants.py` file defines a non\u2011empty `METADATA_SCHEMA`\
+    \ that includes the required `browser_version` and `session_duration` fields (along\
+    \ with other metadata). The accompanying unit test `tests/unit/test_schema.py`\
+    \ checks that the schema keys exist and that CSV headers generated from the schema\
+    \ match, satisfying the verification step. No further artifacts are required."
