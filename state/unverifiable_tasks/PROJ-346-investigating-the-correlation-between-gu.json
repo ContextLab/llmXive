@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-346-investigating-the-correlation-between-gu",
+  "tasks": [
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "The required output file `data/qc/filtering_log.json` does not exist, and the provided `code/02_preprocess.py` is truncated before any logic that would generate and write that JSON (no call to `write_json_log` or similar). Consequently the script does not demonstrably perform the outlier filtering on the merged dataset and produce the required log with the specified schema.",
+      "first_seen": "2026-10-02T16:22:40.656661+00:00",
+      "last_seen": "2026-10-02T16:22:40.656661+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-10-02T16:22:40.657634+00:00",
+      "last_seen": "2026-10-02T16:22:40.657634+00:00"
+    },
+    {
+      "task_key": "T029",
+      "reject_count": 1,
+      "last_reason": "The provided `code/05_sensitivity.py` checks for the presence of `merged_dataset.parquet` and logs a warning if it is missing, but it contains no logic to stratify correlations by the required age groups (<40, \u226540\u2011<60, \u226560). Moreover, the required `data/processed/merged_dataset.parquet` file is absent, so the script cannot perform any analysis even if the stratification were implemented. The core task requirement is therefore not satisfied.",
+      "first_seen": "2026-10-02T16:22:46.981653+00:00",
+      "last_seen": "2026-10-02T16:22:46.981653+00:00"
+    },
+    {
+      "task_key": "T030",
+      "reject_count": 1,
+      "last_reason": "The provided `code/05_sensitivity.py` only defines loading, rarefaction, DESeq2\u2011like transformation, and a correlation helper; it never counts significant taxa or compares those counts between the two normalization methods. Moreover, the required `data/processed/merged_dataset.parquet` file is absent, so the script would always skip execution. The core analysis the task demands is missing.",
+      "first_seen": "2026-10-02T16:22:50.435246+00:00",
+      "last_seen": "2026-10-02T16:22:50.435246+00:00"
+    }
+  ],
+  "updated_at": "2026-10-02T16:22:50.435246+00:00"
+}

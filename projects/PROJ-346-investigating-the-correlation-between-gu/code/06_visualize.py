@@ -1,3 +1,7 @@
+"""
+Visualization module for the Gut Microbiome and Cognitive Flexibility project.
+Generates heatmaps and forest plots from correlation and regression results.
+"""
 import os
 import sys
 import logging
@@ -5,232 +9,192 @@ import json
 from pathlib import Path
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
 
-# Import utils for path handling
-from utils import get_project_root_path, get_data_processed_path, get_figures_path, setup_logger, get_logger
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-# Ensure logging is configured
-logger = setup_logger("06_visualize")
+from utils import get_data_processed_path, get_figures_path, get_data_qc_path, setup_logger
+
+logger = setup_logger("visualize")
 
 def load_correlation_results():
-    """
-    Load correlation results from the processed data directory.
-    Returns a DataFrame with correlation statistics.
-    """
-    root = get_project_root_path()
-    data_path = get_data_processed_path()
-    file_path = data_path / "correlation_results.csv"
+    """Load correlation results from JSON file."""
+    processed_dir = get_data_processed_path()
+    file_path = processed_dir / "correlation_results.json"
     
     if not file_path.exists():
-        logger.warning(f"Correlation results file not found at {file_path}. Skipping visualization.")
+        logger.warning(f"Correlation results file not found: {file_path}. Skipping visualization.")
         return None
     
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded correlation results with {len(df)} rows from {file_path}")
-        return df
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return data
     except Exception as e:
         logger.error(f"Failed to load correlation results: {e}")
         return None
 
 def load_regression_results():
-    """
-    Load regression results from the processed data directory.
-    Returns a DataFrame with regression coefficients and confidence intervals.
-    """
-    root = get_project_root_path()
-    data_path = get_data_processed_path()
-    file_path = data_path / "regression_results.csv"
+    """Load regression results from JSON file."""
+    processed_dir = get_data_processed_path()
+    file_path = processed_dir / "regression_results.json"
     
     if not file_path.exists():
-        logger.warning(f"Regression results file not found at {file_path}. Skipping visualization.")
+        logger.warning(f"Regression results file not found: {file_path}. Skipping visualization.")
         return None
     
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded regression results with {len(df)} rows from {file_path}")
-        return df
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return data
     except Exception as e:
         logger.error(f"Failed to load regression results: {e}")
         return None
 
-def generate_heatmap(correlation_df):
+def generate_heatmap(correlation_data):
     """
     Generate a heatmap of taxa-cognition correlation matrix.
-    Ensures clear labels for age groups if stratified data is present.
+    
+    Args:
+        correlation_data: Dictionary containing correlation results.
     """
-    if correlation_df is None:
-        logger.warning("No correlation data provided for heatmap generation.")
+    if not correlation_data:
+        logger.info("No correlation data available for heatmap generation.")
         return
-
-    # Prepare pivot table for heatmap
-    # Assuming columns: 'taxon', 'cognitive_metric', 'correlation', 'p_value', 'q_value', 'age_group' (optional)
     
-    # Check if age_group column exists for stratification
-    has_age_strata = 'age_group' in correlation_df.columns
+    figures_dir = get_figures_path()
+    figures_dir.mkdir(parents=True, exist_ok=True)
     
-    if has_age_strata:
-        # If stratified, we might need to plot multiple heatmaps or a facet grid
-        # For simplicity, we will plot the overall correlation or the first group if specific
-        # But the requirement is to label age groups. Let's create a multi-index or facet.
-        
-        # Pivot for the first age group as an example, or aggregate if needed.
-        # Better approach: Create a facet grid for each age group.
-        
-        age_groups = correlation_df['age_group'].unique()
-        fig, axes = plt.subplots(1, len(age_groups), figsize=(20, 6))
-        if len(age_groups) == 1:
-            axes = [axes]
-        
-        for i, group in enumerate(sorted(age_groups)):
-            group_df = correlation_df[correlation_df['age_group'] == group]
-            pivot_data = group_df.pivot(index='taxon', columns='cognitive_metric', values='correlation')
-            
-            # Ensure numeric values
-            pivot_data = pivot_data.apply(pd.to_numeric, errors='coerce')
-            
-            sns.heatmap(pivot_data, annot=True, fmt=".2f", cmap='coolwarm', center=0, 
-                        ax=axes[i], cbar_kws={'label': 'Spearman Correlation'})
-            axes[i].set_title(f'Age Group: {group}')
-            axes[i].set_xlabel('Cognitive Metric')
-            axes[i].set_ylabel('Taxon')
-        
-        plt.suptitle('Taxa-Cognitive Correlation Matrix by Age Group', fontsize=16)
-        plt.tight_layout()
-    else:
-        # Standard heatmap
-        pivot_data = correlation_df.pivot(index='taxon', columns='cognitive_metric', values='correlation')
-        pivot_data = pivot_data.apply(pd.to_numeric, errors='coerce')
-        
-        plt.figure(figsize=(12, 10))
-        sns.heatmap(pivot_data, annot=True, fmt=".2f", cmap='coolwarm', center=0,
-                    cbar_kws={'label': 'Spearman Correlation'})
-        plt.title('Taxa-Cognitive Correlation Matrix')
-        plt.xlabel('Cognitive Metric')
-        plt.ylabel('Taxon')
+    # Extract correlation matrix
+    if "correlation_matrix" not in correlation_data:
+        logger.error("Correlation matrix not found in results.")
+        return
     
-    # Save figure
-    figures_path = get_figures_path()
-    output_file = figures_path / "correlation_heatmap.png"
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    logger.info(f"Heatmap saved to {output_file}")
+    corr_matrix = correlation_data["correlation_matrix"]
+    taxa_labels = correlation_data.get("taxa_labels", list(corr_matrix.keys()))
+    cognitive_labels = correlation_data.get("cognitive_labels", ["cognitive_z_score"])
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(corr_matrix, index=taxa_labels, columns=cognitive_labels)
+    
+    # Plot
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(df, annot=True, cmap='coolwarm', center=0, 
+                square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    plt.title("Associational Correlation: Gut Microbiome vs Cognitive Flexibility", fontsize=14)
+    plt.xlabel("Cognitive Score (Z-score)", fontsize=12)
+    plt.ylabel("Microbial Taxa", fontsize=12)
+    
+    output_path = figures_dir / "correlation_heatmap.png"
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
+    
+    logger.info(f"Heatmap saved to {output_path}")
 
-def generate_forest_plot(regression_df):
+def generate_forest_plot(regression_data):
     """
     Generate a forest plot of regression coefficients with confidence intervals.
-    Ensures clear labels for confidence intervals and age groups if applicable.
+    
+    Args:
+        regression_data: Dictionary containing regression results.
     """
-    if regression_df is None:
-        logger.warning("No regression data provided for forest plot generation.")
+    if not regression_data:
+        logger.info("No regression data available for forest plot generation.")
         return
-
-    # Expected columns: 'feature', 'coef', 'std_err', 'p_value', 'age_group' (optional)
-    # Calculate confidence intervals (95%)
-    # Assuming standard error is available or we calculate from std_err
-    if 'std_err' not in regression_df.columns:
-        logger.error("Regression data missing 'std_err' column for confidence intervals.")
+    
+    figures_dir = get_figures_path()
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Extract coefficients and confidence intervals
+    if "coefficients" not in regression_data or "conf_int" not in regression_data:
+        logger.error("Coefficients or confidence intervals not found in regression results.")
         return
-
-    regression_df['ci_lower'] = regression_df['coef'] - 1.96 * regression_df['std_err']
-    regression_df['ci_upper'] = regression_df['coef'] + 1.96 * regression_df['std_err']
     
-    # Sort by coefficient for better visualization
-    regression_df = regression_df.sort_values(by='coef')
+    coefficients = regression_data["coefficients"]
+    conf_int = regression_data["conf_int"]
+    feature_names = regression_data.get("feature_names", list(coefficients.keys()))
     
-    has_age_strata = 'age_group' in regression_df.columns
+    # Prepare data for plotting
+    features = []
+    coefs = []
+    lower_bounds = []
+    upper_bounds = []
     
-    plt.figure(figsize=(12, 10))
+    for feature in feature_names:
+        if feature in coefficients:
+            features.append(feature)
+            coefs.append(coefficients[feature])
+            if feature in conf_int:
+                lower_bounds.append(conf_int[feature][0])
+                upper_bounds.append(conf_int[feature][1])
+            else:
+                # If no CI available, use coefficient as both bounds (will show as point)
+                lower_bounds.append(coefficients[feature])
+                upper_bounds.append(coefficients[feature])
     
-    if has_age_strata:
-        # Plot by age group using different colors or markers
-        age_groups = regression_df['age_group'].unique()
-        colors = plt.cm.Set3(np.linspace(0, 1, len(age_groups)))
-        
-        for i, group in enumerate(sorted(age_groups)):
-            group_df = regression_df[regression_df['age_group'] == group]
-            y_pos = np.arange(len(group_df))
-            
-            # Offset positions slightly if plotting multiple groups on same axis
-            # Or use subplots. Let's use subplots for clarity per requirement "clear labels for age groups"
-            pass 
-        
-        # Re-approach: Use subplots for each age group to ensure clarity
-        n_groups = len(age_groups)
-        fig, axes = plt.subplots(n_groups, 1, figsize=(12, 4 * n_groups))
-        if n_groups == 1:
-            axes = [axes]
-        
-        for i, group in enumerate(sorted(age_groups)):
-            group_df = regression_df[regression_df['age_group'] == group].sort_values(by='coef')
-            y_pos = np.arange(len(group_df))
-            
-            axes[i].errorbar(y_pos, group_df['coef'], 
-                             xerr=[group_df['coef'] - group_df['ci_lower'], 
-                                   group_df['ci_upper'] - group_df['coef']],
-                             fmt='o', capsize=5, label=group, color=colors[i])
-            axes[i].axvline(x=0, color='gray', linestyle='--', alpha=0.5)
-            axes[i].set_yticks(y_pos)
-            axes[i].set_yticklabels(group_df['feature'])
-            axes[i].set_title(f'Regression Coefficients by Age Group: {group}')
-            axes[i].set_xlabel('Coefficient (95% CI)')
-            axes[i].legend()
-        
-        plt.suptitle('Regression Coefficients with Confidence Intervals by Age Group', fontsize=16)
-        plt.tight_layout()
-    else:
-        # Single plot
-        y_pos = np.arange(len(regression_df))
-        plt.errorbar(y_pos, regression_df['coef'], 
-                     xerr=[regression_df['coef'] - regression_df['ci_lower'], 
-                           regression_df['ci_upper'] - regression_df['coef']],
-                     fmt='o', capsize=5, color='steelblue')
-        plt.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
-        plt.yticks(y_pos, regression_df['feature'])
-        plt.xlabel('Coefficient (95% CI)')
-        plt.title('Regression Coefficients with Confidence Intervals')
-        plt.tight_layout()
-
-    # Save figure
-    figures_path = get_figures_path()
-    output_file = figures_path / "regression_forest_plot.png"
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    logger.info(f"Forest plot saved to {output_file}")
+    if not features:
+        logger.warning("No valid features found for forest plot.")
+        return
+    
+    # Sort by coefficient value for better visualization
+    sorted_indices = np.argsort(coefs)
+    features = [features[i] for i in sorted_indices]
+    coefs = [coefs[i] for i in sorted_indices]
+    lower_bounds = [lower_bounds[i] for i in sorted_indices]
+    upper_bounds = [upper_bounds[i] for i in sorted_indices]
+    
+    # Plot
+    plt.figure(figsize=(10, 8))
+    
+    y_pos = np.arange(len(features))
+    plt.errorbar(coefs, y_pos, xerr=[np.array(coefs) - np.array(lower_bounds), 
+                                     np.array(upper_bounds) - np.array(coefs)], 
+                 fmt='o', color='darkblue', capsize=5, markersize=6)
+    plt.axvline(x=0, color='gray', linestyle='--', linewidth=1)
+    
+    plt.yticks(y_pos, features)
+    plt.xlabel("Standardized Coefficient (Associational)", fontsize=12)
+    plt.title("Forest Plot: Gut Microbiome Predictors of Cognitive Flexibility", fontsize=14)
+    plt.grid(axis='x', linestyle=':', alpha=0.5)
+    
+    output_path = figures_dir / "regression_forest_plot.png"
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
+    
+    logger.info(f"Forest plot saved to {output_path}")
 
 def main():
-    """
-    Main entry point for visualization generation.
-    Checks for merged data existence and generates plots.
-    """
-    root = get_project_root_path()
-    data_path = get_data_processed_path()
-    merged_file = data_path / "merged_dataset.parquet"
-    
-    if not merged_file.exists():
-        logger.warning(f"Merged dataset not found at {merged_file}. Skipping visualization generation.")
-        logger.info("Data gap detected. Visualizations cannot be generated.")
-        return
-    
+    """Main function to generate all visualizations."""
     logger.info("Starting visualization generation...")
     
+    # Check if merged dataset exists (as per task requirements)
+    processed_dir = get_data_processed_path()
+    merged_path = processed_dir / "merged_dataset.parquet"
+    
+    if not merged_path.exists():
+        logger.info("Merged dataset not found. Skipping visualization (N/A - Data Gap).")
+        return
+    
     # Load data
-    corr_df = load_correlation_results()
-    reg_df = load_regression_results()
+    correlation_data = load_correlation_results()
+    regression_data = load_regression_results()
     
-    # Generate Heatmap
-    if corr_df is not None:
-        generate_heatmap(corr_df)
+    # Generate plots
+    if correlation_data:
+        generate_heatmap(correlation_data)
     else:
-        logger.warning("Skipping heatmap due to missing correlation data.")
+        logger.warning("Skipping heatmap: correlation data not available.")
     
-    # Generate Forest Plot
-    if reg_df is not None:
-        generate_forest_plot(reg_df)
+    if regression_data:
+        generate_forest_plot(regression_data)
     else:
-        logger.warning("Skipping forest plot due to missing regression data.")
+        logger.warning("Skipping forest plot: regression data not available.")
     
     logger.info("Visualization generation complete.")
 

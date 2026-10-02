@@ -11,14 +11,15 @@ T010a:
     repository, so the integration tests for `test_linkage_failure_detection` and
     `test_gap_report_trigger` are missing. The task cannot be considered completed
     until this file is added with the specified tests.
-T015:
+T014:
   c: false
-  h: 53d4cd3bb78a661d739567bfd8627c3cda36766dd21e5e85cf83a96cefea5fcc
-  r: "The provided `code/02_preprocess.py` does not contain any implementation of\
-    \ outlier filtering based on z\u2011score >\u202F3 nor does it write a `data/qc/filtering_log.json`\
-    \ file; the script is truncated before such logic could appear. Moreover, the\
-    \ required `data/qc/filtering_log.json` file is absent from the repository. Consequently\
-    \ the task\u2019s core requirement is unmet."
+  h: f5ffb2d2b06b60ca4123c9765ed9711cdca596c634bea5963ce91a7ecc9f728d
+  r: "The provided `code/02_preprocess.py` is truncated and does not show the required\
+    \ `if len(merged_df) == 0: execute_fallback_workflow()` check nor any code that\
+    \ writes `data/qc/fallback_trigger.log`. Moreover, the expected log file is absent\
+    \ from the repository. The task\u2019s core requirement\u2014to trigger the fallback\
+    \ workflow on a zero\u2011row merge and generate the specific log file\u2014is\
+    \ therefore not fulfilled."
 T017d:
   c: false
   h: b4393e527617140d96ebf146b4a8263a176a9a635b0904d36ad861ec51e274c0
@@ -33,6 +34,14 @@ T020:
     \ repository, so no unit test for the LASSO/Elastic Net regression is present.\
     \ The implementer must add a non\u2011empty test file at that location that validates\
     \ the regression functionality."
+T023:
+  c: false
+  h: 49d80c2d13ffda5a74af817ca51c83b2925062d890ebe8dc813526ec38945407
+  r: "The provided `code/04_regression.py` is truncated and does not contain the full\
+    \ model\u2011fitting logic, nor does it label outputs as \u201Cassociational\u201D\
+    . It only logs \u201CN/A - Data Gap\u201D when the data file is missing but does\
+    \ not exit with code\u202F0 as required. Additionally, the required `data/processed/merged_dataset.parquet`\
+    \ file is absent. The script therefore does not meet the task specifications."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,30 +55,10 @@ T026:
     \ results, or accompanying metadata; the implementer provided only a textual description\
     \ without the required saved artifacts. The task\u2019s core requirement\u2014\
     to persist those results with metadata\u2014is therefore unmet."
-T029:
+T031:
   c: false
-  h: 985b9f7455542149cd6c2bc1a0efe488caa966f2f144a43992981edf9e92f4d2
-  r: "The provided `code/05_sensitivity.py` does not contain any logic that computes\
-    \ or stratifies correlations by the required age groups (<40,\u202F\u226540\u2011\
-    <60,\u202F\u226560); the visible portion only loads data and simulates rarefaction,\
-    \ and the file is labeled for a different task (T030). Consequently, the core\
-    \ requirement of FR\u2011006 is not fulfilled. The script must be extended to\
-    \ calculate correlations and split them by the three age brackets."
-T030:
-  c: false
-  h: 985b9f7455542149cd6c2bc1a0efe488caa966f2f144a43992981edf9e92f4d2
-  r: "The provided `code/05_sensitivity.py` is present but ends abruptly (truncated)\
-    \ and does not contain any logic to perform DESeq2 normalization, identify significant\
-    \ taxa, count them, or generate the required delta table/report. Only a placeholder\
-    \ rarefaction function and a data\u2011gap check are shown, so the core requirement\
-    \ of comparing significant taxa counts across methods is not fulfilled. The script\
-    \ needs the missing implementation (DESeq2 processing, significance testing, and\
-    \ output generation)."
-T041:
-  c: false
-  h: 4df2b840be502e4326edfa42e4d63070980b5e13932ec5d5e28b38da49fd98e2
-  r: "The `reports/mechanistic_hypothesis.md` file does not exist, so the required\
-    \ output is missing. Consequently the task\u2019s core deliverable (the hypothesis\
-    \ report with the specified mappings and statements) is not present, regardless\
-    \ of the presence of `code/08_mechanistic_synthesis.py`. The implementer must\
-    \ create the markdown report containing all required content."
+  h: f43c6564ea1659d2630f67945b2e33afe41e9bd8a1a553147729d8a4cbd20897
+  r: The provided `code/06_visualize.py` generates a heatmap from a JSON file (`correlation_results.json`)
+    but never checks for the required `data/processed/merged_dataset.parquet` nor
+    skips execution when it is absent. The task explicitly demanded a check for that
+    Parquet file, which is missing from the implementation.
