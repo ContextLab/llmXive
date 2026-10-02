@@ -1,3 +1,15 @@
-from .loader import Config, get_config, validate_config, get_global_config
+"""
+Configuration Package for llmXive.
 
-__all__ = ["Config", "get_config", "validate_config", "get_global_config"]
+This package provides configuration management utilities.
+"""
+
+from .loader import Config, get_dataset_path, validate_config, get_config, get_global_config
+
+__all__ = [
+    "Config",
+    "get_dataset_path",
+    "validate_config",
+    "get_config",
+    "get_global_config"
+]

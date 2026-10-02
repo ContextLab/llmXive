@@ -1,0 +1,173 @@
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: Ingestion step requires internet access
+  claim_id: c_77d8769b
+  context: The ingestion step downloads SWE-bench and AgentBench datasets from HuggingFace.
+    This step requires internet access.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingestion_step_requires_internet_access
+  kind: entity_fact
+  raw_text: This step requires internet access.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:20:18Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: Raw data requires approximately 5GB disk space
+  claim_id: c_7b97b952
+  context: The ingestion step downloads SWE-bench and AgentBench datasets from HuggingFace.
+    Ensure sufficient disk space (~5GB for raw data).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_data_requires_approximately_5GB_disk_space
+  kind: entity_fact
+  raw_text: Ensure sufficient disk space (~5GB for raw data).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:21:42Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: LLMXIVE_TIMEOUT default is 300 seconds
+  claim_id: c_66554580
+  context: If tasks time out during `baseline_runner`, check the `LLMXIVE_TIMEOUT`
+    environment variable. The default is 300 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:21:48Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: parallel processing provides 3-4x speedup on multi-core systems
+  claim_id: c_c2d6ab02
+  context: 'Independent tasks are processed in parallel using ProcessPoolExecutor:
+    Feature extraction for multiple tasks, Model training with different parameters,
+    Sensitivity analysis across thresholds. Impact: 3-4x speedup on multi-core systems'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 3-4x speedup on multi-core systems'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:12Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: early termination provides 20-30% reduction in feature extraction time
+  claim_id: c_f302c3ad
+  context: 'Tasks flagged as ''Unparseable'' are skipped during feature extraction:
+    No tree-sitter parsing attempted, Fallback metrics only for valid code, Significant
+    CPU time saved. Impact: 20-30% reduction in feature extraction time'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 20-30% reduction in feature extraction time'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:20Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: batched model training provides 2-3x speedup in model training
+  claim_id: c_786c5f74
+  context: 'Model training uses: Optimized batch sizes, Limited tree depth for Random
+    Forest, CPU-optimized algorithms (no CUDA). Impact: 2-3x speedup in model training'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 2-3x speedup in model training'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes SWE-bench subset in 2-3 hours
+  claim_id: c_5cc5325b
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    SWE-bench subset: ~2-3 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes AgentBench subset in 1-2 hours
+  claim_id: c_1fd8a2e7
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    AgentBench subset: ~1-2 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes combined SWE-bench and AgentBench in 3-5
+    hours
+  claim_id: c_85aa4475
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    Combined: ~3-5 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'

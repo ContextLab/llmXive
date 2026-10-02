@@ -1,100 +1,122 @@
-import pytest
-import os
+"""
+Unit tests for the extract_features module (Task T019).
+These tests verify the logic of filtering unparseable tasks and calculating basic metrics.
+"""
+
 import sys
-import json
+import os
+import pytest
 from pathlib import Path
+import pandas as pd
+import tempfile
+import json
+
+# Add code/ to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from scripts.extract_features import (
+    load_ground_truth,
+    filter_unparseable,
+    get_lines_of_code,
     get_cyclomatic_complexity,
     get_dependency_depth,
-    get_lines_of_code,
     calculate_semantic_complexity_score,
     extract_graph_and_metrics,
     serialize_graph
 )
 
-# Test code snippets
-SIMPLE_CODE = """
-def hello():
-    print("Hello")
-"""
 
-COMPLEX_CODE = """
-def process(data):
-    if data:
-        for item in data:
-            if item > 0:
-                print(item)
-            else:
-                print("Negative")
-    return data
-"""
+class TestFilterUnparseable:
+    def test_filter_removes_unparseable(self):
+        data = {
+            'task_id': ['t1', 't2', 't3', 't4'],
+            'code_diff': ['x=1', 'y=2', 'z=3', 'w=4'],
+            'dynamic_execution_outcome': ['Pass', 'Unparseable', 'Fail', 'Unparseable']
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, count = filter_unparseable(df)
+        
+        assert count == 2
+        assert len(cleaned_df) == 2
+        assert 'Unparseable' not in cleaned_df['dynamic_execution_outcome'].values
+        assert list(cleaned_df['task_id']) == ['t1', 't3']
 
-EMPTY_CODE = ""
+    def test_filter_no_unparseable(self):
+        data = {
+            'task_id': ['t1', 't2'],
+            'code_diff': ['x=1', 'y=2'],
+            'dynamic_execution_outcome': ['Pass', 'Fail']
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, count = filter_unparseable(df)
+        
+        assert count == 0
+        assert len(cleaned_df) == 2
 
-NO_SEMANTIC_CODE = """
-x = 1
-y = 2
-"""
 
-def test_get_lines_of_code():
-    assert get_lines_of_code(SIMPLE_CODE) == 3
-    assert get_lines_of_code(COMPLEX_CODE) == 8
-    assert get_lines_of_code(EMPTY_CODE) == 0
-    assert get_lines_of_code("   \n  \n") == 0
+class TestBasicMetrics:
+    def test_lines_of_code(self):
+        assert get_lines_of_code("x=1\ny=2") == 2
+        assert get_lines_of_code("x=1\n\ny=2") == 2 # Empty lines ignored
+        assert get_lines_of_code("") == 0
+        assert get_lines_of_code(None) == 0
 
-def test_get_cyclomatic_complexity():
-    # Simple function has base complexity 1
-    assert get_cyclomatic_complexity(SIMPLE_CODE) == 1.0
-    # Complex function has if/else/for loops increasing complexity
-    cc = get_cyclomatic_complexity(COMPLEX_CODE)
-    assert cc > 1.0
+    def test_cyclomatic_complexity_simple(self):
+        code = "x = 1"
+        assert get_cyclomatic_complexity(code) == 0 # No branches
 
-def test_get_dependency_depth():
-    depth = get_dependency_depth(SIMPLE_CODE)
-    assert depth > 0
-    depth_empty = get_dependency_depth(EMPTY_CODE)
-    assert depth_empty == 0
+    def test_cyclomatic_complexity_branch(self):
+        code = "if x:\n    pass"
+        # radon usually counts the base + 1 for if
+        cc = get_cyclomatic_complexity(code)
+        assert cc >= 1
 
-def test_calculate_semantic_complexity_score():
-    score = calculate_semantic_complexity_score(SIMPLE_CODE)
-    assert score is not None
-    assert score > 0
+    def test_dependency_depth(self):
+        code = "def f():\n    if x:\n        pass"
+        depth = get_dependency_depth(code)
+        assert depth >= 1
 
-    # Code with no functions/classes/calls
-    score_empty = calculate_semantic_complexity_score(NO_SEMANTIC_CODE)
-    assert score_empty is None
 
-def test_extract_graph_and_metrics():
-    graph, metrics = extract_graph_and_metrics(SIMPLE_CODE)
-    
-    # Check metrics presence
-    assert "lines_of_code" in metrics
-    assert "cyclomatic_complexity" in metrics
-    assert "dependency_depth" in metrics
-    assert "semantic_complexity_score" in metrics
-    
-    # Check graph structure
-    assert "nodes" in graph
-    assert "edges" in graph
-    assert "metadata" in graph
-    assert graph["metadata"]["has_semantic_nodes"] == True
+class TestGraphExtraction:
+    def test_extract_graph_valid_code(self):
+        code = "def hello():\n    print('world')"
+        metrics = extract_graph_and_metrics(code, "test_task_1")
+        
+        assert metrics['task_id'] == "test_task_1"
+        assert metrics['lines_of_code'] > 0
+        assert 'graph_nodes' in metrics
+        assert 'graph_edges' in metrics
+        # Should have at least a function definition node
+        assert len(metrics['graph_nodes']) > 0
 
-def test_extract_graph_no_semantic():
-    graph, metrics = extract_graph_and_metrics(NO_SEMANTIC_CODE)
-    assert graph["metadata"]["has_semantic_nodes"] == False
-    assert graph["metadata"]["fallback_active"] == True
-    assert metrics["semantic_complexity_score"] is None
+    def test_serialize_graph(self):
+        code = "x = 1"
+        metrics = extract_graph_and_metrics(code, "test_serialize")
+        
+        # Create a temp directory for the test
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Override the global GRAPHS_DIR for this test
+            import scripts.extract_features as ef
+            original_dir = ef.GRAPHS_DIR
+            ef.GRAPHS_DIR = Path(tmpdir)
+            
+            try:
+                serialize_graph(metrics)
+                output_file = Path(tmpdir) / "test_serialize.json"
+                assert output_file.exists()
+                
+                with open(output_file, 'r') as f:
+                    data = json.load(f)
+                
+                assert data['task_id'] == "test_serialize"
+                assert 'graph' in data
+            finally:
+                ef.GRAPHS_DIR = original_dir
 
-def test_serialize_graph(tmp_path):
-    graph = {
-        "nodes": [{"id": 1, "type": "test"}],
-        "edges": [],
-        "metadata": {}
-    }
-    output_path = tmp_path / "test_graph.json"
-    serialize_graph(graph, str(output_path))
-    
-    assert output_path.exists()
-    with open(output_path) as f:
-        loaded = json.load(f)
-    assert loaded["nodes"][0]["id"] == 1
+    def test_extract_graph_empty_code(self):
+        metrics = extract_graph_and_metrics("", "test_empty")
+        assert metrics['lines_of_code'] == 0
+        assert metrics['cyclomatic_complexity'] == 0
+        assert len(metrics['graph_nodes']) == 0

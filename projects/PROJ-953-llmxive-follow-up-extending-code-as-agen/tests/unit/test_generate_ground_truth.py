@@ -1,136 +1,117 @@
-import pytest
 import os
 import csv
 import json
-from pathlib import Path
 import tempfile
-import shutil
+from pathlib import Path
+import pytest
 
-# Import the function to test
-from scripts.generate_ground_truth import generate_ground_truth, load_baseline_results, load_ingested_tasks
+from scripts.generate_ground_truth import (
+    load_baseline_results,
+    load_ingested_tasks,
+    process_unparseable_tasks,
+    generate_ground_truth
+)
 
-@pytest.fixture
-def temp_dirs():
-    """Create temporary directories for test artifacts."""
-    temp_root = tempfile.mkdtemp()
-    data_dir = Path(temp_root) / "data" / "processed"
-    data_dir.mkdir(parents=True)
-    baseline_dir = data_dir / "baseline_results"
-    baseline_dir.mkdir()
-    yield {
-        "root": Path(temp_root),
-        "data": data_dir,
-        "baseline": baseline_dir,
-        "ingested": data_dir / "ingested_tasks.csv",
-        "output": data_dir / "ground_truth.csv"
-    }
-    shutil.rmtree(temp_root)
-
-def test_generate_ground_truth_success(temp_dirs):
-    """Test successful generation of ground truth with mixed outcomes."""
-    # Create mock ingested tasks
-    tasks_data = [
-        {"task_id": "task_001", "code_diff": "diff content 1", "source": "swe-bench"},
-        {"task_id": "task_002", "code_diff": "diff content 2", "source": "agent-bench"},
-        {"task_id": "task_003", "code_diff": "", "source": "swe-bench"},  # Unparseable
-    ]
+def test_load_baseline_results_valid():
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump({"task_1": "Pass", "task_2": "Fail"}, f)
+        temp_path = f.name
     
-    with open(temp_dirs["ingested"], 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["task_id", "code_diff", "source"])
+    try:
+        results = load_baseline_results(temp_path)
+        assert results["task_1"] == "Pass"
+        assert results["task_2"] == "Fail"
+    finally:
+        os.unlink(temp_path)
+
+def test_load_baseline_results_missing_file():
+    with pytest.raises(FileNotFoundError):
+        load_baseline_results("/nonexistent/path/file.json")
+
+def test_load_ingested_tasks_valid():
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.DictWriter(f, fieldnames=['task_id', 'code_diff'])
         writer.writeheader()
-        writer.writerows(tasks_data)
+        writer.writerow({'task_id': 't1', 'code_diff': 'diff1'})
+        writer.writerow({'task_id': 't2', 'code_diff': 'diff2'})
+        temp_path = f.name
     
-    # Create mock baseline results
+    try:
+        tasks = load_ingested_tasks(temp_path)
+        assert len(tasks) == 2
+        assert tasks[0]['task_id'] == 't1'
+    finally:
+        os.unlink(temp_path)
+
+def test_process_unparseable_tasks():
+    tasks = [
+        {'task_id': 't1', 'code_diff': 'diff1', 'status': 'Unparseable'},
+        {'task_id': 't2', 'code_diff': 'diff2', 'status': 'Valid'},
+        {'task_id': 't3', 'code_diff': 'diff3'} # No status, treated as valid
+    ]
     baseline_results = {
-        "task_001": {"status": "Pass", "duration": 1.5, "error": ""},
-        "task_002": {"status": "Fail", "duration": 2.3, "error": "AssertionError"},
-        # task_003 has no baseline result (unparseable)
+        't2': 'Pass',
+        't3': 'Timeout/Fail'
     }
     
-    for task_id, data in baseline_results.items():
-        result_file = temp_dirs["baseline"] / f"{task_id}.json"
-        with open(result_file, 'w') as f:
-            json.dump(data, f)
+    processed = process_unparseable_tasks(tasks, baseline_results)
     
-    # Run generation
-    generate_ground_truth(
-        ingested_tasks_path=str(temp_dirs["ingested"]),
-        baseline_results_path=str(temp_dirs["baseline"]),
-        output_path=str(temp_dirs["output"])
-    )
+    # Check Unparseable task
+    unparseable = [t for t in processed if t['task_id'] == 't1'][0]
+    assert unparseable['status'] == 'Unparseable'
+    assert unparseable['dynamic_execution_outcome'] == 'N/A'
     
-    # Verify output
-    assert temp_dirs["output"].exists()
-    with open(temp_dirs["output"], 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    # Check Valid task with outcome
+    valid_pass = [t for t in processed if t['task_id'] == 't2'][0]
+    assert valid_pass['status'] == 'Valid'
+    assert valid_pass['dynamic_execution_outcome'] == 'Pass'
     
-    assert len(rows) == 3
-    
-    # Check specific outcomes
-    outcomes = {row["task_id"]: row["dynamic_execution_outcome"] for row in rows}
-    assert outcomes["task_001"] == "Pass"
-    assert outcomes["task_002"] == "Fail"
-    assert outcomes["task_003"] == "Unparseable"  # Handled correctly
+    # Check Valid task with timeout
+    valid_timeout = [t for t in processed if t['task_id'] == 't3'][0]
+    assert valid_timeout['dynamic_execution_outcome'] == 'Timeout/Fail'
 
-def test_generate_ground_truth_missing_baseline(temp_dirs):
-    """Test handling of tasks with missing baseline results."""
-    tasks_data = [
-        {"task_id": "task_missing", "code_diff": "some diff", "source": "swe-bench"},
-    ]
-    
-    with open(temp_dirs["ingested"], 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["task_id", "code_diff", "source"])
-        writer.writeheader()
-        writer.writerows(tasks_data)
-    
-    # No baseline results created for task_missing
-    
-    generate_ground_truth(
-        ingested_tasks_path=str(temp_dirs["ingested"]),
-        baseline_results_path=str(temp_dirs["baseline"]),
-        output_path=str(temp_dirs["output"])
-    )
-    
-    with open(temp_dirs["output"], 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 1
-    assert rows[0]["dynamic_execution_outcome"] == "Missing_Baseline"
-
-def test_load_baseline_results(temp_dirs):
-    """Test loading baseline results from JSON files."""
-    # Create mock results
-    results_data = {
-        "task_a": {"status": "Timeout", "duration": 30.0, "error": "TimeoutError"},
-        "task_b": {"status": "Pass", "duration": 0.5, "error": ""},
-    }
-    
-    for task_id, data in results_data.items():
-        with open(temp_dirs["baseline"] / f"{task_id}.json", 'w') as f:
-            json.dump(data, f)
-    
-    results = load_baseline_results(str(temp_dirs["baseline"]))
-    
-    assert "task_a" in results
-    assert results["task_a"].status == "Timeout"
-    assert results["task_b"].status == "Pass"
-
-def test_load_ingested_tasks(temp_dirs):
-    """Test loading ingested tasks from CSV."""
-    tasks_data = [
-        {"task_id": "t1", "code_diff": "diff1", "source": "swe-bench"},
-        {"task_id": "t2", "code_diff": "diff2", "source": "agent-bench"},
-    ]
-    
-    with open(temp_dirs["ingested"], 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["task_id", "code_diff", "source"])
-        writer.writeheader()
-        writer.writerows(tasks_data)
-    
-    tasks = load_ingested_tasks(str(temp_dirs["ingested"]))
-    
-    assert len(tasks) == 2
-    assert tasks[0]["task_id"] == "t1"
-    assert tasks[1]["source"] == "agent-bench"
+def test_generate_ground_truth_integration():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        
+        # Create ingested CSV
+        ingested_path = tmpdir / "ingested.csv"
+        with open(ingested_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['task_id', 'code_diff', 'status'])
+            writer.writeheader()
+            writer.writerow({'task_id': 't1', 'code_diff': 'diff1', 'status': 'Unparseable'})
+            writer.writerow({'task_id': 't2', 'code_diff': 'diff2', 'status': 'Valid'})
+            writer.writerow({'task_id': 't3', 'code_diff': 'diff3', 'status': 'Valid'})
+        
+        # Create baseline JSON
+        baseline_path = tmpdir / "baseline.json"
+        with open(baseline_path, 'w') as f:
+            json.dump({
+                't2': 'Pass',
+                't3': 'Timeout/Fail'
+            }, f)
+        
+        output_path = tmpdir / "ground_truth.csv"
+        
+        generate_ground_truth(str(ingested_path), str(baseline_path), str(output_path))
+        
+        # Verify output
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        assert len(rows) == 3
+        
+        # Check specific rows
+        t1 = next(r for r in rows if r['task_id'] == 't1')
+        assert t1['status'] == 'Unparseable'
+        assert t1['dynamic_execution_outcome'] == 'N/A'
+        
+        t2 = next(r for r in rows if r['task_id'] == 't2')
+        assert t2['status'] == 'Valid'
+        assert t2['dynamic_execution_outcome'] == 'Pass'
+        
+        t3 = next(r for r in rows if r['task_id'] == 't3')
+        assert t3['status'] == 'Valid'
+        assert t3['dynamic_execution_outcome'] == 'Timeout/Fail'

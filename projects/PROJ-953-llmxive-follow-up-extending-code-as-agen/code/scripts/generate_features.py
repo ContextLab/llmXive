@@ -1,106 +1,100 @@
+"""
+Feature Generation Module for llmXive.
+
+This module merges ground truth data with extracted features to create
+the final features dataset.
+"""
+
 import os
 import csv
 import json
 from pathlib import Path
 from typing import List, Dict, Any
-
-# Import existing functions from the API surface
 from scripts.extract_features import load_ground_truth, filter_unparseable
 
-# Ensure output directories exist
-DATA_PROCESSED_DIR = Path("data/processed")
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-def load_graph_metrics(task_id: str) -> Dict[str, Any]:
-    """
-    Load the serialized dependency graph and metrics for a given task_id.
-    The graph is stored at data/graphs/{task_id}.json as per T023.
-    """
-    graph_path = Path("data/graphs") / f"{task_id}.json"
-    if not graph_path.exists():
-        return {}
+def load_graph_metrics(graph_dir: str) -> List[Dict[str, Any]]:
+    """Load graph metrics from JSON files."""
+    metrics = []
     
-    try:
-        with open(graph_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return data.get("metrics", {})
-    except (json.JSONDecodeError, KeyError) as e:
-        # If the file exists but is malformed or missing metrics, return empty
-        # This allows the pipeline to continue but results in missing values
-        # which should be caught by T025 validation.
-        return {}
+    if not os.path.exists(graph_dir):
+        return metrics
+    
+    for filename in os.listdir(graph_dir):
+        if filename.endswith('.json'):
+            filepath = os.path.join(graph_dir, filename)
+            with open(filepath, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                metrics.append(data)
+    
+    return metrics
 
-def merge_ground_truth_with_metrics(ground_truth_path: str) -> List[Dict[str, Any]]:
+def merge_ground_truth_with_metrics(
+    ground_truth: List[Dict[str, Any]],
+    graph_metrics: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """
-    Load ground_truth.csv, iterate through rows, load corresponding metrics
-    from data/graphs/{task_id}.json, and merge them into a unified list of dicts.
-    """
-    rows = load_ground_truth(ground_truth_path)
-    merged_rows = []
-
-    for row in rows:
-        task_id = row.get("task_id")
-        if not task_id:
-            continue
-
-        # Load metrics calculated in T021/T022/T023
-        metrics = load_graph_metrics(task_id)
+    Merge ground truth with graph metrics.
+    
+    Args:
+        ground_truth: Ground truth tasks
+        graph_metrics: Extracted graph metrics
         
-        # Create a new row combining ground truth and metrics
-        new_row = {**row, **metrics}
-        merged_rows.append(new_row)
-
-    return merged_rows
-
-def write_features_csv(rows: List[Dict[str, Any]], output_path: str):
+    Returns:
+        Merged list of dictionaries
     """
-    Write the merged rows to a CSV file.
-    Ensures all keys across all rows are included in the header.
-    """
-    if not rows:
-        # Write empty file with no headers if no data
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            pass
-        return
-
-    # Collect all unique keys to form the header
-    fieldnames = set()
-    for row in rows:
-        fieldnames.update(row.keys())
+    # Create a lookup for metrics by task_id
+    metrics_lookup = {m.get("task_id"): m for m in graph_metrics}
     
-    # Sort fieldnames for consistent output (optional but good practice)
-    fieldnames = sorted(list(fieldnames))
+    merged = []
+    for task in ground_truth:
+        task_id = task.get("task_id")
+        metrics = metrics_lookup.get(task_id, {})
+        
+        merged_task = {**task, **metrics}
+        merged.append(merged_task)
+    
+    return merged
 
+def write_features_csv(tasks: List[Dict[str, Any]], output_path: str) -> None:
+    """Write merged tasks to CSV."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    if not tasks:
+        raise ValueError("No tasks to write")
+    
+    fieldnames = tasks[0].keys()
+    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(tasks)
 
 def main():
-    """
-    Main entry point for T024: Generate features.csv.
-    1. Load data/processed/ground_truth.csv
-    2. Merge with metrics from data/graphs/{task_id}.json
-    3. Write to data/processed/features.csv
-    """
-    ground_truth_path = "data/processed/ground_truth.csv"
-    output_path = "data/processed/features.csv"
-
-    if not Path(ground_truth_path).exists():
-        raise FileNotFoundError(
-            f"Required input file not found: {ground_truth_path}. "
-            "Please ensure T015 (generate_ground_truth) has completed."
-        )
-
-    print(f"Loading ground truth from {ground_truth_path}...")
-    merged_data = merge_ground_truth_with_metrics(ground_truth_path)
+    """Main entry point for feature generation."""
+    import argparse
     
-    print(f"Merged {len(merged_data)} rows with graph metrics.")
-    print(f"Writing features to {output_path}...")
+    parser = argparse.ArgumentParser(description="Generate features dataset")
+    parser.add_argument("--ground-truth", "-g", required=True, help="Ground truth CSV")
+    parser.add_argument("--graphs-dir", "-d", default="data/graphs", help="Graphs directory")
+    parser.add_argument("--output", "-o", required=True, help="Output features CSV")
     
-    write_features_csv(merged_data, output_path)
+    args = parser.parse_args()
     
-    print(f"Successfully generated {output_path}")
+    print("Loading ground truth...")
+    ground_truth = load_ground_truth(args.ground_truth)
+    print(f"Loaded {len(ground_truth)} tasks")
+    
+    print("Loading graph metrics...")
+    graph_metrics = load_graph_metrics(args.graphs_dir)
+    print(f"Loaded {len(graph_metrics)} graph metrics")
+    
+    print("Merging data...")
+    merged = merge_ground_truth_with_metrics(ground_truth, graph_metrics)
+    print(f"Merged {len(merged)} records")
+    
+    print(f"Writing to {args.output}...")
+    write_features_csv(merged, args.output)
+    print("Done!")
 
 if __name__ == "__main__":
     main()

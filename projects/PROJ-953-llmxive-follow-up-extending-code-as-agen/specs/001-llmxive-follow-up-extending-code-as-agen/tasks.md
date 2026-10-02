@@ -26,7 +26,13 @@
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
 - [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (datasets, tree-sitter, scikit-learn, pandas, networkx, radon, pytest, jsonschema)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 [P] Create `docs/` documentation bundle including `quickstart.md`, `usage_guide.md`, `api_reference.md`, AND `README.md`.
+ - **Requirements**:
+ - `quickstart.md`: Must explicitly enforce the full-environment re-execution baseline and provide step-by-step instructions for environment setup, data download, and model training.
+ - `README.md`: Project overview, installation, and CLI usage guide for `ingest.py`, `extract_features.py`, and `train_model.py`.
+ - `usage_guide.md`: Detailed examples of running the pipeline, interpreting results, and understanding the decision boundary.
+ - `api_reference.md`: Documenting the public functions in `code/scripts/`.
 
 ---
 
@@ -36,10 +42,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create YAML schemas in `contracts/` named `task_artifact.schema.yaml`, `structural_metric.schema.yaml`, and `model_outcome.schema.yaml` (YAML format, not JSON) to validate data artifacts. The `structural_metric.schema.yaml` MUST explicitly define `semantic_complexity_score` as optional and include the fallback metrics (`lines_of_code`) in the schema definition.
-- [X] T005 [P] Implement `scripts/update_state.py` to update `state/projects/...yaml` (Constitution Principle V)
-- [ ] T006 [P] Setup `data/raw/`, `data/processed/`, and `data/graphs/` directories with `.gitkeep`
-- [ ] T007 [P] Create base configuration loader for environment variables and dataset paths
+- [X] T005 [P] Create YAML schemas in `contracts/` named `task_artifact.schema.yaml`, `structural_metric.schema.yaml`, and `model_outcome.schema.yaml` (YAML format, not JSON) to validate data artifacts. The `structural_metric.schema.yaml` MUST explicitly define `semantic_complexity_score` as optional and include the fallback metrics (`lines_of_code`) in the schema definition.
+- [ ] T005a [P] Create unit test `tests/unit/test_schema_validation.py` to explicitly verify that `structural_metric.schema.yaml` correctly enforces the conditional logic for `semantic_complexity_score` (optional) vs fallback metrics (required when semantic nodes missing).
+- [X] T006 [P] Implement `scripts/update_state.py` to update `state/projects/...yaml` (Constitution Principle V)
+- [X] T007 [P] Setup `data/raw/`, `data/processed/`, and `data/graphs/` directories with `.gitkeep`
+- [X] T008 [P] Create base configuration loader for environment variables and dataset paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,17 +60,30 @@
 
 ### Tests for User Story 1
 
-- [X] T008 [P] [US1] Contract test for dataset download in `tests/contract/test_ingest.py` (verify HuggingFace fetch)
-- [X] T009 [P] [US1] Unit test for timeout handling in `tests/unit/test_timeout_handler.py` (verify "Timeout/Fail" recording)
+- [X] T009 [P] [US1] Contract test for dataset download in `tests/contract/test_ingest.py` (verify HuggingFace fetch, depends on T005 schema)
+- [X] T010 [P] [US1] Unit test for timeout handling in `tests/unit/test_timeout_handler.py` (verify "Timeout/Fail" recording)
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `scripts/ingest.py` to download SWE-bench and AgentBench subsets from HuggingFace. Explicitly implement distinct parsing logic for SWE-bench and AgentBench schemas, then merge the results into a unified dataset.
-- [X] T011 [US1] Implement code artifact extraction logic in `code/scripts/ingest.py` to parse `code_diff` and `original_code` for both datasets, ensuring both are processed and merged before generating the ground truth.
-- [X] T012 [US1] Implement `code/scripts/baseline_runner.py` to execute code in a full-environment baseline: use Docker containers (or equivalent sandboxing) to replicate the specific task environment for SWE-bench/AgentBench, install dependencies, and run the test suite to record `Pass`/`Fail`/`Timeout` outcomes. This must satisfy FR-003 and Constitution Principle VI.
-- [X] T013 [US1] Implement timeout logic in `code/scripts/baseline_runner.py` (with a configurable maximum duration) to record "Timeout/Fail" outcomes; explicitly forbid treating timeouts as "Unknown" or "Skipped" to maintain safety conservatism.
-- [ ] T016 [US1] Add error handling for syntax errors: implement logic to flag tasks as "Unparseable" in the CSV generation step, retain these rows in the ground truth with a specific status flag, and ensure subsequent tasks (T015, T019, T020) explicitly skip the `tree-sitter` step for these entries.
-- [X] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T012/T013/T016), ensuring all "Unparseable" tasks are correctly flagged and included.
+- [X] T011 [US1] Implement `code/scripts/ingest.py` to download SWE-bench and AgentBench subsets from HuggingFace, parse code artifacts, and generate `data/processed/ground_truth.csv`.
+ - **Deliverables**: `data/raw/swe_bench_subset.parquet`, `data/raw/agentbench_subset.parquet`, `data/processed/ground_truth.csv`.
+ - **Logic**:
+ - Distinct parsing logic for SWE-bench and AgentBench schemas, then merge.
+ - **Constraint**: If download fails, the script MUST raise an exception. **NO synthetic fallbacks allowed**. The implementation must include a test or assertion that verifies no fallback occurs when the fetch fails.
+ - Extract `task_id`, `code_diff`, and `original_code`.
+ - **Validation**: Verify generated CSVs have zero nulls in `code_diff` and `execution_outcome` columns.
+- [X] T013 [US1] Implement `code/scripts/baseline_runner.py` to execute code in a full-environment baseline.
+ - **Logic**:
+ - Setup Python virtualenv to replicate the specific task environment for SWE-bench/AgentBench.
+ - Install dependencies and run the test suite to record `Pass`/`Fail`/`Timeout` outcomes.
+ - **Timeout Handling**: Explicitly record "Timeout/Fail" for tasks exceeding the configurable maximum duration (e.g., 600s). **Do NOT** treat timeouts as "Unknown" or "Skipped". The output CSV must explicitly contain the string "Timeout/Fail" for these cases.
+ - **GPU Constraint**: Explicitly verify no GPU/CUDA dependencies are loaded (e.g., check `nvidia-smi` or `torch.cuda.is_available()`). **The script MUST FAIL (raise exception) if GPU/CUDA is detected**, not just log a warning.
+ - **Deliverables**: `data/processed/raw_outcomes.json` (intermediate results), updated `ground_truth.csv` with `dynamic_execution_outcome`.
+- [X] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T013).
+ - **Logic**:
+ - Merge ingestion data with baseline outcomes.
+ - **Error Handling**: Implement logic to flag tasks as "Unparseable" if `tree-sitter` fails on the `code_diff`. These rows MUST be retained in the CSV with a specific `status` column value (e.g., "Unparseable") and `dynamic_execution_outcome` set to "N/A" or similar.
+ - **Verification**: Ensure all "Unparseable" tasks are correctly flagged and included. Ensure "Timeout/Fail" outcomes are present for timed-out tasks.
 
 **Checkpoint**: Ground truth dataset is generated and validated.
 
@@ -82,13 +102,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `scripts/extract_features.py` to load `ground_truth.csv` and iterate through `code_diff`, explicitly filtering out "Unparseable" tasks before processing.
-- [X] T020 [US2] Implement `tree-sitter` parsing logic in `code/scripts/extract_features.py` to generate dependency graphs
-- [X] T021 [US2] Implement metric calculation in `code/scripts/extract_features.py` using `tree-sitter` to calculate `dependency_depth`, `cyclomatic_complexity`, and `semantic_complexity_score`. If semantic nodes are missing, calculate `dependency_depth`, `cyclomatic_complexity`, and `lines_of_code` as the fallback set. Serialize dependency graphs to `data/graphs/{task_id}.json`.
-- [ ] T022 [US2] Implement fallback logic for "semantic_complexity" (use simplified set: `dependency_depth`, `cyclomatic_complexity`, `lines_of_code` if specific nodes missing)
-- [ ] T023 [US2] Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability
-- [X] T024 [US2] Generate `data/processed/features.csv` merging `ground_truth.csv` with calculated metrics
-- [ ] T025 [US2] Add validation to ensure no missing metric values in `features.csv`
+- [X] T019 [US2] Implement `code/scripts/extract_features.py` to load `ground_truth.csv` and calculate structural metrics.
+ - **Logic**:
+ - Filter out "Unparseable" tasks by reading the `status` column from `ground_truth.csv` before processing.
+ - Use `tree-sitter` to generate dependency graphs.
+ - Calculate `dependency_depth`, `cyclomatic_complexity`, and `semantic_complexity_score`.
+ - **Fallback**: If semantic nodes are missing, calculate `dependency_depth`, `cyclomatic_complexity`, and `lines_of_code`.
+ - **Deliverables**: Intermediate feature data.
+- [ ] T020 [US2] Serialize dependency graphs and finalize features.
+ - **Logic**:
+ - Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability.
+ - Merge calculated metrics with `ground_truth.csv` to generate `data/processed/features.csv`.
+ - **Validation**: Ensure no missing metric values in `features.csv`. Verify fallback metrics are populated for tasks where semantic nodes are missing.
+ - **Deliverables**: `data/graphs/` (JSON files), `data/processed/features.csv`.
 
 **Checkpoint**: Feature dataset is generated with all structural metrics.
 
@@ -102,23 +128,24 @@
 
 ### Tests for User Story 3
 
-- [X] T026 [P] [US3] Unit test for model training with fixed random seed in `tests/unit/test_model_training.py`
-- [X] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_threshold_sweep.py`
+- [X] T023 [P] [US3] Unit test for model training with fixed random seed in `tests/unit/test_model_training.py`
+- [X] T024 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_threshold_sweep.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `scripts/train_model.py` to load `features.csv` and split into train/validation sets (pin random seeds for reproducibility)
-- [X] T029 [US3] Implement Logistic Regression and Random Forest training (CPU-only, no CUDA) in `code/scripts/train_model.py` (pin random seeds)
-- [ ] T031 [US3] Perform sensitivity analysis sweep over the specific set of thresholds {0.01, 0.05, 0.1} as mandated by FR-005. Calculate FNR for each threshold and output `data/processed/threshold_sweep.json` containing the FNR for each threshold and the minimum achievable FNR if the target is not met. Explicitly check if FNR ≤ 0.1% and flag the model as "unsafe" if it fails.
-- [ ] T030 [US3] Identify the optimal threshold from the sweep results generated in T031 and generate `models/decision_boundary.pkl` with model weights and identified thresholds.
-- [ ] T032 [US3] Implement logic to flag model as "unsafe for static-only classification" if FNR constraint cannot be met.
-- [ ] T033 [US3] Calculate the correlation coefficient between structural features and execution necessity from the trained model and feature data.
-- [ ] T035 [US3] Generate `data/processed/model_report.json` containing:
- - False-negative rates for each threshold
- - Minimum achievable FNR if target not met
- - Explicit statement framing results as "associational" (FR-006)
- - The correlation coefficient calculated in T033, stored explicitly as a numeric field `correlation_coefficient` in the JSON
- - The "unsafe" flag status from T032
+- [X] T028 [US3] Implement `code/scripts/train_model.py` to load `features.csv`, train models, perform sensitivity analysis, and generate reports.
+ - **Logic**:
+ - Load `features.csv` and split into train/validation sets (pin random seeds).
+ - Train Logistic Regression and Random Forest models (CPU-only, no CUDA).
+ - **Deliverables**: `models/logistic_regression.pkl`, `models/random_forest.pkl`.
+ - **Sensitivity Analysis**: Sweep thresholds across a range of low magnitudes. Calculate FNR for each.
+ - **Safety Flag**: Explicitly check if FNR ≤ 0.1%. If not, flag the model as "unsafe" in the output.
+ - **Correlation**: Calculate correlation coefficients between structural features and execution necessity.
+ - **Framing**: Explicitly include a field `framing: "associational"` in the report to satisfy FR-006.
+ - **Deliverables**:
+ - `models/decision_boundary.pkl` (weights and identified thresholds).
+ - `data/processed/threshold_sweep.json` (FNR per threshold, minimum achievable FNR, and explicit `unsafe` flag).
+ - `data/processed/model_report.json` (FNRs, minimum FNR, `correlation_coefficient` numeric field, `unsafe` flag, and explicit `framing` field).
 
 **Checkpoint**: Model trained, thresholds identified, and safety constraints evaluated.
 
@@ -128,12 +155,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` (README, usage guide)
-- [ ] T037 Code cleanup and refactoring of `code/scripts/`
-- [ ] T038 Performance optimization to ensure pipeline runs within 6 hours on CPU
-- [ ] T039 [P] Additional unit tests for edge cases (empty datasets, parsing failures) in `tests/unit/`
-- [ ] T040 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility, specifically checking that the `quickstart.md` enforces the full-environment re-execution baseline rather than allowing a static-only shortcut
-- [ ] T041 Verify all artifacts (CSVs, JSONs, models) are checksummed and stored in `data/` and `models/`
+- [ ] T033 [P] [P] **DEPRECATED**: Merged into T004.
+- [X] T034 [P] Code cleanup and refactoring of `code/scripts/extract_features.py` and `code/scripts/ingest.py`: Refactor to reduce cyclomatic complexity to < 10.
+- [ ] T035 [P] Performance profiling and optimization.
+ - **Logic**:
+ - Run `cProfile` on the full pipeline to identify bottlenecks.
+ - Optimize identified bottlenecks to ensure total pipeline runtime < 5 hours on CPU.
+ - **Constraint Measurement**: Explicitly measure and report runtime/memory usage against GitHub Actions free-tier constraints (≤6h, ~7GB RAM).
+ - **Deliverables**: `data/logs/runtime_profile.log`, `data/logs/pipeline_runtime.json` (verifying SC-004).
+- [X] T036 [P] [P] Additional unit tests for edge cases: Create `tests/unit/test_empty_dataset.py` to handle zero-row datasets, `tests/unit/test_parsing_failure.py` to handle syntax errors, and `tests/unit/test_timeout.py` to handle execution timeouts.
+- [ ] T037 [P] Run `quickstart.md` validation.
+ - **Logic**: Verify that `quickstart.md` enforces the full-environment re-execution baseline. **The validation MUST FAIL** if the `quickstart.md` allows a "static-only shortcut".
+- [ ] T038 [P] Verify all artifacts (CSVs, JSONs, models) are checksummed and stored in `data/` and `models/`.
 
 ---
 
@@ -166,7 +199,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, excluding T008)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, excluding T005a)
 - Within US2: Feature extraction and graph serialization can be parallelized per task batch
 - Within US3: Model training and threshold sweep can be parallelized if using multiple seeds
 
@@ -214,3 +247,5 @@ With multiple developers:
 - **Critical Constraint**: All models and data processing MUST run on CPU-only hardware (no CUDA, no 8-bit quantization).
 - **Critical Constraint**: All data must be REAL (SWE-bench/AgentBench) - NO synthetic data generation.
 - **Critical Constraint**: All tasks must complete within 6 hours on GitHub Actions free-tier.
+- **Critical Constraint**: Dataset loaders MUST fail loudly on fetch errors; synthetic fallbacks are strictly prohibited.
+- **Critical Constraint**: Large datasets must be streamed or sampled explicitly; toy datasets are forbidden.
