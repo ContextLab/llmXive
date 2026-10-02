@@ -1,1 +1,2 @@
-# This directory stores raw data artifacts
+# This directory stores raw training logs and generated data.
+# Do not commit generated data files.

@@ -1,3 +1,25 @@
-# Extend pyproject.toml settings if specific overrides are needed
-# For now, we rely on the configuration in pyproject.toml
-extend = "pyproject.toml"
+[lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "C",  # flake8-comprehensions
+  "B",  # flake8-bugbear
+]
+ignore = [
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults
+  "C901", # too complex
+]
+
+[lint.isort]
+known-first-party = ["env", "student", "experiments", "analysis", "utils"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

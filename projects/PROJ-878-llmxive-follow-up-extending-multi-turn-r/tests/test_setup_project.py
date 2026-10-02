@@ -1,54 +1,67 @@
-"""
-Tests for the project setup script (T001).
-Verifies that the required directory structure is created.
-"""
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 
-# We need to import the script logic. Since setup_project.py is in code/,
-# we will test the logic by simulating the environment or importing the function.
-# For T001, we are testing the creation of directories.
-# We will create a temporary directory to simulate the project root.
+# Import the function to test
+# Since setup_project.py is in code/, we need to adjust path or import properly
+# For this test, we assume the test runner adds 'code' to sys.path or we import via relative path logic
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_directory_creation_logic():
-    """Test that the directory creation logic works correctly."""
-    # Create a temporary directory to act as project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        
-        # Define the directories relative to project root
-        directories = [
+from setup_project import main
+
+def test_setup_project_creates_directories(tmp_path):
+    """
+    Verify that setup_project creates the required directory structure.
+    """
+    # Change to a temporary directory to avoid cluttering the real project during test
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+
+    try:
+        # Run the setup script
+        result = main()
+
+        # Assert the script reported success
+        assert result == 0, "setup_project main() should return 0 on success"
+
+        # Define expected directories
+        expected_dirs = [
             "data/raw",
             "data/processed",
+            "code",
             "code/utils",
             "tests",
-            "results/paper_figures"
+            "results/paper_figures",
         ]
 
-        # Execute creation logic
-        for dir_path in directories:
-            full_path = project_root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
-
-        # Verify all directories exist
-        for dir_path in directories:
-            full_path = project_root / dir_path
+        # Verify each directory actually exists on disk
+        for dir_path in expected_dirs:
+            full_path = Path(dir_path)
             assert full_path.exists(), f"Directory {full_path} was not created"
-            assert full_path.is_dir(), f"{full_path} is not a directory"
+            assert full_path.is_dir(), f"Path {full_path} exists but is not a directory"
 
-def test_no_error_on_existing():
-    """Test that the script doesn't fail if directories already exist."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        
-        # Pre-create one directory
-        pre_created = project_root / "data" / "raw"
-        pre_created.mkdir(parents=True)
-        
-        # Try to create it again (should not raise)
-        pre_created.mkdir(parents=True, exist_ok=True)
-        
-        assert pre_created.exists()
+    finally:
+        # Restore original working directory
+        os.chdir(original_cwd)
+
+def test_setup_project_idempotent(tmp_path):
+    """
+    Verify that running setup_project twice does not cause errors.
+    """
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+
+    try:
+        # Run once
+        result1 = main()
+        assert result1 == 0
+
+        # Run again
+        result2 = main()
+        assert result2 == 0
+
+    finally:
+        os.chdir(original_cwd)

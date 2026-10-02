@@ -1,8 +1,8 @@
 """
-Training loop runner for TOP-D policy distillation.
+Training Loop Runner for TOP-D Distillation.
 
-This module implements the main training loop that coordinates the interaction
-between the student policy, teacher policy, and TOP-D loss function.
+Executes the training loop for a given GridConfig, handling the interaction
+between the StudentPolicy, TeacherPolicy, and the ReasoningMDP environment.
 """
 import os
 import sys
@@ -11,123 +11,147 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 import numpy as np
 import pandas as pd
+import csv
 
-# Add project root to path for imports if running from tests
-project_root = Path(__file__).parent.parent.parent
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root / "code"))
+    sys.path.insert(0, str(project_root))
 
-from utils.seed_manager import set_seed, get_seed
 from utils.logger import get_logger
-from env.reasoning_mdp import ReasoningMDP, State, Action
+from utils.seed_manager import set_seed
+from env.reasoning_mdp import ReasoningMDP
 from env.teacher_policy import TeacherPolicy
 from student.policy import StudentPolicy
 from student.topd_loss import TOPDLoss
+from experiments.grid_config import GridConfig
 
-logger = get_logger(__name__)
-
-def run_training_loop(
-    mdp: ReasoningMDP,
-    teacher_policy: TeacherPolicy,
-    student_policy: StudentPolicy,
-    loss_fn: TOPDLoss,
-    alpha: float,
-    num_episodes: int,
-    max_steps: int,
-    log_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
+def run_training_loop(config: GridConfig) -> Optional[Dict[str, Any]]:
     """
-    Run the TOP-D training loop for a specified number of episodes.
-    
+    Run the training loop for a single configuration.
+
     Args:
-        mdp: The Reasoning MDP environment
-        teacher_policy: The teacher policy providing optimal actions
-        student_policy: The student policy being trained
-        loss_fn: The TOP-D loss function for computing gradients
-        alpha: Interpolation coefficient (0.0 = pure student, 1.0 = pure teacher)
-        num_episodes: Number of training episodes
-        max_steps: Maximum steps per episode
-        log_path: Optional path to write episode logs (CSV)
-    
+        config: GridConfig containing hyperparameters for this run.
+
     Returns:
-        List of dictionaries containing episode statistics
+        Dictionary containing aggregated metrics (avg_loss, collapse_ratio, etc.)
+        or None if execution fails.
     """
-    if not (0.0 <= alpha <= 1.0):
-        raise ValueError(f"Alpha must be between 0.0 and 1.0, got {alpha}")
-    
-    history = []
-    episode_logs = []
-    
-    logger.info(f"Starting training loop: alpha={alpha}, episodes={num_episodes}, "
-                f"max_steps={max_steps}")
-    
-    for episode in range(num_episodes):
-        # Reset environment
-        state = mdp.reset()
-        done = False
-        step = 0
-        episode_loss = 0.0
-        effective_depth = 0
-        teacher_depth = 0
+    logger = get_logger("training_runner")
+    logger.info(f"Starting training loop for config: alpha={config.alpha}, "
+                f"horizon={config.student_horizon}, episodes={config.num_episodes}")
+
+    try:
+        set_seed(config.seed)
+
+        # Initialize Environment and Policies
+        env = ReasoningMDP(size=config.env_size)
+        teacher = TeacherPolicy(env)
+        student = StudentPolicy(env, horizon_limit=config.student_horizon)
+        loss_fn = TOPDLoss(alpha=config.alpha)
+
+        # Metrics tracking
+        episode_losses = []
+        effective_depths = []
+        teacher_depths = []
+        collapse_counts = 0
+        total_steps = 0
+
+        # Prepare log file
+        log_path = Path(config.output_dir) / config.log_file_name
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Training Loop
+        for episode in range(config.num_episodes):
+            state = env.reset()
+            episode_loss = 0.0
+            step_count = 0
+            actual_depth = 0
+            teacher_plan = []
+
+            while not env.done:
+                # Teacher generates optimal plan (limited by max horizon for efficiency)
+                if not teacher_plan:
+                    teacher_plan = teacher.get_plan(state, max_steps=config.teacher_horizon)
+                
+                # Get student action
+                student_action = student.select_action(state)
+                
+                # Get teacher action (from plan)
+                teacher_action = teacher_plan[0] if teacher_plan else None
+                
+                if teacher_action is None:
+                    # Fallback if plan exhausted
+                    teacher_action = teacher.get_action(state)
+
+                # Step environment
+                next_state, reward, done, info = env.step(student_action)
+                actual_depth += 1
+                step_count += 1
+
+                # Calculate TOP-D Loss
+                # We need to simulate the probability distribution for the loss calculation
+                # In a real implementation, StudentPolicy would return a distribution
+                student_dist = student.get_action_distribution(state)
+                teacher_dist = np.zeros_like(student_dist)
+                if teacher_action is not None:
+                    teacher_dist[teacher_action] = 1.0
+                
+                loss = loss_fn(student_dist, teacher_dist)
+                episode_loss += loss
+
+                state = next_state
+                if done:
+                    break
+
+                # Safety break
+                if step_count > config.max_steps_per_episode:
+                    break
+
+            # Episode Summary
+            episode_losses.append(episode_loss)
+            effective_depths.append(actual_depth)
+            teacher_depths.append(len(teacher_plan))
+            total_steps += step_count
+
+            # Collapse detection: effective depth <= 0.5 * teacher depth
+            if len(teacher_plan) > 0:
+                if actual_depth <= 0.5 * len(teacher_plan):
+                    collapse_counts += 1
+
+            # Log per episode
+            with open(log_path, 'a', newline='') as f:
+                writer = csv.writer(f)
+                if episode == 0:
+                    writer.writerow(['episode', 'loss', 'effective_depth', 'teacher_depth', 'collapse'])
+                writer.writerow([episode, episode_loss, actual_depth, len(teacher_plan), 
+                                 1 if actual_depth <= 0.5 * len(teacher_plan) else 0])
+
+        # Calculate aggregated metrics
+        avg_loss = float(np.mean(episode_losses))
+        avg_eff_depth = float(np.mean(effective_depths))
+        avg_teacher_depth = float(np.mean(teacher_depths))
+        collapse_ratio = collapse_counts / config.num_episodes
         
-        while not done and step < max_steps:
-            # Get teacher action (optimal)
-            teacher_action = teacher_policy.get_action(state)
-            
-            # Get student action
-            student_action = student_policy.get_action(state)
-            
-            # Compute TOP-D loss
-            loss_value = loss_fn.compute_loss(
-                state=state,
-                teacher_action=teacher_action,
-                student_action=student_action,
-                alpha=alpha
-            )
-            
-            # Update student policy (simplified gradient step)
-            student_policy.update(loss_value, alpha)
-            
-            # Execute student action in environment
-            next_state, reward, done, info = mdp.step(student_action)
-            
-            # Track depths
-            effective_depth = info.get("effective_depth", step + 1)
-            teacher_depth = info.get("teacher_depth", step + 1)
-            
-            episode_loss += loss_value
-            state = next_state
-            step += 1
-        
-        # Record episode statistics
-        episode_stats = {
-            "episode": episode,
-            "loss": episode_loss / max(step, 1),
-            "effective_depth": effective_depth,
-            "teacher_depth": teacher_depth,
-            "collapse_ratio": effective_depth / max(teacher_depth, 1),
-            "alpha": alpha,
-            "horizon": student_policy.horizon,
-            "steps": step
+        # Convergence stability check (variance of loss)
+        loss_variance = float(np.var(episode_losses))
+        convergence_stable = loss_variance < 0.5 # Threshold heuristic
+
+        result = {
+            "avg_loss": avg_loss,
+            "avg_effective_depth": avg_eff_depth,
+            "avg_teacher_depth": avg_teacher_depth,
+            "collapse_ratio": collapse_ratio,
+            "collapse_count": collapse_counts,
+            "total_steps": total_steps,
+            "convergence_stable": convergence_stable,
+            "loss_variance": loss_variance
         }
-        
-        history.append(episode_stats)
-        episode_logs.append(episode_stats)
-        
-        # Log progress every 10 episodes
-        if (episode + 1) % 10 == 0:
-            avg_loss = np.mean([h["loss"] for h in history[-10:]])
-            logger.info(f"Episode {episode + 1}/{num_episodes}: "
-                        f"Avg Loss={avg_loss:.4f}, "
-                        f"Eff Depth={effective_depth}, "
-                        f"Teacher Depth={teacher_depth}")
-    
-    # Write logs to CSV if path provided
-    if log_path:
-        log_file = Path(log_path)
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame(episode_logs)
-        df.to_csv(log_file, index=False)
-        logger.info(f"Episode logs written to {log_file}")
-    
-    return history
+
+        logger.info(f"Training complete. Avg Loss: {avg_loss:.4f}, "
+                    f"Collapse Ratio: {collapse_ratio:.4f}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Training loop failed: {e}", exc_info=True)
+        return None

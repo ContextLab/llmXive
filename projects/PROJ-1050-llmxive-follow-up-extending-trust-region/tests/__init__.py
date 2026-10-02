@@ -1,3 +1,3 @@
 """
-Test suite
+Test suite for llmXive project.
 """

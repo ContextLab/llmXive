@@ -1,20 +1,18 @@
-# PROJ-1050: llmXive Follow-up: Extending Trust Region Policy Distillation
+# llmXive Follow-up: Extending Trust Region Policy Distillation
 
-## Overview
-This project implements a synthetic Reasoning MDP environment and a capacity-constrained student policy to study reasoning collapse under Trust Region Policy Distillation (TOP-D).
-
-## Structure
-- `code/`: Source code for environment, policies, experiments, and analysis
-- `data/`: Raw and processed data artifacts
+## Project Structure
+- `code/`: Source code
+- `data/`: Data artifacts (raw, processed)
+- `tests/`: Test suite
 - `docs/`: Documentation and results
-- `tests/`: Unit and integration tests
 
-## Quickstart
+## Setup
 1. Install dependencies: `pip install -r code/requirements.txt`
-2. Run experiments: `python code/experiments/runner.py`
-3. Analyze results: `python code/analysis/tobit_model.py`
+2. Install dev tools: `pip install -e ".[dev]"`
+3. Install pre-commit hooks: `pre-commit install`
 
-## User Stories
-- **US1**: Synthetic Reasoning Environment & Teacher Policy
-- **US2**: Capacity-Constrained Student Policy & TOP-D Training Loop
-- **US3**: Interaction Analysis & Collapse Detection
+## Linting & Formatting
+This project uses **Ruff** for linting and **Black** for formatting.
+- Lint: `ruff check code/`
+- Format: `ruff format code/` (or `black code/`)
+- Fix automatically: `ruff check --fix code/`

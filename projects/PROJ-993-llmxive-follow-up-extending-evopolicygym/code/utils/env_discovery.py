@@ -3,94 +3,88 @@ import logging
 import os
 from typing import List, Dict, Any
 
-# Import the registry from the installed package
-try:
-    from evopolicygym.envs import REGISTRY
-except ImportError:
-    # Fallback import path if the package structure differs slightly
-    try:
-        from evopolicygym.envs.registry import REGISTRY
-    except ImportError:
-        raise ImportError(
-            "Failed to import REGISTRY from evopolicygym.envs. "
-            "Ensure 'evopolicygym' is installed and accessible."
-        )
-
 from utils.logging import get_logger
-
-logger = get_logger(__name__)
 
 def discover_environments() -> List[str]:
     """
     Dynamically discover the existing EvoPolicyGym environments.
-
-    Logic:
-    1. Import REGISTRY.
-    2. Query REGISTRY.keys().
-    3. If count is 0, raise RuntimeError.
-    4. If count != 16, log warning and return available IDs.
-
+    
     Returns:
-        List[str]: List of discovered environment IDs.
-
+        List[str]: A list of environment IDs registered in evopolicygym.
+        
     Raises:
-        RuntimeError: If no environments are found.
+        RuntimeError: If no environments are found (count == 0).
     """
-    env_ids = list(REGISTRY.keys())
-    count = len(env_ids)
+    logger = get_logger(__name__)
+    
+    try:
+        # Import the registry from the installed package
+        from evopolicygym.envs import REGISTRY
+        
+        # Query the keys
+        env_ids = list(REGISTRY.keys())
+        
+        count = len(env_ids)
+        logger.info(f"Discovered {count} environments from REGISTRY.")
+        
+        if count == 0:
+            error_msg = "No environments found. Study cannot proceed."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+        
+        return env_ids
+        
+    except ImportError as e:
+        logger.error(f"Failed to import evopolicygym REGISTRY: {e}")
+        raise RuntimeError(f"Cannot discover environments: {e}")
 
-    if count == 0:
-        logger.error("No environments found in REGISTRY.")
-        raise RuntimeError("No environments found. Study cannot proceed.")
-
-    if count != 16:
-        logger.warning(
-            f"Expected 16 environments, found {count}. "
-            "Proceeding with available subset."
-        )
-
-    logger.info(f"Discovered {count} environments: {env_ids}")
-    return env_ids
-
-def write_discovered_envs(env_ids: List[str], output_dir: str = "data") -> str:
+def write_discovered_envs(env_ids: List[str]) -> None:
     """
-    Write the list of discovered environment IDs to JSON and log files.
-
+    Write the list of discovered environment IDs to data files.
+    
     Args:
         env_ids: List of environment IDs.
-        output_dir: Directory to write output files.
-
-    Returns:
-        str: Path to the written JSON file.
     """
-    os.makedirs(output_dir, exist_ok=True)
-
-    json_path = os.path.join(output_dir, "discovered_envs.json")
-    log_path = os.path.join(output_dir, "discovered_envs.log")
-
-    # Write JSON
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(env_ids, f, indent=2)
-
-    # Write Log
-    with open(log_path, "w", encoding="utf-8") as f:
-        f.write(f"Discovered {len(env_ids)} environments:\n")
+    logger = get_logger(__name__)
+    
+    # Ensure data directory exists
+    data_dir = "data"
+    os.makedirs(data_dir, exist_ok=True)
+    
+    log_path = os.path.join(data_dir, "discovered_envs.log")
+    json_path = os.path.join(data_dir, "discovered_envs.json")
+    
+    count = len(env_ids)
+    expected_count = 16
+    
+    # Write log file
+    with open(log_path, "w") as f:
+        f.write(f"Discovered {count} environments.\n")
+        if count != expected_count:
+            warning_msg = (
+                f"Expected {expected_count} (2607.02440, https://arxiv.org/abs/2607.02440) "
+                f"environments [UNRESOLVED-CLAIM: c_ccec8d03 — status=verified], found {count}. "
+                "Proceeding with available subset."
+            )
+            logger.warning(warning_msg)
+            f.write(warning_msg + "\n")
+        f.write("Environment IDs:\n")
         for env_id in env_ids:
-            f.write(f"- {env_id}\n")
-
-    logger.info(f"Wrote discovered environments to {json_path} and {log_path}")
-    return json_path
+            f.write(f"  - {env_id}\n")
+    
+    # Write JSON file
+    with open(json_path, "w") as f:
+        json.dump(env_ids, f, indent=2)
+    
+    logger.info(f"Wrote discovered environments to {log_path} and {json_path}")
 
 def run_discovery() -> List[str]:
     """
-    Main entry point to discover and persist environment list.
-
+    Main entry point to discover environments and write artifacts.
+    
     Returns:
         List[str]: The list of discovered environment IDs.
     """
     env_ids = discover_environments()
     write_discovered_envs(env_ids)
     return env_ids
-
-if __name__ == "__main__":
-    run_discovery()

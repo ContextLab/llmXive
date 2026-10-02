@@ -59,7 +59,7 @@
 - [ ] T004a [P] Create `code/utils/` directory and `__init__.py` file to support utility modules
 - [X] T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`
 - [X] T006 [P] Create base logging configuration to write to `data/raw/` in `code/utils/logger.py`
-- [ ] T007 Setup experiment configuration schema for $\alpha$ and horizon sweeps in `code/experiments/grid_config.py`
+- [X] T007 Setup experiment configuration schema for $\alpha$ and horizon sweeps in `code/experiments/grid_config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -105,11 +105,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018a [P] [US2] Implement the cognitive horizon enforcement mechanism (step counter truncation/penalty injection) in `code/student/policy.py` (FR-002)
-- [ ] T018 [P] [US2] Implement `StudentPolicy` class skeleton in `code/student/policy.py` (FR-002)
-- [ ] T019 [P] [US2] Implement `TOPDLoss` class for probability-space interpolation with $\alpha$ in `code/student/topd_loss.py` (FR-003)
-- [ ] T020 [US2] Implement training loop in `code/experiments/runner.py` that records effective depth, teacher depth, and calculates the collapse ratio (effective depth / teacher depth) for each episode (FR-004, SC-002)
-- [ ] T021 [US2] Implement logic to handle $\alpha=0$ (pure student learning) in `code/student/policy.py`
+- [X] T018a [P] [US2] Implement the cognitive horizon enforcement mechanism (step counter truncation/penalty injection) in `code/student/policy.py` (FR-002)
+- [X] T018 [P] [US2] Implement `StudentPolicy` class skeleton in `code/student/policy.py` (FR-002)
+- [X] T019 [P] [US2] Implement `TOPDLoss` class for probability-space interpolation with $\alpha$ in `code/student/topd_loss.py` (FR-003)
+- [X] T020 [US2] Implement training loop in `code/experiments/runner.py` that records effective depth, teacher depth, and calculates the collapse ratio (effective depth / teacher depth) for each episode (FR-004, SC-002)
+- [X] T021 [US2] Implement logic to handle $\alpha=0$ (pure student learning) in `code/student/policy.py`
 - [ ] T022 [US2] Add logging for per-episode loss values and convergence stability (variance of the loss) for *every* training episode to `data/raw/episode_logs.csv` in `code/experiments/runner.py` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,16 +124,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for Tobit regression execution and p-value extraction in `tests/unit/test_tobit_model.py`
-- [ ] T024 [P] [US3] Unit test for collapse detection logic (depth ≤ 0.5 × teacher depth) in `tests/unit/test_analysis.py`
-- [ ] T025 [P] [US3] Integration test for full sensitivity analysis sweep in `tests/integration/test_analysis.py`
+- [X] T023 [P] [US3] Unit test for Tobit regression execution and p-value extraction in `tests/unit/test_tobit_model.py`
+- [X] T024 [P] [US3] Unit test for collapse detection logic (depth ≤ 0.5 × teacher depth) in `tests/unit/test_analysis.py`
+- [X] T025 [P] [US3] Integration test for full sensitivity analysis sweep in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement `TobitModel` class for censored regression using `statsmodels.regression.tobit` in `code/analysis/tobit_model.py` (FR-005)
-- [ ] T027 [US3] Implement collapse detection logic (effective depth ≤ 0.5 × teacher depth) in `code/analysis/tobit_model.py` (FR-006)
+- [X] T026 [P] [US3] Implement `TobitModel` class for censored regression using `statsmodels.regression.tobit` in `code/analysis/tobit_model.py` (FR-005)
+- [X] T027 [US3] Implement collapse detection logic (effective depth ≤ 0.5 × teacher depth) in `code/analysis/tobit_model.py` (FR-006)
 - [ ] T028 [US3] Implement and execute the sensitivity analysis runner to sweep $\alpha$ across the set {0.1, 0.3, 0.5, 0.7, 0.9} across all student horizon limits, generating the full experimental grid dataset and writing the results to `data/processed/collapse_sweep.csv` (FR-006, SC-004)
-- [ ] T029 [US3] Implement non-monotonicity check to identify peak effective reasoning depth at intermediate $\alpha$ and write the result (peak alpha, hypothesis flag) to `docs/results/hypothesis_validation.json` (FR-006, SC-004)
+- [X] T029 [US3] Implement non-monotonicity check to identify peak effective reasoning depth at intermediate $\alpha$ and write the result (peak alpha, hypothesis flag) to `docs/results/hypothesis_validation.json` (FR-006, SC-004)
 - [ ] T030 [US3] Generate analysis report with likelihood ratio test statistics and p-values in `code/analysis/tobit_model.py` (FR-005)
 
 **Checkpoint**: All user stories should now be independently functional

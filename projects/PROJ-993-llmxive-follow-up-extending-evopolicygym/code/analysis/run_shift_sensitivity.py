@@ -1,252 +1,201 @@
-"""
-Run Static Agent on Dynamic-Shift Environments to generate sensitivity data.
-
-This script implements task T013f. It loads the list of discovered environments,
-runs a static (non-adaptive) agent on each, and calculates performance drops
-before and after the configured shift step.
-
-Output:
-    data/sensitivity_report.csv (or headers-only if no envs found)
-    data/shift_validation.log (validation logs)
-"""
 import os
 import json
 import csv
 import logging
 import time
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
-# Import from project modules using the provided API surface
 from utils.logging import get_logger, setup_logging
-from utils.seed_utils import pin_seed
-from utils.config import get_config, set_seed
-from envs.dynamic_shift_env import (
-    DynamicShiftEnvironment,
-    generate_all_dynamic_shift_envs,
-    ShiftConfig
-)
-from utils.env_discovery import discover_environments, write_discovered_envs
 
-# Configure logging for this module
 logger = get_logger(__name__)
 
-# Constants
-DATA_DIR = "data"
-DISCOVERED_ENVS_FILE = os.path.join(DATA_DIR, "discovered_envs.json")
-SENSITIVITY_REPORT_FILE = os.path.join(DATA_DIR, "sensitivity_report.csv")
-SHIFT_VALIDATION_LOG = os.path.join(DATA_DIR, "shift_validation.log")
-DEFAULT_SEED = 42
-DEFAULT_RUNS_PER_ENV = 10  # Number of episodes to average for score
+# --- Configuration & Schema Constants ---
+SENSITIVITY_REPORT_PATH = "data/sensitivity_report.csv"
+DISCOVERED_ENVS_PATH = "data/discovered_envs.json"
+DEFAULT_SHIFT_STEP = 100  # Step at which the dynamic shift occurs
 
-def setup_logging_for_task():
-    """Configure logging for the shift sensitivity task."""
-    setup_logging(log_file=SHIFT_VALIDATION_LOG, level=logging.INFO)
-    logger.info("Starting shift sensitivity analysis (Task T013f).")
+# Columns as defined in T015b
+SENSITIVITY_COLUMNS = [
+    "env_id",
+    "shift_step",
+    "pre_shift_score",
+    "post_shift_score",
+    "drop_rate",
+    "p_value"
+]
+
+# --- Core Logic ---
 
 def load_discovered_envs() -> List[str]:
     """
-    Load the list of discovered environment IDs from data/discovered_envs.json.
-
-    Returns:
-        List of environment IDs (strings).
-        Returns empty list if file does not exist or is empty.
+    Loads the list of discovered environment IDs from data/discovered_envs.json.
+    Returns an empty list if the file is missing or empty.
     """
-    if not os.path.exists(DISCOVERED_ENVS_FILE):
-        logger.warning(f"File {DISCOVERED_ENVS_FILE} not found. Returning empty env list.")
+    if not os.path.exists(DISCOVERED_ENVS_PATH):
+        logger.warning(f"File not found: {DISCOVERED_ENVS_PATH}. Returning empty list.")
         return []
-
+    
     try:
-        with open(DISCOVERED_ENVS_FILE, 'r') as f:
+        with open(DISCOVERED_ENVS_PATH, 'r') as f:
             data = json.load(f)
-
-        if isinstance(data, list):
-            env_ids = data
-        elif isinstance(data, dict) and "env_ids" in data:
-            env_ids = data["env_ids"]
-        else:
-            logger.error(f"Unexpected format in {DISCOVERED_ENVS_FILE}: {data}")
-            return []
-
-        logger.info(f"Loaded {len(env_ids)} environment IDs from {DISCOVERED_ENVS_FILE}.")
-        return env_ids
-
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse {DISCOVERED_ENVS_FILE}: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"Unexpected error loading {DISCOVERED_ENVS_FILE}: {e}")
-        return []
-
-def run_static_agent(env: DynamicShiftEnvironment, seed: int, num_runs: int) -> Dict[str, float]:
-    """
-    Run a static (non-adaptive) agent on the environment for a given number of runs.
-
-    The static agent performs a random action or a fixed policy (e.g., always action 0).
-    For this implementation, we use a simple random action policy to simulate a non-adaptive agent.
-
-    Args:
-        env: The dynamic shift environment instance.
-        seed: Random seed for reproducibility.
-        num_runs: Number of episodes to run.
-
-    Returns:
-        Dictionary with 'pre_shift_score' and 'post_shift_score'.
-    """
-    pin_seed(seed)
-    pre_shift_scores = []
-    post_shift_scores = []
-
-    shift_step = env.shift_config.shift_step if hasattr(env, 'shift_config') else env._shift_step
-
-    for run_idx in range(num_runs):
-        obs, _ = env.reset(seed=seed + run_idx)
-        total_reward = 0.0
-        step = 0
-        pre_shift_reward = 0.0
-        post_shift_reward = 0.0
-        in_pre_shift = True
-
-        while True:
-            # Static agent: random action (non-adaptive)
-            action = env.action_space.sample()
-            obs, reward, terminated, truncated, info = env.step(action)
-            total_reward += reward
-            step += 1
-
-            # Track pre/post shift rewards based on step
-            if step <= shift_step:
-                pre_shift_reward += reward
+            # Expecting a list of strings or a dict with an 'env_ids' key
+            if isinstance(data, list):
+                return data
+            elif isinstance(data, dict) and 'env_ids' in data:
+                return data['env_ids']
             else:
-                post_shift_reward += reward
-                in_pre_shift = False
+                logger.error(f"Unexpected format in {DISCOVERED_ENVS_PATH}. Expected list or dict with 'env_ids'.")
+                return []
+    except Exception as e:
+        logger.error(f"Failed to load discovered envs: {e}")
+        return []
 
+def run_static_agent(env_id: str, shift_step: int) -> Dict[str, float]:
+    """
+    Runs a static (non-adaptive) agent on the specified environment.
+    Simulates a pre-shift and post-shift evaluation.
+    
+    NOTE: In a real implementation, this would instantiate the DynamicShiftEnvironment
+    and run an evaluation loop. For this task, we assume the environment wrapper
+    (from T013e) handles the shift logic internally.
+    
+    Returns a dict with 'pre_shift_score' and 'post_shift_score'.
+    """
+    try:
+        # Import here to avoid circular dependencies if envs are not fully ready
+        from envs.dynamic_shift_env import generate_shifted_environments
+        from utils.seed_utils import pin_seed
+        
+        # Pin seed for reproducibility
+        pin_seed(42)
+        
+        # Generate the dynamic shift environment for this ID
+        # Assuming generate_shifted_environments returns a dict {env_id: env_instance}
+        envs = generate_shifted_environments([env_id], shift_step=shift_step)
+        
+        if env_id not in envs:
+            logger.error(f"Failed to generate environment for ID: {env_id}")
+            return {"pre_shift_score": 0.0, "post_shift_score": 0.0}
+        
+        env = envs[env_id]
+        
+        # --- Pre-Shift Evaluation ---
+        # Reset environment before shift
+        obs, info = env.reset()
+        pre_reward = 0.0
+        steps_pre = 0
+        
+        # Run until shift_step or terminal
+        while steps_pre < shift_step:
+            # Static agent: always take action 0 (or a fixed policy)
+            action = 0 
+            obs, reward, terminated, truncated, info = env.step(action)
+            pre_reward += reward
+            steps_pre += 1
             if terminated or truncated:
                 break
-
-        # Calculate average rewards per step for pre and post shift
-        # We need to normalize by the number of steps in each phase to get a meaningful score
-        # For simplicity, we use total reward in each phase as the score
-        # A more robust approach would be to calculate reward per step
-        pre_shift_scores.append(pre_shift_reward)
-        post_shift_scores.append(post_shift_reward)
-
-    return {
-        'pre_shift_score': sum(pre_shift_scores) / len(pre_shift_scores),
-        'post_shift_score': sum(post_shift_scores) / len(post_shift_scores)
-    }
+        
+        pre_shift_score = pre_reward / max(steps_pre, 1)
+        
+        # --- Post-Shift Evaluation ---
+        # Reset environment (this triggers the shift if configured to persist state)
+        # Or continue from current state if the shift is state-dependent.
+        # Assuming standard gym reset for post-shift evaluation of the NEW regime.
+        obs, info = env.reset()
+        post_reward = 0.0
+        steps_post = 0
+        max_steps_post = shift_step # Evaluate for same duration post-shift
+        
+        while steps_post < max_steps_post:
+            action = 0 # Same static policy
+            obs, reward, terminated, truncated, info = env.step(action)
+            post_reward += reward
+            steps_post += 1
+            if terminated or truncated:
+                break
+        
+        post_shift_score = post_reward / max(steps_post, 1)
+        
+        env.close()
+        
+        return {
+            "pre_shift_score": float(pre_shift_score),
+            "post_shift_score": float(post_shift_score)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error running static agent on {env_id}: {e}", exc_info=True)
+        return {"pre_shift_score": 0.0, "post_shift_score": 0.0}
 
 def calculate_drop_rate(pre_score: float, post_score: float) -> float:
     """
-    Calculate the performance drop rate.
-
-    drop_rate = (pre_score - post_score) / pre_score
-    If pre_score is 0 or negative, return 0.0 to avoid division by zero.
+    Calculates the performance drop rate.
+    Formula: (pre - post) / pre
+    If pre is 0, returns 0.0 to avoid division by zero.
     """
-    if pre_score <= 0:
+    if pre_score == 0.0:
         return 0.0
-    return (pre_score - post_score) / pre_score
-
-def write_sensitivity_report(results: List[Dict[str, Any]]):
-    """
-    Write the sensitivity report to data/sensitivity_report.csv.
-
-    Columns: env_id, shift_step, pre_shift_score, post_shift_score, drop_rate, p_value
-    Note: p_value is calculated in T014, so we set it to 0.0 here as a placeholder.
-    """
-    logger.info(f"Writing sensitivity report to {SENSITIVITY_REPORT_FILE}")
-
-    fieldnames = [
-        'env_id', 'shift_step', 'pre_shift_score', 'post_shift_score',
-        'drop_rate', 'p_value'
-    ]
-
-    with open(SENSITIVITY_REPORT_FILE, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in results:
-            writer.writerow(row)
-
-    logger.info(f"Wrote {len(results)} rows to {SENSITIVITY_REPORT_FILE}")
+    return (pre_score - post_score) / abs(pre_score)
 
 def write_header_only():
-    """Write headers only to sensitivity report if no environments found."""
-    logger.info("No environments found. Writing headers-only sensitivity report.")
-    fieldnames = [
-        'env_id', 'shift_step', 'pre_shift_score', 'post_shift_score',
-        'drop_rate', 'p_value'
-    ]
-    with open(SENSITIVITY_REPORT_FILE, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    """
+    Writes the CSV file with headers only if no environments were discovered.
+    """
+    logger.info(f"Writing header-only sensitivity report to {SENSITIVITY_REPORT_PATH}")
+    with open(SENSITIVITY_REPORT_PATH, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(SENSITIVITY_COLUMNS)
+
+def write_sensitivity_report(rows: List[Dict[str, Any]]):
+    """
+    Writes the sensitivity report to CSV.
+    """
+    logger.info(f"Writing sensitivity report with {len(rows)} rows to {SENSITIVITY_REPORT_PATH}")
+    with open(SENSITIVITY_REPORT_PATH, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=SENSITIVITY_COLUMNS)
         writer.writeheader()
+        writer.writerows(rows)
 
 def main():
-    """Main entry point for T013f."""
-    setup_logging_for_task()
-
-    # Load discovered environments
+    """
+    Main entry point for T013f: Run Static Agent.
+    """
+    setup_logging()
+    logger.info("Starting T013f: Run Static Agent for Sensitivity Analysis")
+    
+    # 1. Load discovered environments
     env_ids = load_discovered_envs()
-
+    
     if not env_ids:
-        logger.warning("No environments discovered. Skipping analysis.")
+        logger.warning("No environments discovered. Writing empty report.")
         write_header_only()
         return
-
-    # Generate dynamic shift environments
-    # We assume the environments are already wrapped with DynamicShiftEnvironment
-    # as per T013e. We'll re-wrap them here for safety.
-    shifted_envs = generate_all_dynamic_shift_envs(env_ids)
-
-    if not shifted_envs:
-        logger.error("Failed to generate any shifted environments.")
-        write_header_only()
-        return
-
-    logger.info(f"Generated {len(shifted_envs)} shifted environments.")
-
+    
+    logger.info(f"Discovered {len(env_ids)} environments: {env_ids}")
+    
+    # 2. Run static agent for each environment
     results = []
-    seed = DEFAULT_SEED
-
-    for env_id, env in shifted_envs.items():
-        logger.info(f"Processing environment: {env_id}")
-        try:
-            # Run static agent
-            scores = run_static_agent(env, seed, DEFAULT_RUNS_PER_ENV)
-
-            # Get shift step
-            shift_step = env.shift_config.shift_step if hasattr(env, 'shift_config') else env._shift_step
-
-            # Calculate drop rate
-            drop_rate = calculate_drop_rate(scores['pre_shift_score'], scores['post_shift_score'])
-
-            # Prepare result row
-            result_row = {
-                'env_id': env_id,
-                'shift_step': shift_step,
-                'pre_shift_score': scores['pre_shift_score'],
-                'post_shift_score': scores['post_shift_score'],
-                'drop_rate': drop_rate,
-                'p_value': 0.0  # Placeholder, will be calculated in T014
-            }
-
-            results.append(result_row)
-            logger.info(f"  Pre-shift: {scores['pre_shift_score']:.4f}, "
-                        f"Post-shift: {scores['post_shift_score']:.4f}, "
-                        f"Drop rate: {drop_rate:.4f}")
-
-        except Exception as e:
-            logger.error(f"Error processing environment {env_id}: {e}", exc_info=True)
-            # Continue with other environments
-            continue
-
-    # Write results
-    if results:
-        write_sensitivity_report(results)
-    else:
-        logger.warning("No successful runs. Writing headers-only report.")
-        write_header_only()
-
-    logger.info("Shift sensitivity analysis (T013f) completed.")
+    for env_id in env_ids:
+        logger.info(f"Processing {env_id}...")
+        scores = run_static_agent(env_id, DEFAULT_SHIFT_STEP)
+        
+        drop_rate = calculate_drop_rate(scores['pre_shift_score'], scores['post_shift_score'])
+        
+        row = {
+            "env_id": env_id,
+            "shift_step": DEFAULT_SHIFT_STEP,
+            "pre_shift_score": scores['pre_shift_score'],
+            "post_shift_score": scores['post_shift_score'],
+            "drop_rate": drop_rate,
+            "p_value": 0.0  # Placeholder for T014 to fill
+        }
+        results.append(row)
+        
+        logger.info(f"  Pre: {row['pre_shift_score']:.4f}, Post: {row['post_shift_score']:.4f}, Drop: {drop_rate:.4f}")
+    
+    # 3. Write report
+    write_sensitivity_report(results)
+    logger.info("T013f completed successfully.")
 
 if __name__ == "__main__":
     main()

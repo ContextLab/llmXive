@@ -1,12 +1,6 @@
 """
-Analysis Package.
-
-Provides statistical analysis tools including Tobit regression for
-collapse detection and sensitivity analysis.
+Analysis package initialization.
 """
-
 from .tobit_model import TobitModel
 
-__all__ = [
-    "TobitModel",
-]
+__all__ = ["TobitModel"]

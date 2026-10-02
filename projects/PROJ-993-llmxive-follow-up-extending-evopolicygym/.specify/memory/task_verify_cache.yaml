@@ -7,23 +7,10 @@ T014:
     \ p\u2011value) is not satisfied."
 T015a:
   c: false
-  h: e6b25ab86e8324d539feeaff3f5a5e526176c245e86b74255279808386d049ac
-  r: "The provided `code/main.py` does not actually invoke `generate_all_dynamic_shift_envs`\
-    \ to apply `DynamicShiftEnvironment`, and the required `data/sensitivity_report.csv`\
-    \ file is absent, causing the script\u2019s pre\u2011flight check to fail. The\
-    \ wrapper therefore does not meet the orchestration and verification requirements."
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No schema definition file (e.g., CSV header list, JSON schema, or code comment)
-    was provided; the evidence contains only the task description without any concrete
-    artifact specifying the required columns and types. The implementer must supply
-    a tangible schema definition for `sensitivity_report.csv`.
-T023:
-  c: false
-  h: 22044b2243b18bd166f0d59cb671d5947b4270321096ead5b6fdd183f9ca389e
-  r: "The provided `generator.py` defines `TemplateExplanation` but does not show\
-    \ any code that returns this object on LLM failure/timeout nor logs to `data/fallbacks.log`;\
-    \ the file is truncated before any generation or fallback logic. Additionally,\
-    \ the required `data/fallbacks.log` file is missing. The task\u2019s fallback\
-    \ mechanism and logging requirements are therefore not satisfied."
+  h: 310bbf042c83b6ef06d5de8ea0d6d40577b1c4dd7f0392bface9319be6ed3569
+  r: The provided `code/main.py` does not contain any logic that invokes `generate_all_dynamic_shift_envs`
+    to apply `DynamicShiftEnvironment` to the discovered environments, nor does it
+    implement a dedicated wrapper that checks for `data/sensitivity_report.csv` before
+    doing so. Additionally, the required `data/sensitivity_report.csv` file is absent
+    from the repository. Both the script behavior and the necessary data artifact
+    are missing.

@@ -1,124 +1,103 @@
-"""
-Environment configuration script for llmXive project.
-Sets up random seeds and model paths via environment variables.
-"""
 import os
 import random
 import numpy as np
 import torch
+from pathlib import Path
+from dotenv import load_dotenv
 
-# Default configuration values
-DEFAULT_SEED = 42
-DEFAULT_MODEL_PATH = "microsoft/phi-2"  # Common CPU-feasible model
-DEFAULT_DEVICE = "cpu"
-DEFAULT_MAX_TURNS = 50
-DEFAULT_EXTENDED_MAX_TURNS = 1000
-DEFAULT_DATA_PATH_RAW = "data/raw"
-DEFAULT_DATA_PATH_PROCESSED = "data/processed"
-DEFAULT_RESULTS_PATH = "results"
-
-def configure_environment(seed: int = None, model_path: str = None, device: str = None):
+def configure_environment():
     """
-    Configure environment variables for reproducibility and model paths.
-    
-    Args:
-        seed: Random seed for reproducibility (default: 42)
-        model_path: Path to the pre-trained model (default: "microsoft/phi-2")
-        device: Device to run on ("cpu" or "cuda") (default: "cpu")
+    Loads environment variables from .env file (if present) and validates critical ones.
+    Returns a dictionary of configuration values.
     """
-    # Set seed if provided
-    if seed is not None:
-        os.environ["LLMXIVE_SEED"] = str(seed)
-    elif "LLMXIVE_SEED" not in os.environ:
-        os.environ["LLMXIVE_SEED"] = str(DEFAULT_SEED)
-    
-    # Set model path if provided
-    if model_path is not None:
-        os.environ["LLMXIVE_MODEL_PATH"] = model_path
-    elif "LLMXIVE_MODEL_PATH" not in os.environ:
-        os.environ["LLMXIVE_MODEL_PATH"] = DEFAULT_MODEL_PATH
-    
-    # Set device if provided
-    if device is not None:
-        os.environ["LLMXIVE_DEVICE"] = device
-    elif "LLMXIVE_DEVICE" not in os.environ:
-        os.environ["LLMXIVE_DEVICE"] = DEFAULT_DEVICE
-    
-    # Set turn limits
-    if "LLMXIVE_MAX_TURNS" not in os.environ:
-        os.environ["LLMXIVE_MAX_TURNS"] = str(DEFAULT_MAX_TURNS)
-    if "LLMXIVE_EXTENDED_MAX_TURNS" not in os.environ:
-        os.environ["LLMXIVE_EXTENDED_MAX_TURNS"] = str(DEFAULT_EXTENDED_MAX_TURNS)
-    
-    # Set data paths
-    if "LLMXIVE_DATA_RAW" not in os.environ:
-        os.environ["LLMXIVE_DATA_RAW"] = DEFAULT_DATA_PATH_RAW
-    if "LLMXIVE_DATA_PROCESSED" not in os.environ:
-        os.environ["LLMXIVE_DATA_PROCESSED"] = DEFAULT_DATA_PATH_PROCESSED
-    if "LLMXIVE_RESULTS_PATH" not in os.environ:
-        os.environ["LLMXIVE_RESULTS_PATH"] = DEFAULT_RESULTS_PATH
+    # Load .env file if it exists
+    env_path = Path(__file__).parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+    else:
+        # Try root level .env as fallback
+        root_env = Path(__file__).parent.parent / ".env"
+        if root_env.exists():
+            load_dotenv(root_env)
 
-    return get_environment_config()
+    # Validate and retrieve critical variables
+    config = get_environment_config()
+    
+    # Apply seeds for reproducibility
+    apply_seed(config['RANDOM_SEED'])
+    
+    return config
 
 def get_environment_config():
     """
-    Retrieve current environment configuration.
-    
-    Returns:
-        dict: Dictionary containing all configuration values
+    Reads environment variables and returns a typed configuration dictionary.
+    Raises KeyError if a required variable is missing.
     """
-    return {
-        "seed": int(os.environ.get("LLMXIVE_SEED", DEFAULT_SEED)),
-        "model_path": os.environ.get("LLMXIVE_MODEL_PATH", DEFAULT_MODEL_PATH),
-        "device": os.environ.get("LLMXIVE_DEVICE", DEFAULT_DEVICE),
-        "max_turns": int(os.environ.get("LLMXIVE_MAX_TURNS", DEFAULT_MAX_TURNS)),
-        "extended_max_turns": int(os.environ.get("LLMXIVE_EXTENDED_MAX_TURNS", DEFAULT_EXTENDED_MAX_TURNS)),
-        "data_raw": os.environ.get("LLMXIVE_DATA_RAW", DEFAULT_DATA_PATH_RAW),
-        "data_processed": os.environ.get("LLMXIVE_DATA_PROCESSED", DEFAULT_DATA_PATH_PROCESSED),
-        "results_path": os.environ.get("LLMXIVE_RESULTS_PATH", DEFAULT_RESULTS_PATH),
-    }
+    try:
+        seed = int(os.getenv('RANDOM_SEED', 42))
+        model_path = os.getenv('MODEL_PATH')
+        if not model_path:
+            raise ValueError("MODEL_PATH environment variable is not set.")
+        
+        max_turns_primary = int(os.getenv('MAX_TURNS_PRIMARY', 50))
+        max_turns_extended = int(os.getenv('MAX_TURNS_EXTENDED', 1000))
+        device = os.getenv('DEVICE', 'cpu')
+        
+        data_raw_dir = os.getenv('DATA_RAW_DIR', 'data/raw')
+        data_processed_dir = os.getenv('DATA_PROCESSED_DIR', 'data/processed')
+        results_dir = os.getenv('RESULTS_DIR', 'results')
+        
+        log_level = os.getenv('LOG_LEVEL', 'INFO')
+        ortho_threshold = float(os.getenv('ORTHOGONALIZATION_THRESHOLD', 0.2))
 
-def apply_seed(seed: int = None):
+        return {
+            'RANDOM_SEED': seed,
+            'MODEL_PATH': model_path,
+            'MAX_TURNS_PRIMARY': max_turns_primary,
+            'MAX_TURNS_EXTENDED': max_turns_extended,
+            'DEVICE': device,
+            'DATA_RAW_DIR': data_raw_dir,
+            'DATA_PROCESSED_DIR': data_processed_dir,
+            'RESULTS_DIR': results_dir,
+            'LOG_LEVEL': log_level,
+            'ORTHOGONALIZATION_THRESHOLD': ortho_threshold
+        }
+    except KeyError as e:
+        raise RuntimeError(f"Missing required environment variable: {e}") from e
+    except ValueError as e:
+        raise RuntimeError(f"Invalid value for environment variable: {e}") from e
+
+def apply_seed(seed: int):
     """
-    Apply random seed to all relevant libraries for reproducibility.
-    
-    Args:
-        seed: Random seed (uses environment variable if not provided)
+    Sets random seeds for python's random, numpy, and torch to ensure reproducibility.
     """
-    if seed is None:
-        seed = int(os.environ.get("LLMXIVE_SEED", DEFAULT_SEED))
-    
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
 
 def main():
-    """Main entry point for environment setup."""
-    print("Configuring llmXive environment...")
-    
-    # Configure with defaults
-    config = configure_environment()
-    
-    print(f"Seed: {config['seed']}")
-    print(f"Model Path: {config['model_path']}")
-    print(f"Device: {config['device']}")
-    print(f"Max Turns: {config['max_turns']}")
-    print(f"Extended Max Turns: {config['extended_max_turns']}")
-    print(f"Data Raw Path: {config['data_raw']}")
-    print(f"Data Processed Path: {config['data_processed']}")
-    print(f"Results Path: {config['results_path']}")
-    
-    # Apply seed
-    apply_seed(config['seed'])
-    print("Random seeds applied successfully.")
-    
-    return config
+    """
+    Entry point to configure the environment.
+    Prints the loaded configuration for verification.
+    """
+    try:
+        config = configure_environment()
+        print("Environment configured successfully.")
+        print(f"  Random Seed: {config['RANDOM_SEED']}")
+        print(f"  Model Path: {config['MODEL_PATH']}")
+        print(f"  Device: {config['DEVICE']}")
+        print(f"  Max Turns (Primary): {config['MAX_TURNS_PRIMARY']}")
+        print(f"  Max Turns (Extended): {config['MAX_TURNS_EXTENDED']}")
+        print(f"  Data Raw Dir: {config['DATA_RAW_DIR']}")
+        print(f"  Data Processed Dir: {config['DATA_PROCESSED_DIR']}")
+        print(f"  Results Dir: {config['RESULTS_DIR']}")
+        print(f"  Orthogonalization Threshold: {config['ORTHOGONALIZATION_THRESHOLD']}")
+        return config
+    except RuntimeError as e:
+        print(f"Error configuring environment: {e}")
+        return None
 
 if __name__ == "__main__":
     main()

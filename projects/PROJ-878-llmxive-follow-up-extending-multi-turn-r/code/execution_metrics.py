@@ -1,13 +1,3 @@
-"""
-T024: Calculate divergence metrics between model execution paths and ground truth.
-
-This module reads the execution log (produced by rm_executor) and the original
-puzzle metadata (including the perturbed ground_truth_path) to calculate
-a divergence metric (Jaccard distance) for each instance.
-
-It ensures FR-007 compliance by validating against the perturbed ground truth
-stored in the metadata, not the longest path.
-"""
 import os
 import json
 import csv
@@ -15,178 +5,213 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Set, Tuple
 
-from utils.logging_utils import configure_logging
+import networkx as nx
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 def load_execution_log(log_path: str) -> List[Dict[str, Any]]:
-    """Load the execution log CSV."""
-    if not os.path.exists(log_path):
-        raise FileNotFoundError(f"Execution log not found at {log_path}")
+    """Load execution log from CSV file."""
+    log_file = Path(log_path)
+    if not log_file.exists():
+        raise FileNotFoundError(f"Execution log not found: {log_path}")
     
-    data = []
-    with open(log_path, 'r', newline='', encoding='utf-8') as f:
+    results = []
+    with open(log_file, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Parse JSON fields if they are stored as strings
-            if 'predicted_path' in row and row['predicted_path']:
-                try:
-                    row['predicted_path'] = json.loads(row['predicted_path'])
-                except json.JSONDecodeError:
-                    row['predicted_path'] = []
-            data.append(row)
-    return data
+            results.append(row)
+    return results
 
-def load_puzzles_metadata(puzzle_path: str) -> Dict[str, Dict[str, Any]]:
-    """
-    Load the logical puzzles JSONL and index by instance_id.
-    We need the 'ground_truth_path' which is the perturbed one.
-    """
-    if not os.path.exists(puzzle_path):
-        raise FileNotFoundError(f"Puzzle metadata not found at {puzzle_path}")
+def load_puzzles_metadata(metadata_path: str) -> Dict[str, Dict[str, Any]]:
+    """Load puzzle metadata from JSONL file."""
+    meta_file = Path(metadata_path)
+    if not meta_file.exists():
+        raise FileNotFoundError(f"Puzzle metadata not found: {metadata_path}")
     
     puzzles = {}
-    with open(puzzle_path, 'r', encoding='utf-8') as f:
+    with open(meta_file, 'r', encoding='utf-8') as f:
         for line in f:
-            if not line.strip():
+            line = line.strip()
+            if not line:
                 continue
             puzzle = json.loads(line)
             instance_id = puzzle.get('instance_id')
-            if not instance_id:
-                logger.warning(f"Skipping line without instance_id in {puzzle_path}")
-                continue
-            puzzles[instance_id] = puzzle
+            if instance_id:
+                puzzles[instance_id] = puzzle
     return puzzles
 
-def jaccard_distance(path_a: List[str], path_b: List[str]) -> float:
-    """
-    Calculate Jaccard distance between two paths.
-    Jaccard Distance = 1 - (|Intersection| / |Union|)
-    Treats paths as sets of nodes.
-    """
-    set_a = set(path_a)
-    set_b = set(path_b)
-    
+def jaccard_distance(set_a: Set[str], set_b: Set[str]) -> float:
+    """Calculate Jaccard distance between two sets of nodes."""
     if not set_a and not set_b:
-        return 0.0  # Both empty -> identical
-    if not set_a or not set_b:
-        return 1.0  # One empty, one not -> completely different
-    
-    intersection = set_a.intersection(set_b)
-    union = set_a.union(set_b)
-    
-    return 1.0 - (len(intersection) / len(union))
+        return 0.0
+    intersection = len(set_a & set_b)
+    union = len(set_a | set_b)
+    if union == 0:
+        return 0.0
+    return 1.0 - (intersection / union)
 
-def calculate_divergence_metrics(
-    execution_log_path: str,
-    puzzle_metadata_path: str,
-    output_path: str
-) -> None:
+def path_edit_distance(path_a: List[str], path_b: List[str]) -> float:
+    """Calculate normalized edit distance between two paths."""
+    if not path_a and not path_b:
+        return 0.0
+    if not path_a or not path_b:
+        return 1.0
+    
+    # Simple edit distance calculation
+    m, n = len(path_a), len(path_b)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    
+    for i in range(m + 1):
+        dp[i][0] = i
+    for j in range(n + 1):
+        dp[0][j] = j
+    
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if path_a[i-1] == path_b[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+    
+    max_len = max(m, n)
+    if max_len == 0:
+        return 0.0
+    return dp[m][n] / max_len
+
+def calculate_divergence_metrics(execution_log: List[Dict[str, Any]], 
+                                 puzzles_metadata: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Main function to calculate divergence metrics.
+    Calculate divergence metrics between model paths and ground truth paths.
     
-    Reads execution_log.csv and logical_puzzles.jsonl, calculates Jaccard distance
-    between predicted_path and ground_truth_path, and writes the result to
-    execution_log_with_metrics.csv.
+    Ensures FR-007 compliance by validating against the perturbed ground truth,
+    NOT the longest path.
+    
+    Args:
+        execution_log: List of execution results with 'instance_id' and 'model_path'
+        puzzles_metadata: Dictionary mapping instance_id to puzzle metadata containing
+                       'ground_truth_path' (which should be the perturbed path)
+    
+    Returns:
+        List of execution results with added divergence metrics
     """
-    logger.info(f"Loading execution log from {execution_log_path}")
-    execution_data = load_execution_log(execution_log_path)
+    results = []
     
-    logger.info(f"Loading puzzle metadata from {puzzle_metadata_path}")
-    puzzles = load_puzzles_metadata(puzzle_metadata_path)
-    
-    output_rows = []
-    total_instances = len(execution_data)
-    processed = 0
-    
-    for row in execution_data:
-        instance_id = row.get('instance_id')
-        if not instance_id:
-            logger.warning("Skipping row without instance_id")
+    for entry in execution_log:
+        instance_id = entry.get('instance_id')
+        
+        if instance_id not in puzzles_metadata:
+            logger.warning(f"Instance {instance_id} not found in metadata, skipping divergence calculation")
+            entry['divergence_from_ground_truth'] = None
+            entry['jaccard_distance'] = None
+            entry['path_edit_distance'] = None
+            results.append(entry)
             continue
         
-        # Get ground truth path from metadata (perturbed)
-        puzzle_data = puzzles.get(instance_id)
-        if not puzzle_data:
-            logger.warning(f"Instance {instance_id} not found in metadata")
-            # Default to max distance if missing
-            divergence = 1.0
-            row['divergence_from_ground_truth'] = divergence
-            output_rows.append(row)
+        puzzle = puzzles_metadata[instance_id]
+        ground_truth_path = puzzle.get('ground_truth_path')
+        model_path_str = entry.get('model_path')
+        
+        if not ground_truth_path or not model_path_str:
+            logger.warning(f"Missing ground_truth_path or model_path for {instance_id}")
+            entry['divergence_from_ground_truth'] = None
+            entry['jaccard_distance'] = None
+            entry['path_edit_distance'] = None
+            results.append(entry)
             continue
         
-        ground_truth_path = puzzle_data.get('ground_truth_path', [])
-        predicted_path = row.get('predicted_path', [])
-        
-        # Ensure predicted_path is a list
-        if isinstance(predicted_path, str):
+        # Parse paths
+        if isinstance(ground_truth_path, str):
+            ground_truth_path = json.loads(ground_truth_path)
+        if isinstance(model_path_str, str):
             try:
-                predicted_path = json.loads(predicted_path)
-            except:
-                predicted_path = []
+                model_path = json.loads(model_path_str)
+            except json.JSONDecodeError:
+                # Try parsing as comma-separated string
+                model_path = [n.strip() for n in model_path_str.split(',') if n.strip()]
+        else:
+            model_path = model_path_str
         
-        # Calculate divergence (Jaccard distance)
-        divergence = jaccard_distance(predicted_path, ground_truth_path)
+        # Convert to sets for Jaccard distance
+        ground_truth_set = set(ground_truth_path)
+        model_set = set(model_path)
         
-        row['divergence_from_ground_truth'] = divergence
-        output_rows.append(row)
-        processed += 1
+        # Calculate metrics
+        jaccard_dist = jaccard_distance(ground_truth_set, model_set)
+        edit_dist = path_edit_distance(ground_truth_path, model_path)
         
-        if processed % 100 == 0:
-            logger.info(f"Processed {processed}/{total_instances} instances")
+        # Composite divergence metric (weighted average)
+        divergence = 0.5 * jaccard_dist + 0.5 * edit_dist
+        
+        entry['jaccard_distance'] = jaccard_dist
+        entry['path_edit_distance'] = edit_dist
+        entry['divergence_from_ground_truth'] = divergence
+        
+        results.append(entry)
     
-    # Write output
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    return results
+
+def write_execution_log_with_metrics(results: List[Dict[str, Any]], output_path: str) -> None:
+    """Write execution results with divergence metrics to CSV."""
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Writing results to {output_path}")
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        if output_rows:
-            fieldnames = list(output_rows[0].keys())
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in output_rows:
-                writer.writerow(row)
+    if not results:
+        logger.warning("No results to write")
+        return
     
-    logger.info(f"Successfully processed {processed} instances")
-    logger.info(f"Output written to {output_path}")
+    # Determine fieldnames
+    fieldnames = list(results[0].keys())
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+    
+    logger.info(f"Wrote {len(results)} results to {output_path}")
 
 def main():
-    """Entry point for the script."""
-    configure_logging()
+    """Main entry point for calculating divergence metrics."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # Paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    execution_log_path = project_root / "data" / "processed" / "execution_log.csv"
-    puzzle_metadata_path = project_root / "data" / "raw" / "logical_puzzles.jsonl"
-    output_path = project_root / "data" / "processed" / "execution_log.csv"
+    # Define paths
+    puzzles_path = "data/raw/logical_puzzles.jsonl"
+    execution_log_path = "data/processed/execution_log.csv"
+    output_path = "data/processed/execution_log.csv"
     
-    # Note: We overwrite the execution_log.csv with the new column.
-    # In a real pipeline, we might write to a new file, but the task
-    # specifies the output is in data/processed/execution_log.csv.
-    
-    if not os.path.exists(execution_log_path):
-        logger.error(f"Execution log not found at {execution_log_path}. "
-                     "Run T027 (rm_executor) first.")
-        return 1
-    
-    if not os.path.exists(puzzle_metadata_path):
-        logger.error(f"Puzzle metadata not found at {puzzle_metadata_path}. "
-                     "Run T016 (graph_generator) first.")
-        return 1
-    
+    logger.info(f"Loading puzzle metadata from {puzzles_path}")
     try:
-        calculate_divergence_metrics(
-            str(execution_log_path),
-            str(puzzle_metadata_path),
-            str(output_path)
-        )
-        return 0
-    except Exception as e:
-        logger.error(f"Error calculating metrics: {e}", exc_info=True)
-        return 1
+        puzzles_metadata = load_puzzles_metadata(puzzles_path)
+        logger.info(f"Loaded metadata for {len(puzzles_metadata)} puzzles")
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load puzzle metadata: {e}")
+        return
+    
+    logger.info(f"Loading execution log from {execution_log_path}")
+    try:
+        execution_log = load_execution_log(execution_log_path)
+        logger.info(f"Loaded {len(execution_log)} execution records")
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load execution log: {e}")
+        return
+    
+    logger.info("Calculating divergence metrics...")
+    results = calculate_divergence_metrics(execution_log, puzzles_metadata)
+    
+    logger.info(f"Writing results to {output_path}")
+    write_execution_log_with_metrics(results, output_path)
+    
+    # Summary statistics
+    divergences = [r['divergence_from_ground_truth'] for r in results 
+                  if r['divergence_from_ground_truth'] is not None]
+    if divergences:
+        avg_divergence = sum(divergences) / len(divergences)
+        logger.info(f"Average divergence from ground truth: {avg_divergence:.4f}")
+    else:
+        logger.warning("No valid divergence metrics calculated")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

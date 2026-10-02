@@ -13,3 +13,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T024** — declared artifact(s) missing/empty/invalid: data/raw/logical_puzzles.jsonl, data/processed/execution_log.csv
 - **T025** — No code, script, or log file implementing a hard turn limit and marking exceeded runs as “failure” was provided; the evidence section contains no artifacts to verify that the required functionality exists. The task therefore remains unfulfilled.
 - **T026** — The claim provides only high‑level feature specifications and user stories; there is no code, script, or documentation showing a batch‑processing or streaming implementation that limits RAM usage. No artifact (e.g., a Python module, pipeline config, or test results) exists to demonstrate the required logic, so the task is not satisfied.
+- **T027** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv
+- **T028** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv, data/processed/extended_budget_log.csv
+- **T029** — declared artifact(s) missing/empty/invalid: data/processed/execution_log.csv, data/processed/extended_budget_log.csv
+- **T030** — The required `code/analyzer.py` file does not exist, causing import errors in the test. Moreover, the provided `tests/test_analyzer.py` is truncated, contains no actual test functions, and relies on the missing analyzer module, so it does not constitute a complete contract test.

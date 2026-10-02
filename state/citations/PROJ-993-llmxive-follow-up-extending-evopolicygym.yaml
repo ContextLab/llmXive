@@ -36,7 +36,7 @@
   verification_status: pending
   verified_against_url: https://github.com/Farama-Foundation/Gymnasium
   verified_at: '2026-08-16T07:17:22.824906Z'
-- artifact_hash: 8af079c16fd1b2ec73cf9d0d43cc4c37a08ad6d19ce6b936c566d1b9265d87ac
+- artifact_hash: 9f5d1b4bdbab464eeb546f43b27fe18d77878ca19d37692f0a42a8198d8ccfa9
   artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -46,8 +46,8 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-10-02T00:58:30.219992Z'
-- artifact_hash: 8af079c16fd1b2ec73cf9d0d43cc4c37a08ad6d19ce6b936c566d1b9265d87ac
+  verified_at: '2026-10-02T07:22:52.354642Z'
+- artifact_hash: 9f5d1b4bdbab464eeb546f43b27fe18d77878ca19d37692f0a42a8198d8ccfa9
   artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -58,4 +58,4 @@
   value: https://arxiv.org/abs/2607.02440
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.02440
-  verified_at: '2026-10-02T00:58:30.219992Z'
+  verified_at: '2026-10-02T07:22:52.354642Z'

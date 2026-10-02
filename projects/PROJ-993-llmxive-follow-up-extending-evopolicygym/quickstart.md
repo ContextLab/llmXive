@@ -1,75 +1,79 @@
-# Quickstart: EvoPolicyGym Extension
+# Quickstart: EvoPolicyGym Extension Pipeline
 
-2. Ensure the project structure is correct (Phase 1 tasks completed).
+This guide explains how to run the full analysis pipeline for the llmXive follow-up project.
 
-## Running the Pipeline
+## Prerequisites
 
-The pipeline is controlled via `code/main.py`. You can run specific stages or the full pipeline.
-
-### Option 1: Run the Full Pipeline (Recommended)
-
-This executes shift analysis, evolution, and statistical analysis, producing `data/final_results.csv`.
-
-1. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
+1. Ensure all dependencies are installed:
  ```bash
  pip install -r requirements.txt
  ```
+2. Verify that `data/discovered_envs.json` exists. If not, run:
+ ```bash
+ python code/main.py run-shift-analysis
+ ```
 
 ## Running the Pipeline
 
-The pipeline consists of three main stages: Shift Analysis, Evolution, and Statistics.
+The pipeline consists of four stages:
+1. **Shift Sensitivity Analysis**: Evaluate environment sensitivity to dynamic shifts.
+2. **Shift Validation**: Validate shift effects and calculate p-values.
+3. **Evolution Pipeline**: Run evolutionary agents on baseline and counterfactual conditions.
+4. **Statistical Analysis**: Perform mixed-effects model analysis.
+
+You can run each stage individually or run the full pipeline at once.
 
 ### Run Full Pipeline
 
-To run the entire pipeline (Shift Analysis -> Evolution -> Stats) with default settings:
+To execute the entire pipeline from start to finish:
 
-**Shift Sensitivity Analysis:**
 ```bash
-python code/main.py
+python code/main.py run-full --seeds 42 --runs 5 --conditions baseline counterfactual
 ```
 
-### Run Specific Stages
-
-- **Shift Analysis**:
- ```bash
- python code/main.py --run-shift-analysis
- ```
-
-- **Evolution**:
- ```bash
- python code/main.py --run-evolution --seeds 42 123 --runs 5
- ```
-
-- **Statistics**:
- ```bash
- python code/main.py --run-stats
- ```
-
-### Customization
-
-You can customize the run with the following arguments:
-
+**Arguments:**
 - `--seeds`: List of random seeds (default: 42)
 - `--runs`: Number of runs per seed (default: 5)
-- `--envs`: Specific environment IDs to run (default: all discovered)
-- `--conditions`: Conditions to test (default: baseline, counterfactual)
+- `--conditions`: Conditions to evaluate (default: baseline counterfactual)
+- `--envs`: Specific environment IDs to target (optional, defaults to all discovered)
 
-Example:
+### Run Individual Stages
+
+#### 1. Shift Sensitivity Analysis
 ```bash
-python code/main.py --run-evolution --seeds 42 --runs 10 --envs CartPole-v1 --conditions baseline
+python code/main.py run-shift-analysis
 ```
+**Output:** `data/sensitivity_report.csv`
 
-## Output Files
+#### 2. Shift Validation
+```bash
+python code/main.py run-shift-validation
+```
+**Output:** `data/shift_validation.log`
 
-After running the pipeline, the following files will be generated in the `data/` directory:
+#### 3. Evolution Pipeline
+```bash
+python code/main.py run-evolution --seeds 42 --runs 5
+```
+**Output:** `data/evolution_results.csv`, `data/run_state.json`
 
-- `sensitivity_report.csv`: Results of the shift sensitivity analysis.
-- `evolution_results.csv`: Detailed results of the evolutionary runs (T032b).
-- `stats_results.json`: Statistical analysis results (T036).
-- `final_results.csv`: Aggregated metrics (T037).
+#### 4. Statistical Analysis
+```bash
+python code/main.py run-stats
+```
+**Output:** `data/stats_results.json`, `data/final_results.csv`
+
+## Verifying Results
+
+After running the full pipeline, verify that the following files exist:
+- `data/sensitivity_report.csv`
+- `data/evolution_results.csv`
+- `data/stats_results.json`
+- `data/final_results.csv`
+
+## Troubleshooting
+
+- **Missing `discovered_envs.json`**: Run `python code/main.py run-shift-analysis` first to discover environments.
+- **Missing `sensitivity_report.csv`**: Ensure shift analysis completed successfully.
+- **Missing `evolution_results.csv`**: Ensure evolution pipeline completed successfully.
+- **Missing `stats_results.json`**: Ensure statistical analysis completed successfully.

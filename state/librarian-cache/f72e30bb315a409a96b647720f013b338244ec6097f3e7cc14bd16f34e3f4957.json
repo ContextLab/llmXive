@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-04T04:21:38Z",
+  "fetched_at": "2026-10-02T06:50:11Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\"",
       "target_n": 5
     },
-    "duration_seconds": 65.5,
-    "ended_at": "2026-08-04T04:21:38Z",
+    "duration_seconds": 49.609,
+    "ended_at": "2026-10-02T06:50:11Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "agent-native memory architectures in natural language processing"
+          "agent-native memory systems for large language models"
         ],
         [
           2,
-          "cognitive architectures for autonomous language agents"
+          "long-term memory architectures in autonomous AI agents"
         ],
         [
           3,
-          "long-term memory mechanisms in large language models"
+          "cognitive architectures for LLM-based agents"
         ],
         [
           4,
-          "episodic memory integration for conversational agents"
+          "persistent memory mechanisms for language model agents"
         ],
         [
           5,
-          "semantic memory systems for AI agents"
+          "retrieval-augmented generation for agent continuity"
         ],
         [
           6,
-          "dynamic knowledge retrieval in multi-turn dialogue"
+          "episodic memory in large language model agents"
         ],
         [
           7,
-          "persistent context management for LLM agents"
+          "semantic memory structures for AI agents"
         ],
         [
           8,
-          "external memory augmentation for language models"
+          "external memory augmentation for LLMs"
         ],
         [
           9,
-          "neuro-symbolic memory frameworks for linguistic agents"
+          "context management in multi-turn agent interactions"
         ],
         [
           10,
-          "human-like memory structures in artificial intelligence"
+          "knowledge integration in autonomous language agents"
         ],
         [
           11,
-          "retrieval-augmented generation for agent memory"
+          "dynamic memory updating in AI agents"
         ],
         [
           12,
-          "continuous learning and memory in language agents"
+          "human-AI collaboration in memory-augmented systems"
         ],
         [
           13,
-          "cognitive modeling of agent memory systems"
+          "cognitive science perspectives on AI memory"
         ],
         [
           14,
-          "memory consolidation mechanisms in generative AI"
+          "neural-symbolic memory systems for agents"
         ],
         [
           15,
-          "structured memory representations for linguistic tasks"
+          "lifelong learning in language model agents"
         ],
         [
           16,
-          "agent autonomy and memory persistence in NLP"
+          "memory consistency in multi-agent language systems"
         ],
         [
           17,
-          "long-context understanding and memory retention in LLMs"
+          "structured knowledge representation for AI agents"
         ],
         [
           18,
-          "computational models of agent memory in linguistics"
+          "temporal reasoning in agent-native memory"
         ],
         [
           19,
-          "memory-augmented neural networks for language understanding"
+          "memory retrieval strategies for autonomous agents"
         ],
         [
           20,
-          "theoretical foundations of agent-native memory in AI linguistics"
+          "agent identity maintenance through memory systems"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "agent-native memory architectures in natural language processing": 4,
+        "agent-native memory systems for large language models": 5,
         "llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" linguistics": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "agent-native memory linguistic interface",
-      "human-AI dialogue context window linguistics",
-      "cognitive linguistics external memory scaffolding",
-      "discourse coherence long-term dialogue evaluation",
-      "semantic fragmentation memory retrieval mechanisms"
+      "agent-native memory retrieval augmentation linguistic framing",
+      "LLM episodic memory dialogue state tracking long-context linguistics",
+      "situated cognition embodied language grounding agent memory",
+      "memory consistency hallucination rate evaluation agent dialogue",
+      "cognitive offloading external memory scaffolding linguistic theory"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.24775"
+        "2607.13157"
       ]
     },
     "per_query_hit_count": {
-      "agent-native memory linguistic interface": 3,
-      "cognitive linguistics external memory scaffolding": 2,
-      "discourse coherence long-term dialogue evaluation": 3,
-      "human-AI dialogue context window linguistics": 3,
+      "LLM episodic memory dialogue state tracking long-context linguistics": 3,
+      "agent-native memory retrieval augmentation linguistic framing": 3,
+      "cognitive offloading external memory scaffolding linguistic theory": 3,
       "llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" linguistics": 3,
-      "semantic fragmentation memory retrieval mechanisms": 3
+      "memory consistency hallucination rate evaluation agent dialogue": 2,
+      "situated cognition embodied language grounding agent memory": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -137,29 +137,29 @@
       "rejected_count": 4,
       "rejections": [
         {
-          "primary_pointer": "2605.20608",
-          "rationale": "The paper focuses on network engineering and telecommunications (5G Core) using \"agent-native\" to describe autonomous network operations, which is a distinct domain from the user's question regarding linguistics and Large Language Model (LLM) memory systems. While both use the term \"agent-native,\" the constructs, mechanisms, and empirical populations are entirely different, falling under the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "From Automated to Autonomous: Hierarchical Agent-native Network Architecture (HANA)"
+          "primary_pointer": "2608.28048",
+          "rationale": "The paper focuses on hardware architecture and physical memory bandwidth constraints (the \"memory wall\") in LLM inference, whereas the user's question concerns \"agent-native memory systems\" as a software or cognitive architecture for linguistic agents. This is a case of distinct constructs sharing only homonym keywords (\"memory\"), as the hardware data movement bottleneck is not the same mechanism as the proposed agent-native memory system for linguistic reasoning.",
+          "title": "AI Hardware Accelerators for Large Language Models: Architectures and the Memory Wall"
         },
         {
-          "primary_pointer": "2110.10780",
-          "rationale": "The paper focuses on clinical NLP frameworks for electronic health records (EHR) and lacks any connection to the user's specific inquiry regarding \"agent-native memory systems,\" \"LLM\" architectures, or \"linguistics\" as a theoretical domain. It fails all inclusion criteria (a-f) as it addresses a distinct application domain (clinical data extraction) with no overlap in mechanism, variables, or foundational methodology for agent memory.",
-          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
+          "primary_pointer": "2610.00223",
+          "rationale": "The paper focuses on the environmental impact (carbon footprint) of large language models, which is a distinct construct from the user's question regarding \"agent-native memory systems\" and linguistics. There is no overlap in the mechanism, variables, or empirical domain between assessing carbon emissions and designing or evaluating memory architectures for AI agents.",
+          "title": "A Holistic Assessment of the Carbon Footprint of Noor, a Very Large Arabic Language Model"
         },
         {
-          "primary_pointer": "2006.16212",
-          "rationale": "The paper focuses on unsupervised morphological processing for a specific low-resource language (Tangkhul) and does not address the user's question regarding \"agent-native memory systems,\" LLM architectures, or the linguistic foundations of such systems. It fails to meet any inclusion criteria as it studies a distinct construct (morpheme identification on a specific corpus) rather than the mechanism, variables, or domain of agent memory systems.",
-          "title": "Towards the Study of Morphological Processing of the Tangkhul Language"
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like conversational behavior and emotional intelligence in LLMs, which does not address the specific mechanism of \"agent-native memory systems\" or the linguistic evaluation of such systems implied by the user's question. It fails to meet any inclusion criteria (a-f) as it lacks the specific domain of memory architecture, does not measure the relevant variables, and is not a foundational reference for memory systems.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
         },
         {
-          "primary_pointer": "2103.14757",
-          "rationale": "The paper focuses on automatic multiple-choice question generation (MCQG) using keyword extraction, which is a distinct NLP application from the user's inquiry into \"agent-native memory systems\" and their linguistic foundations. It does not measure the same mechanisms, variables, or empirical populations related to memory architectures for AI agents, nor does it serve as a foundational reference for that specific domain.",
-          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific linguistic limitation (character-level understanding) in LLMs, which does not address the user's question about \"agent-native memory systems\" or the architectural requirements for agents to manage long-term context. While both topics involve LLMs, the paper studies a fundamental tokenization/representation flaw rather than the memory mechanisms, retrieval strategies, or agent-native system designs central to the user's inquiry, failing to meet the criteria for s",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-04T04:20:33Z",
+    "started_at": "2026-10-02T06:49:21Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"are we ready for an agent-native memory system?\" linguistics",
       "raw": "llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" linguistics"
@@ -179,7 +179,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-08-04T04:21:12Z",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -196,7 +196,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-08-04T04:21:12Z",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -212,108 +212,65 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-08-04T04:21:12Z",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_abstract": "Retrieval-augmented generation (RAG) equips large language models (LLMs) with reliable knowledge memory. To strengthen cross-text associations, recent research integrates graphs and hypergraphs into RAG to capture pairwise and multi-entity relations as structured links. However, their misaligned memory organization necessitates costly, disjointed retrieval. To address these limitations, we propose IGMiRAG, a framework inspired by human intuition-guided reasoning. It constructs a hierarchical heterogeneous hypergraph to align multi-granular knowledge, incorporating deductive pathways to simulate realistic memory structures. During querying, IGMiRAG distills intuitive strategies via a question parser to control mining depth and memory window, and activates instantaneous memories as anchors using dual-focus retrieval. Mirroring human intuition, the framework guides retrieval resource allocation dynamically. Furthermore, we design a bidirectional diffusion algorithm that navigates deductive paths to mine in-depth memories, emulating human reasoning processes. Extensive evaluations indicate IGMiRAG outperforms the state-of-the-art baseline by 4.8% EM and 5.0% F1 overall, with token costs adapting to task complexity (average 6.3k+, minimum 3.0k+). This work presents a cost-effective RAG paradigm that improves both efficiency and effectiveness.",
           "claimed_authors": [
-            "Chaeyeon Lim"
+            "Xingliang Hou",
+            "Yuyan Liu",
+            "Qi Sun",
+            "haoxiu wang",
+            "Hao Hu",
+            "Shaoyi Du",
+            "Zhiqiang Tian"
           ],
-          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_title": "IGMiRAG: Intuition-Guided Retrieval-Augmented Generation with Adaptive Mining of In-Depth Memory",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16770"
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07525"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='IGMiRAG: Intuition-Guided Retrieval-Augmented Generation with Adaptive Mining of In-Depth Memory')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position paper proposes the distinction between demonstrated and performed critical thinking in the era of generative AI and discusses the implication of this distinction in research and development of AI systems that aim to augment human critical thinking.",
+          "claimed_abstract": "The rapid development of large language models and AI agents has triggered a paradigm shift in academic literature retrieval, putting forward new demands for fine-grained, time-aware, and programmable retrieval. Existing graph-vector fusion methods still face bottlenecks such as matrix dependence, storage explosion, semantic dilution, and lack of AI-native support. This paper proposes a geometry-unified graph-vector fusion framework based on tensor manifold theory, which formally proves that an academic literature graph is a discrete projection of a tensor manifold, realizing the native unification of graph topology and vector geometric embedding. Based on this theoretical conclusion, we design four core modules: matrix-independent temporal diffusion signature update, hierarchical temporal manifold encoding, temporal Riemannian manifold indexing, and AI-agent programmable retrieval. Theoretical analysis and complexity proof show that all core algorithms have linear time and space complexity, which can adapt to large-scale dynamic academic literature graphs. This research provides a new theoretical framework and engineering solution for AI-native academic literature retrieval, promoting the industrial application of graph-vector fusion technology in the academic field.",
           "claimed_authors": [
-            "Katelyn Xiaoying Mei",
-            "Nic Weber"
+            "Xing Wei",
+            "Yang Yu"
           ],
-          "claimed_title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+          "claimed_title": "Tensor Manifold-Based Graph-Vector Fusion for AI-Native Academic Literature Retrieval",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.14689"
+          "claimed_year": 2026,
+          "primary_pointer": "2604.16416"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Tensor Manifold-Based Graph-Vector Fusion for AI-Native Academic Literature Retrieval')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Real-time reflection plays a vital role in synchronous communication. It enables users to adjust their communication strategies dynamically, thereby improving the effectiveness of their communication. Generative AI holds significant potential to enhance real-time reflection due to its ability to comprehensively understand the current context and generate personalized and nuanced content. However, it is challenging to design the way of interaction and information presentation to support the real-time workflow rather than disrupt it. In this position paper, we present a review of existing research on systems designed for reflection in different synchronous communication scenarios. Based on that, we discuss design implications on how to design human-AI interaction to support reflection in real time.",
+          "claimed_abstract": "Dialogue State Tracking (DST) requires precise extraction of structured information from multi-domain conversations, a task where Large Language Models (LLMs) struggle despite their impressive general capabilities. We present GEM (Graph-Enhanced Mixture-of-Experts), a novel framework that combines language models and graph-structured dialogue understanding with ReAct agent-based reasoning for superior DST performance. Our approach dynamically routes between specialized experts: a Graph Neural Network that captures dialogue structure and turn-level dependencies, and a finetuned T5-Small encoder-decoder for sequence modeling, coordinated by an intelligent router. For complex value generation tasks, we integrate ReAct agents that perform structured reasoning over dialogue context. On MultiWOZ 2.2, GEM achieves 65.19% Joint Goal Accuracy, substantially outperforming end-to-end LLM approaches (best: 38.43%) and surpassing state-of-the-art (SOTA) methods including TOATOD (63.79%), D3ST (58.70%), and Diable (56.48%). Our graph-enhanced mixture-of-experts architecture with ReAct integration demonstrates that combining structured dialogue representation with dynamic expert routing and agent-based reasoning provides a powerful paradigm for dialogue state tracking, achieving superior accuracy while maintaining computational efficiency through selective expert activation.",
           "claimed_authors": [
-            "Yi Wen",
-            "Meng Xia"
+            "Ziqi Zhu",
+            "Adithya Suresh",
+            "Tomal Deb",
+            "Iman Abbasnejad"
           ],
-          "claimed_title": "Promoting Real-Time Reflection in Synchronous Communication with Generative AI",
+          "claimed_title": "GEM: Graph-Enhanced Mixture-of-Experts with ReAct Agents for Dialogue State Tracking",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.15647"
+          "claimed_year": 2026,
+          "primary_pointer": "2605.04449"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Promoting Real-Time Reflection in Synchronous Communication with Generative AI')",
-        "failed_at": "2026-08-04T04:21:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
-          "claimed_authors": [
-            "Claudius Gros"
-          ],
-          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.3035"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
-        "failed_at": "2026-08-04T04:21:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
-          "claimed_authors": [
-            "Claudius Gros"
-          ],
-          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0901.3028"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
-        "failed_at": "2026-08-04T04:21:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this article, we explore the potential of using sentence-level discourse structure for machine translation evaluation. We first design discourse-aware similarity measures, which use all-subtree kernels to compare discourse parse trees in accordance with the Rhetorical Structure Theory (RST). Then, we show that a simple linear combination with these measures can help improve various existing machine translation evaluation metrics regarding correlation with human judgments both at the segment- and at the system-level. This suggests that discourse information is complementary to the information used by many of the existing evaluation metrics, and thus it could be taken into account when developing richer evaluation metrics, such as the WMT-14 winning combined metric DiscoTKparty. We also provide a detailed analysis of the relevance of various discourse elements and relations from the RST parse trees for machine translation evaluation. In particular we show that: (i) all aspects of the RST tree are relevant, (ii) nuclearity is more useful than relation type, and (iii) the similarity of the translation RST tree to the reference tree is positively correlated with translation quality.",
-          "claimed_authors": [
-            "Shafiq Joty",
-            "Francisco Guzmán",
-            "Lluís Màrquez",
-            "Preslav Nakov"
-          ],
-          "claimed_title": "Discourse Structure in Machine Translation Evaluation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1710.01504"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Discourse Structure in Machine Translation Evaluation')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='GEM: Graph-Enhanced Mixture-of-Experts with ReAct Agents for Dialogue State Tracking')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -340,83 +297,143 @@
           "primary_pointer": "2302.12944"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present novel automatic metrics for machine translation evaluation that use discourse structure and convolution kernels to compare the discourse tree of an automatic translation with that of the human reference. We experiment with five transformations and augmentations of a base discourse tree representation based on the rhetorical structure theory, and we combine the kernel scores for each of them into a single score. Finally, we add other metrics from the ASIYA MT evaluation toolkit, and we tune the weights of the combination on actual human judgments. Experiments on the WMT12 and WMT13 metrics shared task datasets show correlation with human judgments that outperforms what the best systems that participated in these years achieved, both at the segment and at the system level.",
+          "claimed_abstract": "Continual Learning (CL) is an emerging machine learning paradigm that aims to learn from a continuous stream of tasks without forgetting knowledge learned from the previous tasks. To avoid performance decrease caused by forgetting, prior studies exploit episodic memory (EM), which stores a subset of the past observed samples while learning from new non-i.i.d. data. Despite the promising results, since CL is often assumed to execute on mobile or IoT devices, the EM size is bounded by the small hardware memory capacity and makes it infeasible to meet the accuracy requirements for real-world applications. Specifically, all prior CL methods discard samples overflowed from the EM and can never retrieve them back for subsequent training steps, incurring loss of information that would exacerbate catastrophic forgetting. We explore a novel hierarchical EM management strategy to address the forgetting issue. In particular, in mobile and IoT devices, real-time data can be stored not just in high-speed RAMs but in internal storage devices as well, which offer significantly larger capacity than the RAMs. Based on this insight, we propose to exploit the abundant storage to preserve past experiences and alleviate the forgetting by allowing CL to efficiently migrate samples between memory and storage without being interfered by the slow access speed of the storage. We call it Carousel Memory (CarM). As CarM is complementary to existing CL methods, we conduct extensive evaluations of our method with seven popular CL methods and show that CarM significantly improves the accuracy of the methods across different settings by large margins in final average accuracy (up to 28.4%) while retaining the same training efficiency.",
           "claimed_authors": [
-            "Shafiq Joty",
-            "Francisco Guzman",
-            "Lluis Marquez",
-            "Preslav Nakov"
+            "Soobee Lee",
+            "Minindu Weerakoon",
+            "Jonghyun Choi",
+            "Minjia Zhang",
+            "Di Wang",
+            "Myeongjae Jeon"
           ],
-          "claimed_title": "DiscoTK: Using Discourse Structure for Machine Translation Evaluation",
+          "claimed_title": "Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.12547"
+          "claimed_year": 2021,
+          "primary_pointer": "2110.07276"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='DiscoTK: Using Discourse Structure for Machine Translation Evaluation')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Carousel Memory: Rethinking the Design of Episodic Memory for Continual Learning')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper investigates the zero-error capacity of channels with memory. Motivated by the nuanced requirements of semantic communication that incorporate memory, we advance the classical enlightened dictator channel by introducing a new category known as the semantic channel. We analyze the zero-error capacity of the semantic channel using a comprehensive framework that accommodates multiple input and output memories. Our approach reveals a more sophisticated and detailed model compared to the classical memory channels, highlighting the impact of memory on achieving error-free communication.",
+          "claimed_abstract": "Recent research on instructable agents has used memory-augmented Large Language Models (LLMs) as task planners, a technique that retrieves language-program examples relevant to the input instruction and uses them as in-context examples in the LLM prompt to improve the performance of the LLM in inferring the correct action and task plans. In this technical report, we extend the capabilities of HELPER, by expanding its memory with a wider array of examples and prompts, and by integrating additional APIs for asking questions. This simple expansion of HELPER into a shared memory enables the agent to work across the domains of executing plans from dialogue, natural language instruction following, active question asking, and commonsense room reorganization. We evaluate the agent on four diverse interactive visual-language embodied agent benchmarks: ALFRED, TEACh, DialFRED, and the Tidy Task. HELPER-X achieves few-shot, state-of-the-art performance across these benchmarks using a single agent, without requiring in-domain training, and remains competitive with agents that have undergone in-domain training.",
           "claimed_authors": [
-            "Qi Cao",
-            "Yulin Shao",
-            "Shangwei Ge"
+            "Gabriel Sarch",
+            "Sahil Somani",
+            "Raghav Kapoor",
+            "Michael J. Tarr",
+            "Katerina Fragkiadaki"
           ],
-          "claimed_title": "On the Zero-Error Capacity of Semantic Channels with Input and Output Memories",
+          "claimed_title": "HELPER-X: A Unified Instructable Embodied Agent to Tackle Four Interactive Vision-Language Domains with Memory-Augmented Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.21732"
+          "primary_pointer": "2404.19065"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='On the Zero-Error Capacity of Semantic Channels with Input and Output Memories')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='HELPER-X: A Unified Instructable Embodied Agent to Tackle Four Interactive Vision-Language Domains with Memory-Augmented Language Models')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Online recruitment platforms require recommendation methods capable of retrieving relevant job opportunities from large and heterogeneous collections of job postings. Keyword-based search is efficient and interpretable, but it may fail to retrieve relevant postings when equivalent roles are expressed using different terminology. This study presents a metadata-driven job recommendation system that combines TF-IDF lexical matching, Sentence-BERT semantic retrieval, query-aware filtering, optional Cross-Encoder re-ranking, and explanation generation. The proposed system utilizes structured metadata fields including job title, company name, location, seniority level, job function, employment type, and industry without relying on full job descriptions or user interaction histories. Experiments conducted on a cleaned LinkedIn job posting dataset containing 31262 records demonstrate that the best hybrid configuration achieved a Precision at 10 score of 0.8032 and an nDCG at 10 score of 0.9496. Under the internal evaluation protocol, Cross-Encoder re-ranking improved Precision at 10 from 0.7896 to 0.7948 and nDCG at 10 from 0.9666 to 0.9739. These findings indicate that lexical and semantic retrieval techniques can be effectively combined to provide explainable job recommendations when only structured metadata is available.",
+          "claimed_abstract": "We introduce RynnEC, a video multimodal large language model designed for embodied cognition. Built upon a general-purpose vision-language foundation model, RynnEC incorporates a region encoder and a mask decoder, enabling flexible region-level video interaction. Despite its compact architecture, RynnEC achieves state-of-the-art performance in object property understanding, object segmentation, and spatial reasoning. Conceptually, it offers a region-centric video paradigm for the brain of embodied agents, providing fine-grained perception of the physical world and enabling more precise interactions. To mitigate the scarcity of annotated 3D datasets, we propose an egocentric video based pipeline for generating embodied cognition data. Furthermore, we introduce RynnEC-Bench, a region-centered benchmark for evaluating embodied cognitive capabilities. We anticipate that RynnEC will advance the development of general-purpose cognitive cores for embodied agents and facilitate generalization across diverse embodied tasks. The code, model checkpoints, and benchmark are available at: https://github.com/alibaba-damo-academy/RynnEC",
           "claimed_authors": [
-            "Hussein Al Awad",
-            "Khaled Fathi Omar"
+            "Ronghao Dang",
+            "Yuqian Yuan",
+            "Yunxuan Mao",
+            "Kehan Li",
+            "Jiangpin Liu",
+            "Zhikai Wang",
+            "Xin Li",
+            "Fan Wang",
+            "Deli Zhao"
           ],
-          "claimed_title": "Developing an Intelligent Job Recommendation System Using Semantic Retrieval and Explainable AI Techniques",
+          "claimed_title": "RynnEC: Bringing MLLMs into Embodied World",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14160"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='RynnEC: Bringing MLLMs into Embodied World')",
+        "failed_at": "2026-10-02T06:49:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction granularity is an important yet poorly controlled variable in language-guided embodied AI. Existing benchmarks typically pair each task with a single static instruction, making it difficult to study how agent behavior changes when the same task is described at different levels of detail. We introduce Mini-BEHAVIOR-Gran, a new benchmark for controlled studies of instruction granularity that extends Mini-BEHAVIOR with multiple instruction variants per task, ranging from high-level goal descriptions to step-by-step guidance. Using this benchmark, we compare four candidate metrics for cross-task granularity quantification: token count, entity count, action-verb count, and planning-width, and find that width correlates most consistently with agent performance. Using width to organize training and evaluation further reveals a non-monotonic U-shaped relationship between instruction granularity and performance, with peaks at both fine and coarse extremes. Further analysis suggests that the coarse-granularity performance rebound is associated with shallow grounding, where agents learn vision-dominant policies.",
+          "claimed_authors": [
+            "Sukai Huang",
+            "Chenyuan Zhang",
+            "Fucai Ke",
+            "Zhixi Cai",
+            "Gholamreza Haffari",
+            "Lizhen Qu",
+            "Hamid Rezatofighi"
+          ],
+          "claimed_title": "Mini-BEHAVIOR-Gran: Revealing U-Shaped Effects of Instruction Granularity on Language-Guided Embodied Agents",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2605.27656"
+          "primary_pointer": "2604.17019"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Developing an Intelligent Job Recommendation System Using Semantic Retrieval and Explainable AI Techniques')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Mini-BEHAVIOR-Gran: Revealing U-Shaped Effects of Instruction Granularity on Language-Guided Embodied Agents')",
+        "failed_at": "2026-10-02T06:49:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_abstract": "\"Cognizing\" (e.g., thinking, understanding, and knowing) is a mental state. Systems without mental states, such as cognitive technology, can sometimes contribute to human cognition, but that does not make them cognizers. Cognizers can offload some of their cognitive functions onto cognitive technology, thereby extending their performance capacity beyond the limits of their own brain power. Language itself is a form of cognitive technology that allows cognizers to offload some of their cognitive functions onto the brains of other cognizers. Language also extends cognizers' individual and joint performance powers, distributing the load through interactive and collaborative cognition. Reading, writing, print, telecommunications and computing further extend cognizers' capacities. And now the web, with its network of cognizers, digital databases and software agents, all accessible anytime, anywhere, has become our 'Cognitive Commons,' in which distributed cognizers and cognitive technology can interoperate globally with a speed, scope and degree of interactivity inconceivable through local individual cognition alone. And as with language, the cognitive tool par excellence, such technological changes are not merely instrumental and quantitative: they can have profound effects on how we think and encode information, on how we communicate with one another, on our mental states, and on our very nature.",
           "claimed_authors": [
-            "Sean MacAvaney",
-            "Andrew Yates",
-            "Arman Cohan",
-            "Luca Soldaini",
-            "Kai Hui",
-            "Nazli Goharian",
-            "Ophir Frieder"
+            "Itiel Dror",
+            "Stevan Harnad"
           ],
-          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_title": "Offloading Cognition onto Cognitive Technology",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1811.08772"
+          "claimed_year": 2008,
+          "primary_pointer": "0808.3569"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
-        "failed_at": "2026-08-04T04:21:13Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Offloading Cognition onto Cognitive Technology')",
+        "failed_at": "2026-10-02T06:49:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-10-02T06:49:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Are We Ready For An Agent-Native Memory System?\" l', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-10-02T06:49:50Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -444,13 +461,40 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.24775",
           "http_status": 200,
-          "pdf_sample_score": 0.316,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5556,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-04T04:21:12Z"
+          "verified_at": "2026-10-02T06:49:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kai Chen",
+            "Yan Pang",
+            "Tianhao Wang"
+          ],
+          "title": "MRMMIA: Membership Inference Attacks on Memory in Chat Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27825",
+        "summary": "Membership inference attacks (MIAs) test whether a target data record belongs to a system's private data, and have become a standard tool to measure privacy leakage in machine learning systems. Prior work has primarily focused on training corpora or retrieval databases. However, MIAs against agent memory have received less attention, even though such memory can contain sensitive user-agent interactions, retrieved facts, and user preferences. Therefore, in this work, we focus on chat agent memory MIAs, where an adversary infers whether a candidate memory unit belongs to the chat agent's memory store. We propose Multi-Recall Memory MIA (MRMMIA), a unified attack that utilizes multiple recall probes to the agent to extract the membership signal across black-box, gray-box, and white-box settings. Our experiments demonstrate that MRMMIA consistently outperforms baselines. Our results expose the privacy risk in agents and provide an initial evaluation framework for membership leakage in chat-agent memory systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.27825",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-02T06:49:49Z"
         }
       },
       {
@@ -481,13 +525,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2607.13157",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2655,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-04T04:21:12Z"
+          "verified_at": "2026-10-02T06:49:50Z"
         }
       }
     ]

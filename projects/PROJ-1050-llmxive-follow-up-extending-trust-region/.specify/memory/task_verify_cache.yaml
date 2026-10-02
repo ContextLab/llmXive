@@ -8,10 +8,11 @@ T001:
     \ showing the completed structure."
 T002:
   c: false
-  h: f8ce6397812587fed616fd2116ebd3e44cdc1168495e3c7a9521ef92912f6ab3
+  h: 0961a24506eacf1e036c3d5dcca93de7c47a5321df178d711dc4cf02a1402c39
   r: The required file `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt`
     does not exist, so the specified dependencies are not initialized at the correct
-    project path. The existing `code/requirements.txt` is irrelevant to the task.
+    location. The existing `code/requirements.txt` is at a different path and does
+    not satisfy the task.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,3 +35,10 @@ T004a:
     without these artifacts the claim that the required utility package structure
     exists cannot be confirmed. The implementer must add the directory and the initialization
     file to satisfy task T004a.
+T022:
+  c: false
+  h: 30832ddfa0682cbec0d430042d6b48d0b2fa01ae76ddb4f4f287f30afc938043
+  r: "The required `data/raw/episode_logs.csv` file does not exist, and the provided\
+    \ `runner.py` excerpt shows no code that writes per\u2011episode loss values or\
+    \ loss variance to such a CSV. The task\u2019s logging requirement is therefore\
+    \ unmet."

@@ -1,144 +1,203 @@
 """
-Task T013e: Programmatically Iterate over discovered environments and wrap them.
+T013e: Programmatically Iterate over discovered environments and wrap them.
 
-This script loads the list of discovered environment IDs from `data/discovered_envs.json`
-(created by T013d) and wraps each one with the `DynamicShiftEnvironment` class defined
-in `envs/dynamic_shift_env.py`.
-
-It validates that the discovery file exists and contains valid environment IDs.
-It does NOT run the environments yet, but prepares the wrapped instances for downstream
-tasks (T013f, T015a).
+This script loads the list of environment IDs from `data/discovered_envs.json`
+(produced by T013d) and wraps each one with the `DynamicShiftEnvironment` wrapper.
+It ensures that the wrapping process is logged and that the wrapped environments
+are ready for subsequent sensitivity analysis (T013f).
 """
+
 import json
 import os
 import logging
 import sys
 
 # Add project root to path if running as script
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from envs.dynamic_shift_env import DynamicShiftEnvironment, generate_all_dynamic_shift_envs
 from utils.logging import get_logger, setup_logging
 
-# Setup logging for this task
-logger = setup_logging("apply_shift_wrappers", log_file="data/apply_shift_wrappers.log")
+logger = get_logger(__name__)
 
-DISCOVERED_ENVS_PATH = "data/discovered_envs.json"
-WRAPPED_ENVS_LOG = "data/wrapped_envs.log"
+def load_discovered_envs(filepath: str) -> list:
+    """
+    Load the list of discovered environment IDs from a JSON file.
 
-def load_discovered_envs(path: str) -> list:
-    """Load the list of discovered environment IDs."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Required file not found: {path}. "
-                                "Please ensure T013d has been executed successfully.")
+    Args:
+        filepath: Path to the JSON file containing discovered env IDs.
 
-    with open(path, 'r') as f:
+    Returns:
+        List of environment ID strings.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file content is not valid JSON.
+        RuntimeError: If the list is empty.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Discovered environments file not found: {filepath}")
+
+    with open(filepath, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
+    # The file is expected to be a list of strings or a dict with an 'env_ids' key
     if isinstance(data, list):
-        return data
+        env_ids = data
     elif isinstance(data, dict) and 'env_ids' in data:
-        return data['env_ids']
+        env_ids = data['env_ids']
     else:
-        raise ValueError(f"Unexpected format in {path}. Expected list or dict with 'env_ids'.")
+        raise ValueError(f"Unexpected format in {filepath}: expected list or dict with 'env_ids' key")
 
-def wrap_environments(env_ids: list) -> list:
+    if not env_ids:
+        raise RuntimeError("Discovered environments list is empty. Cannot proceed with wrapping.")
+
+    logger.info(f"Loaded {len(env_ids)} environment IDs from {filepath}")
+    return env_ids
+
+def wrap_environments(env_ids: list, shift_config: dict = None) -> list:
     """
-    Wrap each environment ID with DynamicShiftEnvironment.
+    Wrap each discovered environment with DynamicShiftEnvironment.
 
-    Returns a list of tuples: (env_id, wrapped_env_instance)
+    Args:
+        env_ids: List of environment ID strings.
+        shift_config: Optional configuration for the dynamic shift.
+                      If None, default config from DynamicShiftEnvironment is used.
+
+    Returns:
+        List of wrapped environment instances.
     """
     wrapped_envs = []
-    logger.info(f"Attempting to wrap {len(env_ids)} environments...")
+    success_count = 0
+    failure_count = 0
 
     for env_id in env_ids:
         try:
-            # The generate_all_dynamic_shift_envs function or similar logic should handle
-            # the actual instantiation. Since we are iterating, we assume the underlying
-            # gymnasium registry can resolve 'env_id'.
-            # We use the helper from dynamic_shift_env if available, or instantiate directly.
-            # Based on API surface, generate_all_dynamic_shift_envs might return a dict or list.
-            # Here we implement the iteration logic explicitly.
-
-            # Attempt to create the wrapped environment
-            # Note: The actual 'make' logic depends on how the base envs are registered.
-            # We assume DynamicShiftEnvironment accepts an env_id string or a base env instance.
-            # Looking at the API: DynamicShiftEnvironment is a class.
-            # We will assume a factory pattern or direct wrapping.
-            # Since we don't have the exact signature of the base env wrapper in the prompt,
-            # we assume the standard pattern: DynamicShiftEnvironment(base_env, config)
-            # But we need the base_env instance first.
-            
-            # Let's assume the standard gymnasium pattern for now, but since we are wrapping,
-            # we might need to import the base registry.
+            # The generate_all_dynamic_shift_envs function or similar logic
+            # is expected to create the wrapped environment.
+            # Based on API surface, we use generate_all_dynamic_shift_envs
+            # which likely handles the instantiation of the base env and wrapping.
+            # If that function takes a list, we might need to call it differently.
             # However, the task says "wrap each with DynamicShiftEnvironment".
-            # We will use the generate_all_dynamic_shift_envs if it takes a list,
-            # otherwise we iterate.
-            
-            # Strategy: Use the generate_all_dynamic_shift_envs helper if it supports a list of IDs.
-            # If not, we assume we can make the base env and wrap it.
-            # Given the API: `generate_all_dynamic_shift_envs` exists.
-            # Let's assume it takes a list of env_ids and returns wrapped ones.
-            
-            # If the helper is designed for "all", we might need to call it with the specific list.
-            # Let's try to call it with the list of IDs.
-            wrapped = generate_all_dynamic_shift_envs(env_ids)
-            
-            if isinstance(wrapped, dict):
-                wrapped_envs.extend([(k, v) for k, v in wrapped.items()])
-            elif isinstance(wrapped, list):
-                # Assume list of (id, env) or just envs.
-                # If just envs, we need IDs.
-                # Let's assume the return is a list of env objects and we map them back if possible.
-                # To be safe, we assume the function returns a dict {env_id: env} or list of tuples.
-                wrapped_envs.extend(wrapped)
-            else:
-                logger.warning(f"Unexpected return type from generate_all_dynamic_shift_envs: {type(wrapped)}")
+            # Let's assume we need to instantiate the base env first, then wrap.
+            # But the API surface shows `generate_all_dynamic_shift_envs` which
+            # might do exactly this for a list of envs.
+            # Given the dependency on T013d which writes the list, and T013e
+            # which iterates, let's implement the iteration logic explicitly.
+
+            # We need to import the base env registry or creation logic.
+            # Since the API surface for envs.dynamic_shift_env includes
+            # `generate_all_dynamic_shift_envs`, let's check if it accepts a list.
+            # If not, we might need to create a loop that calls a factory.
+            # Assuming `generate_all_dynamic_shift_envs` is a helper that takes
+            # env_ids and returns wrapped ones. If it doesn't, we adapt.
+
+            # Let's assume the standard pattern:
+            # 1. Get base env from gymnasium or evopolicygym registry
+            # 2. Wrap it with DynamicShiftEnvironment
+
+            # Since we don't have the exact signature of generate_all_dynamic_shift_envs
+            # in the prompt's API surface beyond the import, we will assume it
+            # is a function that takes a list of env_ids and returns a list of wrapped envs.
+            # If the previous task T013d used `generate_all_dynamic_shift_envs` to
+            # create the list, T013e might just need to call it again or process the list.
+            # However, the task says "wrap each with DynamicShiftEnvironment".
+            # Let's try to call `generate_all_dynamic_shift_envs` with the list.
+            # If that function is designed to generate ALL envs from scratch, we might
+            # just need to call it once. But the task implies iterating over the *discovered* list.
+
+            # Alternative interpretation: The `DynamicShiftEnvironment` class is a wrapper.
+            # We need to instantiate it for each env_id.
+            # Let's assume there is a factory function or we can do:
+            #   base_env = gym.make(env_id)
+            #   wrapped = DynamicShiftEnvironment(base_env, shift_config)
+
+            # Since `gym` import is not in the API surface for this file, but `envs.dynamic_shift_env`
+            # is, we rely on the functions in that module.
+            # Let's assume `generate_all_dynamic_shift_envs` is the correct entry point
+            # that takes the list of env_ids and returns the wrapped versions.
+            # If it doesn't take a list, we might need to loop and call a different function.
+            # Given the constraints, we will implement the loop assuming we can instantiate
+            # the base env and wrap it, using the `DynamicShiftEnvironment` class directly.
+            # We need to ensure we have a way to get the base env.
+            # The API surface for `envs.dynamic_shift_env` includes `generate_all_dynamic_shift_envs`.
+            # Let's assume this function is the one to use, and it might take env_ids.
+
+            # If the function `generate_all_dynamic_shift_envs` is not designed to take a list,
+            # we might need to implement the wrapping logic here.
+            # Let's assume we can do:
+            #   from evopolicygym.envs import REGISTRY
+            #   base_env = REGISTRY[env_id]()
+            #   wrapped = DynamicShiftEnvironment(base_env, shift_config)
+
+            # But the API surface does not show `REGISTRY` in `envs.dynamic_shift_env`.
+            # It shows `DynamicShiftEnvironment` and `generate_all_dynamic_shift_envs`.
+            # Let's assume `generate_all_dynamic_shift_envs` is the correct function
+            # and it takes a list of env_ids.
+
+            # If we cannot call a function that takes a list, we must implement the loop.
+            # We will assume we can create the base env using a standard method.
+            # Since `gymnasium` is a dependency (T001c), we can use `gymnasium.make`.
+
+            import gymnasium as gym
+
+            base_env = gym.make(env_id)
+            wrapped_env = DynamicShiftEnvironment(base_env, shift_config)
+            wrapped_envs.append(wrapped_env)
+            success_count += 1
+            logger.debug(f"Successfully wrapped environment: {env_id}")
 
         except Exception as e:
-            logger.error(f"Failed to wrap environment {env_id}: {e}")
-            # We do not fail loudly here for T013e, as T013d already warned if count != 16.
-            # We log and continue.
+            failure_count += 1
+            logger.error(f"Failed to wrap environment {env_id}: {e}", exc_info=True)
 
+    logger.info(f"Wrapping complete. Success: {success_count}, Failed: {failure_count}")
     return wrapped_envs
 
 def main():
-    """Main entry point for T013e."""
+    """
+    Main entry point for T013e.
+    Loads discovered envs and wraps them.
+    """
+    setup_logging()
     logger.info("Starting T013e: Apply Shift Wrappers")
 
-    # 1. Load discovered envs
+    discovered_envs_path = os.path.join(project_root, "data", "discovered_envs.json")
+    wrapped_envs_output_path = os.path.join(project_root, "data", "wrapped_envs.json") # Optional output if needed
+
     try:
-        env_ids = load_discovered_envs(DISCOVERED_ENVS_PATH)
-        logger.info(f"Loaded {len(env_ids)} environment IDs from {DISCOVERED_ENVS_PATH}")
+        env_ids = load_discovered_envs(discovered_envs_path)
+        logger.info(f"Processing {len(env_ids)} environments.")
+
+        # Assuming default shift config is used if not specified
+        wrapped_envs = wrap_environments(env_ids)
+
+        # We don't necessarily need to save the wrapped env objects to disk
+        # as they are runtime objects. The important part is that they are
+        # created and ready for the next step (T013f).
+        # However, if we need to log the successful wrapping, we can write a log.
+        logger.info(f"Successfully wrapped {len(wrapped_envs)} environments.")
+
+        # If the next task expects a file indicating the wrapped envs are ready,
+        # we could write a marker file. But the task description doesn't specify an output file.
+        # It says "wrap each with DynamicShiftEnvironment".
+        # The next task T013f will likely load these or the list again.
+        # We'll just log success.
+
     except FileNotFoundError as e:
-        logger.critical(str(e))
+        logger.error(f"Required file not found: {e}")
         sys.exit(1)
     except json.JSONDecodeError as e:
-        logger.critical(f"Invalid JSON in {DISCOVERED_ENVS_PATH}: {e}")
+        logger.error(f"Invalid JSON in discovered environments file: {e}")
         sys.exit(1)
-
-    if not env_ids:
-        logger.warning("No environment IDs found. No wrapping performed.")
-        # Write an empty log to indicate completion
-        with open(WRAPPED_ENVS_LOG, 'w') as f:
-            f.write("No environments to wrap.\n")
-        return
-
-    # 2. Wrap environments
-    wrapped_envs = wrap_environments(env_ids)
-
-    # 3. Log results
-    logger.info(f"Successfully wrapped {len(wrapped_envs)} environments.")
-    
-    # Write a summary log
-    with open(WRAPPED_ENVS_LOG, 'w') as f:
-        f.write(f"Total environments processed: {len(env_ids)}\n")
-        f.write(f"Successfully wrapped: {len(wrapped_envs)}\n")
-        f.write("Wrapped Environment IDs:\n")
-        for env_id, _ in wrapped_envs:
-            f.write(f"  - {env_id}\n")
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during wrapping: {e}", exc_info=True)
+        sys.exit(1)
 
     logger.info("T013e completed successfully.")
 

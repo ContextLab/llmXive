@@ -9,11 +9,11 @@ This project implements a multi-modal analysis pipeline to quantify how oceanogr
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `torch` (CPU-only), `transformers` (CPU-optimized), `xarray`, `netCDF4`, `matplotlib`, `seaborn`, `datasets`  
 **Storage**: Local file system (`data/`), CSV/NetCDF intermediate artifacts  
 **Testing**: `pytest` (contract tests against schema, integration tests for pipeline)  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, ~7GB RAM)  
+**Target Platform**: GitHub Actions Free Tier (Linux, CPU, ~7GB RAM)  
 **Project Type**: Computational Data Science / Machine Learning Pipeline  
 **Performance Goals**: Total runtime ≤ 6 hours, Peak RAM ≤ 7GB, Data alignment missingness ≤ 5%  
 **Constraints**: No GPU, no 8-bit quantization, no large-LLM inference, strict memory limits  
