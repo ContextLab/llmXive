@@ -11,12 +11,12 @@
         "page": 26
       }
     ],
-    "audited_at": "2026-10-02T02:31:43.250351+00:00"
+    "audited_at": "2026-10-02T03:01:37.866341+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-687-swe-explore-benchmarking-how-coding-agen",
-  "updated_at": "2026-10-02T02:31:43.250365+00:00"
+  "updated_at": "2026-10-02T03:01:37.866353+00:00"
 }
