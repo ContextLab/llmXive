@@ -2,7 +2,7 @@
 Data models and entities for the project.
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ImageStimulus(BaseModel):

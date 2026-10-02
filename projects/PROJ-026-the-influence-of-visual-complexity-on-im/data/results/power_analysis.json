@@ -1,0 +1,8 @@
+{
+  "power_value": 0.82,
+  "target": 0.80,
+  "status": "measured",
+  "effect_size_assumed": 0.5,
+  "n_participants": 60,
+  "n_permutations": 1000
+}

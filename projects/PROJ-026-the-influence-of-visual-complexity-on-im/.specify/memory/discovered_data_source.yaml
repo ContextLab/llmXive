@@ -1,0 +1,9 @@
+status: none
+intent: download ANOVA test dataset json statsmodels python package dataset
+required_fields:
+- group
+- response_time
+- complexity_level
+cache_key: 7a161943976b7c273f078db160756238b110fd7ae303464917292fb2ef6bf1c6
+searched_at: '2026-10-02T04:45:37.494383+00:00'
+retry_count: 1

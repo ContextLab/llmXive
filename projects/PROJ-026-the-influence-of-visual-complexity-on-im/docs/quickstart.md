@@ -1,65 +1,60 @@
-# Quick Start Guide
+# Quick Start Guide - Visual Complexity IAT Pipeline
 
-Get up and running with the Visual Complexity pipeline in minutes.
+## Prerequisites
+- Python 3.11.x
+- pip
 
-## Step 1: Environment Setup
+## Installation
+1. Clone the repository
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
+## Usage
+
+### Step 1: Generate Synthetic Data (for testing/CI)
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd <project-dir>
-
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-cd code
-pip install -r requirements.txt
+python code/data/load.py --null-effect
 ```
+This generates synthetic response logs at `data/raw/responses/synthetic_participants.csv`.
 
-## Step 2: Data Preparation
-
-### Option A: Real Data
-Place your image files in `data/raw/stimuli/` and response logs in `data/raw/responses/`.
-
-### Option B: Synthetic Data (CI/Testing)
-No data preparation needed. Use the `--null-effect` flag.
-
-## Step 3: Run the Pipeline
-
+### Step 2: Process Stimuli
 ```bash
-cd code
-python main.py
+python code/main.py --process-stimuli
 ```
+Computes visual complexity metrics for background images.
 
-**Expected Output:**
-- `data/processed/complexity_scores.csv`
-- `data/processed/aggregated_d_scores.csv`
+### Step 3: Aggregate Responses
+```bash
+python code/main.py --aggregate-responses
+```
+Filters trials and calculates D-scores.
+
+### Step 4: Run Analysis
+```bash
+python code/main.py --run-analysis
+```
+Performs permutation test and sensitivity analysis.
+
+### Step 5: Generate Plots and Report
+```bash
+python code/viz/plot.py
+python code/viz/generate_report.py
+```
+Produces publication-quality figures and final report.
+
+## Production Mode (Real Data)
+To run with real data (no synthetic fallback):
+1. Place real data at `data/raw/responses/participants.csv`
+2. Run without `--null-effect` flag:
+ ```bash
+ python code/main.py --process-stimuli --aggregate-responses --run-analysis
+ ```
+
+## Verification
+After running the full pipeline, verify outputs:
 - `data/results/permutation_results.json`
-- `figures/` (plots)
-
-## Step 4: Verify Results
-
-Check the `data/results/permutation_results.json` file for the p-value and effect size.
-
-```json
-{
- "p_value": 0.032,
- "effect_size": 0.45,
- "n_permutations": 10000,
- "status": "significant"
-}
-```
-
-## Step 5: Troubleshooting
-
-- **Error: "No images found"**: Ensure images are in `data/raw/stimuli/`.
-- **Error: "Permission denied"**: Check file permissions or run as the correct user.
-- **Slow Performance**: Ensure you are not running other heavy processes; the pipeline is CPU-bound.
-
-## Next Steps
-
-- Read `docs/usage_examples.md` for advanced usage.
-- Review `docs/research.md` for methodological details.
-- Check `docs/api_reference.md` for developer documentation.
+- `data/results/sensitivity_results.json`
+- `data/results/d_score_comparison.png`
+- `data/results/final_report.md`

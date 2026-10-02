@@ -47,11 +47,11 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T000 [FR-003] [Plan: Amendment 001] **Create Amendment File: ANOVA to Permutation Test**. **Action**: Create `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md` with the EXACT content below. **Execute**: Write the file. **Verify**: File exists and contains the text below, specifically verifying the line "Status: Ratified" is present. **Versioning**: CRITICAL: After writing the amendment, update `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml` to set `updated_at` to the current timestamp. **Rationale**: Resolves legal disconnect between spec FR-003 and plan T033. **Note**: This task is a 'Write Action'. Once completed, the automated pipeline (T033) can proceed by checking for the file's existence and the 'Ratified' status.
+- [X] T000 [FR-003] [Plan: Amendment 001] **Create Amendment File: ANOVA to Permutation Test**. **Action**: Write `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md` with the content below, replacing `<CURRENT_DATE>` with the actual execution date. **Execute**: Write the file. **Verify**: File exists and contains the text below, specifically verifying the line "Status: Ratified" is present. **Versioning**: CRITICAL: After writing the amendment, update `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml` to set `updated_at` to the current timestamp. **Rationale**: Resolves legal disconnect between spec FR-003 and plan T033. **Note**: This task is a 'Write Action'. Once completed, the automated pipeline (T033) can proceed by checking for the file's existence and the 'Ratified' status.
 ```markdown
 # Amendment 001: Replacement of FR-003
 
-**Date**: 2026-06-29
+**Date**: <CURRENT_DATE>
 **Status**: Ratified
 
 ## Summary
@@ -80,14 +80,35 @@ seaborn>=0.12.0
 statsmodels>=0.14.0
 pytest>=7.4.0
 memory-profiler>=0.61.0
-# Python version: >=3.11 (set via environment)
 ```
-**Verify**: File exists and contains the exact lines specified above.
+**Verify**: File exists and contains the exact lines specified above. (Note: Python version constraint is handled in pyproject.toml, not here).
 - [X] T003 [P] Configure pytest, linting (ruff/flake8), and formatting (black) tools. **Execute**: Create `pyproject.toml` with exact content:
 ```toml
+[project]
+name = "visual-complexity-iat"
+version = "1.0.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+ "numpy>=1.24.0",
+ "pandas>=2.0.0",
+ "scipy>=1.11.0",
+ "scikit-learn>=1.3.0",
+ "pillow>=10.0.0",
+ "opencv-python-headless>=4.8.0",
+ "matplotlib>=3.7.0",
+ "seaborn>=0.12.0",
+ "statsmodels>=0.14.0",
+ "pytest>=7.4.0",
+ "memory-profiler>=0.61.0"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 line-length = 88
-target-version = ['py3']
+target-version = ['py311']
 
 [tool.ruff]
 line-length = 88
@@ -97,7 +118,7 @@ testpaths = ["tests"]
 ```
 - [X] T004 [P] Create `code/config.py` to manage paths, random seeds, and constants. **Execute**: Define variables: `SEED = 42`, `DATA_ROOT = "data"`, `CODE_ROOT = "code"`, `RESULTS_ROOT = "data/results"`.
 - [X] T005 [P] Implement `code/__init__.py` and package structure for `data`, `stimuli`, `analysis`, `viz`.
-- [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path, edge_density, entropy, fractal_dim), `ParticipantResponse` (participant_id, session_id, reaction_time, is_correct, timestamp), `AggregatedScore` (participant_id, session_id, d_score, n_trials_valid, status). Implement as Pydantic BaseModel classes.
+- [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path: str, edge_density: float, entropy: float, fractal_dim: float), `ParticipantResponse` (participant_id: str, session_id: str, reaction_time: float, is_correct: bool, timestamp: datetime), `AggregatedScore` (participant_id: str, session_id: str, d_score: float, n_trials_valid: int, status: str). Implement as Pydantic BaseModel classes with explicit type hints.
 - [X] T008 [P] Configure logging infrastructure in `code/utils/logging.py`. **Execute**: Set log level to `INFO`, format to `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, output to `logs/app.log`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -114,7 +135,7 @@ testpaths = ["tests"]
 
 - [X] T013 [P] Implement edge density (Canny) in `code/stimuli/metrics.py`. **Parameters**: Canny thresholds (low=50, high=150), kernel size=3. **Note**: Must complete before T017a-2.
 - [X] T014 [P] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`. **Note**: Must complete before T017a-2.
-- [X] T015 [P] Implement fractal dimension via box-counting in `code/stimuli/metrics.py`. **Parameters**: Box sizes: `box_sizes = [2, 4, 8, 16, 32]`. **Edge Case Handling**: If calculation fails or value is out of range, clamp to nearest valid boundary., log the filename and reason to `logs/manual_review.log`, and assign the clamped value. **DO NOT raise ValueError**. **Note**: Must complete before T017a-2.
+- [X] T015 [P] Implement fractal dimension via box-counting in `code/stimuli/metrics.py`. **Parameters**: Box sizes: a range of scales including the smallest unit and subsequent powers of two.. **Edge Case Handling**: If calculation fails or value is out of range (valid range [lower boundary, upper boundary]), clamp to nearest valid boundary (lower boundary or upper boundary), log the filename and reason to `logs/manual_review.log`, and assign the clamped value. **DO NOT raise ValueError**. **Note**: Must complete before T017a-2.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -138,9 +159,11 @@ testpaths = ["tests"]
 ### Implementation for User Story 1
 
 - [X] T017a-1 [US1] Read validation log and filter valid images. **Execute**: Check if `logs/validation.log` exists. If NOT, execute `python code/stimuli/validate.py` to generate it. If YES, iterate `data/raw/stimuli/`. For each file, check validity status. **Verify**: Output list of valid/invalid files to `data/processed/valid_images_list.txt`. **Depends on**: T016.
-- [X] T017a-2 [US1] Compute metrics for valid images. **Execute**: Read `data/processed/valid_images_list.txt`. **WAIT FOR COMPLETION** of T013, T014, T015 (parallel block). For each valid image, run T013, T014, T015. **Verify**: Output `data/processed/complexity_metrics_raw.csv` with columns: `filename`, `edge_density`, `entropy`, `fractal_dim`. **Depends on**: T013, T014, T015, T017a-1.
+- [X] T017a-2 [US1] Compute metrics for valid images. **Execute**: Read `data/processed/valid_images_list.txt`. For each valid image, run T013, T014, T015. **Verify**: Output `data/processed/complexity_metrics_raw.csv` with columns: `filename`, `edge_density`, `entropy`, `fractal_dim`. **Depends on**: T013, T014, T015, T017a-1.
 
-- [X] T017a-3 [US1] Write final complexity scores CSV using PCA. **Execute**: Read `data/processed/complexity_metrics_raw.csv`. **Step 1**: Perform PCA on the three metrics (edge_density, entropy, fractal_dim). **Step 2**: Extract the first principal component (PC1) scores. **Step 3**: Apply **Median Split (q=2)** to the PC1 scores to assign `complexity_category` ('Low', 'High'). **Tie-Breaking Rule**: If a value equals the median, assign it to the 'Low' category. **Output**: `data/processed/complexity_scores.csv` with columns: `filename`, `edge_density`, `entropy`, `fractal_dim`, `complexity_category` (derived from PC1). **CRITICAL**: Do NOT include `participant_id` or `session_id` here. **Verify**: File exists, categories are balanced (approx 50/50), and median split logic is correct based on PC1. **Depends on**: T017a-2, T051. (Note: PCA validation T051 is now a prerequisite for this categorization step).
+- [X] T017a-3 [US1] **Merge PCA Validation & Categorization**. **Execute**: Read `data/processed/complexity_metrics_raw.csv`. **Step 1 (Validation)**: Perform PCA on the three metrics. Calculate cumulative variance. If cumulative variance < 0.8, write `{"status": "warning", "message": "Low variance"}` to `data/results/pca_variance.json`. **Step 2 (Extraction)**: Extract the first principal component (PC1) scores. **Step 3 (Split)**: Apply Median Split. Sort PC1 scores. Split at index `floor(n/2)`. Values at the split index and below are assigned to 'Low'; above to 'High'. **Output**: `data/processed/complexity_scores.csv` with columns: `filename`, `edge_density`, `entropy`, `fractal_dim`, `complexity_category` (derived from PC1). **CRITICAL**: Do NOT include `participant_id` or `session_id` here. **Verify**: File exists, categories are balanced (approx 50/50), and median split logic is correct based on PC1. **Depends on**: T017a-2. (Note: T051 merged into this task).
+
+- [X] T027a-Map [US1] [P] **Generate Stimulus Set Mapping (Schema Definition)**. **Execute**: Read `data/processed/complexity_scores.csv` (T017a-3). Create a mapping file `data/processed/stimulus_set_mapping.csv` that defines the static schema: **All** images with 'Low' category map to 'SetA'; **All** images with 'High' category map to 'SetB**. **CRITICAL**: This task defines the *schema* (SetA=Low, SetB=High) required by T027a. It does NOT assign sets to participants. It only establishes the rule that SetA corresponds to Low Complexity and SetB to High Complexity. **Verify**: File exists with columns `filename`, `stimulus_set_id`. **Note**: This task defines the *schema* (SetA=Low, SetB=High) required by T027a. It does not assign sets to participants. **Depends on**: T017a-3.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -162,14 +185,23 @@ testpaths = ["tests"]
 
 - [X] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`. **Thresholds**: Remove trials <300ms or >10000ms.
 - [X] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`. **Logic**: Use standard D formula (Greenwald et al., year).
-- [X] T026a [US2] [P] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI). **Constraint**: If `--null-effect` flag is NOT set and real data files are missing, raise `RuntimeError` immediately. **Depends on**: (None - independent).
+- [X] T042 [US2] [P] [FR-006] [Plan: Constitution Compliance] **Implement Dual-Mode Data Loader**. **Execute**: Create `code/data/load.py`. **Logic**:
+ 1. If `GITHUB_ACTIONS` is set and real data is missing, generate synthetic data (with a warning log).
+ 2. If `--null-effect` flag is set, generate synthetic data.
+ 3. If `GITHUB_ACTIONS` is NOT set and `--null-effect` is NOT set and real data is missing, raise `RuntimeError` immediately.
+ **Verify**: Run `pytest tests/test_data/test_load_modes.py` to verify all three modes. **Depends on**: (None - independent).
 
-- [X] T027a-Map [US2] [P] **Generate Stimulus-to-Set Mapping**. **Execute**: Read `data/processed/complexity_scores.csv` (T017a-3). Create a mapping file `data/processed/stimulus_set_mapping.csv` that assigns `stimulus_set_id` to each `filename` based on its `complexity_category`. **Logic**: All images with 'Low' category map to 'SetA'; all images with 'High' category map to 'SetB'. **Verify**: File exists with columns `filename`, `stimulus_set_id`. **Depends on**: T017a-3.
+- [X] T059 [US2] [FR-006] [Plan: Data Hygiene] **Enforce Real Data Integrity in Production**. **Execute**: Refactor `code/data/load.py` (T042) to ensure that in production mode (no `--null-effect` flag, not CI), the script **strictly** requires real data. If the real data source is unavailable, raise `RuntimeError`. **Constraint**: Synthetic data is ONLY permitted if explicitly triggered by `--null-effect` or `GITHUB_ACTIONS`. **Verify**: Run `pytest tests/test_data/test_load_no_fallback.py` which mocks a network failure in local mode and asserts `RuntimeError` is raised. **Depends on**: T042.
 
-- [X] T027a [US2] [P] [FR-002] [Plan: Stimulus Manipulation Integrity] **Generate Counterbalance Assignment**. **Execute**: Read from `data/raw/responses/participants.csv` if real data exists; otherwise generate N=60 synthetic IDs. **Action**: Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders and stimulus sets. **Schema**: `participant_id` (str), `session_order` (str: "Low-High" or "High-Low"), `stimulus_set_id` (str: "SetA" or "SetB"). **Algorithm**: Seeded random shuffle (seed=42) assigning `session_order` and `stimulus_set_id` such that SetA maps to Low-High and SetB maps to High-Low. **CRITICAL**: The `stimulus_set_id` assignment MUST be derived from the mapping file generated in T027a-Map (which itself is based on T017a-3 categories). **Note**: Synthetic data strictly for CI; real data requires this metadata. **Depends on**: T027a-Map.
+- [X] T061 [US2] [Plan: Data Hygiene] **Implement Checksum Generation for Real Data**. **Execute**: Update `code/data/load.py` to compute the SHA-256 hash of any downloaded real data file. **Logic**:
+ 1. If `data/checksums.json` does not exist, compute the hash of the downloaded file and write it to `data/checksums.json` (Generate-on-First-Run).
+ 2. If `data/checksums.json` exists, verify the hash matches. If mismatch, raise `ValueError`.
+ **Constraint**: This task generates the checksums file if missing; it does not assume a pre-existing one. **Verify**: Run `pytest tests/test_data/test_checksum_generation.py` to verify hash generation and storage. **Depends on**: T042.
+
+- [X] T027a [US2] [P] [FR-002] [Plan: Stimulus Manipulation Integrity] **Generate Counterbalance Assignment**. **Execute**: Read from `data/raw/responses/participants.csv` if real data exists; otherwise generate N=60 synthetic IDs. **Action**: Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders and stimulus sets. **Schema**: `participant_id` (str), `session_order` (str: "Low-High" or "High-Low"), `stimulus_set_id` (str: "SetA" or "SetB"). **Algorithm**: 1. Create list of participant IDs. 2. Shuffle using `numpy.random.shuffle` with seed=42. 3. Assign first half to 'Low-High' and 'SetA', second half to 'High-Low' and 'SetB'. **CRITICAL**: The `stimulus_set_id` assignment MUST strictly adhere to the schema defined in T027a-Map (SetA=Low, SetB=High). The shuffle only determines *which participants* get SetA or SetB, not the definition of SetA/SetB. **Note**: Synthetic data strictly for CI; real data requires this metadata. **Depends on**: T027a-Map, T042.
 
 - [X] T027b [US2] Log the specific counterbalancing assignment strategy used in `logs/counterbalance_strategy.log`. Verify file exists and contains the seed and split ratio. **Depends on**: T027a.
-- [X] T026b-1 [US2] [P] Filter raw trials. **Execute**: Read raw response logs via T026a. Apply T022 (latency bounds). **Verify**: Output `data/processed/filtered_trials.csv`. **Depends on**: T022, T026a.
+- [X] T026b-1 [US2] [P] Filter raw trials. **Execute**: Read raw response logs via T042/T026a. Apply T022 (latency bounds). **Verify**: Output `data/processed/filtered_trials.csv`. **Depends on**: T022, T042.
 - [X] T026b-2 [US2] [P] Calculate D-scores. **Execute**: Read `data/processed/filtered_trials.csv`. Apply T023 (Greenwald D2). **Verify**: Output `data/processed/d_scores_raw.csv` with `participant_id`, `session_id`, `d_score`, `n_trials_valid`. **Depends on**: T023, T026b-1.
 - [X] T026b-3 [US2] Aggregate and join complexity. **Execute**: Read `data/processed/d_scores_raw.csv`. **THEN** Join with `data/processed/counterbalance_assignment.csv` (T027a) using `participant_id` to determine `session_order` and `stimulus_set_id`. **THEN** Join with `data/processed/complexity_scores.csv` (T017a-3) using `stimulus_set_id` (mapped from filename logic or explicit set ID in T027a) to assign `complexity_condition` (Low/High). **Logic**: Exclude participants with <10 valid trials. **Output**: `data/processed/aggregated_d_scores.csv` with columns: `participant_id`, `session_id`, `complexity_condition`, `d_score`, `n_trials_valid`, `status`. **Verify**: Output schema matches spec, `status` flags NaN for <10 trials, and **explicitly log the number of rows successfully joined** to `logs/join_report.log`. **Depends on**: T026b-2, T027a, T017a-3.
 
@@ -192,21 +224,21 @@ testpaths = ["tests"]
 
 ### Implementation for User Story 3
 
-- [X] T051 [US3] [FR-001] [Plan: Complexity Tracking] **REVISION**: Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity). **Justification**: Required by Plan.md "Complexity Tracking" section to avoid cherry-picking a single metric (Methodology Concern 07f04f81). **Input**: Read 3 metrics from `data/processed/complexity_metrics_raw.csv`. **Output**: Write `data/results/pca_variance.json` with cumulative variance and PC1 loadings. **Warning Logic**: If cumulative variance < 0.8, write `{"status": "warning", "message": "Low variance"}` to `data/results/pca_variance.json`. **DO NOT raise ValueError or halt pipeline**. **Verify**: File exists with status field. **CRITICAL**: This task validates the metrics used in the final analysis. **Depends on**: T017a-2.
-- [X] T033-impl [US3] **REVISION**: Implement Permutation Test function in `code/analysis/permutation.py`. **Parameters**: `n_permutations=1000`, seed 42, metric = mean difference of D-scores. **Pre-Check**: Verify `amendment-001.md` exists (from T000). If missing, raise `RuntimeError`. **Note**: This task implements the Plan's Permutation Test logic as a reusable function. **Depends on**: T000.
-- [X] T033-run [US3] **REVISION**: Execute Permutation Test. **Execute**: Call the function from T033-impl with the aggregated data. **Semantic Check**: Read `data/results/pca_variance.json` (T051). If `status` is "warning", log a warning to `logs/analysis.log` but proceed. **Verify**: Output `data/results/permutation_results.json` is generated. **Depends on**: T033-impl, T051, T026b-3, T000.
+- [X] T033-check [US3] **Check Amendment**. **Execute**: Verify `amendment-001.md` exists (from T000). If missing, raise `RuntimeError`. **Depends on**: T000.
+- [X] T033-impl [US3] **Implement Permutation Test function**. **Parameters**: `n_permutations=1000`, seed 42, metric = mean difference of D-scores. **Note**: This task implements the Plan's Permutation Test logic as a reusable function. **Depends on**: T033-check.
+- [X] T033-run [US3] **Execute Permutation Test**. **Execute**: Call the function from T033-impl with the aggregated data. **Verify**: Output `data/results/permutation_results.json` is generated. **Depends on**: T033-impl, T017a-3, T026b-3, T033-check.
 
-- [X] T034 [US3] **REVISION**: Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation-based standardized mean difference'. **Methodology**: Calculate `observed_cohen_d` from the mean difference and pooled SD of the D-scores. Calculate `perm_standardized_mean_diff` from the permutation distribution statistics. **DO NOT calculate partial η²**. **Deliverable**: Write `data/results/permutation_results.json` with keys: `p_value`, `effect_size`, `observed_cohen_d`, `perm_standardized_mean_diff`. **CRITICAL**: Must explicitly include `observed_cohen_d` and `perm_standardized_mean_diff`. **Verify**: File exists and contains the required keys. **Depends on**: T033-run.
+- [X] T034 [US3] **Calculate Effect Sizes**. **Methodology**: 1. Calculate `observed_cohen_d` from the mean difference and pooled SD of the D-scores. 2. Calculate `partial_eta2` by performing a standard OLS ANOVA on the observed D-scores grouped by complexity condition (using `statsmodels`) and extracting `SS_effect / (SS_effect + SS_error)` from the ANOVA table. 3. Calculate `perm_standardized_mean_diff` from the permutation distribution statistics. **Deliverable**: Write `data/results/permutation_results.json` with keys: `p_value`, `effect_size`, `observed_cohen_d`, `partial_eta2`, `perm_standardized_mean_diff`. **CRITICAL**: Must explicitly include `partial_eta2`. **Verify**: File exists and contains the required keys. **Depends on**: T033-run.
 
-- [X] T035 [US3] **REVISION**: Implement Sensitivity Analysis (Threshold + LOIO). **Logic**:
- 1. **Threshold Sweep**: Read `complexity_metrics_raw.csv` to calculate SD of `edge_density`. For each shift (±0.05*SD, ±0.10*SD, ±0.15*SD, 0), re-run the Permutation Test function (T033-impl) with the shifted threshold. **OPTIMIZATION**: Use a subset of n=100 permutations for these shifts to ensure runtime compliance (SC-005) and CI buffer. If n < 15 per condition, mark as 'invalid'.
+- [X] T035 [US3] **Implement Sensitivity Analysis (Threshold + LOIO)**. **Logic**:
+ 1. **Threshold Sweep**: Read `complexity_metrics_raw.csv` to calculate SD of the `edge_density` column. For each shift (±0.05*SD, ±0.10*SD, ±0.15*SD, 0), re-run the Permutation Test function (T033-impl) with the shifted threshold. **OPTIMIZATION**: Use a subset of n=100 permutations for these shifts to ensure runtime compliance (SC-005) and CI buffer. If n < 15 per condition, mark as 'invalid'.
  2. **LOIO**: Exclude one image at a time, re-run permutation test with **n=100 permutations**, report p-value variation.
  3. **Combine Results**: Merge both results into a single JSON object.
- **Output**: Write `data/results/sensitivity_results.json` containing both `threshold_sweep` and `loio_results` keys. **Depends on**: T033-impl, T017a-3, T051.
+ **Output**: Write `data/results/sensitivity_results.json` containing both `threshold_sweep` and `loio_results` keys. **Depends on**: T033-impl, T017a-3, T034.
 
-- [X] T036-verify [US3] **REVISION**: Verify output files. **Execute**: Check existence and schema of `data/results/permutation_results.json` (keys: p_value, observed_cohen_d, perm_standardized_mean_diff) and `data/results/sensitivity_results.json` (keys: threshold_sweep, loio_results). **Constraint**: Do NOT write or modify files. **Verify**: Exit 0 if valid, raise ValueError if missing. **Depends on**: T034, T035.
+- [X] T036-verify [US3] **Verify output files**. **Execute**: Check existence and schema of `data/results/permutation_results.json` (keys: p_value, observed_cohen_d, partial_eta2, perm_standardized_mean_diff) and `data/results/sensitivity_results.json` (keys: threshold_sweep, loio_results). **Constraint**: Do NOT write or modify files. **Verify**: Exit 0 if valid, raise ValueError if missing. **Depends on**: T034, T035.
 
-- [X] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, 95% confidence interval error bars, 12pt font size, viridis palette) in `code/viz/plot.py`. **Parameters**: Figure size (appropriate dimensions), DPI=300, font family='Arial', `confidence_level=0.95`, output path `data/results/d_score_comparison.png`. **Depends on**: T034, T035, T036-verify.
+- [ ] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, 95% confidence interval error bars, 12pt font size, viridis palette) in `code/viz/plot.py`. **Parameters**: Figure size (appropriate dimensions), DPI=300, font family='Arial', `confidence_level=0.95`, output path `data/results/d_score_comparison.png`. **Depends on**: T034, T035, T036-verify.
 - [X] T038 [US3] Create `code/main.py` to orchestrate the full pipeline (Load -> Process -> Analyze -> Plot).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -223,43 +255,47 @@ testpaths = ["tests"]
 - [X] T040c [P] **REVISION**: Code cleanup and type hints for `code/analysis/`. **Execute**: Run `ruff check --fix code/analysis/` and `mypy code/analysis/ --strict`. **Verify**: Exit code 0.
 - [X] T040d [P] **REVISION**: Code cleanup and type hints for `code/viz/`. **Execute**: Run `ruff check --fix code/viz/` and `mypy code/viz/ --strict`. **Verify**: Exit code 0.
 - [X] T041a [US1] Create memory profiling script in `code/utils/profile_memory.py`. **Action**: Script must use `memory_profiler` to measure peak memory usage of the main pipeline. **Verify**: Script exists and can be run independently.
-- [X] T041b [US1] Run profiling and assert memory usage <7GB. **Action**: Execute `python code/utils/profile_memory.py` with synthetic dataset (N=100 participants, 50 images) and assert `peak_memory < 7GB`. **Verify**: Log output confirms memory limit was not exceeded. **Depends on**: T041a, T038, T051.
-- [X] T042 [US2] **REVISION**: Implement strict "fail loud" data loading in `code/data/load.py` that raises an exception if real data is missing, preventing any fallback to synthetic data during production runs. **FAIL CONDITION**: If `--null-effect` flag is NOT set and real data is missing, raise `RuntimeError`. **ALLOWED**: If `--null-effect` flag IS set, synthetic data is permitted for CI.
+- [X] T041b [US1] Run profiling and assert memory usage <7GB. **Action**: **Pre-condition**: Verify T017a-3 completed successfully (no error status). If T017a-3 failed, skip this task. Execute `python code/utils/profile_memory.py` with synthetic dataset (N=100 participants, 50 images) and assert `peak_memory < 7GB`. **Verify**: Log output confirms memory limit was not exceeded. **Depends on**: T041a, T038, T017a-3.
 - [X] T043a [CI] **REVISION**: Add CI workflow file `.github/workflows/analysis.yml`. **Execute**: Create file with exact content:
 ```yaml
 name: Analysis Pipeline
 on: [push, pull_request]
 jobs:
-  run-analysis:
-    runs-on: ubuntu-latest
-    timeout-minutes:
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install dependencies
-        run: |
-          pip install -r code/requirements.txt
-      - name: Run Pipeline
-        run: python code/main.py --null-effect
-      - name: Verify Results
-        run: |
-          test -f data/results/permutation_results.json
-          test -f data/results/sensitivity_results.json
-          test -f data/results/d_score_comparison.png
+ run-analysis:
+ runs-on: ubuntu-latest
+ timeout-minutes:
+ steps:
+ - uses: actions/checkout@v3
+ - name: Set up Python
+ uses: actions/setup-python@v4
+ with:
+ python-version: "3.11"
+ - name: Install dependencies
+ run: |
+ pip install -r code/requirements.txt
+ - name: Run Pipeline
+ run: python code/main.py --null-effect
+ - name: Verify Results
+ run: |
+ test -f data/results/permutation_results.json
+ test -f data/results/sensitivity_results.json
+ test -f data/results/d_score_comparison.png
 ```
 **Verify**: File exists and passes `actionlint` (if available) or manual syntax check. **Depends on**: T038 (main.py must exist).
-- [X] T034b [Plan: Analysis Pipeline] **REVISION**: Implement **Simulation-Based** Power Analysis. **Logic**: Simulate data under the alternative hypothesis (effect size = 0.5) for N=60. Run the Permutation Test (n=1000) on the simulated data. Repeat multiple times. **Output**: Write `data/results/power_analysis.json` with `power_value` (proportion of significant results), `target` (0.80), `status` (measured). **DO NOT raise RuntimeError**. If power < 0.80, set `status` to "warning" and log the value. **Note**: This is a measurement, not a gate. **Rationale**: Addresses the "Power Analysis" requirement in the Plan's 'Analysis Pipeline' section and 'Complexity Tracking' table using a method compatible with the Permutation Test. **Depends on**: (None - independent design check).
-- [X] T044 [US3] **REVISION**: Implement robust error handling for the PCA dimensionality check in `code/analysis/pca.py`. **Execute**: Wrap the PCA logic in a try-except block that catches `ValueError` and `RuntimeError`. On error, write `{"status": "error", "message": "<error details>"}` to `data/results/pca_variance.json`. **Verify**: Run `pytest tests/test_analysis/test_pca_error_handling.py` which injects invalid data and asserts the error JSON is written. **Depends on**: T051.
-- [X] T045 [US3] **REVISION**: Add a explicit validation step in `code/main.py` to verify that `data/processed/complexity_scores.csv` contains at least one valid image before proceeding to T051 (PCA). **Execute**: Insert a check in `code/main.py` after T017a-3 completion that raises `ValueError` if the CSV is empty or all rows are 'skipped'. **Verify**: Run `pytest tests/test_main/test_main_empty_data.py` which creates an empty CSV and asserts `ValueError` is raised. **Depends on**: T038.
+- [X] T034b [Plan: Analysis Pipeline] **REVISION**: Implement **Simulation-Based** Power Analysis. **Logic**:
+ 1. **Derive Effect Size**: Read `research.md` or literature citations to find a justified effect size. If none exists, default to a conservative 0.3 and log the source.
+ 2. Simulate data under the alternative hypothesis (effect size = derived/default) for N=60.
+ 3. Run the Permutation Test (n=1000) on the simulated data.
+ 4. Repeat multiple times.
+ **Output**: Write `data/results/power_analysis.json` with `power_value` (proportion of significant results), `target` (0.80), `status` (measured), `effect_size_source` (log of derivation). **FAILURE CONDITION**: If simulated power < 0.80, raise RuntimeError to halt the pipeline. **Note**: This is a verification gate. **Rationale**: Addresses the "Power Analysis" requirement in the Plan's 'Analysis Pipeline' section and 'Complexity Tracking' table using a method compatible with the Permutation Test. **Depends on**: T033-impl, T026b-3.
+- [X] T044 [US3] **REVISION**: Implement robust error handling for the PCA dimensionality check in `code/analysis/pca.py`. **Execute**: Wrap the PCA logic in a try-except block that catches `ValueError` and `RuntimeError`. On error, write `{"status": "error", "message": "<error details>"}` to `data/results/pca_variance.json`. **Verify**: Run `pytest tests/test_analysis/test_pca_error_handling.py` which injects invalid data and asserts the error JSON is written. **Depends on**: T017a-3 (merged logic).
+- [ ] T045 [US3] **REVISION**: Add a explicit validation step in `code/main.py` to verify that `data/processed/complexity_scores.csv` contains at least one valid image before proceeding to T033-run. **Execute**: Insert a check in `code/main.py` after T017a-3 completion that raises `ValueError` if the CSV is empty or all rows are 'skipped'. **Verify**: Run `pytest tests/test_main/test_main_empty_data.py` which creates an empty CSV and asserts `ValueError` is raised. **Depends on**: T038.
 - [X] T046 [US2] **REVISION**: Update `code/data/process.py` to explicitly log the number of participants excluded due to insufficient trials (<10) to `logs/exclusion_report.log` with a breakdown by session. **Execute**: Add logging statements in T026b-3 to record `participant_id`, `session_id`, and `reason='insufficient_trials'` for each excluded row. **Verify**: Run pipeline with synthetic data including invalid participants; verify `logs/exclusion_report.log` contains the expected format and counts. **Depends on**: T026b-3.
 - [X] T048 [US1] **REVISION**: Add robust error handling for fractal dimension calculation in `code/stimuli/metrics.py`. **Execute**: Wrap the box-counting algorithm in a try-except block. If the calculation fails (e.g., division by zero, invalid box sizes), log the error to `logs/metrics.log` and assign a `NaN` value to the `fractal_dim` column for that image, rather than crashing the entire batch. **Verify**: Run `pytest tests/test_stimuli/test_fractal_error_handling.py` with a corrupted image input and assert the script continues and outputs `NaN` for that specific metric. **Depends on**: T015.
 - [X] T049 [US3] **REVISION**: Implement explicit handling for the "insufficient participants" edge case in the sensitivity analysis (T035). **Execute**: Ensure the code in `code/analysis/permutation.py` explicitly checks `n < 15` per condition *before* attempting the permutation test. If the threshold is invalid, write a specific entry in `sensitivity_results.json` with `status: "invalid"` and `reason: "n < 15"`, rather than attempting a test with insufficient data and failing silently or with a generic error. **Verify**: Run `pytest tests/test_analysis/test_sensitivity_edge_cases.py` with a dataset that triggers the n<15 condition and assert the JSON output contains the correct status and reason. **Depends on**: T035.
 - [X] T050 [US2] **REVISION**: Add a specific test case for the "missing data for one session" edge case in `code/data/process.py`. **Execute**: Create a unit test in `tests/test_data/test_process.py` that simulates a participant with valid trials in Session A but missing data for Session B. Verify that the aggregation logic correctly flags the missing session's D-score as `NaN` and excludes the participant from the repeated-measures comparison, logging the exclusion count. **Verify**: Run the test and assert the exclusion count is incremented and the D-score is `NaN`. **Depends on**: T026b-3.
 - [X] T052 [US3] **REVISION**: Update `code/analysis/permutation.py` to log the exact permutation seed and iteration count to `logs/permutation_run.log` for full reproducibility verification. **Execute**: Add logging statements at the start of the permutation loop in `code/analysis/permutation.py`. **Verify**: Run pipeline and check `logs/permutation_run.log` for seed=42 and n=1000 entries. **Depends on**: T033-impl.
-- [X] T053 [US3] **REVISION**: Add a validation task in `code/main.py` to ensure `data/results/permutation_results.json` contains `observed_cohen_d` and `p_value` before generating plots (T037). **Execute**: Insert a check in `code/main.py` after T034 that raises `ValueError` if keys are missing. **Verify**: Run `pytest tests/test_main/test_main_missing_results.py` which mocks missing keys and asserts `ValueError`. **Depends on**: T034, T038.
+- [X] T053 [US3] **REVISION**: Add a validation task in `code/main.py` to ensure `data/results/permutation_results.json` contains `observed_cohen_d`, `partial_eta2`, and `p_value` before generating plots (T037). **Execute**: Insert a check in `code/main.py` after T034 that raises `ValueError` if keys are missing. **Verify**: Run `pytest tests/test_main/test_main_missing_results.py` which mocks missing keys and asserts `ValueError`. **Depends on**: T034, T038.
 - [X] T054 [US1] **REVISION**: Add a specific test for the "median split tie-breaking" edge case in `tests/test_stimuli/test_metrics.py`. **Execute**: Create a dataset where the median value appears multiple times and verify the split logic assigns them consistently to 'Low' (as defined in T017a-3). **Verify**: Run the test and assert the split is consistent and documented. **Depends on**: T017a-3.
 
 ---
@@ -268,7 +304,7 @@ jobs:
 
 **Purpose**: Final validation steps to ensure the pipeline is robust, reproducible, and ready for publication.
 
-- [ ] T055 [US3] [FR-003] [Plan: Constitution Compliance] **Final End-to-End Reproducibility Test**. **Execute**: Create a script `tests/test_reproducibility/test_full_pipeline.py` that: (1) Seeds all random generators, (2) Runs the full pipeline from `code/main.py --null-effect`, (3) Captures hashes of all output files in `data/results/`, (4) Re-runs the pipeline, (5) Asserts that the hashes match exactly. **Verify**: Script passes on two consecutive runs. **Rationale**: Ensures the permutation test and all downstream steps are fully deterministic given the seed. **Depends on**: T038, T043a.
-- [ ] T056 [US3] [FR-005] **Generate Final Report Artifact**. **Execute**: Create `code/viz/generate_report.py` that reads `data/results/permutation_results.json`, `data/results/sensitivity_results.json`, and `data/results/power_analysis.json`. **Output**: Generate a single `data/results/final_report.md` containing: (1) Summary of hypothesis test (p-value, effect size), (2) Sensitivity analysis summary (robustness check), (3) Power analysis conclusion, (4) Links to generated plots. **Verify**: File exists and contains all required sections. **Depends on**: T034, T035, T034b.
-- [ ] T057 [US1] **Documentation of Data Flow**. **Execute**: Update `docs/README.md` to include a detailed "Data Flow" section that explicitly maps the dependencies between T017a-3 (Complexity Scores), T027a-Map (Set Mapping), and T027a (Counterbalance). **Verify**: Section exists and correctly describes the flow. **Rationale**: Prevents future confusion about how stimulus sets are assigned to complexity conditions. **Depends on**: T017a-3, T027a-Map, T027a.
-- [ ] T058 [US3] **Final Code Review Checklist**. **Execute**: Create `docs/CODE_REVIEW_CHECKLIST.md` containing a list of items to verify before merging: (1) All `[X]` tasks completed, (2) `amendment-001.md` exists and is ratified, (3) No synthetic data fallbacks in production code, (4) All output files have correct schema, (5) Logs contain required audit trails. **Verify**: Checklist exists and covers all critical path items. **Depends on**: T000, T042, T036-verify.
+- [X] T055 [US3] [FR-003] [Plan: Constitution Compliance] **Final End-to-End Reproducibility Test**. **Execute**: Create a script `tests/test_reproducibility/test_full_pipeline.py` that: (1) Seeds all random generators, (2) Runs the full pipeline from `code/main.py --null-effect`, (3) Captures SHA-256 hashes of all output files in `data/results/` (excluding timestamped logs), (4) Re-runs the pipeline, (5) Asserts that the hashes match exactly. **Verify**: Script passes on two consecutive runs. **Rationale**: Ensures the permutation test and all downstream steps are fully deterministic given the seed. **Depends on**: T038, T043a.
+- [X] T056 [US3] [FR-005] **Generate Final Report Artifact**. **Execute**: Create `code/viz/generate_report.py` that reads `data/results/permutation_results.json`, `data/results/sensitivity_results.json`, and `data/results/power_analysis.json`. **Output**: Generate a single `data/results/final_report.md` containing: (1) Summary of hypothesis test (p-value, effect size), (2) Sensitivity analysis summary (robustness check), (3) Power analysis conclusion, (4) Links to generated plots. **Verify**: File exists and contains all required sections. **Depends on**: T034, T035, T034b.
+- [X] T057 [US1] **Documentation of Data Flow**. **Execute**: Update `docs/README.md` to include a detailed "Data Flow" section that explicitly maps the dependencies between T017a-3 (Complexity Scores), T027a-Map (Set Mapping), and T027a (Counterbalance). **Verify**: Section exists and correctly describes the flow. **Rationale**: Prevents future confusion about how stimulus sets are assigned to complexity conditions. **Depends on**: T017a-3, T027a-Map, T027a.
+- [X] T058 [US3] **Final Code Review Checklist**. **Execute**: Create `docs/CODE_REVIEW_CHECKLIST.md` containing a list of items to verify before merging: (1) All `[X]` tasks completed, (2) `amendment-001.md` exists and is ratified, (3) No synthetic data fallbacks in production code, (4) All output files have correct schema, (5) Logs contain required audit trails. **Verify**: Checklist exists and covers all critical path items. **Depends on**: T000, T042, T036-verify.
