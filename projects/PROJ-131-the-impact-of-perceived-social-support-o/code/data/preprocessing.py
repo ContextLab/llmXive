@@ -1,3 +1,7 @@
+"""
+Preprocessing module for the Cyberbullying Survey analysis.
+Handles MICE imputation, scale scoring, and derivation of binary exposure.
+"""
 import os
 import sys
 import logging
@@ -5,215 +9,289 @@ import yaml
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import List, Optional, Tuple, Dict, Any
 
-# Import from local project modules to ensure correct API usage
-# Assuming config_loader and logger are available as per project structure
-try:
-    from utils.config_loader import load_yaml_config, get_seed
-    from utils.logger import get_logger
-except ImportError:
-    # Fallback for direct execution or different import context
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from utils.config_loader import load_yaml_config, get_seed
-    from utils.logger import get_logger
+# Ensure project root is in path for imports
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Constants
-CRITICAL_OUTCOMES = ['depression', 'anxiety', 'ptsd']
-PREDICTOR_MATRIX = ['age', 'gender', 'education', 'income', 'social_support', 'harassment_severity']
+from utils.logger import get_logger
+from utils.config_loader import load_yaml_config, get_seed
 
 logger = get_logger(__name__)
 
-def load_config() -> Dict[str, Any]:
-    """Load configuration from config files."""
-    config_path = Path(__file__).parent.parent / 'config' / 'data_config.yaml'
-    if not config_path.exists():
-        logger.warning(f"Config file not found at {config_path}, using defaults.")
-        return {}
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = project_root / "code" / "config" / "data_sources.yaml"
     return load_yaml_config(config_path)
 
-def handle_high_missingness(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
-    """Handle columns with high missingness (> threshold)."""
-    logger.info("Checking for high missingness columns...")
-    missing_pct = df.isnull().mean()
-    high_missing = missing_pct[missing_pct > threshold].index.tolist()
-    if high_missing:
-        logger.warning(f"Dropping columns with >{threshold*100}% missingness: {high_missing}")
-        df = df.drop(columns=high_missing)
-    return df
-
-def check_convergence(imputer, max_iter: int = 10) -> bool:
-    """Check if MICE imputation converged."""
-    # IterativeImputer does not expose a direct 'converged_' attribute in all versions
-    # We assume convergence if the run completes without exception.
-    # If specific convergence flags are needed, they would be checked here.
-    return True
-
-def apply_mice_imputation(df: pd.DataFrame, predictors: List[str], seed: int = 42) -> pd.DataFrame:
-    """Apply MICE imputation to the predictor matrix."""
-    logger.info(f"Applying MICE imputation to predictors: {predictors}")
+def apply_mice_imputation(
+    df: pd.DataFrame,
+    predictor_cols: List[str],
+    max_iter: int = 10,
+    random_state: int = 42
+) -> Tuple[pd.DataFrame, bool]:
+    """
+    Apply Multiple Imputation by Chained Equations (MICE) to missing values.
     
-    # Filter to only existing predictors
-    existing_preds = [p for p in predictors if p in df.columns]
-    if not existing_preds:
-        logger.warning("No predictor columns found for imputation.")
-        return df
-
-    df_imputed = df.copy()
+    Args:
+        df: Input DataFrame
+        predictor_cols: List of columns to impute
+        max_iter: Maximum number of iterations
+        random_state: Random seed for reproducibility
+        
+    Returns:
+        Tuple of (imputed DataFrame, convergence status)
+    """
+    logger.info(f"Applying MICE imputation to columns: {predictor_cols}")
     
-    # Isolate predictors to impute
-    X = df_imputed[existing_preds].copy()
+    # Filter to only the predictor columns
+    df_predictors = df[predictor_cols].copy()
     
-    # Check if there is any missingness to impute
-    if X.isnull().sum().sum() == 0:
-        logger.info("No missing values found in predictor matrix. Skipping imputation.")
-        return df_imputed
-
+    # Check for any missing values
+    if df_predictors.isnull().sum().sum() == 0:
+        logger.info("No missing values in predictor matrix. Skipping imputation.")
+        return df, True
+    
     try:
         from sklearn.experimental import enable_iterative_imputer
         from sklearn.impute import IterativeImputer
-        
-        imputer = IterativeImputer(
-            max_iter=10,
-            random_state=seed,
-            verbose=1
-        )
-        
-        logger.info("Fitting IterativeImputer...")
-        imputed_values = imputer.fit_transform(X)
-        
-        if not check_convergence(imputer):
-            logger.error("E-MICE-NONCONV-001: MICE imputation failed to converge. Halting pipeline.")
-            raise RuntimeError("MICE imputation failed to converge.")
-        
-        # Update dataframe
-        df_imputed[existing_preds] = imputed_values
-        logger.info("MICE imputation completed successfully.")
-        
-    except ImportError as e:
-        logger.error(f"Sklearn iterative imputer not available: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error during MICE imputation: {e}")
-        raise
+    except ImportError:
+        logger.error("scikit-learn is required for MICE imputation.")
+        raise RuntimeError("scikit-learn not found. Install with: pip install scikit-learn")
+    
+    # Initialize the imputer with explicit parameters
+    imputer = IterativeImputer(
+        max_iter=max_iter,
+        random_state=random_state,
+        verbose=1
+    )
+    
+    # Fit and transform
+    logger.info("Fitting IterativeImputer...")
+    imputed_values = imputer.fit_transform(df_predictors)
+    
+    # Check convergence
+    if hasattr(imputer, 'n_iter_'):
+        converged = imputer.n_iter_ < max_iter
+        logger.info(f"Imputation converged: {converged} (iterations: {imputer.n_iter_})")
+    else:
+        # Fallback: assume convergence if no error
+        converged = True
+        logger.warning("Could not determine convergence status. Assuming success.")
+    
+    # Update the original DataFrame
+    df_imputed = df.copy()
+    df_imputed[predictor_cols] = imputed_values
+    
+    return df_imputed, converged
 
-    return df_imputed
+def check_convergence(converged: bool) -> None:
+    """
+    Check if MICE imputation converged and raise error if not.
+    
+    Args:
+        converged: Boolean indicating if imputation converged
+        
+    Raises:
+        RuntimeError: If imputation did not converge
+    """
+    if not converged:
+        error_msg = "E-MICE-NONCONV-001: MICE imputation failed to converge. Halting pipeline."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    logger.info("MICE imputation converged successfully.")
 
-def apply_scale_scoring(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
-    """Apply scale scoring logic (placeholder for T013c integration)."""
-    # This function is a placeholder to ensure the pipeline flow exists.
-    # T013c (Scale Scoring) is assumed to have run or be integrated here.
-    # For T013d, we assume 'depression', 'anxiety', 'ptsd' are already present or handled.
-    logger.info("Scale scoring step invoked (assumed completed by T013c).")
+def apply_scale_scoring(
+    df: pd.DataFrame,
+    config_path: Optional[str] = None
+) -> pd.DataFrame:
+    """
+    Apply scoring algorithms defined in config/scales.yaml.
+    
+    Args:
+        df: Input DataFrame
+        config_path: Path to scales configuration
+        
+    Returns:
+        DataFrame with scored variables
+    """
+    if config_path is None:
+        config_path = project_root / "code" / "config" / "scales.yaml"
+    
+    config = load_yaml_config(config_path)
+    logger.info(f"Loaded scale config: {list(config.keys())}")
+    
+    # Check if raw items exist or if we have pre-aggregated scores
+    # For CES-D (depression)
+    if 'depression' in df.columns:
+        logger.info("Using pre-aggregated 'depression' column from dataset.")
+        logger.warning("W-AGGREGATE-SCORES-001: Using pre-aggregated scores from dataset.")
+    else:
+        # Check for raw items (e.g., cesd_1, cesd_2, etc.)
+        raw_cols = [col for col in df.columns if col.startswith('cesd_')]
+        if raw_cols:
+            logger.info(f"Scoring CES-D from {len(raw_cols)} raw items.")
+            # Simple sum of raw items (assuming 0-3 or 0-4 scale)
+            df['depression'] = df[raw_cols].sum(axis=1)
+        else:
+            logger.warning("W-PCL5-MISSING: No depression data found. Skipping.")
+    
+    # For GAD-7 (anxiety)
+    if 'anxiety' in df.columns:
+        logger.info("Using pre-aggregated 'anxiety' column from dataset.")
+        logger.warning("W-AGGREGATE-SCORES-001: Using pre-aggregated scores from dataset.")
+    else:
+        raw_cols = [col for col in df.columns if col.startswith('gad_')]
+        if raw_cols:
+            logger.info(f"Scoring GAD-7 from {len(raw_cols)} raw items.")
+            df['anxiety'] = df[raw_cols].sum(axis=1)
+        else:
+            logger.warning("W-PCL5-MISSING: No anxiety data found. Skipping.")
+    
+    # For PCL-5 (PTSD) - Optional
+    if 'ptsd' in df.columns:
+        logger.info("Using pre-aggregated 'ptsd' column from dataset.")
+        logger.warning("W-AGGREGATE-SCORES-001: Using pre-aggregated scores from dataset.")
+    else:
+        raw_cols = [col for col in df.columns if col.startswith('pcl_')]
+        if raw_cols:
+            logger.info(f"Scoring PCL-5 from {len(raw_cols)} raw items.")
+            df['ptsd'] = df[raw_cols].sum(axis=1)
+        else:
+            logger.warning("W-PCL5-MISSING: No PTSD data found. Proceeding without it.")
+    
     return df
 
-def apply_binary_exposure(df: pd.DataFrame, severity_col: str = 'harassment_severity') -> pd.DataFrame:
-    """Derive binary harassment exposure from continuous severity."""
-    logger.info("Deriving binary harassment exposure...")
-    if severity_col not in df.columns:
-        logger.warning(f"Column {severity_col} not found. Skipping binary exposure derivation.")
-        return df
+def apply_binary_exposure(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Derive the binary 'harassment_exposure' variable from the imputed 'harassment_severity'.
     
-    df = df.copy()
-    df['harassment_exposure'] = (df[severity_col] > 0).astype(int)
-    logger.info("Binary exposure derived.")
+    Logic: exposure = 1 if severity > 0 else 0
+    
+    Args:
+        df: Input DataFrame with 'harassment_severity' column
+        
+    Returns:
+        DataFrame with new 'harassment_exposure' column
+    """
+    logger.info("Deriving binary harassment_exposure from harassment_severity.")
+    
+    if 'harassment_severity' not in df.columns:
+        raise ValueError("E-NO-SEVERITY-001: 'harassment_severity' column not found in DataFrame.")
+    
+    # Create binary exposure: 1 if severity > 0, else 0
+    df['harassment_exposure'] = (df['harassment_severity'] > 0).astype(int)
+    
+    # Log distribution
+    exposure_dist = df['harassment_exposure'].value_counts().sort_index()
+    logger.info(f"Harassment exposure distribution:\n{exposure_dist}")
+    
     return df
 
-def handle_outcome_missingness(df: pd.DataFrame, outcomes: List[str] = None) -> pd.DataFrame:
+def handle_outcome_missingness(df: pd.DataFrame, outcome_cols: List[str]) -> pd.DataFrame:
     """
-    Perform listwise deletion ONLY on rows where critical outcome variables are missing.
-    This is T013d: Handle Outcome Missingness.
+    Perform listwise deletion on rows where critical outcome variables are missing.
     
-    Constraint: Do NOT perform listwise deletion on predictor variables before imputation.
-    This step happens AFTER imputation (T013a) and scoring (T013c).
-    """
-    if outcomes is None:
-        outcomes = CRITICAL_OUTCOMES
+    Args:
+        df: Input DataFrame
+        outcome_cols: List of outcome columns to check (e.g., ['depression', 'anxiety', 'ptsd'])
         
-    logger.info(f"Handling outcome missingness for variables: {outcomes}")
+    Returns:
+        DataFrame with rows containing missing outcomes removed
+    """
+    logger.info(f"Checking for missing outcomes in: {outcome_cols}")
     
-    # Filter to only existing outcomes in the dataframe
-    existing_outcomes = [o for o in outcomes if o in df.columns]
+    # Filter to only existing outcome columns
+    existing_outcomes = [col for col in outcome_cols if col in df.columns]
     
     if not existing_outcomes:
-        logger.warning("No outcome variables found in dataframe. No listwise deletion performed.")
+        logger.warning("No outcome columns found. Skipping outcome missingness check.")
         return df
-
-    # Identify rows where ANY of the critical outcomes are missing
-    mask_missing = df[existing_outcomes].isnull().any(axis=1)
-    count_missing = mask_missing.sum()
-    total_rows = len(df)
     
-    if count_missing > 0:
-        logger.info(f"Found {count_missing} rows ({count_missing/total_rows:.2%}) with missing critical outcomes.")
-        logger.info("Performing listwise deletion on these rows.")
-        df_clean = df[~mask_missing].copy()
-    else:
-        logger.info("No rows with missing critical outcomes found.")
-        df_clean = df.copy()
-
-    logger.info(f"Resulting cohort size: {len(df_clean)} rows.")
+    initial_count = len(df)
+    df_clean = df.dropna(subset=existing_outcomes)
+    final_count = len(df_clean)
+    
+    dropped = initial_count - final_count
+    logger.info(f"Dropped {dropped} rows ({dropped/initial_count*100:.2f}%) with missing outcomes.")
+    
     return df_clean
 
-def run_preprocessing(input_path: str, output_path: str) -> pd.DataFrame:
+def run_preprocessing() -> pd.DataFrame:
     """
-    Main preprocessing pipeline orchestrator.
-    Executes:
-    1. Load data
-    2. Handle high missingness (optional)
-    3. MICE Imputation (T013a)
-    4. Scale Scoring (T013c - assumed or called)
-    5. Binary Exposure Derivation (T013b)
-    6. Handle Outcome Missingness (T013d)
+    Main preprocessing pipeline:
+    1. Load raw data
+    2. Apply MICE imputation to predictors
+    3. Check convergence
+    4. Apply scale scoring
+    5. Derive binary exposure
+    6. Handle outcome missingness
+    
+    Returns:
+        Cleaned and processed DataFrame
     """
-    logger.info("Starting preprocessing pipeline...")
+    logger.info("Starting preprocessing pipeline.")
     
-    # Load config
-    config = load_config()
-    seed = get_seed(config.get('seeds', {}), default=42)
+    # 1. Load raw data
+    raw_path = project_root / "data" / "raw" / "cyberbullying_2021.csv"
+    if not raw_path.exists():
+        raise FileNotFoundError(f"E-NO-DATA-001: Raw data not found at {raw_path}")
     
-    # Load data
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    df = pd.read_csv(raw_path)
+    logger.info(f"Loaded {len(df)} rows from {raw_path}")
     
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    # 2. Configure MICE imputation
+    # Predictor matrix as defined in T013a-Config
+    predictor_cols = ['age', 'gender', 'education', 'income', 'social_support', 'harassment_severity']
     
-    # Step 1: MICE Imputation (Predictors)
-    df = apply_mice_imputation(df, PREDICTOR_MATRIX, seed=seed)
+    # Check for platform column
+    if 'platform' in df.columns:
+        predictor_cols.append('platform')
+        logger.info("Including 'platform' in predictor matrix.")
+    else:
+        logger.warning("W-NO-PLATFORM-001: 'platform' column not found. Excluding from predictor matrix.")
     
-    # Step 2: Scale Scoring (Assumed to be done or called here if raw items exist)
-    # If the input already has scores, this is a no-op or validation.
-    # If raw items exist, we would call apply_scale_scoring here.
-    # For this task, we assume the input to T013d has scores.
+    # 3. Apply MICE imputation
+    df_imputed, converged = apply_mice_imputation(
+        df, 
+        predictor_cols, 
+        max_iter=10, 
+        random_state=get_seed()
+    )
     
-    # Step 3: Binary Exposure
-    df = apply_binary_exposure(df)
+    # 4. Check convergence
+    check_convergence(converged)
     
-    # Step 4: Handle Outcome Missingness (T013d)
-    df = handle_outcome_missingness(df)
+    # 5. Apply scale scoring
+    df_scored = apply_scale_scoring(df_imputed)
     
-    # Save
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Preprocessing complete. Saved to {output_path}")
+    # 6. Derive binary exposure (T013b)
+    df_exposed = apply_binary_exposure(df_scored)
     
-    return df
+    # 7. Handle outcome missingness (T013d)
+    outcome_cols = ['depression', 'anxiety', 'ptsd']
+    df_clean = handle_outcome_missingness(df_exposed, outcome_cols)
+    
+    logger.info(f"Preprocessing complete. Final cohort size: {len(df_clean)}")
+    return df_clean
 
 def main():
-    """Entry point for preprocessing."""
-    # Default paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    input_file = project_root / 'data' / 'raw' / 'cyberbullying_2021.csv'
-    output_file = project_root / 'data' / 'results' / 'preprocessed_cohort.csv'
-    
-    # Allow override via environment or args if needed
-    if len(sys.argv) > 1:
-        input_file = sys.argv[1]
-    if len(sys.argv) > 2:
-        output_file = sys.argv[2]
+    """Entry point for preprocessing script."""
+    try:
+        df = run_preprocessing()
         
-    run_preprocessing(str(input_file), str(output_file))
+        # Save intermediate results
+        output_path = project_root / "data" / "results" / "preprocessed_cohort.csv"
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved preprocessed cohort to {output_path}")
+        
+        return df
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

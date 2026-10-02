@@ -1,8 +1,23 @@
 # Bootstrap Configuration Data Model
 # Defines the parameters for bootstrapping analysis
+# This configuration is loaded by code/analysis/models.py (T033) and code/analysis/bootstrap_ci.py (T021)
 
+# Number of bootstrap resamples to generate.
+# Constraint: Must be CPU-tractable. T033 performs a runtime check before execution.
 resample_count: 1000
+
+# Confidence level for the confidence intervals (e.g., 0.95 for 95% CI).
 confidence_level: 0.95
+
+# Method for computing confidence intervals.
+# Options: "bca" (Bias-Corrected and Accelerated), "percentile", "normal".
+# Plan requires BCa for robustness.
 method: "bca"
-seed_source: "config/seeds.yaml"
+
+# Path to the seed configuration file containing the random seed.
+# The actual seed integer is read from this file by the bootstrap module.
+seed_source: "code/config/seeds.yaml"
+
+# Direct seed value for immediate use if seed_source is not provided or fails.
+# Default matches the project-wide seed defined in seeds.yaml.
 random_seed: 42

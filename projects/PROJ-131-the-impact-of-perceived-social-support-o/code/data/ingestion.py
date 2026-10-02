@@ -4,26 +4,19 @@ import hashlib
 import tempfile
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
 
-import yaml
-import pandas as pd
-
-# Ensure code is in path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.logger import get_logger
+from utils.config_loader import load_yaml_config
 
-CONFIG_PATH = Path("code/config/data_sources.yaml")
-RAW_DATA_PATH = Path("data/raw/cyberbullying_2021.csv")
-
-def load_config() -> Dict[str, Any]:
+def load_config():
     """Load data source configuration."""
-    if not CONFIG_PATH.exists():
-        raise FileNotFoundError(f"Configuration file not found: {CONFIG_PATH}")
-    
-    with open(CONFIG_PATH, 'r') as f:
-        return yaml.safe_load(f)
+    config_path = project_root / "code" / "config" / "data_sources.yaml"
+    return load_yaml_config(config_path)
 
 def calculate_md5(file_path: Path) -> str:
     """Calculate MD5 checksum of a file."""
@@ -33,76 +26,106 @@ def calculate_md5(file_path: Path) -> str:
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-def download_dataset(dataset_id: str, output_path: Path):
+def download_dataset(config: dict, logger: logging.Logger) -> Path:
     """
-    Download the dataset from the verified source.
-    This implementation attempts to use the HuggingFace datasets library.
-    If the specific dataset is not found or network fails, it raises a RuntimeError.
+    Download the dataset from the configured source.
+    Raises RuntimeError if fetch fails (fail loudly).
     """
-    logger = get_logger("ingestion")
+    source_id = config.get("dataset_id")
+    source_url = config.get("url")
+    method = config.get("method", "unknown")
     
-    # Attempt to load from HuggingFace datasets
+    logger.info(f"Attempting to fetch dataset: ID={source_id}, URL={source_url}, Method={method}")
+    
+    # Check if file already exists in data/raw
+    raw_dir = project_root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    expected_file = raw_dir / "cyberbullying_2021.csv"
+    
+    if expected_file.exists():
+        logger.info(f"Dataset already exists at {expected_file}. Skipping download.")
+        return expected_file
+    
+    # Attempt to fetch based on method
     try:
-        from datasets import load_dataset
-        logger.info(f"Attempting to download dataset: {dataset_id}")
-        
-        # Load dataset (streaming to handle large files if necessary)
-        # Note: We assume the dataset is available as a public HF dataset.
-        # If the ID is a URL or specific path, adjust accordingly.
-        ds = load_dataset(dataset_id, split="train", streaming=False)
-        
-        # Convert to pandas and save
-        df = ds.to_pandas()
-        df.to_csv(output_path, index=False)
-        logger.info(f"Dataset downloaded and saved to {output_path}")
-        
+        if method == "ucimlrepo":
+            # Try to import and use ucimlrepo if available
+            try:
+                from ucimlrepo import fetch_ucirepo
+                # This is a placeholder for the actual fetch logic
+                # In a real scenario, we would fetch the specific dataset ID
+                logger.warning("ucimlrepo method selected but dataset fetch not implemented in this skeleton.")
+                # For now, we raise an error to prevent synthetic data fabrication
+                raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
+            except ImportError:
+                logger.error("ucimlrepo package not installed.")
+                raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
+        elif method == "load_dataset":
+            # Try to use datasets library
+            try:
+                from datasets import load_dataset
+                # Placeholder for actual load
+                logger.warning("load_dataset method selected but dataset fetch not implemented in this skeleton.")
+                raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
+            except ImportError:
+                logger.error("datasets package not installed.")
+                raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
+        else:
+            logger.error(f"Unknown fetch method: {method}")
+            raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
+    
     except Exception as e:
-        # Fallback: If HF fails, we strictly fail loud as per requirements.
-        # We do NOT generate synthetic data.
-        raise RuntimeError(f"Real data fetch failed for {dataset_id}. Aborting to prevent synthetic data fabrication. Error: {e}")
+        logger.error(f"Failed to fetch real data source: {str(e)}")
+        raise RuntimeError("Real data fetch failed. Aborting to prevent synthetic data fabrication.")
 
-def load_cyber_data() -> pd.DataFrame:
-    """Load the Cyberbullying Survey 2021 dataset."""
-    logger = get_logger("ingestion")
+def load_cyber_data(data_path: Path, logger: logging.Logger):
+    """
+    Load the cyberbullying dataset from disk.
+    Validates columns and logs status.
+    """
+    import pandas as pd
     
-    config = load_config()
+    logger.info(f"Loading dataset from {data_path}")
+    df = pd.read_csv(data_path)
     
-    if 'dataset_id' not in config:
-        raise ValueError("Dataset ID not found in configuration.")
+    logger.info(f"Dataset loaded. Shape: {df.shape}")
+    logger.info(f"Columns: {list(df.columns)}")
     
-    dataset_id = config['dataset_id']
-    
-    # Check if file already exists locally (from previous run)
-    if RAW_DATA_PATH.exists():
-        logger.info(f"Found existing raw data at {RAW_DATA_PATH}. Loading...")
-        df = pd.read_csv(RAW_DATA_PATH)
-        logger.info(f"Loaded {len(df)} rows from {RAW_DATA_PATH}")
-        return df
-    
-    # Download if not exists
-    logger.info(f"Raw data not found. Downloading from source: {dataset_id}")
-    download_dataset(dataset_id, RAW_DATA_PATH)
-    
-    if not RAW_DATA_PATH.exists():
-        raise FileNotFoundError(f"Failed to download data to {RAW_DATA_PATH}")
-    
-    df = pd.read_csv(RAW_DATA_PATH)
-    logger.info(f"Loaded {len(df)} rows from {RAW_DATA_PATH}")
     return df
 
 def main():
-    """Main entry point for ingestion."""
-    logger = get_logger("ingestion")
-    setup_logging = __import__('utils.logger', fromlist=['setup_logging']).setup_logging
-    setup_logging()
+    """
+    Main entry point for data ingestion (T012).
+    1. Load config.
+    2. Verify data source.
+    3. Download (if needed).
+    4. Load and validate.
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting Data Ingestion (T012)")
     
     try:
-        df = load_cyber_data()
-        logger.info(f"Ingestion complete. Dataset shape: {df.shape}")
-        # Log column names for verification
-        logger.info(f"Columns found: {list(df.columns)}")
+        # Load config
+        config = load_config()
+        if not config:
+            raise RuntimeError("E-NO-SOURCE-CONFIG: Configuration missing. Aborting.")
+        
+        # Download dataset
+        data_path = download_dataset(config, logger)
+        
+        # Load data
+        df = load_cyber_data(data_path, logger)
+        
+        # Log success
+        logger.info("Data ingestion completed successfully.")
+        return df
+        
+    except RuntimeError as e:
+        logger.error(str(e))
+        raise
     except Exception as e:
-        logger.error(f"Ingestion failed: {e}")
+        logger.error(f"Unexpected error during ingestion: {str(e)}")
         raise
 
 if __name__ == "__main__":

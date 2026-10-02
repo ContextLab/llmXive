@@ -1,32 +1,31 @@
-# Quickstart Guide
+# Quickstart Guide: Social Support & Resilience Pipeline
 
 ## Prerequisites
-- Python 3.8+
-- `pip install ucimlrepo pandas numpy scikit-learn statsmodels`
+- Python 3.9+
+- pip
+
+## Installation
+1. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Running the Pipeline
-
-1. **Initialize Project Structure** (Optional if not done):
- ```bash
- python code/setup_project_structure.py
- ```
-
-2. **Run the Main Pipeline**:
- This executes Ingestion (T012), Preprocessing (T013), Cohort (T014-T016), Models (T020-T023), Sensitivity (T027-T029), and Reporting (T024b-T025).
- ```bash
- python code/main_pipeline.py
- ```
-
-3. **Verify Deliverables**:
- ```bash
- python code/quickstart_validator.py
- ```
+To execute the full analysis end-to-end:
+```bash
+cd code
+python main_pipeline.py
+```
 
 ## Expected Outputs
-- `data/raw/cyberbullying_2021.csv`
-- `data/results/analysis_cohort.csv`
-- `data/results/regression_results.csv`
-- `data/results/sensitivity_analysis.csv`
-- `data/results/regression_summary.md`
-- `data/results/platform_status.json`
-- `data/results/validation_report.json`
+After successful execution, the following files will be generated:
+- `data/raw/cyberbullying_2021.csv` (Raw ingested data)
+- `data/results/analysis_cohort.csv` (Cleaned analysis dataset)
+- `data/results/regression_results.csv` (Model coefficients & stats)
+- `data/results/sensitivity_analysis.csv` (Sensitivity check results)
+- `data/results/regression_summary.md` (Human-readable report)
+- `data/results/pipeline_run.log` (Execution log)
+
+## Troubleshooting
+- **Missing Data Source**: Ensure `code/config/data_sources.yaml` contains a valid URL/ID for the Cyberbullying Survey 2021.
+- **Module Errors**: Ensure you are running from the `code/` directory or have the project root in your `PYTHONPATH`.

@@ -1,3 +1,7 @@
-dataset_id: "cyberbullying_survey_2021"
-source: "load_dataset"
-verified: true
+# Data Source Configuration
+# Updated by T070-Init / T071
+dataset_id: "pending_user_input"
+url: ""
+method: "unknown"
+status: "pending_user_input"
+verified: false

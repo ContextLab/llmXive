@@ -14,7 +14,7 @@ This project implements a rigorous statistical analysis of the **Cyberbullying S
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `pyyaml`, `datasets` (Hugging Face)  
 **Storage**: Local file system (CSV/Parquet) within the CI runner's ephemeral storage; no external DB.  
 **Testing**: `pytest` (unit tests for scoring logic, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions Free Runner: multiple CPUs, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions Free Runner: multiple CPUs, several GB RAM).  
 **Project Type**: Data Science Pipeline / Statistical Analysis.  
 **Performance Goals**: Complete full pipeline (ingest → impute → model → bootstrap → report) within 6 hours.  
 **Constraints**:  

@@ -5,128 +5,168 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-# Ensure code directory is in path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Import logger setup
 from utils.logger import get_logger
+from utils.config_loader import get_seed
 
-def load_preprocessed_data():
-    """Load the preprocessed data from T013d output."""
-    logger = get_logger("cohort")
-    # T013d output is 'data/results/preprocessed_data.csv'
-    path = Path("data/results/preprocessed_data.csv")
+def load_preprocessed_data(file_path: Path, logger: logging.Logger):
+    """Load preprocessed data from CSV."""
     import pandas as pd
-    if not path.exists():
-        logger.error(f"Preprocessed data not found at {path}. Ensure T013d completed successfully.")
-        raise FileNotFoundError(f"Preprocessed data not found at {path}.")
-    logger.info(f"Loaded preprocessed data from {path} with {len(pd.read_csv(path))} rows.")
-    return pd.read_csv(path)
+    logger.info(f"Loading preprocessed data from {file_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Preprocessed data not found at {file_path}")
+    return pd.read_csv(file_path)
 
-def filter_critical_missing(df):
-    """Filter rows with critical missing values based on T013d logic."""
-    logger = get_logger("cohort")
-    # T013d handles outcome missingness. T014 filters remaining critical predictors/outcomes if any.
-    # Critical columns as per task description: harassment_severity, social_support, mental health outcomes.
-    critical_cols = ['harassment_severity', 'social_support']
-    # Ensure at least one outcome exists
-    outcomes = [c for c in ['depression', 'anxiety', 'ptsd'] if c in df.columns]
-    if outcomes:
-        critical_cols.extend(outcomes)
-    
+def filter_critical_missing(df: pd.DataFrame, logger: logging.Logger):
+    """Filter rows with critical missing values."""
     initial = len(df)
-    # Drop rows where ANY critical column is NaN
-    df = df.dropna(subset=critical_cols)
-    dropped = initial - len(df)
-    logger.info(f"Filtered critical missing values. Dropped {dropped} rows. Remaining: {len(df)}.")
+    # Drop rows where harassment_severity, social_support, or outcomes are missing
+    critical_cols = ['harassment_severity', 'social_support', 'depression', 'anxiety', 'ptsd']
+    existing_cols = [c for c in critical_cols if c in df.columns]
+    
+    if not existing_cols:
+        logger.warning("No critical columns found to filter on.")
+        return df
+    
+    df = df.dropna(subset=existing_cols)
+    logger.info(f"Filtered {initial - len(df)} rows with critical missing values.")
     return df
 
-def check_harassment_variance(df):
-    """Check variance of Harassment Exposure (SD > 0.5, N > 30)."""
-    logger = get_logger("cohort")
-    if "harassment_exposure" not in df.columns:
-        logger.error("E-LOW-VAR-001: harassment_exposure column missing.")
-        raise RuntimeError("E-LOW-VAR-001: harassment_exposure column missing.")
+def check_harassment_variance(df: pd.DataFrame, logger: logging.Logger) -> bool:
+    """Check if harassment_severity has sufficient variance."""
+    if 'harassment_severity' not in df.columns:
+        logger.error("E-LOW-VAR-001: harassment_severity column missing.")
+        return False
     
-    col = df["harassment_exposure"]
-    sd = col.std()
-    n = len(col)
+    sd = df['harassment_severity'].std()
+    n = len(df)
     
-    logger.info(f"Harassment Exposure Variance Check: SD={sd:.4f}, N={n}")
+    logger.info(f"Harassment Severity Variance Check: SD={sd:.4f}, N={n}")
     
     if sd <= 0.5 or n <= 30:
-        logger.error(f"E-LOW-VAR-001: Variance check failed (SD={sd}, N={n}).")
-        raise RuntimeError(f"E-LOW-VAR-001: Variance check failed (SD={sd}, N={n}).")
+        logger.error(f"E-LOW-VAR-001: Insufficient variance (SD={sd}, N={n}). Halting.")
+        return False
+    
     return True
 
-def construct_analysis_cohort(df):
-    """Construct the final analysis cohort by selecting relevant columns."""
-    logger = get_logger("cohort")
-    # Select relevant columns as defined in the task and spec
-    desired_cols = [
-        'age', 'gender', 'education', 'income', 
-        'social_support', 'harassment_severity', 'harassment_exposure',
-        'depression', 'anxiety', 'ptsd', 'platform'
-    ]
-    # Filter to only those present in the dataframe
-    cols = [c for c in desired_cols if c in df.columns]
-    if not cols:
-        logger.warning("No expected columns found. Using all columns.")
-        cols = df.columns.tolist()
+def construct_analysis_cohort(df: pd.DataFrame, logger: logging.Logger):
+    """Construct the final analysis cohort."""
+    logger.info("Constructing analysis cohort.")
+    # Ensure required columns exist
+    required = ['social_support', 'harassment_severity', 'harassment_exposure']
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
     
-    logger.info(f"Constructing cohort with columns: {cols}")
-    return df[cols].reset_index(drop=True)
+    # Select columns for analysis
+    cols = ['social_support', 'harassment_severity', 'harassment_exposure', 'depression', 'anxiety']
+    if 'ptsd' in df.columns:
+        cols.append('ptsd')
+    # Add covariates if present
+    covariates = ['age', 'gender', 'education', 'income', 'platform']
+    for c in covariates:
+        if c in df.columns:
+            cols.append(c)
+    
+    return df[cols].copy()
 
-def save_cohort(df):
-    """Save the analysis cohort to the declared output path."""
-    logger = get_logger("cohort")
-    output_path = Path("data/results/analysis_cohort.csv")
+def save_cohort(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
+    """Save analysis cohort to CSV."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Analysis cohort saved to {output_path} with {len(df)} rows.")
-    return output_path
+    logger.info(f"Analysis cohort saved to {output_path}")
 
-def validate_analysis_cohort(df):
-    """Run validation checks on the cohort (Variance Check)."""
-    logger = get_logger("cohort")
-    # T014 requirement: Check variance of Harassment Exposure
-    check_harassment_variance(df)
+def validate_analysis_cohort(df: pd.DataFrame, logger: logging.Logger) -> Dict[str, Any]:
+    """Validate the cohort (VIF, variance checks)."""
+    # Reuse variance check
+    var_ok = check_harassment_variance(df, logger)
     
-    # Note: VIF check is moved to T015 (Validation task) as per task dependencies.
-    # T014 focuses on filtering and variance check.
+    # VIF check
+    vif_ok = True
+    vif_results = {}
     
-    logger.info("Cohort validation (variance) passed.")
-    return True
+    try:
+        from statsmodels.stats.outliers_influence import variance_inflation_factor
+        from sklearn.preprocessing import StandardScaler
+        import pandas as pd
+        
+        # Prepare model matrix
+        model_cols = ['social_support', 'harassment_exposure']
+        # Add interaction
+        df_temp = df.copy()
+        df_temp['interaction'] = df_temp['social_support'] * df_temp['harassment_exposure']
+        model_cols.append('interaction')
+        
+        # Add covariates
+        for c in ['age', 'gender', 'education', 'income']:
+            if c in df_temp.columns:
+                model_cols.append(c)
+        
+        X = df_temp[model_cols].copy()
+        
+        # Center variables (StandardScaler with with_std=False)
+        scaler = StandardScaler(with_mean=True, with_std=False)
+        X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=model_cols, index=df_temp.index)
+        
+        # Compute VIF
+        for i, col in enumerate(X_scaled.columns):
+            vif = variance_inflation_factor(X_scaled.values, i)
+            vif_results[col] = vif
+            if vif >= 5:
+                vif_ok = False
+                logger.warning(f"High VIF for {col}: {vif:.2f}")
+        
+    except ImportError:
+        logger.warning("statsmodels not installed. Skipping VIF check.")
+    except Exception as e:
+        logger.error(f"VIF check failed: {str(e)}")
+        vif_ok = False
+    
+    report = {
+        "variance_check": var_ok,
+        "vif_check": vif_ok,
+        "vif_results": vif_results,
+        "n_rows": len(df)
+    }
+    
+    # Save report
+    report_path = project_root / "data" / "results" / "validation_report.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    return report
 
 def main():
-    """Entry point for cohort construction (T014)."""
-    logger = get_logger("cohort")
-    logger.info("Starting T014: Implement cohort construction.")
-    try:
-        # 1. Load preprocessed data (output of T013d)
-        df = load_preprocessed_data()
-        
-        # 2. Filter critical missing values (redundant if T013d did it, but ensures safety)
-        df = filter_critical_missing(df)
-        
-        # 3. Check variance of harassment exposure
-        check_harassment_variance(df)
-        
-        # 4. Construct final cohort
-        df = construct_analysis_cohort(df)
-        
-        # 5. Validate (variance check again as final gate)
-        validate_analysis_cohort(df)
-        
-        # 6. Save to declared output path
-        save_cohort(df)
-        
-        logger.info("T014 completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"T014 Cohort construction failed: {e}", exc_info=True)
-        return 1
+    """Entry point for cohort construction (T014-T016)."""
+    logger = get_logger(__name__)
+    logger.info("Starting Cohort Construction")
+    
+    # Load preprocessed data
+    input_path = project_root / "data" / "results" / "preprocessed_data.csv"
+    df = load_preprocessed_data(input_path, logger)
+    
+    # Filter critical missing
+    df = filter_critical_missing(df, logger)
+    
+    # Validate
+    report = validate_analysis_cohort(df, logger)
+    
+    if not report["variance_check"] or not report["vif_check"]:
+        logger.error("Cohort validation failed. Halting pipeline.")
+        raise RuntimeError("Cohort validity check failed. Aborting.")
+    
+    # Construct and save
+    df_cohort = construct_analysis_cohort(df, logger)
+    output_path = project_root / "data" / "results" / "analysis_cohort.csv"
+    save_cohort(df_cohort, output_path, logger)
+    
+    logger.info("Cohort construction completed successfully.")
+    return df_cohort
 
 if __name__ == "__main__":
-    exit(main())
+    main()

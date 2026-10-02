@@ -1,32 +1,22 @@
-# Environment Configuration for Data Paths
-# Defines all relative paths used by the pipeline to locate inputs and outputs.
+# Data Path Configuration
+# Defines all file system paths used by the pipeline.
 # All paths are relative to the project root.
+paths:
+  raw_data_dir: "data/raw"
+  results_dir: "data/results"
+  figures_dir: "figures"
+  config_dir: "code/config"
+  code_dir: "code"
+  logs_dir: "code/logs"
 
-# Raw data directory (downloaded datasets)
-raw_data_dir: "data/raw"
-
-# Results directory (processed data, models, reports)
-results_dir: "data/results"
-
-# Figures directory (visualizations)
-figures_dir: "data/figures"
-
-# Configuration directory
-config_dir: "code/config"
-
-# Logs directory
-logs_dir: "code/logs"
-
-# Specific file paths
-data_source_config: "code/config/data_sources.yaml"
-scale_config: "code/config/scales.yaml"
-bootstrap_config: "code/config/bootstrap_config.yaml"
-seeds_config: "code/config/seeds.yaml"
-
-# Output file paths
-analysis_cohort: "data/results/analysis_cohort.csv"
-regression_results: "data/results/regression_results.csv"
-sensitivity_analysis: "data/results/sensitivity_analysis.csv"
-regression_summary_report: "data/results/regression_summary.md"
-validation_report: "data/results/validation_report.json"
-pipeline_log: "data/results/pipeline_run.log"
+# Specific file references
+files:
+  data_source_config: "code/config/data_sources.yaml"
+  scale_config: "code/config/scales.yaml"
+  seed_config: "code/config/seeds.yaml"
+  cohort_file: "data/results/analysis_cohort.csv"
+  regression_results: "data/results/regression_results.csv"
+  sensitivity_results: "data/results/sensitivity_analysis.csv"
+  validation_report: "data/results/validation_report.json"
+  platform_status: "data/results/platform_status.json"
+  pipeline_log: "data/results/pipeline_run.log"
