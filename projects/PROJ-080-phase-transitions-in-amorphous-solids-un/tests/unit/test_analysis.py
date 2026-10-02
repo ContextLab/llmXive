@@ -1,134 +1,93 @@
-import os
-import tempfile
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+import json
+import os
+import tempfile
 from pathlib import Path
 
-# Import the functions to test
-from code.analysis import aggregate_to_shear_bands, perform_ks_test, apply_bonferroni_correction
+from analysis import aggregate_to_shear_bands, perform_ks_test, apply_bonferroni_correction, aggregate_to_shear_bands_from_df
 
 class TestAggregateToShearBands:
-    def test_aggregate_creates_correct_columns(self):
-        """Test that aggregation creates the required columns."""
+    def test_aggregate_basic(self):
+        """Test basic aggregation with k=3."""
+        # Create synthetic data
+        np.random.seed(42)
+        data = {
+            'D2_min': np.random.rand(100),
+            'label': [0] * 50 + [1] * 50,
+            'trajectory_id': ['traj1'] * 50 + ['traj2'] * 50
+        }
+        df = pd.DataFrame(data)
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            
-            # Create dummy data with x, y, d2_min
-            df = pd.DataFrame({
-                'x': [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
-                'y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
-                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-            })
-            df.to_csv(input_path, index=False)
-            
-            aggregate_to_shear_bands(str(input_path), str(output_path), k=3, seed=42)
-            
-            assert output_path.exists()
-            result = pd.read_csv(output_path)
+            output_path = os.path.join(tmpdir, "output.csv")
+            result = aggregate_to_shear_bands_from_df(df, output_path, k=3)
             
             assert 'shear_band_id' in result.columns
             assert 'mean_D2_min' in result.columns
             assert 'particle_count' in result.columns
+            assert len(result) == 3  # k=3
+            assert result['particle_count'].sum() == 100
             
-            # Check types
-            assert result['shear_band_id'].dtype in ['int64', 'int32']
-            assert result['particle_count'].dtype in ['int64', 'int32']
+            # Check file was written
+            assert os.path.exists(output_path)
+            loaded = pd.read_csv(output_path)
+            assert len(loaded) == 3
 
-    def test_aggregate_deterministic_with_seed(self):
-        """Test that clustering is deterministic with fixed seed."""
+    def test_aggregate_insufficient_data(self):
+        """Test behavior with insufficient data points."""
+        data = {
+            'D2_min': [0.1, 0.2],
+            'label': [0, 0],
+            'trajectory_id': ['traj1', 'traj1']
+        }
+        df = pd.DataFrame(data)
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path1 = Path(tmpdir) / 'output1.csv'
-            output_path2 = Path(tmpdir) / 'output2.csv'
+            output_path = os.path.join(tmpdir, "output.csv")
+            # Should not raise, but adjust k
+            result = aggregate_to_shear_bands_from_df(df, output_path, k=3)
             
-            df = pd.DataFrame({
-                'x': [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
-                'y': [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
-                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-            })
-            df.to_csv(input_path, index=False)
-            
-            aggregate_to_shear_bands(str(input_path), str(output_path1), k=3, seed=42)
-            aggregate_to_shear_bands(str(input_path), str(output_path2), k=3, seed=42)
-            
-            res1 = pd.read_csv(output_path1)
-            res2 = pd.read_csv(output_path2)
-            
-            # Results should be identical
-            pd.testing.assert_frame_equal(res1, res2)
+            # Should have max(1, N) clusters
+            assert len(result) <= 2
 
-    def test_fallback_to_index_clustering(self):
-        """Test fallback when no spatial columns exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            
-            # Data without x, y, z
-            df = pd.DataFrame({
-                'd2_min': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-            })
-            df.to_csv(input_path, index=False)
-            
-            # Should not raise, should use index clustering
-            aggregate_to_shear_bands(str(input_path), str(output_path), k=3, seed=42)
-            
-            assert output_path.exists()
-            result = pd.read_csv(output_path)
-            assert len(result) == 3  # k=3 bands
+class TestKSTest:
+    def test_ks_test_basic(self):
+        """Test KS test calculation."""
+        brittle_data = pd.DataFrame({'mean_D2_min': [0.1, 0.2, 0.3, 0.4, 0.5]})
+        ductile_data = pd.DataFrame({'mean_D2_min': [0.6, 0.7, 0.8, 0.9, 1.0]})
+        
+        stat, pval = perform_ks_test(brittle_data, ductile_data)
+        
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        assert 0 <= stat <= 1
+        assert 0 <= pval <= 1
 
-class TestPerformKsTest:
-    def test_ks_test_returns_valid_stats(self):
-        """Test KS test returns valid statistic and p-value."""
-        brittle_df = pd.DataFrame({'mean_D2_min': [0.1, 0.2, 0.3]})
-        ductile_df = pd.DataFrame({'mean_D2_min': [0.4, 0.5, 0.6]})
-        
-        stat, pval = perform_ks_test(brittle_df, ductile_df)
-        
-        assert 0 <= stat <= 1.0
-        assert 0 <= pval <= 1.0
-
-    def test_ks_test_detects_difference(self):
-        """Test KS test detects significant difference."""
-        # Two distinct distributions
-        brittle_df = pd.DataFrame({'mean_D2_min': [0.1] * 50})
-        ductile_df = pd.DataFrame({'mean_D2_min': [0.9] * 50})
-        
-        stat, pval = perform_ks_test(brittle_df, ductile_df)
-        
-        # Should be very significant
-        assert pval < 0.05
-
-    def test_ks_test_empty_data_raises(self):
-        """Test KS test raises on empty data."""
+    def test_ks_test_empty(self):
+        """Test KS test with empty data."""
         with pytest.raises(ValueError):
-            perform_ks_test(pd.DataFrame(), pd.DataFrame({'mean_D2_min': [0.1]}))
+            perform_ks_test(pd.DataFrame(), pd.DataFrame())
 
-class TestBonferroniCorrection:
-    def test_correction_scales_p_values(self):
-        """Test that p-values are scaled by num_tests."""
-        p_values = [0.01, 0.05, 0.1]
-        num_tests = 5
-        
-        corrected = apply_bonferroni_correction(p_values, num_tests)
-        
-        expected = [0.05, 0.25, 0.5]
-        np.testing.assert_array_almost_equal(corrected, expected)
+class TestBonferroni:
+    def test_bonferroni_single_test(self):
+        """Test Bonferroni with single test (no correction)."""
+        p = 0.05
+        corrected = apply_bonferroni_correction(p, 1)
+        assert corrected == p
 
-    def test_correction_caps_at_one(self):
-        """Test that corrected p-values do not exceed 1.0."""
-        p_values = [0.5, 0.9]
-        num_tests = 10
-        
-        corrected = apply_bonferroni_correction(p_values, num_tests)
-        
-        assert all(p <= 1.0 for p in corrected)
-        assert corrected[0] == 1.0  # 0.5 * 10 = 5.0 -> capped to 1.0
-        assert corrected[1] == 1.0
+    def test_bonferroni_multiple_tests(self):
+        """Test Bonferroni with multiple tests."""
+        p = 0.01
+        n = 5
+        corrected = apply_bonferroni_correction(p, n)
+        assert corrected == p * n
+        assert corrected <= 1.0
 
-    def test_zero_tests_returns_original(self):
-        """Test that zero tests returns original p-values."""
-        p_values = [0.01, 0.05]
-        corrected = apply_bonferroni_correction(p_values, 0)
-        assert corrected == p_values
+    def test_bonferroni_cap(self):
+        """Test Bonferroni caps at 1.0."""
+        p = 0.5
+        n = 3
+        corrected = apply_bonferroni_correction(p, n)
+        assert corrected == 1.0

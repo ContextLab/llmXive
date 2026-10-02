@@ -1,49 +1,61 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Trajectory Input Schema"
-description: "Schema for raw molecular dynamics trajectory data ingestion."
-type: object
+title: "MD Trajectory Schema"
+description: "Schema for raw molecular dynamics trajectory data or synthetic data."
+type: "object"
 properties:
-  trajectory_id:
-    type: string
-    description: "Unique identifier for the trajectory."
-  source_dataset:
-    type: string
-    description: "Name of the source dataset (e.g., 'amorphous-silicon-shear-trajectories')."
-  total_timesteps:
+  timestep:
     type: integer
-    minimum: 1
-    description: "Total number of timesteps in the trajectory."
-  particle_count:
+    description: "Simulation time step."
+  particle_id:
     type: integer
-    minimum: 1
-    maximum: 100000
-    description: "Number of particles. Must be ≤ 100,000 (FR-006)."
-  box_dimensions:
+    description: "Unique ID for the particle."
+  x:
+    type: number
+    format: double
+    description: "X coordinate."
+  y:
+    type: number
+    format: double
+    description: "Y coordinate."
+  z:
+    type: number
+    format: double
+    description: "Z coordinate."
+  box_x:
+    type: number
+    format: double
+    description: "Simulation box dimension X."
+  box_y:
+    type: number
+    format: double
+    description: "Simulation box dimension Y."
+  box_z:
+    type: number
+    format: double
+    description: "Simulation box dimension Z."
+  stress_tensor:
     type: array
     items:
       type: number
-    minItems: 3
-    maxItems: 3
-    description: "Box dimensions [Lx, Ly, Lz]."
-  status:
-    type: string
-    enum:
-      - "valid"
-      - "indeterminate"
-      - "corrupted"
-    description: "Status of the trajectory after preprocessing."
+    minItems: 6
+    maxItems: 6
+    description: "Stress tensor components (sigma_xx, sigma_yy, sigma_zz, sigma_xy, sigma_xz, sigma_yz)."
   label:
     type: string
     enum:
       - "brittle"
       - "ductile"
-    description: "Label derived from independent mechanical response metrics."
+    description: "Label derived from physical simulation parameters."
+  expected_sha256:
+    type: string
+    description: "SHA-256 checksum of the raw data file. Generated during data generation phase."
 required:
-  - trajectory_id
-  - source_dataset
-  - total_timesteps
-  - particle_count
-  - box_dimensions
-  - status
-  - label
+  - timestep
+  - particle_id
+  - x
+  - y
+  - z
+  - box_x
+  - box_y
+  - box_z
 additionalProperties: false

@@ -1,19 +1,18 @@
 status: none
-intent: Kob Andersen binary Lennard-Jones glass MD trajectory dataset python package
-  dataset
+intent: OpenKIM Materials Cloud LAMMPS shear trajectory dataset python package dataset
 required_fields:
 - timestep
 - particle_id
 - position_x
 - position_y
 - position_z
-- box_vector_a_x
-- box_vector_a_y
-- box_vector_a_z
-- box_vector_b_x
-- box_vector_b_y
-- box_vector_b_z
-- box_vector_c_x
-cache_key: 09c4389e1fc4a801d40a948d511a5e6091e4b411597e515243763528fc560130
-searched_at: '2026-10-01T00:17:46.273578+00:00'
+- box_matrix
+- stress_xx
+- stress_yy
+- stress_zz
+- stress_xy
+- stress_xz
+- stress_yz
+cache_key: 12def2aeb53259be291657fd4970f7b63572b15dcff737c8f424d052d479601d
+searched_at: '2026-10-02T16:38:36.680441+00:00'
 retry_count: 1
