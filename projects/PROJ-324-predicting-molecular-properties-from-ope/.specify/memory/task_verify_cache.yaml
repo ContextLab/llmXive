@@ -24,30 +24,20 @@ T014:
     \ and writes `data/derived/baseline_predictions.csv`. Moreover, the required `data/derived/baseline_predictions.csv`\
     \ file is absent. Hence the task\u2019s requirement\u2014to compute Crippen contributions\
     \ for all test molecules and output the predictions CSV\u2014has not been fulfilled."
-T022:
+T015:
   c: false
-  h: f1c27b1239e60d7a10ec3e9c20865971c3a03e8676458a8db9b79da7aa46f498
-  r: "The repository lacks the required `data/derived/model_comparison.png` file,\
-    \ and `code/analysis/stats.py` does not contain a `generate_model_comparison_plot`\
-    \ function (the listed public names include `generate_comparison_plots` but not\
-    \ the exact required function). Consequently the task\u2019s core output is missing."
-T029:
+  h: eef4286c7992ddb7fabc91661969aff2b3c33cf73887953cfb0145d39a73ead4
+  r: "The required output file `data/derived/baseline_residuals.png` does not exist,\
+    \ and the provided excerpt of `code/analysis/stats.py` is truncated before any\
+    \ logic that actually computes MAE/RMSE or creates the residual distribution plot,\
+    \ so the task\u2019s core requirements are not fulfilled."
+T027:
   c: false
-  h: 6e7168df31ae4bf053dd495ca6a46d9474111a714abfdffc4a3381d6518e7eb7
-  r: The repository lacks the required `data/derived/deviation_contexts.csv` file,
-    and the provided `explainability.py` does not contain a completed implementation
-    of `map_bits_to_substructures` (the function is absent or incomplete in the shown
-    code). Consequently, the task of mapping SHAP bits to substructures and producing
-    the specified CSV output is not satisfied.
-T033:
-  c: false
-  h: a4875656256a836dc3a9659288da9b1062953e8eafa5edd96d12c8ea7a62e8ba
-  r: "The repository contains a partially implemented `explainability.py` that deals\
-    \ with model loading and SHAP interactions, but it does not include any logic\
-    \ to compute `NumRotatableBonds`, apply the \u201C>\u202F10\u201D heuristic, or\
-    \ write `data/derived/conformational_limitations.csv`. Moreover, the required\
-    \ CSV file is absent from the `data/derived` directory. The task\u2019s core functionality\
-    \ and output artifact are missing."
+  h: 1abedfba343b323058ab9f741b487e506574160528604f67a135a0f0b3a6b7c2
+  r: The required output file `data/derived/shap_interactions.png` is absent, and
+    the provided `explainability.py` (partially shown) does not contain a concrete
+    implementation that computes SHAP interaction values and creates/saves the heatmap.
+    Without the generated heatmap artifact, the task is not fulfilled.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,3 +52,10 @@ T038:
     markdown files, the claim that the documentation was updated cannot be verified.
     The implementer must add the required files (or provide their contents) in the
     `docs/` directory.
+T058:
+  c: false
+  h: 6b2e428f81f70cf4504600fbddc4f46e86fa1cebe66629284dba204d57f5d1be
+  r: "The required file `data/derived/experimental_validation_protocol.md` does not\
+    \ exist in the repository. Although `code/analysis/stats.py` is present (and even\
+    \ truncated), the core deliverable\u2014a rigorous validation protocol document\
+    \ in the specified path\u2014is missing, so the task is not satisfied."

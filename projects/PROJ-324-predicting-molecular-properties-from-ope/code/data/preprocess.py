@@ -6,278 +6,276 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import DataStructs
-from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
+from rdkit.Chem import AllChem, DataStructs
+from rdkit import RDLogger
 import psutil
 
-# Import from sibling modules if they exist (optional, for consistency)
-try:
-    from seed_manager import set_global_seed
-except ImportError:
-    def set_global_seed(seed):
-        import random
-        random.seed(seed)
+# Disable RDKit warnings to keep logs clean
+RDLogger.DisableLog('rdApp.*')
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Constants
 TARGET_PROPS = ['logP', 'Solubility', 'Boiling Point']
-DIVERSITY_THRESHOLD = 0.7
-MAX_MIN_SIZE_TARGET = 5000
-RAM_THRESHOLD_GB = 6.0
-CORES_THRESHOLD = 2
-
-logger = logging.getLogger(__name__)
+RAW_DATA_PATH = Path('data/raw/pubchem_raw.csv')
+QUALITY_REPORT_PATH = Path('data/derived/data_quality_report.csv')
+DIVERSE_SUBSET_PATH = Path('data/derived/diverse_subset.csv')
+TRAIN_SET_PATH = Path('data/derived/train_set.csv')
+TEST_SET_PATH = Path('data/derived/test_set.csv')
+SEED = 42
 
 def ensure_dirs():
-    """Ensure output directories exist."""
-    dirs = [
-        Path('data/raw'),
-        Path('data/derived'),
-        Path('data/processed')
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    """Ensure all required directories exist."""
+    for path in [QUALITY_REPORT_PATH, DIVERSE_SUBSET_PATH, TRAIN_SET_PATH, TEST_SET_PATH]:
+        path.parent.mkdir(parents=True, exist_ok=True)
 
-def load_preprocessed_data(input_path: str) -> pd.DataFrame:
-    """Load preprocessed data from CSV."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    df = pd.read_csv(input_path)
+def load_preprocessed_data() -> pd.DataFrame:
+    """Load the raw data fetched in T008."""
+    if not RAW_DATA_PATH.exists():
+        raise FileNotFoundError(f"Raw data file not found: {RAW_DATA_PATH}. Run T008 first.")
+    df = pd.read_csv(RAW_DATA_PATH)
+    logger.info(f"Loaded {len(df)} rows from {RAW_DATA_PATH}")
     return df
 
 def filter_high_confidence(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter for high-confidence measurements."""
-    # Check for target properties
-    available_props = [p for p in TARGET_PROPS if p in df.columns]
-    if not available_props:
-        logger.warning(f"No target properties found in columns: {df.columns.tolist()}")
-        # If no target properties, we cannot filter, return empty or raise?
-        # Based on T009, we must exclude entries where target properties are missing.
-        # If the dataset has NO target properties at all, the result is empty.
-        return pd.DataFrame(columns=df.columns)
+    """
+    Filter the dataset to keep only high-confidence entries.
+    Logic:
+    1. Exclude entries where confidence_score < 0.8 (if available).
+    2. Exclude entries where target properties (logP, Solubility, Boiling Point) are missing.
+    """
+    if 'confidence_score' in df.columns:
+        df = df[df['confidence_score'] >= 0.8]
+        logger.info(f"Filtered by confidence >= 0.8. Rows remaining: {len(df)}")
 
-    # Filter rows where at least one target property is present
-    valid_rows = df[available_props].notna().any(axis=1)
-    df_filtered = df[valid_rows].copy()
+    # Check for target properties. The schema might have them as separate rows or columns.
+    # Based on T008 output schema: 'smiles', 'property_name', 'value', 'source_type'
+    # We need to pivot or filter to ensure we have rows for the specific properties.
+    
+    # If the data is in long format (property_name column), we need to ensure we have
+    # entries for the specific properties we care about, but the task says "Exclude entries...
+    # where target properties... are missing". This usually implies a wide format or
+    # a check that for a given SMILES, the value exists.
+    
+    # Let's assume for this step we are working with a filtered set where we only keep
+    # rows that HAVE a value for one of the target properties.
+    # If the data is already in long format, we filter rows where property_name is in TARGET_PROPS.
+    
+    if 'property_name' in df.columns:
+        valid_props = df['property_name'].isin(TARGET_PROPS)
+        df = df[valid_props]
+        logger.info(f"Filtered to target properties. Rows remaining: {len(df)}")
+    else:
+        # Wide format check
+        valid_rows = df[TARGET_PROPS].notna().any(axis=1)
+        df = df[valid_rows]
+        logger.info(f"Filtered to rows with any target property. Rows remaining: {len(df)}")
 
-    logger.info(f"Filtered to {len(df_filtered)} rows with at least one target property.")
-    return df_filtered
+    return df
 
 def detect_missing_covariates(df: pd.DataFrame) -> List[str]:
-    """Detect missing physical covariates (pH, temperature, pressure)."""
+    """
+    Explicitly check for physical covariates: pH, temperature, pressure.
+    Return a list of missing fields found in the dataset schema.
+    """
     covariates = ['pH', 'temperature', 'pressure']
-    missing = [c for c in covariates if c not in df.columns]
+    missing = []
+    for cov in covariates:
+        if cov not in df.columns:
+            missing.append(cov)
+    if missing:
+        logger.warning(f"Missing physical covariates in source data: {missing}")
     return missing
 
-def generate_quality_report(df: pd.DataFrame, output_path: str, missing_covariates: List[str]):
-    """Generate data quality report."""
+def generate_quality_report(df: pd.DataFrame, missing_covariates: List[str]) -> pd.DataFrame:
+    """
+    Generate the data quality report.
+    Columns: smiles, exclusion_reason, missing_covariate_list, experimental_flag, experimental_ratio
+    """
+    ensure_dirs()
+    
     # Calculate experimental ratio
     if 'source_type' in df.columns:
         total = len(df)
-        experimental = df[df['source_type'] == 'Experimental'].shape[0]
+        experimental = len(df[df['source_type'] == 'Experimental'])
         experimental_ratio = experimental / total if total > 0 else 0.0
     else:
+        # If source_type is missing, we can't calculate ratio, assume 0 or handle gracefully
         experimental_ratio = 0.0
-        logger.warning("Column 'source_type' not found in data.")
+        logger.warning("source_type column missing, setting experimental_ratio to 0.0")
 
     # Create report dataframe
+    # Since we are filtering rows, we need to track why rows were excluded or included.
+    # For this task, we generate a report for the CURRENT dataframe state.
+    # The task asks for 'smiles', 'exclusion_reason', etc.
+    # Since we are filtering IN, we can mark included rows.
+    
+    # To satisfy the schema requirement, we create a summary row or per-row status.
+    # Given the context of T009, it likely wants a per-row status or a summary.
+    # Let's create a summary report row as per the "flag" requirement.
+    
     report_data = {
-        'smiles': df['smiles'].values if 'smiles' in df.columns else [],
-        'exclusion_reason': ['None' if pd.notna(df.loc[i, 'smiles']) else 'Missing SMILES' for i in range(len(df))],
-        'missing_covariate_list': [missing_covariates for _ in range(len(df))],
-        'experimental_flag': [True],
-        'experimental_ratio': [experimental_ratio]
+        'smiles': 'SUMMARY',
+        'exclusion_reason': 'None (Data Quality Check)',
+        'missing_covariate_list': missing_covariates,
+        'experimental_flag': 'True' if experimental_ratio >= 0.5 else 'False',
+        'experimental_ratio': experimental_ratio
     }
-
-    # Note: The report schema in T009 implies one row per SMILES? Or summary?
-    # The task description says: "Schema: data/derived/data_quality_report.csv must include columns: smiles, exclusion_reason..."
-    # This implies a row per molecule. However, experimental_ratio is a global metric.
-    # We will repeat the global metric for every row to satisfy the schema.
-    report_df = pd.DataFrame(report_data)
-
-    # Flag if ratio < 0.5
-    if experimental_ratio < 0.5:
-        report_df['experimental_threshold_failed'] = True
-    else:
-        report_df['experimental_threshold_failed'] = False
-
-    report_df.to_csv(output_path, index=False)
-    logger.info(f"Data quality report saved to {output_path}")
+    
+    report_df = pd.DataFrame([report_data])
+    report_df.to_csv(QUALITY_REPORT_PATH, index=False)
+    logger.info(f"Data quality report saved to {QUALITY_REPORT_PATH}")
+    return report_df
 
 def tanimoto_similarity(fp1, fp2) -> float:
     """Calculate Tanimoto similarity between two RDKit fingerprints."""
     return DataStructs.TanimotoSimilarity(fp1, fp2)
 
-def define_maxmin_strategy(df: pd.DataFrame) -> Tuple[int, Dict[str, Any]]:
+def define_maxmin_strategy(df: pd.DataFrame) -> Tuple[int, str]:
     """
-    Define the algorithm to select a diverse subset using MaxMinPicker.
-    Checks available RAM/CPU and adjusts target count.
-    Returns the target count and a config dict.
+    Define the MaxMin strategy based on resource telemetry.
+    Returns: (target_count, reason)
     """
-    # Check resource telemetry
-    memory_available_gb = psutil.virtual_memory().available / (1024 ** 3)
-    cpu_count = psutil.cpu_count(logical=False) or 1
+    ram_available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    cpu_count = psutil.cpu_count(logical=False)
+    
+    target = 5000
+    reason = "Standard target (RAM >= 6GB, CPU >= 2)"
+    
+    if ram_available_gb < 6.0 or (cpu_count is not None and cpu_count < 2):
+        target = 2000
+        reason = f"Reduced target due to resource constraints: RAM={ram_available_gb:.2f}GB, CPU={cpu_count}"
+        
+    logger.info(f"MaxMin Strategy: Target={target}, Reason={reason}")
+    return target, reason
 
-    target_count = MAX_MIN_SIZE_TARGET
-    adjustments = []
-
-    if memory_available_gb < RAM_THRESHOLD_GB:
-        adjustments.append(f"Low RAM ({memory_available_gb:.1f}GB < {RAM_THRESHOLD_GB}GB)")
-        target_count = int(target_count * 0.5) # Reduce by half
-    if cpu_count < CORES_THRESHOLD:
-        adjustments.append(f"Low CPU ({cpu_count} cores < {CORES_THRESHOLD})")
-        target_count = int(target_count * 0.5)
-
-    # Ensure minimum of 100 if dataset is small
-    if len(df) < MAX_MIN_SIZE_TARGET:
-        target_count = len(df)
-        adjustments.append(f"Dataset size ({len(df)}) is less than target")
-
-    config = {
-        'target_count': target_count,
-        'diversity_threshold': DIVERSITY_THRESHOLD,
-        'resource_adjustments': adjustments,
-        'memory_available_gb': memory_available_gb,
-        'cpu_count': cpu_count
-    }
-
-    logger.info(f"MaxMin Strategy defined: Target count = {target_count}, Adjustments = {adjustments}")
-    return target_count, config
-
-def maxmin_sampling(df: pd.DataFrame, target_count: int, config: Dict[str, Any]) -> pd.DataFrame:
+def maxmin_sampling(df: pd.DataFrame, target_count: int) -> pd.DataFrame:
     """
     Execute MaxMin sampling to select a diverse subset.
     Uses RDKit's MaxMinPicker.
     """
     if len(df) == 0:
         logger.error("Input dataframe is empty.")
-        return df
-
-    # Prepare fingerprints
-    logger.info("Generating fingerprints for MaxMin selection...")
-    mols = []
-    fps = []
-    smiles_list = []
-    
-    generator = GetMorganGenerator(radius=2, fpSize=2048) # ECFP4-like
-
-    for i, row in df.iterrows():
-        smiles = row['smiles']
-        if pd.isna(smiles):
-            continue
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            continue
-        fp = generator.GetFingerprint(mol)
-        mols.append(mol)
-        fps.append(fp)
-        smiles_list.append(smiles)
-
-    if len(fps) == 0:
-        logger.error("No valid molecules found for fingerprinting.")
         return pd.DataFrame()
 
-    if len(fps) <= target_count:
-        logger.info(f"Dataset size ({len(fps)}) is less than target ({target_count}). Selecting all.")
-        return df[df['smiles'].isin(smiles_list)].reset_index(drop=True)
+    # Filter for unique SMILES if duplicates exist (MaxMinPicker needs unique molecules)
+    # We assume the dataframe has 'smiles' and 'property_name', 'value'.
+    # We need to pick diverse molecules, so we work on unique SMILES.
+    unique_smiles = df['smiles'].unique()
+    logger.info(f"Processing {len(unique_smiles)} unique molecules for diversity selection.")
+
+    if len(unique_smiles) < target_count:
+        logger.info(f"Total unique molecules ({len(unique_smiles)}) is less than target ({target_count}). Returning all.")
+        return df
+
+    # Convert SMILES to RDKit molecules and fingerprints
+    mols = []
+    valid_indices = []
+    smiles_list = []
+    
+    for i, smiles in enumerate(unique_smiles):
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is not None:
+            fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+            mols.append(fp)
+            valid_indices.append(i)
+            smiles_list.append(smiles)
+    
+    logger.info(f"Converted {len(mols)} valid molecules to fingerprints.")
+    
+    if len(mols) == 0:
+        logger.error("No valid molecules found for fingerprint generation.")
+        return pd.DataFrame()
 
     # Use MaxMinPicker
-    from rdkit.Chem import rdMoleculeDescriptors
-    # Note: RDKit's MaxMinPicker works on a list of fingerprints
-    picker = DataStructs.MaxMinPicker()
+    picker = AllChem.MaxMinPicker()
+    # pickList returns indices into the list of molecules provided
+    # We want to pick 'target_count' molecules
+    picked_indices = picker.PickList(mols, len(mols), target_count)
     
-    # Select indices
-    # The MaxMinPicker returns a list of indices
-    selected_indices = picker.LargestDiverseSubset(fps, target_count)
+    if len(picked_indices) == 0:
+        logger.warning("MaxMinPicker returned empty list. Falling back to random sample.")
+        picked_indices = list(range(min(target_count, len(mols))))
     
-    if selected_indices is None:
-        logger.warning("MaxMinPicker failed to select a subset. Falling back to random selection.")
-        selected_indices = list(np.random.choice(len(fps), target_count, replace=False))
+    selected_smiles = [smiles_list[i] for i in picked_indices]
+    logger.info(f"Selected {len(selected_smiles)} diverse molecules.")
     
-    logger.info(f"Selected {len(selected_indices)} diverse molecules using MaxMinPicker.")
+    # Filter original dataframe to these SMILES
+    diverse_df = df[df['smiles'].isin(selected_smiles)].reset_index(drop=True)
+    diverse_df.to_csv(DIVERSE_SUBSET_PATH, index=False)
+    logger.info(f"Diverse subset saved to {DIVERSE_SUBSET_PATH}")
+    
+    return diverse_df
 
-    # Construct result dataframe
-    result_data = {
-        'smiles': [smiles_list[i] for i in selected_indices],
-        # Copy other columns from original df
-    }
+def split_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Split the diverse dataset into train and test sets.
+    Stratified by source_type if available, otherwise random.
+    """
+    ensure_dirs()
+    np.random.seed(SEED)
     
-    # Add other columns
-    for col in df.columns:
-        if col != 'smiles':
-            result_data[col] = [df.iloc[i][col] for i in selected_indices]
+    if 'source_type' in df.columns:
+        train_df, test_df = train_test_split(
+            df, train_size=0.8, stratify=df['source_type'], random_state=SEED
+        )
+    else:
+        train_df, test_df = train_test_split(
+            df, train_size=0.8, random_state=SEED
+        )
     
-    result_df = pd.DataFrame(result_data)
-    return result_df
-
-def split_dataset(df: pd.DataFrame, train_ratio: float = 0.8, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Split dataset into training and test sets."""
-    set_global_seed(seed)
-    df = df.sample(frac=1.0, random_state=seed).reset_index(drop=True)
-    split_idx = int(len(df) * train_ratio)
-    train_df = df.iloc[:split_idx].reset_index(drop=True)
-    test_df = df.iloc[split_idx:].reset_index(drop=True)
-    logger.info(f"Split dataset: Train={len(train_df)}, Test={len(test_df)}")
+    train_df.to_csv(TRAIN_SET_PATH, index=False)
+    test_df.to_csv(TEST_SET_PATH, index=False)
+    logger.info(f"Train set: {len(train_df)}, Test set: {len(test_df)}")
+    logger.info(f"Train set saved to {TRAIN_SET_PATH}")
+    logger.info(f"Test set saved to {TEST_SET_PATH}")
+    
     return train_df, test_df
 
-def save_processed_data(df: pd.DataFrame, output_path: str):
-    """Save processed data to CSV."""
-    df.to_csv(output_path, index=False)
-    logger.info(f"Data saved to {output_path}")
+def save_processed_data(df: pd.DataFrame, path: Path):
+    """Helper to save processed data."""
+    df.to_csv(path, index=False)
 
 def main():
-    """Main entry point for preprocessing."""
+    """Main execution flow for T010 and T010.1."""
     ensure_dirs()
-    logging.basicConfig(level=logging.INFO)
-
-    # Load raw data (assuming T008 produced this)
-    raw_path = 'data/raw/pubchem_raw.csv'
-    if not os.path.exists(raw_path):
-        # Fallback for testing if raw data is missing in this specific task run
-        # In a real pipeline, this should fail loudly if T008 didn't run
-        logger.error(f"Raw data file {raw_path} not found. Cannot proceed.")
-        # Create an empty dummy file to prevent cascade if this is a unit test
-        # But per instructions, we must fail loudly if real data is missing.
-        raise FileNotFoundError(f"Raw data file {raw_path} not found.")
-
-    df = load_preprocessed_data(raw_path)
-    logger.info(f"Loaded {len(df)} rows from {raw_path}")
-
-    # Filter high confidence
-    df_filtered = filter_high_confidence(df)
     
-    if len(df_filtered) == 0:
-        logger.error("No data remaining after filtering. Stopping pipeline.")
-        # Save empty report
-        generate_quality_report(pd.DataFrame(), 'data/derived/data_quality_report.csv', detect_missing_covariates(pd.DataFrame()))
-        return
+    # 1. Load raw data
+    try:
+        df = load_preprocessed_data()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
-    # Detect missing covariates
-    missing_covariates = detect_missing_covariates(df_filtered)
+    # 2. Filter high confidence
+    df = filter_high_confidence(df)
     
-    # Generate Quality Report (T009 requirement)
-    generate_quality_report(df_filtered, 'data/derived/data_quality_report.csv', missing_covariates)
-
-    # Define MaxMin Strategy (T010 requirement)
-    target_count, config = define_maxmin_strategy(df_filtered)
-
-    # Execute MaxMin Sampling (T010.1 requirement - part of T010 context)
-    diverse_df = maxmin_sampling(df_filtered, target_count, config)
-
-    if len(diverse_df) == 0:
-        logger.error("MaxMin sampling resulted in empty dataset.")
-        return
-
-    # Save diverse subset
-    save_processed_data(diverse_df, 'data/derived/diverse_subset.csv')
-
-    # Split Dataset (T011.5 requirement - part of T010 context)
+    # 3. Detect missing covariates
+    missing_covariates = detect_missing_covariates(df)
+    
+    # 4. Generate quality report (T009 dependency)
+    generate_quality_report(df, missing_covariates)
+    
+    # 5. Define MaxMin Strategy (T010)
+    target_count, strategy_reason = define_maxmin_strategy(df)
+    logger.info(f"Strategy defined: {strategy_reason}")
+    
+    # 6. Execute MaxMin Sampling (T010.1)
+    diverse_df = maxmin_sampling(df, target_count)
+    
+    if diverse_df.empty:
+        logger.error("MaxMin sampling resulted in an empty dataset.")
+        sys.exit(1)
+    
+    # 7. Split Dataset (T011.5)
     train_df, test_df = split_dataset(diverse_df)
+    
+    logger.info("Preprocessing pipeline completed successfully.")
 
-    # Save splits
-    save_processed_data(train_df, 'data/derived/train_set.csv')
-    save_processed_data(test_df, 'data/derived/test_set.csv')
-
-    logger.info("Preprocessing complete.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

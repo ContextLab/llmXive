@@ -21,7 +21,7 @@ The pipeline adheres to strict data hygiene and compute constraints (CPU-first, 
 **Project Type**: CLI/Data Pipeline  
 **Performance Goals**: Complete full pipeline (~5k molecules, 3 fingerprints, nested CV) within 4 hours on CPU.  
 **Constraints**: No external GPU required (RF and SHAP on CPU); Open Babel must be available in PATH; strict memory limits (streaming data loading if >1GB).  
-**Scale/Scope**: [deferred] molecules; 3 target properties; 3 fingerprint types.
+**Scale/Scope**: [deferred] molecules; target properties; fingerprint types.
 
 ## Constitution Check
 
