@@ -1,4 +1,4 @@
-- artifact_hash: c99c845d953f67d927f73df814861aefd9b4adfabbb0a986acba08fb6717f5d8
+- artifact_hash: df775a175a344dccf966e7bb4ff867375056edb4590558d1e4aaa562ae28c400
   artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://docs.scipy.org/doc/scipy/reference/stats.html
   verification_status: pending
   verified_against_url: https://docs.scipy.org/doc/scipy/reference/stats.html
-  verified_at: '2026-09-28T18:56:42.539731Z'
+  verified_at: '2026-10-02T13:53:47.849137Z'

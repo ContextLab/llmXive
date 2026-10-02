@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,18 +43,18 @@ networkx==3.2.1
 transformers==4.40.0
 datasets==2.18.0
 pytest==8.1.0
-torch==2.2.0
+torch==2.2.0+cpu
 scipy==1.12.0
 nltk==3.8.1
-EOF`
+EOF` followed by `pip install -r requirements.txt` to enforce CPU-only execution (using the explicit +cpu wheel) and prevent CUDA dependencies. (Constitution Principle I)
 - [ ] T003a [P] Create `.ruff.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with rules: `["E", "F", "I", "W"]` and `target-version = "py3"` (FR-001)
 - [ ] T003b [P] Create `pyproject.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with black configuration: `line-length = 88 `, `target-version = ["py311"]` (FR-001)
 - [X] T004 Implement `code/versioning.py` to compute content hashes for `data/` and `code/` artifacts and update `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` (Requires T001b completion) with a JSON schema containing `artifact_hashes` (map of filename: sha256 string) and `updated_at` (ISO 8601 timestamp string) (Constitution Principle V)
 - [X] T005 [P] Create base data models and schema definitions in `code/__init__.py` and `contracts/`
 - [X] T006 [P] Setup environment configuration management for dataset paths and model IDs in `code/config.py`
 - [X] T007 [P] Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically revision: main, split: test, and verify checksums (FR-001)
-- [ ] T007b Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`) containing `repo_id`, `issue_id`, and `ground_truth_file_paths`. The source field to extract is `ground_truth_files` from the SWE-bench JSONL. The output CSV must have columns: `repo_id` (string), `issue_id` (string), `ground_truth_file_paths` (list of strings, JSON-encoded). **Requires T007 completion** (FR-001)
-- [ ] T007c [P] Implement `code/pilot_validation.py` to run a simple retrieval baseline on a small sample (n=20) from `data/processed/regularity_scores.csv` (once T014 is done) and compute correlation between `regularity_score` and retrieval precision. If correlation < 0.3, flag the stratification strategy for review. (Phase 0.5 Risk Mitigation, Requires T014 completion) <!-- ATOMIZE: requested -->
+- [ ] T007b [P] Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`). **Schema Discovery**: Before extraction, inspect the first 100 records of the SWE-bench JSONL to identify the correct field name for ground truth (checking 'ground_truth_files', 'ground_truth', 'hints'). **Extraction**: Extract `instance['<detected_field>']` and map to `repo_id`, `issue_id`, `ground_truth_file_paths` (JSON-encoded list). **Data Hygiene**: Upon successful extraction, explicitly record the derivation logic (script path `code/annotation_extractor.py`) and the SHA256 checksum of the output file in `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` (Constitution Principle III). **Error Handling**: If the field is missing or null for any record, raise a `ValueError` with the `repo_id` and `issue_id` to prevent silent fallback to synthetic data. (FR-001, Requires T007 completion)
+- [ ] T007c [US1] Implement `code/pilot_validation.py` to run a simple retrieval baseline on a small sample (n=20) from `data/processed/regularity_scores.csv` (once T014 is done) and compute correlation between `regularity_score` and retrieval precision. If correlation < 0.3, flag the stratification strategy for review. (Phase 0.5 Risk Mitigation, Requires T014 completion)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,14 +76,15 @@ EOF`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `dir_score + w1 * test_score + w2 * import_score`, where `w1=0.3` and `w2=0.3` are hardcoded default weights.
- - `dir_score`: Binary check for presence of `src/`, `tests/`, `docs/` (A binary indicator where 1 if all present, 0 if none, linear interpolation for partial).
- - `test_score`: Binary check for `tests/` directory presence (The presence of the feature, coded as a binary indicator, is evaluated using the method described in [Citation]. This approach aligns with the research question regarding the occurrence of the phenomenon, as outlined in [Citation].).
- - `import_score`: Ratio of absolute imports (`import pkg`) to total imports (Maximum if all absolute, 0.0 if all relative).
- (FR-001)
+- [ ] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `dir_score + w1 * test_score + w2 * import_score`.
+ - `dir_score`: Binary check for presence of `src/`, `tests/`, `docs/` (1 if all present, 0 if none, linear interpolation for partial).
+ - `test_score`: Calculate the relative depth of the `tests/` directory from the project root or `src/` root. Normalize depth to a unitless score where `1.0 - (min_depth / max_expected_depth)`. Handle multiple test directories by taking the minimum depth. This measures 'placement' relative to the root or source structure.
+ - `import_score`: Use `networkx` to build an import graph. Calculate the ratio of internal imports (within the repo) to total imports and the graph density. Score = `0.5 * internal_ratio + 0.5 * (1 - graph_density)`.
+ - Weights `w1` and `w2` must be loaded from `code/config.py` (defaults documented as standard if pilot study T007c is not yet run). (FR-001)
 - [ ] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
 - [ ] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
 - [ ] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
+- [ ] T007c [US1] Implement `code/pilot_validation.py` to run a simple retrieval baseline on a small sample (n=20) from `data/processed/regularity_scores.csv` (once T014 is done) and compute correlation between `regularity_score` and retrieval precision. If correlation < 0.3, flag the stratification strategy for review. (Phase 0.5 Risk Mitigation, Requires T014 completion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,7 +92,7 @@ EOF`
 
 ## Phase 4: User Story 2 - FastContext-Lite Execution and Metric Collection (Priority: P2)
 
-**Goal**: Execute the FastContext-Lite pipeline and the original FastContext (4B) baseline to collect metrics.
+**Goal**: Execute the FastContext-Lite pipeline and the original FastContext (distilled) baseline to collect metrics.
 
 **Independent Test**: Run the FastContext-Lite pipeline on a single "Regular" repository and verify that it outputs a JSON log containing `context_precision`, `total_tokens`, and `exploration_latency_ms` without requiring a GPU.
 
@@ -103,9 +104,9 @@ EOF`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords using TF-IDF on issue text, remove stop-words using the NLTK English stop-word list, and use regex pattern `[A-Za-z_][A-Za-z0-9_]*::[A-Za-z0-9_]*` for code identifiers to search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(, 2)`, `max_features=10000`, `analyzer='word'`) ensuring CPU-only execution. MUST implement chunking or sampling fallback logic specifically for the TF-IDF index construction phase to handle repositories where index size exceeds available RAM capacity. (FR-003, Requires T007b completion)
-- [ ] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on GB runners.
-- [ ] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main`, `prompt_template: fastcontext-v`, and `device_map: cpu` with `max_memory: {"cpu": "sufficient capacity"}`. The baseline MUST run on BOTH the "Regular" and "Irregular" sets to enable stratified comparison and degradation calculation. (FR-004)
+- [ ] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords using TF-IDF on issue text, remove stop-words using the NLTK English stop-word list, and use regex pattern `[A-Za-z_][A-Za-z0-9_]*::[A-Za-z0-9_]*` for code identifiers to search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(1, 2)`, `max_features=10000`, `analyzer='word'`) ensuring CPU-only execution. MUST implement **streaming file reads and sliding window indexing** for TF-IDF index construction to guarantee OOM prevention on large repositories within RAM limits. (FR-003, Requires T007b completion, Requires T014 completion)
+- [ ] T020 [US2] Implement **performance profiling and algorithmic refinement** in `code/fastcontext_lite.py` for the TF-IDF index construction phase to optimize speed and memory usage further, building upon the chunking logic established in T019. (FR-003, Requires T019 completion)
+- [ ] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontext-4b` (original 4B model) in default precision. **Execution Strategy**: Attempt to run on CPU (`device_map: cpu`) first. **GPU Escape Hatch**: If the run fails due to RAM limits (OOM), the script MUST automatically re-run on a single GPU (`device_map: auto`, `max_memory` configured for ~16GB VRAM) and record a flag `hardware: gpu`. The script MUST NOT fall back to a smaller model or synthetic data. Metrics must be normalized (e.g., tokens/sec) to allow comparison between CPU and GPU runs. This ensures the experiment produces results even if the 4B model exceeds CPU RAM, satisfying Constitution VII and FR-004. (FR-004, Requires T007b completion, Requires T014 completion)
 - [ ] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
 - [ ] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T019, T021a, and T014 completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
 
@@ -127,7 +128,7 @@ EOF`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, alpha=0.05, effect_size derived from pilot data (T007c) or default to 0.2 if pilot data is missing/failed), select between paired t-test and Wilcoxon signed-rank test based on sample size, AND perform continuous regression analysis correlating `regularity_score` with performance delta for the full dataset. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. Citations: Scipy 1.12.0 stats docs (https://docs.scipy.org/doc/scipy/reference/stats.html) and Cohen (1988) for power analysis. (FR-005, Requires T023 completion)
+- [ ] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, alpha=0.05, effect_size derived from pilot data (T007c) OR default to Cohen's d=0.5 if pilot data is missing). **Fallback Logic**: If T007c pilot data is missing, log a warning and proceed with the default effect size to avoid blocking the MVP. Select between paired t-test and Wilcoxon signed-rank test based on sample size. Perform continuous regression analysis correlating `regularity_score` with performance delta for the full dataset. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. Citations: Scipy 1.12.0 stats docs (https://docs.scipy.org/doc/scipy/reference/stats.html) and Cohen for power analysis. (FR-005, Requires T023 completion, Requires T007c completion (optional))
 - [ ] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta across the FULL dataset (both Regular and Irregular sets) to identify boundary conditions (FR-005) (Requires T023 completion)
 - [ ] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) AND explicitly compare this result against the % precision drop threshold defined in SC-004 to flag the boundary condition (FR-006, SC-004)
 - [ ] T031 [US3] Implement output generation to write `data/results/statistical_summary.json` with exact schema: `{ "p_value": float, "effect_size": { "cohen_d": float }, "degradation_percent": float, "boundary_threshold": null | float, "regression_slope": float, "r_squared": float }`. If `boundary_threshold` is deferred per SC-005, output `null`. (FR-005, FR-006, Requires T023 completion)
@@ -145,7 +146,6 @@ EOF`
 - [ ] T033a [P] Code cleanup: Remove unused imports from all files in `code/`
 - [ ] T033b [P] Code cleanup: Enforce line length < 88 in all `code/` files
 - [ ] T033c [P] Code cleanup: Add type hints to all public functions in `code/`
-- [ ] T034 Performance optimization for TF-IDF indexing on large repos to reduce peak memory usage and complete indexing in < 5s using chunked TF-IDF with `max_features` scaling.
 - [ ] T035a [P] Unit test `tests/unit/test_edge_cases.py::test_empty_repo_handling` for empty repository handling.
 - [ ] T035b [P] Unit test `tests/unit/test_edge_cases.py::test_binary_files_only_handling` for binary-only repository handling.
 - [ ] T035c [P] Unit test `tests/unit/test_edge_cases.py::test_circular_imports_handling` for circular import handling.
@@ -243,4 +243,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Reminder**: All models must run on CPU-only (no CUDA/8-bit quantization). Data must be real (SWE-bench Lite). **CRITICAL**: The primary baseline for comparison MUST be the original FastContext (4B model) as per FR-004 and Constitution Principle VII. T021a is the mandatory implementation for this baseline and must run on both Regular and Irregular sets.
+- **Constraint Reminder**: All models must run on CPU-only (no CUDA/8-bit quantization) unless a GPU escape hatch is triggered by OOM. Data must be real (SWE-bench Lite). **CRITICAL**: The primary baseline for comparison MUST be the original 4B model (`princeton-nlp/fastcontext-4b`). T021a implements a GPU escape hatch to ensure the experiment runs even if CPU RAM is exceeded.

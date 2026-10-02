@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Metrics Schema
+description: Schema for validating the output metrics of FastContext-Lite and FastContext-Original runs.
+type: object
+properties:
+  instance_id:
+    type: string
+    description: "Unique identifier for the SWE-bench instance."
+  split:
+    type: string
+    enum:
+      - "Regular"
+      - "Irregular"
+    description: "Stratification set based on structural regularity."
+  method:
+    type: string
+    enum:
+      - "FastContext-Lite"
+      - "FastContext-Original"
+    description: "The execution method used."
+  context_precision:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Precision score against ground-truth relevant files."
+  total_tokens:
+    type: integer
+    minimum: 0
+    description: "Total tokens consumed during the exploration phase."
+  latency_ms:
+    type: number
+    minimum: 0
+    description: "Wall-clock latency in milliseconds."
+  regularity_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "The structural regularity score of the repository."
+  hardware_efficiency:
+    type: number
+    minimum: 0
+    description: "Normalized efficiency metric (Precision/Token)."
+required:
+  - instance_id
+  - split
+  - method
+  - context_precision
+  - total_tokens
+  - latency_ms
+  - regularity_score
+additionalProperties: false

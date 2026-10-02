@@ -1,0 +1,16 @@
+status: none
+intent: download SWE-bench dataset python package with repository metadata and task
+  annotations python package dataset
+required_fields:
+- repository_id
+- repository_url
+- directory_structure
+- test_file_paths
+- import_patterns
+- regularity_score
+- split_label
+- task_annotation_files
+- primary_language
+cache_key: c21a0714964e6ec441879fa818052ec75d7cfa9b5e82a9de701db5da59a11b23
+searched_at: '2026-10-02T13:37:59.987717+00:00'
+retry_count: 1

@@ -1,88 +1,78 @@
-# Data Model: llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents"
+# Data Model: FastContext-Lite
 
 ## Overview
-This document defines the data structures used to store, process, and analyze the results of the FastContext-Lite experiment. All data is stored in `data/` with strict versioning.
+This document defines the data schemas for the FastContext-Lite pipeline, ensuring strict adherence to Constitution Principle III (Data Hygiene) and Principle IV (Single Source of Truth). All data flows are unidirectional: Raw -> Processed -> Results.
 
-## Entities
+## Raw Data (Input)
+**Source**: SWE-bench (`princeton-nlp/SWE-bench`)
+**Format**: JSON/Parquet (streamed)
+**Schema**:
+- `instance_id`: String (Unique identifier)
+- `repo`: String (Repository path)
+- `test_patch`: String (Ground truth test changes)
+- `base_commit`: String
+- `patches`: List[Dict] (Code changes)
+- `problem_statement`: String
 
-### 1. Repository Metadata
-Represents a single SWE-bench instance.
-- `instance_id`: Unique identifier (string).
-- `repo_name`: Repository path (string).
-- `regularity_score`: Float (0.0–1.0).
-- `stratum`: Enum {"Regular", "Irregular"}.
-- `raw_data_path`: Relative path to the cloned repository.
+*Note: Raw data is stored in `data/raw/` with a checksum hash.*
 
-### 2. Exploration Log
-Record of a single run (Baseline or Lite) for a repository.
-- `instance_id`: Foreign key to Repository Metadata.
-- `engine_type`: Enum {"FastContext-Distilled-1.5B", "FastContext-Lite"}.
-- `context_precision`: Float (0.0–1.0).
-- `total_tokens`: Integer.
-- `exploration_latency_ms`: Float.
-- `run_timestamp`: ISO 8601 string.
-- `seed`: Integer (for reproducibility).
+## Processed Data (Intermediate)
 
-### 3. Statistical Summary
-Aggregated results per stratum.
-- `stratum`: Enum {"Regular", "Irregular"}.
-- `metric_name`: Enum {"precision", "tokens", "latency"}.
-- `baseline_mean`: Float.
-- `lite_mean`: Float.
-- `delta_mean`: Float.
-- `p_value`: Float.
-- `significance`: Boolean.
-- `test_method`: Enum {"t-test", "wilcoxon"} (indicates which test was used).
+### 1. Regularity Scores
+**File**: `data/processed/regularity_scores.csv`
+**Purpose**: Stores the computed structural scores for stratification.
 
-## File Formats
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `instance_id` | String | Unique repo ID |
+| `repo` | String | Repository path |
+| `dir_score` | Float | Directory naming consistency (0-1) |
+| `test_score` | Float | Test file placement score (0-1) (Normalized relative path distance) |
+| `import_score` | Float | Import pattern adherence (0-1) (Graph density) |
+| `regularity_score` | Float | Weighted composite (0-1) |
+| `split` | String | "Regular" or "Irregular" |
 
-### `data/processed/regularity_scores.csv`
-| instance_id | repo_name | regularity_score | stratum |
-| :--- | :--- | :--- | :--- |
-| `swe-bench-001` | `repo-A` | 0.85 | Regular |
-| `swe-bench-002` | `repo-B` | 0.32 | Irregular |
+### 2. Ground Truth Annotations
+**File**: `data/processed/ground_truth_annotations.csv`
+**Purpose**: Maps instance IDs to ground-truth relevant files.
+**Schema**:
+- `instance_id`: String
+- `ground_truth_files`: String (JSON-encoded list of file paths)
 
-### `data/results/exploration_logs.jsonl`
-One JSON object per line.
+## Results Data (Output)
+**File**: `data/results/metrics.csv`
+**Purpose**: Primary source of truth for analysis and paper generation.
+
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `instance_id` | String | Unique ID |
+| `split` | String | "Regular" or "Irregular" |
+| `method` | String | "FastContext-Lite" or "FastContext-Original" |
+| `context_precision` | Float | Precision against ground truth (IoU) |
+| `total_tokens` | Integer | Token count used |
+| `latency_ms` | Float | Wall-clock latency in ms |
+| `regularity_score` | Float | The score associated with this instance |
+| `hardware_efficiency` | Float | Normalized efficiency metric (Precision/Token) |
+
+## Statistical Analysis Output
+**File**: `data/results/statistical_analysis.json`
+**Schema**:
 ```json
 {
-  "instance_id": "swe-bench-001",
-  "engine_type": "FastContext-Lite",
-  "context_precision": 0.92,
-  "total_tokens": 1500,
-  "exploration_latency_ms": 250.5,
-  "run_timestamp": "2026-07-14T10:00:00Z",
-  "seed": 42
-}
-```
-
-### `data/results/statistical_summary.json`
-```json
-{
-  "Regular": {
-    "precision": { 
-      "baseline_mean": 0.91, 
-      "lite_mean": 0.90, 
-      "delta": -0.01, 
-      "p_value": 0.45, 
-      "significance": false,
-      "test_method": "t-test"
-    }
+  "test_type": "paired_t_test",
+  "dataset": "Regular",
+  "metrics": {
+    "precision": { "t_stat": float, "p_value": float, "effect_size": float },
+    "latency": { "t_stat": float, "p_value": float, "effect_size": float }
   },
-  "Irregular": {
-    "precision": { 
-      "baseline_mean": 0.88, 
-      "lite_mean": 0.65, 
-      "delta": -0.23, 
-      "degradation_pct": 26.1 
-    }
+  "boundary_analysis": {
+    "threshold_score": float,
+    "degradation_percentage": float
   }
 }
 ```
 
-## Data Flow
-1.  **Ingestion**: SWE-bench Lite data downloaded to `data/raw/`.
-2.  **Transformation**: `static_analysis.py` (using `networkx`) reads `data/raw/` and writes `data/processed/regularity_scores.csv`.
-3.  **Execution**: `fastcontext_lite.py` and `baseline_runner.py` read `regularity_scores.csv` and write to `data/results/exploration_logs.jsonl`.
-4.  **Analysis**: `analysis.py` reads `exploration_logs.jsonl` and writes `statistical_summary.json`.
-5.  **Versioning**: `versioning.py` computes hashes and updates `state/`.
+## Data Hygiene Rules
+1. **Immutability**: Files in `data/raw` and `data/processed` are never modified in place.
+2. **Checksums**: Every file written to `data/` is checksummed (SHA-256) and recorded in `state/...yaml`.
+3. **PII**: No personally identifiable information is allowed in `data/`. SWE-bench is open source and PII-free.

@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Analysis Schema
+description: Schema for the output of the statistical analysis phase (t-tests, regression).
+type: object
+properties:
+  test_type:
+    type: string
+    enum:
+      - "paired_t_test"
+      - "wilcoxon_signed_rank"
+    description: "The statistical test used."
+  dataset:
+    type: string
+    enum:
+      - "Regular"
+      - "Irregular"
+    description: "The dataset subset analyzed."
+  metrics:
+    type: object
+    properties:
+      precision:
+        type: object
+        properties:
+          t_stat:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          effect_size:
+            type: number
+        required:
+          - t_stat
+          - p_value
+          - effect_size
+      latency:
+        type: object
+        properties:
+          t_stat:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          effect_size:
+            type: number
+        required:
+          - t_stat
+          - p_value
+          - effect_size
+    required:
+      - precision
+      - latency
+  boundary_analysis:
+    type: object
+    properties:
+      threshold_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Regularity score where performance gap exceeds tolerance."
+      degradation_percentage:
+        type: number
+        minimum: 0
+        description: "Percentage drop in precision for the Irregular set."
+    required:
+      - threshold_score
+      - degradation_percentage
+required:
+  - test_type
+  - dataset
+  - metrics
+  - boundary_analysis
+additionalProperties: false
