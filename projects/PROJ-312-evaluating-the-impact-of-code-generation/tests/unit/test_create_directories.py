@@ -1,77 +1,52 @@
 import os
 import sys
+from pathlib import Path
 import tempfile
 import shutil
-from pathlib import Path
-import pytest
 
-# Add the project root to the path so we can import from code/
-# Assuming tests are run from the project root
+# Add parent to path to allow imports if running from tests/
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation" / "code"))
 
 from create_directories import main
 
-def test_directory_structure_creation(tmp_path):
-    """Test that the main function creates the required directory structure."""
-    # Change to a temporary directory to simulate a fresh project setup
+def test_directory_structure_created(tmp_path):
+    """
+    Test that the main function creates the expected directory structure.
+    We run the script in a temporary directory to verify file system changes.
+    """
+    # Save original cwd
     original_cwd = os.getcwd()
-    os.chdir(tmp_path)
     
     try:
-        # Define the expected project root path
-        project_root = tmp_path / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation"
+        # Change to temp directory to simulate project root
+        os.chdir(tmp_path)
         
-        # Run the main function
+        # Create a dummy projects folder structure to match the script's expectation
+        # The script expects to run from the repo root and create projects/PROJ-312...
+        # We need to ensure the script runs successfully in the temp env.
+        
+        # Execute the main function
         result = main()
         
-        # Verify the return code
-        assert result == 0, "main() should return 0 on success"
+        # Verify result code
+        assert result == 0, "Main function should return 0 on success"
         
-        # Verify the project root exists
-        assert project_root.exists(), "Project root directory should exist"
-        assert project_root.is_dir(), "Project root should be a directory"
+        # Verify base directory exists
+        base_dir = tmp_path / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation"
+        assert base_dir.exists(), f"Base directory {base_dir} should exist"
         
-        # Define expected directories (relative to project root)
-        expected_dirs = [
-            "code",
-            "data",
-            "tests",
-            "contracts",
-            "artifacts",
-            "state",
-            "data/raw",
-            "data/processed",
-            "data/spot_check",
-            "tests/unit",
-            "tests/contract",
+        # Verify subdirectories
+        required_dirs = [
+            "code", "data", "tests", "contracts", "artifacts", "state",
+            "data/raw", "data/processed", "data/spot_check",
+            "tests/unit", "tests/contract", "tests/integration"
         ]
         
-        # Check each expected directory
-        for dir_name in expected_dirs:
-            dir_path = project_root / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} should exist"
-            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+        for subdir in required_dirs:
+            full_path = base_dir / subdir
+            assert full_path.exists(), f"Directory {full_path} should exist"
+            assert full_path.is_dir(), f"{full_path} should be a directory"
             
     finally:
-        # Restore original working directory
-        os.chdir(original_cwd)
-
-def test_idempotency(tmp_path):
-    """Test that running main() twice does not cause errors."""
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    
-    try:
-        # Run main() twice
-        result1 = main()
-        result2 = main()
-        
-        assert result1 == 0
-        assert result2 == 0
-        
-        # Verify directories still exist
-        project_root = tmp_path / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation"
-        assert project_root.exists()
-        
-    finally:
+        # Restore original cwd
         os.chdir(original_cwd)

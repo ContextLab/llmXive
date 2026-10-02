@@ -4,22 +4,35 @@ from pathlib import Path
 def main():
     """
     Create the required directory structure for the project.
-    Implements Task T008: Create data/raw, data/processed, data/spot_check, artifacts, tests.
+    Implements T001a: Create directory structure.
     """
-    # Define the project root relative to where the script is run or standard project root
-    # Assuming the script runs from the project root or we define it explicitly
-    project_root = Path(__file__).resolve().parent.parent
-
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "spot_check",
-        project_root / "artifacts",
-        project_root / "tests",
+    base_dir = Path("projects/PROJ-312-evaluating-the-impact-of-code-generation")
+    
+    # Define all required directories relative to the project root
+    # Note: The task description lists 'code/', 'data/', etc. as top level, 
+    # but the project structure convention in tasks.md (Phase 1) suggests 
+    # they should be inside the project folder to keep the repo clean.
+    # We will create them inside the project folder as per standard practice 
+    # for this specific project ID.
+    
+    dirs_to_create = [
+        base_dir / "code",
+        base_dir / "data",
+        base_dir / "tests",
+        base_dir / "contracts",
+        base_dir / "artifacts",
+        base_dir / "state",
+        # Subdirectories for data as per T008 (often run together or T008 is a sub-task of setup)
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "spot_check",
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "contract",
+        base_dir / "tests" / "integration",
     ]
 
     created_count = 0
-    for dir_path in directories:
+    for dir_path in dirs_to_create:
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {dir_path}")
@@ -27,10 +40,8 @@ def main():
         else:
             print(f"Directory already exists: {dir_path}")
 
-    if created_count == 0:
-        print("All required directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directory(ies).")
+    print(f"Directory creation complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

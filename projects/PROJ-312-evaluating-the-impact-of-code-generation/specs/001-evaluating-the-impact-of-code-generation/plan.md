@@ -9,7 +9,7 @@ This feature implements a data-driven research study to evaluate the association
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `requests`, `pandas`, `scipy`, `matplotlib`, `pyyaml`, `tqdm`, `statsmodels`  
 **Storage**: Local CSV/Parquet files in `data/` directory; artifacts in `artifacts/`  
 **Testing**: `pytest` for unit and integration tests; contract validation via local YAML schemas (`contracts/`).  

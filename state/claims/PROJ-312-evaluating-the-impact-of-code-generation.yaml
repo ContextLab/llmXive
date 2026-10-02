@@ -31,3 +31,129 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T00:18:55Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fetch top 20 Python and 20 JavaScript repositories by star count
+  claim_id: c_1297f313
+  context: 'T012a: Fetch a representative set of top Python and JavaScript repositories
+    by star count using GitHub API endpoints... Target: Top 20 Python and Top 20 JavaScript
+    repositories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Top 20 Python and Top 20 JavaScript repositories.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:13:40Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Stop data fetching after 50 pages or 30 minutes per repository
+  claim_id: c_fdd8d699
+  context: 'T012b: Fetch ALL PRs for each repo in the representative set. Stop Condition:
+    Stop after fetching 50 pages per repo OR a bounded execution time (a maximum duration
+    of approximately half an hour).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stop after fetching 50 pages per repo OR a bounded execution time (a maximum
+    duration of approximately half an hour).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:13:49Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Exclude repositories with fewer than 50 pull requests after filtering
+  claim_id: c_a5f15f34
+  context: 'T014: Implement logic in code/fetch_data.py to skip repos with fewer than
+    50 PRs after filtering and log warnings; explicitly write the list of skipped
+    repository names to data/processed/excluded_repos.txt'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_repositories_with_fewer_than_50_pull_requests_after
+  kind: magnitude
+  raw_text: Skip repos with fewer than 50 PRs after filtering
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:19:45Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Log warning if data quality success rate is below 95%
+  claim_id: c_c29eca88
+  context: 'T018c: Calculate overall data quality success rate (processed/total PRs).
+    If < 95%, log a warning, save a detailed error log to data/processed/data_quality_warning.log,
+    and save a quality status artifact...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If < 95%, log a warning, save a detailed error log to data/processed/data_quality_warning.log
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:19:45Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if AI group sample size is less than 30
+  claim_id: c_906e6a25
+  context: 'T027a: Implement power check in code/analyze.py: if AI group count < 30,
+    raise SampleSizeError with message ''Sample size too small: AI group < 30'' to
+    abort pipeline (Plan Phase 1)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_AI_group_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: 'if AI group count < 30, raise SampleSizeError with message ''Sample size
+    too small: AI group < 30'' to abort pipeline'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:21:11Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Inject limitation statement if false-negative rate exceeds 10%
+  claim_id: c_627d0123
+  context: 'T035: Implement conditional logic in code/report.py: Prerequisite: T020
+    completion. If false_negative_rate (from T034b) > 10%, inject limitation statement
+    with text: ''Limitation: False-negative rate exceeds 10% threshold...'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If false_negative_rate (from T034b) > 10%, inject limitation statement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:21:20Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Save boxplot visualization with at least 300 DPI resolution
+  claim_id: c_fe5a987a
+  context: "T033: Save visualization to artifacts/boxplot.png with \u2265300 DPI resolution\
+    \ (FR-008, SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Save_boxplot_visualization_with_at_least_300_DPI_resolution
+  kind: magnitude
+  raw_text: "Save visualization to artifacts/boxplot.png with \u2265300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:22:09Z'

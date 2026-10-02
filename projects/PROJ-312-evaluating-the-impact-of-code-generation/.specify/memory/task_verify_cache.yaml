@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the required directories (`projects/PROJ-312-evaluating-the-impact-of-code-generation/`\
-    \ with subfolders `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`)\
-    \ actually exist; the response contains only the task description and no file\u2011\
-    system listing or screenshots. The implementer must create and show the directory\
-    \ structure."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

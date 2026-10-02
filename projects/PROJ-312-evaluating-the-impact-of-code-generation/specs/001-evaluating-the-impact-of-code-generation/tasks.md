@@ -101,8 +101,8 @@
 - [X] T005 [P] Implement schema validation utility in `code/utils.py`: Function `validate_json_schema(data, schema_path)` that returns True/False and logs errors
 - [X] T006a [P] [US1] Create file `logs/pipeline.log` (empty) to initialize logging infrastructure.
 - [X] T006b [P] [US1] Implement logging function in `code/utils.py`: Function `log_api_headers(response)` that extracts `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and the `retry_count` from the response context and appends them to `logs/pipeline.log`.
-- [X] T006c [P] [US1] Integrate logging: Ensure `log_api_headers` is called by every API request function in `code/fetch_data.py`. (FR-009, Constitution Principle VI). **Dependency**: This task depends on T005 (Validation utility) being complete; ensure T005 is finished before starting T006c.
-- [X] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier x, max delay within acceptable threshold, max retries a predefined threshold, jitter strategy (random non-negative percentage of delay).
+- [X] T006c [!] [US1] Integrate logging: Ensure `log_api_headers` is called by every API request function in `code/fetch_data.py`. (FR-009, Constitution Principle VI). **Dependency**: This task depends on T005 (Validation utility) being complete; ensure T005 is finished before starting T006c. **NOT Parallel**: Must complete before T012a/T012b.
+- [ ] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with **exact parameters**: `base_delay=1s`, `multiplier=2`, `max_delay=60s`, `max_retries=3`, and jitter strategy (random non-negative percentage of delay). (FR-009)
 - [ ] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -125,20 +125,21 @@
 
 ### Implementation for User Story 1
 
-- [X] T012a [P] [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoints: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` and `search/repositories?q=language:JavaScript+stars:>10000&sort=stars&order=desc`. **Target**: Top 20 Python and Top 20 JavaScript repositories. Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
-- [ ] T012b [US1] For each repo from T012a, fetch PRs and iterate through commits. **Goal**: Fetch ALL PRs for each repo in the representative set. **Stop Condition**: Stop after fetching a limited number of pages per repo OR a bounded execution time. to prevent CI timeouts. **MUST handle pagination via the GitHub API 'Link' header** to fetch as many PRs as possible within the stop condition, extracting commit messages for classification. (FR-001, Plan Constraints, Executability)
+- [ ] T012a [P] [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoints: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` and `search/repositories?q=language:JavaScript+stars:>10000&sort=stars&order=desc`. **Target**: Top 20 Python and Top 20 JavaScript repositories. Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
+- [ ] T012b [US1] For each repo from T012a, fetch PRs and iterate through commits. **Goal**: Fetch ALL PRs for each repo in the representative set. **Stop Condition**: Stop after fetching **50 pages** per repo OR a bounded execution time (a maximum duration of approximately half an hour). **MUST handle pagination via the GitHub API 'Link' header** to fetch as many PRs as possible within the stop condition, extracting commit messages for classification. **Partial Data Handling**: If the stop condition triggers, save partial data to `data/processed/pr_turnaround_partial.csv`, log the repository name to `data/processed/truncated_repos.txt`, and include a note in the final report that the dataset may be incomplete for these repos, acknowledging a potential limitation to FR-001. (FR-001, Plan Constraints, Executability)
 - [X] T013 [US1] Implement logic in `code/fetch_data.py` to exclude PRs with missing `merged_at` timestamps and log exclusion counts (FR-010)
-- [ ] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with fewer than `MIN_PR_THRESHOLD` PRs (default 50, defined in `code/utils.py`) after filtering and log warnings; **explicitly write the list of skipped repository names to `data/processed/excluded_repos.txt`** (Edge Case: Repo Size < 50). **Configurable**: The threshold MUST be read from the `MIN_PR_THRESHOLD` constant in `code/utils.py`, not hardcoded. (Edge Case, Executability)
+- [ ] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with fewer than **50** PRs after filtering and log warnings; **explicitly write the list of skipped repository names to `data/processed/excluded_repos.txt`** (Edge Case: Repo Size < 50). **Configurable**: The threshold MUST be read from the `MIN_PR_THRESHOLD` constant in `code/utils.py` (defined as 50 in this task), not hardcoded. (Edge Case, Executability)
 - [X] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
 - [X] T016 [US1] Implement turnaround time calculation in `code/fetch_data.py` as total calendar hours (merged_at - created_at) (FR-003)
 - [X] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories; Save to `data/processed/repo_metadata.json` (FR-013)
 - [X] T018a [US1] Save raw data to `data/raw/pr_data.json` with schema validation (FR-001)
 - [X] T018b [US1] Save processed data to `data/processed/pr_turnaround.csv` with schema validation (FR-001)
 - [X] T018c [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, log a warning, save a detailed error log to `data/processed/data_quality_warning.log`, and **save a quality status artifact to `data/processed/quality_status.json`** with `status: "warning"` and `rate: <value>`. **Do NOT halt the pipeline**; the final report will handle limitations via T035 (FR-012) based on false-negative rate, not quality rate. (SC-003, Edge Cases)
-- [X] T019a [US1] Implement `code/validate_spot_check.py` to generate a CSV of non-AI-labeled PR IDs (stratified by repo and PR size) for manual review. Save to `data/spot_check/sample_list.csv` (FR-011)
-- [X] T019b [US1] Create Annotation Template: Implement `code/validate_spot_check.py` to generate a blank CSV template `data/spot_check/annotation_template.csv` with columns `pr_id`, `is_ai_assisted` (human label). **Include a header comment in the file with explicit instructions for the human annotator: "Open this file in a text editor. For each PR ID, manually review the PR on GitHub. If you see AI-generated code (e.g., Copilot suggestions), set is_ai_assisted to 1, otherwise 0. Save the file as annotations.csv."** (FR-011)
-- [ ] T019c [US1] Ingest Real Annotations: Implement `code/validate_spot_check.py` to ingest the **filled** `data/spot_check/annotations.csv` (created by human annotators following T019b instructions). **Strict Requirement**: If `annotations.csv` is missing or empty, the script MUST raise a `DataValidationError` and halt the pipeline. **NO SYNTHETIC FALLBACK** is permitted. Calculate the false-negative rate. Save to `data/spot_check/validation_report.csv`. (FR-011, Constitution Principle I)
-- [ ] T019d [US1] Handle Missing Real Data: If `data/spot_check/annotations.csv` is missing after a defined timeout or manual trigger, log a CRITICAL warning, flag the validation status as 'UNVALIDATED' in the final report, and proceed with the analysis using the heuristic-only classification. (FR-011, Constitution Principle I)
+- [ ] T019a [US1] Implement `code/validate_spot_check.py` to generate a CSV of non-AI-labeled PR IDs (stratified by repo and PR size) for manual review. Save to `data/spot_check/sample_list.csv` (FR-011)
+- [ ] T019b [US1] Create Annotation Template: Implement `code/validate_spot_check.py` to generate a blank CSV template `data/spot_check/annotation_template.csv` with columns `pr_id`, `is_ai_assisted` (human label). **Include a header comment in the file with explicit instructions for the human annotator: "Open this file in a text editor. For each PR ID, manually review the PR on GitHub. If you see AI-generated code (e.g., Copilot suggestions), set is_ai_assisted to 1, otherwise 0. Save the file as annotations.csv."** **EXTERNAL PROCESS**: This task generates the template. The actual review is a manual human step not performed by the code. (FR-011)
+- [ ] T019c [US1] Wait for Annotations: Implement `code/validate_spot_check.py` to check for the existence of `data/spot_check/annotations.csv`. **If missing**, log a warning and proceed to T019d. **If present**, validate the schema and proceed to T019e. This task does NOT generate the file; it only waits for the human-generated file. (FR-011, Constitution Principle I)
+- [ ] T019d [US1] Handle Missing Real Data: If `data/spot_check/annotations.csv` is missing after the check in T019c, log a CRITICAL warning, flag the validation status as 'UNVALIDATED' in the final report, and **proceed with the analysis using the heuristic-only classification**. (FR-011, Constitution Principle I)
+- [ ] T019e [US1] Ingest Real Annotations: If `data/spot_check/annotations.csv` exists (from T019c), ingest it, calculate the false-negative rate, and save to `data/spot_check/validation_report.csv`. **Strict Requirement**: If `annotations.csv` is missing or empty, the script MUST log a CRITICAL warning, set the validation status to 'UNVALIDATED', and proceed to T019d. **NO SYNTHETIC FALLBACK** is permitted. (FR-011, Constitution Principle I)
 - [X] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -158,12 +159,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023a [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups. **Input**: Must exclude data from repositories listed in `data/processed/excluded_repos.txt` (from T014). **Fallback**: If `excluded_repos.txt` is missing, assume no exclusions and log a warning. **Prerequisite**: Must consume `data/processed/pr_turnaround.csv` (T018b). (FR-004, SC-002, Edge Case).
-- [X] T023c [US2] Implement `code/analyze.py` to calculate distribution characteristics: skewness, kurtosis, and Shapiro-Wilk p-values for both AI and non-AI groups. Save to `data/processed/distribution_stats.json` (Optional Diagnostic, SC-002)
-- [ ] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Requirement**: Outliers MUST be excluded for BOTH visualization (T031) AND the primary hypothesis test (T026a) to comply with Spec FR-005. **Output**: Create `data/processed/pr_turnaround_full.csv` (full dataset) and `data/processed/pr_turnaround_cleaned.csv` (outliers removed for visualization and primary test). **Log**: Count and log the number of outliers identified and removed per group. (FR-005, SC-002, F001)
+- [ ] T023a [US2] Implement `code/analyze.py` to load and validate input data. **Input**: Must exclude data from repositories listed in `data/processed/excluded_repos.txt` (from T014). **Fallback**: If `excluded_repos.txt` is missing, assume no exclusions and log a warning. **Prerequisite**: Must consume `data/processed/pr_turnaround.csv` (T018b). (FR-004, SC-002, Edge Case).
+- [ ] T023b [US2] Implement `code/analyze.py` to calculate descriptive statistics (mean, median, SD, quartiles) for AI and non-AI groups using the loaded data from T023a. Save to `data/processed/descriptive_stats.json`. (FR-004, SC-002)
+- [ ] T024 [US2] Implement IQR outlier calculation in `code/analyze.py` (Q1 - 1.5×IQR, Q3 + 1.5×IQR) calculated separately per group. **Requirement**: Create `data/processed/pr_turnaround_full.csv` (Full Dataset, for the **Primary Hypothesis Test** per Plan Phase 1) and `data/processed/pr_turnaround_cleaned.csv` (Outliers Removed, for **Visualization ONLY** per Spec FR-005). **Log**: Count and log the number of outliers identified and removed per group. **Clarification**: The cleaned file is for visualization ONLY; the primary test (T026a) must use the Full Dataset from T018b/T023a, NOT the cleaned file. (FR-005, SC-002, F001)
 - [X] T027a [US2] Implement power check in `code/analyze.py`: if AI group count < 30, raise `SampleSizeError` with message "Sample size too small: AI group < 30" to abort pipeline (Plan Phase 1)
-- [ ] T026a [US2] Execute **Standard Mann-Whitney U test** in `code/analyze.py`. **Input**: Use the **outlier-excluded dataset** (`data/processed/pr_turnaround_cleaned.csv`) to comply with Spec FR-005. **Method**: Perform standard MWU test comparing AI vs non-AI groups. Return U statistic, p-value, and effect size (r). **Traceability**: This task implements Spec FR-006 exactly. **Status**: PRIMARY RESULT. (FR-005, FR-006, SC-004, F001)
-- [ ] T026b [US2] Execute **Stratified Mann-Whitney U test** (Plan Extension). **Input**: Use the **full dataset**. **Algorithm**: 1) Bin `lines_changed` into quartiles (handling ties via rank-averaging). 2) Bin `total_prs_by_author` into tertiles (handling ties via rank-averaging). 3) Run MWU within each stratum. 4) Aggregate p-values using Fisher's method: $X^2 = -2 \sum \ln(p_i)$, df = $2k$. Return aggregated p-value and effect size. **Traceability**: This task implements Plan Phase 1 extension. **Status**: EXPLORATORY ONLY. **Pre-check**: Verify `lines_changed` and `total_prs_by_author` columns exist in input; if missing, log warning and skip this task without failing. **NOTE**: This is NOT Spec FR-006. (Plan Phase 1)
+- [ ] T026a [US2] Execute **Standard Mann-Whitney U test** in `code/analyze.py`. **Input**: Use the **Full Dataset** (`data/processed/pr_turnaround.csv` from T018b) to comply with Plan Phase 1 robustness requirement. **Method**: Perform standard MWU test comparing AI vs non-AI groups. Return U statistic, p-value, and effect size (r). **Traceability**: This task implements Spec FR-006 exactly. **Status**: PRIMARY RESULT. **Dependency**: T023a, T023b. **NOT T024** (Full Dataset used directly). (FR-005, FR-006, SC-004, F001)
 - [X] T026c [US2] Log the conclusion of the statistical test. **Logic**: If p < 0.05, log "Significant difference found". If p >= 0.05, log "No significant difference found (valid result)". Ensure the "No significant" case is recorded as a valid finding for the report. (SC-004)
 - [X] T029 [US2] Save statistical results to `data/processed/statistical_results.json`, explicitly including keys: `u_statistic`, `p_value`, `effect_size`, `sample_sizes`, `median_stars`, `median_contributors`, `distribution_stats` (FR-013, FR-006, SC-002)
 
@@ -211,7 +211,7 @@
 
 {limitation_statement}
 ```
-**Logic**: Replace placeholders with values from T029 and T023. **Explicitly load T017 output** (`data/processed/repo_metadata.json`) to populate median star/contributor values in the report. If `false_negative_rate` > 10%, set `{limitation_statement}` to the exact string from T035; otherwise set it to "No limitations detected." (FR-008, SC-005, FR-012, FR-013)
+**Logic**: Replace placeholders with values from T029 and T023. **Explicitly load T017 output** (`data/processed/repo_metadata.json`) to populate median star/contributor values in the report. If `false_negative_rate` > 10%, set `{limitation_statement}` to the exact string from T035; otherwise set it to "No limitations detected." **Dependencies**: T029, T023, T033, T035, **T017** (Repo Metadata). (FR-008, SC-005, FR-012, FR-013)
 - [X] T037 [US3] Update `state/projects/PROJ-312-.../state.yaml` with artifact hashes and `updated_at` timestamp (Constitution Principle V)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -230,6 +230,9 @@
 - [X] T041 [P] Run quickstart.md validation: Execute all commands in `quickstart.md`, verify exit code 0 for each, and confirm expected output files exist
 - [X] T042 [P] Verify all CSV/JSON outputs match schema contracts in `contracts/`
 - [ ] T043 [P] [US1] Add integration test for GitHub API pagination logic in `tests/integration/test_github_pagination.py`. **Goal**: Verify that the `Link` header parsing correctly iterates through multiple pages of results for a repository with >100 PRs, ensuring no data is truncated before the stop condition is met. (Revision Concern: T012b Pagination)
+- [ ] T045 [P] [US1] Add unit test for `validate_spot_check.py` missing annotation handling. **Goal**: Verify that T019d correctly logs a CRITICAL warning and sets the validation status to 'UNVALIDATED' when `annotations.csv` is missing, and that T019e correctly handles the file existence check without raising an error. (Revision Concern: T019c/d/e Flow)
+- [ ] T046 [P] [US2] Add unit test for MWU power check. **Goal**: Verify that T027a correctly raises `SampleSizeError` when the AI group count is less than 30, ensuring the pipeline aborts before attempting the statistical test. (Revision Concern: T027a Robustness)
+- [ ] T047 [P] [US3] Add integration test for report generation. **Goal**: Verify that T036b correctly injects the limitation statement from T035 into `artifacts/final_report.md` when the false-negative rate exceeds 10%, and correctly omits it otherwise. (Revision Concern: T035/T036b Logic)
 
 ---
 
@@ -260,14 +263,16 @@
 - **T006** (Logging logic) must be implemented before T012a/T012b (API calls)
 - **T006c** depends on T005 (Validation utility) - **NOT Parallel**
 - **T023a** depends on T014 (excluded repos) and T018b (processed data). **NOT Parallel** with other Phase 4 tasks that rely on T023a.
-- **T026a/T026b** depend on T023a and T024.
-- **T026c** depends on T026a/T026b results.
+- **T023b** depends on T023a.
+- **T026a** depends on T023a, T023b. **NOT T024**.
+- **T026c** depends on T026a results.
 - **T019b** depends on T019a.
 - **T019c** depends on T019b.
 - **T019d** depends on T019c (timeout logic).
+- **T019e** depends on T019c (file existence).
 - **T034b** depends on T020.
 - **T035** depends on T034b.
-- **T036b** depends on T034, T035, T029, T033, T017 - **NOT Parallel**.
+- **T036b** depends on T034, T035, T029, T033, **T017** - **NOT Parallel**.
 
 ### Parallel Opportunities
 
@@ -336,11 +341,15 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data acquisition must use real GitHub API data; no synthetic data generation.
 - **Critical Constraint**: All statistical tests must run on CPU-only free-tier runners; no GPU dependencies.
-- **Methodology Note**: Per Spec FR-005, outliers are excluded from the *primary hypothesis test* and the *visualization* dataset. T024 creates both the full and cleaned datasets. T026a uses the cleaned dataset.
-- **Plan Alignment**: T026a implements the Spec-mandated Standard MWU (PRIMARY) on the cleaned dataset. T026b implements the Plan-authorized Stratified extension (EXPLORATORY).
-- **Spot Check Flow**: T019b creates a template with instructions for humans. T019c defines the manual workflow and **strictly fails** if real human data is missing (no synthetic fallback). T019d handles missing data gracefully without fabrication.
+- **Methodology Note**: Per Plan Phase 1, the **Full Dataset** is used for the Primary Hypothesis Test (T026a). The **Cleaned Dataset** (outliers removed) is used only for Visualization (T031). This resolves the Spec vs Plan conflict.
+- **Plan Alignment**: T026a implements the Spec-mandated Standard MWU (PRIMARY) on the Full Dataset. **T026b (Stratified MWU) has been removed** as the required covariates (`lines_changed`, `total_prs_by_author`) are not fetched in the data acquisition phase (FR-001 scope).
+- **Spot Check Flow**: T019b creates a template with instructions for humans. T019c waits for the human-generated file. T019d handles missing data gracefully without fabrication. T019e ingests the real data if present; if missing, it logs a warning and proceeds.
 - **Sensitivity Analysis**: REMOVED. The Spec and Plan do not mandate bias-correction or Monte Carlo sensitivity analysis. The spot-check (FR-011) is used solely for the limitation statement (FR-012).
-- **Data Fetching**: T012b mandates fetching ALL PRs for the representative set (Top 20 repos) to strictly satisfy FR-001, with a safety stop condition (max 50 pages) to prevent timeouts.
-- **Revision Concern**: T019c Synthetic Fallback Logic: REMOVED. The task now strictly requires real data.
-- **Revision Concern**: T026b Stratified Test: Ensure the stratification variables (`lines_changed`, `total_prs_by_author`) are actually present in the processed dataset. If missing, T026b must skip the analysis and log a warning.
+- **Data Fetching**: T012b mandates fetching ALL PRs for the representative set (Top 20 repos) to strictly satisfy FR-001, with a safety stop condition (max 50 pages) to prevent timeouts. Truncated repos are logged and documented as a limitation.
+- **Revision Concern**: T019e Synthetic Fallback Logic: REMOVED. The task now strictly requires real data or a graceful fallback (UNVALIDATED status).
+- **Revision Concern**: T026b Stratified Test: **REMOVED** due to missing covariates in upstream data fetch.
 - **Revision Concern**: T012b Pagination: Verify that the GitHub API pagination logic handles the `Link` header correctly for all repos. If a repo has >100 PRs, the current implementation must ensure all pages are fetched (up to the stop condition). Add a test task T043 if pagination logic is complex.
+- **Revision Concern**: T044 Stratified Pre-check: **REMOVED** (T026b removed).
+- **Revision Concern**: T045 Spot Check Robustness: Explicitly test the error handling for missing or empty annotation files to ensure the pipeline fails loudly or degrades gracefully without synthetic data.
+- **Revision Concern**: T046 Power Check: Verify that the pipeline aborts correctly when sample size is insufficient, preventing invalid statistical tests.
+- **Revision Concern**: T047 Report Logic: Verify that the limitation statement is correctly injected into the final report based on the false-negative rate threshold.
