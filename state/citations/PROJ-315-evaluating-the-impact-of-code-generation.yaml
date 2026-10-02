@@ -42,14 +42,3 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-03T17:55:27.926788Z'
-- artifact_hash: 93a99890045b7af186511f58a55fe8c92a7e25ea4ee85c78f5cd99552ebf90df
-  artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Python - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Python_
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Python
-  verified_at: '2026-09-29T04:16:20.141821Z'
