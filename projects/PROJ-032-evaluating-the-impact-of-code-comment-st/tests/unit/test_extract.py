@@ -1,3 +1,6 @@
+"""
+Unit tests for the extract module.
+"""
 import pytest
 import json
 import os
@@ -5,95 +8,94 @@ import tempfile
 from pathlib import Path
 from extract import extract_comments_ast, extract_comments_from_file, run_extraction_pipeline
 
-def test_extract_comments_ast_basic():
-    """Test extraction of simple comments."""
-    source = """
-    # This is a comment
-    x = 1
-    # Another comment
-    def foo():
-        pass
-    """
-    comments = extract_comments_ast(source)
-    assert len(comments) == 2
-    assert "# This is a comment" in comments[0]["text"]
-    assert "# Another comment" in comments[1]["text"]
+class TestExtractCommentsAST:
+    def test_extract_simple_comment(self):
+        code = "# This is a comment\ndef foo(): pass"
+        comments = extract_comments_ast(code)
+        assert len(comments) == 1
+        assert comments[0]["text"] == "# This is a comment"
+        assert comments[0]["start_line"] == 1
 
-def test_extract_comments_ast_no_comments():
-    """Test extraction when no comments exist."""
-    source = """
-    x = 1
-    y = 2
-    def foo():
-        return x + y
-    """
-    comments = extract_comments_ast(source)
-    assert len(comments) == 0
+    def test_extract_multiple_comments(self):
+        code = """
+        # Comment 1
+        def bar():
+            # Comment 2
+            pass
+        # Comment 3
+        """
+        comments = extract_comments_ast(code)
+        assert len(comments) == 3
+        assert "Comment 1" in comments[0]["text"]
+        assert "Comment 2" in comments[1]["text"]
+        assert "Comment 3" in comments[2]["text"]
 
-def test_extract_comments_ast_empty_file():
-    """Test extraction on empty source."""
-    comments = extract_comments_ast("")
-    assert len(comments) == 0
+    def test_empty_source(self):
+        comments = extract_comments_ast("")
+        assert len(comments) == 0
 
-def test_extract_comments_ast_string_literals_ignored():
-    """Test that string literals are not treated as comments."""
-    source = """
-    x = "# This is not a comment"
-    y = 'Also not a comment'
-    # This is a real comment
-    """
-    comments = extract_comments_ast(source)
-    assert len(comments) == 1
-    assert "# This is a real comment" in comments[0]["text"]
+    def test_whitespace_only(self):
+        comments = extract_comments_ast("   \n\t  ")
+        assert len(comments) == 0
 
-def test_extract_comments_ast_syntax_error_handling():
-    """Test graceful handling of syntax errors."""
-    source = """
-    def broken(
-        # Missing closing paren
-    x = 1
-    """
-    # Should not raise an exception, just return empty or partial
-    comments = extract_comments_ast(source)
-    # Depending on tree-sitter behavior, it might parse what it can or return empty.
-    # We just assert it didn't crash.
-    assert isinstance(comments, list)
+    def test_no_comments(self):
+        code = "def foo():\n    x = 1\n    return x"
+        comments = extract_comments_ast(code)
+        assert len(comments) == 0
 
-def test_extract_comments_from_file(tmp_path):
-    """Test extraction from a temporary file."""
-    test_file = tmp_path / "test.py"
-    content = """
-    # File comment
-    x = 1
-    """
-    test_file.write_text(content)
-    
-    comments = extract_comments_from_file(str(test_file))
-    assert len(comments) == 1
-    assert "# File comment" in comments[0]["text"]
+    def test_invalid_syntax(self):
+        # Tree-sitter should handle this gracefully and return empty or partial
+        code = "def foo(: # broken syntax"
+        # Should not raise an exception
+        comments = extract_comments_ast(code)
+        # Depending on parser behavior, might be empty or partial, but must not crash
+        assert isinstance(comments, list)
 
-def test_run_extraction_pipeline(tmp_path):
-    """Test the full pipeline on a directory of files."""
-    # Create test directory with Python files
-    test_dir = tmp_path / "test_repos"
-    test_dir.mkdir()
-    
-    file1 = test_dir / "file1.py"
-    file1.write_text("# Comment 1\nx = 1")
-    
-    file2 = test_dir / "subdir" / "file2.py"
-    file2.parent.mkdir()
-    file2.write_text("# Comment 2\ny = 2")
-    
-    output_path = tmp_path / "output.json"
-    
-    run_extraction_pipeline(str(test_dir), str(output_path))
-    
-    assert output_path.exists()
-    with open(output_path, "r") as f:
-        data = json.load(f)
-    
-    assert len(data) == 2
-    # Check that comments were found in both files
-    found_comments = sum(len(item["comments"]) for item in data)
-    assert found_comments == 2
+class TestExtractCommentsFromFile:
+    def test_extract_from_temp_file(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write("# Test comment\nx = 1")
+            temp_path = f.name
+
+        try:
+            comments = extract_comments_from_file(temp_path)
+            assert len(comments) == 1
+            assert comments[0]["text"] == "# Test comment"
+        finally:
+            os.unlink(temp_path)
+
+    def test_nonexistent_file(self):
+        comments = extract_comments_from_file("nonexistent_file_12345.py")
+        assert len(comments) == 0
+
+class TestRunExtractionPipeline:
+    def test_pipeline_creates_output(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a dummy repo structure
+            repo_dir = Path(tmpdir) / "repo"
+            repo_dir.mkdir()
+            file_path = repo_dir / "test.py"
+            file_path.write_text("# Hello\nx = 1")
+            
+            output_file = Path(tmpdir) / "output.json"
+            
+            run_extraction_pipeline([str(repo_dir)], str(output_file))
+            
+            assert output_file.exists()
+            with open(output_file, 'r') as f:
+                data = json.load(f)
+            
+            assert len(data) == 1
+            assert data[0]["file_path"] == str(file_path)
+            assert len(data[0]["comments"]) == 1
+            assert data[0]["comments"][0]["text"] == "# Hello"
+
+    def test_pipeline_empty_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_file = Path(tmpdir) / "empty_output.json"
+            run_extraction_pipeline([tmpdir], str(output_file))
+            
+            assert output_file.exists()
+            with open(output_file, 'r') as f:
+                data = json.load(f)
+            assert data == []

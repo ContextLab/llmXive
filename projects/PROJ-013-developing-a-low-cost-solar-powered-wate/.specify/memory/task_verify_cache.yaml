@@ -1,10 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`\
-    \ with Black settings, or CI workflow steps invoking ruff/black) are present,\
-    \ and the provided artifacts relate only to the solar\u2011purification system\
-    \ requirements, not to task T003. The required linting/formatting setup is missing."
 T012:
   c: false
   h: 4cf24dff1593a887056a3c48ecc9cd172cb2a5f1ca3989ec8e4f707b8ee56878
@@ -26,10 +19,3 @@ T026:
     \ is no evidence that a batch of 12 material\u2011geometry simulations was executed\
     \ or that the total CPU time stayed under 180\u202Fseconds. The required artifact\
     \ (e.g., a results CSV or benchmark report) is missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any new unit test files under `tests/unit/` was provided; the
-    claim lacks the required artifact (actual test code covering API failures and
-    convergence edge cases). The implementer must add the missing test files with
-    concrete test cases.

@@ -1216,22 +1216,6 @@
   updated_at: '2026-09-18T19:44:35Z'
 - artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
   attempts: 1
-  canonical: 10000 replications for 0.5% precision
-  claim_id: c_5d3c3c00
-  context: "The plan's Constitution Check section explicitly states 10,000 replications\
-    \ (FR-004) to achieve \xB1 0.5% precision (SC-003)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The project requires 10,000 replications to achieve \xB1 0.5% precision."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-18T19:51:43Z'
-- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
-  attempts: 1
   canonical: 10000 replications in 6 hours on 2-core 7GB RAM
   claim_id: c_71208b79
   context: 'Define the performance target in code/main.py: 10,000 replications must
@@ -1805,3 +1789,378 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T01:37:55Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 2
+  canonical: 10000 replications for 0.5% precision
+  claim_id: c_5d3c3c00
+  context: "The plan's Constitution Check section explicitly states 10,000 replications\
+    \ (FR-004) to achieve \xB1 0.5% precision (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project requires 10,000 replications to achieve \xB1 0.5% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:22:22Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Dependency strength sweep set r in {0, 0.1, 0.2, 0.3, 0.5}
+  claim_id: c_86a39bb6
+  context: "Create code/sweep_config.yaml with the mandatory dependency strength sweep\
+    \ set r \u2208 {0, 0.1, 0.2, 0.3, 0.5} as per FR-007."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dependency strength sweep uses the discrete set r \u2208 {0, 0.1,\
+    \ 0.2, 0.3, 0.5}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:13Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Datasets include UCI Wine, UCI Car Evaluation, UCI Zoo
+  claim_id: c_e5a7e58e
+  context: 'Mandatory Inclusions: UCI Wine (continuous), UCI Car Evaluation (categorical),
+    UCI Zoo (categorical).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_include_UCI_Wine,_UCI_Car_Evaluation,_UCI_Zoo
+  kind: entity_fact
+  raw_text: The dataset manifest includes UCI Wine, UCI Car Evaluation, and UCI Zoo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:18Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Skip datasets with N < 50
+  claim_id: c_453cef26
+  context: Dataset validation logic to verify N is sufficient. If N < 50, skip the
+    dataset and log a violation to results/validation_report.json.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_N_%3C_50
+  kind: magnitude
+  raw_text: Datasets with fewer than 50 observations are skipped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:28Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: K-Means k=3 for spatial proxies
+  claim_id: c_cf9f5977
+  context: Use K-Means with k=3 to generate proxy coordinates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K-Means with k=3 is used to generate spatial proxies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:34Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Silhouette score threshold > 0.25
+  claim_id: c_a1ce0709
+  context: Validate the proxy using silhouette score (threshold > 0.25).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Silhouette_score_threshold_%3E_0.25
+  kind: magnitude
+  raw_text: The silhouette score threshold for proxy validation is greater than 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:39Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap block size equals sqrt(N)
+  claim_id: c_18d2f98f
+  context: Block bootstrap function for hierarchical dependency with tunable block
+    size determined by block size = sqrt(N).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Block_bootstrap_block_size_equals_sqrt(N)
+  kind: entity_fact
+  raw_text: The block size for hierarchical dependency is determined by sqrt(N).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:47Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 10000 replications in under 6 hours
+  claim_id: c_4c0141ed
+  context: 'Define the performance target in code/main.py: 10,000 replications must
+    complete in < 6 hours on a 2-core, 7GB RAM runner.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 10000.0
+    - - Look for 10000 replications in under
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10000_replications_in_under_6_hours
+  kind: magnitude
+  raw_text: The performance target is 10,000 replications completed in less than 6
+    hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-02T01:28:00Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Memory footprint threshold 6GB
+  claim_id: c_4c5558b9
+  context: 'Add a pre-flight check in code/main.py to estimate the memory footprint
+    of the simulation for the largest dataset and highest replication count. Threshold:
+    6GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_threshold_6GB
+  kind: entity_fact
+  raw_text: The memory footprint threshold for simulation is 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:34:37Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: System RAM constraint 7GB
+  claim_id: c_69d35d61
+  context: All tasks must run on CPU-only GitHub Actions (multi-core, sufficient RAM)...
+    Define the performance target... on a 2-core, 7GB RAM runner.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_RAM_constraint_7GB
+  kind: entity_fact
+  raw_text: The system uses 7GB of RAM as a constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:36:57Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Power analysis mean shift delta equals 1.0 sigma
+  claim_id: c_ff47c36a
+  context: "Inject true effects (mean shift \u03B4=1.0\u03C3) into dependency-injected\
+    \ data and measure proportion of significant results vs. baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis injects a mean shift of \u03B4=1.0\u03C3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:41:48Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Chi-squared binning uses Sturges rule
+  claim_id: c_44cdd382
+  context: Implement contingency table construction logic using Sturges' rule (k =
+    1 + log2(N)) for binning continuous variables if the dataset lacks categorical
+    ones.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: rule k = 1 + log 2(n), Sturges (1926), where n is the sample size. One
+        of the
+      source_id: '2005.02793'
+      url: https://arxiv.org/abs/2005.02793
+      value: k = 1 + log 2(n)
+    filled: true
+  kind: entity_fact
+  raw_text: Sturges' rule is used for binning continuous variables in Chi-squared
+    tests.
+  resolved_value: k = 1 + log 2(n)
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T01:42:20Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Error rate threshold alpha equals 0.10
+  claim_id: c_a371e757
+  context: "Implement threshold detection logic to report specific r where error rate\
+    \ exceeds \u03B1=0.10 per AC-2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The error rate threshold for reporting is \u03B1=0.10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:42:39Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Clopper-Pearson confidence intervals for metrics
+  claim_id: c_f55bbd1b
+  context: Ensure all functions are designed to accept aggregated p-values and return
+    metrics with Clopper-Pearson confidence intervals.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Clopper-Pearson_confidence_intervals_for_metrics
+  kind: entity_fact
+  raw_text: The Clopper-Pearson confidence intervals are used for error rate and power
+    metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:42:57Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Default seed value 42
+  claim_id: c_19c36c03
+  context: 'Populate code/config.yaml with default values: seed=42, n_replications=10000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default seed value is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:43:16Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Default replications 10000
+  claim_id: c_ef8ce189
+  context: 'Populate code/config.yaml with default values: seed=42, n_replications=10000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of replications is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:43:45Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Default dependency strengths list
+  claim_id: c_58c06c9e
+  context: 'Populate code/config.yaml with default values: ... dependency_strengths:
+    [0.0, 0.1, 0.2, 0.3, 0.5]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default dependency strengths are [0.0, 0.1, 0.2, 0.3, 0.5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:24Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if no valid datasets remain
+  claim_id: c_1a9894a7
+  context: If NO valid datasets remain, the pipeline halts with a clear error.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_no_valid_datasets_remain
+  kind: entity_fact
+  raw_text: The pipeline halts if no valid datasets remain after validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:33Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test for normality
+  claim_id: c_40f29147
+  context: Extend code/simulation_runner.py (T040) to log the Shapiro-Wilk test statistic
+    for the residuals of the injected data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_for_normality
+  kind: entity_fact
+  raw_text: The Shapiro-Wilk test is used to check normality of residuals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:42Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mann-Kendall trend test for monotonicity
+  claim_id: c_7b8af9d3
+  context: Enhance code/metrics.py (T014) to include a Mann-Kendall trend test in
+    addition to Spearman correlation for verifying monotonicity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mann-Kendall_trend_test_for_monotonicity
+  kind: entity_fact
+  raw_text: The Mann-Kendall trend test is used to verify monotonicity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:52Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Theoretical power calculation using statsmodels.stats.power
+  claim_id: c_46a3c683
+  context: Ensure code/metrics.py (T027a) explicitly calculates the theoretical power
+    for the independent case (r=0) using standard formulas (e.g., from statsmodels.stats.power)
+    to compare against the observed power.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_power_calculation_using_statsmodels.stats.power
+  kind: entity_fact
+  raw_text: The theoretical power for the independent case is calculated using standard
+    formulas from statsmodels.stats.power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:45:00Z'

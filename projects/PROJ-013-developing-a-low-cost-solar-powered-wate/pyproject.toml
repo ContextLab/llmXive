@@ -16,55 +16,35 @@ dependencies = [
     "beautifulsoup4",
     "pyyaml",
     "pytest",
-    "ruff",
-    "black",
 ]
-
-[tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "W503", # line break before binary operator
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
-include = "\\.pyi?$"
-exclude = """
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
 /(
-    \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
     | _build
     | buck-out
     | build
     | dist
+    | data
+    | figures
 )/
-"""
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]
+
+[tool.ruff]
+# Extend the ruff.toml or override specific settings here if needed
+# Most settings are in ruff.toml for clarity
+line-length = 88
+target-version = "py311"

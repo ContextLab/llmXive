@@ -1,103 +1,59 @@
 # Ruff configuration for llmXive project
-# Enforces P8, E, W, I, N, C, UP, T, A, B, C, D, F, G, I, N, P, Q, R, S, T, U, V, W, X, Y, Z, C, I, N, P, Q, R, S, T, U, V, W, X, Y, Z rules
-# Based on standard scientific Python best practices
+# Task: T003 - Configure linting (ruff)
+
+# Exclude a few common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "figures",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow automatic formatting of certain rules
+target-version = "py311"
 
 [lint]
-# Enable all standard rules
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # pyflakes
-  "I",  # isort
-  "C",  # flake8-comprehensions
-  "B",  # flake8-bugbear
-  "UP", # pyupgrade
-  "SIM", # flake8-simplify
-  "PT", # pytest-style
-  "TRY", # try-except handling
-  "RUF", # ruff-specific rules
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C90",# mccabe
+    "UP", # pyupgrade
+    "N",  # pep8-naming
 ]
+
+# Ignore specific rules if necessary (e.g., line too long handled by formatter)
 ignore = [
-  "E501", # Line too long (handled by black)
-  "W503", # Line break before binary operator (conflicts with black)
+    "E501", # line too long (handled by black)
 ]
 
 [lint.per-file-ignores]
-"tests/*" = ["PT001", "PT002"] # Allow pytest-style variations in tests
+# Ignore imports in __init__.py files
+"__init__.py" = ["F401"]
 
 [lint.isort]
-known-first-party = ["utils", "config", "data_ingestion", "simulation", "optimization", "validation"]
-known-third-party = ["numpy", "scipy", "pandas", "matplotlib", "requests", "beautifulsoup4", "pyyaml", "pytest"]
-
-[lint.flake8-comprehensions]
-allow-inline-list-comprehensions = false
-allow-inline-set-comprehensions = false
-
-[lint.flake8-bugbear]
-extend-immutable-calls-for-classes = ["py"]
-
-[lint.pyupgrade]
-keep-runtime-typing = false
-
-[lint.mccabe]
-max-complexity = 15
-
-[lint.py-flake8]
-max-line-length = 100
-
-[lint.py-codestyle]
-max-line-length = 100
-
-[lint.py-docstyle]
-max-doc-length = 100
-
-[lint.py-return-type]
-max-return-type-length = 100
-
-[lint.py-argument]
-max-argument-length = 100
-
-[lint.py-decorator]
-max-decorator-length = 100
-
-[lint.py-class]
-max-class-length = 100
-
-[lint.py-function]
-max-function-length = 100
-
-[lint.py-module]
-max-module-length = 100
-
-[lint.py-file]
-max-file-length = 100
-
-[lint.py-import]
-max-import-length = 100
-
-[lint.py-export]
-max-export-length = 100
-
-[lint.py-internal]
-max-internal-length = 100
-
-[lint.py-external]
-max-external-length = 100
-
-[lint.py-local]
-max-local-length = 100
-
-[lint.py-global]
-max-global-length = 100
-
-[lint.py-namespace]
-max-namespace-length = 100
-
-[lint.py-package]
-max-package-length = 100
-
-[lint.py-directory]
-max-directory-length = 100
-
-[lint.py-repository]
-max-repository-length = 100
+known-first-party = ["code"]
+force-sort-within-sections = true
+combine-as-imports = true

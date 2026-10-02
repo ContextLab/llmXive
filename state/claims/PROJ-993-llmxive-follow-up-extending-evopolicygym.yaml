@@ -1375,3 +1375,433 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T04:12:58Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: 16 environments in EvoPolicyGym
+  claim_id: c_699e301e
+  context: If the count is NOT exactly 16, log a WARNING to data/discovered_envs.log
+    stating 'Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments,
+    found {count}.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:47:21Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: Expected 16 environments in EvoPolicyGym REGISTRY
+  claim_id: c_b7bf38b3
+  context: If the count is NOT exactly 16, log a WARNING to data/discovered_envs.log
+    stating 'Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments,
+    found {count}.' and write the list of available IDs to data/discovered_envs.json.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments,
+    found {count}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:48:22Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: EvoPolicyGym has 16 environments
+  claim_id: c_95930f68
+  context: If the count is NOT exactly 16, log a WARNING to data/discovered_envs.log
+    stating 'Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments,
+    found {count}.' and write the list of available IDs to data/discovered_envs.json.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Expected 16 environments, found {count}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:49:09Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: Expected 16 environments in EvoPolicyGym
+  claim_id: c_41fbc229
+  context: If the count is NOT exactly 16, log a WARNING stating 'Expected 16 (2607.02440,
+    https://arxiv.org/abs/2607.02440) environments, found {count}.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Expected 16 environments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:49:53Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: 16 environments expected in EvoPolicyGym
+  claim_id: c_ccec8d03
+  context: If the count is NOT exactly 16, log a WARNING to data/discovered_envs.log
+    stating 'Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments,
+    found {count}.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Expected 16 (2607.02440, https://arxiv.org/abs/2607.02440) environments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:51:56Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: TinyLlama/TinyLlama-1.1B-Chat-v1.0 4-bit quantized model specified
+  claim_id: c_b1dc5c30
+  context: Use a lightweight, CPU-quantized model (e.g., TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    4-bit quantized via bitsandbytes) to analyze the trajectory and select the rule_id.
+  evidence:
+    asserted: '-1.1'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Use a lightweight, CPU-quantized model (e.g., TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    4-bit quantized via bitsandbytes)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:52:02Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: LLM explanation generation 30 second time limit
+  claim_id: c_23d18c54
+  context: 'Constraint: The generation must complete within 30 seconds. If it fails,
+    trigger T023 fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation must complete within 30 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:52:33Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Explanation token limit of 200 tokens enforced
+  claim_id: c_737e11b0
+  context: 'Logic: If the generated explanation exceeds 200 tokens, raise an exception
+    or return a failure flag. Do NOT truncate.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the generated explanation exceeds 200 tokens, raise an exception or
+    return a failure flag
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:52:59Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Statistical significance p-value threshold 0.05
+  claim_id: c_86e47c7a
+  context: if p >= 0.05, log a failure for that specific environment ID and SKIP it
+    from subsequent evolution runs
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "compared with the nominal signi\uFB01cance level of 0.05 to determine\
+        \ whe ther or not to reject"
+      source_id: '1809.08503'
+      url: https://arxiv.org/abs/1809.08503
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: p-value threshold for performance drop validation is 0.05
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:53:27Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Environment drop rate threshold 0.0 for inclusion
+  claim_id: c_fe2466b4
+  context: Filter the environment list to include ONLY rows where p_value < 0.05 AND
+    drop_rate > 0.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Environment_drop_rate_threshold_0.0_for_inclusion
+  kind: magnitude
+  raw_text: drop_rate threshold for environment inclusion is greater than 0.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:05Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Statistical significance effect size threshold 0
+  claim_id: c_4aad2d52
+  context: If p_value < 0.05 AND effect_size > 0 AND coefficient is positive, set
+    significant flag to True
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_effect_size_threshold_0
+  kind: magnitude
+  raw_text: Effect size must be greater than 0 for statistical significance
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:54:45Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Statistical power threshold 0.8
+  claim_id: c_0ba16f68
+  context: If the sample size is too small to detect a meaningful effect (e.g., power
+    < 0.8), log a warning to data/power_analysis.log
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: Minimum statistical power threshold is 0.8
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T00:54:55Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: gymnasium version 0.29.1
+  claim_id: c_af8a4c92
+  context: 'Create requirements.txt with pinned versions: gymnasium==0.29.1'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gymnasium_version_0.29.1
+  kind: entity_fact
+  raw_text: gymnasium==0.29.1 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:55:15Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: transformers version 4.36.0
+  claim_id: c_10d603a0
+  context: 'Create requirements.txt with pinned versions: ... transformers==4.36.0
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformers_version_4.36.0
+  kind: entity_fact
+  raw_text: transformers==4.36.0 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:55:38Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_1859c41f
+  context: 'Create requirements.txt with pinned versions: ... scikit-learn==1.3.2
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scikit-learn_version_1.3.2
+  kind: entity_fact
+  raw_text: scikit-learn==1.3.2 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:56:00Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_c2a22462
+  context: 'Create requirements.txt with pinned versions: ... statsmodels==0.14.1
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statsmodels_version_0.14.1
+  kind: entity_fact
+  raw_text: statsmodels==0.14.1 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:56:18Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: radon version 6.0.1
+  claim_id: c_6ca72636
+  context: 'Create requirements.txt with pinned versions: ... radon==6.0.1 ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Radon_version_6.0.1
+  kind: entity_fact
+  raw_text: radon==6.0.1 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:56:42Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.2
+  claim_id: c_46ffbb0d
+  context: 'Create requirements.txt with pinned versions: ... numpy==1.26.2 ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Numpy_version_1.26.2
+  kind: entity_fact
+  raw_text: numpy==1.26.2 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:57:03Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_d168128d
+  context: 'Create requirements.txt with pinned versions: ... pyyaml==6.0.1 ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pyyaml_version_6.0.1
+  kind: entity_fact
+  raw_text: pyyaml==6.0.1 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:57:21Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_27664695
+  context: 'Create requirements.txt with pinned versions: ... pytest==7.4.3 ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pytest_version_7.4.3
+  kind: entity_fact
+  raw_text: pytest==7.4.3 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:57:41Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: pydantic version 2.5.2
+  claim_id: c_dff56620
+  context: 'Create requirements.txt with pinned versions: ... pydantic==2.5.2 ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pydantic_version_2.5.2
+  kind: entity_fact
+  raw_text: pydantic==2.5.2 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:57:55Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.41.0
+  claim_id: c_8e316a13
+  context: 'Create requirements.txt with pinned versions: ... bitsandbytes==0.41.0
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bitsandbytes_version_0.41.0
+  kind: entity_fact
+  raw_text: bitsandbytes==0.41.0 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:58:12Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: evopolicygym version v1.2.0
+  claim_id: c_a8b96200
+  context: 'Create requirements.txt with pinned versions: ... evopolicygym==v1.2.0'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evopolicygym_version_v1.2.0
+  kind: entity_fact
+  raw_text: evopolicygym==v1.2.0 is a pinned dependency version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T00:58:29Z'

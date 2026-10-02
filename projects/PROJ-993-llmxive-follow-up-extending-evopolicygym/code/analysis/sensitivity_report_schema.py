@@ -1,45 +1,39 @@
 """
-Schema definition and validation for sensitivity_report.csv.
+Schema definition and validation for the sensitivity_report.csv artifact.
 
-This module defines the structure and data types for the sensitivity report
-generated during the dynamic shift analysis (US1).
+This module defines the structure, types, and validation logic for the
+sensitivity report generated during the dynamic shift analysis (User Story 1).
 
 Columns:
-    env_id (str): Environment identifier
-    shift_step (int): Step at which the dynamic shift occurs
-    pre_shift_score (float): Agent performance score before shift
-    post_shift_score (float): Agent performance score after shift
-    drop_rate (float): Ratio of performance drop (0.0-1.0)
-    p_value (float): Statistical significance of the performance drop
+  - env_id (str): Identifier of the environment.
+  - shift_step (int): The step number at which the dynamic shift occurred.
+  - pre_shift_score (float): Average score obtained before the shift.
+  - post_shift_score (float): Average score obtained after the shift.
+  - drop_rate (float): Ratio of performance drop (0.0 to 1.0).
+  - p_value (float): Statistical significance of the performance drop.
 """
+
 import csv
 import os
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
-# Column definitions
-SENSITIVITY_REPORT_COLUMNS = [
-    'env_id',
-    'shift_step',
-    'pre_shift_score',
-    'post_shift_score',
-    'drop_rate',
-    'p_value'
-]
-
-# Data type expectations
-COLUMN_TYPES = {
-    'env_id': str,
-    'shift_step': int,
-    'pre_shift_score': float,
-    'post_shift_score': float,
-    'drop_rate': float,
-    'p_value': float
-}
+# Constants for file paths
+SENSITIVITY_REPORT_PATH = "data/sensitivity_report.csv"
 
 @dataclass
 class SensitivityReportRow:
-    """Represents a single row in the sensitivity report."""
+    """
+    Represents a single row in the sensitivity_report.csv.
+
+    Attributes:
+        env_id (str): Unique identifier for the environment (e.g., 'CartPole-v1').
+        shift_step (int): The step index where the environment dynamics changed.
+        pre_shift_score (float): Mean reward accumulated before the shift step.
+        post_shift_score (float): Mean reward accumulated after the shift step.
+        drop_rate (float): Calculated as (pre - post) / pre, clamped to [0.0, 1.0].
+        p_value (float): P-value from a statistical test (e.g., t-test) comparing pre/post scores.
+    """
     env_id: str
     shift_step: int
     pre_shift_score: float
@@ -47,109 +41,113 @@ class SensitivityReportRow:
     drop_rate: float
     p_value: float
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for CSV writing."""
-        return asdict(self)
+    def __post_init__(self):
+        """Validate ranges and types after initialization."""
+        if not isinstance(self.env_id, str) or not self.env_id:
+            raise ValueError("env_id must be a non-empty string.")
+        if not isinstance(self.shift_step, int):
+            raise ValueError("shift_step must be an integer.")
+        if not isinstance(self.pre_shift_score, (int, float)):
+            raise ValueError("pre_shift_score must be a number.")
+        if not isinstance(self.post_shift_score, (int, float)):
+            raise ValueError("post_shift_score must be a number.")
+        
+        # Validate drop_rate is within [0.0, 1.0]
+        if not 0.0 <= self.drop_rate <= 1.0:
+            raise ValueError(f"drop_rate must be between 0.0 and 1.0, got {self.drop_rate}")
+        
+        # Validate p_value is within [0.0, 1.0]
+        if not 0.0 <= self.p_value <= 1.0:
+            raise ValueError(f"p_value must be between 0.0 and 1.0, got {self.p_value}")
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'SensitivityReportRow':
-        """Create instance from dictionary."""
-        return cls(
-            env_id=str(data['env_id']),
-            shift_step=int(data['shift_step']),
-            pre_shift_score=float(data['pre_shift_score']),
-            post_shift_score=float(data['post_shift_score']),
-            drop_rate=float(data['drop_rate']),
-            p_value=float(data['p_value'])
-        )
-
-def validate_row(row: Dict[str, Any]) -> bool:
+def validate_row(data: Dict[str, Any]) -> bool:
     """
-    Validate a row of data against the schema.
+    Validates a dictionary against the SensitivityReportRow schema.
     
     Args:
-        row: Dictionary containing row data
+        data: Dictionary containing row data.
         
     Returns:
-        True if valid, raises ValueError if invalid
+        True if valid, raises ValueError otherwise.
     """
-    # Check all required columns present
-    for col in SENSITIVITY_REPORT_COLUMNS:
-        if col not in row:
-            raise ValueError(f"Missing required column: {col}")
+    required_fields = ['env_id', 'shift_step', 'pre_shift_score', 'post_shift_score', 'drop_rate', 'p_value']
     
-    # Validate data types
-    for col, expected_type in COLUMN_TYPES.items():
-        try:
-            if expected_type == int:
-                int(row[col])
-            elif expected_type == float:
-                float(row[col])
-            elif expected_type == str:
-                str(row[col])
-        except (ValueError, TypeError):
-            raise ValueError(f"Invalid type for {col}: expected {expected_type}, got {type(row[col])}")
+    for field in required_fields:
+        if field not in data:
+            raise ValueError(f"Missing required field: {field}")
     
-    # Validate constraints
-    drop_rate = float(row['drop_rate'])
-    if not (0.0 <= drop_rate <= 1.0):
-        raise ValueError(f"drop_rate must be between 0.0 and 1.0, got {drop_rate}")
-    
-    p_value = float(row['p_value'])
-    if not (0.0 <= p_value <= 1.0):
-        raise ValueError(f"p_value must be between 0.0 and 1.0, got {p_value}")
-    
+    # Type checks
+    if not isinstance(data['env_id'], str):
+        raise ValueError("env_id must be a string")
+    if not isinstance(data['shift_step'], int):
+        raise ValueError("shift_step must be an integer")
+    if not isinstance(data['pre_shift_score'], (int, float)):
+        raise ValueError("pre_shift_score must be a number")
+    if not isinstance(data['post_shift_score'], (int, float)):
+        raise ValueError("post_shift_score must be a number")
+    if not isinstance(data['drop_rate'], (int, float)):
+        raise ValueError("drop_rate must be a number")
+    if not isinstance(data['p_value'], (int, float)):
+        raise ValueError("p_value must be a number")
+        
     return True
 
-def write_header_only(output_path: str) -> None:
+def write_header_only(filepath: str = SENSITIVITY_REPORT_PATH) -> None:
     """
-    Write a CSV file with headers only (used when no environments are found).
-    
-    Args:
-        output_path: Path to write the CSV file
+    Creates the CSV file with headers only. Used when no environments are discovered.
     """
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=SENSITIVITY_REPORT_COLUMNS)
-        writer.writeheader()
+    headers = ['env_id', 'shift_step', 'pre_shift_score', 'post_shift_score', 'drop_rate', 'p_value']
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
 
-def write_sensitivity_report(rows: List[SensitivityReportRow], output_path: str) -> None:
+def write_sensitivity_report(rows: List[SensitivityReportRow], filepath: str = SENSITIVITY_REPORT_PATH) -> None:
     """
-    Write sensitivity report to CSV file.
+    Writes a list of SensitivityReportRow objects to the CSV file.
     
     Args:
-        rows: List of SensitivityReportRow objects
-        output_path: Path to write the CSV file
+        rows: List of row objects to write.
+        filepath: Path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    headers = ['env_id', 'shift_step', 'pre_shift_score', 'post_shift_score', 'drop_rate', 'p_value']
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=SENSITIVITY_REPORT_COLUMNS)
-        writer.writeheader()
-        
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
         for row in rows:
-            row_dict = row.to_dict()
-            validate_row(row_dict)
-            writer.writerow(row_dict)
+            writer.writerow([
+                row.env_id,
+                row.shift_step,
+                row.pre_shift_score,
+                row.post_shift_score,
+                row.drop_rate,
+                row.p_value
+            ])
 
-def read_sensitivity_report(input_path: str) -> List[SensitivityReportRow]:
+def read_sensitivity_report(filepath: str = SENSITIVITY_REPORT_PATH) -> List[Dict[str, Any]]:
     """
-    Read sensitivity report from CSV file.
+    Reads the sensitivity report CSV and returns a list of dictionaries.
     
     Args:
-        input_path: Path to read the CSV file
+        filepath: Path to the CSV file.
         
     Returns:
-        List of SensitivityReportRow objects
+        List of dictionaries representing the rows.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Sensitivity report not found: {input_path}")
-    
+    if not os.path.exists(filepath):
+        return []
+        
     rows = []
-    with open(input_path, 'r', newline='') as f:
+    with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            validate_row(row)
-            rows.append(SensitivityReportRow.from_dict(row))
-    
+            # Convert types back to appropriate Python types
+            row['shift_step'] = int(row['shift_step'])
+            row['pre_shift_score'] = float(row['pre_shift_score'])
+            row['post_shift_score'] = float(row['post_shift_score'])
+            row['drop_rate'] = float(row['drop_rate'])
+            row['p_value'] = float(row['p_value'])
+            rows.append(row)
     return rows

@@ -161,13 +161,13 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 - [X] T024 [US2] Implement `src/code/metrics.py` `calc_churn()`: Parse `git log --numstat` for lines changed per commit; aggregate to repository level; validate against manual spot-check.
 - [ ] T025 [US2] Implement `src/code/metrics.py` `calc_quality_rate()`: Sample commits using `CommitSampler`; run `pylint` for error-level warnings; calculate ratio; validate against `data/manual_labels.csv` (global stratified sample N=50) and compute 95% CI.
 - [X] T026 [US2] Implement `src/code/utils.py` memory stream processing: Ensure `MemoryMonitor` (T004c) is active during metric aggregation to stay within acceptable RAM limits.
-- [~] T027 [US2] Aggregate metrics: Combine readability, sentiment, density, churn, bug_fix_rate, and complexity into `data/processed/metrics.csv` with precision ≥2 decimal places. (Note: This task depends on T021 and T021b; NOT parallel).
+- [ ] T027 [US2] Aggregate metrics: Combine readability, sentiment, density, churn, bug_fix_rate, and complexity into `data/processed/metrics.csv` with precision ≥2 decimal places. (Note: This task depends on T021 and T021b; NOT parallel).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for `extract_comments_ast()` accuracy in `tests/unit/test_extract.py`.
 - [X] T019 [P] [US2] Unit test for `calc_readability()` against known string in `tests/unit/test_metrics.py`.
-- [ ] T020 [P] [US2] Integration test for full metric pipeline on a reference repo in `tests/integration/test_metrics_pipeline.py`.
+- [X] T020 [P] [US2] Integration test for full metric pipeline on a reference repo in `tests/integration/test_metrics_pipeline.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -181,8 +181,8 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `src/code/analysis.py` `run_regression()`: Model maintainability vs. comment metrics using Multiple Linear Regression with robust standard errors (Constitution Principle VII), controlling for age, LOC, and cyclomatic complexity (T006b).
-- [ ] T031 [P] [US3] Implement `src/code/analysis.py` `apply_fdr_correction()`: Apply Benjamini-Hochberg FDR correction to p-values; output corrected p-values.
+- [X] T030 [P] [US3] Implement `src/code/analysis.py` `run_regression()`: Model maintainability vs. comment metrics using Multiple Linear Regression with robust standard errors (Constitution Principle VII), controlling for age, LOC, and cyclomatic complexity (T006b).
+- [X] T031 [P] [US3] Implement `src/code/analysis.py` `apply_fdr_correction()`: Apply Benjamini-Hochberg FDR correction to p-values; output corrected p-values.
 - [ ] T032 [P] [US3] Implement `src/code/analysis.py` `run_sensitivity()`: Sweep significance thresholds over {0.01, 0.05, 0.1} for exploratory analysis; record rate variations; ensure final report uses fixed p < 0.05.
 - [ ] T032b [US3] Generate sensitivity report: Create `data/processed/sensitivity_report.json` containing the results of the threshold sweep.
 - [ ] T033 [US3] Implement report generation: Ensure `is_significant` boolean, p-values, and R² values in `data/processed/analysis_results.json` meet SC-003. (Note: Depends on T030, T031, T032; NOT parallel).

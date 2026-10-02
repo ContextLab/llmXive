@@ -40,3 +40,9 @@ T025:
     (the file excerpt shows other metric functions but no such function), and the
     required `data/manual_labels.csv` file is absent from the repository. Both the
     core function and the validation dataset are missing, so the task is not satisfied.
+T027:
+  c: false
+  h: 78cc024d373987121d7113664cf6d01879fcb9e8619f9c5a57f2b05ed0fe6504
+  r: "The required output file `data/processed/metrics.csv` does not exist, so the\
+    \ aggregation of the specified metrics cannot be verified. The task\u2019s core\
+    \ deliverable is missing."

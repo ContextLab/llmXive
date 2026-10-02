@@ -1,208 +1,192 @@
+"""
+Comment extraction module using tree-sitter.
+Parses Python files to isolate comments, handling empty files and syntax errors.
+Saves extracted comments to data/processed/comments.json.
+"""
 import logging
 from typing import List, Optional, Dict, Any
 import os
 import json
 from pathlib import Path
+import tree_sitter_python as tspython
+from tree_sitter import Language, Parser
 
-try:
-    import tree_sitter_python as tspython
-    from tree_sitter import Language, Parser
-    TREE_SITTER_AVAILABLE = True
-except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    logging.warning("tree_sitter_python not installed. Comment extraction will be limited.")
+# Initialize tree-sitter parser
+PY_LANGUAGE = Language(tspython.language())
+PARSER = Parser(PY_LANGUAGE)
 
-# Global parser instance to avoid re-initialization overhead
-_parser: Optional[Parser] = None
-_language: Optional[Language] = None
+# Configure logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-def _get_parser() -> Parser:
-    """Initialize and return a singleton tree-sitter parser for Python."""
-    global _parser, _language
-    if not TREE_SITTER_AVAILABLE:
-        raise RuntimeError("tree_sitter_python is not installed. Cannot initialize parser.")
-    
-    if _parser is None or _language is None:
-        # Initialize the language and parser
-        # tree_sitter_python provides a language() function that returns a Language instance
-        # We need to wrap it in the tree_sitter.Language constructor if it's not already one
-        # However, tree_sitter_python.language() usually returns the correct C object directly
-        # or a wrapper that works with tree_sitter.Language.
-        # Standard pattern for tree-sitter-python:
-        try:
-            # Attempt to get the language object
-            lang_obj = tspython.language()
-            # If it's already a Language instance, use it; otherwise wrap it.
-            # In most recent versions, tspython.language() returns a Language instance.
-            _language = lang_obj
-        except Exception as e:
-            # Fallback if the API is slightly different or requires a path
-            # This block handles cases where the language object needs to be constructed from a .so
-            # But typically tree_sitter_python.language() is sufficient.
-            # If it fails here, we assume the library is incompatible.
-            raise RuntimeError(f"Failed to initialize tree-sitter python language: {e}")
-        
-        _parser = Parser()
-        _parser.set_language(_language)
-    
-    return _parser
-
-def extract_comments_ast(source_code: str) -> List[Dict[str, Any]]:
+def extract_comments_ast(source_code: str, file_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Parse Python source code using tree-sitter to extract comments.
-    
-    This function isolates comments from string literals and handles syntax errors gracefully.
-    It returns a list of dictionaries containing comment metadata.
+    Parse Python source code using tree-sitter and extract all comment nodes.
     
     Args:
-        source_code: The Python source code as a string.
+        source_code: The raw source code string.
+        file_path: Optional path to the file for logging purposes.
         
     Returns:
-        A list of dictionaries with keys: 'type', 'text', 'start_line', 'end_line', 'start_col', 'end_col'.
-        Returns an empty list if no comments are found or if parsing fails.
+        A list of dictionaries containing comment text and metadata.
     """
-    if not source_code:
-        return []
-    
-    if not TREE_SITTER_AVAILABLE:
-        logging.error("tree_sitter_python not available. Cannot extract comments via AST.")
-        return []
-
-    try:
-        parser = _get_parser()
-        tree = parser.parse(bytes(source_code, "utf8"))
-        root_node = tree.root_node
-        
-        comments = []
-        
-        # Tree-sitter Python grammar typically identifies comments as a specific node type.
-        # We traverse the tree to find 'comment' nodes.
-        # Note: Depending on the specific tree-sitter grammar version, node type might vary slightly.
-        # 'comment' is standard for Python.
-        
-        for child in root_node.walk():
-            if child.type == "comment":
-                comment_text = child.text.decode("utf8")
-                # Strip the leading '#' if present, though usually the node includes it.
-                # We keep the raw text as extracted by the parser.
-                
-                comments.append({
-                    "type": child.type,
-                    "text": comment_text,
-                    "start_line": child.start_point[0],
-                    "end_line": child.end_point[0],
-                    "start_col": child.start_point[1],
-                    "end_col": child.end_point[1]
-                })
-        
+    comments = []
+    if not source_code or not source_code.strip():
+        logger.debug(f"Empty or whitespace-only source in {file_path or 'unknown'}")
         return comments
 
+    try:
+        tree = PARSER.parse(bytes(source_code, "utf8"))
     except Exception as e:
-        # Handle syntax errors or other parsing issues gracefully
-        logging.warning(f"Failed to parse source code for comments: {e}")
-        return []
+        logger.warning(f"Failed to parse {file_path or 'unknown'}: {e}. Skipping.")
+        return comments
+
+    root_node = tree.root_node
+
+    # Tree-sitter Python grammar node type for comments
+    comment_type = "comment"
+
+    def traverse(node):
+        if node.type == comment_type:
+            comment_text = node.text.decode('utf8').strip()
+            start_point = node.start_point  # (row, col)
+            comments.append({
+                "text": comment_text,
+                "start_line": start_point[0] + 1,  # 1-based index
+                "start_col": start_point[1]
+            })
+        
+        for child in node.children:
+            traverse(child)
+
+    traverse(root_node)
+    return comments
 
 def extract_comments_from_file(file_path: str) -> List[Dict[str, Any]]:
     """
-    Extract comments from a specific Python file.
+    Read a Python file and extract comments using tree-sitter.
     
     Args:
         file_path: Path to the Python file.
         
     Returns:
-        List of comment dictionaries.
+        List of extracted comments.
     """
     path = Path(file_path)
     if not path.exists():
-        logging.warning(f"File not found: {file_path}")
+        logger.error(f"File not found: {file_path}")
         return []
-    
+
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, 'r', encoding='utf-8') as f:
             source_code = f.read()
-        return extract_comments_ast(source_code)
     except Exception as e:
-        logging.error(f"Error reading file {file_path}: {e}")
+        logger.error(f"Failed to read {file_path}: {e}")
         return []
+
+    return extract_comments_ast(source_code, file_path)
 
 def extract_comments_batch(file_paths: List[str]) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Extract comments from a batch of files.
+    Extract comments from a list of file paths.
     
     Args:
-        file_paths: List of file paths.
+        file_paths: List of paths to Python files.
         
     Returns:
         Dictionary mapping file path to list of comments.
     """
     results = {}
-    for fp in file_paths:
-        comments = extract_comments_from_file(fp)
-        results[fp] = comments
+    for f_path in file_paths:
+        comments = extract_comments_from_file(f_path)
+        results[f_path] = comments
+        if comments:
+            logger.info(f"Extracted {len(comments)} comments from {f_path}")
+        else:
+            logger.debug(f"No comments found in {f_path}")
     return results
 
-def run_extraction_pipeline(data_dir: str, output_path: str):
+def run_extraction_pipeline(repo_paths: List[str], output_path: str) -> None:
     """
-    Run the comment extraction pipeline on all Python files in a directory.
-    
-    This function scans the provided directory for Python files, extracts comments
-    using tree-sitter, and saves the results to a JSON file.
+    Run the full extraction pipeline on a list of repository paths.
+    Scans for .py files, extracts comments, and saves to a single JSON file.
     
     Args:
-        data_dir: Directory containing Python files to process.
-        output_path: Path where the output JSON will be saved.
+        repo_paths: List of root paths (repositories) to scan.
+        output_path: Path to the output JSON file.
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting comment extraction pipeline for {data_dir}")
+    py_files = []
+    for repo_root in repo_paths:
+        root = Path(repo_root)
+        if not root.exists():
+            logger.warning(f"Repository path does not exist: {repo_root}")
+            continue
+        
+        # Recursively find all .py files
+        found = list(root.rglob("*.py"))
+        py_files.extend([str(p) for p in found])
+
+    logger.info(f"Found {len(py_files)} Python files across {len(repo_paths)} repositories.")
     
-    python_files = list(Path(data_dir).rglob("*.py"))
-    
-    if not python_files:
-        logger.warning(f"No Python files found in {data_dir}")
-        # Create empty output file
+    if not py_files:
+        logger.warning("No Python files found to process.")
+        # Ensure output directory exists even if empty
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump([], f)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
         return
+
+    # Process in batches to avoid memory issues if list is huge
+    batch_size = 100
+    all_results = {}
     
-    logger.info(f"Found {len(python_files)} Python files")
+    for i in range(0, len(py_files), batch_size):
+        batch = py_files[i:i+batch_size]
+        batch_results = extract_comments_batch(batch)
+        all_results.update(batch_results)
     
-    all_comments = []
-    processed_count = 0
-    error_count = 0
-    
-    for file_path in python_files:
-        try:
-            comments = extract_comments_from_file(str(file_path))
-            all_comments.append({
-                "file": str(file_path),
-                "comments": comments
-            })
-            processed_count += 1
-        except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}")
-            error_count += 1
-    
+    # Flatten results for JSON output: list of {file, comments}
+    output_data = []
+    total_comments = 0
+    for file_path, comments in all_results.items():
+        output_data.append({
+            "file_path": file_path,
+            "comments": comments
+        })
+        total_comments += len(comments)
+
     # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(all_comments, f, indent=2)
-    
-    logger.info(f"Extraction complete. Processed: {processed_count}, Errors: {error_count}")
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Extraction complete. Total comments extracted: {total_comments}")
     logger.info(f"Results saved to {output_path}")
 
-if __name__ == "__main__":
+def main():
+    """
+    Entry point for the extraction script.
+    Expects repository paths as arguments or uses a default if none provided.
+    """
     import sys
-    if len(sys.argv) < 3:
-        print("Usage: python extract.py <data_dir> <output_json>")
+    # Default to data/raw if no arguments, but check if it exists
+    default_repos = ["data/raw"]
+    if not os.path.exists("data/raw"):
+        logger.error("Default data/raw directory not found. Please provide repository paths.")
         sys.exit(1)
-    
-    data_dir_arg = sys.argv[1]
-    output_path_arg = sys.argv[2]
-    
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    
-    run_extraction_pipeline(data_dir_arg, output_path_arg)
+
+    repos_to_process = sys.argv[1:] if len(sys.argv) > 1 else default_repos
+    output_file = "data/processed/comments.json"
+
+    logger.info(f"Starting extraction pipeline for: {repos_to_process}")
+    run_extraction_pipeline(repos_to_process, output_file)
+
+if __name__ == "__main__":
+    main()
