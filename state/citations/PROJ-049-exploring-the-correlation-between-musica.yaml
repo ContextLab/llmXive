@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-08-12T23:30:24.273785Z'
-- artifact_hash: 7bfb35a8810d8352ca1ee103d6081f6e479bc3ac9e3fc4629b22e77c67b9556f
+- artifact_hash: 6d0dc3908e511db3d78e8053b1ff117874aa8e1a14643496a91f884638924f82
   artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://www.openml.org/d/42473
   verification_status: pending
   verified_against_url: https://www.openml.org/search?type=data&sort=runs&id=42473
-  verified_at: '2026-09-24T09:50:28.622016Z'
-- artifact_hash: 7bfb35a8810d8352ca1ee103d6081f6e479bc3ac9e3fc4629b22e77c67b9556f
+  verified_at: '2026-10-02T15:44:18.613427Z'
+- artifact_hash: 6d0dc3908e511db3d78e8053b1ff117874aa8e1a14643496a91f884638924f82
   artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/research.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://huggingface.co/datasets/lastfm/lastfm_1k
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/lastfm/lastfm_1k
-  verified_at: '2026-09-24T09:50:28.622016Z'
+  verified_at: '2026-10-02T15:44:18.613427Z'

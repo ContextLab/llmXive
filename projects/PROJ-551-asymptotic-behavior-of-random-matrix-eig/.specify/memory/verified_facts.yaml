@@ -1,5 +1,5 @@
-'|edge located semicircle theoretical':
-  quote: "\xB12"
-  source_id: Gaussian ensemble
-  url: https://en.wikipedia.org/wiki/Gaussian_ensemble
-  value: "\xB12"
+'|edge semicircle theoretical':
+  quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+  source_id: '0812.2602'
+  url: https://arxiv.org/abs/0812.2602
+  value: '2'

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T02:27:38.150939Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-987-llmxive-follow-up-extending-openthoughts
-last_run_id: 1965dbc5-14c1-45f6-9897-f85ae69ac798
+last_run_id: 0ea5dd0a-a3ae-4b77-a97c-32ff27fc4195
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "OpenThoughts-Agent: Data Recipes for Agentic
   Models"'
-updated_at: '2026-09-27T16:16:04.650980Z'
+updated_at: '2026-10-02T15:24:15.668730Z'

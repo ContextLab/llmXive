@@ -4,193 +4,204 @@ from typing import Optional, Tuple, List
 import logging
 import json
 import os
+from config import get_path
+
+logger = logging.getLogger(__name__)
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the data by removing rows with missing critical values.
-    
-    Args:
-        df: Input dataframe
-        
-    Returns:
-        Cleaned dataframe
+    Clean the raw dataset: handle missing values, strip whitespace,
+    and ensure consistent data types for numerical columns.
     """
-    # Remove rows with missing critical columns
-    critical_columns = ['Condition', 'Reaction Time', 'Mood']
-    df = df.dropna(subset=critical_columns)
+    logger.info("Cleaning data...")
+    df = df.dropna(subset=['Participant', 'Condition', 'Reaction Time', 'Mood'])
     
-    # Remove rows with negative reaction times
-    df = df[df['Reaction Time'] >= 0]
+    # Ensure numerical columns are numeric
+    numeric_cols = ['Reaction Time', 'Mood']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    return df.reset_index(drop=True)
-
-def normalize_rt(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Normalize reaction times within each condition.
+    # Drop rows where numerical conversion failed
+    df = df.dropna(subset=numeric_cols)
     
-    Args:
-        df: Input dataframe
-        
-    Returns:
-        DataFrame with normalized reaction times
-    """
-    df = df.copy()
-    
-    def z_score_normalize(group):
-        rt = group['Reaction Time']
-        mean_rt = rt.mean()
-        std_rt = rt.std()
-        if std_rt > 0:
-            group['RT_normalized'] = (rt - mean_rt) / std_rt
-        else:
-            group['RT_normalized'] = 0
-        return group
-    
-    df = df.groupby('Condition', group_keys=False).apply(z_score_normalize)
     return df
 
-def detect_outliers_iqr(df: pd.DataFrame, group_col: str = 'Condition', multiplier: float = 1.5) -> pd.DataFrame:
+def normalize_rt(df: pd.DataFrame, group_col: str = 'Condition') -> pd.DataFrame:
     """
-    Detect outliers using the IQR method per condition group.
-    
-    Args:
-        df: Input dataframe
-        group_col: Column to group by
-        multiplier: IQR multiplier for outlier detection
-        
-    Returns:
-        DataFrame with outlier flags
+    Normalize reaction times within each group (Condition).
+    Uses Z-score normalization.
     """
+    logger.info("Normalizing reaction times...")
     df = df.copy()
-    df['is_outlier'] = False
     
-    def flag_outliers(group):
-        rt = group['Reaction Time']
-        q1 = rt.quantile(0.25)
-        q3 = rt.quantile(0.75)
+    def z_normalize(group):
+        mean = group.mean()
+        std = group.std()
+        if std == 0:
+            return pd.Series(0.0, index=group.index)
+        return (group - mean) / std
+
+    df['Normalized RT'] = df.groupby(group_col)['Reaction Time'].transform(z_normalize)
+    return df
+
+def detect_outliers_iqr(df: pd.DataFrame, group_col: str = 'Condition', 
+                        rt_col: str = 'Normalized RT', k: float = 1.5) -> pd.DataFrame:
+    """
+    Detect outliers using the Interquartile Range (IQR) method.
+    Calculates IQR thresholds PER group (Condition).
+    Marks rows as outliers but does NOT remove them.
+    """
+    logger.info("Detecting outliers using IQR method per Condition...")
+    df = df.copy()
+    
+    def calculate_outlier_flag(group):
+        q1 = group.quantile(0.25)
+        q3 = group.quantile(0.75)
         iqr = q3 - q1
-        lower_bound = q1 - multiplier * iqr
-        upper_bound = q3 + multiplier * iqr
+        lower_bound = q1 - k * iqr
+        upper_bound = q3 + k * iqr
         
-        group['is_outlier'] = (rt < lower_bound) | (rt > upper_bound)
-        return group
-    
-    df = df.groupby(group_col, group_keys=False).apply(flag_outliers)
+        # Store bounds in a way we can access later for logging
+        # We attach them to the dataframe via a helper column or just return the flag
+        # For logging, we need to know the specific thresholds used per group.
+        # We will calculate flags here and store thresholds in a separate structure for the log.
+        
+        outliers = (group < lower_bound) | (group > upper_bound)
+        return outliers
+
+    df['is_outlier'] = df.groupby(group_col)[rt_col].transform(calculate_outlier_flag)
     return df
 
-def normalize_and_flag_outliers(df: pd.DataFrame, group_col: str = 'Condition') -> pd.DataFrame:
+def normalize_and_flag_outliers(df: pd.DataFrame, group_col: str = 'Condition', k: float = 1.5) -> pd.DataFrame:
     """
-    Normalize reaction times AND flag outliers using the Interquartile Range (IQR) method
-    calculated per Condition group (FR-002).
-    
-    This function combines normalization and outlier detection into a single pipeline step.
-    It adds 'RT_normalized' and 'is_outlier' columns to the dataframe.
-    
-    Args:
-        df: Input dataframe
-        group_col: Column to group by for IQR calculation (default: 'Condition')
-        
-    Returns:
-        DataFrame with normalized reaction times and outlier flags.
-        Does NOT remove rows; only flags them.
+    Combined pipeline: Normalize RTs, then flag outliers using IQR per group.
     """
-    # First normalize the reaction times
-    df = normalize_rt(df)
-    
-    # Then flag outliers based on the original Reaction Time column per group
-    df = detect_outliers_iqr(df, group_col=group_col)
-    
+    df = normalize_rt(df, group_col)
+    df = detect_outliers_iqr(df, group_col, rt_col='Normalized RT', k=k)
     return df
 
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extract summary features per participant/condition.
-    
-    Computes mean Reaction Time and average Mood for each unique combination of
-    Participant ID and Condition. If 'Participant ID' is missing, aggregates only by Condition.
-    
-    Args:
-        df: Input dataframe (preprocessed, must contain 'Condition', 'Reaction Time', 'Mood')
-        
-    Returns:
-        DataFrame with extracted features: ['Participant ID', 'Condition', 'mean_rt', 'avg_mood']
-        or ['Condition', 'mean_rt', 'avg_mood'] if no participant ID.
+    Extract summary features: mean RT and avg mood per participant/condition.
     """
-    if 'Participant ID' not in df.columns:
-        # Fallback: group by condition only if participant ID is missing
-        logging.warning("Column 'Participant ID' not found. Aggregating by Condition only.")
-        features = df.groupby('Condition').agg({
-            'Reaction Time': 'mean',
-            'Mood': 'mean'
-        }).reset_index()
-        features.columns = ['Condition', 'mean_rt', 'avg_mood']
-    else:
-        features = df.groupby(['Participant ID', 'Condition']).agg({
-            'Reaction Time': 'mean',
-            'Mood': 'mean'
-        }).reset_index()
-        features.columns = ['Participant ID', 'Condition', 'mean_rt', 'avg_mood']
+    logger.info("Extracting features...")
+    features = df.groupby(['Participant', 'Condition']).agg({
+        'Reaction Time': 'mean',
+        'Mood': 'mean',
+        'is_outlier': 'sum' # Count outliers per group
+    }).reset_index()
     
+    features.columns = ['Participant', 'Condition', 'mean_rt', 'avg_mood', 'outlier_count']
     return features
 
-def save_preprocessed_data(df: pd.DataFrame, output_path: str, design_type: str):
-    """Save preprocessed data to a CSV file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def save_preprocessed_data(df: pd.DataFrame, design_type: str, output_path: str):
+    """
+    Save the preprocessed dataframe to CSV.
+    """
+    logger.info(f"Saving preprocessed data to {output_path}")
     df.to_csv(output_path, index=False)
+
+def log_outlier_removal(df: pd.DataFrame, group_col: str = 'Condition', 
+                        rt_col: str = 'Normalized RT', output_path: str = None) -> dict:
+    """
+    Implement T042: Outlier Audit Trail.
+    Writes a JSON log containing the count of FLAGGED rows per condition 
+    and the specific IQR thresholds used.
     
-    # Save design type metadata
-    metadata = {
-        'design_type': design_type,
-        'n_rows': len(df),
-        'n_columns': len(df.columns)
-    }
+    Schema: {condition: str, flagged_count: int, iqr_threshold: float}
+    Note: 'iqr_threshold' here represents the actual IQR value (Q3-Q1) used 
+    to calculate the bounds (Lower=Q1 - 1.5*IQR, Upper=Q3 + 1.5*IQR).
+    """
+    logger.info("Generating outlier audit trail...")
     
-    metadata_path = output_path.replace('.csv', '_metadata.json')
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+    if output_path is None:
+        output_path = get_path('interim', 'outlier_log.json')
+    
+    # Ensure directory exists
+    os.makedirs(os.dirname(output_path), exist_ok=True)
+    
+    audit_log = []
+    
+    # Ensure the outlier column exists
+    if 'is_outlier' not in df.columns:
+        raise ValueError("Column 'is_outlier' not found. Run normalize_and_flag_outliers first.")
+
+    groups = df[group_col].unique()
+    
+    for condition in groups:
+        group_data = df[df[group_col] == condition]
+        rt_values = group_data[rt_col]
+        
+        if len(rt_values) == 0:
+            continue
+          
+        q1 = rt_values.quantile(0.25)
+        q3 = rt_values.quantile(0.75)
+        iqr = q3 - q1
+        
+        # Count flagged outliers
+        # Assuming the 'is_outlier' column was generated with k=1.5
+        # We recalculate the bounds to be precise about what generated the flag
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        
+        # Verify count matches the flag column
+        flagged_count = group_data['is_outlier'].sum()
+        
+        log_entry = {
+            "condition": str(condition),
+            "flagged_count": int(flagged_count),
+            "iqr_threshold": float(iqr),
+            "q1": float(q1),
+            "q3": float(q3),
+            "lower_bound": float(lower_bound),
+            "upper_bound": float(upper_bound)
+        }
+        audit_log.append(log_entry)
+    
+    # Write to file
+    with open(output_path, 'w') as f:
+        json.dump(audit_log, f, indent=2)
+    
+    logger.info(f"Outlier audit trail written to {output_path}")
+    return audit_log
 
 def run_preprocessing(input_path: str, output_path: str, design_type: str):
-    """Run the full preprocessing pipeline."""
-    logging.info(f"Loading data from {input_path}")
+    """
+    Main pipeline execution for User Story 2.
+    """
+    logger.info(f"Starting preprocessing pipeline for {input_path}")
     
-    # Handle directory input (common for raw data ingestion) vs file input
-    if os.path.isdir(input_path):
-        # Look for CSV files in the directory
-        csv_files = [f for f in os.listdir(input_path) if f.endswith('.csv')]
-        if not csv_files:
-            raise FileNotFoundError(f"No CSV files found in {input_path}")
-        # Assume the first valid CSV is the target, or combine if needed.
-        # For this pipeline, we assume a single consolidated CSV or the first one found.
-        input_file = os.path.join(input_path, csv_files[0])
-        logging.info(f"Found input file: {input_file}")
-    else:
-        input_file = input_path
+    # Load data
+    df = pd.read_csv(input_path)
     
-    df = pd.read_csv(input_file)
-    
-    logging.info("Cleaning data")
+    # 1. Clean
     df = clean_data(df)
     
-    logging.info("Normalizing reaction times and flagging outliers")
-    # T021 Implementation: Use the combined function
-    df = normalize_and_flag_outliers(df, group_col='Condition')
+    # 2. Normalize and Flag Outliers
+    df = normalize_and_flag_outliers(df)
     
-    logging.info("Extracting features")
+    # 3. Extract Features (for downstream analysis)
     features = extract_features(df)
     
-    logging.info(f"Saving preprocessed data to {output_path}")
-    save_preprocessed_data(features, output_path, design_type)
+    # 4. Save Preprocessed Data (T024)
+    save_preprocessed_data(df, design_type, output_path)
     
-    return features
+    # 5. Log Outlier Removal (T042)
+    # This generates the audit trail required for reproducibility
+    log_outlier_removal(df)
+    
+    logger.info("Preprocessing pipeline completed successfully.")
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 4:
-        print("Usage: python preprocess.py <input_path> <output_path> <design_type>")
-        sys.exit(1)
+    import argparse
+    parser = argparse.ArgumentParser(description="Run Preprocessing Pipeline")
+    parser.add_argument("--input", required=True, help="Path to input CSV")
+    parser.add_argument("--output", required=True, help="Path to output CSV")
+    parser.add_argument("--design_type", default="Within-Subjects", help="Design type (Within-Subjects or Between-Subjects)")
     
-    input_path = sys.argv[1]
-    output_path = sys.argv[2]
-    design_type = sys.argv[3]
+    args = parser.parse_args()
     
-    run_preprocessing(input_path, output_path, design_type)
+    logging.basicConfig(level=logging.INFO)
+    run_preprocessing(args.input, args.output, args.design_type)

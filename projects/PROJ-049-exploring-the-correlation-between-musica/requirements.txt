@@ -1,28 +1,13 @@
-# Placeholder dependencies for PROJ-049-exploring-the-correlation-between-musica
-# Core data science stack
-pandas
-numpy
-scikit-learn
-scipy
-matplotlib
-seaborn
+# Python project dependencies for PROJ-049-exploring-the-correlation-between-musica
+# Exact version pins to ensure reproducible environments
 
-# Data acquisition
-datasets
-openml
-requests
-pyyaml
-
-# Data validation
-pandera
-
-# Statistical modeling
-statsmodels
-
-# Testing framework
-pytest
-
-# Optional utilities (will be pinned in later tasks)
-tqdm
-python-dotenv
-# End of placeholder requirements
+pandas==2.2.2
+scikit-learn==1.5.0
+scipy==1.13.0
+matplotlib==3.8.4
+seaborn==0.13.2
+numpy==1.26.4
+datasets==2.19.0
+requests==2.32.3
+pytest==8.2.2
+statsmodels==0.14.2

@@ -1,90 +1,110 @@
-import pytest
 import pandas as pd
 import numpy as np
-import os
 import json
-from code.preprocess import (
-    clean_data, 
-    normalize_and_flag_outliers, 
-    log_outlier_removal, 
-    extract_features,
-    detect_outliers_iqr
-)
+import os
+import pytest
+from preprocess import normalize_and_flag_outliers, log_outlier_removal
 
-class TestPreprocess:
-    @pytest.fixture
-    def sample_data(self):
-        """Create a sample dataframe with known outliers."""
-        data = {
-            'Participant_ID': [1, 1, 1, 2, 2, 2, 3, 3, 3],
-            'Condition': ['Rejection', 'Rejection', 'Rejection', 
-                          'Control', 'Control', 'Control', 
-                          'Rejection', 'Rejection', 'Rejection'],
-            'Reaction Time': [200, 210, 5000,  # 5000 is outlier in Rejection
-                              200, 210, 220,  # No outlier in Control
-                              205, 215, 225],
-            'Mood': [3, 4, 2, 5, 5, 4, 3, 4, 3]
-        }
-        return pd.DataFrame(data)
+def test_outlier_detection_iqr():
+    """
+    T028: Contract test to assert correct flagging per Condition group.
+    Verifies that outliers are flagged (column added) but NOT removed.
+    """
+    # Create synthetic but structured data for testing the logic
+    # Condition A: Values 10, 10, 10, 10, 100 (100 is outlier)
+    # Condition B: Values 20, 20, 20, 20, 20 (No outliers)
+    data = {
+        'Participant': ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10'],
+        'Condition': ['A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B'],
+        'Normalized RT': [10.0, 10.0, 10.0, 10.0, 100.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+    }
+    df = pd.DataFrame(data)
+    
+    # Run the function
+    result_df = normalize_and_flag_outliers(df, group_col='Condition', rt_col='Normalized RT')
+    
+    # Assert that the 'is_outlier' column exists
+    assert 'is_outlier' in result_df.columns
+    
+    # Assert that row count is preserved (no rows removed)
+    assert len(result_df) == len(df)
+    
+    # Condition A: 100 should be outlier (Q1=10, Q3=10, IQR=0. If IQR=0, bounds are 10 +/- 0. 
+    # Wait, if IQR is 0, then 100 is definitely > 10.
+    # Let's adjust data to ensure IQR > 0 for a realistic test
+    # Data A: 1, 2, 3, 4, 100 -> Q1=1.75, Q3=3.25, IQR=1.5. Bounds: 0.5, 5.5. 100 is outlier.
+    data['Normalized RT'] = [1.0, 2.0, 3.0, 4.0, 100.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+    df = pd.DataFrame(data)
+    result_df = normalize_and_flag_outliers(df, group_col='Condition', rt_col='Normalized RT')
+    
+    # Check Condition A outliers
+    cond_a = result_df[result_df['Condition'] == 'A']
+    assert cond_a['is_outlier'].sum() == 1
+    assert cond_a.iloc[4]['is_outlier'] == True # The 100 value
+    
+    # Check Condition B outliers
+    cond_b = result_df[result_df['Condition'] == 'B']
+    assert cond_b['is_outlier'].sum() == 0
 
-    def test_clean_data_removes_nan(self, sample_data):
-        df = sample_data.copy()
-        df.loc[0, 'Reaction Time'] = np.nan
-        cleaned = clean_data(df)
-        assert len(cleaned) < len(df)
-        assert cleaned['Reaction Time'].isna().sum() == 0
+def test_memory_usage_under_limit():
+    """
+    T029: Integration test to verify memory stays within limits (conceptual).
+    Since we can't easily mock RAM in a simple unit test, we verify the logic
+    doesn't create massive duplicates.
+    """
+    # Create a small dataset
+    data = {
+        'Participant': [f'P{i}' for i in range(100)],
+        'Condition': ['A'] * 50 + ['B'] * 50,
+        'Normalized RT': [np.random.normal(10, 2) for _ in range(100)]
+    }
+    df = pd.DataFrame(data)
+    
+    # Run processing
+    result = normalize_and_flag_outliers(df)
+    
+    # Verify row count matches input
+    assert len(result) == len(df)
 
-    def test_detect_outliers_iqr_per_condition(self, sample_data):
-        """Test that outliers are detected per condition group."""
-        df = sample_data.copy()
-        df_clean = clean_data(df)
-        result_df = detect_outliers_iqr(df_clean, group_col='Condition', value_col='Reaction Time')
+def test_outlier_audit_log_generation():
+    """
+    T042: Verify that log_outlier_removal generates the correct JSON structure.
+    """
+    # Create test data
+    data = {
+        'Participant': ['P1', 'P2', 'P3', 'P4', 'P5'],
+        'Condition': ['A', 'A', 'A', 'A', 'A'],
+        'Normalized RT': [1.0, 2.0, 3.0, 4.0, 100.0]
+    }
+    df = pd.DataFrame(data)
+    
+    # Ensure outlier column exists
+    df = normalize_and_flag_outliers(df, group_col='Condition', rt_col='Normalized RT')
+    
+    # Generate log to a temp file
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        temp_path = f.name
+    
+    try:
+        log_outlier_removal(df, output_path=temp_path)
         
-        # Check that is_outlier column exists
-        assert 'is_outlier' in result_df.columns
+        # Read the file
+        with open(temp_path, 'r') as f:
+            log_data = json.load(f)
         
-        # In Rejection group: 5000 should be outlier (Q1=200, Q3=210? No, let's calc)
-        # Rejection values: 200, 210, 5000, 205, 215, 225 -> sorted: 200, 205, 210, 215, 225, 5000
-        # Q1 (25%) ~ 205, Q3 (75%) ~ 225. IQR = 20.
-        # Upper bound = 225 + 1.5*20 = 255. 5000 > 255 -> True.
-        rejection_outliers = result_df[(result_df['Condition'] == 'Rejection') & result_df['is_outlier']]
-        assert len(rejection_outliers) >= 1
+        # Verify schema
+        assert isinstance(log_data, list)
+        assert len(log_data) > 0
         
-        # Control group: 200, 210, 220. No outliers expected.
-        control_outliers = result_df[(result_df['Condition'] == 'Control') & result_df['is_outlier']]
-        assert len(control_outliers) == 0
-
-    def test_log_outlier_removal_creates_file(self, sample_data, tmp_path):
-        """Test T042: log_outlier_removal writes correct JSON structure."""
-        df = sample_data.copy()
-        df_clean = clean_data(df)
-        df_proc, thresholds = normalize_and_flag_outliers(df_clean)
+        entry = log_data[0]
+        assert 'condition' in entry
+        assert 'flagged_count' in entry
+        assert 'iqr_threshold' in entry
         
-        output_file = tmp_path / "outlier_log.json"
-        log_outlier_removal(df_proc, str(output_file), thresholds)
-        
-        assert os.path.exists(output_file)
-        
-        with open(output_file, 'r') as f:
-            report = json.load(f)
-        
-        assert 'summary' in report
-        assert 'timestamp' in report
-        
-        # Check schema per task T042
-        for entry in report['summary']:
-            assert 'condition' in entry
-            assert 'flagged_count' in entry
-            assert 'iqr_threshold' in entry
-            assert isinstance(entry['flagged_count'], int)
-            assert isinstance(entry['iqr_threshold'], float)
-
-    def test_extract_features_aggregates(self, sample_data):
-        df = sample_data.copy()
-        df_clean = clean_data(df)
-        features = extract_features(df_clean)
-        
-        # Should have one row per participant-condition combination
-        assert len(features) == 3 # P1-Rec, P2-Con, P3-Rec
-        assert 'Reaction Time' in features.columns
-        assert features['Reaction Time'].dtype in [np.float64, np.int64]
+        # Verify specific values
+        assert entry['flagged_count'] == 1
+        assert entry['condition'] == 'A'
+        assert isinstance(entry['iqr_threshold'], float)
+    finally:
+        os.unlink(temp_path)

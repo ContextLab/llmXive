@@ -5,6 +5,14 @@ T003:
     `pyproject.toml` with Black settings) or documentation of their setup are present;
     the claim provides no tangible artifact demonstrating that ruff/flake8 and Black
     have been configured for the project.
+T019a:
+  c: false
+  h: 0cc157577c9d50846bc70e26251e1d29ae7bb4e68e92ff7d8a505c84f6a26f0f
+  r: "The repository lacks the required `results/statistics/power_analysis_a_priori.md`\
+    \ file, and the provided `code/03_analysis.py` (even though it imports `FTestPower`)\
+    \ does not contain any implementation that performs the a\u2011priori power calculation\
+    \ or writes the markdown report. The task\u2019s core deliverable is therefore\
+    \ missing."
 T021:
   c: false
   h: 3f2a6e5a6f97b3a2fc58361039569f1114c56771e4076f0a3ee181be04c7e237
@@ -40,20 +48,6 @@ T028:
     `code/02_visual_metrics.py` does not contain any code that reads `visual_metrics_intermediate.csv`,
     merges it with `merged_data.csv`, or writes the result to `final_analysis_data.csv`.
     Consequently, the required merge logic and output file are missing.
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that the analysis pipeline\
-    \ was updated to apply `scipy.stats.multitest.multipletests(method='holm')`. The\
-    \ required artifact (an analysis script with Holm\u2011Bonferroni family\u2011\
-    wise error correction) is missing, so the task is not satisfied."
-T036:
-  c: false
-  h: 48ac5b3197a3b6d851dcf719497afcdc63e03088013dfd04f237ec657bae9525
-  r: "The required `results/statistics/multiplicity_table.csv` file is missing, and\
-    \ there is no text snippet saved in `results/statistics/` containing the required\
-    \ Holm\u2011Bonferroni phrase. Both artifacts must be created for the task to\
-    \ be considered complete."
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

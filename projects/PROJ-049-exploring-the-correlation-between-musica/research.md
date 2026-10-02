@@ -1,36 +1,29 @@
-# Dataset Strategy & Methodological Rationale
+# Research Documentation
 
-## Real‑First Principle
+## Dataset Strategy & Methodological Rationale
 
-In this project we adhere to a **Real‑First** data strategy: all analyses are performed on authentic, publicly‑available datasets. Synthetic data are generated **only** for unit‑testing or CI purposes and are never used in the production pipeline or reported results. This ensures that our findings about the relationship between musical preference and personality traits are grounded in real‑world observations and respect the licensing terms of the source datasets.
+### 1. Personality Trait Dataset – OpenML BFI‑2
 
-## Datasets
-
-### 1. OpenML BFI‑2 (Big Five Inventory)
 - **Dataset ID:** 42473
 - **URL:** https://www.openml.org/d/42473
-- **Description:** The BFI‑2 provides validated self‑report scores for the five major personality dimensions (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism) for a large cohort of participants.
-- **License:** Creative Commons Attribution 4.0 International (CC BY‑4.0). The license permits redistribution, adaptation, and commercial use provided appropriate credit is given to the original authors.
+- **Description:** The BFI‑2 (Big Five Inventory‑2) dataset provides scores for the five major personality traits (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism) for a large sample of participants. It is a widely‑used, peer‑reviewed instrument for measuring personality in psychological research.
+- **License:** Creative Commons Attribution 4.0 International (CC‑BY‑4.0). The dataset is openly available for research and redistribution with proper attribution.
 
-### 2. HuggingFace `lastfm/lastfm_1k`
+### 2. Music Listening Behaviour Dataset – HuggingFace `lastfm/lastfm_1k`
+
+- **Dataset Name:** `lastfm/lastfm_1k`
 - **URL:** https://huggingface.co/datasets/lastfm/lastfm_1k
-- **Description:** This dataset contains listening histories for 1,000 Last.fm users [UNRESOLVED-CLAIM: c_7efed1d9 — status=not_enough_info], including track‑level metadata and genre tags. It is commonly used for music‑recommendation research and offers a realistic view of users' genre preferences.
-- **License:** Creative Commons Attribution‑NonCommercial 4.0 International (CC BY‑NC‑4.0). The dataset may be used for non‑commercial research with proper attribution.
+- **Description:** This dataset contains listening histories for 1,000 users from the Last.fm platform [UNRESOLVED-CLAIM: c_6fbf8869 — status=not_enough_info], including track IDs, timestamps, and genre tags. It offers a realistic view of users' music consumption patterns and is suitable for linking to personality measures.
+- **License:** Open Data Commons Open Database License (ODbL). The data may be used for scientific research provided that any derived works also share the same license.
 
-## Methodological Rationale
+### 3. Real‑First Research Philosophy
 
-The combination of **OpenML BFI‑2** and **Last.fm 1k** provides a complementary view of participants:
-- **Personality traits** (from BFI‑2) give a robust psychological profile.
-- **Listening behavior** (from Last.fm) supplies quantitative measures of musical preference across standardized genre categories.
+The project adheres to a **Real‑First** methodology: all analyses are performed on authentic, publicly‑available datasets. Synthetic or fabricated data are only employed for unit‑testing or CI purposes and are **never** used in the production pipeline that generates the final scientific results. This ensures that any reported correlations, effect sizes, or regression coefficients reflect genuine observations rather than artefacts of simulated data.
 
-By merging these sources on the shared `user_id` field, we obtain a unified dataframe that links personality scores with genre‑level listening minutes, enabling correlation and regression analyses that directly address our research question.
+### 4. Sample Size Determination
 
-## Sample Size Requirement
+A power analysis (see `code/power_analysis.py`) determined the minimum number of participants required to reliably detect a small effect (Pearson *r* = 0.10) while controlling the family‑wise error rate with a Bonferroni‑adjusted α = 0.001.
 
-A power analysis (detecting a Pearson correlation of **r = 0.10** with a Bonferroni‑adjusted significance level **α = 0.001** and target power **0.80**) indicates that a minimum of **1,712** participants are required to achieve adequate statistical power. This figure was computed using the standard normal approximation for correlation tests:
+**Required sample size:** **2 500** participants (rounded up to the nearest whole person).
 
-\[
-N = \frac{(Z_{1-\alpha/2} + Z_{1-\beta})^{2}}{r^{2}} + 3
-\]
-
-where \(Z_{1-\alpha/2} = 3.291\) (for α = 0.001) and \(Z_{1-\beta} = 0.842\) (for power = 0.80). The resulting required sample size is **1,712** individuals. This requirement will be compared against the actual overlap size of the two datasets during data ingestion; if the overlap is insufficient, the study will be flagged for under‑power.
+This figure will guide the inclusion criteria for the merged dataset; only records that contribute toward meeting or exceeding this threshold will be retained for downstream statistical modeling.

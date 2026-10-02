@@ -1,9 +1,11 @@
 """
-Structured logging for simulation runs.
+Structured logging for simulation run parameters.
 
-This module implements structured JSON logging for simulation parameters,
-seed states, and execution metadata to satisfy Constitution Principle I
-(Reproducibility).
+This module implements structured JSON logging for simulation runs to satisfy
+Constitution Principle I (Reproducibility). It logs the exact random seed state,
+parameter values, and timestamp for every simulation execution.
+
+Output: data/logs/simulation_run.log
 """
 
 import json
@@ -12,78 +14,66 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Any, Optional
 
+# Project paths
 from utils.config import get_project_paths
 
 
 class SimulationJsonFormatter(logging.Formatter):
-    """
-    Custom JSON formatter for structured simulation logs.
-
-    Converts log records into JSON objects containing:
-    - timestamp (ISO 8601)
-    - level
-    - message
-    - simulation metadata (run_id, seed, parameters)
-    """
-
-    def __init__(self):
-        super().__init__()
+    """Custom JSON formatter for structured logging."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
+        """Format log record as JSON with simulation-specific fields."""
+        log_data = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
+            "logger": record.name,
             "message": record.getMessage(),
         }
 
-        # Extract simulation metadata from extra fields if present
+        # Add extra fields if present
+        if hasattr(record, "simulation_data"):
+            log_data.update(record.simulation_data)
+
+        # Add standard fields
         if hasattr(record, "run_id"):
             log_data["run_id"] = record.run_id
-        if hasattr(record, "seed"):
-            log_data["seed"] = record.seed
         if hasattr(record, "N"):
             log_data["N"] = record.N
+        if hasattr(record, "seed"):
+            log_data["seed"] = record.seed
         if hasattr(record, "theta"):
             log_data["theta"] = record.theta
         if hasattr(record, "perturbation_type"):
             log_data["perturbation_type"] = record.perturbation_type
-        if hasattr(record, "rank"):
-            log_data["rank"] = record.rank
-        if hasattr(record, "support_density"):
-            log_data["support_density"] = record.support_density
-        if hasattr(record, "config"):
-            log_data["config"] = record.config
-        if hasattr(record, "execution_time"):
-            log_data["execution_time"] = record.execution_time
-        if hasattr(record, "status"):
-            log_data["status"] = record.status
 
         return json.dumps(log_data)
 
 
 def setup_simulation_logger(
-    log_path: Optional[Path] = None,
+    log_path: Optional[str] = None,
     level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Set up a logger for simulation runs with JSON formatting.
+    Set up the simulation logger with JSON formatting.
 
     Args:
-        log_path: Path to the log file. If None, uses default project path.
-        level: Logging level.
+        log_path: Path to the log file. Defaults to data/logs/simulation_run.log
+        level: Logging level
 
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
+    paths = get_project_paths()
     if log_path is None:
-        paths = get_project_paths()
-        log_path = paths["data_logs"] / "simulation_run.log"
+        log_path = str(paths["data_logs"] / "simulation_run.log")
 
     # Ensure directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_dir = Path(log_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
 
+    # Create logger
     logger = logging.getLogger("simulation")
     logger.setLevel(level)
 
@@ -91,7 +81,7 @@ def setup_simulation_logger(
     logger.handlers.clear()
 
     # File handler with JSON formatter
-    file_handler = logging.FileHandler(log_path, mode='a')
+    file_handler = logging.FileHandler(log_path, mode="a")
     file_handler.setLevel(level)
     file_handler.setFormatter(SimulationJsonFormatter())
 
@@ -103,157 +93,148 @@ def setup_simulation_logger(
 def log_simulation_start(
     logger: logging.Logger,
     run_id: str,
-    seed: int,
     N: int,
+    seed: int,
     theta: float,
-    perturbation_type: str,
-    rank: int,
+    perturbation_type: str = "diagonal",
+    rank: int = 1,
     support_density: Optional[float] = None,
-    config: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
     Log the start of a simulation run with all parameters.
 
     Args:
-        logger: Logger instance.
-        run_id: Unique run identifier.
-        seed: Random seed used.
-        N: Matrix dimension.
-        theta: Perturbation strength.
-        perturbation_type: Type of perturbation (diagonal, block-sparse, etc.).
-        rank: Rank of perturbation.
-        support_density: Density of non-zero elements (if applicable).
-        config: Additional configuration dictionary.
+        logger: Logger instance
+        run_id: Unique run identifier
+        N: Matrix dimension
+        seed: Random seed value
+        theta: Perturbation strength
+        perturbation_type: Type of perturbation (diagonal, block-sparse, random sparse)
+        rank: Rank of perturbation
+        support_density: Support density for sparse perturbations
     """
-    extra = {
+    extra_data = {
         "run_id": run_id,
-        "seed": seed,
         "N": N,
+        "seed": seed,
         "theta": theta,
         "perturbation_type": perturbation_type,
         "rank": rank,
+        "support_density": support_density,
     }
-    if support_density is not None:
-        extra["support_density"] = support_density
-    if config is not None:
-        extra["config"] = config
 
     logger.info(
-        f"Simulation run started: run_id={run_id}, N={N}, theta={theta}",
-        extra=extra,
+        "Simulation run started",
+        extra={"simulation_data": extra_data, **extra_data},
     )
 
 
 def log_simulation_end(
     logger: logging.Logger,
     run_id: str,
-    status: str,
-    execution_time: float,
-    eigenvalues: Optional[list] = None,
-    outlier_flag: Optional[bool] = None,
+    eigenvalues: list,
+    outlier_flag: bool,
+    execution_time_seconds: float,
 ) -> None:
     """
-    Log the end of a simulation run with results.
+    Log the completion of a simulation run with results.
 
     Args:
-        logger: Logger instance.
-        run_id: Unique run identifier.
-        status: Completion status (success, failure, etc.).
-        execution_time: Time taken in seconds.
-        eigenvalues: List of computed eigenvalues (optional).
-        outlier_flag: Whether an outlier was detected (optional).
+        logger: Logger instance
+        run_id: Unique run identifier
+        eigenvalues: List of computed eigenvalues
+        outlier_flag: Whether an outlier was detected
+        execution_time_seconds: Time taken for the simulation
     """
-    extra = {
+    extra_data = {
         "run_id": run_id,
-        "status": status,
-        "execution_time": execution_time,
+        "eigenvalues": eigenvalues,
+        "outlier_flag": outlier_flag,
+        "execution_time_seconds": execution_time_seconds,
     }
-    if eigenvalues is not None:
-        extra["eigenvalues"] = eigenvalues
-    if outlier_flag is not None:
-        extra["outlier_flag"] = outlier_flag
 
     logger.info(
-        f"Simulation run completed: run_id={run_id}, status={status}",
-        extra=extra,
+        "Simulation run completed",
+        extra={"simulation_data": extra_data, **extra_data},
     )
 
 
 def log_parameter_sweep(
     logger: logging.Logger,
-    sweep_name: str,
-    parameters: Dict[str, Any],
-    num_iterations: int,
+    sweep_id: str,
+    parameter_name: str,
+    parameter_values: list,
+    N: int,
+    num_seeds: int,
 ) -> None:
     """
     Log the start of a parameter sweep.
 
     Args:
-        logger: Logger instance.
-        sweep_name: Name of the sweep.
-        parameters: Dictionary of parameter ranges/values.
-        num_iterations: Total number of iterations planned.
+        logger: Logger instance
+        sweep_id: Unique sweep identifier
+        parameter_name: Name of the swept parameter (e.g., 'theta', 'density')
+        parameter_values: List of parameter values to sweep
+        N: Matrix dimension
+        num_seeds: Number of seeds per configuration
     """
-    extra = {
-        "sweep_name": sweep_name,
-        "parameters": parameters,
-        "num_iterations": num_iterations,
+    extra_data = {
+        "sweep_id": sweep_id,
+        "parameter_name": parameter_name,
+        "parameter_values": parameter_values,
+        "N": N,
+        "num_seeds": num_seeds,
     }
 
     logger.info(
-        f"Parameter sweep started: {sweep_name}",
-        extra=extra,
+        f"Parameter sweep started: {parameter_name}",
+        extra={"simulation_data": extra_data, **extra_data},
     )
 
 
 def main() -> None:
     """
-    Test the simulation logging functionality.
+    Main entry point for testing the logging functionality.
 
-    This function demonstrates the logging setup and logs a sample
-    simulation run to verify the JSON formatting works correctly.
+    This function demonstrates the logging capabilities by running a
+    sample simulation and logging all relevant parameters and results.
     """
-    # Set up logger
-    paths = get_project_paths()
-    log_path = paths["data_logs"] / "simulation_run.log"
-    logger = setup_simulation_logger(log_path)
+    logger = setup_simulation_logger()
 
-    # Log a sample simulation
+    # Sample run parameters
     run_id = "test_run_001"
-    seed = 42
     N = 1000
+    seed = 42
     theta = 2.5
     perturbation_type = "diagonal"
     rank = 1
-    support_density = 1.0
 
+    # Log simulation start
     log_simulation_start(
-        logger,
+        logger=logger,
         run_id=run_id,
-        seed=seed,
         N=N,
+        seed=seed,
         theta=theta,
         perturbation_type=perturbation_type,
         rank=rank,
-        support_density=support_density,
-        config={"tolerance": 1e-10, "num_eigenvalues": 10},
     )
 
-    # Simulate some work
-    import time
-    time.sleep(0.1)
+    # Simulate some results (in real usage, these would come from simulation_loop)
+    eigenvalues = [2.45, 1.98, 1.95, 1.92, 1.90]
+    outlier_flag = True
+    execution_time = 0.123
 
-    # Log completion
+    # Log simulation end
     log_simulation_end(
-        logger,
+        logger=logger,
         run_id=run_id,
-        status="success",
-        execution_time=0.1,
-        eigenvalues=[2.51, 2.1, 1.9, 1.8, 1.7],
-        outlier_flag=True,
+        eigenvalues=eigenvalues,
+        outlier_flag=outlier_flag,
+        execution_time_seconds=execution_time,
     )
 
-    print(f"Simulation log written to: {log_path}")
+    print(f"Structured logs written to: {get_project_paths()['data_logs'] / 'simulation_run.log'}")
 
 
 if __name__ == "__main__":

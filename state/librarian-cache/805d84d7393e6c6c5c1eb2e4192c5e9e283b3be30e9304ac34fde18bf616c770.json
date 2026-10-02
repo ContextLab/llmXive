@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-22T04:21:03Z",
+  "fetched_at": "2026-10-02T15:23:56Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Models\"",
       "target_n": 5
     },
-    "duration_seconds": 66.322,
-    "ended_at": "2026-08-22T04:21:03Z",
+    "duration_seconds": 49.597,
+    "ended_at": "2026-10-02T15:23:56Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "agentic AI data preparation"
+          "agentic AI data synthesis"
         ],
         [
           2,
-          "training data for autonomous agents"
+          "training datasets for autonomous agents"
         ],
         [
           3,
-          "synthetic reasoning data for LLMs"
+          "synthetic data generation for LLM agents"
         ],
         [
           4,
-          "agent workflow data generation"
+          "data curation strategies for agentic workflows"
         ],
         [
           5,
-          "chain-of-thought data curation"
+          "reinforcement learning from human feedback for agents"
         ],
         [
           6,
-          "multi-step reasoning datasets"
+          "instruction tuning datasets for multi-step agents"
         ],
         [
           7,
-          "instruction tuning for agentic behavior"
+          "automated data recipe generation for AI"
         ],
         [
           8,
-          "data recipes for foundation models"
+          "chain-of-thought data augmentation for agents"
         ],
         [
           9,
-          "autonomous agent learning strategies"
+          "benchmarking agentic model performance"
         ],
         [
           10,
-          "LLM agent fine-tuning datasets"
+          "large language model agent fine-tuning"
         ],
         [
           11,
-          "synthetic data for agent planning"
-        ],
-        [
-          12,
-          "structured reasoning data construction"
-        ],
-        [
-          13,
-          "agent-oriented data synthesis"
-        ],
-        [
-          14,
-          "reinforcement learning from agent interactions"
-        ],
-        [
-          15,
-          "large language model agent training pipelines"
-        ],
-        [
-          16,
-          "data augmentation for agentic systems"
-        ],
-        [
-          17,
-          "cognitive data pipelines for AI agents"
-        ],
-        [
-          18,
           "open-source agent training corpora"
         ],
         [
+          12,
+          "iterative data improvement for autonomous systems"
+        ],
+        [
+          13,
+          "tool-use data synthesis for LLMs"
+        ],
+        [
+          14,
+          "planning and reasoning datasets for agents"
+        ],
+        [
+          15,
+          "synthetic trajectory generation for agent training"
+        ],
+        [
+          16,
+          "data efficiency in agentic model development"
+        ],
+        [
+          17,
+          "curating high-quality interaction data for agents"
+        ],
+        [
+          18,
+          "generative data pipelines for autonomous agents"
+        ],
+        [
           19,
-          "iterative data refinement for agents"
+          "agent behavior modeling via data recipes"
         ],
         [
           20,
-          "prompt engineering data strategies for agents"
+          "scalable data preparation for agentic AI"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "agentic AI data preparation": 5,
+        "agentic AI data synthesis": 5,
         "llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Models\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "synthetic reasoning traces agentic workflows",
-      "OpenThoughts dataset instruction tuning agents",
-      "chain-of-thought synthesis LLM fine-tuning",
-      "agentic model evaluation reasoning benchmarks",
-      "data contamination synthetic reasoning leakage"
+      "agentic workflows synthetic data generation reasoning chains",
+      "OpenThoughts dataset LLM training fine-tuning recipes",
+      "chain-of-thought self-correction autonomous agents",
+      "evaluation benchmarks agent reasoning planning tasks",
+      "data contamination synthetic instruction leakage memorization"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2601.12538"
+        "2605.23989"
       ]
     },
     "per_query_hit_count": {
-      "OpenThoughts dataset instruction tuning agents": 3,
-      "agentic model evaluation reasoning benchmarks": 1,
-      "chain-of-thought synthesis LLM fine-tuning": 3,
-      "data contamination synthetic reasoning leakage": 2,
-      "llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Models\" computer science": 3,
-      "synthetic reasoning traces agentic workflows": 3
+      "OpenThoughts dataset LLM training fine-tuning recipes": 3,
+      "agentic workflows synthetic data generation reasoning chains": 3,
+      "chain-of-thought self-correction autonomous agents": 3,
+      "data contamination synthetic instruction leakage memorization": 2,
+      "evaluation benchmarks agent reasoning planning tasks": 3,
+      "llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Models\" computer science": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -152,14 +152,14 @@
           "title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data"
         },
         {
-          "primary_pointer": "2603.18914",
-          "rationale": "The paper focuses on legal definitions, regulatory frameworks, and policy compliance for agentic AI, which is a distinct construct from the user's question regarding technical \"data recipes\" and model training methodologies. It fails the inclusion criteria because it addresses the governance domain rather than the empirical or algorithmic mechanisms of data preparation for agentic models, and it does not measure the same variables or establish a technical baseline for the user's specific researc",
-          "title": "Security, privacy, and agentic AI in a regulatory view: From definitions and distinctions to provisions and reflections"
+          "primary_pointer": "2501.02842",
+          "rationale": "The paper discusses the general impact of generative AI on information access systems and retrieval-augmented generation, but it does not address the specific \"OpenThoughts-Agent\" data recipes, agentic model training methodologies, or the specific follow-up context of \"llmXive\" mentioned in the user's question. It fails to meet criteria (a) or (b) as it lacks the specific mechanism (agentic data recipes) or variables (OpenThoughts dataset specifics) required for inclusion in a literature review ",
+          "title": "Foundations of GenIR"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-22T04:19:57Z",
+    "started_at": "2026-10-02T15:23:07Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
       "raw": "llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Models\" computer science"
@@ -178,7 +178,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +197,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,181 +215,26 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Skele-Code is a natural-language and graph-based interface for building workflows with AI agents, designed especially for less or non-technical users. It supports incremental, interactive notebook-style development, and each step is converted to code with a required set of functions and behavior to enable incremental building of workflows. Agents are invoked only for code generation and error recovery, not orchestration or task execution. This agent-supported, but code-first approach to workflows, along with the context-engineering used in Skele-Code, can help reduce token costs compared to the multi-agent system approach to executing workflows. Skele-Code produces modular, easily extensible, and shareable workflows. The generated workflows can also be used as skills by agents, or as steps in other workflows.",
+          "claimed_abstract": "Generative modeling has been used frequently in synthetic data generation. Fairness and privacy are two big concerns for synthetic data. Although Recent GAN [\\cite{goodfellow2014generative}] based methods show good results in preserving privacy, the generated data may be more biased. At the same time, these methods require high computation resources. In this work, we design a fast, fair, flexible and private data generation method. We show the effectiveness of our method theoretically and empirically. We show that models trained on data generated by the proposed method can perform well (in inference stage) on real application scenarios.",
           "claimed_authors": [
-            "Sriram Gopalakrishnan"
+            "Weijie Xu",
+            "Jinjin Zhao",
+            "Francis Iannacci",
+            "Bo Wang"
           ],
-          "claimed_title": "Don't Vibe Code, Do Skele-Code: Interactive No-Code Notebooks for Subject Matter Experts to Build Lower-Cost Agentic Workflows",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.18122"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title=\"Don't Vibe Code, Do Skele-Code: Interactive No-Code Notebooks for Subject Matter Experts to Build Lower-Cost Agentic Workflows\")",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
-          "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
-          ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_title": "FFPDG: Fast, Fair and Private Data Generation",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
+          "primary_pointer": "2307.00161"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
-          "claimed_authors": [
-            "Zhiyang Xu",
-            "Chao Feng",
-            "Rulin Shao",
-            "Trevor Ashby",
-            "Ying Shen",
-            "Di Jin",
-            "Yu Cheng",
-            "Qifan Wang",
-            "Lifu Huang"
-          ],
-          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.11690"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
-          "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
-          ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Fine-tuning large language models (LLMs) on resource-constrained clients remains a challenging problem. Recent works have fused low-rank adaptation (LoRA) techniques with federated fine-tuning to mitigate challenges associated with client model sizes and data scarcity. Still, the heterogeneity of resources remains a critical bottleneck: while higher-rank modules generally enhance performance, varying client capabilities constrain LoRA's feasible rank range. Existing approaches attempting to resolve this issue either lack analytical justification or impose additional computational overhead, leaving a wide gap for efficient and theoretically-grounded solutions. To address these challenges, we propose federated sketching LoRA (FSLoRA), which leverages a sketching mechanism to enable clients to selectively update submatrices of global LoRA modules maintained by the server. By adjusting the sketching ratios, which determine the ranks of the submatrices on the clients, FSLoRA flexibly adapts to client-specific communication and computational constraints. We provide a rigorous convergence analysis of FSLoRA that characterizes how the sketching ratios affect the convergence rate. Through extensive experiments, we demonstrate that FSLoRA outperforms baselines and significantly improves training efficiency while preserving stable convergence.",
-          "claimed_authors": [
-            "Wenzhi Fang",
-            "Dong-Jun Han",
-            "Liangqi Yuan",
-            "Seyyedali Hosseinalipour",
-            "Christopher G. Brinton"
-          ],
-          "claimed_title": "Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2501.19389"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) are increasingly used for topic modeling, outperforming classical topic models such as LDA. Commonly, pre-trained LLM encoders such as BERT are used out-of-the-box despite the fact that fine-tuning is known to improve LLMs considerably. The challenge lies in obtaining a suitable labeled dataset for fine-tuning. In this paper, we build on the recent idea of using bags of sentences as the elementary unit for computing topics. Based on this idea, we derive an approach called FT-Topic to perform unsupervised fine-tuning, relying primarily on two steps for constructing a training dataset in an automatic fashion. First, a heuristic method identifies pairs of sentence groups that are assumed to belong either to the same topic or to different topics. Second, we remove sentence pairs that are likely labeled incorrectly. The resulting dataset is then used to fine-tune an encoder LLM, which can be leveraged by any topic modeling approach that uses embeddings. In this work, we demonstrate its effectiveness by deriving a novel state-of-the-art topic modeling method called SenClu. The method achieves fast inference through an expectation-maximization algorithm and hard assignments of sentence groups to a single topic, while allowing users to encode prior knowledge about the topic-document distribution. Code is available at https://github.com/JohnTailor/FT-Topic",
-          "claimed_authors": [
-            "Johannes Schneider"
-          ],
-          "claimed_title": "Topic Modeling with Fine-tuning LLMs and Bag of Sentences",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2408.03099"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Topic Modeling with Fine-tuning LLMs and Bag of Sentences')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The LLM-as-a-judge paradigm uses large language models (LLMs) for automated text evaluation, where a numerical assessment is assigned by an LLM to the input text following scoring rubrics. Existing methods for LLM-as-a-judge use cross-entropy (CE) loss for fine-tuning, which neglects the numeric nature of score prediction. Recent work addresses numerical prediction limitations of LLM fine-tuning through regression-aware fine-tuning, which, however, does not consider chain-of-thought (CoT) reasoning for score prediction. In this paper, we introduce TRACT (Two-stage Regression-Aware fine-tuning with CoT), a method combining CoT reasoning with regression-aware training. TRACT consists of two stages: first, seed LLM is fine-tuned to generate CoTs, which serve as supervision for the second stage fine-tuning. The training objective of TRACT combines the CE loss for learning the CoT reasoning capabilities, and the regression-aware loss for the score prediction. Experiments across four LLM-as-a-judge datasets and two LLMs show that TRACT significantly outperforms existing methods. Extensive ablation studies validate the importance of each component in TRACT.",
-          "claimed_authors": [
-            "Cheng-Han Chiang",
-            "Hung-yi Lee",
-            "Michal Lukasik"
-          ],
-          "claimed_title": "TRACT: Regression-Aware Fine-tuning Meets Chain-of-Thought Reasoning for LLM-as-a-Judge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.04381"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='TRACT: Regression-Aware Fine-tuning Meets Chain-of-Thought Reasoning for LLM-as-a-Judge')",
-        "failed_at": "2026-08-22T04:20:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Agentic reinforcement learning has advanced large language models (LLMs) to reason through long chain-of-thought trajectories while interleaving external tool use. Existing approaches assume a fixed inventory of tools, which limits the adaptability of LLM agents to new or evolving toolsets. We present AutoTool, a training framework that equips LLM agents with dynamic tool-selection capabilities throughout their reasoning trajectories. AutoTool employs a dual-phase optimization pipeline: (i) SFT and RL-based trajectory stabilization for coherent reasoning, and (ii) KL-regularized Plackett-Luce Ranking to refine consistent multi-step tool selection. We further build a 200k dataset with explicit tool-selection rationales across 1,000+ tools and 100+ tasks spanning mathematics, science, code generation, and multimodal reasoning. Across ten diverse benchmarks, we train two base models, Qwen3-8B and Qwen2.5-VL-7B, with AutoTool. With fewer parameters, AutoTool consistently outperforms advanced LLM agents and tool-integration methods, yielding average gains of 6.4% in math & science reasoning, 4.5% in search-based QA, 7.7% in code generation, and 6.9% in multimodal understanding. In addition, AutoTool exhibits stronger generalization by dynamically leveraging unseen tools from evolving toolsets during inference.",
-          "claimed_authors": [
-            "Jiaru Zou",
-            "Ling Yang",
-            "Yunzhe Qi",
-            "Sirui Chen",
-            "Mengting Ai",
-            "Ke Shen",
-            "Jingrui He",
-            "Mengdi Wang"
-          ],
-          "claimed_title": "AutoTool: Dynamic Tool Selection and Integration for Agentic Reasoning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.13278"
-        },
-        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='AutoTool: Dynamic Tool Selection and Integration for Agentic Reasoning')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       },
       {
@@ -411,7 +256,209 @@
           "primary_pointer": "2311.17453"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High-quality and open datasets remain a major bottleneck for text-to-image (T2I) fine-tuning. Despite rapid progress in model architectures and training pipelines, most publicly available fine-tuning datasets suffer from low resolution, poor text-image alignment, or limited diversity, resulting in a clear performance gap between open research models and enterprise-grade models. In this work, we present Fine-T2I, a large-scale, high-quality, and fully open dataset for T2I fine-tuning. Fine-T2I spans 10 task combinations, 32 prompt categories, 11 visual styles, and 5 prompt templates, and combines synthetic images generated by strong modern models with carefully curated real images from professional photographers. All samples are rigorously filtered for text-image alignment, visual fidelity, and prompt quality, with over 95% of initial candidates removed. The final dataset contains over 6 million text-image pairs, around 2 TB on disk, approaching the scale of pretraining datasets while maintaining fine-tuning-level quality. Across a diverse set of pretrained diffusion and autoregressive models, fine-tuning on Fine-T2I consistently improves both generation quality and instruction adherence, as validated by human evaluation, visual comparison, and automatic metrics. We release Fine-T2I under an open license to help close the data gap in T2I fine-tuning in the open community.",
+          "claimed_authors": [
+            "Xu Ma",
+            "Yitian Zhang",
+            "Qihua Dong",
+            "Yun Fu"
+          ],
+          "claimed_title": "Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.09439"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Fine-T2I: An Open, Large-Scale, and Diverse Dataset for High-Quality T2I Fine-Tuning')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are increasingly used for topic modeling, outperforming classical topic models such as LDA. Commonly, pre-trained LLM encoders such as BERT are used out-of-the-box despite the fact that fine-tuning is known to improve LLMs considerably. The challenge lies in obtaining a suitable labeled dataset for fine-tuning. In this paper, we build on the recent idea of using bags of sentences as the elementary unit for computing topics. Based on this idea, we derive an approach called FT-Topic to perform unsupervised fine-tuning, relying primarily on two steps for constructing a training dataset in an automatic fashion. First, a heuristic method identifies pairs of sentence groups that are assumed to belong either to the same topic or to different topics. Second, we remove sentence pairs that are likely labeled incorrectly. The resulting dataset is then used to fine-tune an encoder LLM, which can be leveraged by any topic modeling approach that uses embeddings. In this work, we demonstrate its effectiveness by deriving a novel state-of-the-art topic modeling method called SenClu. The method achieves fast inference through an expectation-maximization algorithm and hard assignments of sentence groups to a single topic, while allowing users to encode prior knowledge about the topic-document distribution. Code is available at https://github.com/JohnTailor/FT-Topic",
+          "claimed_authors": [
+            "Johannes Schneider"
+          ],
+          "claimed_title": "Topic Modeling with Fine-tuning LLMs and Bag of Sentences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.03099"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Topic Modeling with Fine-tuning LLMs and Bag of Sentences')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+          "claimed_authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "claimed_title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.04518"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a method that allows to develop shared understanding between two agents for the purpose of performing a task that requires cooperation. Our method focuses on efficiently establishing successful task-oriented communication in an open multi-agent system, where the agents do not know anything about each other and can only communicate via grounded interaction. The method aims to assist researchers that work on human-machine interaction or scenarios that require a human-in-the-loop, by defining interaction restrictions and efficiency metrics. To that end, we point out the challenges and limitations of such a (diverse) setup, while also restrictions and requirements which aim to ensure that high task performance truthfully reflects the extent to which the agents correctly understand each other. Furthermore, we demonstrate a use-case where our method can be applied for the task of cooperative query answering. We design the experiments by modifying an established ontology alignment benchmark. In this example, the agents want to query each other, while representing different databases, defined in their own ontologies that contain different and incomplete knowledge. Grounded interaction here has the form of examples that consists of common instances, for which the agents are expected to have similar knowledge. Our experiments demonstrate successful communication establishment under the required restrictions, and compare different agent policies that aim to solve the task in an efficient manner.",
+          "claimed_authors": [
+            "Nikolaos Kondylidis",
+            "Ilaria Tiddi",
+            "Annette ten Teije"
+          ],
+          "claimed_title": "Establishing Shared Query Understanding in an Open Multi-Agent System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.09349"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Establishing Shared Query Understanding in an Open Multi-Agent System')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gaussian Processes (GPs) are a powerful tool for probabilistic modeling, but their performance is often constrained in complex, large-scale real-world domains due to the limited expressivity of classical kernels. Quantum computing offers the potential to overcome this limitation by embedding data into exponentially large Hilbert spaces, capturing complex correlations that remain inaccessible to classical computing approaches. In this paper, we propose a Distributed Quantum Gaussian Process (DQGP) method in a multi-agent setting to enhance modeling capabilities and scalability. To address the challenging non-Euclidean optimization problem, we develop a Distributed consensus Riemannian Alternating Direction Method of Multipliers (DR-ADMM) algorithm that aggregates local agent models into a global model. We evaluate the efficacy of our method through numerical experiments conducted on a quantum simulator in classical hardware. We use real-world, non-stationary elevation datasets of NASA's Shuttle Radar Topography Mission and synthetic datasets generated by Quantum Gaussian Processes. Beyond modeling advantages, our framework highlights potential computational speedups that quantum hardware may provide, particularly in Gaussian processes and distributed optimization.",
+          "claimed_authors": [
+            "Meet Gandhi",
+            "George P. Kontoudis"
+          ],
+          "claimed_title": "Distributed Quantum Gaussian Processes for Multi-Agent Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.15006"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Distributed Quantum Gaussian Processes for Multi-Agent Systems')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Travel planning is a demanding stress test for tool-using LLM agents: a usable itinerary is a single artifact that must be right along many axes at once - every flight, hotel, and attraction must exist and be bookable, the days must be physically traversable, the total must clear a budget, and the plan must serve a traveler whose needs are only partly stated. Existing agent benchmarks reward these properties one at a time and grade the final output with soft or LLM-judged rubrics, which cannot certify that a returned plan is executable and are neither reproducible nor auditable. We introduce TREK (Travel Reasoning and Evaluation Kit), a benchmark for feasible itinerary synthesis: producing a single plan that is jointly constraint-correct, hallucination-free, spatio-temporally executable, budget-valid, and responsive to the traveler's unstated persona needs. TREK comprises 800 multi-constraint tasks - 533 feasible and 267 provably infeasible with typed route/entity/budget causes - over a synthetic, internally consistent knowledge base of 212,530 records across 375 cities and 13 personas, served through a production-style tool sandbox of validated RESTful APIs. Every task is scored by a fully deterministic, rule-based evaluator with no LLM judge and ships a human-verified gold reference that scores a perfect 1.0 under that same evaluator, so the ceiling is demonstrably achievable and every remaining gap is an agent limitation rather than scorer strictness. Evaluating 15 LLM agents across nine constraint dimensions, we find that even the strongest (GPT-5.6) produces a fully-feasible plan on only 46.2% of solvable tasks, with a median of 6.6% and a floor of 0.0%; satisfying travelers' unstated needs emerges as the universal bottleneck, unsolved even at the frontier. We release the dataset, tool sandbox, deterministic evaluator, and agent code as a fully reproducible benchmark.",
+          "claimed_authors": [
+            "Jinhu Qi",
+            "Wentao Zhang",
+            "Siu Man Ng",
+            "Feiyang Xu",
+            "Yanyu Chen",
+            "Yaoman Li",
+            "Irwin King"
+          ],
+          "claimed_title": "TREK: A Travel Reasoning and Evaluation Kit for LLM Agents in Complex Trip Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26977"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='TREK: A Travel Reasoning and Evaluation Kit for LLM Agents in Complex Trip Planning')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       },
       {
@@ -429,7 +476,24 @@
           "primary_pointer": "1907.02664"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-22T04:20:27Z",
+        "failed_at": "2026-10-02T15:23:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OpenThoughts-Agent: Data Recipes for Agentic Model', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-10-02T15:23:39Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -437,54 +501,28 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Tianxin Wei",
-            "Ting-Wei Li",
-            "Zhining Liu",
-            "Xuying Ning",
-            "Ze Yang",
-            "Jiaru Zou",
-            "Zhichen Zeng",
-            "Ruizhong Qiu",
-            "Xiao Lin",
-            "Dongqi Fu",
-            "Zihao Li",
-            "Mengting Ai",
-            "Duo Zhou",
-            "Wenxuan Bao",
-            "Yunzhe Li",
-            "Gaotang Li",
-            "Cheng Qian",
-            "Yu Wang",
-            "Xiangru Tang",
-            "Yin Xiao",
-            "Liri Fang",
-            "Hui Liu",
-            "Xianfeng Tang",
-            "Yuji Zhang",
-            "Chi Wang",
-            "Jiaxuan You",
-            "Heng Ji",
-            "Hanghang Tong",
-            "Jingrui He"
+            "Bang An",
+            "Maria Hamdani",
+            "Joseph Fox"
           ],
-          "title": "Agentic Reasoning for Large Language Models",
+          "title": "DataCanvas-EDU: An Agentic Framework for Instructor-Guided Synthetic Data Generation in Business Analytics Education",
           "venue": "arXiv",
           "year": 2026
         },
-        "primary_pointer": "2601.12538",
-        "summary": "Reasoning is a fundamental cognitive process underlying inference, problem-solving, and decision-making. While large language models (LLMs) demonstrate strong reasoning capabilities in closed-world settings, they struggle in open-ended and dynamic environments. Agentic reasoning marks a paradigm shift by reframing LLMs as autonomous agents that plan, act, and learn through continual interaction. In this survey, we organize agentic reasoning along three complementary dimensions. First, we characterize environmental dynamics through three layers: foundational agentic reasoning, which establishes core single-agent capabilities including planning, tool use, and search in stable environments; self-evolving agentic reasoning, which studies how agents refine these capabilities through feedback, memory, and adaptation; and collective multi-agent reasoning, which extends intelligence to collaborative settings involving coordination, knowledge sharing, and shared goals. Across these layers, we distinguish in-context reasoning, which scales test-time interaction through structured orchestration, from post-training reasoning, which optimizes behaviors via reinforcement learning and supervised fine-tuning. We further review representative agentic reasoning frameworks across real-world applications and benchmarks, including science, robotics, healthcare, autonomous research, and mathematics. This survey synthesizes agentic reasoning methods into a unified roadmap bridging thought and action, and outlines open challenges and future directions, including personalization, long-horizon interaction, world modeling, scalable multi-agent training, and governance for real-world deployment.",
+        "primary_pointer": "2609.19617",
+        "summary": "Business analytics education requires diverse datasets to support different learning objectives, student backgrounds, and analytical tasks. Real-world data can be difficult to obtain and offer limited flexibility for adapting a case to a particular course. Even when suitable data are available, instructors must investigate the patterns, verify the results, and prepare assignments and reference solutions, requiring substantial time and effort. The use of large language models (LLMs) introduces an additional concern about training data contamination. Widely used public datasets often have extensive tutorials and worked analyses that models may have encountered during training. Students may therefore receive explanations drawn from existing analyses without practicing how to investigate unfamiliar data in collaboration with AI. This paper presents DataCanvas-EDU, an agentic framework for instructor-guided synthetic data generation in business analytics education. Instructors specify teaching goals and intended patterns through conversation, while an AI agent writes generation code, checks the resulting data, and prepares assignments, reference analyses, and rubrics. Four phases, Plan, Create, Verify / Test Analysis, and Evaluate, organize the process and support instructor review and revision. The framework is intended to simplify case preparation while creating opportunities for students to investigate newly designed patterns with AI. We illustrate the approach with WindowDash, a food delivery case containing 15,000 orders and nine designed patterns. DataCanvas-EDU is packaged as a reusable AI Agent Skill for compatible agent environments, with the package and installation instructions available at https://github.com/BANG23333/datacanvas-edu",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2601.12538",
+          "final_url": "https://arxiv.org/abs/2609.19617",
           "http_status": 200,
-          "pdf_sample_score": 0.2419,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.3636,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-22T04:20:27Z"
+          "verified_at": "2026-10-02T15:23:39Z"
         }
       },
       {
@@ -514,13 +552,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.23989",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.1318,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-22T04:20:34Z"
+          "verified_at": "2026-10-02T15:23:45Z"
         }
       }
     ]

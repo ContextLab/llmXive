@@ -202,12 +202,12 @@ description: "Task list template for feature implementation"
  5. **Output**: Save `r`, `p`, `beta`, `ci_lower`, `ci_upper`, `adjusted_p`, and sensitivity tables to `results/statistics/` and `results/sensitivity/`.
  **DEPENDS ON: T031a**. **FR Tags**: [FR-006], [FR-007], [FR-009], [FR-010], [FR-003].
 
-- [ ] T031c [US3] **IMPLEMENT VISUALIZATION/REPORTING**: Implement `code/03_analysis.py` function `generate_plots_and_tables`.
+- [X] T031c [US3] **IMPLEMENT VISUALIZATION/REPORTING**: Implement `code/03_analysis.py` function `generate_plots_and_tables`. <!-- FAILED: unspecified -->
  1. **Visualization (FR-008)**: Generate scatter plots for significant correlations (p<0.05) with trend lines using `seaborn`. Save to `results/plots/` with filename pattern `plot_{predictor}_{outcome}.png`.
  2. **Output**: Save final statistics to `results/statistics/statistics.json`.
  **DEPENDS ON: T031b**. **FR Tags**: [FR-008], [FR-009].
 
-- [ ] T031d [US3] **GENERATE ASSOCIATIONAL REPORT**: Implement `code/03_analysis.py` function `generate_associational_report`.
+- [X] T031d [US3] **GENERATE ASSOCIATIONAL REPORT**: Implement `code/03_analysis.py` function `generate_associational_report`. <!-- FAILED: unspecified -->
  1. **Template Generation**: Construct the report text using a strict template that enforces associational language (e.g., "is associated with", "correlates with").
  2. **Causal Language Prevention**: The template MUST NOT contain words like "cause", "effect", "impact" in the context of the relationship.
  3. **Output**: Generate the report content to be used by T045.

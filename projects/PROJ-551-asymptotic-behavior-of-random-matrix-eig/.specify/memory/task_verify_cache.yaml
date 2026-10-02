@@ -12,6 +12,12 @@ T018:
     repository, so the integration test for the full parameter sweep cannot be verified.
     The task remains unfinished until the file is added with the appropriate test
     implementation.
+T019b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/metadata_registry.json` file was presented, and there is no evidence\
+    \ that such a file exists, contains the required schema, or registers the checksum\
+    \ from T019. The task\u2019s core deliverable is therefore missing."
 T020a:
   c: false
   h: 06cf22deb1123eb6d302f0b71410f66ea47c4ca0d9a67e6c1c1a327e9a4a00d1
@@ -56,3 +62,9 @@ T037:
     \ (or their contents) we cannot verify that edge\u2011case tests for N=100,\u202F\
     \u03B8=1.0,\u202Frank=0 exist or are correctly implemented. The required artifact\
     \ is missing."
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.npy` matrix files were presented in `data/raw/sweep/`, nor is there a `state/metadata_registry.json`\
+    \ containing the required SHA\u2011256 checksums. Without these artifacts the\
+    \ parameter grid has not been materialized nor recorded, so the task is not satisfied."
