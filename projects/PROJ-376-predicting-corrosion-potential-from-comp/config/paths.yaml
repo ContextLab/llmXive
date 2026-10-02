@@ -1,0 +1,45 @@
+# File Path Configuration for the Corrosion Potential Prediction Pipeline
+# This file defines all directory and file paths used by the system.
+# Paths are relative to the project root.
+
+paths:
+  # Root directories
+  root: "."
+  code_dir: "code"
+  data_dir: "data"
+  state_dir: "state"
+  contracts_dir: "contracts"
+  config_dir: "config"
+  logs_dir: "data/logs"
+  figures_dir: "data/processed/figures"
+  
+  # Data subdirectories
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  interpretability_dir: "data/processed/interpretability"
+  
+  # Specific file paths
+  schema_ingest: "contracts/ingest.schema.yaml"
+  schema_dataset: "contracts/dataset.schema.yaml"
+  schema_model_results: "contracts/model_results.schema.yaml"
+  
+  # Output files
+  processed_dataset_path: "data/processed/corrosion_dataset.parquet"
+  model_results_path: "data/processed/model_results.json"
+  split_indices_path: "data/processed/split_indices.json"
+  split_validation_path: "data/logs/split_validation.json"
+  count_report_path: "data/logs/diagnostics/count_report.txt"
+  
+  # Log files
+  pipeline_log: "data/logs/pipeline.log"
+  schema_validation_log: "data/logs/schema_validation.log"
+  diagnostics_log: "data/logs/diagnostics.log"
+  
+  # Configuration files
+  seeds_config: "config/seeds.yaml"
+  paths_config: "config/paths.yaml"
+  astm_tolerance_config: "config/astm_g59_tolerance.yaml"
+  verified_datasets_config: "config/verified_datasets.yaml"
+  
+  # State files
+  setup_dirs_verified: "state/setup_dirs_verified.json"

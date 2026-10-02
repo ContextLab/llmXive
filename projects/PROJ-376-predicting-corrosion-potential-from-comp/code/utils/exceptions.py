@@ -1,34 +1,34 @@
-"""
-Custom exceptions for the corrosion prediction pipeline.
-"""
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-
 class CorrosionPipelineError(Exception):
-    """Base exception for all corrosion pipeline errors."""
-    def __init__(self, message: str):
-        super().__init__(message)
-        logger.error(f"CorrosionPipelineError: {message}")
-
+    """Base exception for the corrosion prediction pipeline."""
+    pass
 
 class DataInsufficientError(CorrosionPipelineError):
-    """Raised when data is insufficient to proceed (e.g., <500 records, missing alloys)."""
+    """
+    Raised when required data is missing, incomplete, or insufficient.
+    
+    Examples:
+    - NIST URL missing from config
+    - Dataset has < 500 records
+    - ASTM G59 standard does not define a required tolerance value
+    - Alloy diversity is insufficient for LOSO split
+    """
     def __init__(self, message: str):
         super().__init__(message)
         logger.error(f"DataInsufficientError: {message}")
 
-
 class SchemaMismatchError(CorrosionPipelineError):
-    """Raised when data does not conform to expected schema contracts."""
-    def __init__(self, message: str, expected_schema: dict = None, actual_schema: dict = None):
-        self.expected_schema = expected_schema
-        self.actual_schema = actual_schema
-        full_message = f"{message}"
-        if expected_schema:
-            full_message += f"\nExpected: {expected_schema}"
-        if actual_schema:
-            full_message += f"\nActual: {actual_schema}"
-        super().__init__(full_message)
+    """
+    Raised when data does not conform to the expected schema.
+    
+    Examples:
+    - Null values in critical fields
+    - Missing required columns
+    - Type mismatches in data
+    """
+    def __init__(self, message: str):
+        super().__init__(message)
         logger.error(f"SchemaMismatchError: {message}")

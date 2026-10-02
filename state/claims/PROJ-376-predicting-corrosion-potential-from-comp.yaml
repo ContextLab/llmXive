@@ -1,0 +1,318 @@
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: corrosion dataset must contain at least 500 records
+  claim_id: c_544b1d97
+  context: "Independent Test: Execute code/data/download_nist.py and code/data/preprocess.py;\
+    \ verify output data/processed/corrosion_dataset.parquet exists, contains \u2265\
+    500 records, has no nulls in critical fields, and passes GroupKFold (k=5) validation\
+    \ (\u226510 alloy designations)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corrosion_dataset_must_contain_at_least_500_records
+  kind: magnitude
+  raw_text: "The output parquet file data/processed/corrosion_dataset.parquet must\
+    \ contain \u2265500 records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:36:44Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: dataset must contain at least 10 specific alloy designations
+  claim_id: c_d6373ed9
+  context: "Independent Test: Execute code/data/download_nist.py and code/data/preprocess.py;\
+    \ verify output data/processed/corrosion_dataset.parquet exists, contains \u2265\
+    500 records, has no nulls in critical fields, and passes GroupKFold (k=5) validation\
+    \ (\u226510 alloy designations)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_must_contain_at_least_10_specific_alloy_designations
+  kind: magnitude
+  raw_text: The dataset must contain at least 10 specific alloy designations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:37:07Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: output includes top 5 features with p-values less than 0.05
+  claim_id: c_97ace65a
+  context: 'Independent Test: Run code/models/interpret.py; verify output includes
+    top 5 features with p-values < 0.05 (Bonferroni/FDR corrected) and at least one
+    partial dependence plot visualizing non-linear interaction.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_includes_top_5_features_with_p-values_less_than_0.05
+  kind: magnitude
+  raw_text: The output must include top 5 features with p-values < 0.05 (Bonferroni/FDR
+    corrected).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:37:51Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: statistical significance testing uses one-sample permutation test with
+    1000 permutations
+  claim_id: c_e3b027e8
+  context: 'T028 [US3] Implement statistical significance testing for feature importance
+    using one-sample permutation test (null hypothesis: importance = 0) with 1,000
+    permutations, seed=42, applying Bonferroni or FDR correction for multiple comparisons
+    (FR-008, SC-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance testing uses one-sample permutation test with
+    1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:38:13Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: pipeline halts if NIST-IR-8200 yields fewer than 500 records
+  claim_id: c_6cad8244
+  context: 'Critical Constraint: Do not use synthetic data. If NIST-IR-8200 yields
+    <500 records, the pipeline MUST halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_NIST-IR-8200_yields_fewer_than_500_records
+  kind: magnitude
+  raw_text: The pipeline must halt if NIST-IR-8200 yields fewer than 500 records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:38:48Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: models run on CPU-only GitHub Actions runners
+  claim_id: c_d75d4cd2
+  context: 'Critical Constraint: All models must run on CPU-only GitHub Actions runners
+    (no CUDA, no low-bit quantization).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_run_on_CPU-only_GitHub_Actions_runners
+  kind: entity_fact
+  raw_text: All models must run on CPU-only GitHub Actions runners.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:39:18Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: split strategy is Leave-One-Specific-Alloy-Out
+  claim_id: c_61501384
+  context: 'Critical Constraint: Split strategy MUST be Leave-One-Specific-Alloy-Out
+    (LOSO) as per Spec FR-004/FR-012.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split_strategy_is_Leave-One-Specific-Alloy-Out
+  kind: entity_fact
+  raw_text: The split strategy must be Leave-One-Specific-Alloy-Out (LOSO).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:39:48Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: pipeline halts if ASTM G59 standard does not define specific prediction
+    error tolerance value
+  claim_id: c_1f555802
+  context: 'T023a [US2] Create config/astm_g59_tolerance.yaml and parse ASTM G59 standard
+    to extract prediction error tolerance. Requirement: If standard does not define
+    a specific value, the pipeline MUST halt with DataInsufficientError (No fallback
+    allowed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_ASTM_G59_standard_does_not_define_specific
+  kind: entity_fact
+  raw_text: The pipeline must halt if the ASTM G59 standard does not define a specific
+    prediction error tolerance value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:40:09Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Corrosion dataset contains at least 500 records
+  claim_id: c_f7dfe4a8
+  context: "Independent Test: Execute code/data/download_nist.py and code/data/preprocess.py;\
+    \ verify output data/processed/corrosion_dataset.parquet exists, contains \u2265\
+    500 records, has no nulls in critical fields, and passes GroupKFold (k=5) validation\
+    \ (\u226510 alloy designations)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corrosion_dataset_contains_at_least_500_records
+  kind: magnitude
+  raw_text: "The Independent Test requires that output data/processed/corrosion_dataset.parquet\
+    \ contains \u2265500 records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:45:57Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Dataset contains at least 10 alloy designations
+  claim_id: c_06477937
+  context: "Independent Test: Execute code/data/download_nist.py and code/data/preprocess.py;\
+    \ verify output data/processed/corrosion_dataset.parquet exists, contains \u2265\
+    500 records, has no nulls in critical fields, and passes GroupKFold (k=5) validation\
+    \ (\u226510 alloy designations)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_10_alloy_designations
+  kind: magnitude
+  raw_text: The dataset must have at least 10 alloy designations to pass GroupKFold
+    (k=5) validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:46:21Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if NIST dataset has fewer than 500 records
+  claim_id: c_7021ac50
+  context: 'Halt Condition: If <500 records or missing joint distribution, raise SchemaMismatchError
+    as mandated by FR-014. Critical Constraint: Do not use synthetic data. If NIST-IR-8200
+    yields <500 records, the pipeline MUST halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_NIST_dataset_has_fewer_than_500_records
+  kind: magnitude
+  raw_text: The pipeline halts if the NIST-IR-8200 dataset yields fewer than 500 records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:46:51Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Feature importance significance testing uses 1000 permutations
+  claim_id: c_0dbe7119
+  context: 'Implement statistical significance testing for feature importance using
+    one-sample permutation test (null hypothesis: importance = 0) with 1,000 permutations,
+    seed=42, applying Bonferroni or FDR correction for multiple comparisons (FR-008,
+    SC-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance testing for feature importance uses 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:47:16Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Top 5 features have p-values less than 0.05 after correction
+  claim_id: c_305f3e02
+  context: 'Independent Test: Run code/models/interpret.py; verify output includes
+    top 5 features with p-values < 0.05 (Bonferroni/FDR corrected) and at least one
+    partial dependence plot visualizing non-linear interaction.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Top
+      - 5.0
+    - - Top 5 features have p-values less than
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Top_5_features_have_p-values_less_than_0.05_after_correction
+  kind: magnitude
+  raw_text: The independent test for User Story 3 requires p-values < 0.05 for the
+    top 5 features after Bonferroni or FDR correction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-02T11:47:45Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Data preprocessing completes in under 30 seconds on 10000 rows
+  claim_id: c_0f2888b3
+  context: 'Optimize data loading in code/data/preprocess.py to complete in < 30 seconds
+    on 10k rows. Verification: Run benchmark script and confirm time < 30s.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_preprocessing_completes_in_under_30_seconds_on_10000_ro
+  kind: magnitude
+  raw_text: Data loading in code/data/preprocess.py must complete in less than 30
+    seconds on 10,000 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:48:19Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Split strategy is Leave-One-Specific-Alloy-Out
+  claim_id: c_be44212b
+  context: 'Implement code/data/split.py with Leave-One-Specific-Alloy-Out (LOSO)
+    logic to prevent data leakage as per FR-004/FR-012. Critical Constraint: Split
+    strategy MUST be Leave-One-Specific-Alloy-Out (LOSO) as per Spec FR-004/FR-012.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split_strategy_is_Leave-One-Specific-Alloy-Out
+  kind: entity_fact
+  raw_text: The split strategy must be Leave-One-Specific-Alloy-Out (LOSO).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:48:21Z'
+- artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/tasks.md
+  attempts: 1
+  canonical: Dataset contains at least 10 specific alloy designations for splitting
+  claim_id: c_6e23953e
+  context: "Pre-check: Verify dataset contains \u226510 specific alloy designations;\
+    \ if not, raise DataInsufficientError. Verification: Verify that the specific_alloy_designation\
+    \ column is passed as the groups argument to the split logic."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_10_specific_alloy_designations_for
+  kind: magnitude
+  raw_text: The dataset must contain at least 10 specific alloy designations to proceed
+    with Leave-One-Specific-Alloy-Out splitting.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T11:48:39Z'

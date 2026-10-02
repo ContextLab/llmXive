@@ -1,3 +1,27 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/setup_dirs_verified.json` file was presented, nor any evidence that\
+    \ the required directory hierarchy (`code/`, `data/`, etc.) exists. Without the\
+    \ JSON listing absolute paths and timestamps, the verification condition cannot\
+    \ be satisfied. The implementer must create the directories and produce the specified\
+    \ JSON file that the script exits with status\u202F0 only when all directories\
+    \ are present."
+T004:
+  c: false
+  h: 5e2c3d333933a20155c277abca1fba4174be3a1ac5cd6b897207381f71b04921
+  r: The log file exists, but the required schema contract files `contracts/ingest.schema.yaml`
+    and `contracts/dataset.schema.yaml` are not present (no evidence of their existence
+    or content). The task is not satisfied until those YAML files are created with
+    the appropriate field definitions.
+T009:
+  c: false
+  h: 5fb80ff4b715b8378ca9737077bb4161d947fc4f3f6f733a244a05d864e21533
+  r: "The required `data/logs/schema_validation.log` from T004 is missing, so the\
+    \ dependency check cannot be satisfied. Additionally, the `validation.py` file\
+    \ is truncated (the `validate_non_nulls` function is incomplete), meaning the\
+    \ non\u2011null enforcement utility is not fully implemented. Both the prerequisite\
+    \ log and a complete implementation are needed."
 T014:
   c: false
   h: 35688c093cd19527092260ecbac388114910d20dabc1b10ce279a6ca4901f73f
@@ -6,11 +30,3 @@ T014:
     \ and `data/logs/diagnostics/count_report.txt`, or raises `DataInsufficientError`.\
     \ Moreover, the two required log files are absent from the repository. Consequently,\
     \ the task\u2019s requirements are not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and specification excerpt;\
-    \ there is no code, data, results, or report demonstrating a null baseline (mean\
-    \ prediction) comparison, the R\xB2\u202F>\u202F0.0 classification, or a permutation\u2011\
-    test p\u2011value calculation. Consequently, the required artifact proving the\
-    \ \u201Clearnable\u201D classification logic is missing."

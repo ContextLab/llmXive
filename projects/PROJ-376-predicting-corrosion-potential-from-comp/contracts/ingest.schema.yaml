@@ -1,85 +1,29 @@
-# Ingest Schema: Defines the structure of raw data after downloading
-# from NIST-IR-8200 and before preprocessing.
-# Used by download_nist.py to validate downloaded content.
-$schema: "http://json-schema.org/draft-07/schema#"
-title: NIST Corrosion Database Ingest Schema
-description: |
-  Schema for raw records extracted from the NIST-IR-8200 dataset.
-  Expected fields correspond to the raw columns found in the source files.
+# Schema for raw data ingestion from NIST-IR-8200
+# Based on AlloyRecord definition in data-model.md
 type: object
 required:
-  - record_id
-  - alloy_composition
-  - environment_conditions
-  - corrosion_measurement
+  - alloy_id
+  - composition
+  - specific_alloy_designation
 properties:
-  record_id:
+  alloy_id:
     type: string
-    description: Unique identifier for the record (e.g., NIST-IR-8200-001)
-  alloy_composition:
+    description: Unique identifier for the alloy record
+  composition:
     type: object
-    description: Raw composition data as provided in source
-    properties:
-      base_element:
-        type: string
-        description: Primary metal (e.g., "Iron", "Aluminum")
-      specific_alloy_designation_id:
-        type: string
-        description: Standard alloy designation (e.g., "304", "6061-T6")
-      weight_fractions:
-        type: object
-        description: Map of element name to weight percentage
-        additionalProperties:
-          type: number
-          minimum: 0
-          maximum: 100
-      trace_elements:
-        type: object
-        description: Optional trace elements
-        additionalProperties:
-          type: number
-    required:
-      - base_element
-      - specific_alloy_designation_id
-      - weight_fractions
-  environment_conditions:
-    type: object
-    description: Raw environmental parameters
-    properties:
-      pH:
-        type: number
-        description: pH value of the solution
-      temperature_c:
-        type: number
-        description: Temperature in Celsius
-      electrolyte_type:
-        type: string
-        description: Type of electrolyte (e., "NaCl", "H2SO4")
-      dissolved_oxygen_ppm:
-        type: number
-        description: Dissolved oxygen concentration
-      agitation:
-        type: string
-        description: Agitation condition (e.g., "static", "flowing")
-    required:
-      - pH
-      - temperature_c
-      - electrolyte_type
-  corrosion_measurement:
-    type: object
-    description: Raw corrosion potential data
-    properties:
-      potential_mv:
-        type: number
-        description: Corrosion potential in millivolts
-      duration_hours:
-        type: number
-        description: Exposure duration in hours
-      measurement_method:
-        type: string
-        description: Method used (e.g., "Linear Polarization", "Potentiodynamic")
-    required:
-      - potential_mv
-      - duration_hours
-      - measurement_method
-additionalProperties: false
+    description: Dictionary of chemical composition (element: weight_fraction)
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  specific_alloy_designation:
+    type: string
+    description: Specific alloy grade or designation (e.g., "304L", "Inconel 625")
+  source:
+    type: string
+    description: Source identifier (e.g., "NIST-IR-8200")
+  record_date:
+    type: string
+    format: date-time
+    description: Timestamp of record creation or ingestion
+additionalProperties: true

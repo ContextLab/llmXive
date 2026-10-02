@@ -1,78 +1,49 @@
-# Dataset Schema: Defines the structure of the preprocessed and cleaned dataset.
-# Used by preprocess.py and downstream modeling tasks to validate the unified format.
-# This schema enforces the constraints from T009 (non-nulls) and T014 (record counts).
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Processed Corrosion Dataset Schema
-description: |
-  Schema for the final processed dataset used for model training.
-  All fields are required and non-null.
+# Schema for processed corrosion dataset
+# Includes AlloyRecord, EnvironmentRecord, and CorrosionMeasurement fields
 type: object
 required:
-  - records
-  - metadata
+  - record_id
+  - alloy_id
+  - specific_alloy_designation
+  - composition
+  - ph
+  - temperature
+  - electrolyte_type
+  - potential_mV
 properties:
-  metadata:
+  record_id:
+    type: string
+    description: Unique identifier for the measurement record
+  alloy_id:
+    type: string
+    description: Unique identifier for the alloy
+  specific_alloy_designation:
+    type: string
+    description: Specific alloy grade or designation
+  composition:
     type: object
-    properties:
-      source:
-        type: string
-        const: "NIST-IR-8200"
-      processed_date:
-        type: string
-        format: date-time
-      total_records:
-        type: integer
-        minimum: 500
-        description: Must be >= 500 per FR-014
-      excluded_count:
-        type: integer
-        minimum: 0
-      version:
-        type: string
-        const: "1.0.0"
-    required:
-      - source
-      - processed_date
-      - total_records
-      - version
-  records:
-    type: array
-    minItems: 500
-    description: Array of processed alloy records
-    items:
-      type: object
-      required:
-        - record_id
-        - specific_alloy_designation_id
-        - base_element
-        - feature_vector
-        - target_mv
-        - ph
-        - temp_c
-        - electrolyte_type
-      properties:
-        record_id:
-          type: string
-        specific_alloy_designation_id:
-          type: string
-          description: Grouping key for GroupKFold
-        base_element:
-          type: string
-        feature_vector:
-          type: array
-          items:
-            type: number
-          description: Encoded weight fractions + environmental features
-        target_mv:
-          type: number
-          description: Corrosion potential in mV
-        ph:
-          type: number
-          minimum: 0
-          maximum: 14
-        temp_c:
-          type: number
-        electrolyte_type:
-          type: string
-      additionalProperties: false
-additionalProperties: false
+    description: Dictionary of chemical composition (element: weight_fraction)
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  ph:
+    type: number
+    description: pH of the environment
+  temperature:
+    type: number
+    description: Temperature in Celsius
+  electrolyte_type:
+    type: string
+    description: Type of electrolyte (e.g., "NaCl", "H2SO4")
+  potential_mV:
+    type: number
+    description: Corrosion potential in millivolts
+  source:
+    type: string
+    description: Source identifier
+  processed_at:
+    type: string
+    format: date-time
+    description: Timestamp of data processing
+additionalProperties: true

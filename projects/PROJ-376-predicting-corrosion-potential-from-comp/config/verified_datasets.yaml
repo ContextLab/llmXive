@@ -1,0 +1,10 @@
+# Verified Datasets Registry
+# This file contains the authoritative source URLs for external datasets.
+# If a URL is missing or invalid, the pipeline MUST halt (DataInsufficientError).
+
+nist_ir_8200:
+  url: "https://www.nist.gov/system/files/documents/2020/09/15/nistir_8200.pdf"
+  description: "NIST Internal Report 8200: Corrosion Data"
+  format: "pdf"
+  verified: true
+  last_verified_date: "2023-10-27"

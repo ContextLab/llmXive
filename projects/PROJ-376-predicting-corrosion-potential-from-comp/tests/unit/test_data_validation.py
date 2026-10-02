@@ -1,165 +1,165 @@
 """
-Unit tests for schema validation logic.
+Unit tests for schema validation logic in T014.
 
-This test suite validates the functions in code/utils/validation.py.
-These tests are designed to fail before the implementation of T012-T017
-(data ingestion and preprocessing) to ensure the validation layer is
-correctly integrated into the pipeline.
+This test suite verifies that the schema validation logic in `code/utils/validation.py`
+and `code/data/preprocess.py` correctly enforces data quality constraints:
+1. Record count must be >= 500.
+2. Critical fields (ph, temperature, potential_mV, alloy_id) must not be null.
+3. Alloy diversity (specific_alloy_designation) must be >= 10.
+
+These tests are designed to FAIL before T012-T017 implementation is complete,
+ensuring the validation logic is actually implemented and working.
 """
-import unittest
-import sys
+import pytest
+import pandas as pd
+import json
 from pathlib import Path
-from typing import List, Dict, Any
-from dataclasses import dataclass, field
+import tempfile
+import os
+import sys
+from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
+# Add project root to path if running standalone
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.exceptions import SchemaMismatchError, DataInsufficientError
-from utils.validation import validate_non_nulls, validate_schema_structure, filter_null_records
-from data.models import AlloyRecord, EnvironmentRecord, CorrosionMeasurement
+from utils.exceptions import SchemaMismatchError
+from utils.config import get_diagnostics_path
+# Import the actual validation functions
+from utils.validation import validate_record_count, validate_non_nulls, validate_alloy_diversity
+from data.preprocess import validate_processed_data, write_count_report
 
-
-class TestSchemaValidationLogic(unittest.TestCase):
-    """Unit tests for schema validation utilities."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.sample_alloy = AlloyRecord(
-            alloy_id="AL-001",
-            composition={"Fe": 0.7, "Cr": 0.2, "Ni": 0.1},
-            specific_alloy_designation_id="304"
-        )
-        self.sample_env = EnvironmentRecord(
-            env_id="ENV-001",
-            ph=7.0,
-            temperature=25.0,
-            electrolyte="NaCl"
-        )
-        self.sample_meas = CorrosionMeasurement(
-            measurement_id="MEAS-001",
-            alloy_id="AL-001",
-            env_id="ENV-001",
-            potential=-0.45,
-            timestamp="2023-01-01T00:00:00"
-        )
-
-    def test_validate_non_nulls_pass(self):
-        """Test that validation passes when no nulls exist in critical fields."""
-        records = [self.sample_alloy, self.sample_env, self.sample_meas]
-        # Define critical fields for each record type
-        critical_fields = {
-            "AlloyRecord": {"alloy_id", "composition"},
-            "EnvironmentRecord": {"env_id", "ph", "temperature"},
-            "CorrosionMeasurement": {"measurement_id", "alloy_id", "env_id", "potential"}
-        }
+class TestSchemaValidation:
+    
+    def create_mock_df(self, count: int, nulls: bool = False, alloys: int = 20):
+        """Helper to create a mock dataframe with configurable parameters."""
+        # Ensure we have enough unique alloy designations
+        unique_designations = [f'spec_{i % alloys}' for i in range(count)]
         
-        # This should not raise an exception
-        try:
-            validate_non_nulls(records, critical_fields)
-            passed = True
-        except SchemaMismatchError:
-            passed = False
-        
-        self.assertTrue(passed, "Validation should pass for records without nulls in critical fields")
-
-    def test_validate_non_nulls_fail_missing_field(self):
-        """Test that validation fails when a critical field is missing (None)."""
-        # Create a record with a None critical field
-        bad_record = CorrosionMeasurement(
-            measurement_id="MEAS-BAD",
-            alloy_id=None,  # Critical field is None
-            env_id="ENV-001",
-            potential=-0.45,
-            timestamp="2023-01-01T00:00:00"
-        )
-        
-        records = [self.sample_alloy, self.sample_env, bad_record]
-        critical_fields = {
-            "CorrosionMeasurement": {"measurement_id", "alloy_id", "env_id", "potential"}
-        }
-
-        with self.assertRaises(SchemaMismatchError) as context:
-            validate_non_nulls(records, critical_fields)
-        
-        self.assertIn("alloy_id", str(context.exception))
-
-    def test_validate_schema_structure_pass(self):
-        """Test schema structure validation with correct data types."""
         data = {
-            "alloy_id": "AL-001",
-            "composition": {"Fe": 0.7},
-            "specific_alloy_designation_id": "304"
+            'alloy_id': [f'alloy_{i}' for i in range(count)],
+            'specific_alloy_designation': unique_designations,
+            'ph': [7.0] * count,
+            'temperature': [25.0] * count,
+            'potential_mV': [100.0] * count,
+            'composition': ['{}'] * count
         }
         
-        # This should not raise an exception
-        try:
-            validate_schema_structure(data, AlloyRecord)
-            passed = True
-        except SchemaMismatchError:
-            passed = False
+        if nulls:
+            # Introduce nulls in a critical field (ph)
+            data['ph'][0] = None
+            # Also ensure the dataframe is properly typed
+            data['ph'] = pd.array(data['ph'], dtype='float64')
+            
+        return pd.DataFrame(data)
 
-        self.assertTrue(passed, "Validation should pass for correctly structured data")
+    def test_validate_record_count_passes(self):
+        """Test that record count validation passes with >= 500 records."""
+        df = self.create_mock_df(count=500, nulls=False, alloys=20)
+        is_valid, message = validate_record_count(df, min_count=500)
+        assert is_valid is True
+        assert "passed" in message.lower()
 
-    def test_validate_schema_structure_fail_missing_field(self):
-        """Test schema structure validation fails when required field is missing."""
-        data = {
-            "alloy_id": "AL-001",
-            # Missing 'composition' which is required
-            "specific_alloy_designation_id": "304"
-        }
+    def test_validate_record_count_fails_low_count(self):
+        """Test that record count validation fails if count < 500."""
+        df = self.create_mock_df(count=499, nulls=False, alloys=20)
+        is_valid, message = validate_record_count(df, min_count=500)
+        assert is_valid is False
+        assert "below minimum threshold" in message.lower()
 
-        with self.assertRaises(SchemaMismatchError):
-            validate_schema_structure(data, AlloyRecord)
+    def test_validate_non_nulls_passes(self):
+        """Test that non-null validation passes when no nulls exist."""
+        df = self.create_mock_df(count=600, nulls=False, alloys=20)
+        is_valid, message = validate_non_nulls(df, critical_fields=['ph', 'temperature', 'potential_mV', 'alloy_id'])
+        assert is_valid is True
+        assert "passed" in message.lower()
 
-    def test_filter_null_records_removes_invalid(self):
-        """Test that filter_null_records removes records with null critical fields."""
-        valid_record = self.sample_alloy
-        invalid_record = AlloyRecord(
-            alloy_id=None,
-            composition={"Fe": 0.7},
-            specific_alloy_designation_id="304"
-        )
+    def test_validate_non_nulls_fails_nulls(self):
+        """Test that non-null validation fails if critical fields contain nulls."""
+        df = self.create_mock_df(count=600, nulls=True, alloys=20)
+        is_valid, message = validate_non_nulls(df, critical_fields=['ph', 'temperature', 'potential_mV', 'alloy_id'])
+        assert is_valid is False
+        assert "null values found" in message.lower()
+
+    def test_validate_alloy_diversity_passes(self):
+        """Test that alloy diversity validation passes with >= 10 unique alloys."""
+        df = self.create_mock_df(count=600, nulls=False, alloys=15)
+        is_valid, message = validate_alloy_diversity(df, min_alloys=10)
+        assert is_valid is True
+        assert "passed" in message.lower()
+
+    def test_validate_alloy_diversity_fails_low_alloys(self):
+        """Test that alloy diversity validation fails if < 10 unique alloys."""
+        df = self.create_mock_df(count=600, nulls=False, alloys=5)
+        is_valid, message = validate_alloy_diversity(df, min_alloys=10)
+        assert is_valid is False
+        assert "insufficient alloy diversity" in message.lower()
+
+    def test_full_validation_integration_passes(self):
+        """Test the full validation pipeline with valid data."""
+        df = self.create_mock_df(count=600, nulls=False, alloys=20)
+        is_valid, message = validate_processed_data(df)
+        assert is_valid is True
+        assert "passed" in message.lower()
+
+    def test_full_validation_integration_fails_low_count(self):
+        """Test the full validation pipeline fails on low record count."""
+        df = self.create_mock_df(count=499, nulls=False, alloys=20)
+        is_valid, message = validate_processed_data(df)
+        assert is_valid is False
+        assert "below minimum threshold" in message.lower()
+
+    def test_full_validation_integration_fails_nulls(self):
+        """Test the full validation pipeline fails on null critical fields."""
+        df = self.create_mock_df(count=600, nulls=True, alloys=20)
+        is_valid, message = validate_processed_data(df)
+        assert is_valid is False
+        assert "null values found" in message.lower()
+
+    def test_full_validation_integration_fails_low_alloys(self):
+        """Test the full validation pipeline fails on low alloy diversity."""
+        df = self.create_mock_df(count=600, nulls=False, alloys=5)
+        is_valid, message = validate_processed_data(df)
+        assert is_valid is False
+        assert "insufficient alloy diversity" in message.lower()
+
+    def test_count_report_written(self):
+        """Test that count_report.txt is written correctly with valid JSON."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            report_path = Path(tmpdir) / "count_report.txt"
+            
+            write_count_report(record_count=400, is_valid=False, output_path=report_path)
+            
+            assert report_path.exists()
+            with open(report_path, 'r') as f:
+                content = f.read()
+                data = json.loads(content)
+            
+            assert data['actual_count'] == 400
+            assert data['status'] == 'FAILED'
+            assert data['threshold'] == 500
+            assert 'timestamp' in data
+
+    def test_schema_mismatch_error_raised_on_low_count(self):
+        """Test that SchemaMismatchError is raised when record_count < 500."""
+        df = self.create_mock_df(count=400, nulls=False, alloys=20)
+        with pytest.raises(SchemaMismatchError) as exc_info:
+            # Simulate the check that would happen in the pipeline
+            is_valid, _ = validate_record_count(df, min_count=500)
+            if not is_valid:
+                raise SchemaMismatchError("Record count below minimum threshold")
         
-        records = [valid_record, invalid_record]
-        critical_fields = {"AlloyRecord": {"alloy_id", "composition"}}
+        assert "Record count below minimum threshold" in str(exc_info.value)
 
-        filtered = filter_null_records(records, critical_fields)
-
-        self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0].alloy_id, valid_record.alloy_id)
-
-    def test_filter_null_records_raises_if_all_filtered(self):
-        """Test that filter_null_records raises DataInsufficientError if all records are removed."""
-        invalid_record = AlloyRecord(
-            alloy_id=None,
-            composition=None,
-            specific_alloy_designation_id="304"
-        )
+    def test_schema_mismatch_error_raised_on_nulls(self):
+        """Test that SchemaMismatchError is raised when critical fields are null."""
+        df = self.create_mock_df(count=600, nulls=True, alloys=20)
+        with pytest.raises(SchemaMismatchError) as exc_info:
+            is_valid, _ = validate_non_nulls(df, critical_fields=['ph'])
+            if not is_valid:
+                raise SchemaMismatchError("Null values found in critical fields")
         
-        records = [invalid_record]
-        critical_fields = {"AlloyRecord": {"alloy_id", "composition"}}
+        assert "Null values found in critical fields" in str(exc_info.value)
 
-        with self.assertRaises(DataInsufficientError):
-            filter_null_records(records, critical_fields)
-
-    def test_filter_null_records_raises_if_below_threshold(self):
-        """Test that filter_null_records raises DataInsufficientError if count < min_count."""
-        valid_record = self.sample_alloy
-        invalid_record = AlloyRecord(
-            alloy_id=None,
-            composition={"Fe": 0.7},
-            specific_alloy_designation_id="304"
-        )
-        
-        records = [valid_record, invalid_record]
-        critical_fields = {"AlloyRecord": {"alloy_id", "composition"}}
-
-        # Set min_count higher than the number of valid records
-        with self.assertRaises(DataInsufficientError):
-            filter_null_records(records, critical_fields, min_count=5)
-
-
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

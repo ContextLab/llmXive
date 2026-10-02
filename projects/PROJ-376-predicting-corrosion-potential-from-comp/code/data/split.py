@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
 from sklearn.model_selection import GroupKFold
 
-from utils.config import get_log_path, get_processed_data_path
+from utils.config import get_log_path, get_processed_data_path, get_split_validation_path
 from utils.exceptions import DataInsufficientError
 from utils.logging import get_logger
 
@@ -21,30 +21,46 @@ def load_processed_dataset() -> pd.DataFrame:
 
 def validate_alloy_diversity(df: pd.DataFrame, min_alloys: int = 10) -> bool:
     """
-    Verify the dataset contains enough unique alloy designations for GroupKFold.
+    Verify the dataset contains enough unique specific alloy designations for LOSO/GroupKFold.
+    Returns True if diversity is sufficient, raises DataInsufficientError otherwise.
     """
-    group_col = "specific_alloy_designation_id"
+    group_col = "specific_alloy_designation"
     if group_col not in df.columns:
-        logger.error(f"Column '{group_col}' not found in dataset.")
-        return False
+        # Fallback to ID if column name differs, but prefer the string designation per spec
+        if "specific_alloy_designation_id" in df.columns:
+            group_col = "specific_alloy_designation_id"
+        else:
+            logger.error(f"Neither 'specific_alloy_designation' nor 'specific_alloy_designation_id' found in dataset columns: {list(df.columns)}")
+            return False
     
     unique_alloys = df[group_col].nunique()
-    logger.info(f"Found {unique_alloys} unique alloy designations.")
+    logger.info(f"Found {unique_alloys} unique alloy designations in column '{group_col}'.")
+    
     if unique_alloys < min_alloys:
-        logger.error(f"Insufficient alloy diversity: {unique_alloys} < {min_alloys}")
+        logger.error(f"Insufficient alloy diversity: {unique_alloys} < {min_alloys} required.")
         return False
     return True
 
 def perform_groupkfold_split(df: pd.DataFrame, n_splits: int = 5, random_state: int = 42) -> List[Tuple[List[int], List[int]]]:
     """
-    Perform GroupKFold splitting to ensure no alloy leakage between folds.
+    Perform GroupKFold splitting using 'specific_alloy_designation' (or ID) as groups.
+    This ensures no specific alloy appears in both train and test sets (LOSO logic per fold).
+    
+    FR-004/FR-012: Prevent data leakage by ensuring strict group separation.
+    
     Returns a list of (train_indices, test_indices) tuples.
     """
-    group_col = "specific_alloy_designation_id"
+    group_col = "specific_alloy_designation"
     if group_col not in df.columns:
-        raise ValueError(f"Group column '{group_col}' not found in dataset.")
+        if "specific_alloy_designation_id" in df.columns:
+            group_col = "specific_alloy_designation_id"
+        else:
+            raise ValueError(f"Group column 'specific_alloy_designation' not found in dataset.")
     
     groups = df[group_col].values
+    
+    logger.info(f"Performing GroupKFold split with n_splits={n_splits} using group column '{group_col}'.")
+    
     gkf = GroupKFold(n_splits=n_splits)
     splits = list(gkf.split(df, groups=groups))
     
@@ -53,15 +69,23 @@ def perform_groupkfold_split(df: pd.DataFrame, n_splits: int = 5, random_state: 
 
 def validate_split_integrity(splits: List[Tuple[List[int], List[int]]], df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Verify strict GroupKFold constraint: zero overlap of specific_alloy_designation_id between folds.
-    Returns validation statistics.
+    Verify strict GroupKFold constraint: zero overlap of specific_alloy_designation between train/test in each fold.
+    
+    Returns validation statistics including overlap counts.
     """
-    group_col = "specific_alloy_designation_id"
+    group_col = "specific_alloy_designation"
+    if group_col not in df.columns:
+        if "specific_alloy_designation_id" in df.columns:
+            group_col = "specific_alloy_designation_id"
+        else:
+            raise ValueError(f"Group column '{group_col}' not found in dataset for validation.")
+    
     validation_results = {
         "total_splits": len(splits),
         "split_stats": [],
         "global_overlap_check": True,
-        "details": []
+        "details": [],
+        "group_column_used": group_col
     }
 
     for i, (train_idx, test_idx) in enumerate(splits):
@@ -101,11 +125,12 @@ def validate_split_integrity(splits: List[Tuple[List[int], List[int]]], df: pd.D
 def save_split_results(validation_results: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
     """
     Save split validation results to JSON.
+    Default path: data/logs/split_validation.json
     """
     if output_path is None:
-        log_dir = get_log_path()
-        log_dir.mkdir(parents=True, exist_ok=True)
-        output_path = log_dir / "split_validation.json"
+        output_path = get_split_validation_path()
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
         json.dump(validation_results, f, indent=2)
@@ -115,28 +140,33 @@ def save_split_results(validation_results: Dict[str, Any], output_path: Optional
 
 def main():
     """
-    Main entry point for T017: Verify split integrity.
-    Loads processed data, performs GroupKFold, validates integrity, and saves results.
+    Main entry point for T015: Implement LOSO/GroupKFold split logic.
+    
+    1. Load processed dataset.
+    2. Validate alloy diversity (>= 10 specific alloys).
+    3. Perform GroupKFold split.
+    4. Validate split integrity (zero overlap).
+    5. Save results to data/logs/split_validation.json.
     """
-    logger.info("Starting split integrity verification (T017).")
+    logger.info("Starting T015: Implement LOSO/GroupKFold split logic.")
     
     # 1. Load data
     try:
         df = load_processed_dataset()
     except FileNotFoundError as e:
         logger.critical(str(e))
-        raise DataInsufficientError(f"Cannot verify split: {e}")
+        raise DataInsufficientError(f"Cannot perform split: {e}")
     
-    # 2. Validate diversity (re-check to ensure safety)
+    # 2. Validate diversity
     if not validate_alloy_diversity(df, min_alloys=10):
-        msg = "Insufficient alloy diversity for split validation."
+        msg = "Insufficient alloy diversity for split. Cannot proceed with T015."
         logger.critical(msg)
         raise DataInsufficientError(msg)
     
     # 3. Perform split
     splits = perform_groupkfold_split(df, n_splits=5, random_state=42)
     
-    # 4. Validate integrity (Zero overlap)
+    # 4. Validate integrity
     results = validate_split_integrity(splits, df)
     
     # 5. Save results
@@ -144,10 +174,10 @@ def main():
     
     # 6. Final status
     if results["global_overlap_check"]:
-        logger.info("Task T017 COMPLETED: Split integrity verified.")
+        logger.info("T015 COMPLETED: Split logic implemented and integrity verified.")
         return 0
     else:
-        logger.error("Task T017 FAILED: Split integrity check failed.")
+        logger.error("T015 FAILED: Split integrity check failed.")
         return 1
 
 if __name__ == "__main__":

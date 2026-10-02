@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The claim provides only a textual description of the required folder hierarchy, but no actual artifact (e.g., a directory listing, screenshot, or repository view) demonstrating that the `code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`, `state/`, `contracts/`, `config/`, `code/data/`, `code/models/`, `code/utils/`, and `code/tests/` directories have been created. Without concrete evidence of these directories existing, the task requirement is not satisfied.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T007` (rejected 1x): No code files or class definitions for `AlloyRecord`, `EnvironmentRecord`, or `CorrosionMeasurement` were provided; the artifact section contains no concrete implementation, so the required data model classes are missing.
-- `T008` (rejected 1x): No configuration files, scripts, or documentation for managing random seeds and file paths were provided; the claim lacks any tangible artifact demonstrating that environment configuration management has been set up. The required setup is missing.
+- `T022` (rejected 1x): The submission contains only the task description and specification excerpt; there is no code, data, results, or report demonstrating a null baseline (mean prediction) comparison, the R² > 0.0 classification, or a permutation‑test p‑value calculation. Consequently, the required artifact proving the “learnable” classification logic is missing.
 
 ## Required change
 

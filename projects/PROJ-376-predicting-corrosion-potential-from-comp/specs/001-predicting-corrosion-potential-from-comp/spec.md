@@ -49,7 +49,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained model, **When** permutation importance is calculated, **Then** the system ranks features by contribution and outputs the top 5 with significance p-values < 0.05, determined via a one-sample permutation test against a null distribution of zero importance, with 1,000 permutations and Bonferroni or FDR correction applied for multiple comparisons.
+1. **Given** a trained model, **When** permutation importance is calculated, **Then** the system ranks features by contribution and outputs the top 5 with significance p-values < 0.05, determined via a one-sample permutation test against a null distribution of zero importance, with a sufficient number of permutations and Bonferroni or FDR correction applied for multiple comparisons.
 2. **Given** two interacting variables (e.g., Chromium content and pH), **When** the partial dependence plot is generated, **Then** the plot clearly visualizes the non-linear interaction effect on corrosion potential.
 3. **Given** the analysis is complete, **When** the results are compiled, **Then** a summary report is generated stating whether specific elements consistently reduce corrosion potential across the tested environments.
 

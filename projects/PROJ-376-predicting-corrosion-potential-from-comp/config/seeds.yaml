@@ -1,0 +1,16 @@
+# Random Seed Configuration for Reproducibility
+# This file defines all random seeds used throughout the pipeline.
+# Changing these values will alter stochastic behavior (e.g., model initialization, data shuffling).
+
+seeds:
+  # Global random state for the entire pipeline
+  global_seed: 42
+  
+  # Specific seeds for different components
+  model_training_seed: 42
+  data_split_seed: 42
+  permutation_test_seed: 42
+  bootstrap_seed: 42
+  
+  # Verification: These must be non-empty integers
+  # The config_loader will validate this.

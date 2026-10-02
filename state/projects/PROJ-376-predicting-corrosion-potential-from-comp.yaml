@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-376-predicting-corrosion-potential-from-comp
-last_run_id: b2de25f1-ffc7-4fe5-a08b-a90dafdbaf06
+last_run_id: 3cefe9a2-be38-4bbf-8447-f59eb4eefad9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp
 title: Predicting Corrosion Potential from Composition and Environment via Public
   Databases
-updated_at: '2026-09-28T18:47:41.888913Z'
+updated_at: '2026-10-02T11:55:01.683813Z'
