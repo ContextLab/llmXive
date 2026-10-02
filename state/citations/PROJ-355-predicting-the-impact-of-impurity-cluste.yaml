@@ -53,7 +53,29 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
   verified_at: '2026-09-29T10:34:29.280754Z'
-- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
+- artifact_hash: 58f319c35f7c24223e8f4707d65887b2264aa84f3108b6b720b0d23f292930d1
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-10-02T23:45:47.248445Z'
+- artifact_hash: 58f319c35f7c24223e8f4707d65887b2264aa84f3108b6b720b0d23f292930d1
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: http://oqmd.org`
+  verification_status: unreachable
+  verified_against_url: https://oqmd.org/
+  verified_at: '2026-10-02T23:45:47.248445Z'
+- artifact_hash: 0e1754d61cb1f3679184402cdabe4e3b7165e940bf9bedfdef3ea303ca4abfbe
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +85,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-09-29T11:09:49.169539Z'
-- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
+  verified_at: '2026-10-02T23:59:33.282154Z'
+- artifact_hash: 0e1754d61cb1f3679184402cdabe4e3b7165e940bf9bedfdef3ea303ca4abfbe
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -74,15 +96,4 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-09-29T11:09:49.169539Z'
-- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: OQMD
-  kind: url
-  value: https://oqmd.org
-  verification_status: pending
-  verified_against_url: https://oqmd.org
-  verified_at: '2026-09-29T11:09:49.169539Z'
+  verified_at: '2026-10-02T23:59:33.282154Z'

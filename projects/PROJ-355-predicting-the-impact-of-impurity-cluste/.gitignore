@@ -1,4 +1,4 @@
-# Data and Results (large files, not for version control)
+# Data and Results (never commit raw or processed data)
 data/
 results/
 
@@ -35,29 +35,8 @@ Thumbs.db
 
 # Logs
 *.log
-logs/
 
-# Virtual environments (optional, usually ignored)
-venv/
-.venv/
-env/
-.env/
-
-# Jupyter Notebook Checkpoints
-.ipynb_checkpoints/
-
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-.tox/
-
-# MyPy cache
-.mypy_cache/
-
-# Ruff/Black cache (if applicable)
-.ruff_cache/
-
-# Project specific temporary files
-tmp/
-temp/
+# Environment variables
+.env
+.env.local
+.env.*.local

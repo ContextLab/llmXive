@@ -37,14 +37,6 @@ T026:
     \ computes and outputs confidence intervals, the requirement of User Story\u202F\
     2 is not satisfied. The next implementer must add the missing implementation (e.g.,\
     \ a function or script that generates prediction intervals and stores them)."
-T027:
-  c: false
-  h: 9f9c48cf439af398f066717ec3f464c66d9cbaf5cedaf6ee692d15431f6643a0
-  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
-    validation cannot actually be performed. Moreover, the provided `train.py` only
-    defines validation helpers but does not show them being invoked before model training.
-    Both the missing schema and the absent call to validation mean the task is not
-    fulfilled.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

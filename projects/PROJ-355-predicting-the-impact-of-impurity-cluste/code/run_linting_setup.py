@@ -1,31 +1,34 @@
-import sys
+"""
+Script to initialize and verify linting (ruff) and formatting (black) tools.
+This script ensures the project is configured for consistent code style.
+"""
 import subprocess
+import sys
 from pathlib import Path
-
-# Ensure we can import the config module
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from config import get_project_root
 from config_linting import main as config_linting_main
 from linting_setup import main as linting_setup_main
 
+
 def main():
     """
-    Orchestrates the setup of linting and formatting tools (ruff, black).
-    This script is the entry point for T003.
+    Entry point to configure and verify ruff and black.
     """
-    print("Initializing linting and formatting configuration...")
-    
-    # 1. Run the linting configuration generator (creates pyproject.toml, .ruff.toml, etc.)
+    print("Initializing Linting and Formatting configuration...")
+
+    project_root = get_project_root()
+    print(f"Project root detected at: {project_root}")
+
+    # 1. Ensure configuration files (pyproject.toml) exist and are valid
+    # This is handled by the project setup, but we verify the tool presence here.
     config_linting_main()
-    
-    # 2. Run the tool installation/verification script
-    # This ensures ruff and black are installed in the environment
+
+    # 2. Verify tools are installed
     linting_setup_main()
-    
-    print("Linting and formatting configuration complete.")
-    print("You can now run 'ruff check .' and 'black .' to validate the codebase.")
+
+    print("Linting (ruff) and Formatting (black) configuration complete.")
+    print("Run 'ruff check .' to lint and 'black .' to format.")
+
 
 if __name__ == "__main__":
     main()

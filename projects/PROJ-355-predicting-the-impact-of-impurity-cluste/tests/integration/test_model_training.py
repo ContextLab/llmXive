@@ -75,7 +75,7 @@ def test_model_training_integration():
     # This simulates the full pipeline step for User Story 2.
     logger.info("Executing model training script...")
     try:
-        # Run the training main function which handles:
+        # Run the main function which handles:
         # - Loading data
         # - Running K-Fold CV (or LOOCV)
         # - Saving metrics to results/

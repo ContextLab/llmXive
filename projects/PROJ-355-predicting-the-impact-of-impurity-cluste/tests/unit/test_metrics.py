@@ -11,7 +11,6 @@ import sys
 from pathlib import Path
 
 # Ensure the project 'code' directory is in the path for imports if needed
-# (though this specific test relies mostly on standard libraries and sklearn/statsmodels)
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 def test_r2_calculation():
