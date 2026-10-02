@@ -1382,3 +1382,325 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T10:56:42Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset available at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_16c3bb40
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    and save to data/external/validation.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:13:02Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_5375b393
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    and save to data/external/validation.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:13:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset DOI 10.5281/zenodo.1040154
+  claim_id: c_2388e16b
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    and save to `data/external/validation.csv`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:14:20Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental properties dataset MaterialsProject/elemental_properties on
+    Hugging Face
+  claim_id: c_5cc29f8d
+  context: "T142 [FR\u2011002] Implement deterministic loading of elemental properties\
+    \ from the verified Hugging Face dataset `MaterialsProject/elemental_properties`\
+    \ using `datasets.load_dataset`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_dataset_MaterialsProject/elemental_prop
+  kind: entity_fact
+  raw_text: Implement deterministic loading of elemental properties from the verified
+    Hugging Face dataset `MaterialsProject/elemental_properties` using `datasets.load_dataset`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:14:44Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset located at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_1970be45
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:15:31Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental properties loaded from Hugging Face dataset MaterialsProject/elemental_properties
+  claim_id: c_f9fdbc98
+  context: T011 [US1] Implement elemental property loader in code/data/descriptors.py
+    loading from the verified Hugging Face dataset https://huggingface.co/datasets/MaterialsProject/elemental_properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_loaded_from_Hugging_Face_dataset_Materi
+  kind: entity_fact
+  raw_text: elemental property dataset loaded from Hugging Face dataset MaterialsProject/elemental_properties
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:15:57Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_170b40f5
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    (from T141) and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:16:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset downloaded from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_a451e00a
+  context: "Phase 3: User Story 1 \u2013 Data Acquisition & Descriptor Engineering,\
+    \ Task T129"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:49:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: k-fold cross-validation performed on training set
+  claim_id: c_5b38245e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T019"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_cross-validation_performed_on_training_set
+  kind: entity_fact
+  raw_text: Perform k-fold cross-validation on the training set to estimate out-of-fold
+    performance and support hyperparameter tuning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:56:08Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: Random RF trained with n_estimators=500, random_state=42, n_jobs=2 after
+    5-fold CV grid search
+  claim_id: c_1f9d50f6
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T018"
+  evidence:
+    candidates:
+    - - ''
+      - 500.0
+    - - ''
+      - 42.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Random_RF_trained_with_n_estimators%3D500,_random_state%3D42,_n
+  kind: magnitude
+  raw_text: 'Implement Random RF trainer with grid search over max_features: [''sqrt'',
+    5, 10, 20] and min_samples_leaf: [1, 5, 10] evaluated via 5-fold CV, selecting
+    best model and training final RF with n_estimators=500, random_state=42, n_jobs=2.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-02T22:56:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: two-tailed p-value for Pearson correlation computed using 1000 bootstrap
+    resamples
+  claim_id: c_27b8427e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T020b"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly compute the two-tailed p-value for the Pearson correlation
+    coefficient on the held-out test set using bootstrap resampling with 1000 resamples
+    and record it in output/metrics.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:57:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: 'external validation success criteria: R2 >= 0.6, |r| >= 0.5, p-value
+    < 0.05'
+  claim_id: c_e259e76e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T132"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.5, p-value < 0.05'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/external_validation_success_criteria:_R2_%3E=_0.6,_r_%3E=_0.5,_p
+    source_value: https://en.wikipedia.org/wiki/external_validation_success_criteria:_R2_>=_0.6,_r_>=_0.5,_p
+    subject: 'external validation success criteria: R2 >= 0.6,'
+  kind: relational
+  raw_text: "Enforce external validation success criteria: abort if R\xB2 < 0.6, |r|\
+    \ < 0.5, or p-value \u2265 0.05."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:58:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: stability assessment script ran pipeline three independent times with
+    seeds 111, 222, 333
+  claim_id: c_6e75b690
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T144"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the stability assessment script to run the full training-evaluation
+    pipeline three independent times with distinct random seeds [111, 222, 333], recording
+    the top-ranked feature rankings for each run in output/stability_rankings.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: maximum rank difference <= 1 for top-5 features across three runs
+  claim_id: c_42a5ec38
+  context: "Phase 5: User Story 3 \u2013 Stability Assessment, Task T119s_verify"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that output/stability_rankings.json shows maximum rank difference\
+    \ \u2264 1 for the top-5 features across the three runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: quickstart validation report contains status, steps_executed, errors,
+    and timestamp
+  claim_id: c_f3742cde
+  context: 'Phase 6: Cross-Cutting Concerns, Task T036'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quickstart_validation_report_contains_status,_steps_executed
+  kind: entity_fact
+  raw_text: 'Verify that the quickstart.md validation captures steps executed and
+    reports a status in output/quickstart_validation_report.json containing { ''status'':
+    ''success|failure'', ''steps_executed'': int, ''errors'': [], ''timestamp'': str
+    }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report.md includes R2, |r|, p-value, permutation importance with corrected
+    p-values, and bootstrap CI
+  claim_id: c_2ed4c612
+  context: 'Phase 9: Final Integration & Gate Pass, Task T118'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ', p-value, permutation importance with corrected p-values, and bootstrap
+      CI'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Report.md_includes_R2,_r_,_p-value,_permutation_importance_w
+    source_value: https://en.wikipedia.org/wiki/report.md_includes_R2,_r_,_p-value,_permutation_importance_w
+    subject: report.md includes R2,
+  kind: relational
+  raw_text: "Verify that the generated report.md includes model performance metrics\
+    \ (R\xB2, |r|, p-value), permutation importance with corrected p-values, and bootstrap\
+    \ CI."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:00:17Z'

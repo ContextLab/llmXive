@@ -1,6 +1,16 @@
 {
+  "project_id": "PROJ-418-predicting-the-yield-strength-of-high-en",
+  "ok": false,
+  "reason": "1 command(s) failed: python -m src.pipeline.run  --seed 42  --output-dir output/ (rc=1); 2 declared deliverable(s) absent: data/processed/hea_descriptors.csv; data/raw/heas_raw.csv",
+  "artifacts": [],
+  "failures": [
+    "python -m src.pipeline.run  --seed 42  --output-dir output/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/.venv/bin/python: Error while finding module specification for 'src.pipeline.run' (ModuleNotFoundError: No module named 'src')"
+  ],
+  "fix_rounds": 1,
   "model_tier": 1,
-  "fix_rounds": 0,
-  "updated_at": "2026-07-30T23:53:58Z",
-  "project_id": "PROJ-418-predicting-the-yield-strength-of-high-en"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-02T22:11:23Z"
 }

@@ -64,20 +64,9 @@
   verification_status: mismatch
   verified_against_url: https://github.com/yourorg/PROJ-418-predicting-the-yield-strength-of-high-en
   verified_at: '2026-10-01T08:41:20.731582Z'
-- artifact_hash: f25a856ca43047fba221915bf471f40840ccc6cace5d4db95078688db7bd8fec
+- artifact_hash: 1e2d174fbfd62c449a7e491ddbaa674fa1439631726b7facbe4748dd5536d063
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Sub-contracting in Clinical Trials | Zenodo
-  kind: url
-  value: https://zenodo.org/records/1040154`
-  verification_status: pending
-  verified_against_url: https://zenodo.org/records/1040155
-  verified_at: '2026-10-01T09:13:07.561119Z'
-- artifact_hash: f25a856ca43047fba221915bf471f40840ccc6cace5d4db95078688db7bd8fec
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -85,21 +74,10 @@
   value: https://huggingface.co/datasets/MaterialsProject/elemental_properties`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MaterialsProject/elemental_properties
-  verified_at: '2026-10-01T09:13:07.561119Z'
-- artifact_hash: f25a856ca43047fba221915bf471f40840ccc6cace5d4db95078688db7bd8fec
+  verified_at: '2026-10-02T23:00:17.842021Z'
+- artifact_hash: 1e2d174fbfd62c449a7e491ddbaa674fa1439631726b7facbe4748dd5536d063
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Sub-contracting in Clinical Trials | Zenodo
-  kind: url
-  value: https://zenodo.org/records/1040155`
-  verification_status: pending
-  verified_against_url: https://zenodo.org/records/1040155
-  verified_at: '2026-10-01T09:13:07.561119Z'
-- artifact_hash: f25a856ca43047fba221915bf471f40840ccc6cace5d4db95078688db7bd8fec
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
-  cite_id: c-004
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -107,4 +85,4 @@
   value: 10.5281/zenodo.1040154
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1040154
-  verified_at: '2026-10-01T09:13:07.561119Z'
+  verified_at: '2026-10-02T23:00:17.842021Z'

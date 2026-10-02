@@ -1,77 +1,65 @@
-# Quickstart Guide: Predicting HEA Yield Strength
+# Quickstart for Predicting HEA Yield Strength
 
-This guide provides a step-by-step walkthrough to execute the full research pipeline for predicting the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors.
+This document provides a minimal, reproducible set of commands to
+execute the full analysis pipeline from raw data acquisition to final
+reporting.
 
 ## Prerequisites
 
-- Python 3.9+
-- `pip` package manager
-- Access to the verified dataset URL (configured in `code/utils/config.py` or via environment variables)
+- Python 3.9+ (virtual environment recommended)
+- All dependencies installed via `pip install -r requirements.txt`
 
-## 1. Installation
+## Steps
 
-Clone the repository and install dependencies:
+1. **Create the required directory structure** (already performed by `T001a`).
 
-```bash
-# Navigate to project root
-cd PROJ-418-predicting-the-yield-strength-of-high-en
+2. **Install the project dependencies**
 
-# Install dependencies
-pip install -r requirements.txt
-```
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## 2. Verify Data Source Configuration
+3. **Run the full pipeline with checksum verification**
 
-Before running the pipeline, ensure the verified dataset URL is configured. The pipeline will fail immediately if the URL is missing to prevent accidental use of unverified data.
+ The original command attempted to invoke a non‑existent `src.pipeline.run`
+ module. The corrected entry point is the script
+ `code/run_pipeline_with_checksum.py`, which also performs the
+ FR‑009 checksum validation before proceeding.
 
-Check `code/utils/config.py` or set the environment variable:
-```bash
-export HEA_DATASET_URL="your_verified_url_here"
-```
+ ```bash
+ python code/run_pipeline_with_checksum.py --seed 42 --output-dir output/
+ ```
 
-## 3. Execute the Full Pipeline
+ This command will:
 
-The entire research workflow is orchestrated by the `profiler.py` script, which runs the data acquisition, model training, and statistical validation stages sequentially.
+ - Download the raw HEA dataset (`data/raw/heas_raw.csv`) if it is not
+ already present.
+ - Verify that the SHA‑256 checksum recorded in the state file matches
+ the actual file hash; on mismatch it aborts with a clear error.
+ - Execute the data preprocessing, descriptor calculation, and all
+ downstream model training/evaluation steps, producing the expected
+ artifacts such as `data/processed/hea_descriptors.csv`,
+ `output/metrics.json`, `output/report.md`, etc.
 
-```bash
-# Run the full pipeline
-python code/profiler.py
-```
+4. **Validate the quick‑start execution**
 
-**What this command does:**
-1. **Data Acquisition (US1):** Downloads the HEA dataset, filters for single-phase room-temperature alloys, calculates descriptors (δ, Δχ, VEC, etc.), and saves `data/processed/hea_descriptors.csv`.
-2. **Model Training (US2):** Splits data, trains Linear Regression, Random Forest, and Gradient Boosting models with 5-fold CV, and saves `output/metrics.json`.
-3. **Statistical Validation (US3):** Performs power analysis, VIF diagnostics, permutation testing, bootstrap resampling, and sensitivity analysis, generating `output/report.md`.
+ After the pipeline finishes, you can run the built‑in validation script
+ to ensure all expected artifacts exist and conform to their schemas:
 
-*Note: The pipeline respects the runtime limit of 3 hours for training (T022) and skips heavy statistical tests if sample size is insufficient (T030).*
+ ```bash
+ python code/validate_quickstart.py
+ ```
 
-## 4. Review Results
+## Expected outputs
 
-Upon successful completion, the following artifacts will be available:
+- `data/raw/heas_raw.csv` – raw experimental dataset.
+- `data/processed/hea_descriptors.csv` – descriptor table.
+- `output/metrics.json` – model performance metrics.
+- `output/report.md` – comprehensive analysis report.
+- Additional JSON files (e.g., `output/permutation_results.json`,
+ `output/stability_rankings.json`) as described in the project
+ specifications.
 
-- **Processed Data:** `data/processed/hea_descriptors.csv`
-- **Data Status:** `output/data_status.json` (includes sample count and power status)
-- **Model Metrics:** `output/metrics.json` (R², MAE, RMSE for all models)
-- **Statistical Report:** `output/report.md` (includes disclaimers and validation results)
-- **Validation Artifacts:**
- - `output/power_analysis.json`
- - `output/vif_results.json`
- - `output/permutation_results.json`
- - `output/bootstrap_results.json`
- - `output/sensitivity_results.json`
-
-## 5. Validate Execution
-
-To ensure the pipeline ran correctly and all expected outputs were generated, run the validation script:
-
-```bash
-python code/validate_quickstart.py
-```
-
-This script checks for the existence of all required output files and verifies that the report contains mandatory disclaimers.
-
-## Troubleshooting
-
-- **Missing Dataset URL:** If you see `DATA_SOURCE_MISSING`, verify your `code/utils/config.py` or environment variables.
-- **Low Power Warning:** If the dataset count is < 50, statistical tests (permutation, bootstrap) will be skipped automatically. Check `output/data_status.json` for the count.
-- **Runtime Errors:** Check `output/logs/pipeline.log` for detailed error traces.
+If any step fails, consult the log messages printed to the console;
+they will indicate whether a checksum mismatch (FR‑009) or another
+issue caused the abort.

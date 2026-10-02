@@ -1,15 +1,11 @@
 status: none
-intent: huggingface datasets HEA yield strength Zenodo MaterialsProject elemental
-  properties python package dataset
+intent: Materials Project HEA yield strength dataset Zenodo python package dataset
 required_fields:
+- alloy_id
 - element_symbols
 - element_fractions
-- yield_strength
-- atomic_number
-- atomic_radius
-- electronegativity
-- melting_point
-- density
-cache_key: cf66b80703a33964124b0fc911a2040d14cf932cb16c949a8a96d2105e4640b4
-searched_at: '2026-10-01T08:35:49.339144+00:00'
+- yield_strength_gpa
+- measurement_temperature_K
+cache_key: cf26b9fca23db77a2d18416b568381fbde71107f1161f44c297ec16a7953e683
+searched_at: '2026-10-02T22:11:45.864109+00:00'
 retry_count: 1

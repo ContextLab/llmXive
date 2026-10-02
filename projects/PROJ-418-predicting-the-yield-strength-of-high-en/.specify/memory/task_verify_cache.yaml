@@ -1,3 +1,9 @@
+T008:
+  c: false
+  h: ba385b9c938f7ab0fa7980527b157b3c7c09529e5e968f969bfd9f8bb9857a66
+  r: The required file `data/raw/heas_raw.csv` is missing, so the code cannot load
+    the primary HEA dataset nor abort with a clear error as specified. The artifact
+    needed to satisfy the task does not exist.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,19 +18,26 @@ T028:
     \ that a statistical report generator was created, nor that it includes the required\
     \ p\u2011values, confidence intervals, VIF flags, or the integrated T029a/T029b\
     \ disclaimers. The task\u2019s deliverable is missing."
-T030:
+T098:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/power_analysis.json` file containing the required `status: 'insufficient_power'`\
-    \ entry is present, and there is no evidence of a log message at WARNING level\
-    \ for the N\u202F<\u202F50 case. The implementer provided no code, test, or output\
-    \ artifacts demonstrating that the edge\u2011case handling was added."
-T032a:
+  h: dc34d63b62a97d9044ab6cb68d34707fcdd121a6f59a29d9076a5c06034d60b5
+  r: The required raw dataset file `data/raw/heas_raw.csv` and the schema file `contracts/dataset.schema.yaml`
+    are both missing, and no validation output or logs are provided. Without these
+    artifacts the validation step cannot have been performed.
+T100:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `ruff` linting run, its output, or any modifications to files\
-    \ in the `code/` directory is provided; the required artifact (lint\u2011error\u2011\
-    free code) is missing."
+  h: ff2c6726bb0d0c5a14221fddd36c8ca2bba99997115c6724a06d1c7360e71b0f
+  r: The required descriptor CSV (`data/processed/hea_descriptors.csv`) is absent,
+    and the referenced schema file (`contracts/descriptor.schema.yaml`) is also missing,
+    so no validation could have been performed. The task therefore lacks the necessary
+    artifacts and cannot be considered completed.
+T101:
+  c: false
+  h: ff2c6726bb0d0c5a14221fddd36c8ca2bba99997115c6724a06d1c7360e71b0f
+  r: The required processed data file `data/processed/hea_descriptors.csv` does not
+    exist, and the schema file `contracts/processed_data.schema.yaml` (or `schema.yaml`)
+    is also missing, so no validation could have been performed. The task therefore
+    lacks the necessary artifacts.
 T117:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,13 +53,6 @@ T118:
     \ VIF summary, model performance metrics, permutation importance with corrected\
     \ p\u2011values, bootstrap CI, and disclaimers). The implementer must supply the\
     \ generated `report.md` for inspection."
-T119#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/stability_rankings.json` file or its contents were provided, so we\
-    \ cannot confirm that it exists, is non\u2011empty, or that it shows rank\u2011\
-    differences \u2264\u202F1 for the top\u2011k features across the three runs. The\
-    \ required artifact is missing."
 T120:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,3 +80,17 @@ T126:
     \ Without the required JSON summary aggregating T117\u2011T125 results, the task\u2019\
     s deliverable is missing. The implementer must create and provide the specified\
     \ report file."
+T127:
+  c: false
+  h: ba385b9c938f7ab0fa7980527b157b3c7c09529e5e968f969bfd9f8bb9857a66
+  r: The required `data/raw/heas_raw.csv` file is missing, so there is no actual dataset
+    whose checksum can be compared to the recorded value in the state file, and no
+    evidence of the pipeline aborting on a mismatch. Without the raw data (and a corresponding
+    state file), the verification cannot be performed.
+T200:
+  c: false
+  h: a6c15d95a096146640a7c83453a6ba19a8a54dac06423269d57468cc503bb2e8
+  r: The required artifact `data/processed/hea_descriptors.csv` does not exist on
+    disk, so the descriptor dataset (with VIF computation/remediation) was not generated
+    as the task specifies. No alternative evidence was provided to satisfy the deprecated
+    note.

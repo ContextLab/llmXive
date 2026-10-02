@@ -1,13 +1,7 @@
 # Project dependencies
 pandas
 numpy
-matplotlib
-scikit-learn
-datasets
-statsmodels
-# Linting / formatting tools
-ruff
-black
-# Other utilities used throughout the codebase
-tqdm
-# (additional dependencies may be listed here)
+pyyaml
+jsonschema
+# Existing dependencies (if any) should be listed here as well.
+# The above list ensures the validation script can import required packages.

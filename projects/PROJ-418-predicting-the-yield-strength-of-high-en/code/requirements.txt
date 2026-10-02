@@ -17,3 +17,6 @@ black>=23.0.0
 
 # Optional: For specific dataset fetching if needed
 # requests>=2.31.0
+joblib  # auto-added: imported by run-book but missing from venv
+src  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv
