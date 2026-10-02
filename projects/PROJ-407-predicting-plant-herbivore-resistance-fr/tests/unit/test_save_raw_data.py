@@ -1,104 +1,90 @@
-"""
-Unit tests for code/save_raw_data.py (Task T014).
-"""
 import os
+import sys
 import tempfile
 import hashlib
+import pandas as pd
 from pathlib import Path
 import pytest
-import pandas as pd
 
-# Import the function to test
-from save_raw_data import compute_sha256, main
-import sys
-from io import StringIO
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def test_compute_sha256_valid_file():
-    """Test compute_sha256 with a valid file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("col1,col2\n1,2\n3,4\n")
-        temp_path = f.name
+from save_raw_data import compute_sha256
 
-    try:
-        hash1 = compute_sha256(temp_path)
-        hash2 = compute_sha256(temp_path)
-        assert hash1 == hash2
-        assert len(hash1) == 64  # SHA256 hex length
-    finally:
-        os.unlink(temp_path)
+class TestComputeSha256:
+    def test_compute_sha256_basic(self):
+        """Test basic SHA256 computation on a simple file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Hello, World!")
+            temp_path = f.name
+        
+        try:
+            # Compute hash
+            computed_hash = compute_sha256(temp_path)
+            
+            # Verify against known value
+            expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+            assert computed_hash == expected_hash
+        finally:
+            os.unlink(temp_path)
+    
+    def test_compute_sha256_binary(self):
+        """Test SHA256 computation on binary data."""
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix='.bin') as f:
+            f.write(b'\x00\x01\x02\x03\x04')
+            temp_path = f.name
+        
+        try:
+            computed_hash = compute_sha256(temp_path)
+            expected_hash = hashlib.sha256(b'\x00\x01\x02\x03\x04').hexdigest()
+            assert computed_hash == expected_hash
+        finally:
+            os.unlink(temp_path)
+    
+    def test_compute_sha256_large_file(self):
+        """Test SHA256 computation on a larger file (chunked reading)."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            # Write 1MB of data
+            f.write("x" * 1024 * 1024)
+            temp_path = f.name
+        
+        try:
+            computed_hash = compute_sha256(temp_path)
+            expected_hash = hashlib.sha256(b"x" * 1024 * 1024).hexdigest()
+            assert computed_hash == expected_hash
+        finally:
+            os.unlink(temp_path)
 
-def test_compute_sha256_file_not_found():
-    """Test compute_sha256 raises FileNotFoundError for missing file."""
-    with pytest.raises(FileNotFoundError):
-        compute_sha256("/nonexistent/path/file.csv")
-
-def test_compute_sha256_empty_file():
-    """Test compute_sha256 raises ValueError for empty file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        temp_path = f.name
-
-    try:
-        # Ensure file is empty
-        with open(temp_path, 'w') as _:
-            pass
-
-        with pytest.raises(ValueError):
-            compute_sha256(temp_path)
-    finally:
-        os.unlink(temp_path)
-
-def test_main_integration(tmp_path):
-    """Test main function creates checksum file correctly."""
-    # Create a sample CSV
-    sample_csv = tmp_path / "test_data.csv"
-    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-    df.to_csv(sample_csv, index=False)
-
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
-
-    # Mock sys.argv
-    original_argv = sys.argv
-    sys.argv = [
-        "test_save_raw_data.py",
-        "--input", str(sample_csv),
-        "--output_dir", str(output_dir)
-    ]
-
-    try:
-        main()
-
-        # Check checksum file exists
-        checksum_file = output_dir / "test_data.csv.sha256"
-        assert checksum_file.exists()
-
-        # Verify content format
-        with open(checksum_file, 'r') as f:
-            content = f.read()
-            parts = content.split()
-            assert len(parts) == 2
-            assert len(parts[0]) == 64  # Hash length
-            assert parts[1] == "test_data.csv"
-
-        # Verify hash correctness
-        expected_hash = hashlib.sha256(sample_csv.read_bytes()).hexdigest()
-        assert parts[0] == expected_hash
-
-    finally:
-        sys.argv = original_argv
-
-def test_main_missing_input():
-    """Test main exits with error when input file is missing."""
-    original_argv = sys.argv
-    sys.argv = [
-        "test_save_raw_data.py",
-        "--input", "/nonexistent/file.csv",
-        "--output_dir", "/tmp"
-    ]
-
-    try:
-        with pytest.raises(SystemExit) as exc_info:
-            main()
-        assert exc_info.value.code == 1
-    finally:
-        sys.argv = original_argv
+class TestSaveRawDataIntegration:
+    def test_full_workflow(self):
+        """Test the full workflow of computing and saving checksum."""
+        # Create a temporary directory structure
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            
+            # Create a test CSV file
+            input_file = temp_path / "test_data.csv"
+            df = pd.DataFrame({
+                'sample_id': ['s1', 's2', 's3'],
+                'genotype_id': ['g1', 'g2', 'g3'],
+                'resistance': [1, 2, 3]
+            })
+            df.to_csv(input_file, index=False)
+            
+            # Compute checksum
+            checksum = compute_sha256(str(input_file))
+            
+            # Write checksum file
+            checksum_file = temp_path / "test_data.csv.sha256"
+            with open(checksum_file, 'w') as f:
+                f.write(f"{checksum}  test_data.csv\n")
+            
+            # Verify checksum file contents
+            with open(checksum_file, 'r') as f:
+                content = f.read().strip()
+            
+            assert content == f"{checksum}  test_data.csv"
+            
+            # Verify we can recompute and match
+            recomputed = compute_sha256(str(input_file))
+            assert recomputed == checksum

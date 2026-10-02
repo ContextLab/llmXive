@@ -1,56 +1,59 @@
 T010:
   c: false
-  h: 922c8bed240935c7376f1da37dfc7c581746f19241e361aacfa89009432f3c0e
-  r: The repository lacks the required `data/raw/raw_dataset.csv` file, and the provided
-    `code/ingest.py` does not implement a functional download (the primary NCBI GEO
-    function immediately raises a `ConnectionError`) nor a complete fallback using
-    `datasets.load_dataset` that writes the data to the expected CSV path. The script
-    is truncated and does not save any output.
-T012:
+  h: 44bf428f15d8bcb995afda23746dd01402a90b051246c01c53e595523d1b0105
+  r: The provided `code/ingest.py` is truncated, never reaches the part that would
+    stream the HuggingFace dataset, accumulate it into a DataFrame, or write `data/raw/raw_dataset.csv`
+    atomically; it also lacks the required `RuntimeError` with the exact message.
+    Moreover, the expected output file `data/raw/raw_dataset.csv` is missing.
+T013:
   c: false
-  h: f9a90b820d9362f8bf8b45029e7228e75df3dabafe91d259322d8b1b4cd44ce9
-  r: "The `code/ingest.py` file does not contain any implementation that maps categorical\
-    \ resistance values (\u201CLow\u201D, \u201CMedium\u201D, \u201CHigh\u201D) to\
-    \ ordinal numbers, nor does it write such a mapping to a log file. Additionally,\
-    \ the required `data/interim/ordinal_mapping.log` file is absent from the repository.\
-    \ Both the functional code change and the logging artifact are missing."
+  h: e396f064dda9b227057f6bcfa05bedbfa8b4e1c34e60910871cdea924533c74b
+  r: "The `metadata.json` lacks the required `\"mapping\"` entry, and the expected\
+    \ `data/interim/harmonized.csv` file is absent. Moreover, `code/ingest.py` is\
+    \ truncated (syntax error) and does not contain logic to perform the categorical\u2011\
+    to\u2011ordinal conversion or to write the mapping to the metadata file. These\
+    \ core requirements are unmet."
+T017:
+  c: true
+  h: 8a54a92a74490520710f7e6cec5ae4eeb9803e6d30ec5876dd7631e09c4f541e
+  r: "The repository contains a non\u2011empty `tests/integration/test_data_ingestion.py`\
+    \ that implements the required integration test: it runs `ingest.main()`, checks\
+    \ for `data/raw/raw_dataset.csv`, asserts \u226510 rows, verifies required columns,\
+    \ raises a `RuntimeError` when columns are missing, and checks for metabolite\
+    \ columns. This satisfies the task specification."
 T020:
   c: false
-  h: c77f843c22179fce3c6b99d59ccf2e09da3a24ee63d8eb18007af83ed1ed28a6
-  r: "The `code/preprocess.py` file only contains a partially shown `apply_pca_if_needed`\
-    \ function that is truncated and does not demonstrate saving the PCA\u2011reduced\
-    \ matrix to `data/processed/pca_reduced.csv`. Moreover, the required output file\
-    \ `data/processed/pca_reduced.csv` is missing from the repository. The task\u2019\
-    s core requirement\u2014performing PCA when features\u202F>\u202Fsamples and writing\
-    \ the result to the specified CSV\u2014is not fulfilled."
+  h: 4a561a451c8cbf9d2c76731c3b40c42b7ae659cddea3e51bedd182f01cdffded
+  r: "The `apply_pca_if_needed` function does not implement the variance\u2011explained\
+    \ retention rule, never writes the PCA matrix to `data/processed/pca_reduced.csv`,\
+    \ and the required CSV file is absent. The implementation therefore does not meet\
+    \ the task\u2019s output and behavior specifications."
+T022:
+  c: false
+  h: 782a6b871f27566fafe44fd1fcfd11419d76669a8f765483a06666a194d10cac
+  r: "The provided `code/model.py` does not contain any PCA handling for the case\u202F\
+    `n_features > n_samples`, nor does it include code that writes the trained model\
+    \ to `data/processed/model.pkl` (the file is missing). Consequently the required\
+    \ behavior and output artifact are not present."
 T023:
   c: false
-  h: db011a19c0df9c77668dfee0dd3c744dd517caf4bc3c6b8fffbee1ed0d891683
-  r: "The `code/model.py` file only defines `evaluate_model` that computes R\xB2 and\
-    \ MSE for regression and does not handle classification accuracy, nor does it\
-    \ contain any logic to write the resulting metrics to `data/processed/model_metrics.json`.\
-    \ Moreover, the required `data/processed/model_metrics.json` file is missing from\
-    \ the repository. Both the missing output file and the incomplete evaluation implementation\
-    \ mean the task is not fully satisfied."
+  h: 431dd7f77fc9e11a3f63b546f07936b454069c502174fd89e890f610f14fa278
+  r: "The `code/model.py` only defines an `evaluate_model` function that computes\
+    \ R\xB2 and MSE and never writes any results to `data/processed/model_metrics.json`;\
+    \ it also lacks any accuracy calculation for classification tasks. Moreover, the\
+    \ required `data/processed/model_metrics.json` file is missing."
 T024:
   c: false
-  h: 61002f641ff9a51b0cc90307ca94ef38b0478137bd355a7596b0a7a1f487944b
-  r: "The repository lacks the required `data/processed/feature_importance.csv` file,\
-    \ and the `code/model.py` implementation is incomplete (the `extract_feature_importance`\
-    \ function is truncated and never writes the DataFrame to the specified CSV).\
-    \ Consequently, the task\u2019s output specifications are not met."
-T029a:
-  c: false
-  h: 2931f29a42052e69156e8d494d9f48e99b2710598ba3499bdf5f13ff21e5a344
-  r: "The repository lacks the required `data/interim/null_distribution.csv` and `data/interim/permutation_run.log`\
-    \ files, and the shown `code/validation.py` is truncated and does not demonstrate\
-    \ a call that performs exactly 1000 stratified permutation iterations or writes\
-    \ the null distribution and log. Consequently the task\u2019s output artifacts\
-    \ are missing and the implementation is incomplete."
+  h: 3525373f0a413f42abae8aacaae122ee5b1919635906c6b2a5759cde8965a074
+  r: The repository lacks the required `data/processed/feature_importance.csv` file,
+    and the provided `code/model.py` does not contain a complete implementation that
+    writes a CSV with the four specified columns. The `extract_feature_importance_with_data`
+    function is truncated and no code saves the resulting DataFrame to the expected
+    path.
 T032:
   c: false
-  h: 1f91a334401f023f4a6876ac06459615f32aa6efe1827240323aab4d63aebf76
-  r: "The repository does not contain `data/interim/correlations.csv` (the required\
-    \ output file is missing), and the provided `code/validation.py` shows no implementation\
-    \ of per\u2011metabolite Pearson/Spearman correlation calculation or code that\
-    \ writes such a table to CSV. The task therefore remains unfinished."
+  h: 932b5fb8669e3fd7ed36c69e289766dcacf634c10d50e14ebb254d69e7ef0226
+  r: "The required output file `data/interim/correlations.csv` does not exist, and\
+    \ the provided `code/validation.py` excerpt shows no implementation of the univariate\
+    \ Pearson/Spearman correlation calculation or saving of such a table. Consequently\
+    \ the task\u2019s core requirement is unmet."

@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-407-predicting-plant-herbivore-resistance-fr",
+  "tasks": [
+    {
+      "task_key": "T021",
+      "reject_count": 1,
+      "last_reason": "The required `data/interim/split_log.txt` file is missing, and the provided `code/preprocess.py` excerpt does not show any implementation of a genotype\u2011stratified `GroupShuffleSplit` nor the code that writes the split indices and logs the ratio/counts. Without the log file and visible split logic, the task\u2019s requirements are not fully satisfied.",
+      "first_seen": "2026-10-02T02:16:26.474382+00:00",
+      "last_seen": "2026-10-02T02:16:26.474382+00:00"
+    }
+  ],
+  "updated_at": "2026-10-02T02:16:26.474382+00:00"
+}

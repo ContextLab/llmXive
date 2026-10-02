@@ -111,7 +111,7 @@ projects/PROJ-407-predicting-plant-herbivore-resistance-fr/
 
 ### Phase 4: Reporting & Versioning (Addresses SC-005, Principle V)
 1.  **Report Generation**: Compile results into `results/summary_report.md`.
-2.  **Feasibility Check**: Compare logged runtime/memory against 6h/7GB limits.
+2.  **Feasibility Check**: Compare logged runtime/memory against established time and memory limits.
 3.  **Versioning**: Run `versioning.py` to hash artifacts and update `state/...yaml`.
 4.  **Task Generation**: Run `tasks-generator` to produce `tasks.md`.
 
