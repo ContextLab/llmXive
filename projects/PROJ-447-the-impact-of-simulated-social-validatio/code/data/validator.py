@@ -14,7 +14,11 @@ from typing import Dict, Any, List
 
 import pandas as pd
 
-from utils.exceptions import DataGapError, InsufficientSampleError
+from utils.exceptions import (
+    DataGapError,
+    InsufficientSampleError,
+    LongitudinalMismatchError,
+)
 from utils.constants import get_min_sample_size
 from utils.logger import (
     get_logger,
@@ -48,7 +52,8 @@ def validate_data(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         DataGapError: If the DataFrame is empty (N=0).
         InsufficientSampleError: If 0 < N < 100.
-        ValueError: If required columns are missing or longitudinal ordering is violated.
+        LongitudinalMismatchError: If longitudinal ordering is violated.
+        ValueError: If required columns are missing.
     """
     log_validation_start()
     logger.info(f"Starting validation on dataset with {len(df)} rows.")
@@ -104,8 +109,9 @@ def validate_data(df: pd.DataFrame) -> pd.DataFrame:
             "Engagement timestamp must precede self-report timestamp."
         )
         logger.error(msg)
-        log_validation_failure(f"ValueError: {msg}")
-        raise ValueError(msg)
+        # Raise the specific LongitudinalMismatchError as required by T013
+        log_validation_failure(f"LongitudinalMismatchError: {msg}")
+        raise LongitudinalMismatchError(msg)
 
     logger.info("Validation passed successfully.")
     log_validation_success()
@@ -136,9 +142,12 @@ def main():
     except InsufficientSampleError as e:
         logger.critical(f"Insufficient Sample: {e}")
         sys.exit(2)
+    except LongitudinalMismatchError as e:
+        logger.critical(f"Longitudinal Mismatch: {e}")
+        sys.exit(3)
     except ValueError as e:
         logger.critical(f"Data Integrity Error: {e}")
-        sys.exit(3)
+        sys.exit(4)
     except Exception as e:
         logger.critical(f"Unexpected error during validation: {e}")
         sys.exit(99)

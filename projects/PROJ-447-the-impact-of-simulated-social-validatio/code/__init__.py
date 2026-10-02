@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Code Module
+Main package for the Social Validation Impact Research Project.
 """

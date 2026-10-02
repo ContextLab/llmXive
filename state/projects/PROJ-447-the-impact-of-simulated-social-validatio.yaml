@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-447-the-impact-of-simulated-social-validatio
-last_run_id: 657a50fb-d9de-4323-bf5e-43946abc5c54
+last_run_id: 0326085d-e244-4f43-b5ec-028604dea1fb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-447-the-impact-of-simulated-social-validatio/specs/001-the-impact-of-simulated-social-validatio
 title: The Impact of Simulated Social Validation on Self-Perception in Adolescents
-updated_at: '2026-09-28T15:35:20.065070Z'
+updated_at: '2026-10-02T07:14:28.471083Z'

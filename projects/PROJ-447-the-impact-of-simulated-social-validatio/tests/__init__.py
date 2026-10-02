@@ -1,3 +1,1 @@
-"""
-Test suite for the research pipeline.
-"""
+"""Tests module initialization."""

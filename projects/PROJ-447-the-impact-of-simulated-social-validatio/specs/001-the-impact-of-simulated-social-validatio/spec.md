@@ -89,7 +89,7 @@ The researcher needs to verify the stability of the results against potential ou
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The percentage of rows with non-missing data for both engagement and self-report variables is measured against the minimum viable sample size of 100 (See US-1).
+- **SC-001**: The percentage of rows with non-missing data for both engagement and self-report variables is measured against the a minimum viable sample size sufficient to achieve statistical power (See US-1).
 - **SC-002**: The Variance Inflation Factor (VIF) for every predictor is measured against the pre-registered multicollinearity threshold [deferred] to ensure no severe multicollinearity exists (See US-2).
 - **SC-003**: The variation in the primary regression coefficient across the sensitivity analysis runs (outlier strategies and confounder inclusion) is measured against the pre-registered stability threshold [deferred] (See US-3).
 - **SC-004**: The p-value of the quadratic term is measured against the pre-registered significance level [deferred] to determine if non-linear effects are present (See US-3).

@@ -1,3 +1,1 @@
-"""
-Visualization module for generating plots and figures.
-"""
+"""Visualization module initialization."""

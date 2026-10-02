@@ -1,319 +1,304 @@
 """
-Statistical analysis module for User Story 2.
-Implements multiple linear regression, VIF calculation, and associational report generation.
+Statistical modeling and association analysis module.
+
+This module implements multiple linear regression with confounder adjustment,
+Variance Inflation Factor (VIF) calculation for multicollinearity detection,
+and ensures strict associational framing of results.
 """
+
 import os
 import json
 import logging
 from typing import Dict, Any, Optional, Tuple, List
+
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+from utils.logger import get_logger, log_pipeline_step, log_model_fit_start, log_model_fit_success, log_model_fit_error
 from utils.constants import get_vif_threshold, get_significance_level
 from utils.exceptions import CausalLanguageViolationError
 from utils.cautions import scan_report_for_causal_language
-from utils.logger import get_logger, log_model_fit_start, log_model_fit_success, log_model_fit_error
 
 logger = get_logger(__name__)
 
-# Define the standard column names expected by the pipeline
-COL_TARGET = 'self_perception_score'
-COL_PREDICTOR = 'perceived_social_validation'
-COL_AGE = 'age'
-COL_GENDER = 'gender_encoded'
-COL_OFFLINE = 'offline_relationship_quality'
-COL_TRAITS = 'intrinsic_traits_score'
 
-def fit_multiple_linear_regression(df: pd.DataFrame) -> Tuple[Any, Dict[str, Any]]:
+def fit_multiple_linear_regression(
+    data: pd.DataFrame,
+    outcome_col: str = "self_perception_score",
+    predictor_cols: List[str] = None,
+    confounder_cols: List[str] = None
+) -> Tuple[sm.RegressionResultsWrapper, Dict[str, Any]]:
     """
-    Fits a multiple linear regression model using statsmodels.
-    
+    Fit a multiple linear regression model with optional confounders.
+
     Args:
-        df: DataFrame containing the required columns.
-        
+        data: DataFrame containing the analysis data.
+        outcome_col: Name of the outcome variable column.
+        predictor_cols: List of primary predictor column names.
+        confounder_cols: List of confounder column names to include.
+
     Returns:
-        Tuple of (results object, summary dictionary)
+        Tuple containing:
+            - fitted_model: The fitted statsmodels regression results object.
+            - results_dict: Dictionary with coefficients, p-values, and fit statistics.
     """
-    log_model_fit_start(logger)
-    
-    # Define predictors
-    predictors = [
-        COL_PREDICTOR,
-        COL_AGE,
-        COL_GENDER,
-        COL_OFFLINE,
-        COL_TRAITS
-    ]
-    
-    # Filter columns that actually exist in the dataframe
-    available_predictors = [col for col in predictors if col in df.columns]
-    
-    if not available_predictors:
-        raise ValueError("No predictor columns found in the dataframe.")
-        
-    if COL_TARGET not in df.columns:
-        raise ValueError(f"Target column '{COL_TARGET}' not found in dataframe.")
-    
-    X = df[available_predictors]
-    y = df[COL_TARGET]
-    
-    # Add constant for intercept
-    X = sm.add_constant(X)
-    
-    try:
-        model = sm.OLS(y, X).fit()
-        log_model_fit_success(logger)
-        return model, {
-            'predictors_used': available_predictors,
-            'n_obs': len(y),
-            'r_squared': model.rsquared,
-            'adj_r_squared': model.rsquared_adj,
-            'f_statistic': model.fvalue,
-            'f_pvalue': model.f_pvalue
+    if predictor_cols is None:
+        predictor_cols = ["psv_score"]
+    if confounder_cols is None:
+        confounder_cols = ["age", "gender", "offline_relationships", "intrinsic_traits"]
+
+    # Construct full feature list
+    feature_cols = predictor_cols + confounder_cols
+    available_features = [col for col in feature_cols if col in data.columns]
+
+    if len(available_features) == 0:
+        raise ValueError("No predictor columns found in the data.")
+
+    X = data[available_features].dropna()
+    y = data[outcome_col].loc[X.index].dropna()
+
+    # Align indices
+    common_idx = X.index.intersection(y.index)
+    X = X.loc[common_idx]
+    y = y.loc[common_idx]
+
+    if len(X) < 10:
+        raise ValueError(f"Insufficient samples for regression after dropping NaNs: {len(X)}")
+
+    # Add intercept
+    X_with_intercept = sm.add_constant(X)
+
+    log_model_fit_start("Multiple Linear Regression")
+    model = sm.OLS(y, X_with_intercept)
+    results = model.fit()
+    log_model_fit_success("Multiple Linear Regression")
+
+    # Extract results
+    coef_dict = {
+        col: {
+            "coef": float(results.params[col]),
+            "std_err": float(results.bse[col]),
+            "pvalue": float(results.pvalues[col]),
+            "significant": bool(results.pvalues[col] < get_significance_level())
         }
-    except Exception as e:
-        log_model_fit_error(logger, str(e))
-        raise
-
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
-    """
-    Calculates Variance Inflation Factor (VIF) for each predictor.
-    
-    Args:
-        df: DataFrame containing the data.
-        predictors: List of predictor column names.
-        
-    Returns:
-        Dictionary mapping predictor names to VIF values.
-    """
-    vif_data = {}
-    X = df[predictors]
-    X = sm.add_constant(X)
-    
-    for col in X.columns:
-        if col == 'const':
-            continue
-        try:
-            vif = variance_inflation_factor(X.values, list(X.columns).index(col))
-            vif_data[col] = vif
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data[col] = np.nan
-            
-    return vif_data
-
-def check_vif_results(vif_results: Dict[str, float], threshold: float) -> Dict[str, Any]:
-    """
-    Checks VIF results against the threshold and returns status.
-    
-    Args:
-        vif_results: Dictionary of VIF values.
-        threshold: The VIF threshold value.
-        
-    Returns:
-        Dictionary with vif_value, threshold_value, and status.
-    """
-    max_vif = max(vif_results.values()) if vif_results else 0.0
-    status = "PASS" if max_vif < threshold else "FAIL"
-    
-    return {
-        "vif_value": max_vif,
-        "threshold_value": threshold,
-        "status": status
+        for col in X_with_intercept.columns
     }
 
-def generate_associational_report(model_results: Dict[str, Any], 
-                                  vif_results: Dict[str, Any], 
-                                  df_stats: Dict[str, Any]) -> str:
-    """
-    Generates a draft report string ensuring all findings are labeled "associational".
-    
-    This function constructs a text buffer that describes the results.
-    It explicitly avoids causal language (e.g., "causes", "leads to").
-    
-    Args:
-        model_results: Dictionary containing regression results.
-        vif_results: Dictionary containing VIF analysis results.
-        df_stats: Dictionary containing dataset statistics.
-        
-    Returns:
-        A string buffer representing the draft report.
-    """
-    report_lines = []
-    report_lines.append("=" * 60)
-    report_lines.append("STATISTICAL ANALYSIS REPORT: ASSOCIATIONAL FINDINGS")
-    report_lines.append("=" * 60)
-    report_lines.append("")
-    
-    # Dataset Overview
-    report_lines.append("1. DATASET OVERVIEW")
-    report_lines.append(f"   - Sample Size (N): {df_stats.get('n_rows', 0)}")
-    report_lines.append(f"   - Predictors Used: {', '.join(df_stats.get('predictors_used', []))}")
-    report_lines.append("")
-    
-    # Model Fit
-    report_lines.append("2. MODEL FIT STATISTICS")
-    report_lines.append(f"   - R-squared: {model_results.get('r_squared', 0):.4f}")
-    report_lines.append(f"   - Adjusted R-squared: {model_results.get('adj_r_squared', 0):.4f}")
-    report_lines.append(f"   - F-statistic: {model_results.get('f_statistic', 0):.2f}")
-    report_lines.append(f"   - F-statistic p-value: {model_results.get('f_pvalue', 0):.6f}")
-    report_lines.append("")
-    
-    # Coefficients
-    report_lines.append("3. COEFFICIENT ESTIMATES (ASSOCIATIONAL)")
-    report_lines.append("   The following coefficients represent the *association* between")
-    report_lines.append("   the predictors and the outcome variable, holding other variables constant.")
-    report_lines.append("")
-    
-    params = model_results.get('params', {})
-    pvalues = model_results.get('pvalues', {})
-    conf_int = model_results.get('conf_int', [])
-    
-    for i, (param_name, coef) in enumerate(params.items()):
-        if param_name == 'const':
-            continue
-        p_val = pvalues.get(param_name, 0)
-        sig_level = get_significance_level()
-        significance = " (significant)" if p_val < sig_level else ""
-        
-        # Ensure we use "associated with" or "linked to" instead of "causes"
-        report_lines.append(f"   - {param_name}:")
-        report_lines.append(f"       Coefficient: {coef:.4f}")
-        report_lines.append(f"       p-value: {p_val:.6f}{significance}")
-        if conf_int and len(conf_int) > i:
-            ci_low = conf_int[i][0]
-            ci_high = conf_int[i][1]
-            report_lines.append(f"       95% CI: [{ci_low:.4f}, {ci_high:.4f}]")
-        report_lines.append("")
-        
-    # VIF Results
-    report_lines.append("4. MULTICOLLINEARITY CHECK (VIF)")
-    vif_val = vif_results.get('vif_value', 0)
-    threshold = vif_results.get('threshold_value', 0)
-    status = vif_results.get('status', 'UNKNOWN')
-    
-    report_lines.append(f"   - Maximum VIF observed: {vif_val:.4f}")
-    report_lines.append(f"   - Threshold: {threshold}")
-    report_lines.append(f"   - Status: {status}")
-    report_lines.append("")
-    
-    # Conclusion
-    report_lines.append("5. CONCLUSION")
-    report_lines.append("   The analysis identifies statistical *associations* between the predictors")
-    report_lines.append("   and self-perception scores. These results describe the strength and direction")
-    report_lines.append("   of the relationships observed in the data but do not imply causality.")
-    report_lines.append("=" * 60)
-    
-    return "\n".join(report_lines)
+    results_dict = {
+        "coefficients": coef_dict,
+        "r_squared": float(results.rsquared),
+        "adj_r_squared": float(results.rsquared_adj),
+        "f_statistic": float(results.fvalue),
+        "f_pvalue": float(results.f_pvalue),
+        "n_obs": int(results.nobs),
+        "df_resid": int(results.df_resid)
+    }
 
-def run_analysis(df: pd.DataFrame, output_path: Optional[str] = None) -> Dict[str, Any]:
+    return results, results_dict
+
+
+def calculate_vif(data: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
     """
-    Runs the full regression analysis pipeline including VIF and report generation.
-    
+    Calculate Variance Inflation Factor (VIF) for each predictor.
+
     Args:
-        df: Input DataFrame.
-        output_path: Optional path to save the model results JSON.
-        
+        data: DataFrame containing the data.
+        feature_cols: List of column names to calculate VIF for.
+
+    Returns:
+        Dictionary mapping column names to their VIF values.
+    """
+    vif_data = {}
+    X = data[feature_cols].dropna()
+
+    # Drop rows with NaNs in any feature
+    X = X.dropna()
+
+    if len(X) < len(feature_cols) + 1:
+        logger.warning("Insufficient data points to calculate VIF reliably.")
+        return vif_data
+
+    # Add constant for VIF calculation
+    X_const = sm.add_constant(X)
+
+    for col in feature_cols:
+        if col not in X_const.columns:
+            continue
+        try:
+            vif = variance_inflation_factor(X_const.values, list(X_const.columns).index(col))
+            vif_data[col] = float(vif)
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_data[col] = float('nan')
+
+    return vif_data
+
+
+def check_vif_results(vif_results: Dict[str, float], threshold: Optional[float] = None) -> Dict[str, Any]:
+    """
+    Compare VIF results against a threshold and determine pass/fail status.
+
+    Args:
+        vif_results: Dictionary of VIF values per feature.
+        threshold: VIF threshold value (defaults to config).
+
+    Returns:
+        Dictionary with comparison results.
+    """
+    if threshold is None:
+        threshold = get_vif_threshold()
+
+    status = "PASS"
+    violations = []
+
+    for col, vif_val in vif_results.items():
+        if np.isnan(vif_val):
+            continue
+        if vif_val > threshold:
+            status = "FAIL"
+            violations.append({"feature": col, "vif": vif_val, "threshold": threshold})
+
+    return {
+        "threshold": threshold,
+        "overall_status": status,
+        "violations": violations,
+        "vif_values": vif_results
+    }
+
+
+def generate_associational_report(
+    results_dict: Dict[str, Any],
+    model_type: str = "Multiple Linear Regression"
+) -> str:
+    """
+    Generate a report string ensuring strictly associational language.
+
+    Args:
+        results_dict: Dictionary containing model results.
+        model_type: Type of model used.
+
+    Returns:
+        Formatted report string.
+
+    Raises:
+        CausalLanguageViolationError: If causal language is detected.
+    """
+    report_lines = [
+        f"=== {model_type} Results ===",
+        f"R-squared: {results_dict['r_squared']:.4f}",
+        f"Adjusted R-squared: {results_dict['adj_r_squared']:.4f}",
+        f"F-statistic: {results_dict['f_statistic']:.4f} (p={results_dict['f_pvalue']:.4f})",
+        f"Observations: {results_dict['n_obs']}",
+        "",
+        "Coefficients:"
+    ]
+
+    for feature, stats in results_dict['coefficients'].items():
+        sig_marker = "*" if stats['significant'] else ""
+        report_lines.append(
+            f"  {feature}: coef={stats['coef']:.4f}, p={stats['pvalue']:.4f} {sig_marker}"
+        )
+
+    report_text = "\n".join(report_lines)
+
+    # Check for causal language
+    trigger_words = scan_report_for_causal_language(report_text)
+    if trigger_words:
+        raise CausalLanguageViolationError(
+            f"Causal language detected in report: {trigger_words}. "
+            "All findings must be framed associationally."
+        )
+
+    return report_text
+
+
+def run_analysis(
+    data: pd.DataFrame,
+    outcome_col: str = "self_perception_score",
+    predictor_cols: List[str] = None,
+    confounder_cols: List[str] = None,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run the full regression analysis pipeline including VIF and reporting.
+
+    Args:
+        data: DataFrame containing the analysis data.
+        outcome_col: Name of the outcome variable column.
+        predictor_cols: List of primary predictor column names.
+        confounder_cols: List of confounder column names.
+        output_path: Optional path to save results JSON.
+
     Returns:
         Dictionary containing all analysis results.
     """
-    logger.info("Starting regression analysis...")
-    
-    # 1. Fit Model
-    model, model_summary = fit_multiple_linear_regression(df)
-    
-    # 2. Calculate VIF
-    predictors = [col for col in model_summary['predictors_used'] if col != 'const']
-    vif_scores = calculate_vif(df, predictors)
-    threshold = get_vif_threshold()
-    vif_check = check_vif_results(vif_scores, threshold)
-    
-    # 3. Prepare data for report
-    df_stats = {
-        'n_rows': len(df),
-        'predictors_used': model_summary['predictors_used']
-    }
-    
-    # Extract model details for report generation
-    model_details = {
-        'params': model.params.to_dict(),
-        'pvalues': model.pvalues.to_dict(),
-        'conf_int': model.conf_int().values.tolist(),
-        'r_squared': model_summary['r_squared'],
-        'adj_r_squared': model_summary['adj_r_squared'],
-        'f_statistic': model_summary['f_statistic'],
-        'f_pvalue': model_summary['f_pvalue']
-    }
-    
-    # 4. Generate Draft Report Buffer
-    draft_report = generate_associational_report(model_details, vif_check, df_stats)
-    
-    # 5. CAUSAL LANGUAGE CHECK (T020)
-    # Scan the draft report for forbidden causal language
-    trigger_words, found = scan_report_for_causal_language(draft_report)
-    
-    if found:
-        logger.error(f"Causal language detected: {trigger_words}")
-        raise CausalLanguageViolationError(
-            f"Causal language violation detected in report. Found: {trigger_words}. "
-            "The pipeline halts to prevent misinterpretation of associational data as causal."
-        )
-    
-    # 6. Compile Final Results
-    final_results = {
-        'model_summary': model_summary,
-        'coefficients': model_details['params'],
-        'pvalues': model_details['pvalues'],
-        'confidence_intervals': model_details['conf_int'],
-        'vif_analysis': {
-            'scores': vif_scores,
-            'max_vif': vif_check['vif_value'],
-            'threshold': vif_check['threshold_value'],
-            'status': vif_check['status']
-        },
-        'report_draft': draft_report,
-        'causal_check': {
-            'passed': True,
-            'trigger_words_found': []
-        }
-    }
-    
-    # 7. Save to JSON if path provided
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(final_results, f, indent=2, default=str)
-        logger.info(f"Results saved to {output_path}")
-        
-    return final_results
+    log_pipeline_step("Starting regression analysis")
 
-def main():
-    """
-    Entry point for running the regression analysis standalone.
-    Expects a CSV file in data/processed/ or similar.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run Regression Analysis")
-    parser.add_argument("--input", type=str, required=True, help="Path to input CSV")
-    parser.add_argument("--output", type=str, default="data/processed/model_results.json", help="Path to output JSON")
-    args = parser.parse_args()
-    
-    logger.info(f"Loading data from {args.input}")
-    df = pd.read_csv(args.input)
-    
     try:
-        results = run_analysis(df, args.output)
-        print("Analysis completed successfully.")
-        print(f"Max VIF: {results['vif_analysis']['max_vif']:.2f} ({results['vif_analysis']['status']})")
-    except CausalLanguageViolationError as e:
-        print(f"CRITICAL ERROR: {e}")
-        sys.exit(1)
+        # Fit model
+        _, model_results = fit_multiple_linear_regression(
+            data, outcome_col, predictor_cols, confounder_cols
+        )
+
+        # Calculate VIF
+        feature_cols = (predictor_cols or ["psv_score"]) + (confounder_cols or [])
+        vif_values = calculate_vif(data, feature_cols)
+        vif_comparison = check_vif_results(vif_values)
+
+        # Generate report (validates language)
+        report = generate_associational_report(model_results)
+
+        # Compile results
+        full_results = {
+            "model_results": model_results,
+            "vif_results": vif_comparison,
+            "report": report
+        }
+
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(full_results, f, indent=2)
+            logger.info(f"Regression results saved to {output_path}")
+
+        log_pipeline_step("Regression analysis completed successfully")
+        return full_results
+
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(1)
+        log_model_fit_error("Regression analysis", str(e))
+        logger.error(f"Regression analysis failed: {e}", exc_info=True)
+        raise
+
+
+def main() -> None:
+    """
+    Main entry point for the regression analysis module.
+    Loads processed data, runs analysis, and saves results.
+    """
+    logger.info("Executing main() for regression analysis")
+
+    from pathlib import Path
+    base_dir = Path(__file__).resolve().parents[2]
+    data_path = base_dir / "data" / "processed" / "pipeline_data.csv"
+    output_path = base_dir / "data" / "processed" / "model_results.json"
+
+    if not data_path.exists():
+        logger.error(f"Data file not found: {data_path}. Cannot run analysis.")
+        return
+
+    logger.info(f"Loading data from {data_path}")
+    data = pd.read_csv(data_path)
+
+    run_analysis(
+        data,
+        outcome_col="self_perception_score",
+        predictor_cols=["psv_score"],
+        confounder_cols=["age", "gender", "offline_relationships", "intrinsic_traits"],
+        output_path=str(output_path)
+    )
+
 
 if __name__ == "__main__":
     main()

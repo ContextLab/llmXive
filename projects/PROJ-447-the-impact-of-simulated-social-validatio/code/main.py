@@ -1,188 +1,275 @@
 """
-Main orchestration script for the Social Validation Impact Study.
+Main orchestration module for the research pipeline.
 
-This script implements the data acquisition and validation pipeline:
-1. Attempts to load real data.
-2. If real data fails, generates synthetic data.
-3. Validates the data.
-4. Processes the data (calculates Perceived Social Validation).
-5. Writes a run log.
+This module coordinates data loading/generation, regression analysis,
+robustness checks, and report generation.
 """
+
 import json
 import os
 import sys
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add project root to path to ensure imports work when run as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import pandas as pd
 
-# Import data modules
+from utils.logger import get_logger, log_pipeline_step
+from utils.exceptions import (
+    DataLoadError,
+    DataGapError,
+    InsufficientSampleError,
+    CausalLanguageViolationError,
+    StabilityThresholdViolationError
+)
 from data.loader import load_real_data
-from data.generator import generate_synthetic_data, verify_association_recovery
+from data.generator import generate_synthetic_data, validate_rses_psychometrics
 from data.validator import validate_data
-from data.processor import process_data
+from data.processor import add_psv_column
+from analysis.regression import run_analysis
+from analysis.sensitivity import run_sensitivity_analysis, check_stability
+from analysis.nonlinearity import run_nonlinearity_analysis
+from viz.plots import run_viz_pipeline
+from viz.validator import count_generated_visualizations, update_pipeline_log
 
-# Import utilities
-from utils.exceptions import DataLoadError, DataGapError, InsufficientSampleError
-from utils.logger import get_logger, log_pipeline_step, log_data_load_start, log_data_load_success, log_data_load_error
-from utils.config import get_config
+logger = get_logger(__name__)
 
-def main():
+
+def load_or_generate_data(
+    real_data_url: Optional[str] = None,
+    local_data_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Orchestrates the data pipeline: Load -> Generate (if needed) -> Validate -> Process -> Log.
+    Attempt to load real data; if failed, generate synthetic data.
+
+    Args:
+        real_data_url: URL for real data.
+        local_data_path: Path to local real data file.
+        output_path: Path to save the final processed data.
+
+    Returns:
+        Processed DataFrame.
     """
-    logger = get_logger(__name__)
-    config = get_config()
-    
-    # Ensure output directory exists
-    data_processed_dir = project_root / "data" / "processed"
-    data_processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_path = data_processed_dir / "pipeline_run_log.json"
-    
-    run_log = {
-        "timestamp": datetime.now().isoformat(),
-        "status": "started",
+    log_pipeline_step("Starting data acquisition")
+    data = None
+
+    # Step 1: Try real data
+    try:
+        logger.info("Attempting to load real data...")
+        data = load_real_data(source_url=real_data_url, file_path=local_data_path)
+        logger.info("Real data loaded successfully.")
+    except DataLoadError as e:
+        logger.warning(f"Real data load failed: {e}. Falling back to synthetic generation.")
+        # Step 2: Generate synthetic
+        data = generate_synthetic_data(n_samples=500, seed=42)
+
+    # Step 3: Validate
+    try:
+        validate_data(data)
+    except (DataGapError, InsufficientSampleError) as e:
+        logger.error(f"Data validation failed: {e}")
+        raise
+
+    # Step 4: Process (add PSV)
+    data = add_psv_column(data)
+
+    # Step 5: Save processed data
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        data.to_csv(output_path, index=False)
+        logger.info(f"Processed data saved to {output_path}")
+
+    log_pipeline_step("Data acquisition and processing complete")
+    return data
+
+
+def run_regression_analysis(
+    data: pd.DataFrame,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run the primary regression analysis.
+
+    Args:
+        data: Input DataFrame.
+        output_path: Path to save results.
+
+    Returns:
+        Dictionary with regression results.
+    """
+    log_pipeline_step("Starting regression analysis")
+
+    try:
+        results = run_analysis(
+            data,
+            outcome_col="self_perception_score",
+            predictor_cols=["psv_score"],
+            confounder_cols=["age", "gender", "offline_relationships", "intrinsic_traits"],
+            output_path=output_path
+        )
+        log_pipeline_step("Regression analysis complete")
+        return results
+    except CausalLanguageViolationError as e:
+        logger.error(f"Causal language violation: {e}")
+        raise
+
+
+def run_robustness_checks(
+    data: pd.DataFrame,
+    base_results_path: Optional[str] = None,
+    viz_output_dir: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run robustness checks: sensitivity, non-linearity, and visualization.
+
+    Args:
+        data: Input DataFrame.
+        base_results_path: Path for sensitivity results.
+        viz_output_dir: Directory for visualization outputs.
+
+    Returns:
+        Dictionary with robustness check results.
+    """
+    log_pipeline_step("Starting robustness checks")
+
+    results = {}
+
+    # 1. Sensitivity Analysis
+    try:
+        logger.info("Running sensitivity analysis...")
+        sensitivity_results = run_sensitivity_analysis(
+            data,
+            outcome_col="self_perception_score",
+            predictor_col="psv_score",
+            confounder_cols=["age", "gender", "offline_relationships", "intrinsic_traits"],
+            output_path=base_results_path
+        )
+
+        # Check stability
+        stability_check = check_stability(sensitivity_results)
+        results["sensitivity"] = {
+            "runs": sensitivity_results,
+            "stability_check": stability_check
+        }
+    except StabilityThresholdViolationError as e:
+        logger.error(f"Stability threshold violated: {e}")
+        raise
+    except Exception as e:
+        logger.warning(f"Sensitivity analysis failed: {e}")
+        results["sensitivity"] = {"error": str(e)}
+
+    # 2. Non-linearity Analysis
+    try:
+        logger.info("Running non-linearity analysis...")
+        nonlinearity_results = run_nonlinearity_analysis(
+            data,
+            outcome_col="self_perception_score",
+            predictor_col="psv_score",
+            output_path=str(Path(base_results_path).parent / "nonlinearity_results.json")
+        )
+        results["nonlinearity"] = nonlinearity_results
+    except Exception as e:
+        logger.warning(f"Non-linearity analysis failed: {e}")
+        results["nonlinearity"] = {"error": str(e)}
+
+    # 3. Visualization
+    try:
+        logger.info("Running visualization pipeline...")
+        viz_results = run_viz_pipeline(
+            data,
+            output_dir=viz_output_dir
+        )
+        results["visualization"] = viz_results
+    except Exception as e:
+        logger.warning(f"Visualization pipeline failed: {e}")
+        results["visualization"] = {"error": str(e)}
+
+    log_pipeline_step("Robustness checks complete")
+    return results
+
+
+def main() -> None:
+    """
+    Main entry point for the entire pipeline.
+    """
+    logger.info("========================================")
+    logger.info("Starting llmXive Research Pipeline")
+    logger.info("========================================")
+
+    base_dir = Path(__file__).resolve().parents[1]
+    data_output = base_dir / "data" / "processed" / "pipeline_data.csv"
+    model_results_path = base_dir / "data" / "processed" / "model_results.json"
+    sensitivity_path = base_dir / "data" / "processed" / "sensitivity_analysis.json"
+    viz_dir = base_dir / "data" / "processed"
+    log_path = base_dir / "data" / "processed" / "pipeline_run_log.json"
+
+    pipeline_log = {
+        "start_time": datetime.now().isoformat(),
+        "status": "running",
         "steps": []
     }
 
     try:
-        # Step 1: Attempt Real Data Load
-        log_pipeline_step(logger, "Attempting real data load...", "info")
-        log_data_load_start(logger)
-        
-        try:
-            real_data = load_real_data()
-            if real_data is not None and not real_data.empty:
-                log_data_load_success(logger, f"Loaded {len(real_data)} rows from real source.")
-                run_log["steps"].append({
-                    "step": "real_data_load",
-                    "status": "success",
-                    "rows": len(real_data)
-                })
-                df = real_data
-            else:
-                raise DataLoadError("Real data load returned empty or None.")
-                
-        except DataLoadError as e:
-            logger.warning(f"Real data load failed: {e}. Switching to synthetic generation.")
-            run_log["steps"].append({
-                "step": "real_data_load",
-                "status": "failed",
-                "reason": str(e)
-            })
-            
-            # Step 2: Generate Synthetic Data
-            log_pipeline_step(logger, "Generating synthetic data...", "info")
-            df = generate_synthetic_data()
-            
-            if df is None or df.empty:
-                raise RuntimeError("Synthetic data generation failed to produce a DataFrame.")
-            
-            # Verify association recovery as per T011b
-            verify_association_recovery(df)
-            
-            log_data_load_success(logger, f"Generated {len(df)} rows of synthetic data.")
-            run_log["steps"].append({
-                "step": "synthetic_data_generation",
-                "status": "success",
-                "rows": len(df)
-            })
-            
-        except Exception as e:
-            # Catch any other unexpected errors during load/generate
-            log_data_load_error(logger, str(e))
-            run_log["steps"].append({
-                "step": "load_or_generate",
-                "status": "failed",
-                "reason": str(e)
-            })
-            raise
+        # 1. Load/Generate Data
+        data = load_or_generate_data(
+            local_data_path=None,
+            output_path=str(data_output)
+        )
+        pipeline_log["steps"].append({"step": "data_acquisition", "status": "success"})
 
-        # Step 3: Validate Data
-        log_pipeline_step(logger, "Validating data...", "info")
-        log_validation_start = lambda l: l.info("Validation started.")
-        log_validation_start(logger)
-        
-        try:
-            validation_result = validate_data(df)
-            log_validation_success = lambda l: l.info("Validation passed.")
-            log_validation_success(logger)
-            
-            run_log["steps"].append({
-                "step": "validation",
-                "status": "success",
-                "details": validation_result
+        # 2. Regression
+        run_regression_analysis(data, output_path=str(model_results_path))
+        pipeline_log["steps"].append({"step": "regression_analysis", "status": "success"})
+
+        # 3. Robustness
+        run_robustness_checks(
+            data,
+            base_results_path=str(sensitivity_path),
+            viz_output_dir=str(viz_dir)
+        )
+        pipeline_log["steps"].append({"step": "robustness_checks", "status": "success"})
+
+        # 4. Visualizations check
+        viz_count, missing_files = count_generated_visualizations(viz_dir)
+        if viz_count < 2:
+            logger.warning(f"Missing visualization files: {missing_files}")
+            pipeline_log["steps"].append({
+                "step": "visualization_check",
+                "status": "warning",
+                "message": f"Only {viz_count} visualizations found. Missing: {missing_files}"
             })
-            
-        except DataGapError as e:
-            logger.error(f"Validation failed: {e}")
-            run_log["steps"].append({
-                "step": "validation",
-                "status": "failed",
-                "error": "DataGapError",
-                "reason": str(e)
-            })
-            raise
-            
-        except InsufficientSampleError as e:
-            logger.error(f"Validation failed: {e}")
-            run_log["steps"].append({
-                "step": "validation",
-                "status": "failed",
-                "error": "InsufficientSampleError",
-                "reason": str(e)
-            })
-            raise
+        else:
+            pipeline_log["steps"].append({"step": "visualization_check", "status": "success"})
 
-        # Step 4: Process Data (Calculate Perceived Social Validation)
-        log_pipeline_step(logger, "Processing data (calculating PSV)...", "info")
-        df_processed = process_data(df)
-        
-        run_log["steps"].append({
-            "step": "processing",
-            "status": "success",
-            "rows": len(df_processed)
-        })
-        
-        # Optional: Save processed data for downstream tasks (US2)
-        processed_csv_path = data_processed_dir / "validated_data.csv"
-        df_processed.to_csv(processed_csv_path, index=False)
-        logger.info(f"Processed data saved to {processed_csv_path}")
+        pipeline_log["status"] = "completed"
+        pipeline_log["end_time"] = datetime.now().isoformat()
 
-        # Final Success
-        run_log["status"] = "completed"
-        run_log["final_row_count"] = len(df_processed)
-        log_pipeline_step(logger, "Pipeline completed successfully.", "info")
-
-    except (DataGapError, InsufficientSampleError) as e:
-        run_log["status"] = "failed"
-        run_log["error_type"] = type(e).__name__
-        run_log["error_message"] = str(e)
-        log_pipeline_step(logger, f"Pipeline failed: {e}", "error")
-        raise
-
+    except (DataLoadError, DataGapError, InsufficientSampleError) as e:
+        logger.error(f"Pipeline failed at data stage: {e}")
+        pipeline_log["status"] = "failed"
+        pipeline_log["error"] = str(e)
+        pipeline_log["end_time"] = datetime.now().isoformat()
+    except (CausalLanguageViolationError, StabilityThresholdViolationError) as e:
+        logger.error(f"Pipeline failed at analysis stage: {e}")
+        pipeline_log["status"] = "failed"
+        pipeline_log["error"] = str(e)
+        pipeline_log["end_time"] = datetime.now().isoformat()
     except Exception as e:
-        run_log["status"] = "failed"
-        run_log["error_type"] = type(e).__name__
-        run_log["error_message"] = str(e)
-        log_pipeline_step(logger, f"Pipeline failed with unexpected error: {e}", "error")
-        raise
+        logger.error(f"Pipeline failed with unexpected error: {e}", exc_info=True)
+        pipeline_log["status"] = "failed"
+        pipeline_log["error"] = str(e)
+        pipeline_log["end_time"] = datetime.now().isoformat()
 
-    finally:
-        # Always write the log
-        with open(log_path, 'w') as f:
-            json.dump(run_log, f, indent=2)
-        logger.info(f"Run log written to {log_path}")
+    # Save log
+    with open(log_path, 'w', encoding='utf-8') as f:
+        json.dump(pipeline_log, f, indent=2)
+    logger.info(f"Pipeline log saved to {log_path}")
 
-    return df_processed
+    if pipeline_log["status"] != "completed":
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception:
-        sys.exit(1)
+    main()

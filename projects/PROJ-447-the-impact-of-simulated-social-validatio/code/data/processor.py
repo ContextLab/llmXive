@@ -1,19 +1,8 @@
 """
-code/data/processor.py
+Data processing module for deriving 'Perceived Social Validation' (PSV).
 
-Implements FR-008: Derive 'Perceived Social Validation' (PSV) from engagement metrics
-and comment sentiment using the mathematical formula defined in code/utils/constants.py.
-
-Formula (from constants.py get_psv_weights):
-PSV = (w_like * log(1 + likes) + w_comment * log(1 + comments) + w_share * log(1 + shares))
-      * sentiment_score * sentiment_scale
-
-Where:
-- w_like = 0.25
-- w_comment = 0.40
-- w_share = 0.35
-- sentiment_scale = 1.0
-- log_transform = True (applies log(1+x) to engagement counts)
+This module implements the measurement model formula defined in constants.py:
+PSV = 0.6 * normalized_likes + 0.4 * normalized_sentiment
 """
 
 import logging
@@ -27,158 +16,118 @@ from utils.logger import get_logger, log_pipeline_step
 logger = get_logger(__name__)
 
 
-def calculate_psv(
-    df: pd.DataFrame,
-    weights: Optional[Dict[str, Any]] = None
-) -> pd.Series:
+def normalize_column(series: pd.Series, method: str = "minmax") -> pd.Series:
     """
-    Calculate the 'Perceived Social Validation' (PSV) score for each row in the DataFrame.
+    Normalize a pandas Series to [0, 1] range.
 
     Args:
-        df: DataFrame containing columns 'likes', 'comments', 'shares', and 'sentiment_score'.
-        weights: Optional dictionary overriding default weights from constants.py.
-                 Expected keys: 'like_weight', 'comment_weight', 'share_weight',
-                 'sentiment_scale', 'log_transform'.
+        series: Input pandas Series.
+        method: Normalization method (currently only 'minmax' supported).
 
     Returns:
-        pd.Series: The calculated PSV scores.
-
-    Raises:
-        KeyError: If required columns are missing from the DataFrame.
-        ValueError: If sentiment_score contains non-numeric data or invalid ranges.
+        Normalized Series.
     """
-    required_cols = ['likes', 'comments', 'shares', 'sentiment_score']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns for PSV calculation: {missing_cols}")
-        raise KeyError(f"Missing columns for PSV calculation: {missing_cols}")
+    if method != "minmax":
+        raise ValueError(f"Unsupported normalization method: {method}")
 
+    min_val = series.min()
+    max_val = series.max()
+
+    if max_val == min_val:
+        logger.warning(f"Column has constant value. Returning zeros.")
+        return pd.Series(np.zeros(len(series)), index=series.index)
+
+    return (series - min_val) / (max_val - min_val)
+
+
+def calculate_psv(
+    likes: pd.Series,
+    sentiment: pd.Series,
+    weights: Optional[Dict[str, float]] = None
+) -> pd.Series:
+    """
+    Calculate Perceived Social Validation (PSV) score.
+
+    Formula: 0.6 * normalized_likes + 0.4 * normalized_sentiment
+
+    Args:
+        likes: Series of raw like counts.
+        sentiment: Series of sentiment scores.
+        weights: Optional dictionary of weights. Defaults to config.
+
+    Returns:
+        Series of PSV scores.
+    """
     if weights is None:
         weights = get_psv_weights()
 
-    w_like = weights['like_weight']
-    w_comment = weights['comment_weight']
-    w_share = weights['share_weight']
-    sentiment_scale = weights['sentiment_scale']
-    use_log = weights.get('log_transform', True)
+    w_likes = weights.get('likes', 0.6)
+    w_sentiment = weights.get('sentiment', 0.4)
 
-    logger.info("Calculating Perceived Social Validation (PSV)...")
+    logger.info(f"Calculating PSV with weights: likes={w_likes}, sentiment={w_sentiment}")
 
-    # Prepare engagement components
-    if use_log:
-        likes_term = np.log1p(df['likes'].astype(float))
-        comments_term = np.log1p(df['comments'].astype(float))
-        shares_term = np.log1p(df['shares'].astype(float))
-    else:
-        likes_term = df['likes'].astype(float)
-        comments_term = df['comments'].astype(float)
-        shares_term = df['shares'].astype(float)
+    norm_likes = normalize_column(likes)
+    norm_sentiment = normalize_column(sentiment)
 
-    # Validate sentiment score
-    sentiment_scores = df['sentiment_score'].astype(float)
-    if sentiment_scores.isna().any():
-        logger.warning("NaN values detected in sentiment_score. PSV will be NaN for those rows.")
+    psv = (w_likes * norm_likes) + (w_sentiment * norm_sentiment)
 
-    # Apply formula:
-    # PSV = (w_like * log(1 + likes) + w_comment * log(1 + comments) + w_share * log(1 + shares))
-    #       * sentiment_score * sentiment_scale
-    engagement_component = (
-        (w_like * likes_term) +
-        (w_comment * comments_term) +
-        (w_share * shares_term)
-    )
-
-    psv_scores = engagement_component * sentiment_scores * sentiment_scale
-
-    log_pipeline_step("PSV Calculation", "Success", {
-        "rows_processed": len(df),
-        "weights_used": weights,
-        "log_transform": use_log
-    })
-
-    return psv_scores
+    return psv
 
 
 def add_psv_column(
     df: pd.DataFrame,
-    output_column_name: str = 'perceived_social_validation'
+    likes_col: str = "likes",
+    sentiment_col: str = "sentiment_score",
+    output_col: str = "psv_score"
 ) -> pd.DataFrame:
     """
-    Adds the PSV score as a new column to the input DataFrame.
+    Add PSV column to the DataFrame.
 
     Args:
         df: Input DataFrame.
-        output_column_name: Name for the new column.
+        likes_col: Column name for likes.
+        sentiment_col: Column name for sentiment scores.
+        output_col: Column name for the resulting PSV score.
 
     Returns:
-        pd.DataFrame: The input DataFrame with the new PSV column appended.
+        DataFrame with added PSV column.
     """
-    logger.info(f"Adding '{output_column_name}' column to dataset.")
-    df = df.copy()
-    df[output_column_name] = calculate_psv(df)
+    if likes_col not in df.columns or sentiment_col not in df.columns:
+        raise ValueError(f"Required columns '{likes_col}' or '{sentiment_col}' not found.")
+
+    log_pipeline_step(f"Calculating {output_col} from {likes_col} and {sentiment_col}")
+
+    df[output_col] = calculate_psv(df[likes_col], df[sentiment_col])
+
+    logger.info(f"Added {output_col} column. Range: [{df[output_col].min():.4f}, {df[output_col].max():.4f}]")
     return df
 
 
-def main():
+def main() -> None:
     """
-    Standalone execution entry point for testing the processor.
-    Expects a CSV file at 'data/raw/sample_data.csv' (or similar) or generates
-    a minimal test frame if none exists, calculates PSV, and saves to
-    'data/processed/psv_processed_data.csv'.
-
-    Note: In the full pipeline, this function is called by code/main.py
-    after data loading and validation.
+    Main entry point for data processing.
+    Loads data, calculates PSV, and saves results.
     """
-    import os
     from pathlib import Path
+    base_dir = Path(__file__).resolve().parents[2]
+    input_path = base_dir / "data" / "processed" / "pipeline_data.csv"
+    output_path = base_dir / "data" / "processed" / "pipeline_data_processed.csv"
 
-    # Define paths relative to project root
-    # Assuming this script runs from project root or via python -m
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / "data" / "raw" / "sample_data.csv"
-    output_dir = project_root / "data" / "processed"
-    output_path = output_dir / "psv_processed_data.csv"
+    logger.info("Executing main() for data processor")
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        return
 
-    logger.info(f"Starting PSV Processor. Input: {input_path}, Output: {output_path}")
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
 
-    # Attempt to load real data if available, otherwise create a minimal valid test frame
-    # to demonstrate the function works. The main pipeline (T014) handles the real
-    # load/generator logic.
-    if input_path.exists():
-        try:
-            df = pd.read_csv(input_path)
-            logger.info(f"Loaded {len(df)} rows from {input_path}")
-        except Exception as e:
-            logger.error(f"Failed to load input file: {e}")
-            raise
-    else:
-        logger.warning(f"Input file {input_path} not found. Creating minimal test data for verification.")
-        # Minimal valid test data to ensure the function runs without crashing
-        # and produces the expected column.
-        data = {
-            'likes': [10, 100, 500],
-            'comments': [2, 20, 50],
-            'shares': [1, 5, 10],
-            'sentiment_score': [0.8, 0.5, 0.9],
-            'id': [1, 2, 3]
-        }
-        df = pd.DataFrame(data)
-        logger.info("Created minimal test DataFrame.")
+    df = add_psv_column(df)
 
-    # Calculate and add PSV
-    try:
-        df_with_psv = add_psv_column(df)
-        logger.info(f"PSV calculation complete. Sample values: {df_with_psv['perceived_social_validation'].head().tolist()}")
-    except Exception as e:
-        logger.error(f"PSV calculation failed: {e}")
-        raise
-
-    # Save to disk
-    df_with_psv.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Processed data saved to {output_path}")
 
 
 if __name__ == "__main__":
+    import os
     main()

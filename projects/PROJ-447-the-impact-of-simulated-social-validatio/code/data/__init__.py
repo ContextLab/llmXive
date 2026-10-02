@@ -1,3 +1,1 @@
-"""
-Data module for loading, generating, and processing datasets.
-"""
+"""Data module initialization."""

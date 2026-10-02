@@ -1,56 +1,58 @@
 """
-Setup Structure Module
-Creates the detailed directory structure for the project.
+Project structure setup module.
+
+This module creates the required directory structure for the research pipeline.
 """
+
 import os
 import sys
 from pathlib import Path
+import logging
 
-def create_directories():
-    """
-    Creates the required directory structure for the project.
-    
-    Creates:
-    - code/data, code/analysis, code/viz, code/utils
-    - data/raw, data/processed
-    - tests/unit, tests/integration
-    """
-    # Base path is the project root (parent of the code directory)
-    # We assume this script is run from the project root or the code directory
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent if current_dir.name == "code" else current_dir
+from utils.logger import get_logger
 
-    # Define the directories to create relative to project root
+logger = get_logger(__name__)
+
+
+def create_directories(base_path: Path) -> None:
+    """
+    Create the required directory structure.
+
+    Args:
+        base_path: Root path for the project.
+    """
     directories = [
-        "code/data",
-        "code/analysis",
-        "code/viz",
-        "code/utils",
-        "data/raw",
-        "data/processed",
-        "tests/unit",
-        "tests/integration"
+        "code", "code/data", "code/analysis", "code/viz", "code/utils",
+        "data", "data/raw", "data/processed",
+        "tests", "tests/unit", "tests/integration"
     ]
 
-    created_count = 0
     for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
+        full_path = base_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {full_path}")
 
-    print(f"\nTotal directories created: {created_count}")
-    return project_root
+    # Create __init__.py files
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        init_file = full_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            logger.info(f"Created __init__.py in {full_path}")
 
-def main():
-    """Main entry point for the setup script."""
-    print("Setting up project directory structure...")
-    project_root = create_directories()
-    print(f"Project root: {project_root}")
-    print("Directory structure setup complete.")
+
+def main() -> None:
+    """
+    Main entry point for structure setup.
+    """
+    logger.info("Executing main() for setup structure")
+
+    # Determine base path (project root)
+    base_path = Path(__file__).resolve().parent.parent
+
+    create_directories(base_path)
+    logger.info("Directory structure setup complete")
+
 
 if __name__ == "__main__":
     main()

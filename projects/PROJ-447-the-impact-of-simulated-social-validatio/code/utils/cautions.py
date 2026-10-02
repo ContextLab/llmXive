@@ -1,21 +1,44 @@
+"""
+Causal language scanner module.
+
+This module scans text reports for causal language trigger words
+and raises an error if any are found.
+"""
+
 import os
 import logging
 from typing import List, Optional, Tuple
 
-def scan_report_for_causal_language(report: str) -> bool:
-    """
-    Scans a report for causal language and returns True if any is found, False otherwise.
-    """
-    causal_triggers = ["causes", "leads to", "results in", "impacts", "affects"]
-    for trigger in causal_triggers:
-        if trigger in report.lower():
-            return True
-    return False
+from utils.constants import get_causal_triggers
 
-if __name__ == "__main__":
-    # Example usage
-    report_text = "This study shows that increased engagement leads to higher self-esteem."
-    if scan_report_for_causal_language(report_text):
-        print("Causal language detected!")
-    else:
-        print("No causal language detected.")
+logger = logging.getLogger(__name__)
+
+
+def scan_report_for_causal_language(
+    report_text: str,
+    triggers: Optional[List[str]] = None
+) -> List[str]:
+    """
+    Scan a report string for causal language trigger words.
+
+    Args:
+        report_text: The text to scan.
+        triggers: Optional list of trigger words. Defaults to config.
+
+    Returns:
+        List of trigger words found in the report.
+    """
+    if triggers is None:
+        triggers = get_causal_triggers()
+
+    found_triggers = []
+    lower_text = report_text.lower()
+
+    for trigger in triggers:
+        if trigger.lower() in lower_text:
+            found_triggers.append(trigger)
+
+    if found_triggers:
+        logger.warning(f"Causal language detected: {found_triggers}")
+
+    return found_triggers

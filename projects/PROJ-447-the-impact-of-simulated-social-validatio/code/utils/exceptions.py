@@ -1,52 +1,35 @@
 """
-Custom exception classes for the llmXive research pipeline.
+Custom exception classes for the research pipeline.
 
-These exceptions provide specific error handling for data loading,
-validation, causal language violations, and stability checks.
+This module defines specific error types to handle various failure modes
+in data loading, validation, and analysis.
 """
 
 class DataLoadError(Exception):
-    """
-    Raised when a real dataset fails to load from its source.
-
-    Used by code/data/loader.py to signal that the fetch operation
-    failed (e.g., network error, missing URL, API failure).
-    """
+    """Raised when real data loading fails."""
     pass
+
 
 class DataGapError(Exception):
-    """
-    Raised when the dataset contains zero rows (N=0).
-
-    Indicates a complete absence of data after loading, preventing
-    any analysis from proceeding.
-    """
+    """Raised when no data is available (N=0)."""
     pass
+
 
 class InsufficientSampleError(Exception):
-    """
-    Raised when the dataset has fewer than the minimum required samples (N < 100).
-
-    Indicates that while data exists, the sample size is too small
-    for statistically valid inference.
-    """
+    """Raised when sample size is below the minimum threshold."""
     pass
+
 
 class CausalLanguageViolationError(Exception):
-    """
-    Raised when a report or output contains forbidden causal language.
-
-    Triggered by the scanner in code/utils/cautions.py if terms like
-    'causes', 'leads to', or 'determines' are detected in the analysis output.
-    """
+    """Raised when causal language is detected in a report."""
     pass
 
-class StabilityThresholdViolationError(Exception):
-    """
-    Raised when the variation in model coefficients exceeds the stability threshold.
 
-    Triggered during sensitivity analysis (code/analysis/sensitivity.py) if
-    the primary predictor's coefficient fluctuates beyond the allowed limit
-    defined in code/utils/constants.py.
-    """
+class StabilityThresholdViolationError(Exception):
+    """Raised when coefficient variation exceeds the stability threshold."""
+    pass
+
+
+class LongitudinalMismatchError(Exception):
+    """Raised when temporal ordering of events is invalid."""
     pass

@@ -1,182 +1,152 @@
 """
-Non-linearity Analysis Module (T026)
+Non-linearity analysis module for detecting quadratic effects in social validation data.
 
-Implements quadratic term fitting for the primary predictor to detect non-linear
-relationships between engagement and self-perception.
+This module fits quadratic regression models to determine if the relationship between
+Perceived Social Validation (PSV) and Self-Perception is non-linear.
 """
 
 import os
 import json
 import logging
 from typing import Dict, Any, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 
-from utils.constants import get_significance_level, get_seed
 from utils.logger import get_logger, log_pipeline_step
-from utils.exceptions import DataGapError
-
-# Set random seed for reproducibility
-np.random.seed(get_seed())
+from utils.constants import get_significance_level
 
 logger = get_logger(__name__)
 
 
 def fit_quadratic_model(
-    df: pd.DataFrame,
-    outcome_col: str = 'self_perception_score',
-    predictor_col: str = 'perceived_social_validation',
-    confounders: Optional[list] = None
+    data: pd.DataFrame,
+    outcome_col: str = "self_perception_score",
+    predictor_col: str = "psv_score"
 ) -> Tuple[sm.RegressionResultsWrapper, Dict[str, Any]]:
     """
-    Fits a multiple linear regression model including a quadratic term for the
-    primary predictor.
-
-    Model: Y = β0 + β1*X + β2*X^2 + Σ(βc*C) + ε
+    Fit a quadratic regression model: Y = β0 + β1*X + β2*X^2 + ε
 
     Args:
-        df: DataFrame containing the data
-        outcome_col: Name of the outcome variable column
-        predictor_col: Name of the primary predictor column
-        confounders: List of confounder column names to include
+        data: DataFrame containing the analysis data.
+        outcome_col: Name of the outcome variable column.
+        predictor_col: Name of the primary predictor variable column.
 
     Returns:
-      Tuple of (model results object, dictionary of key statistics)
+        Tuple containing:
+            - fitted_model: The fitted statsmodels regression results object.
+            - results_dict: Dictionary with coefficients, p-values, and significance status.
     """
-    log_pipeline_step(logger, "Starting non-linearity analysis: Quadratic fit")
+    if predictor_col not in data.columns or outcome_col not in data.columns:
+        raise ValueError(f"Columns '{predictor_col}' or '{outcome_col}' not found in data.")
 
-    # Validate input data
-    if df is None or df.empty:
-        raise DataGapError("Cannot fit quadratic model: Input DataFrame is empty or None.")
+    X = data[predictor_col].dropna()
+    y = data[outcome_col].loc[X.index].dropna()
 
-    required_cols = [outcome_col, predictor_col]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise DataGapError(f"Missing required columns for non-linearity analysis: {missing_cols}")
+    if len(X) == 0:
+        raise ValueError("No valid data points after dropping NaNs for quadratic fit.")
 
-    # Prepare features
-    X = df[predictor_col].copy()
-    X_sq = X ** 2
+    # Create squared term
+    X_squared = X ** 2
+    X_matrix = pd.DataFrame({
+        'intercept': 1,
+        'X': X,
+        'X_sq': X_squared
+    })
 
-    features = {predictor_col: X, f"{predictor_col}_sq": X_sq}
+    model = sm.OLS(y, X_matrix)
+    results = model.fit()
 
-    if confounders:
-        valid_confounders = [c for c in confounders if c in df.columns]
-        for c in valid_confounders:
-            features[c] = df[c]
+    coef_x = results.params['X']
+    coef_x_sq = results.params['X_sq']
+    pval_x = results.pvalues['X']
+    pval_x_sq = results.pvalues['X_sq']
+    sig_level = get_significance_level()
 
-    X_matrix = pd.DataFrame(features)
-    X_matrix = sm.add_constant(X_matrix)
-    y = df[outcome_col]
-
-    # Handle missing values in the specific regression subset
-    mask = ~(X_matrix.isnull().any(axis=1) | y.isnull())
-    if not mask.any():
-        raise DataGapError("No valid rows available after removing missing values for quadratic fit.")
-
-    X_clean = X_matrix[mask]
-    y_clean = y[mask]
-
-    logger.info(f"Fitting quadratic model with {len(y_clean)} observations.")
-
-    model = sm.OLS(y_clean, X_clean).fit()
-
-    # Extract results
     results_dict = {
-        "model_type": "Quadratic (Linear + Quadratic Term)",
-        "n_observations": int(len(y_clean)),
-        "r_squared": float(model.rsquared),
-        "adj_r_squared": float(model.rsquared_adj),
-        "predictor_coeff": float(model.params[predictor_col]),
-        "predictor_pvalue": float(model.pvalues[predictor_col]),
-        "quadratic_coeff": float(model.params[f"{predictor_col}_sq"]),
-        "quadratic_pvalue": float(model.pvalues[f"{predictor_col}_sq"]),
-        "is_quadratic_significant": bool(model.pvalues[f"{predictor_col}_sq"] < get_significance_level()),
-        "f_statistic": float(model.f_statistic),
-        "f_pvalue": float(model.f_pvalue)
+        "coefficients": {
+            "intercept": float(results.params['intercept']),
+            "linear_term": float(coef_x),
+            "quadratic_term": float(coef_x_sq)
+        },
+        "p_values": {
+            "linear_term": float(pval_x),
+            "quadratic_term": float(pval_x_sq)
+        },
+        "is_quadratic_significant": bool(pval_x_sq < sig_level),
+        "r_squared": float(results.rsquared),
+        "adj_r_squared": float(results.rsquared_adj)
     }
 
-    log_pipeline_step(logger, "Quadratic model fit successful")
-    return model, results_dict
+    logger.info(f"Quadratic model fit complete. Quadratic term p-value: {pval_x_sq:.4f}")
+    return results, results_dict
 
 
 def run_nonlinearity_analysis(
-    df: pd.DataFrame,
-    outcome_col: str = 'self_perception_score',
-    predictor_col: str = 'perceived_social_validation',
-    confounders: Optional[list] = None,
+    data: pd.DataFrame,
+    outcome_col: str = "self_perception_score",
+    predictor_col: str = "psv_score",
     output_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Orchestrates the non-linearity analysis, fits the quadratic model,
-    and optionally saves the results to a JSON file.
+    Run the full non-linearity analysis pipeline.
 
     Args:
-        df: Input DataFrame
-        outcome_col: Outcome variable name
-        predictor_col: Primary predictor name
-        confounders: List of confounders
-        output_path: Path to save JSON results (if provided)
+        data: DataFrame containing the analysis data.
+        outcome_col: Name of the outcome variable column.
+        predictor_col: Name of the primary predictor variable column.
+        output_path: Optional path to save the results JSON file.
 
     Returns:
         Dictionary containing the analysis results.
     """
-    model, results = fit_quadratic_model(df, outcome_col, predictor_col, confounders)
-
-    if output_path:
-        # Ensure directory exists
-        os.makedirs(os.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Non-linearity results saved to {output_path}")
-
-    return results
-
-
-def main():
-    """
-    Entry point for standalone execution.
-    Reads processed data, runs non-linearity analysis, and saves results.
-    """
-    logger.info("Starting Non-linearity Analysis (T026) via main()")
-
-    # Load processed data (assuming it was generated by previous steps)
-    data_path = "data/processed/processed_data.csv"
-    
-    if not os.path.exists(data_path):
-        # Fallback for standalone testing if full pipeline not run
-        # In a real pipeline, this file should exist. 
-        # We raise an error if not found to avoid fabrication.
-        raise FileNotFoundError(f"Processed data file not found at {data_path}. "
-                                "Run the full pipeline (main.py) first.")
-
-    df = pd.read_csv(data_path)
-
-    # Define confounders based on standard model (T018)
-    confounders = ['age', 'gender', 'offline_relationships', 'intrinsic_traits']
-
-    output_file = "data/processed/nonlinearity_results.json"
+    log_pipeline_step("Starting non-linearity analysis")
 
     try:
-        results = run_nonlinearity_analysis(
-            df,
-            outcome_col='self_perception_score',
-            predictor_col='perceived_social_validation',
-            confounders=confounders,
-            output_path=output_file
+        results_obj, results_dict = fit_quadratic_model(
+            data, outcome_col, predictor_col
         )
 
-        print(f"Analysis Complete. Results saved to {output_file}")
-        print(f"Quadratic Term Significant: {results['is_quadratic_significant']}")
-        print(f"Quadratic Coeff: {results['quadratic_coeff']:.4f} (p={results['quadratic_pvalue']:.4f})")
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(results_dict, f, indent=2)
+            logger.info(f"Non-linearity results saved to {output_path}")
 
-    except DataGapError as e:
-        logger.error(f"Data gap encountered during non-linearity analysis: {e}")
-        raise
+        log_pipeline_step("Non-linearity analysis completed successfully")
+        return results_dict
+
     except Exception as e:
-        logger.error(f"Error during non-linearity analysis: {e}")
+        logger.error(f"Non-linearity analysis failed: {e}", exc_info=True)
         raise
+
+
+def main() -> None:
+    """
+    Main entry point for the non-linearity analysis module.
+    Loads processed data, runs analysis, and saves results.
+    """
+    logger.info("Executing main() for nonlinearity analysis")
+
+    # Determine paths relative to project root
+    base_dir = Path(__file__).resolve().parents[2]
+    data_path = base_dir / "data" / "processed" / "pipeline_data.csv"
+    output_path = base_dir / "data" / "processed" / "nonlinearity_results.json"
+
+    if not data_path.exists():
+        logger.error(f"Data file not found: {data_path}. Cannot run analysis.")
+        return
+
+    logger.info(f"Loading data from {data_path}")
+    data = pd.read_csv(data_path)
+
+    run_nonlinearity_analysis(
+        data,
+        outcome_col="self_perception_score",
+        predictor_col="psv_score",
+        output_path=str(output_path)
+    )
 
 
 if __name__ == "__main__":

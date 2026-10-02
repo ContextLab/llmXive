@@ -1,3 +1,3 @@
 """
-Data module for raw and processed datasets.
+Data storage directory.
 """

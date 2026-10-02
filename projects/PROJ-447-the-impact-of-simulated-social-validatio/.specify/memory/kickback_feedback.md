@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was provided showing that the `code/`, `data/`, and `tests/` directories actually exist in the repository root `projects/PROJ-447-the-impact-of-simulated-social-validatio/`. Without a directory listing or screenshots, we cannot confirm the required structure was created. The implementer must add proof that these three folders are present and non‑empty.
-- `T001b` (rejected 1x): No `__init__.py` files or directory listings were provided, so there is no evidence that the required initialization files were created in the project’s directories. The implementer must add the missing `__init__.py` files (and show them) to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or related CI scripts) were provided or referenced, so the requirement to configure ruff/flake8 and Black is not satisfied. The implementer must add the appropriate config files and ensure they are functional.
-- `T004` (rejected 1x): No evidence of the required directories (`code/data`, `code/analysis`, `code/viz`, `code/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`) was provided; without a listing or screenshots we cannot confirm they exist. The implementer must create and show the full directory tree.
+- `T021` (rejected 1x): The `code/main.py` file shown does not contain any logic that writes regression coefficients, p‑values, or confidence intervals to `data/processed/model_results.json`, nor does it merge with an existing `vif_results` section. Moreover, the required `data/processed/model_results.json` file is absent from the repository. Both the code change and the output file are missing, so the task is not satisfied.
 
 ## Required change
 
