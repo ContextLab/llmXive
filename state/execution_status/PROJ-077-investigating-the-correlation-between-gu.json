@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-077-investigating-the-correlation-between-gu",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_fetcher.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026y try/except fallback to synthetic data. It checks for local fil\u2026\u201d; code/data_fetcher.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026tch this and fallback to synthetic data.         # The task requ\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 7 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/processed/correlation_results.csv; data/processed/lasso_diagnostics.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py\", line 8, in <module>\n    from data_ingestion import run_ingestion_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/data_ingestion.py\", line 3, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python -c \"import pandas as pd; df = pd.read_csv('data/processed/cleaned_data.csv'); print(df.shape); print(df.isnull().sum())\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-02T03:24:09Z"
+}

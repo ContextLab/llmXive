@@ -12,23 +12,6 @@ T013:
     \ Age, BMI, DQS; mode for Sex) is present, nor any evidence that the strategy\
     \ was logged to `provenance.log`. Without these artifacts, the task\u2019s core\
     \ requirement is not satisfied."
-T014a:
-  c: false
-  h: e4ad6ed0cf9faa3130d1c41e4586d0dd151a70d4ba9c09482678b87a1c4aada6
-  r: "The provided `code/data_ingestion.py` does not contain logic that checks for\
-    \ the presence of `data/raw/dietary_data.csv` nor does it raise a fatal error\
-    \ conditioned on the `DQS_REQUIRED` flag; it only raises a generic `ValueError`\
-    \ when required columns are absent. Additionally, the required `dietary_data.csv`\
-    \ file is missing from `data/raw/`. The task\u2019s core requirement is therefore\
-    \ not satisfied."
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration file was provided that checks for the presence\
-    \ of raw dietary data when DQS is required and raises a fatal error if it is missing.\
-    \ Consequently, the required failure\u2011handling behavior is not demonstrated.\
-    \ The implementer must add the appropriate validation logic and supply the updated\
-    \ artifact."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -67,13 +50,6 @@ T024:
     function that would write `data/processed/vif_results.json`, but the JSON file
     is not present on disk, and the provided code snippet does not show the function
     being invoked to generate it. Hence the required output artifact is missing.
-T029c:
-  c: false
-  h: 60e926dab6fa4c8c5f29737c07d175a4830414a68215d008b53e021b99b7f947
-  r: "The `code/analysis.py` file shown does not contain any implementation of a Shapiro\u2011\
-    Wilk test on Lasso residuals nor code that writes a JSON report to `data/processed/lasso_diagnostics.json`.\
-    \ Moreover, the required `lasso_diagnostics.json` file is absent from the repository.\
-    \ The task\u2019s core requirement is therefore not satisfied."
 T052:
   c: false
   h: 1f16545d81d59cbc65c846ea3a30929f36f5a572cabaccfcf2154afd921017a7
