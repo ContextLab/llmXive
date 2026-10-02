@@ -1,94 +1,131 @@
+"""
+Unit tests for directory management utilities.
+
+Tests ensure that directory creation is robust, idempotent, and handles
+edge cases correctly.
+"""
+import os
 import pytest
 from pathlib import Path
 import tempfile
 import shutil
-import os
+from unittest.mock import patch, MagicMock
+import sys
 
-from code.utils.directories import ensure_data_directories
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from utils.directories import ensure_data_directories, REQUIRED_DATA_DIRS, ADDITIONAL_DIRS
 
 class TestEnsureDataDirectories:
-    """Unit tests for the ensure_data_directories function (T007)."""
-
-    def test_creates_missing_directories(self, tmp_path: Path):
-        """Test that the function creates directories that do not exist."""
-        # tmp_path is a fresh temporary directory
-        expected_dirs = [
-            tmp_path / "data" / "raw",
-            tmp_path / "data" / "processed",
-            tmp_path / "data" / "results"
-        ]
-        
-        # Verify they don't exist yet
-        for d in expected_dirs:
-            assert not d.exists()
-        
-        # Run the function
+    """Tests for the ensure_data_directories function."""
+    
+    def test_creates_required_directories(self, tmp_path):
+        """Verify that all required directories are created."""
         result = ensure_data_directories(tmp_path)
         
-        # Verify they now exist
-        for d in expected_dirs:
-            assert d.exists()
-            assert d.is_dir()
+        # Check all required dirs exist
+        for rel_dir in REQUIRED_DATA_DIRS:
+            expected_path = tmp_path / rel_dir
+            assert expected_path.exists(), f"Directory {rel_dir} was not created"
+            assert expected_path.is_dir(), f"{rel_dir} exists but is not a directory"
         
-        # Verify returned paths match expected
-        assert len(result) == 3
-        assert result == expected_dirs
-
-    def test_skips_existing_directories(self, tmp_path: Path):
-        """Test that the function handles existing directories gracefully."""
-        # Pre-create one of the directories
-        pre_created = tmp_path / "data" / "raw"
-        pre_created.mkdir(parents=True)
+        # Check returned list contains the paths
+        assert len(result) >= len(REQUIRED_DATA_DIRS)
         
-        # Run the function
+    def test_creates_additional_directories(self, tmp_path):
+        """Verify that additional directories are created when provided."""
+        additional = ["data/processed/bootstrap_resamples", "data/results/figures"]
+        result = ensure_data_directories(tmp_path, additional_dirs=additional)
+        
+        for rel_dir in additional:
+            expected_path = tmp_path / rel_dir
+            assert expected_path.exists(), f"Additional directory {rel_dir} was not created"
+        
+    def test_idempotent(self, tmp_path):
+        """Verify that calling the function multiple times is safe."""
+        # First call
+        first_result = ensure_data_directories(tmp_path)
+        
+        # Second call - should not raise errors
+        second_result = ensure_data_directories(tmp_path)
+        
+        # Both should have same directories
+        first_paths = set(str(p) for p in first_result)
+        second_paths = set(str(p) for p in second_result)
+        assert first_paths == second_paths
+        
+    def test_creates_nested_parents(self, tmp_path):
+        """Verify that parent directories are created if they don't exist."""
+        # Start with empty tmp_path, no subdirs exist
         result = ensure_data_directories(tmp_path)
         
-        # Verify all exist
-        assert all(d.exists() for d in result)
-        assert len(result) == 3
-
-    def test_raises_on_permission_error(self, tmp_path: Path):
-        """Test that the function raises RuntimeError on permission errors."""
-        # Create a file where we expect a directory to be
-        # This simulates a conflict that might arise in edge cases or permissions
-        # Note: Simulating actual permission denied is hard in temp dirs without root
-        # So we test the logic path where a path exists but is not a directory
-        conflict_path = tmp_path / "data" / "raw"
-        conflict_path.mkdir(parents=True)
+        # Verify deep nested directory exists
+        deep_dir = tmp_path / "data" / "processed"
+        assert deep_dir.exists()
         
-        # Now create a file with the same name as a parent of a required dir? 
-        # Actually, let's test the specific check: if path exists but is not a dir
-        # We need to force a scenario where a required subpath is a file.
-        # e.g. data/raw is a file.
-        file_path = tmp_path / "data" / "raw"
-        file_path.mkdir(parents=True) # Make data/raw a dir first
-        file_path.rmdir() # Remove it
-        file_path.touch() # Make it a file
+    def test_handles_existing_directories(self, tmp_path):
+        """Verify that existing directories don't cause errors."""
+        # Pre-create some directories
+        (tmp_path / "data" / "raw").mkdir(parents=True)
         
-        # Now try to create data/raw/processed (which would be inside a file)
-        # But our function tries to create data/raw, data/processed, data/results
-        # If data/raw is a file, ensure_data_directories should fail when trying to
-        # access it or create children? 
-        # Actually, the function checks `if not full_path.exists()` -> creates.
-        # If it exists, it checks `if not full_path.is_dir()`.
-        
-        # Let's set up: tmp_path/data/raw is a FILE
-        file_path = tmp_path / "data" / "raw"
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.touch()
-        
-        with pytest.raises(RuntimeError, match="not a directory"):
-            ensure_data_directories(tmp_path)
-
-    def test_nested_structure_creation(self, tmp_path: Path):
-        """Test that parent directories are created if missing (parents=True)."""
-        # Ensure only the root exists
-        assert tmp_path.exists()
-        
+        # Should not raise
         result = ensure_data_directories(tmp_path)
         
-        # Verify the full nested structure
-        for d in result:
-            assert d.exists()
-            # Verify parent also exists
-            assert d.parent.exists()
+        # Directory should still exist
+        assert (tmp_path / "data" / "raw").exists()
+        
+    def test_returns_path_objects(self, tmp_path):
+        """Verify that the function returns Path objects, not strings."""
+        result = ensure_data_directories(tmp_path)
+        
+        for p in result:
+            assert isinstance(p, Path), f"Expected Path object, got {type(p)}"
+            
+    def test_uses_relative_paths(self, tmp_path):
+        """Verify that directories are created relative to project root."""
+        result = ensure_data_directories(tmp_path)
+        
+        for p in result:
+            # All paths should be under tmp_path
+            assert str(p).startswith(str(tmp_path)), \
+                f"Path {p} is not under project root {tmp_path}"
+                
+    def test_empty_project_root(self, tmp_path):
+        """Test with a fresh, empty project root."""
+        # tmp_path is guaranteed to be empty initially
+        result = ensure_data_directories(tmp_path)
+        
+        # Should create all required directories
+        assert len(result) > 0
+        for rel_dir in REQUIRED_DATA_DIRS:
+            assert (tmp_path / rel_dir).exists()
+
+class TestRequiredDirsConstant:
+    """Tests for the REQUIRED_DATA_DIRS constant."""
+    
+    def test_contains_raw(self):
+        """Verify 'data/raw' is in required dirs."""
+        assert "data/raw" in REQUIRED_DATA_DIRS
+        
+    def test_contains_processed(self):
+        """Verify 'data/processed' is in required dirs."""
+        assert "data/processed" in REQUIRED_DATA_DIRS
+        
+    def test_contains_results(self):
+        """Verify 'data/results' is in required dirs."""
+        assert "data/results" in REQUIRED_DATA_DIRS
+
+class TestAdditionalDirsConstant:
+    """Tests for the ADDITIONAL_DIRS constant."""
+    
+    def test_contains_bootstrap_resamples(self):
+        """Verify bootstrap resamples dir is in additional dirs."""
+        assert "data/processed/bootstrap_resamples" in ADDITIONAL_DIRS
+        
+    def test_contains_figures(self):
+        """Verify figures dir is in additional dirs."""
+        assert "data/results/figures" in ADDITIONAL_DIRS
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

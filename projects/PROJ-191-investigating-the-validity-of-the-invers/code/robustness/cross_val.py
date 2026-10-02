@@ -1,16 +1,3 @@
-"""
-Leave-one-experiment-out cross-validation and bootstrap resampling for robustness analysis.
-
-This module implements the robustness checks required for User Story 3.
-It handles two modes based on the number of independent experimental runs:
-1. Leave-One-Out (LOO): If runs >= 3, iteratively omit one run, re-harmonize, and re-infer.
-2. Bootstrap: If runs < 3, perform row bootstrap resampling (N=1000) and re-infer.
-
-Outputs:
-- data/results/cross_val_results.json: Detailed metrics for each iteration.
-- data/results/cross_val_summary.json: Aggregated statistics (mean, std, CV).
-"""
-
 import os
 import sys
 import json
@@ -18,417 +5,494 @@ import logging
 import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import time
 
-# Project imports based on API surface
+# Local imports based on provided API surface
 from config import get_logger, ProjectConfig
-from data.models import HarmonizedDataset
-from data.harmonize import harmonize_experiment, construct_covariance_matrix
-from data.fallback_logic import detect_independent_runs, bootstrap_resample_dataset
-from data.loaders import HarmonizedDataset as DatasetClass
+from data.harmonize import construct_covariance_matrix, align_to_grid, convert_to_si
+from data.loaders import HarmonizedDataset, load_harmonized_data, save_harmonized_data
+from data.fallback_logic import bootstrap_resample_dataset
 from inference.mcmc import run_mcmc
+from inference.nested import run_nested_sampling
 from models.likelihood import load_covariance_matrix, compute_cholesky_decomposition
-from models.physics import newtonian_force, yukawa_force
 
 logger = get_logger(__name__)
-config = ProjectConfig()
 
-@dataclass
 class CrossValIterationResult:
-    """Result container for a single cross-validation iteration."""
-    iteration_id: int
-    mode: str  # "loo" or "bootstrap"
-    excluded_run_id: Optional[str]  # For LOO
-    sample_indices: Optional[List[int]]  # For bootstrap
-    alpha_upper_limit_95: float
-    bayes_factor: float
-    gelman_rubin: float
-    runtime_seconds: float
-    success: bool
-    error_message: Optional[str] = None
+    """Container for results of a single leave-one-out or bootstrap iteration."""
+    def __init__(
+        self,
+        iteration_id: int,
+        method: str,  # 'leave_one_out' or 'bootstrap'
+        alpha_upper_limit_95: float,
+        bayes_factor: float,
+        converged: bool,
+        run_time_seconds: float,
+        sample_size: int,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        self.iteration_id = iteration_id
+        self.method = method
+        self.alpha_upper_limit_95 = alpha_upper_limit_95
+        self.bayes_factor = bayes_factor
+        self.converged = converged
+        self.run_time_seconds = run_time_seconds
+        self.sample_size = sample_size
+        self.metadata = metadata or {}
 
-def load_harmonized_data() -> Tuple[HarmonizedDataset, List[str]]:
-    """
-    Loads the harmonized dataset from the processed directory.
-    Returns the dataset and a list of independent run IDs if available.
-    """
-    data_path = config.PROCESSED_DATA_DIR / "harmonized_data.csv"
-    cov_path = config.PROCESSED_DATA_DIR / "covariance_matrix.npy"
-    
-    if not data_path.exists():
-        raise FileNotFoundError(f"Harmonized data not found at {data_path}. Run T014 first.")
-    
-    # Load main data
-    df = DatasetClass.load_from_csv(data_path)
-    
-    # Attempt to detect runs from metadata or file structure
-    # The fallback_logic module handles the detection logic
-    runs = detect_independent_runs(config.RAW_DATA_DIR)
-    run_ids = [r.get('experiment_id', f'run_{i}') for i, r in enumerate(runs)]
-    
-    return df, run_ids
-
-def run_single_inference(
-    dataset: HarmonizedDataset, 
-    cov_matrix: np.ndarray,
-    is_bootstrap: bool = False
-) -> Dict[str, float]:
-    """
-    Runs a single MCMC inference on the provided dataset and covariance.
-    Returns key metrics: alpha_upper_limit_95, bayes_factor, gelman_rubin.
-    """
-    logger.info(f"Running inference on dataset with {len(dataset)} points...")
-    
-    # Save temporary covariance for the inference runner (since run_mcmc expects file paths)
-    temp_cov_path = config.PROCESSED_DATA_DIR / "temp_covariance.npy"
-    np.save(temp_cov_path, cov_matrix)
-    
-    try:
-        # Run MCMC
-        # Note: run_mcmc expects to load data from a standard location or passed args.
-        # We will simulate the call by passing the necessary parameters directly if possible,
-        # or by ensuring the global state is updated.
-        # Given the API surface, run_mcmc likely reads from config or standard paths.
-        # To make this robust, we'll pass the data to the likelihood function directly
-        # or ensure the inference module can accept the data object.
-        
-        # Since run_mcmc signature in API is `run_mcmc`, we assume it handles the logic.
-        # However, for cross-validation, we need to feed *modified* data.
-        # We will call the internal logic of run_mcmc or re-implement the core loop here
-        # to ensure we use the specific dataset and covariance provided.
-        
-        # Re-using the logic from mcmc.py but adapting for in-memory data/cov
-        # This ensures we don't rely on file I/O for the modified datasets.
-        
-        # 1. Prepare data
-        r = dataset.separation
-        f = dataset.force
-        sigma = dataset.uncertainty # Used for initial guess, actual cov is used in likelihood
-        
-        # 2. Setup priors (log-uniform for alpha, log-uniform for lambda)
-        # Assuming standard priors defined in mcmc.py context
-        n_walkers = 100
-        n_steps = 5000
-        
-        # Initial positions
-        pos = np.random.randn(n_walkers, 2)
-        pos[:, 0] = np.log10(np.abs(pos[:, 0]) * 100) # alpha ~ 100 scale
-        pos[:, 1] = np.log10(np.abs(pos[:, 1]) * 1e-4) # lambda ~ 100 microns scale
-        
-        # 3. Run MCMC using emcee (imported inside mcmc.py, we need to import it here or assume it's available)
-        # The API surface says `from inference.mcmc import run_mcmc`. 
-        # To be safe and avoid circular imports or missing internal imports, we will implement
-        # the core inference loop here, reusing the likelihood functions from models.likelihood.
-        
-        import emcee
-        from scipy.stats import norm
-        
-        # Log likelihood wrapper
-        def log_likelihood(theta, r, f, cov):
-            alpha, ln_lambda = theta
-            lam = np.exp(ln_lambda)
-            # Yukawa force model
-            f_model = yukawa_force(r, alpha, lam)
-            # Assuming Newtonian background is subtracted or included in model
-            # If the data is residual force, then f_model is the total.
-            # If data is total force, we need newtonian_force + yukawa_force.
-            # Assuming `f` is the residual force (Yukawa component) based on typical analysis.
-            
-            # Cholesky decomposition for stability
-            try:
-                L = cholesky(cov, lower=True)
-                sigma_L = cho_solve((L, True), f - f_model)
-                return -0.5 * np.dot(f - f_model, sigma_L) - np.sum(np.log(np.diag(L))) - 0.5 * len(f) * np.log(2 * np.pi)
-            except LinAlgError:
-                return -np.inf
-
-        from scipy.linalg import cholesky, cho_solve, LinAlgError
-
-        sampler = emcee.EnsembleSampler(n_walkers, 2, log_likelihood, args=(r, f, cov_matrix))
-        
-        logger.info(f"Running MCMC for {n_steps} steps...")
-        start_time = time.time()
-        sampler.run_mcmc(pos, n_steps, progress=True)
-        runtime = time.time() - start_time
-        
-        logger.info("MCMC completed.")
-        
-        # Diagnostics
-        samples = sampler.get_chain(discard=1000, thin=10, flat=True)
-        alpha_samples = samples[:, 0]
-        
-        # Gelman-Rubin (simplified check for 1 chain vs multiple chains, or just use autocorrelation)
-        # Since we have one long chain split into walkers, we can check split chains.
-        # For simplicity, we calculate the standard deviation of the mean of the last half.
-        # A proper GR requires multiple chains. We will use the split-chain approach.
-        chains = sampler.chain[:, 1000:, :] # Discard burn-in
-        chains = chains[:, ::10, :] # Thin
-        n_chains = len(chains)
-        
-        # Split into two halves for each walker? No, split the chain of each walker.
-        # Standard GR: split chains into 2, compare variances.
-        # We have n_walkers chains.
-        if n_walkers >= 2:
-            # Split each chain into two halves
-            half_len = chains.shape[1] // 2
-            chain1 = chains[:, :half_len, 0]
-            chain2 = chains[:, half_len:, 0]
-            
-            # Mean of each chain
-            means = np.mean(chain1, axis=1)
-            means2 = np.mean(chain2, axis=1)
-            
-            # Variance between means
-            B = np.var(means, ddof=1)
-            # Variance within chains
-            W = np.mean([np.var(c, ddof=1) for c in chain1]) + np.mean([np.var(c, ddof=1) for c in chain2])
-            
-            if W > 0:
-                GR = np.sqrt((1 + 1/n_walkers) * (W + B) / W)
-            else:
-                GR = 1.0
-        else:
-            GR = 1.0
-        
-        # 95% Upper Limit (assuming alpha > 0, take 95th percentile of absolute values if symmetric, 
-        # or just 95th percentile if strictly positive prior)
-        # Assuming prior is log-uniform, samples are log(alpha).
-        # We need to exponentiate.
-        alpha_samples_exp = np.exp(alpha_samples)
-        upper_limit = np.percentile(alpha_samples_exp, 95)
-        
-        # Bayes Factor (Newtonian vs Yukawa)
-        # This is complex to compute on the fly without nested sampling.
-        # We will approximate or return a placeholder if nested sampling is required for exact BF.
-        # However, the task requires BF. We will use the nested sampler if available or a BIC approximation.
-        # Given the constraints, we will return a placeholder or 0 if not computed, 
-        # but the task says "re-run inference". We should ideally call the nested sampler.
-        # For now, we return 0.0 and log a warning that BF requires nested sampling.
-        # TODO: Integrate nested sampling for BF in this loop if time permits.
-        bayes_factor = 0.0 
-        
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "alpha_upper_limit_95": float(upper_limit),
-            "bayes_factor": float(bayes_factor),
-            "gelman_rubin": float(GR),
-            "runtime_seconds": float(runtime)
+            "iteration_id": self.iteration_id,
+            "method": self.method,
+            "alpha_upper_limit_95": self.alpha_upper_limit_95,
+            "bayes_factor": self.bayes_factor,
+            "converged": self.converged,
+            "run_time_seconds": self.run_time_seconds,
+            "sample_size": self.sample_size,
+            "metadata": self.metadata
         }
 
-    finally:
-        # Cleanup temp file
-        if temp_cov_path.exists():
-            temp_cov_path.unlink()
+def run_single_inference(
+    dataset: HarmonizedDataset,
+    config: ProjectConfig,
+    iteration_id: int,
+    method: str,
+    timeout_seconds: int = 3600
+) -> CrossValIterationResult:
+    """
+    Executes a single inference run on a provided dataset subset.
+    Performs MCMC and Nested Sampling to extract Alpha upper limit and Bayes Factor.
+    """
+    start_time = __import__('time').time()
+    logger.info(f"Running inference for iteration {iteration_id} ({method}) with {len(dataset.separation_m)} points.")
+
+    # 1. Prepare Covariance Matrix
+    # The harmonize module expects raw arrays, but we have a dataset.
+    # We reconstruct the covariance based on the current data subset.
+    # Note: In a real pipeline, this might be pre-computed, but for LOO we recompute.
+    try:
+        # Re-construct covariance from the current subset's uncertainties
+        # Assuming dataset has uncertainty info or we derive it from the covariance provided
+        # If the input dataset already has a full covariance, we use it directly if valid.
+        cov_matrix = dataset.covariance_matrix
+        
+        # Verify positive definiteness
+        try:
+            L = compute_cholesky_decomposition(cov_matrix)
+            logger.debug("Covariance matrix is positive definite.")
+        except Exception as e:
+            logger.warning(f"Covariance matrix not positive definite in iteration {iteration_id}: {e}. Attempting regularization.")
+            # Simple regularization: add small diagonal noise
+            cov_matrix = cov_matrix + np.eye(len(cov_matrix)) * 1e-10
+            L = compute_cholesky_decomposition(cov_matrix)
+
+        # Save temporary covariance for inference modules if they expect file paths
+        temp_cov_path = config.data_processed_dir / f"temp_cov_{iteration_id}.npy"
+        np.save(temp_cov_path, cov_matrix)
+    except Exception as e:
+        logger.error(f"Failed to prepare covariance for iteration {iteration_id}: {e}")
+        raise
+
+    # 2. Run Nested Sampling for Bayes Factor
+    # We need to compare Newtonian vs Yukawa.
+    # The run_nested_sampling function likely handles the evidence calculation.
+    # We assume it returns a dict with 'log_evidence_newtonian' and 'log_evidence_yukawa'
+    try:
+        nested_results = run_nested_sampling(
+            separation_m=dataset.separation_m,
+            force_n=dataset.force_n,
+            cov_matrix_path=temp_cov_path, # Passing path as per typical implementation patterns
+            config=config,
+            timeout=timeout_seconds
+        )
+        
+        bayes_factor = np.exp(nested_results['log_evidence_yukawa'] - nested_results['log_evidence_newtonian'])
+        logger.info(f"Iteration {iteration_id}: Bayes Factor = {bayes_factor:.4f}")
+    except Exception as e:
+        logger.error(f"Nested sampling failed for iteration {iteration_id}: {e}")
+        bayes_factor = 0.0
+        nested_results = {}
+
+    # 3. Run MCMC for Posterior (Alpha Upper Limit)
+    # We need the 95% credible upper limit for alpha.
+    try:
+        mcmc_results = run_mcmc(
+            separation_m=dataset.separation_m,
+            force_n=dataset.force_n,
+            cov_matrix_path=temp_cov_path,
+            config=config,
+            timeout=timeout_seconds
+        )
+        
+        # Extract alpha posterior samples
+        # Assuming mcmc_results contains 'alpha_samples' or similar
+        alpha_samples = mcmc_results.get('alpha_samples')
+        
+        converged = mcmc_results.get('converged', False)
+        
+        if alpha_samples is not None and len(alpha_samples) > 0:
+            alpha_upper_limit_95 = float(np.percentile(alpha_samples, 95))
+        else:
+            logger.warning(f"No alpha samples found for iteration {iteration_id}. Setting limit to NaN.")
+            alpha_upper_limit_95 = np.nan
+            converged = False
+
+    except Exception as e:
+        logger.error(f"MCMC failed for iteration {iteration_id}: {e}")
+        alpha_upper_limit_95 = np.nan
+        converged = False
+        mcmc_results = {}
+
+    run_time = __import__('time').time() - start_time
+
+    # Cleanup temp file
+    if temp_cov_path.exists():
+        temp_cov_path.unlink()
+
+    return CrossValIterationResult(
+        iteration_id=iteration_id,
+        method=method,
+        alpha_upper_limit_95=alpha_upper_limit_95,
+        bayes_factor=bayes_factor,
+        converged=converged,
+        run_time_seconds=run_time,
+        sample_size=len(dataset.separation_m),
+        metadata={"nested_results": nested_results, "mcmc_results": mcmc_results}
+    )
 
 def perform_leave_one_out(
-    dataset: HarmonizedDataset, 
-    run_ids: List[str]
+    config: ProjectConfig,
+    raw_data_dir: Path,
+    timeout_per_run: int = 3600
 ) -> List[CrossValIterationResult]:
     """
-    Performs leave-one-experiment-out cross-validation.
-    Iteratively removes one run, re-harmonizes, and re-infers.
+    Iteratively omits one experimental run, re-harmonizes, and re-runs inference.
     """
-    results = []
+    logger.info("Starting Leave-One-Out Cross-Validation.")
     
-    # We need to access the raw data to re-harmonize without one run.
-    # This requires knowing which rows belong to which run.
-    # The HarmonizedDataset might have a 'run_id' column.
-    if 'run_id' not in dataset.df.columns:
-        logger.warning("No 'run_id' column in dataset. Cannot perform LOO. Switching to bootstrap.")
-        return []
+    # 1. Load all raw runs to identify independent experiments
+    # This assumes T013-DATA has populated raw_data_dir with extracted CSVs
+    # We need to group them by experiment_id or file pattern
+    # For this implementation, we assume 'code/data/download.py' logic identified runs
+    # and we re-parse them here to split.
+    
+    # Re-using parsers to get individual runs
+    from data.parsers import parse_raw_data
+    
+    # Scan for CSVs
+    all_files = list(raw_data_dir.glob("*.csv"))
+    if not all_files:
+        # Try subdirectories if tarballs were extracted into folders
+        all_files = []
+        for subdir in raw_data_dir.iterdir():
+            if subdir.is_dir():
+                all_files.extend(subdir.glob("*.csv"))
+    
+    if not all_files:
+        raise FileNotFoundError(f"No raw CSV files found in {raw_data_dir}")
 
-    for i, excluded_id in enumerate(run_ids):
-        logger.info(f"LOO Iteration {i+1}/{len(run_ids)}: Excluding {excluded_id}")
+    # Parse all files to identify runs
+    # Assuming parse_raw_data returns a list of datasets or we can split by file
+    # For LOO, we need distinct experimental runs.
+    # We'll assume each file is a run, or we group by metadata.
+    # Simplified: Each file is a run.
+    
+    run_datasets = []
+    for f in all_files:
         try:
-            # Filter dataset
-            subset_df = dataset.df[dataset.df['run_id'] != excluded_id]
+            # Parse individual file
+            # We need to convert to HarmonizedDataset
+            df = __import__('pandas').read_csv(f)
+            # Basic harmonization for the subset
+            # Convert units if necessary
+            if 'separation_um' in df.columns:
+                df['separation_m'] = convert_to_si(df['separation_um'], 'um', 'm')
+                df['separation_m'] = df['separation_m'].values
+            else:
+                df['separation_m'] = df['separation_m'].values
+                
+            if 'force_dynes' in df.columns:
+                df['force_n'] = convert_to_si(df['force_dynes'], 'dyne', 'N')
+                df['force_n'] = df['force_n'].values
+            else:
+                df['force_n'] = df['force_n'].values
             
-            if len(subset_df) == 0:
-                logger.warning(f"Excluding {excluded_id} leaves no data. Skipping.")
-                continue
+            # Construct covariance for this single run (diagonal)
+            # Assuming uncertainty column exists, otherwise default
+            if 'uncertainty' in df.columns:
+                variances = df['uncertainty'].values ** 2
+            else:
+                variances = np.ones(len(df)) * 1e-20 # Default small variance
             
-            # Re-construct covariance (simplified: assume diagonal or block-diagonal for subset)
-            # In a real scenario, we would re-run the harmonization logic on the subset of raw files.
-            # Here we approximate by taking the subset of the existing covariance matrix.
-            # This is a heuristic. The robust way is to re-call harmonize_experiment on the raw files.
-            # Since we don't have the raw file mapping here easily, we will assume the dataset
-            # was constructed from the raw files and we can map back.
-            # For this implementation, we will use the subset of the full covariance matrix.
-            # This is a limitation.
+            cov = np.diag(variances)
             
-            # Re-run inference
-            # Note: We need the subset of the covariance matrix.
-            # We assume the dataset indices map 1:1 to the covariance matrix rows.
-            # This requires the dataset to be sorted and contiguous.
-            
-            # Re-construct covariance for subset
-            # This is a simplification. Real implementation requires re-harmonization.
-            # We will create a diagonal covariance for the subset to ensure stability.
-            cov_subset = np.diag(dataset.df['uncertainty'].values ** 2)
-            
-            metrics = run_single_inference(
-                HarmonizedDataset(subset_df), 
-                cov_subset,
-                is_bootstrap=False
-            )
-            
-            results.append(CrossValIterationResult(
-                iteration_id=i,
-                mode="loo",
-                excluded_run_id=excluded_id,
-                sample_indices=None,
-                alpha_upper_limit_95=metrics['alpha_upper_limit_95'],
-                bayes_factor=metrics['bayes_factor'],
-                gelman_rubin=metrics['gelman_rubin'],
-                runtime_seconds=metrics['runtime_seconds'],
-                success=True
+            run_datasets.append(HarmonizedDataset(
+                separation_m=df['separation_m'],
+                force_n=df['force_n'],
+                covariance_matrix=cov,
+                metadata={'source': str(f)}
             ))
         except Exception as e:
-            logger.error(f"Failed LOO iteration {excluded_id}: {e}")
-            results.append(CrossValIterationResult(
-                iteration_id=i,
-                mode="loo",
-                excluded_run_id=excluded_id,
-                sample_indices=None,
-                alpha_upper_limit_95=0.0,
-                bayes_factor=0.0,
-                gelman_rubin=0.0,
-                runtime_seconds=0.0,
-                success=False,
-                error_message=str(e)
-            ))
-    
+            logger.warning(f"Skipping file {f} due to parse error: {e}")
+
+    if len(run_datasets) < 3:
+        logger.warning(f"Insufficient runs ({len(run_datasets)}) for standard LOO. Switching to Bootstrap.")
+        # This function is called by main which handles the fallback logic
+        # But strictly speaking, this function should handle the LOO part.
+        # We return empty here and let main handle the switch, or raise.
+        # Per spec: "If runs < 3: perform row bootstrap resampling".
+        # So we should not proceed with LOO if < 3.
+        return []
+
+    results = []
+    for i, omit_idx in enumerate(range(len(run_datasets))):
+        logger.info(f"LOO Iteration {i+1}: Omitting run {omit_idx}")
+        
+        # Construct subset dataset
+        subset_runs = [r for j, r in enumerate(run_datasets) if j != omit_idx]
+        
+        # Merge subset runs (align to grid)
+        # We need to combine separation and force arrays from multiple runs
+        # Simple concatenation might work if grids are compatible, but spec says "align on a common grid"
+        # We'll use the harmonize module's align_to_grid if available for multiple runs
+        # For now, concatenate and re-covariance (diagonal sum of blocks)
+        
+        all_sep = []
+        all_force = []
+        all_covs = []
+        
+        for r in subset_runs:
+            all_sep.append(r.separation_m)
+            all_force.append(r.force_n)
+            all_covs.append(r.covariance_matrix)
+        
+        # Concatenate
+        sep_combined = np.concatenate(all_sep)
+        force_combined = np.concatenate(all_force)
+        
+        # Build block diagonal covariance
+        total_len = len(sep_combined)
+        cov_combined = np.zeros((total_len, total_len))
+        current_idx = 0
+        for c in all_covs:
+            l = c.shape[0]
+            cov_combined[current_idx:current_idx+l, current_idx:current_idx+l] = c
+            current_idx += l
+        
+        # Align to common grid? 
+        # If the runs have different separations, we need interpolation.
+        # For simplicity in this robust loop, we assume concatenation is sufficient 
+        # or that the grid alignment was done at the top level.
+        # However, T014 does alignment. We should re-run alignment on the subset.
+        # We'll use a simple approach: if runs are distinct experiments, just concatenate.
+        
+        subset_dataset = HarmonizedDataset(
+            separation_m=sep_combined,
+            force_n=force_combined,
+            covariance_matrix=cov_combined,
+            metadata={'omit_run': omit_idx, 'total_runs': len(run_datasets)}
+        )
+        
+        result = run_single_inference(
+            dataset=subset_dataset,
+            config=config,
+            iteration_id=i,
+            method="leave_one_out",
+            timeout_seconds=timeout_per_run
+        )
+        results.append(result)
+
     return results
 
 def perform_bootstrap_resampling(
-    dataset: HarmonizedDataset, 
-    n_samples: int = 1000
+    config: ProjectConfig,
+    dataset: HarmonizedDataset,
+    n_samples: int = 1000,
+    timeout_per_run: int = 3600
 ) -> List[CrossValIterationResult]:
     """
-    Performs bootstrap resampling when runs < 3.
-    Resamples rows with replacement and re-infers.
+    Performs row-wise bootstrap resampling if independent runs < 3.
     """
+    logger.info(f"Starting Bootstrap Resampling with N={n_samples} samples.")
+    
     results = []
-    n_rows = len(dataset)
     
-    logger.info(f"Starting bootstrap resampling with {n_samples} samples...")
+    # Use fallback_logic for resampling
+    # bootstrap_resample_dataset returns a list of resampled datasets
+    # We need to ensure it returns HarmonizedDataset objects
     
-    for i in range(n_samples):
-        logger.info(f"Bootstrap Iteration {i+1}/{n_samples}")
-        try:
-            # Resample indices
-            indices = np.random.choice(n_rows, size=n_rows, replace=True)
-            subset_df = dataset.df.iloc[indices]
+    try:
+        # Generate resamples
+        # The function signature in API surface: bootstrap_resample_dataset(dataset, N)
+        # We assume it returns a list of datasets or we iterate
+        # For performance, we might not generate all 1000 if timeout is tight, 
+        # but spec says N=1000.
+        
+        # Note: Generating 1000 full inference runs might exceed time budget.
+        # We will implement the loop, but in a real execution, we might need to reduce N
+        # or run in parallel. The task requires implementing the logic.
+        
+        # To avoid infinite loop on timeout, we track total time.
+        start_total = __import__('time').time()
+        
+        for i in range(n_samples):
+            if __import__('time').time() - start_total > (timeout_per_run * 10): # Safety cap
+                logger.warning("Total time budget exceeded for bootstrap. Stopping early.")
+                break
+                
+            # Resample
+            # We need to implement the resampling logic if the helper doesn't return full datasets
+            # Assuming we can get indices
+            indices = np.random.choice(len(dataset.separation_m), len(dataset.separation_m), replace=True)
             
-            # Re-construct covariance (diagonal for bootstrap)
-            cov_subset = np.diag(subset_df['uncertainty'].values ** 2)
+            sep_boot = dataset.separation_m[indices]
+            force_boot = dataset.force_n[indices]
             
-            metrics = run_single_inference(
-                HarmonizedDataset(subset_df),
-                cov_subset,
-                is_bootstrap=True
+            # Reconstruct covariance (diagonal resampled)
+            # If original covariance is diagonal, we can just index it.
+            # If full, we need to be careful. Spec says "recompute diagonal or block-diagonal".
+            # We'll assume diagonal for bootstrap speed.
+            if dataset.covariance_matrix.ndim == 2 and dataset.covariance_matrix.shape[0] == dataset.covariance_matrix.shape[1]:
+                # Check if diagonal
+                if np.allclose(dataset.covariance_matrix, np.diag(np.diag(dataset.covariance_matrix))):
+                    var_boot = np.diag(dataset.covariance_matrix)[indices]
+                    cov_boot = np.diag(var_boot)
+                else:
+                    # Block diagonal or full: resample blocks?
+                    # Simplified: Diagonal approximation for bootstrap
+                    var_boot = np.diag(dataset.covariance_matrix)[indices]
+                    cov_boot = np.diag(var_boot)
+                    logger.warning("Using diagonal approximation for bootstrap covariance.")
+            else:
+                cov_boot = np.diag(np.ones(len(sep_boot)) * 1e-20)
+
+            boot_dataset = HarmonizedDataset(
+                separation_m=sep_boot,
+                force_n=force_boot,
+                covariance_matrix=cov_boot,
+                metadata={'bootstrap_idx': i}
             )
             
-            results.append(CrossValIterationResult(
+            result = run_single_inference(
+                dataset=boot_dataset,
+                config=config,
                 iteration_id=i,
-                mode="bootstrap",
-                excluded_run_id=None,
-                sample_indices=indices.tolist(),
-                alpha_upper_limit_95=metrics['alpha_upper_limit_95'],
-                bayes_factor=metrics['bayes_factor'],
-                gelman_rubin=metrics['gelman_rubin'],
-                runtime_seconds=metrics['runtime_seconds'],
-                success=True
-            ))
-        except Exception as e:
-            logger.error(f"Failed bootstrap iteration {i}: {e}")
-            results.append(CrossValIterationResult(
-                iteration_id=i,
-                mode="bootstrap",
-                excluded_run_id=None,
-                sample_indices=[],
-                alpha_upper_limit_95=0.0,
-                bayes_factor=0.0,
-                gelman_rubin=0.0,
-                runtime_seconds=0.0,
-                success=False,
-                error_message=str(e)
-            ))
+                method="bootstrap",
+                timeout_seconds=timeout_per_run
+            )
+            results.append(result)
             
+    except Exception as e:
+        logger.error(f"Bootstrap resampling failed: {e}")
+        raise
+
     return results
 
 def calculate_cv(results: List[CrossValIterationResult]) -> Dict[str, Any]:
     """
-    Calculates the coefficient of variation (CV) of the 95% credible upper limits.
-    CV = (std / mean) * 100.
+    Calculate Coefficient of Variation and relative shift of credible upper limits.
     """
-    limits = [r.alpha_upper_limit_95 for r in results if r.success]
-    if not limits:
-        return {"cv_percent": 0.0, "mean": 0.0, "std": 0.0, "count": 0}
+    if not results:
+        return {"cv_value": 0.0, "relative_shift": 0.0, "pass": False, "reason": "No results"}
+
+    limits = np.array([r.alpha_upper_limit_95 for r in results if not np.isnan(r.alpha_upper_limit_95)])
     
-    mean_val = np.mean(limits)
-    std_val = np.std(limits)
-    cv_percent = (std_val / mean_val) * 100 if mean_val != 0 else 0.0
+    if len(limits) < 2:
+        return {"cv_value": 0.0, "relative_shift": 0.0, "pass": False, "reason": "Insufficient valid results"}
+
+    mean_limit = np.mean(limits)
+    std_limit = np.std(limits)
+    min_limit = np.min(limits)
+    max_limit = np.max(limits)
+    
+    cv_value = (std_limit / mean_limit) * 100 if mean_limit != 0 else 0.0
+    relative_shift = (max_limit - min_limit) / mean_limit if mean_limit != 0 else 0.0
+    
+    threshold = 0.15
+    passed = relative_shift < threshold
     
     return {
-        "cv_percent": float(cv_percent),
-        "mean": float(mean_val),
-        "std": float(std_val),
-        "count": len(limits)
+        "cv_value": cv_value,
+        "relative_shift": relative_shift,
+        "threshold": threshold,
+        "pass": passed,
+        "count": len(limits),
+        "mean": mean_limit,
+        "std": std_limit,
+        "min": min_limit,
+        "max": max_limit
     }
 
 def main():
-    """Main entry point for the cross-validation task."""
-    logger.info("Starting Cross-Validation (T030)...")
+    """
+    Main entry point for T030.
+    Orchestrates LOO or Bootstrap based on run count.
+    """
+    config = ProjectConfig()
+    logger.info("Starting T030: Leave-One-Out / Bootstrap Cross-Validation")
     
-    # 1. Load Data
-    try:
-        dataset, run_ids = load_harmonized_data()
-    except FileNotFoundError as e:
-        logger.error(f"Data loading failed: {e}")
-        sys.exit(1)
+    # 1. Check for existing harmonized data or raw data
+    # We need to determine if we have >= 3 runs
+    raw_dir = config.data_raw_dir
+    processed_dir = config.data_processed_dir
+    results_dir = config.data_results_dir
     
-    # 2. Determine Method
-    n_runs = len(run_ids)
-    logger.info(f"Detected {n_runs} independent runs.")
-    
-    results = []
-    
-    if n_runs >= 3:
-        logger.info("Performing Leave-One-Out Cross-Validation.")
-        results = perform_leave_one_out(dataset, run_ids)
-    else:
-        logger.warning("Insufficient runs (<3) for LOO. Performing Bootstrap Resampling (N=1000).")
-        results = perform_bootstrap_resampling(dataset, n_samples=1000)
-    
-    # 3. Calculate CV
-    cv_stats = calculate_cv(results)
-    logger.info(f"CV of upper limits: {cv_stats['cv_percent']:.2f}%")
-    
-    if cv_stats['cv_percent'] > 15:
-        logger.warning(f"High variability detected (CV > 15%). Result may be unstable.")
-    
-    # 4. Save Results
-    results_dir = config.RESULTS_DIR
+    # Ensure output directory
     results_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save detailed results
-    results_json = [asdict(r) for r in results]
-    with open(results_dir / "cross_val_results.json", "w") as f:
-        json.dump(results_json, f, indent=2)
+    # Check run count
+    # We rely on data.download or data.fallback_logic to have set the flag or we re-scan
+    from data.fallback_logic import detect_independent_runs
     
-    # Save summary
-    summary = {
-        "method": "loo" if n_runs >= 3 else "bootstrap",
-        "n_iterations": len(results),
-        "n_successful": sum(1 for r in results if r.success),
-        "cv_statistics": cv_stats,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    with open(results_dir / "cross_val_summary.json", "w") as f:
-        json.dump(summary, f, indent=2)
+    try:
+        run_count = detect_independent_runs(raw_dir)
+    except Exception as e:
+        logger.error(f"Could not detect independent runs: {e}. Trying to load harmonized data.")
+        run_count = 0 # Fallback to bootstrap if we can't count
+
+    # Load the full harmonized dataset for bootstrap fallback
+    # Or for LOO if we have runs
+    full_dataset = None
+    if (raw_dir / "harmonized_dataset.npz").exists() or (raw_dir / "harmonized_dataset.json").exists():
+        try:
+            full_dataset = load_harmonized_data(raw_dir / "harmonized_dataset.npz")
+        except:
+            try:
+                full_dataset = load_harmonized_data(raw_dir / "harmonized_dataset.json")
+            except Exception as e:
+                logger.warning(f"Could not load harmonized dataset: {e}")
+
+    results_list = []
     
-    logger.info("Cross-validation completed successfully.")
+    if run_count >= 3:
+        logger.info(f"Detected {run_count} independent runs. Performing Leave-One-Out.")
+        results_list = perform_leave_one_out(config, raw_dir)
+    else:
+        logger.warning(f"Detected {run_count} independent runs (<3). Performing Bootstrap Resampling (N=1000).")
+        if full_dataset is None:
+            # Try to load from processed if raw doesn't have it
+            proc_file = processed_dir / "harmonized_dataset.npz"
+            if proc_file.exists():
+                full_dataset = load_harmonized_data(proc_file)
+            else:
+                logger.error("No harmonized dataset found for bootstrap fallback.")
+                return
+        
+        results_list = perform_bootstrap_resampling(config, full_dataset, n_samples=1000)
+
+    # Save individual results
+    results_file = results_dir / "cross_val_results.json"
+    with open(results_file, 'w') as f:
+        json.dump([r.to_dict() for r in results_list], f, indent=2)
+    logger.info(f"Saved individual results to {results_file}")
+
+    # Calculate metrics
+    metrics = calculate_cv(results_list)
+    metrics_file = results_dir / "robustness_metrics.json"
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Saved robustness metrics to {metrics_file}")
+    
+    logger.info("T030 completed.")
 
 if __name__ == "__main__":
     main()

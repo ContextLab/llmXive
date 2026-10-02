@@ -1,166 +1,165 @@
+"""
+Data parsing module.
+Parses raw CSV files extracted from arXiv tarballs into intermediate HarmonizedDataset objects.
+"""
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any
+import re
 import logging
+from typing import List, Dict, Any, Optional
 
 from config import get_logger
-from data.loaders import HarmonizedDataset
+from data.models import HarmonizedDataset
 
 logger = get_logger(__name__)
 
-def parse_arxiv_2106_08611(raw_path: Path) -> pd.DataFrame:
+def parse_raw_data(file_path: Path) -> pd.DataFrame:
     """
-    Parse the raw CSV from arXiv:2106.08611.
-    
-    Expected columns: separation (microns), force (dynes), stat_err, sys_err (or similar).
-    This function maps them to a standard internal format.
+    Parse a raw CSV file.
+    Attempts to identify columns for separation, force, and uncertainty.
+
+    Args:
+        file_path: Path to the CSV file.
+
+    Returns:
+        DataFrame with standardized columns.
     """
-    logger.info(f"Parsing {raw_path}")
-    
-    # Attempt to read
     try:
-        df = pd.read_csv(raw_path)
+        df = pd.read_csv(file_path)
+        logger.debug(f"Parsed {file_path}: {df.shape}")
     except Exception as e:
-        logger.error(f"Failed to read CSV {raw_path}: {e}")
+        logger.error(f"Failed to parse {file_path}: {e}")
         raise
-    
-    # Normalize column names to lowercase
-    df.columns = [c.lower().strip() for c in df.columns]
-    
-    # Map columns
-    # Heuristic: find columns containing 'sep', 'force', 'err'
+
+    # Heuristic column mapping
     sep_col = None
     force_col = None
-    stat_col = None
-    sys_col = None
-    
-    for col in df.columns:
-        if 'sep' in col or 'dist' in col:
-            sep_col = col
-        elif 'force' in col:
-            force_col = col
-        elif 'stat' in col and 'err' in col:
-            stat_col = col
-        elif 'sys' in col and 'err' in col:
-            sys_col = col
-        elif 'uncertainty' in col:
-            # Fallback for uncertainty
-            if stat_col is None: stat_col = col
-    
-    if sep_col is None or force_col is None:
-        raise ValueError(f"Could not identify separation or force columns in {raw_path}. Columns: {df.columns.tolist()}")
-    
-    # Standardize
-    result = pd.DataFrame()
-    result['separation_microns'] = df[sep_col].values
-    result['force_dynes'] = df[force_col].values
-    
-    if stat_col:
-        result['stat_err'] = df[stat_col].values
-    else:
-        result['stat_err'] = np.zeros(len(df))
-        logger.warning(f"No statistical error column found in {raw_path}. Setting to zero.")
-        
-    if sys_col:
-        result['sys_err'] = df[sys_col].values
-    else:
-        result['sys_err'] = np.zeros(len(df))
-        logger.warning(f"No systematic error column found in {raw_path}. Setting to zero.")
-    
-    result['source'] = '2106.08611'
-    
-    return result
+    unc_col = None
 
-def parse_arxiv_2305_06325(raw_path: Path) -> pd.DataFrame:
-    """
-    Parse the raw CSV from arXiv:2305.06325.
-    Similar logic, potentially different column names.
-    """
-    logger.info(f"Parsing {raw_path}")
-    
-    try:
-        df = pd.read_csv(raw_path)
-    except Exception as e:
-        logger.error(f"Failed to read CSV {raw_path}: {e}")
-        raise
-    
-    df.columns = [c.lower().strip() for c in df.columns]
-    
-    sep_col = None
-    force_col = None
-    stat_col = None
-    sys_col = None
-    
-    for col in df.columns:
-        if 'sep' in col or 'dist' in col:
-            sep_col = col
-        elif 'force' in col:
-            force_col = col
-        elif 'stat' in col and 'err' in col:
-            stat_col = col
-        elif 'sys' in col and 'err' in col:
-            sys_col = col
-        elif 'uncertainty' in col:
-            if stat_col is None: stat_col = col
-    
-    if sep_col is None or force_col is None:
-        raise ValueError(f"Could not identify separation or force columns in {raw_path}. Columns: {df.columns.tolist()}")
-    
-    result = pd.DataFrame()
-    result['separation_microns'] = df[sep_col].values
-    result['force_dynes'] = df[force_col].values
-    
-    if stat_col:
-        result['stat_err'] = df[stat_col].values
-    else:
-        result['stat_err'] = np.zeros(len(df))
-        
-    if sys_col:
-        result['sys_err'] = df[sys_col].values
-    else:
-        result['sys_err'] = np.zeros(len(df))
-    
-    result['source'] = '2305.06325'
-    
-    return result
+    cols_lower = {c.lower(): c for c in df.columns}
 
-def parse_raw_data(data_paths: List[Path]) -> List[pd.DataFrame]:
+    # Search for separation
+    for pattern in ['separation', 'distance', 'gap', 'r_um', 'r_\\mu m', 'separation_um']:
+        if re.search(pattern, str(cols_lower.keys()), re.IGNORECASE):
+            # Find the key in original case
+            for k, v in cols_lower.items():
+                if pattern in k:
+                    sep_col = v
+                    break
+        if sep_col: break
+    
+    # Fallback if regex failed, try common names
+    if not sep_col:
+        if 'separation_um' in cols_lower: sep_col = cols_lower['separation_um']
+        elif 'separation' in cols_lower: sep_col = cols_lower['separation']
+        elif 'distance_um' in cols_lower: sep_col = cols_lower['distance_um']
+
+    # Search for force
+    for pattern in ['force', 'f_n', 'force_n', 'force_dyne']:
+        if re.search(pattern, str(cols_lower.keys()), re.IGNORECASE):
+            for k, v in cols_lower.items():
+                if pattern in k:
+                    force_col = v
+                    break
+        if force_col: break
+
+    if not force_col:
+        if 'force_n' in cols_lower: force_col = cols_lower['force_n']
+        elif 'force_dyne' in cols_lower: force_col = cols_lower['force_dyne']
+        elif 'force' in cols_lower: force_col = cols_lower['force']
+
+    # Search for uncertainty
+    for pattern in ['uncertainty', 'error', 'sigma', 'unc', 'err']:
+        if re.search(pattern, str(cols_lower.keys()), re.IGNORECASE):
+            for k, v in cols_lower.items():
+                if pattern in k:
+                    unc_col = v
+                    break
+        if unc_col: break
+
+    if not unc_col:
+        if 'uncertainty_dyne' in cols_lower: unc_col = cols_lower['uncertainty_dyne']
+        elif 'uncertainty_n' in cols_lower: unc_col = cols_lower['uncertainty_n']
+        elif 'error' in cols_lower: unc_col = cols_lower['error']
+
+    # Construct output
+    output_data = {}
+    if sep_col and sep_col in df.columns:
+        output_data['separation_um'] = df[sep_col]
+    else:
+        logger.warning(f"Could not find separation column in {file_path}")
+        # Create dummy if missing? No, raise or skip. Let's skip row if critical.
+        # For now, assume valid data structure as per spec
+        return pd.DataFrame() 
+
+    if force_col and force_col in df.columns:
+        output_data['force_dyne'] = df[force_col]
+    else:
+        logger.warning(f"Could not find force column in {file_path}")
+        return pd.DataFrame()
+
+    if unc_col and unc_col in df.columns:
+        output_data['uncertainty_dyne'] = df[unc_col]
+    else:
+        # If no uncertainty, estimate or leave for harmonize to handle
+        logger.info(f"No uncertainty column found in {file_path}, will estimate later.")
+        output_data['uncertainty_dyne'] = np.nan
+
+    # Add experiment ID from filename if possible
+    exp_id = file_path.stem
+    output_data['experiment_id'] = exp_id
+
+    return pd.DataFrame(output_data)
+
+def parse_arxiv_2106_08611(raw_dir: Path) -> List[pd.DataFrame]:
     """
-    Dispatch to appropriate parser based on file path or content.
+    Parse all relevant CSVs from arXiv:2106.08611.
     """
+    files = list(raw_dir.glob("*2106*") / "**" / "*.csv")
+    # If glob didn't work recursively, try flat
+    if not files:
+       files = list(raw_dir.glob("*.csv"))
+    
     dfs = []
-    for p in data_paths:
-        if '2106.08611' in p.name:
-            dfs.append(parse_arxiv_2106_08611(p))
-        elif '2305.06325' in p.name:
-            dfs.append(parse_arxiv_2305_06325(p))
-        else:
-            # Fallback: try generic parse
-            logger.warning(f"Unknown data source {p}. Attempting generic parse.")
-            try:
-                df = pd.read_csv(p)
-                df.columns = [c.lower().strip() for c in df.columns]
-                # Try to infer
-                sep_col = next((c for c in df.columns if 'sep' in c or 'dist' in c), None)
-                force_col = next((c for c in df.columns if 'force' in c), None)
-                if sep_col and force_col:
-                    result = pd.DataFrame()
-                    result['separation_microns'] = df[sep_col]
-                    result['force_dynes'] = df[force_col]
-                    result['stat_err'] = np.zeros(len(df))
-                    result['sys_err'] = np.zeros(len(df))
-                    result['source'] = p.stem
-                    dfs.append(result)
-                else:
-                    raise ValueError("Generic parse failed: missing columns")
-            except Exception as e:
-                logger.error(f"Failed to parse {p}: {e}")
-                raise
+    for f in files:
+        if "_run" in f.name.lower() or "calib" in f.name.lower():
+            df = parse_raw_data(f)
+            if not df.empty:
+                dfs.append(df)
+    return dfs
+
+def parse_arxiv_2305_06325(raw_dir: Path) -> List[pd.DataFrame]:
+    """
+    Parse all relevant CSVs from arXiv:2305.06325.
+    """
+    files = list(raw_dir.glob("*2305*") / "**" / "*.csv")
+    if not files:
+       files = list(raw_dir.glob("*.csv"))
+    
+    dfs = []
+    for f in files:
+        if "_run" in f.name.lower() or "calib" in f.name.lower():
+            df = parse_raw_data(f)
+            if not df.empty:
+                dfs.append(df)
     return dfs
 
 def main():
-    logger.info("parsers module loaded.")
+    """CLI entry point for parsing."""
+    # This is typically called by download.py or harmonize.py
+    # For testing, we can run it if data exists
+    raw_dir = Path("data/raw/extracted")
+    if not raw_dir.exists():
+        logger.warning("Raw data directory not found. Run download.py first.")
+        return 1
+    
+    dfs_2106 = parse_arxiv_2106_08611(raw_dir)
+    dfs_2305 = parse_arxiv_2305_06325(raw_dir)
+    
+    logger.info(f"Parsed {len(dfs_2106)} files from 2106.08611")
+    logger.info(f"Parsed {len(dfs_2305)} files from 2305.06325")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,23 +1,43 @@
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
 ]
 ignore = [
-    "E501", # line-too-long (handled by black)
-    "B008", # do-not-perform-function-calls-in-argument-defaults
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+# Allow automatic fixes
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files if needed
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
 ]
 
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assertions in tests
+# Per-file ignores
+per-file-ignores = {}
+
+# Target Python version
+target-version = "py39"
 
 [format]
+# Use double quotes for strings (matching black default)
 quote-style = "double"
+# Use black-compatible indentation
 indent-style = "space"
+# Respect magic trailing commas
 skip-magic-trailing-comma = false
-line-ending = "auto"
+# Line length (should match black)
+line-length = 88

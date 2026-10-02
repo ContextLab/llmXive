@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): The `pyproject.toml` correctly contains the required `[tool.black]` and `[tool.ruff]` sections, but the required `.ruff.toml` file is absent from the repository. The missing configuration file means the linting tool is not fully set up as specified.
+- `T002` (rejected 1x): The required `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt` file does not exist, so the Python project has not been initialized at the specified location nor have the pinned dependencies been written there. The existing `code/requirements.txt` is in the wrong directory.
+- `T007` (rejected 1x): No directory structure (`data/raw/`, `data/processed/`, `data/results/`) is shown or described in the provided artifacts; there is no code, script output, or file listing demonstrating that the required folders have been created with robust `mkdir -p` logic. The implementer’s claim cannot be verified without concrete evidence.
 
 ## Required change
 

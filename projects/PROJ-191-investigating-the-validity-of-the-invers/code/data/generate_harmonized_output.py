@@ -1,15 +1,7 @@
 """
-Script to demonstrate and verify the harmonization pipeline on real data.
-
-This script:
-1. Generates a realistic synthetic dataset representing the raw input 
-   (simulating the structure of arXiv supplementary data).
-2. Applies the harmonization pipeline (unit conversion + grid alignment).
-3. Writes the result to data/processed/harmonized_sample.csv.
-
-NOTE: In a full run, this script would load from data/raw/<arxiv_id>/ instead 
-of generating synthetic input. This script is structured to be easily swapped 
-to load real CSVs once T013-A/B are complete.
+Utility to generate realistic raw data for testing and development.
+This module is used to create synthetic but realistic data when real
+arXiv data is not available or for rapid prototyping of the pipeline.
 """
 import os
 import sys
@@ -17,102 +9,84 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 from data.harmonize import harmonize_experiment, convert_to_si, align_to_grid
-from config import ProjectConfig
+from data.models import HarmonizedDataset
+from config import get_logger
 
-def generate_realistic_raw_data(n_points: int = 100) -> pd.DataFrame:
+logger = get_logger("generate_harmonized_output")
+
+def generate_realistic_raw_data(output_dir: str, n_runs: int = 3, n_points: int = 100):
     """
-    Generates a DataFrame mimicking the structure of real arXiv supplementary data.
-    Uses realistic physical scales (micrometers, dynes) with noise.
+    Generate synthetic raw data files that mimic the structure of arXiv data.
     
-    This is a STAND-IN for the actual download step (T013). 
-    When T013 is complete, this function will be replaced by a loader.
+    Args:
+        output_dir: Directory to save the generated CSV files.
+        n_runs: Number of independent experimental runs to generate.
+        n_points: Number of data points per run.
+    
+    Returns:
+        List of paths to the generated CSV files.
     """
-    # Simulate separation distances between 10 and 100 micrometers
-    # Real data is usually non-uniform, so we add some jitter
-    sep_um = np.linspace(10, 100, n_points) + np.random.normal(0, 0.5, n_points)
-    sep_um = np.sort(sep_um) # Sort for realistic interpolation behavior
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Simulate force data following an inverse square law with noise
-    # F = G * m1 * m2 / r^2 (simplified scaling)
-    # We use arbitrary units that map to dynes
-    r_m = sep_um * 1e-6
-    # Add a Yukawa-like deviation for realism (alpha=0, lambda=inf for Newtonian baseline)
-    # F_newton ~ 1/r^2
-    force_dyne = (1e-10) / (r_m**2) + np.random.normal(0, 1e-15, n_points)
+    generated_files = []
     
-    # Ensure positive forces (real data might have noise crossing zero)
-    force_dyne = np.abs(force_dyne)
+    # Generate a range of separations (micrometers)
+    # Typical range for sub-millimeter experiments: 0.1 mm to 1 mm
+    # Convert to micrometers for the "raw" data
+    separations_um = np.linspace(100, 1000, n_points)
     
-    df = pd.DataFrame({
-        'separation_um': sep_um,
-        'force_dyne': force_dyne,
-        'experiment_id': 'sim_2106.08611'
-    })
-    return df
+    for i in range(n_runs):
+        # Add some noise and variation to each run
+        noise_scale = 0.01 + 0.005 * i
+        separations = separations_um + np.random.normal(0, 1, n_points)
+        
+        # Generate force data (in dynes)
+        # Using an inverse square law as a base, with some noise
+        # Force ~ 1/r^2
+        # Scale factor to make values realistic (e.g., 1e-6 dynes)
+        base_force = 1e-6 * (100 / separations) ** 2
+        noise = np.random.normal(0, base_force * noise_scale, n_points)
+        forces_dyne = base_force + noise
+        
+        # Ensure no negative forces
+        forces_dyne = np.abs(forces_dyne)
+        
+        # Create DataFrame
+        df = pd.DataFrame({
+            'separation_um': separations,
+            'force_dyne': forces_dyne,
+            'uncertainty_dyne': np.abs(forces_dyne) * noise_scale
+        })
+        
+        # Save to CSV
+        filename = f"run_{i+1:03d}_data.csv"
+        filepath = output_path / filename
+        df.to_csv(filepath, index=False)
+        generated_files.append(str(filepath))
+        logger.info(f"Generated {filename} with {n_points} points.")
+    
+    return generated_files
 
 def main():
-    config = ProjectConfig()
+    """Main entry point for generating test data."""
+    import argparse
     
-    # Define paths
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Generate realistic raw data for testing.")
+    parser.add_argument("--output-dir", type=str, default="data/raw/synthetic",
+                        help="Directory to save generated data.")
+    parser.add_argument("--n-runs", type=int, default=3, help="Number of runs to generate.")
+    parser.add_argument("--n-points", type=int, default=100, help="Points per run.")
     
-    output_file = output_dir / "harmonized_sample.csv"
+    args = parser.parse_args()
     
-    print(f"Starting harmonization pipeline...")
-    print(f"Output path: {output_file}")
-    
-    # 1. Load or Generate Raw Data
-    # TODO: Replace this block with actual loading from data/raw/2106.08611/
-    # once T013-A/B are implemented.
-    print("Loading raw data (Simulating T013-A/B output)...")
-    try:
-        # Attempt to load real data if it exists (future proofing)
-        raw_path = Path("data/raw/2106.08611/raw_data.csv")
-        if raw_path.exists():
-            df_raw = pd.read_csv(raw_path)
-            print(f"Loaded real data from {raw_path}")
-        else:
-            raise FileNotFoundError("Real raw data not found, generating realistic sample.")
-    except FileNotFoundError:
-        print("Generating realistic synthetic raw data for demonstration...")
-        df_raw = generate_realistic_raw_data(n_points=150)
-    
-    # 2. Define Target Grid
-    # We align to a common grid from 10um to 100um with 0.5um steps
-    target_grid_um = np.linspace(10, 100, 181)
-    target_grid_m = target_grid_um * 1e-6
-    
-    print(f"Target grid: {target_grid_m.min()*1e6:.1f}m to {target_grid_m.max()*1e6:.1f}m")
-    
-    # 3. Harmonize
-    print("Applying harmonization (Unit Conversion + Grid Alignment)...")
-    df_harmonized = harmonize_experiment(df_raw, target_grid_m)
-    
-    # 4. Validate Output
-    assert 'separation_m' in df_harmonized.columns, "Missing separation_m column"
-    assert 'force_N' in df_harmonized.columns, "Missing force_N column"
-    assert not df_harmonized['separation_m'].isna().any(), "NaN values in separation"
-    
-    # Check for NaNs in force (expected at edges if interpolation goes out of bounds)
-    nan_count = df_harmonized['force_N'].isna().sum()
-    if nan_count > 0:
-        print(f"Warning: {nan_count} NaN values in force column (likely due to extrapolation).")
-    
-    # 5. Save Output
-    df_harmonized.to_csv(output_file, index=False)
-    print(f"Successfully wrote harmonized data to {output_file}")
-    print(f"Rows: {len(df_harmonized)}, Columns: {list(df_harmonized.columns)}")
-    
-    # Print sample
-    print("\nSample output:")
-    print(df_harmonized.head())
+    files = generate_realistic_raw_data(args.output_dir, args.n_runs, args.n_points)
+    print(f"Generated {len(files)} files in {args.output_dir}")
 
 if __name__ == "__main__":
     main()

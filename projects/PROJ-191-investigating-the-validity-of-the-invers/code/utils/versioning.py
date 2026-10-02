@@ -1,151 +1,75 @@
-"""
-Versioning utility for atomic state updates.
-
-Provides atomic JSON operations and a state manager for tracking
-pipeline execution state with versioning and checksums.
-"""
 import json
 import os
 import tempfile
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict
 
 class VersionedState:
-    """
-    Manages a versioned state file with atomic updates.
+    """Manages versioned state updates with atomic operations."""
     
-    Attributes:
-        path: Path to the state JSON file.
-        version: Current version number (increments on update).
-        state: The underlying state dictionary.
-    """
-    def __init__(self, path: Path):
-        self.path = path
-        # Ensure parent directory exists
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._data: Dict[str, Any] = {}
-        self._load()
-
-    def _load(self):
-        """Load existing state or initialize default structure."""
-        if self.path.exists():
-            with open(self.path, 'r', encoding='utf-8') as f:
-                self._data = json.load(f)
-        else:
-            self._data = {
-                "version": 0,
-                "last_updated": None,
-                "checksum": None,
-                "state": {}
-            }
-
-    @property
-    def version(self) -> int:
-        """Get the current version number."""
-        return self._data.get("version", 0)
-
-    @property
-    def state(self) -> Dict[str, Any]:
-        """Get the current state dictionary."""
-        return self._data.get("state", {})
-
-    def update(self, new_state: Dict[str, Any]):
-        """
-        Atomically update the state with new values.
-        
-        Increments version, updates timestamp, and recalculates checksum.
-        
-        Args:
-            new_state: Dictionary of key-value pairs to update.
-        """
-        self._data["state"].update(new_state)
-        self._data["version"] += 1
-        self._data["last_updated"] = datetime.utcnow().isoformat()
-        self._data["checksum"] = self._compute_checksum()
-        atomic_save_json(self.path, self._data)
-
-    def set_state(self, new_state: Dict[str, Any]):
-        """
-        Replace the entire state dictionary atomically.
-        
-        Args:
-            new_state: The new state dictionary to set.
-        """
-        self._data["state"] = new_state
-        self._data["version"] += 1
-        self._data["last_updated"] = datetime.utcnow().isoformat()
-        self._data["checksum"] = self._compute_checksum()
-        atomic_save_json(self.path, self._data)
-
-    def _compute_checksum(self) -> str:
-        """Compute SHA-256 checksum of the current state."""
-        state_str = json.dumps(self._data["state"], sort_keys=True)
-        return hashlib.sha256(state_str.encode('utf-8')).hexdigest()
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a value from the state dictionary."""
-        return self._data.get("state", {}).get(key, default)
-
-    def exists(self) -> bool:
-        """Check if the state file exists."""
-        return self.path.exists()
-
-def create_state_manager(path: Path) -> VersionedState:
-    """
-    Factory function to create a VersionedState instance.
+    def __init__(self, state_path: Path):
+        self.state_path = state_path
+        self.version = "0.0.1"
     
-    Args:
-        path: Path to the state file.
-        
-    Returns:
-        A configured VersionedState instance.
-    """
-    return VersionedState(path)
+    def create_snapshot(self, data: Dict[str, Any]) -> str:
+        """Create a snapshot of the current state and return its hash."""
+        timestamp = datetime.now().isoformat()
+        snapshot = {
+            "version": self.version,
+            "timestamp": timestamp,
+            "data": data,
+            "hash": hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
+        }
+        return snapshot["hash"]
+    
+    def increment_version(self):
+        """Increment the version number."""
+        major, minor, patch = map(int, self.version.split('.'))
+        patch += 1
+        self.version = f"{major}.{minor}.{patch}"
 
-def atomic_save_json(path: Path, data: Dict[str, Any]):
-    """
-    Atomically save JSON data to a file using a temporary file and rename.
-    
-    This ensures that if the process is interrupted during the write,
-    the original file remains intact or no file is created, preventing
-    corruption.
-    
-    Args:
-        path: Target file path.
-        data: Dictionary to save as JSON.
-        
-    Raises:
-        OSError: If the file operation fails.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix='.tmp')
+def create_state_manager(state_path: Path) -> VersionedState:
+    """Create a state manager for the given path."""
+    return VersionedState(state_path)
+
+def atomic_update_json(file_path: Path, update_func, backup: bool = True) -> bool:
+    """Atomically update a JSON file using a temporary file and rename."""
     try:
-        with os.fdopen(fd, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, default=str)
-        os.replace(tmp_path, path)
-    except Exception:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
-        raise
-
-def atomic_update_json(path: Path, updater_func: Callable[[Dict[str, Any]], Dict[str, Any]]):
-    """
-    Atomically update JSON data by applying an updater function.
-    
-    Args:
-        path: Path to the JSON file.
-        updater_func: A function that takes the current dict and returns the new dict.
+        # Read current content
+        if file_path.exists():
+            with open(file_path, 'r') as f:
+                current_data = json.load(f)
+        else:
+            current_data = {}
         
-    Raises:
-        OSError: If file operations fail.
-    """
-    if path.exists():
-        with open(path, 'r', encoding='utf-8') as f:
-            current = json.load(f)
-    else:
-        current = {}
-    
-    new_data = updater_func(current)
-    atomic_save_json(path, new_data)
+        # Apply update function
+        new_data = update_func(current_data)
+        
+        # Write to temporary file
+        dir_name = file_path.parent
+        fd, temp_path = tempfile.mkstemp(dir=dir_name, suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as tmp:
+                json.dump(new_data, tmp, indent=2)
+            
+            # Atomic rename
+            if backup and file_path.exists():
+                backup_path = file_path.with_suffix('.bak')
+                file_path.rename(backup_path)
+            
+            Path(temp_path).rename(file_path)
+            return True
+        except Exception:
+            # Clean up temp file on failure
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+            raise
+    except Exception as e:
+        print(f"Atomic update failed: {str(e)}")
+        return False
+
+def atomic_save_json(file_path: Path, data: Dict[str, Any], backup: bool = True) -> bool:
+    """Atomically save data to a JSON file."""
+    return atomic_update_json(file_path, lambda _: data, backup)

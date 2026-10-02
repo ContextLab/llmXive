@@ -1,190 +1,90 @@
 """
-Data loading and harmonization utilities for the Inverse-Square Law investigation.
-
-This module defines the base data model `HarmonizedDataset` used to store
-aligned force-vs-separation data from multiple experiments, along with
-their associated uncertainties and covariance structures.
+Data loader module.
+Defines the HarmonizedDataset dataclass for structured data access.
 """
-
 from dataclasses import dataclass, field
 from typing import Optional
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-
 @dataclass
 class HarmonizedDataset:
     """
-    A unified container for harmonized experimental data from multiple sources.
-
-    This dataset aligns force measurements from different experiments onto a
-    common separation grid, converts all units to SI (Newtons, meters), and
-    constructs a full covariance matrix accounting for statistical and
-    systematic uncertainties.
-
+    Structured representation of harmonized force-vs-separation data.
+    
     Attributes:
-        separation (np.ndarray): 1D array of separation distances in meters (m).
-        force (np.ndarray): 1D array of measured forces in Newtons (N).
-        covariance (np.ndarray): 2D array representing the full covariance matrix
-            of the force measurements (N^2).
-        source_ids (list[str]): List of identifiers for the source experiments
-            contributing to this dataset.
-        metadata (dict): Additional metadata regarding the harmonization process,
-            such as the common grid resolution, interpolation method, or
-            specific version of the harmonization algorithm used.
+        separation_m: 1D array of separation distances in meters.
+        force_N: 1D array of force measurements in Newtons.
+        covariance_matrix: 2D array (N x N) of the covariance matrix.
+        experiment_id: Identifier for the source experiment.
+        metadata: Optional dictionary for additional metadata.
     """
-
-    separation: np.ndarray
-    force: np.ndarray
-    covariance: np.ndarray
-    source_ids: list[str] = field(default_factory=list)
+    separation_m: np.ndarray
+    force_N: np.ndarray
+    covariance_matrix: np.ndarray
+    experiment_id: str = ""
     metadata: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate the integrity of the dataset upon initialization."""
-        # Ensure inputs are numpy arrays
-        if not isinstance(self.separation, np.ndarray):
-            self.separation = np.asarray(self.separation, dtype=np.float64)
-        if not isinstance(self.force, np.ndarray):
-            self.force = np.asarray(self.force, dtype=np.float64)
-        if not isinstance(self.covariance, np.ndarray):
-            self.covariance = np.asarray(self.covariance, dtype=np.float64)
+        # Basic validation
+        if len(self.separation_m) != len(self.force_N):
+            raise ValueError("separation_m and force_N must have the same length.")
+        if self.covariance_matrix.shape != (len(self.separation_m), len(self.separation_m)):
+            raise ValueError("covariance_matrix shape must match (N, N).")
 
-        # Validate dimensions
-        n_points = len(self.separation)
-        if len(self.force) != n_points:
-            raise ValueError(
-                f"Length mismatch: separation has {n_points} points, "
-                f"but force has {len(self.force)} points."
-            )
-        if self.covariance.shape != (n_points, n_points):
-            raise ValueError(
-                f"Covariance matrix shape {self.covariance.shape} does not match "
-                f"data length {n_points}."
-            )
-
-        # Validate data types
-        if self.separation.dtype not in [np.float64, np.float32]:
-            raise ValueError("Separation array must be of float type.")
-        if self.force.dtype not in [np.float64, np.float32]:
-            raise ValueError("Force array must be of float type.")
-
-        # Validate physical constraints
-        if np.any(self.separation <= 0):
-            raise ValueError("Separation distances must be strictly positive.")
-
-        # Validate covariance matrix properties
-        if not np.allclose(self.covariance, self.covariance.T, atol=1e-12):
-            raise ValueError("Covariance matrix must be symmetric.")
-        
-        # Check for positive semi-definiteness (eigenvalues >= 0)
-        # Using a small tolerance for numerical noise
-        eigvals = np.linalg.eigvalsh(self.covariance)
-        if np.any(eigvals < -1e-12):
-            raise ValueError(
-                "Covariance matrix is not positive semi-definite. "
-                f"Min eigenvalue: {np.min(eigvals)}"
-            )
-
-    def to_dataframe(self) -> pd.DataFrame:
-        """
-        Convert the dataset to a pandas DataFrame.
-
-        Returns:
-            pd.DataFrame: A DataFrame with columns 'separation_m', 'force_N',
-                and columns for the lower triangle of the covariance matrix
-                (optional, usually large). For standard analysis, returns
-                a simple table of separation and force.
-        """
-        df = pd.DataFrame({
-            'separation_m': self.separation,
-            'force_N': self.force
-        })
-        # Add source metadata as columns if available
-        if self.source_ids:
-            df['source_id'] = self.source_ids[0] if len(self.source_ids) == 1 else 'mixed'
-        
-        return df
+    def to_dict(self) -> dict:
+        """Convert dataset to a dictionary (for JSON serialization)."""
+        return {
+            "separation_m": self.separation_m.tolist(),
+            "force_N": self.force_N.tolist(),
+            "covariance_matrix": self.covariance_matrix.tolist(),
+            "experiment_id": self.experiment_id,
+            "metadata": self.metadata
+        }
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame, covariance: np.ndarray) -> "HarmonizedDataset":
-        """
-        Create a HarmonizedDataset from a pandas DataFrame and a covariance matrix.
-
-        Args:
-            df: DataFrame containing at least 'separation_m' and 'force_N' columns.
-            covariance: 2D numpy array of the covariance matrix.
-
-        Returns:
-            HarmonizedDataset: Initialized instance.
-        """
+    def from_dict(cls, data: dict) -> "HarmonizedDataset":
+        """Create dataset from a dictionary."""
         return cls(
-            separation=df['separation_m'].values,
-            force=df['force_N'].values,
-            covariance=covariance,
-            source_ids=[df['source_id'].iloc[0]] if 'source_id' in df.columns else []
+            separation_m=np.array(data["separation_m"]),
+            force_N=np.array(data["force_N"]),
+            covariance_matrix=np.array(data["covariance_matrix"]),
+            experiment_id=data.get("experiment_id", ""),
+            metadata=data.get("metadata", {})
         )
 
-    def save_to_csv(self, path: Path) -> None:
-        """
-        Save the primary data (separation and force) to a CSV file.
-        
-        Note: The full covariance matrix is typically too large for standard CSV
-        representation and should be saved separately (e.g., as .npy or .h5).
+def load_harmonized_data(file_path: Path) -> HarmonizedDataset:
+    """
+    Load a harmonized dataset from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file.
+    
+    Returns:
+        HarmonizedDataset object.
+    """
+    import json
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return HarmonizedDataset.from_dict(data)
 
-        Args:
-            path: File path to save the CSV.
-        """
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self.to_dataframe().to_csv(path, index=False)
+def save_harmonized_data(dataset: HarmonizedDataset, file_path: Path):
+    """
+    Save a harmonized dataset to a JSON file.
+    
+    Args:
+        dataset: HarmonizedDataset object.
+        file_path: Path to save the JSON file.
+    """
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump(dataset.to_dict(), f, indent=2)
 
-    def save_covariance(self, path: Path) -> None:
-        """
-        Save the covariance matrix to a NumPy .npy file.
+def main():
+    """CLI entry point for loaders."""
+    logger.info("Loaders module ready.")
+    return 0
 
-        Args:
-            path: File path to save the .npy file.
-        """
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        np.save(path, self.covariance)
-
-    @classmethod
-    def load_from_csv(cls, csv_path: Path, cov_path: Path, metadata: Optional[dict] = None) -> "HarmonizedDataset":
-        """
-        Load a HarmonizedDataset from a CSV file and a corresponding covariance file.
-
-        Args:
-            csv_path: Path to the CSV file containing separation and force.
-            cov_path: Path to the .npy file containing the covariance matrix.
-            metadata: Optional dictionary of metadata to attach to the dataset.
-
-        Returns:
-            HarmonizedDataset: Loaded instance.
-        """
-        df = pd.read_csv(csv_path)
-        covariance = np.load(cov_path)
-        instance = cls.from_dataframe(df, covariance)
-        if metadata:
-            instance.metadata.update(metadata)
-        return instance
-
-    def get_statistics(self) -> dict:
-        """
-        Compute basic statistics for the dataset.
-
-        Returns:
-            dict: Dictionary containing min/max separation, mean force, 
-                and covariance trace/determinant.
-        """
-        return {
-            "n_points": len(self.separation),
-            "separation_min_m": float(np.min(self.separation)),
-            "separation_max_m": float(np.max(self.separation)),
-            "force_mean_N": float(np.mean(self.force)),
-            "force_std_N": float(np.std(self.force)),
-            "covariance_trace": float(np.trace(self.covariance)),
-            "covariance_rank": int(np.linalg.matrix_rank(self.covariance))
-        }
+if __name__ == "__main__":
+    exit(main())

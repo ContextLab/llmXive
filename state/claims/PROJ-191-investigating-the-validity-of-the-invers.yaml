@@ -2729,3 +2729,289 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T09:06:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 samples
+  claim_id: c_7991b8a8
+  context: Implement code/data/bootstrap.py to generate bootstrap resamples if len(runs)
+    < 3. Perform row-wise bootstrap resampling with N=1000 samples (as stipulated
+    in the plan).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform row-wise bootstrap resampling with N=1000 samples (as stipulated
+    in the plan).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:17:59Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Banded covariance matrix bandwidth set to 20
+  claim_id: c_37d819b3
+  context: 'Primary Strategy: Since source data lacks off-diagonal terms, construct
+    a diagonal covariance matrix. Mandatory Step: Construct a banded covariance matrix
+    (bandwidth = 20) to test the impact of unmodeled correlations as required by the
+    Plan''s Complexity Tracking.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Construct a banded covariance matrix (bandwidth = 20) to test the impact
+    of unmodeled correlations as required by the Plan's Complexity Tracking.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:27:58Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC execution uses 100 walkers
+  claim_id: c_1a528576
+  context: Implement emcee runner in code/inference/mcmc.py. Run in batches of steps
+    with 100 walkers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run in batches of steps with 100 walkers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:29:28Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC stops when Gelman-Rubin < 1.01 or after 5000 steps
+  claim_id: c_32c92b03
+  context: "Stop Condition: Run until Gelman\u2011Rubin < 1.01 OR until 5000 steps,\
+    \ whichever takes MORE steps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run until Gelman\u2011Rubin < 1.01 OR until 5000 steps, whichever takes\
+    \ MORE steps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:29:29Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC hard cap set to 20000 steps
+  claim_id: c_6cb99352
+  context: If 5000 steps are reached without convergence, continue running until convergence
+    or a hard cap of 20000 steps is reached.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 5000 steps are reached without convergence, continue running until
+    convergence or a hard cap of 20000 steps is reached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Runtime estimation formula uses 50 mock steps and 5000 total steps
+  claim_id: c_43bb3caa
+  context: 'Run a ''mock'' likelihood evaluation (a small number of walkers, 50 steps)
+    to estimate wall-clock time per step. Estimation Formula: Project total runtime:
+    total_estimated_time = (mock_wall_time / 50) * 5000 * 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Project total runtime: total_estimated_time = (mock_wall_time / 50) *
+    5000 * 100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:27Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Subsampling triggered if estimated runtime exceeds 5.5 hours, selecting
+    2000 points
+  claim_id: c_dd93e00e
+  context: 'Threshold: If total_estimated_time > 5.5 hours, set mode = ''subsample''
+    and select the first 2000 points (using seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_estimated_time > 5.5 hours, set mode = 'subsample' and select
+    the first 2000 points (using seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:30Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Block-diagonal covariance bandwidth set to 20 during subsampling
+  claim_id: c_b667aa56
+  context: When subsampling, construct a block-diagonal matrix (bandwidth = 20) to
+    retain local correlation structure.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: When subsampling, construct a block-diagonal matrix (bandwidth = 20) to
+    retain local correlation structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:36Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: False positive defined as Bayes factor greater than 3
+  claim_id: c_bc43c459
+  context: "Generate synthetic data with \u03B1 = 0 but realistic systematic errors.\
+    \ Compute false_positive = (Bayes_factor_K > 3)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_defined_as_Bayes_factor_greater_than_3
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:50Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Cross-validation fallback uses 1000 bootstrap samples
+  claim_id: c_c1ad56ea
+  context: If runs < 3, perform row bootstrap resampling with N = 1000 samples (as
+    stipulated in the plan).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform row bootstrap resampling with N = 1000 samples (as stipulated
+    in the plan).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:31:57Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: 95% credible upper limit for alpha stored per iteration
+  claim_id: c_62f4b133
+  context: "Store each iteration's 95 % credible upper limit for \u03B1 for later\
+    \ analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Store each iteration's 95 % credible upper limit for \u03B1 for later\
+    \ analysis."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:32:10Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Systematic uncertainty inflation test checks Bayes factor stability
+  claim_id: c_f732ccfa
+  context: Apply it multiplicatively to the covariance matrix. Verify that the Bayes
+    factor changes by a negligible amount; log the result.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Systematic_uncertainty_inflation_test_checks_Bayes_factor_st
+  kind: entity_fact
+  raw_text: Verify that the Bayes factor changes by a negligible amount; log the result.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:41:32Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Relative shift calculated as (max - min) / mean
+  claim_id: c_14b17a04
+  context: 'Metric 2: Calculate the relative shift: (max_limit - min_limit) / mean_limit.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relative_shift_calculated_as_(max_-_min)_/_mean
+  kind: entity_fact
+  raw_text: 'Calculate the relative shift: (max_limit - min_limit) / mean_limit.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:42:20Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Kass-Raftery pass condition is Bayes factor K greater than 3
+  claim_id: c_eeef480f
+  context: Load Bayes factor K from the primary inference. Compute SC002_KASS_RAFTERY_PASS
+    = (K > 3).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kass-Raftery_pass_condition_is_Bayes_factor_K_greater_than_3
+  kind: magnitude
+  raw_text: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:01Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Default systematic uncertainty inflation factor is 1.1
+  claim_id: c_732c79a5
+  context: Read the value from plan.md or a specific configuration file. If not found,
+    default to a value specified in the spec (e.g., 1.1) but log a warning that the
+    value is default.
+  evidence:
+    asserted: '1.1'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: If not found, default to a value specified in the spec (e.g., 1.1) but
+    log a warning that the value is default.
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T01:44:01Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Metadata fetched for arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_8dea5a62
+  context: Use requests to fetch metadata for arXiv:2106.08611 and arXiv:2305.06325
+    from .
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Fetch metadata for arXiv:2106.08611 and arXiv:2305.06325 from .
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T01:44:22Z'

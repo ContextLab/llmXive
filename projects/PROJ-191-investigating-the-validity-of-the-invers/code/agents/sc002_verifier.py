@@ -1,167 +1,116 @@
-"""
-SC-002 Verification: Single Source of Truth & Bayes Factor Comparison.
-
-This module computes the Bayes-factor comparison metric required for SC-002.
-It performs two critical checks:
-1. Compares the primary Bayes factor K against the null-simulation baseline
-   to ensure the result is not a systematic artifact.
-2. Compares K against the Kass–Raftery scale (K > 3 indicates substantial
-   evidence for the Yukawa model).
-
-The script reads outputs from T026 (null_simulation) and T023/T024 (inference),
-then writes a detailed report to data/results/sc002_verification.json.
-"""
-
 import os
 import sys
 import json
 import logging
 from pathlib import Path
-
-# Add project root to path if running as script
-if "code" not in sys.path:
-    code_root = Path(__file__).resolve().parent
-    sys.path.insert(0, str(code_root))
-
 from config import get_logger, ProjectConfig
 
-logger = get_logger("SC002_VERIFIER")
-
-# Constants
-KASS_RAFTERY_THRESHOLD = 3.0  # Log Bayes Factor threshold for "substantial evidence"
-NULL_BAYES_FACTOR_THRESHOLD = 3.0  # Threshold to consider false positive in null sim
-
-def load_json_safe(path: Path, default: dict = None) -> dict:
-    """Load JSON file safely, returning default if missing or invalid."""
+def load_json_safe(path: Path) -> dict:
+    """Load a JSON file safely, raising a clear error if it doesn't exist or is invalid."""
     if not path.exists():
-        logger.warning(f"File not found: {path}. Returning default.")
-        return default if default is not None else {}
+        raise FileNotFoundError(f"Required file not found: {path}")
     try:
-        with open(path, "r") as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {path}: {e}")
-        return default if default is not None else {}
+        raise ValueError(f"Invalid JSON in {path}: {e}")
 
-def compute_sc002_verification() -> dict:
+def compute_sc002_verification(bayes_factor_k: float, null_distribution: list) -> dict:
     """
-    Perform SC-002 verification checks.
-
+    Compute SC-002 verification metrics.
+    
+    Args:
+        bayes_factor_k: The observed Bayes factor K from primary inference.
+        null_distribution: List of Bayes factors from null simulations (alpha=0).
+        
     Returns:
-        dict: Verification results including PASS/FAIL status and detailed metrics.
+        Dictionary with verification results.
     """
-    config = ProjectConfig()
-    results_dir = config.results_dir
-    processed_dir = config.processed_dir
-
-    # 1. Load Primary Bayes Factor (from Nested Sampling output)
-    # Expected output from T024 (nested.py) or T023 (mcmc.py) usually in data/results/
-    # We look for the latest nested sampling result or a specific summary file.
-    # Assuming T024 writes to data/results/nested_sampling_results.json
-    nested_results_path = results_dir / "nested_sampling_results.json"
-    nested_data = load_json_safe(nested_results_path, {})
-
-    # Extract Bayes Factor K (log_K or K depending on format, usually log_K in dynesty)
-    # If T024 outputs log_Bayes_Factor, we use that. If it outputs K directly, we use that.
-    # Standard convention in this project seems to be log_Bayes_Factor.
-    log_k_primary = nested_data.get("log_Bayes_Factor")
+    if not null_distribution:
+        raise ValueError("Null distribution is empty; cannot compute p-value.")
+        
+    # Kass-Raftery criterion: K > 3 indicates strong evidence
+    kass_raftery_pass = bayes_factor_k > 3.0
     
-    # If log_K is not found, try to find K directly
-    k_primary = nested_data.get("Bayes_Factor")
+    # Compute p-value: fraction of null samples >= observed K
+    # This tests if the observed K is significantly larger than what we'd expect by chance
+    p_value = sum(1 for k_null in null_distribution if k_null >= bayes_factor_k) / len(null_distribution)
     
-    # Normalize to log scale for comparison
-    if log_k_primary is not None:
-        log_k_val = log_k_primary
-    elif k_primary is not None:
-        import math
-        log_k_val = math.log(k_primary) if k_primary > 0 else float('-inf')
-    else:
-        logger.error("Could not find Bayes Factor in nested sampling results.")
-        log_k_val = None
-
-    # 2. Load Null Simulation Baseline (from T026)
-    null_baseline_path = results_dir / "null_baseline_report.json"
-    null_data = load_json_safe(null_baseline_path, {})
-
-    false_positive_detected = null_data.get("false_positive_detected", False)
-    bayes_factor_null = null_data.get("bayes_factor_K") # This might be log_K or K
+    # Baseline pass: p-value < 0.05 (statistically significant)
+    baseline_pass = p_value < 0.05
     
-    # Determine if null simulation indicates a problem
-    # If the null simulation produced a Bayes Factor > 3 (substantial evidence for Yukawa when alpha=0),
-    # then our method is prone to false positives.
-    is_null_problematic = False
-    if bayes_factor_null is not None:
-        # If stored as log_K
-        if isinstance(bayes_factor_null, float) and bayes_factor_null > KASS_RAFTERY_THRESHOLD:
-            is_null_problematic = True
-        # If stored as K
-        elif isinstance(bayes_factor_null, float) and bayes_factor_null > math.exp(KASS_RAFTERY_THRESHOLD):
-            is_null_problematic = True
-
-    # 3. Perform Checks
-    check_1_pass = True
-    check_1_reason = "Null simulation baseline is acceptable."
-    
-    if is_null_problematic:
-        check_1_pass = False
-        check_1_reason = "Null simulation detected false positive (Bayes Factor > 3 when alpha=0). Primary result may be a systematic artifact."
-
-    check_2_pass = False
-    check_2_reason = "Insufficient evidence for Yukawa model (K <= 3)."
-    
-    if log_k_val is not None:
-        if log_k_val > KASS_RAFTERY_THRESHOLD:
-            check_2_pass = True
-            check_2_reason = f"Bayes Factor (log_K={log_k_val:.2f}) exceeds Kass-Raftery threshold ({KASS_RAFTERY_THRESHOLD}). Substantial evidence for Yukawa model."
-        else:
-            check_2_reason = f"Bayes Factor (log_K={log_k_val:.2f}) does not exceed Kass-Raftery threshold ({KASS_RAFTERY_THRESHOLD})."
-
-    # Final SC-002 Status
-    # SC-002 requires BOTH checks to pass? Or at least the baseline check to pass and then interpretation?
-    # The prompt says: "PASS/FAIL status if K <= 3 (insufficient evidence) OR if the baseline comparison fails"
-    # So FAIL if (K <= 3) OR (baseline fails).
-    sc002_pass = check_1_pass and check_2_pass
-
-    report = {
-        "task_id": "T038",
-        "check_1_baseline_valid": check_1_pass,
-        "check_1_reason": check_1_reason,
-        "check_2_kass_raftery_valid": check_2_pass,
-        "check_2_reason": check_2_reason,
-        "primary_log_bayes_factor": log_k_val,
-        "null_baseline_log_bayes_factor": bayes_factor_null,
-        "null_false_positive_detected": is_null_problematic,
-        "sc002_pass": sc002_pass,
-        "sc002_status": "PASS" if sc002_pass else "FAIL",
-        "timestamp": ProjectConfig().get_timestamp()
+    return {
+        "K_value": bayes_factor_k,
+        "Kass_Raftery_Pass": kass_raftery_pass,
+        "P_value": p_value,
+        "Baseline_Pass": baseline_pass,
+        "null_samples_count": len(null_distribution)
     }
 
-    return report
-
 def main():
-    """Main entry point for T038."""
-    logger.info("Starting SC-002 Verification (T038)...")
+    """Main entry point for SC-002 verification."""
+    config = ProjectConfig()
+    logger = get_logger(__name__)
+    
+    # Define paths
+    results_dir = config.data_results_dir
+    bayes_factor_path = results_dir / "bayes_factor.json"
+    null_baseline_path = results_dir / "null_baseline_report.json"
+    output_path = results_dir / "validity_report.json"
+    
+    logger.info(f"Starting SC-002 verification. Results dir: {results_dir}")
     
     try:
-        report = compute_sc002_verification()
+        # Load primary Bayes factor
+        logger.info(f"Loading Bayes factor from {bayes_factor_path}")
+        bayes_data = load_json_safe(bayes_factor_path)
+        bayes_factor_k = bayes_data.get("bayes_factor")
+        if bayes_factor_k is None:
+            raise ValueError("Bayes factor not found in bayes_factor.json")
         
-        # Write report to data/results
-        config = ProjectConfig()
-        output_path = config.results_dir / "sc002_verification.json"
+        # Load null simulation baseline
+        logger.info(f"Loading null baseline from {null_baseline_path}")
+        null_data = load_json_safe(null_baseline_path)
         
-        with open(output_path, "w") as f:
-            json.dump(report, f, indent=2)
+        # Extract null distribution - could be in different formats
+        null_samples = null_data.get("null_samples", [])
+        if not null_samples and "bayes_factors" in null_data:
+            null_samples = null_data["bayes_factors"]
         
-        logger.info(f"SC-002 Verification complete. Report saved to: {output_path}")
-        logger.info(f"Status: {report['sc002_status']}")
+        if not null_samples:
+            raise ValueError("No null samples found in null_baseline_report.json")
         
-        if not report['sc002_pass']:
-            logger.warning("SC-002 verification failed. Review results for systematic artifacts or insufficient evidence.")
+        # Compute verification
+        logger.info(f"Computing SC-002 verification with K={bayes_factor_k}, {len(null_samples)} null samples")
+        verification = compute_sc002_verification(bayes_factor_k, null_samples)
         
+        # Write output
+        logger.info(f"Writing validity report to {output_path}")
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(verification, f, indent=2)
+        
+        # Log results
+        logger.info(f"SC-002 Verification Results:")
+        logger.info(f"  K_value: {verification['K_value']:.4f}")
+        logger.info(f"  Kass_Raftery_Pass: {verification['Kass_Raftery_Pass']}")
+        logger.info(f"  P_value: {verification['P_value']:.4f}")
+        logger.info(f"  Baseline_Pass: {verification['Baseline_Pass']}")
+        
+        if verification['Baseline_Pass'] and verification['Kass_Raftery_Pass']:
+            logger.info("SC-002 VERIFICATION PASSED: Strong evidence for Yukawa modification detected.")
+        else:
+            logger.warning("SC-002 VERIFICATION FAILED: Insufficient evidence for Yukawa modification.")
+            
         return 0
-    
+        
+    except FileNotFoundError as e:
+        logger.error(f"Required file missing: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error during SC-002 Verification: {e}", exc_info=True)
+        logger.exception(f"Unexpected error during verification: {e}")
         return 1
 
 if __name__ == "__main__":

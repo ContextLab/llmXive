@@ -1,213 +1,416 @@
 """
 Unit tests for leave-one-out cross-validation logic.
 
-This module tests the logic for excluding individual experiments from the
-harmonized dataset to verify robustness of the results.
+This module tests the core logic of the cross-validation implementation
+in code/robustness/cross_val.py, specifically:
+- perform_leave_one_out: Iterating through runs and excluding one at a time
+- perform_bootstrap_resampling: Fallback logic when runs < 3
+- calculate_cv: Computing the coefficient of variation on results
 """
 import pytest
 import numpy as np
-import pandas as pd
 from pathlib import Path
 import sys
 import json
+from unittest.mock import patch, MagicMock, mock_open
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from data.loaders import HarmonizedDataset
-from data.fallback_logic import detect_independent_runs, bootstrap_resample_dataset
-from data.state_manager import check_bootstrap_flag, read_state
-
-
-def create_mock_harmonized_dataset(n_runs=3, n_points=100):
-    """Create a mock HarmonizedDataset for testing."""
-    runs = []
-    for i in range(n_runs):
-        # Create synthetic but realistic data structure
-        separation = np.linspace(0.0001, 0.001, n_points)  # 0.1 to 1 mm
-        force = -1e-15 * (1 / separation**2)  # Newtonian force
-        uncertainty = np.abs(force) * 0.01  # 1% uncertainty
-        
-        run_data = pd.DataFrame({
-            'separation': separation,
-            'force': force,
-            'uncertainty': uncertainty,
-            'experiment_id': f'exp_{i}'
-        })
-        
-        runs.append({
-            'experiment_id': f'exp_{i}',
-            'data': run_data,
-            'separation_range': (separation.min(), separation.max()),
-            'force_range': (force.min(), force.max()),
-            'uncertainty_range': (uncertainty.min(), uncertainty.max())
-        })
-    
-    return HarmonizedDataset(
-        runs=runs,
-        common_separation_grid=separation,
-        covariance_matrix=np.eye(n_points) * (0.01 * np.abs(force[0]))**2
-    )
+from robustness.cross_val import (
+    CrossValIterationResult,
+    perform_leave_one_out,
+    perform_bootstrap_resampling,
+    calculate_cv,
+    load_harmonized_data
+)
+from data.models import HarmonizedDataset
 
 
-class TestLeaveOneOutLogic:
-    """Tests for the leave-one-out cross-validation logic."""
-    
-    def test_detect_independent_runs_count(self):
-        """Test that we can correctly count independent runs."""
-        dataset = create_mock_harmonized_dataset(n_runs=3)
-        independent_runs = detect_independent_runs(dataset)
-        assert len(independent_runs) == 3
-        
-        dataset_single = create_mock_harmonized_dataset(n_runs=1)
-        independent_runs_single = detect_independent_runs(dataset_single)
-        assert len(independent_runs_single) == 1
-    
-    def test_leave_one_out_creates_correct_subset(self):
-        """Test that leaving one experiment out creates the correct subset."""
-        dataset = create_mock_harmonized_dataset(n_runs=3)
-        
-        # Test leaving out each experiment
-        for i in range(3):
-            # Simulate leaving out experiment i
-            remaining_runs = [r for idx, r in enumerate(dataset.runs) if idx != i]
-            assert len(remaining_runs) == 2
-            
-            # Verify the correct experiment was excluded
-            experiment_ids = [r['experiment_id'] for r in remaining_runs]
-            assert f'exp_{i}' not in experiment_ids
-            assert len(experiment_ids) == 2
-    
-    def test_leave_one_out_preserves_data_integrity(self):
-        """Test that the remaining data maintains integrity after exclusion."""
-        dataset = create_mock_harmonized_dataset(n_runs=3)
-        
-        # Leave out first experiment
-        remaining_runs = dataset.runs[1:]
-        
-        # Verify all data in remaining runs is intact
-        for run in remaining_runs:
-            assert 'separation' in run['data'].columns
-            assert 'force' in run['data'].columns
-            assert 'uncertainty' in run['data'].columns
-            assert len(run['data']) > 0
-            assert not run['data'].isnull().any().any()
-    
-    def test_bootstrap_flag_detection(self):
-        """Test that bootstrap flag is correctly detected when needed."""
-        # Test with single run (should trigger bootstrap)
-        dataset_single = create_mock_harmonized_dataset(n_runs=1)
-        independent_runs_single = detect_independent_runs(dataset_single)
-        assert len(independent_runs_single) < 3
-        
-        # Test with sufficient runs (should not trigger bootstrap)
-        dataset_multiple = create_mock_harmonized_dataset(n_runs=3)
-        independent_runs_multiple = detect_independent_runs(dataset_multiple)
-        assert len(independent_runs_multiple) >= 3
-    
-    def test_leave_one_out_with_realistic_data_structure(self):
-        """Test leave-one-out logic with a more realistic data structure."""
-        # Create dataset with varying point counts per experiment
-        runs = []
-        for i in range(3):
-            n_points = 100 + i * 20  # Varying point counts
-            separation = np.linspace(0.0001, 0.001, n_points)
-            force = -1e-15 * (1 / separation**2)
-            uncertainty = np.abs(force) * 0.01
-            
-            run_data = pd.DataFrame({
-                'separation': separation,
-                'force': force,
-                'uncertainty': uncertainty,
-                'experiment_id': f'exp_{i}'
-            })
-            
-            runs.append({
-                'experiment_id': f'exp_{i}',
-                'data': run_data,
-                'separation_range': (separation.min(), separation.max()),
-                'force_range': (force.min(), force.max()),
-                'uncertainty_range': (uncertainty.min(), uncertainty.max())
-            })
-        
-        dataset = HarmonizedDataset(
-            runs=runs,
-            common_separation_grid=np.linspace(0.0001, 0.001, 100),
-            covariance_matrix=np.eye(100) * 1e-34
+class TestCrossValIterationResult:
+    """Test the data structure for cross-validation iteration results."""
+
+    def test_creation(self):
+        """Test that CrossValIterationResult can be created with valid data."""
+        result = CrossValIterationResult(
+            iteration=0,
+            excluded_run=0,
+            alpha_upper_limit=0.5,
+            bayes_factor=10.0,
+            success=True
         )
-        
-        # Test leaving out each experiment
-        for i in range(3):
-            remaining_runs = [r for idx, r in enumerate(dataset.runs) if idx != i]
-            assert len(remaining_runs) == 2
-            
-            # Verify the remaining experiments have their original data
-            for run in remaining_runs:
-                assert len(run['data']) > 0
-                assert run['data']['separation'].min() >= 0.0001
-                assert run['data']['separation'].max() <= 0.001
-    
-    def test_leave_one_out_edge_case_two_runs(self):
-        """Test leave-one-out logic with exactly two runs (edge case)."""
-        dataset = create_mock_harmonized_dataset(n_runs=2)
-        
-        # Should be able to leave out one run and still have one remaining
-        for i in range(2):
-            remaining_runs = [r for idx, r in enumerate(dataset.runs) if idx != i]
-            assert len(remaining_runs) == 1
-            
-            # Verify the remaining run has data
-            assert len(remaining_runs[0]['data']) > 0
-    
-    def test_bootstrap_resample_integration(self):
-        """Test that bootstrap resampling works as a fallback when needed."""
-        # Create dataset with insufficient runs
-        dataset = create_mock_harmonized_dataset(n_runs=1)
-        
-        # Bootstrap should be triggered
-        independent_runs = detect_independent_runs(dataset)
-        assert len(independent_runs) < 3
-        
-        # Test bootstrap resampling
-        bootstrap_samples = bootstrap_resample_dataset(dataset, n_iterations=5)
-        assert len(bootstrap_samples) == 5
-        
-        # Each sample should have the same structure
-        for sample in bootstrap_samples:
-            assert isinstance(sample, HarmonizedDataset)
-            assert len(sample.runs) == 1  # Original had 1 run
-            assert len(sample.runs[0]['data']) > 0
-    
-    def test_state_file_bootstrap_flag_check(self):
-        """Test that the bootstrap flag in state file is correctly read."""
-        # Create a temporary state file
-        temp_dir = Path(__file__).parent.parent.parent / 'data' / 'processed'
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        state_file = temp_dir / 'state.json'
-        
-        # Test with bootstrap flag set to True
-        state_data = {'USE_BOOTSTRAP': True}
-        with open(state_file, 'w') as f:
-            json.dump(state_data, f)
-        
-        assert check_bootstrap_flag() is True
-        
-        # Test with bootstrap flag set to False
-        state_data = {'USE_BOOTSTRAP': False}
-        with open(state_file, 'w') as f:
-            json.dump(state_data, f)
-        
-        assert check_bootstrap_flag() is False
-        
-        # Test with missing flag
-        state_data = {'other_key': 'value'}
-        with open(state_file, 'w') as f:
-            json.dump(state_data, f)
-        
-        assert check_bootstrap_flag() is False
-        
-        # Clean up
-        state_file.unlink()
+        assert result.iteration == 0
+        assert result.excluded_run == 0
+        assert result.alpha_upper_limit == 0.5
+        assert result.bayes_factor == 10.0
+        assert result.success is True
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_creation_with_failure(self):
+        """Test creation when iteration fails."""
+        result = CrossValIterationResult(
+            iteration=1,
+            excluded_run=1,
+            alpha_upper_limit=np.nan,
+            bayes_factor=np.nan,
+            success=False
+        )
+        assert result.success is False
+        assert np.isnan(result.alpha_upper_limit)
+
+class TestPerformLeaveOneOut:
+    """Tests for the leave-one-out cross-validation logic."""
+
+    @pytest.fixture
+    def mock_harmonized_data(self):
+        """Create a mock harmonized dataset with multiple runs."""
+        # Create mock data for 3 independent runs
+        runs_data = []
+        for i in range(3):
+            n_points = 50
+            runs_data.append({
+                'run_id': i,
+                'separation_m': np.linspace(1e-4, 1e-3, n_points),
+                'force_n': 1e-12 * np.ones(n_points),
+                'uncertainty': 1e-14 * np.ones(n_points),
+                'metadata': {'source': f'run_{i}'}
+            })
+        return runs_data
+
+    @pytest.fixture
+    def mock_inference_result(self):
+        """Mock the inference result returned by run_single_inference."""
+        return {
+            'alpha_upper_limit': 0.5,
+            'bayes_factor': 10.0,
+            'success': True
+        }
+
+    def test_leave_one_out_with_three_runs(
+        self, mock_harmonized_data, mock_inference_result
+    ):
+        """Test LOO works correctly when there are exactly 3 runs."""
+        with patch(
+            'robustness.cross_val.load_harmonized_data'
+        ) as mock_load, \
+             patch(
+                 'robustness.cross_val.run_single_inference'
+             ) as mock_inference:
+            
+            # Mock the loaded data
+            mock_load.return_value = mock_harmonized_data
+            mock_inference.return_value = mock_inference_result
+
+            # Perform LOO
+            results = perform_leave_one_out(mock_harmonized_data)
+
+            # Should have 3 results (one for each excluded run)
+            assert len(results) == 3
+
+            # Check that each run was excluded exactly once
+            excluded_runs = [r.excluded_run for r in results]
+            assert sorted(excluded_runs) == [0, 1, 2]
+
+            # Check that all results are successful
+            assert all(r.success for r in results)
+            assert all(r.alpha_upper_limit == 0.5 for r in results)
+
+    def test_leave_one_out_with_two_runs_fallback(
+        self, mock_harmonized_data
+    ):
+        """Test that LOO triggers bootstrap fallback when runs < 3."""
+        # Modify mock data to have only 2 runs
+        two_runs_data = mock_harmonized_data[:2]
+
+        with patch(
+            'robustness.cross_val.perform_bootstrap_resampling'
+        ) as mock_bootstrap:
+            mock_bootstrap.return_value = [
+                CrossValIterationResult(
+                    iteration=0, excluded_run=-1,
+                    alpha_upper_limit=0.6, bayes_factor=8.0, success=True
+                )
+            ]
+
+            results = perform_leave_one_out(two_runs_data)
+
+            # Bootstrap should be called
+            mock_bootstrap.assert_called_once()
+            # Should return bootstrap results
+            assert len(results) >= 1
+
+    def test_leave_one_out_handles_inference_failure(
+        self, mock_harmonized_data
+    ):
+        """Test that LOO handles failed inference iterations gracefully."""
+        def failing_inference(*args, **kwargs):
+            return {
+                'alpha_upper_limit': np.nan,
+                'bayes_factor': np.nan,
+                'success': False
+            }
+
+        with patch(
+            'robustness.cross_val.load_harmonized_data'
+        ) as mock_load, \
+             patch(
+                 'robustness.cross_val.run_single_inference',
+                 side_effect=failing_inference
+             ) as mock_inference:
+            
+            mock_load.return_value = mock_harmonized_data
+
+            results = perform_leave_one_out(mock_harmonized_data)
+
+            # Should still have 3 results
+            assert len(results) == 3
+            # But all should be marked as failed
+            assert all(not r.success for r in results)
+
+class TestPerformBootstrapResampling:
+    """Tests for bootstrap resampling fallback logic."""
+
+    @pytest.fixture
+    def sample_dataset(self):
+        """Create a sample dataset for bootstrap testing."""
+        n_points = 100
+        return HarmonizedDataset(
+            separation_m=np.linspace(1e-4, 1e-3, n_points),
+            force_n=1e-12 * np.ones(n_points),
+            covariance_matrix=np.eye(n_points) * (1e-14 ** 2),
+            metadata={'source': 'test'}
+        )
+
+    def test_bootstrap_generates_correct_number_samples(
+        self, sample_dataset
+    ):
+        """Test that bootstrap generates the requested number of samples."""
+        n_bootstrap = 50
+        
+        with patch(
+            'robustness.cross_val.run_single_inference'
+        ) as mock_inference:
+            mock_inference.return_value = {
+                'alpha_upper_limit': 0.5,
+                'bayes_factor': 10.0,
+                'success': True
+            }
+
+            results = perform_bootstrap_resampling(
+                sample_dataset, n_bootstrap=n_bootstrap
+            )
+
+            # Should generate exactly n_bootstrap results
+            assert len(results) == n_bootstrap
+
+    def test_bootstrap_with_failing_inference(
+        self, sample_dataset
+    ):
+        """Test bootstrap handles inference failures."""
+        call_count = [0]
+        
+        def occasional_fail(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] % 3 == 0:
+                return {
+                    'alpha_upper_limit': np.nan,
+                    'bayes_factor': np.nan,
+                    'success': False
+                }
+            return {
+                'alpha_upper_limit': 0.5,
+                'bayes_factor': 10.0,
+                'success': True
+            }
+
+        with patch(
+            'robustness.cross_val.run_single_inference',
+            side_effect=occasional_fail
+        ):
+            results = perform_bootstrap_resampling(
+                sample_dataset, n_bootstrap=30
+            )
+
+            # Should have 30 results total
+            assert len(results) == 30
+            # Some should be failures
+            failure_count = sum(1 for r in results if not r.success)
+            assert failure_count > 0
+
+    def test_bootstrap_resamples_data_correctly(
+        self, sample_dataset
+    ):
+        """Test that bootstrap actually resamples the data."""
+        original_force = sample_dataset.force_n.copy()
+        
+        # Track if data was actually modified
+        data_modified = False
+        
+        def check_data(*args, **kwargs):
+            nonlocal data_modified
+            if len(args) > 0:
+                data_subset = args[0]
+                # Check if the subset is different from original
+                if not np.array_equal(data_subset.force_n, original_force):
+                    data_modified = True
+            return {
+                'alpha_upper_limit': 0.5,
+                'bayes_factor': 10.0,
+                'success': True
+            }
+
+        with patch(
+            'robustness.cross_val.run_single_inference',
+            side_effect=check_data
+        ):
+            perform_bootstrap_resampling(sample_dataset, n_bootstrap=5)
+
+        # Bootstrap should have modified the data
+        assert data_modified
+
+class TestCalculateCV:
+    """Tests for coefficient of variation calculation."""
+
+    def test_cv_calculation_basic(self):
+        """Test basic CV calculation."""
+        results = [
+            CrossValIterationResult(0, 0, 0.5, 10.0, True),
+            CrossValIterationResult(1, 1, 0.6, 12.0, True),
+            CrossValIterationResult(2, 2, 0.7, 11.0, True),
+        ]
+
+        cv_value, relative_shift = calculate_cv(results)
+
+        # Mean = (0.5 + 0.6 + 0.7) / 3 = 0.6
+        # Std = sqrt(((0.5-0.6)^2 + (0.6-0.6)^2 + (0.7-0.6)^2) / 3) = sqrt(0.02/3) ≈ 0.0816
+        # CV = (0.0816 / 0.6) * 100 ≈ 13.6%
+        expected_mean = 0.6
+        expected_std = np.std([0.5, 0.6, 0.7])
+        expected_cv = (expected_std / expected_mean) * 100
+
+        assert np.isclose(cv_value, expected_cv, rtol=1e-5)
+        
+        # Relative shift = (max - min) / mean = (0.7 - 0.5) / 0.6 ≈ 0.333
+        expected_shift = (0.7 - 0.5) / 0.6
+        assert np.isclose(relative_shift, expected_shift, rtol=1e-5)
+
+    def test_cv_with_failed_iterations(self):
+        """Test CV calculation ignores failed iterations."""
+        results = [
+            CrossValIterationResult(0, 0, 0.5, 10.0, True),
+            CrossValIterationResult(1, 1, np.nan, np.nan, False),  # Failed
+            CrossValIterationResult(2, 2, 0.7, 11.0, True),
+        ]
+
+        cv_value, relative_shift = calculate_cv(results)
+
+        # Should only use the two successful iterations
+        expected_mean = (0.5 + 0.7) / 2
+        expected_std = np.std([0.5, 0.7])
+        expected_cv = (expected_std / expected_mean) * 100
+
+        assert np.isclose(cv_value, expected_cv, rtol=1e-5)
+
+    def test_cv_with_all_failures(self):
+        """Test CV calculation when all iterations fail."""
+        results = [
+            CrossValIterationResult(0, 0, np.nan, np.nan, False),
+            CrossValIterationResult(1, 1, np.nan, np.nan, False),
+        ]
+
+        cv_value, relative_shift = calculate_cv(results)
+
+        # Should return NaN for both
+        assert np.isnan(cv_value)
+        assert np.isnan(relative_shift)
+
+    def test_cv_single_success(self):
+        """Test CV calculation with only one successful iteration."""
+        results = [
+            CrossValIterationResult(0, 0, 0.5, 10.0, True),
+        ]
+
+        cv_value, relative_shift = calculate_cv(results)
+
+        # With one value, std is 0, so CV should be 0
+        assert cv_value == 0.0
+        # Relative shift is also 0 (max=min)
+        assert relative_shift == 0.0
+
+    def test_cv_acceptance_criteria(self):
+        """Test that CV calculation can be used for acceptance criteria."""
+        # Create results that should pass (< 15% relative shift)
+        passing_results = [
+            CrossValIterationResult(0, 0, 0.5, 10.0, True),
+            CrossValIterationResult(1, 1, 0.52, 10.5, True),
+            CrossValIterationResult(2, 2, 0.48, 9.5, True),
+        ]
+
+        cv_value, relative_shift = calculate_cv(passing_results)
+        assert relative_shift < 0.15
+
+        # Create results that should fail (>= 15% relative shift)
+        failing_results = [
+            CrossValIterationResult(0, 0, 0.5, 10.0, True),
+            CrossValIterationResult(1, 1, 0.8, 15.0, True),
+            CrossValIterationResult(2, 2, 0.3, 5.0, True),
+        ]
+
+        cv_value, relative_shift = calculate_cv(failing_results)
+        assert relative_shift >= 0.15
+
+class TestIntegration:
+    """Integration tests for the cross-validation pipeline."""
+
+    def test_full_loo_pipeline(self):
+        """Test the full LOO pipeline from data loading to CV calculation."""
+        # Create realistic mock data
+        n_runs = 3
+        n_points_per_run = 100
+        
+        mock_data = []
+        for i in range(n_runs):
+            mock_data.append({
+                'run_id': i,
+                'separation_m': np.linspace(1e-4, 1e-3, n_points_per_run),
+                'force_n': (1e-12 + 0.1 * i * 1e-13) * np.ones(n_points_per_run),
+                'uncertainty': 1e-14 * np.ones(n_points_per_run),
+                'metadata': {'source': f'run_{i}'}
+            })
+
+        with patch(
+            'robustness.cross_val.load_harmonized_data'
+        ) as mock_load, \
+             patch(
+                 'robustness.cross_val.run_single_inference'
+             ) as mock_inference:
+            
+            mock_load.return_value = mock_data
+            
+            # Simulate slightly different results for each iteration
+            def varying_inference(*args, **kwargs):
+                excluded = kwargs.get('excluded_run', 0)
+                return {
+                    'alpha_upper_limit': 0.5 + 0.05 * excluded,
+                    'bayes_factor': 10.0 + excluded,
+                    'success': True
+                }
+            
+            mock_inference.side_effect = varying_inference
+
+            # Run LOO
+            loo_results = perform_leave_one_out(mock_data)
+            
+            # Calculate CV
+            cv_value, relative_shift = calculate_cv(loo_results)
+            
+            # Verify we got results
+            assert len(loo_results) == n_runs
+            assert all(r.success for r in loo_results)
+            
+            # Verify CV was calculated
+            assert not np.isnan(cv_value)
+            assert not np.isnan(relative_shift)
+            
+            # Verify the relative shift is reasonable
+            # With our mock data, shift should be (0.7 - 0.5) / 0.6 ≈ 0.33
+            assert relative_shift > 0

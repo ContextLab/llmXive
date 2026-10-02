@@ -6,22 +6,20 @@ T001:
     \ with all the specified sub\u2011directories actually exists. The implementer\
     \ must supply concrete proof that the `mkdir -p \u2026` command was run and the\
     \ full hierarchy is present."
-T002:
+T003:
   c: false
-  h: 2c94fcd4e2a85ffe45a6b12e5efb39802ebf016bfb438a94f5faee4834a2f259
-  r: The required `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`
-    file does not exist, so the pinned dependencies are not placed in the specified
-    project directory. The existing `code/requirements.txt` is in the wrong location.
-    The task remains unfinished until the file is created at the correct path with
-    the appropriate contents.
-T007:
+  h: 5f9c42fc9c94f5615e54b84878c1bcc639b167505b380c10b573444537dd7989
+  r: "The `pyproject.toml` correctly contains `[tool.black]` and `[tool.ruff]` sections,\
+    \ but the required `.ruff.toml` file is missing from the repository. Without this\
+    \ file the task\u2019s first sub\u2011requirement (\u201Ccreating `.ruff.toml`\u201D\
+    ) is not satisfied."
+T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory structure (`data/raw/`, `data/processed/`, `data/results/`) is\
-    \ shown or described in the provided artifacts; there is no code, script output,\
-    \ or file listing demonstrating that the required folders have been created with\
-    \ robust `mkdir -p` logic. The implementer\u2019s claim cannot be verified without\
-    \ concrete evidence."
+  r: "No code, script, or module implementing the log\u2011likelihood function with\
+    \ full covariance and Cholesky decomposition is present in the provided evidence.\
+    \ The required artifact (e.g., a Python function or file) is missing, so the task\u2019\
+    s requirement cannot be confirmed as satisfied."
 T025#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,6 +28,14 @@ T025#1:
     zero\u202F\u03B1, run the Bayesian inference, and demonstrate that the injected\
     \ \u03B1 lies within the 95\u202F% credible interval. The required artifact is\
     \ missing, so the task is not satisfied."
+T031:
+  c: false
+  h: 21b21ca0a1c8bbd1c4ff5cf2c1a72cf46a3bb5a3613fd1cefacba7627f75861e
+  r: The repository contains `code/robustness/uncertainty.py`, but the file never
+    reads `data/processed/inflation_factor.json` (the file is missing) and the implementation
+    for applying the factor, recomputing the Bayes factor, and logging the negligible
+    change is absent or truncated. The required JSON file and the full test logic
+    are not present.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,3 +59,11 @@ T036:
   r: "No pipeline execution logs, output files, or the updated `state/projects/PROJ-191...yaml`\
     \ are present. The claim lacks any concrete artifact demonstrating that the end\u2011\
     to\u2011end validation was run and that the YAML file was correctly modified."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or result artifacts (e.g., the data\u2011harmonization\
+    \ script and CSV/JSON output, the MCMC/inference script and posterior samples,\
+    \ or the robustness analysis outputs) are present for inspection. Without these\
+    \ concrete files the required user stories cannot be verified, so the task is\
+    \ not genuinely completed."

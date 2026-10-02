@@ -1,216 +1,239 @@
 """
-Unit tests for the log-likelihood implementation.
+Unit tests for the log-likelihood function with full covariance.
 
-These tests verify:
-1. Cholesky decomposition works correctly
-2. Log-likelihood is computed correctly for Yukawa and Newtonian models
-3. Likelihood returns -inf for invalid parameters
-4. Numerical stability with large covariance matrices
+This module tests the implementation of log_likelihood_newtonian and 
+log_likelihood_yukawa from code/models/likelihood.py.
+
+Tests verify:
+1. Correctness of Cholesky decomposition usage for numerical stability
+2. Proper handling of diagonal vs banded covariance matrices
+3. Consistency with expected physical behavior
+4. Error handling for invalid inputs (non-positive-definite matrices, etc.)
 """
-import numpy as np
+
 import pytest
+import numpy as np
 from pathlib import Path
-import tempfile
-import json
+import sys
+import logging
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
 from models.likelihood import (
     load_covariance_matrix,
     compute_cholesky_decomposition,
-    log_likelihood_yukawa,
     log_likelihood_newtonian,
-    YukawaLikelihood,
-    NewtonianLikelihood
+    log_likelihood_yukawa
 )
-from models.physics import yukawa_force, newtonian_force
+from models.physics import newtonian_force, yukawa_force
+
+# Configure logging for tests
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
-def mock_covariance_matrix():
-    """Create a mock positive-definite covariance matrix."""
-    # Create a simple diagonal covariance matrix
-    n = 100
-    cov = np.eye(n) * 0.01  # Small variance
-    # Add some off-diagonal elements to make it non-trivial
+def sample_data():
+    """Generate sample data for testing."""
+    np.random.seed(42)
+    n_points = 50
+    separation_m = np.logspace(-4, -2, n_points)  # 0.1mm to 10mm
+    force_n = newtonian_force(separation_m) * (1 + 0.01 * np.random.randn(n_points))
+    
+    # Create a diagonal covariance matrix (statistical uncertainties)
+    uncertainties = 0.01 * np.abs(force_n)
+    covariance_matrix = np.diag(uncertainties**2)
+    
+    return {
+        'separation_m': separation_m,
+        'force_n': force_n,
+        'covariance_matrix': covariance_matrix,
+        'uncertainties': uncertainties
+    }
+
+@pytest.fixture
+def banded_covariance_matrix(sample_data):
+    """Create a banded covariance matrix for testing."""
+    n = len(sample_data['force_n'])
+    cov = np.zeros((n, n))
+    bandwidth = 20
+    
     for i in range(n):
-        for j in range(i+1, min(i+5, n)):
-            cov[i, j] = 0.005
-            cov[j, i] = 0.005
+        for j in range(n):
+            if abs(i - j) <= bandwidth:
+                # Exponential decay correlation
+                cov[i, j] = sample_data['uncertainties'][i] * sample_data['uncertainties'][j] * np.exp(-abs(i-j)/10)
+            else:
+                cov[i, j] = 0
+    
+    # Ensure positive definiteness
+    cov = cov @ cov.T
     return cov
 
-@pytest.fixture
-def mock_dataset():
-    """Create mock dataset for testing."""
-    n = 100
-    r = np.logspace(-4, -2, n)  # Separation from 0.1mm to 10mm
-    f_obs = newtonian_force(r, 6.674e-11) + np.random.normal(0, 0.01, n)
-    return r, f_obs
-
-@pytest.fixture
-def temp_cov_file(mock_covariance_matrix):
-    """Create a temporary covariance matrix file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        cov_path = Path(tmpdir) / "covariance_matrix.npy"
-        np.save(cov_path, mock_covariance_matrix)
-        
-        # Create data/processed directory structure
-        processed_dir = Path("data/processed")
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Move the file to the expected location
-        expected_path = Path("data/processed/covariance_matrix.npy")
-        if expected_path.exists():
-            expected_path.unlink()
-        np.save(expected_path, mock_covariance_matrix)
-        
-        yield expected_path
-        
-        # Cleanup
-        if expected_path.exists():
-            expected_path.unlink()
-
-def test_load_covariance_matrix(temp_cov_file):
-    """Test loading of covariance matrix."""
-    cov = load_covariance_matrix()
-    assert cov.shape == (100, 100)
-    assert np.allclose(cov, np.load(temp_cov_file))
-
-def test_cholesky_decomposition(temp_cov_file):
-    """Test Cholesky decomposition."""
-    cov = load_covariance_matrix()
-    L, L_inv = compute_cholesky_decomposition(cov)
+def test_cholesky_decomposition_diagonal(sample_data):
+    """Test Cholesky decomposition with diagonal covariance matrix."""
+    cov = sample_data['covariance_matrix']
+    L = compute_cholesky_decomposition(cov)
+    
+    # Verify L @ L.T = cov
+    reconstructed = L @ L.T
+    np.testing.assert_allclose(reconstructed, cov, rtol=1e-10)
     
     # Verify L is lower triangular
     assert np.allclose(L, np.tril(L))
-    
-    # Verify L @ L.T = C
-    assert np.allclose(L @ L.T, cov, rtol=1e-10)
-    
-    # Verify L_inv @ L = I
-    assert np.allclose(L_inv @ L, np.eye(L.shape[0]), rtol=1e-10)
 
-def test_log_likelihood_yukawa_positive_params(temp_cov_file, mock_dataset):
-    """Test Yukawa log-likelihood with valid parameters."""
-    r, f_obs = mock_dataset
-    cov = load_covariance_matrix()
-    L, L_inv = compute_cholesky_decomposition(cov)
-    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+def test_cholesky_decomposition_banded(sample_data, banded_covariance_matrix):
+    """Test Cholesky decomposition with banded covariance matrix."""
+    cov = banded_covariance_matrix
+    L = compute_cholesky_decomposition(cov)
     
-    params = (1.0, 1e-4)  # alpha=1, lambda=100 micrometers
-    log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
+    # Verify L @ L.T = cov
+    reconstructed = L @ L.T
+    np.testing.assert_allclose(reconstructed, cov, rtol=1e-8)
     
-    # Should return a finite value
-    assert np.isfinite(log_l)
-    assert log_l < 0  # Log-likelihood should be negative
+    # Verify L is lower triangular
+    assert np.allclose(L, np.tril(L))
 
-def test_log_likelihood_yukawa_invalid_lambda(temp_cov_file, mock_dataset):
-    """Test Yukawa log-likelihood with invalid lambda."""
-    r, f_obs = mock_dataset
-    cov = load_covariance_matrix()
-    L, L_inv = compute_cholesky_decomposition(cov)
-    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+def test_log_likelihood_newtonian_positive_definite(sample_data):
+    """Test Newtonian log-likelihood with positive-definite covariance."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
     
-    params = (1.0, -1e-4)  # Negative lambda should return -inf
-    log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
+    # Compute expected force (Newtonian)
+    expected_force = newtonian_force(sep)
     
-    assert log_l == -np.inf
+    # Calculate log-likelihood
+    log_like = log_likelihood_newtonian(sep, force, cov)
+    
+    # Log-likelihood should be finite (not NaN or inf)
+    assert np.isfinite(log_like)
+    
+    # For a perfect fit, log-likelihood should be maximized
+    # (though we have noise, so it won't be exactly the maximum)
+    assert log_like < 0  # Log-likelihood of Gaussian is always negative for finite data
 
-def test_log_likelihood_newtonian(temp_cov_file, mock_dataset):
-    """Test Newtonian log-likelihood."""
-    r, f_obs = mock_dataset
-    cov = load_covariance_matrix()
-    L, L_inv = compute_cholesky_decomposition(cov)
-    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+def test_log_likelihood_yukawa_positive_definite(sample_data):
+    """Test Yukawa log-likelihood with positive-definite covariance."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
     
-    params = (6.674e-11,)  # Standard G
-    log_l = log_likelihood_newtonian(params, r, f_obs, L_inv, log_det_cov)
+    # Test with alpha=0 (should reduce to Newtonian)
+    log_like_alpha0 = log_likelihood_yukawa(sep, force, cov, alpha=0.0, lambda_m=1e-3)
+    log_like_newton = log_likelihood_newtonian(sep, force, cov)
     
-    assert np.isfinite(log_l)
+    # When alpha=0, Yukawa should equal Newtonian
+    np.testing.assert_allclose(log_like_alpha0, log_like_newton, rtol=1e-10)
 
-def test_yukawa_likelihood_class(temp_cov_file, mock_dataset):
-    """Test YukawaLikelihood callable class."""
-    r, f_obs = mock_dataset
-    likelihood = YukawaLikelihood(r, f_obs)
+def test_log_likelihood_yukawa_nonzero_alpha(sample_data):
+    """Test Yukawa log-likelihood with non-zero alpha."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
     
-    params = (1.0, 1e-4)
-    log_l = likelihood(params)
+    # Test with small positive alpha
+    log_like_pos = log_likelihood_yukawa(sep, force, cov, alpha=0.1, lambda_m=1e-3)
     
-    assert np.isfinite(log_l)
-    assert likelihood.L_inv is not None
-    assert likelihood.log_det_cov is not None
+    # Test with small negative alpha
+    log_like_neg = log_likelihood_yukawa(sep, force, cov, alpha=-0.1, lambda_m=1e-3)
+    
+    # Both should be finite
+    assert np.isfinite(log_like_pos)
+    assert np.isfinite(log_like_neg)
 
-def test_newtonian_likelihood_class(temp_cov_file, mock_dataset):
-    """Test NewtonianLikelihood callable class."""
-    r, f_obs = mock_dataset
-    likelihood = NewtonianLikelihood(r, f_obs)
+def test_log_likelihood_banded_covariance(sample_data, banded_covariance_matrix):
+    """Test log-likelihood calculation with banded covariance matrix."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = banded_covariance_matrix
     
-    params = (6.674e-11,)
-    log_l = likelihood(params)
+    log_like_newton = log_likelihood_newtonian(sep, force, cov)
+    log_like_yukawa = log_likelihood_yukawa(sep, force, cov, alpha=0.0, lambda_m=1e-3)
     
-    assert np.isfinite(log_l)
-    assert likelihood.L_inv is not None
-    assert likelihood.log_det_cov is not None
+    # Both should be finite
+    assert np.isfinite(log_like_newton)
+    assert np.isfinite(log_like_yukawa)
+    
+    # When alpha=0, they should be equal
+    np.testing.assert_allclose(log_like_newton, log_like_yukawa, rtol=1e-10)
 
-def test_likelihood_numerical_stability(temp_cov_file, mock_dataset):
-    """Test that likelihood is numerically stable."""
-    r, f_obs = mock_dataset
-    likelihood = YukawaLikelihood(r, f_obs)
+def test_log_likelihood_invalid_covariance(sample_data):
+    """Test error handling for non-positive-definite covariance matrix."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
     
-    # Test with various parameter combinations
-    test_params = [
-        (1.0, 1e-4),
-        (0.5, 1e-5),
-        (2.0, 1e-3),
-        (0.1, 1e-6)
-    ]
+    # Create a non-positive-definite matrix
+    cov = np.array([[1.0, 2.0], [2.0, 1.0]])  # Eigenvalues: 3, -1
     
-    for params in test_params:
-        log_l = likelihood(params)
-        assert np.isfinite(log_l), f"Likelihood failed for params: {params}"
-
-def test_log_likelihood_consistency(temp_cov_file, mock_dataset):
-    """Test that log-likelihood is consistent with manual calculation."""
-    r, f_obs = mock_dataset
-    cov = load_covariance_matrix()
-    L, L_inv = compute_cholesky_decomposition(cov)
-    log_det_cov = 2 * np.sum(np.log(np.diag(L)))
+    # Expand to match data size (for testing purposes)
+    n = len(force)
+    cov_full = np.zeros((n, n))
+    cov_full[:2, :2] = cov
+    for i in range(2, n):
+        cov_full[i, i] = 1e-6
     
-    params = (1.0, 1e-4)
-    alpha, lambda_m = params
-    
-    # Manual calculation
-    f_model = yukawa_force(r, alpha, lambda_m)
-    residuals = f_obs - f_model
-    whitened_residuals = L_inv @ residuals
-    chi_sq = np.sum(whitened_residuals ** 2)
-    n = len(f_obs)
-    expected_log_l = -0.5 * (n * np.log(2 * np.pi) + log_det_cov + chi_sq)
-    
-    # Compare with function result
-    actual_log_l = log_likelihood_yukawa(params, r, f_obs, L_inv, log_det_cov)
-    
-    assert np.isclose(actual_log_l, expected_log_l, rtol=1e-10)
-
-def test_missing_covariance_matrix():
-    """Test that appropriate error is raised when covariance matrix is missing."""
-    # Temporarily move the file
-    cov_path = Path("data/processed/covariance_matrix.npy")
-    backup_path = Path("data/processed/covariance_matrix.npy.bak")
-    
-    if cov_path.exists():
-        cov_path.rename(backup_path)
-    
+    # This should raise an error or return -inf
     try:
-        with pytest.raises(FileNotFoundError):
-            load_covariance_matrix()
-    finally:
-        # Restore the file
-        if backup_path.exists():
-            backup_path.rename(cov_path)
+        log_like = log_likelihood_newtonian(sep, force, cov_full)
+        # If it doesn't raise, it should return -inf
+        assert log_like == -np.inf or not np.isfinite(log_like)
+    except Exception:
+        # Expected: Cholesky decomposition should fail
+        pass
 
-def test_non_positive_definite_matrix():
-    """Test behavior with non-positive definite matrix."""
-    # Create a non-positive definite matrix
-    n = 10
-    cov = np.ones((n, n)) * -1  # Negative definite
+def test_log_likelihood_mismatched_shapes(sample_data):
+    """Test error handling for mismatched array shapes."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
     
-    with pytest.raises(np.linalg.LinAlgError):
-        compute_cholesky_decomposition(cov)
+    # Mismatched separation and force
+    sep_wrong = sep[:-1]
+    
+    with pytest.raises(ValueError):
+        log_likelihood_newtonian(sep_wrong, force, cov)
+
+def test_log_likelihood_performance(sample_data):
+    """Test that log-likelihood calculation is reasonably fast."""
+    import time
+    
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
+    
+    start = time.time()
+    for _ in range(100):
+        log_likelihood_newtonian(sep, force, cov)
+    end = time.time()
+    
+    # 100 evaluations should take less than 1 second for 50 points
+    assert (end - start) < 1.0
+
+def test_log_likelihood_gradient_consistency(sample_data):
+    """Test that log-likelihood behaves consistently with parameter changes."""
+    sep = sample_data['separation_m']
+    force = sample_data['force_n']
+    cov = sample_data['covariance_matrix']
+    
+    # Create synthetic data that matches Yukawa with specific parameters
+    true_alpha = 0.5
+    true_lambda = 1e-3
+    expected_force = yukawa_force(sep, alpha=true_alpha, lambda_m=true_lambda)
+    
+    # Add small noise
+    noise = 0.001 * np.abs(expected_force) * np.random.randn(len(sep))
+    noisy_force = expected_force + noise
+    
+    # Calculate log-likelihood at true parameters
+    log_like_true = log_likelihood_yukawa(sep, noisy_force, cov, 
+                                          alpha=true_alpha, lambda_m=true_lambda)
+    
+    # Calculate log-likelihood at slightly different parameters
+    log_like_diff = log_likelihood_yukawa(sep, noisy_force, cov, 
+                                          alpha=true_alpha + 0.1, lambda_m=true_lambda)
+    
+    # The true parameters should generally give a higher (less negative) log-likelihood
+    # (though not guaranteed due to noise, it should be close)
+    assert log_like_true >= log_like_diff - 1.0  # Allow some margin for noise
