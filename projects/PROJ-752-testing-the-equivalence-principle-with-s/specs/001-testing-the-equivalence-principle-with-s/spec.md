@@ -32,7 +32,7 @@ The researcher must be able to run two separate weighted least-squares orbit det
 **Independent Test**: Can be fully tested by running the estimation script on a subset of LAGEOS data and verifying that:
 1. The solver converges (residuals < 1e-5 meters) for both satellites.
 2. The system outputs a non-null estimate for $a_c$ with a valid covariance matrix.
-3. The system explicitly calculates and outputs the Eötvös parameter $\eta$ and its 95% confidence interval, verifying that the calculation logic correctly derives $\eta$ from the difference in accelerations and that the confidence interval is derived from the propagated covariance matrix.
+3. The system explicitly calculates and outputs the Eötvös parameter $\eta$ and its % confidence interval, verifying that the calculation logic correctly derives $\eta$ from the difference in accelerations and that the confidence interval is derived from the propagated covariance matrix.
 
 **Acceptance Scenarios**:
 
@@ -53,7 +53,7 @@ The researcher must be able to compare the null model against the alternative mo
 **Acceptance Scenarios**:
 
 1. **Given** the null and alternative model fits, **When** the F-test is performed, **Then** the system outputs a p-value and flags the result as "Significant" if $p < 0.05$.
-2. **Given** a geopotential model sweep configuration, **When** the script runs, **Then** it evaluates $\eta$ using at least three distinct geopotential models (e.g., GGM05C, EGM2008, GOCO06s) and reports the variation in the Z-score.
+2. **Given** a geopotential model sweep configuration, **When** the script runs, **Then** it evaluates $\eta$ using at least three distinct geopotential models (e.g., GGMC, EGM2008, GOCO06s) and reports the variation in the Z-score.
 3. **Given** multiple satellite pairs are tested simultaneously, **When** the family-wise error is calculated, **Then** the system applies a configurable multiple-comparison correction (default: Bonferroni) and reports the adjusted p-value.
 
 ---

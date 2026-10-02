@@ -114,7 +114,7 @@ projects/PROJ-752-testing-the-equivalence-principle-with-s/
 
 ### SC-002 (Precision Measurement)
 - **Mapping**: `code/analysis/validation.py`.
-- **Metric**: Calculates width of the confidence interval and compares against state-of-the-art benchmarks (e.g., $10^{-15}$). Output includes 'Precision Status' flag.
+- **Metric**: Calculates width of the confidence interval and compares against state-of-the-art benchmarks. Output includes 'Precision Status' flag.
 
 ### SC-004 (Z-Score Variation)
 - **Mapping**: `code/analysis/validation.py`.
@@ -143,8 +143,8 @@ To satisfy Principle V (Versioning Discipline):
 ## Error Handling Strategy
 
 ### HTTP 403/503 Errors (T018)
-- **Logic**: `code/utils/http_retry.py` implements exponential backoff (base small integer, max 3 attempts).
-- **Action**: If all attempts fail, the system logs a clear error message: "Failed to fetch data from [URL] after 3 attempts. Check ILRS archive status." and halts the pipeline for that satellite. A 'Data Unavailability Report' is generated if critical satellites are missing.
+- **Logic**: `code/utils/http_retry.py` implements exponential backoff (base small integer, max attempts).
+- **Action**: If all attempts fail, the system logs a clear error message: "Failed to fetch data from [URL] after multiple attempts. Check ILRS archive status." and halts the pipeline for that satellite. A 'Data Unavailability Report' is generated if critical satellites are missing.
 
 ### Insufficient Data (T018)
 - **Logic**: `code/ingestion/preprocessor.py` checks for:

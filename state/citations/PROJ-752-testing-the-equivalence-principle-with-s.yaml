@@ -75,3 +75,25 @@
   verification_status: pending
   verified_against_url: https://earth-info.nga.mil/index.php?dir=wgs84&action=wgs84
   verified_at: '2026-09-22T09:43:32.833100Z'
+- artifact_hash: 3f5a29348a2ce8eeffa40c571f0dd5ed67b5f00e5c2b330cc9b1309180677ffd
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://ui.adsabs.harvard.edu/`
+  verification_status: pending
+  verified_against_url: https://ui.adsabs.harvard.edu/
+  verified_at: '2026-10-02T04:36:15.945198Z'
+- artifact_hash: 3f5a29348a2ce8eeffa40c571f0dd5ed67b5f00e5c2b330cc9b1309180677ffd
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: CDDIS
+  kind: url
+  value: https://cddis.nasa.gov/...`
+  verification_status: pending
+  verified_against_url: https://cddis.nasa.gov/
+  verified_at: '2026-10-02T04:36:15.945198Z'
