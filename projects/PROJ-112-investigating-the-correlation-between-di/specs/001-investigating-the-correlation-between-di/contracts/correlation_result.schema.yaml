@@ -19,7 +19,7 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Benjamini-Hochberg adjusted q-value."
-  std_error:
+  standard_error:
     type: number
     description: "Standard error of the effect size."
   significant:
@@ -40,7 +40,7 @@ required:
   - effect_size
   - raw_p_value
   - q_value
-  - std_error
+  - standard_error
   - significant
   - cohort
   - sample_id

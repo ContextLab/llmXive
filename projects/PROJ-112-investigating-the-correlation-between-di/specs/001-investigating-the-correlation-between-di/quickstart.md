@@ -3,72 +3,105 @@
 ## Prerequisites
 
 - Python 3.11+
-- R 4.3+ (with `BiocManager`)
-- `git`
-- Access to American Gut Project (Qiita Study ID 10160) and UK Biobank (Fields 21003, 22012) data.
+- R 4.3+ (with `Maaslin2`, `ANCOMBC`, `DESeq2` packages)
+- `pip` and `conda` (or `venv`)
+- Access to GitHub Actions runner (2 CPU, 7GB RAM) or local equivalent.
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/001-investigating-the-correlation-between-di
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd <project-dir>
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Python Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions to ensure CPU-only compatibility.*
+3. **Install Python dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4.  **Install R Dependencies**:
-    ```bash
-    Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")'
-    Rscript -e 'BiocManager::install(c("Maaslin2", "mice", "phyloseq"))'
-    ```
-
-## Data Setup
-
-1.  **Download Data**:
-    - Download AGP 16S data from **Qiita Study ID 10160**.
-    - Download UK Biobank 16S data and metadata (Fields 21003, 22012) from the UKBB portal.
-    - Place files in `data/raw/`.
-    - *Note: Ensure files contain `fiber_intake` and `read_depth` columns.*
-
-2.  **Verify Checksums**:
-    - Run `python src/utils/check_data.py` to verify data integrity (Constitution Principle III).
+4. **Install R packages** (if running locally):
+   ```r
+   install.packages(c("Maaslin2", "ANCOMBC", "DESeq2", "BiocManager"))
+   BiocManager::install(c("Maaslin2", "ANCOMBC", "DESeq2"))
+   ```
 
 ## Running the Pipeline
 
-Execute the full pipeline:
+### 1. Data Ingestion (Phase 1)
+The pipeline will attempt to download AGP and UKBB data. If access is blocked, it will fall back to an open substitute.
+
 ```bash
-python src/main.py --cohort all
+python src/main.py --phase ingestion
 ```
 
-**Steps performed**:
-1.  **Ingestion**: Loads and harmonizes AGP (Qiita 10160) and UKBB data.
-2.  **Filtering**: Removes samples with <5,000 reads or implausible fiber intake.
-3.  **ID Generation**: Creates `SHA256` sample IDs for traceability.
-4.  **Imputation**: Applies MICE for missing covariates.
-5.  **Transformation**: Applies CLR transformation with pseudocount=1.
-6.  **Analysis**: Runs MaAsLin2 for continuous association.
-7.  **Validation**: Cross-cohort beta-coefficient comparison.
-8.  **Output**: Generates summary tables in `data/processed/results/`.
+- **Output**: `data/raw/` (checksummed), `data/processed/harmonized.tsv`.
+- **Note**: If data is unavailable, the pipeline will halt with a clear error message.
 
-## Expected Outputs
+### 2. Preprocessing & Transformation (Phase 2)
+Filters samples, harmonizes units, applies CLR transformation.
 
-- `data/processed/merged_harmonized.tsv`: Cleaned input data with SHA256 IDs.
-- `data/processed/results/correlation_maaslin2.tsv`: Association results.
-- `data/processed/results/validation_summary.tsv`: Cross-cohort validation flags.
+```bash
+python src/main.py --phase preprocessing
+```
+
+- **Output**: `data/processed/clr_transformed.tsv`, `data/processed/exclusion_log.tsv`.
+
+### 3. Statistical Analysis (Phase 3)
+Runs MaAsLin2, ANCOM-II, and DESeq2.
+
+```bash
+python src/main.py --phase analysis
+```
+
+- **Output**: `data/processed/association_results.tsv`, `data/processed/diff_abundance_results.tsv`.
+
+### 4. Cross-Cohort Validation (Phase 4)
+Compares results between AGP and UKBB.
+
+```bash
+python src/main.py --phase validation
+```
+
+- **Output**: `data/processed/validation_results.tsv`.
+
+### 5. Final Summary (Phase 5)
+Generates summary tables and power analysis.
+
+```bash
+python src/main.py --phase summary
+```
+
+- **Output**: `data/processed/summary.tsv`, `data/processed/power_analysis.tsv`.
+
+## Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+- **Unit Tests**: `tests/unit/` (parsing, filtering, CLR).
+- **Integration Tests**: `tests/integration/` (end-to-end on synthetic data).
+- **Contract Tests**: `tests/contract/` (schema validation).
 
 ## Troubleshooting
 
-- **Memory Error**: If `MemoryError` occurs, reduce the sample size by setting `--sample-ratio 0.5` in `main.py`.
-- **Missing Columns**: Ensure downloaded datasets contain `fiber_intake` and `read_depth`. If not, the pipeline will exit with an error (FR-001).
-- **R Package Install Failure**: Ensure R 4.3+ is installed and `BiocManager` is up to date.
+- **Data Download Failed**: Check if AGP/UKBB are accessible. If not, the pipeline will use the open substitute. Ensure `datasets` library is up to date.
+- **Memory Error**: Ensure streaming is enabled (`datasets.load_dataset(..., streaming=True)`). Reduce sample size if necessary.
+- **R Package Errors**: Verify R packages are installed and `rpy2` is configured correctly.
+- **PII Detected**: The pipeline will halt. Check `data/raw/` for PII and redact or exclude.
+
+## Output Artifacts
+
+- `data/processed/harmonized.tsv`: Cleaned, harmonized data.
+- `data/processed/clr_transformed.tsv`: CLR-transformed abundances.
+- `data/processed/association_results.tsv`: MaAsLin2 results.
+- `data/processed/diff_abundance_results.tsv`: ANCOM-II/DESeq2 results.
+- `data/processed/validation_results.tsv`: Cross-cohort replication status.
+- `data/processed/summary.tsv`: Final summary (median fiber, power).

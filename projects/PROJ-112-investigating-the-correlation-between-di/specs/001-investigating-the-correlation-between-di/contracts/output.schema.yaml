@@ -1,0 +1,130 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final analysis results (association, differential abundance, validation)."
+type: "object"
+properties:
+  association_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        taxon_id:
+          type: "string"
+        cohort:
+          type: "string"
+          enum: ["AGP", "UKBB"]
+        effect_size:
+          type: "number"
+        p_value:
+          type: "number"
+        q_value:
+          type: "number"
+        standard_error:
+          type: "number"
+        significant:
+          type: "boolean"
+      required:
+        - taxon_id
+        - cohort
+        - effect_size
+        - p_value
+        - q_value
+        - standard_error
+        - significant
+  diff_abundance_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        taxon_id:
+          type: "string"
+        cohort:
+          type: "string"
+          enum: ["AGP", "UKBB"]
+        method:
+          type: "string"
+          enum: ["ANCOM-II", "DESeq2"]
+        effect_size:
+          type: "number"
+        q_value:
+          type: "number"
+        direction:
+          type: "string"
+          enum: ["up", "down"]
+        significant:
+          type: "boolean"
+      required:
+        - taxon_id
+        - cohort
+        - method
+        - effect_size
+        - q_value
+        - direction
+        - significant
+  validation_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        taxon_id:
+          type: "string"
+        agp_significant:
+          type: "boolean"
+        ukbb_significant:
+          type: "boolean"
+        agp_direction:
+          type: ["string", "null"]
+          enum: ["up", "down", "null"]
+        ukbb_direction:
+          type: ["string", "null"]
+          enum: ["up", "down", "null"]
+        replication_status:
+          type: "string"
+          enum: ["Replicated", "Non-Replicable", "Cohort-Specific"]
+        agp_q_value:
+          type: ["number", "null"]
+        ukbb_q_value:
+          type: ["number", "null"]
+      required:
+        - taxon_id
+        - agp_significant
+        - ukbb_significant
+        - replication_status
+  summary:
+    type: "object"
+    properties:
+      median_fiber_high_agp:
+        type: "number"
+        description: "Median fiber intake for high-fiber group in AGP."
+      median_fiber_low_agp:
+        type: "number"
+        description: "Median fiber intake for low-fiber group in AGP."
+      median_fiber_high_ukbb:
+        type: "number"
+        description: "Median fiber intake for high-fiber group in UKBB."
+      median_fiber_low_ukbb:
+        type: "number"
+        description: "Median fiber intake for low-fiber group in UKBB."
+      power_agp:
+        type: "number"
+        description: "Calculated power for AGP."
+      power_ukbb:
+        type: "number"
+        description: "Calculated power for UKBB."
+      power_flag:
+        type: "string"
+        enum: ["Sufficient", "Insufficient"]
+    required:
+      - median_fiber_high_agp
+      - median_fiber_low_agp
+      - median_fiber_high_ukbb
+      - median_fiber_low_ukbb
+      - power_agp
+      - power_ukbb
+      - power_flag
+required:
+  - association_results
+  - diff_abundance_results
+  - validation_results
+  - summary
+additionalProperties: false

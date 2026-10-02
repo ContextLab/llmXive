@@ -1,51 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Harmonized Dataset Schema"
-description: "Schema for the merged, filtered, and harmonized dataset output."
-type: object
+description: "Schema for the harmonized, filtered dataset after preprocessing."
+type: "object"
 properties:
   sample_id:
-    type: string
-    description: "Unique sample identifier (SHA256(cohort + original_id))."
+    type: "string"
+    description: "Unique identifier for the sample."
   cohort:
-    type: string
-    enum:
-      - "AGP"
-      - "UKBB"
-    description: "Source cohort."
+    type: "string"
+    enum: ["AGP", "UKBB"]
+    description: "Source dataset."
   fiber_intake_g_day:
-    type: number
-    minimum: 0.0
-    maximum: 200.0
-    description: "Self-reported dietary fiber intake in grams per day."
-  read_depth:
-    type: integer
+    type: "number"
+    description: "Dietary fiber intake in grams/day."
+    minimum: 0
+    maximum: 200
+  sequencing_depth:
+    type: "integer"
+    description: "Number of sequencing reads."
     minimum: 5000
-    description: "Total sequencing reads."
   age:
-    type: number
+    type: "number"
     description: "Age in years."
+  sex:
+    type: "string"
+    enum: ["M", "F", "Other"]
+    description: "Sex of the participant."
   bmi:
-    type: number
+    type: "number"
     description: "Body Mass Index."
   antibiotic_use:
-    type: boolean
-    description: "Recent antibiotic use."
-  sex:
-    type: string
-    description: "Sex of the participant."
+    type: "boolean"
+    description: "Antibiotic use in the last 3 months."
   batch:
-    type: string
+    type: "string"
     description: "Sequencing batch ID."
-  taxon_abundances:
-    type: object
-    description: "Map of taxon IDs to raw counts."
-    additionalProperties:
-      type: integer
-      minimum: 0
+  missing_covariate_pct:
+    type: "number"
+    description: "Percentage of missing covariates."
+    maximum: 20
+  excluded_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion, if applicable."
 required:
   - sample_id
   - cohort
   - fiber_intake_g_day
-  - read_depth
-  - taxon_abundances
+  - sequencing_depth
 additionalProperties: false
