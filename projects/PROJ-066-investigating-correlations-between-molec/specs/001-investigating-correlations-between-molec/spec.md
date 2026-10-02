@@ -91,8 +91,8 @@ The researcher MUST be able to evaluate the trained models on a hold-out test se
 - **SC-001**: The Pearson correlation coefficient (r) between predicted and experimental values is measured against the hypothesis that logP and TPSA are strong predictors; project succeeds if r >= 0.6, otherwise the measured r-value is reported as evidence of weak correlation. (See FR-006, US-003)
 - **SC-002**: The Root Mean Squared Error (RMSE) is measured against a mean predictor baseline (predicting the training set mean for all test samples) to quantify the predictive improvement of the models. (See FR-006, US-003)
 - **SC-003**: The feature importance ranking is measured against domain knowledge; success is defined as logP and TPSA both ranking within the top 3 features by importance in the Random Forest model. (See FR-007, US-003)
-- **SC-004**: The total pipeline execution time is measured against the 6-hour limit of the GitHub Actions free-tier runner to ensure feasibility. (See FR-008, US-002)
-- **SC-005**: The memory usage peak is measured against the 7GB RAM limit of the runner to confirm the dataset size and model complexity are tractable. (See FR-008, US-002)
+- **SC-004**: The total pipeline execution time is measured against the hour limit of the GitHub Actions free-tier runner to ensure feasibility. (See FR-008, US-002)
+- **SC-005**: The memory usage peak is measured against the available RAM limit of the runner to confirm the dataset size and model complexity are tractable. (See FR-008, US-002)
 
 ## Assumptions
 

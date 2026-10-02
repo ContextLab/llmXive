@@ -24,9 +24,16 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-066-investigating-correlations-between-molec/`)
-- [X] T002 Initialize Python 3.10+ project with `requirements.txt` dependencies (`rdkit`, `pandas`, `scikit-learn`, `matplotlib`, `seaborn`)
-- [ ] T003 [P] Configure linting and formatting tools (black, ruff)
+- [ ] T001a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/README.md` with project overview and quickstart instructions.
+- [ ] T003a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/pyproject.toml` with Black configuration (line-length 88, target-version py310).
+- [ ] T003b [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/.ruff.toml` with linting rules (max-line-length 88, ignore E501).
+- [ ] T004a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/molecule.schema.yaml` defining the schema for processed molecular data (SMILES, descriptors, target).
+- [ ] T004b [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml` defining the schema for model metrics and feature importance.
+- [ ] T008a [P] Create `projects/PROJ-066-investigating-correlations-between-molec/data/raw/` directory.
+- [ ] T008b [P] Create `projects/PROJ-066-investigating-correlations-between-molec/data/processed/` directory.
+- [ ] T008c [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/data/` directory.
+- [ ] T008d [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/models/` directory.
+- [ ] T008e [P] Create `projects/PROJ-066-investigating-correlations-between-molec/tests/` directory.
 
 ---
 
@@ -36,15 +43,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `contracts/` directory with `molecule.schema.yaml` and `model_output.schema.yaml` based on spec requirements
-- [X] T005 [P] Create `code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`
-- [X] T006 [P] Implement `code/utils/logging.py` for structured logging of data pipeline steps
-- [X] T007 Create `code/utils/update_state.py` to update `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` with artifact hashes
-- [ ] T008 Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`, `code/models/`, `code/utils/`, `tests/`
-- [X] T030a [P] Implement memory/time monitoring hooks in `code/utils/config.py` and `code/utils/logging.py` to track resource usage during pipeline execution (SC-004, SC-005)
-- [X] T033 [P] Implement the integration interface for state updates: Create the `update_state()` wrapper function in `code/utils/update_state.py` that accepts artifact paths and hashes, and ensure it is ready to be called by downstream tasks (T015, T026). This task builds the mechanism, while T015/T026 will implement the *calls* to it.
+- [ ] T005 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` defining constants: `RANDOM_SEED=42`, `MAX_MEMORY_GB=7`, `MAX_DURATION_HOURS=6`.
+- [ ] T006 [P] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` for structured logging of data pipeline steps.
+- [ ] T007 [P] Create `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` to update `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` with artifact hashes.
+- [ ] T030a [P] Implement memory/time monitoring hooks in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py` to track resource usage during pipeline execution (SC-004, SC-005).
+- [ ] T033 [P] Implement the integration interface for state updates: Create the `update_state()` wrapper function in `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py` that accepts artifact paths and hashes, and ensure it is ready to be called by downstream tasks (T015, T026). This task builds the mechanism, while T015/T026 will implement the *calls* to it.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel (once T004a/b, T008a-e, T003a/b, T001a complete)
 
 ---
 
@@ -56,16 +61,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `code/data/download.py`: Fetch the latest ChEMBL SQLite dataset via FTP. Validate the downloaded file's checksum against the official source, and **record this checksum in `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`** as required by Constitution Principle III (Data Hygiene) and V (Versioning). Save the raw file to `data/raw/chembl_33.db` (FR-001). **Note**: This task is strictly for downloading 2D descriptor data for correlation analysis, NOT for deep learning or GNNs.
-- [X] T010 [US1] Implement `code/data/preprocess.py` -> `sanitize_molecules()`: Use RDKit to remove salts, fix valences, and log/remove invalid structures. **Must handle 'exotic elements' by logging and excluding molecules where RDKit sanitizer fails to correct valence** (FR-002, Edge Case 2). This logic must be atomic within this step.
-- [X] T012 [US1] Implement `code/data/preprocess.py` -> `deduplicate_smiles()`: Handle duplicate SMILES by retaining most recent assay date or averaging values if dates match (FR-009, Edge Case 1). **Must run AFTER sanitization (T010) and BEFORE target filtering** to ensure correct record retention.
-- [X] T011 [US1] Implement `code/data/preprocess.py` -> `filter_targets()`: Filter for oral bioavailability, apparent permeability (Papp), or clearance; remove rows with missing targets (FR-001, FR-002). **Must run AFTER deduplication** to ensure the 'most recent' entry is kept.
-- [X] T013 [US1] Implement `code/data/preprocess.py` -> `sample_dataset`: Perform stratified random sampling on the **filtered dataset** to generate a computationally feasible subset capped at [deferred] molecules. The sampling logic must balance statistical power with resource limits (FR-008, SC-005). **Must run BEFORE descriptor calculation**.
-- [X] T014 [US1] Implement `code/data/preprocess.py` -> `calculate_descriptors()`: Compute 2D descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, ring count) for all retained molecules (FR-003)
-- [ ] T015 [US1] Implement `code/data/preprocess.py` -> `write_processed_data()`: Output `data/processed/molecules_processed.csv` and validate against `contracts/molecule.schema.yaml` before saving. **Must explicitly call `update_state.py` (from T033) to record the new artifact hash in the state file.**
-- [X] T016 [US1] Write unit tests in `tests/test_preprocess.py` for sanitization, deduplication logic, and descriptor calculation accuracy. **Dependency: Must run after T010-T015 implementation.** This task is placed here to group it with the code it validates, ensuring TDD compliance without confusing list-order dependencies on unrelated tasks like T009.
+- [ ] T009 [P] [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/download.py`: Fetch ChEMBL Release via FTP. **URL**: `ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_33/`. **Checksum**: Download `chembl_33.sha256` from the same directory and validate SHA-256. **FAIL LOUDLY**: Raise exception if FTP fails or checksum mismatch; NO synthetic fallback. **Save to** `projects/PROJ-066-investigating-correlations-between-molec/data/raw/chembl_33.db`. **Record checksum in** `projects/PROJ-066-investigating-correlations-between-molec/state/projects/PROJ-066-investigating-correlations-between-molec.yaml`.
+- [ ] T010 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `sanitize_molecules()`: Use RDKit to remove salts, fix valences, and log/remove invalid structures. **Must handle 'exotic elements' by logging and excluding molecules where RDKit sanitizer fails**. **BLOCKED BY T009**.
+- [ ] T012 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `deduplicate_smiles()`: Handle duplicate SMILES by retaining most recent assay date or averaging values if dates match (FR-009). **Must run AFTER sanitization (T010) and BEFORE target filtering**. **BLOCKED BY T009**.
+- [ ] T011 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `filter_targets()`: Filter for oral bioavailability, apparent permeability (Papp), or clearance; remove rows with missing targets (FR-001, FR-002). **Must run AFTER deduplication**. **BLOCKED BY T009**.
+- [ ] T013 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `sample_dataset`: Perform stratified random sampling on the filtered dataset. **Logic**: `min(15000, available_rows)`. **Edge Case**: If `len(sampled_df) < 100`, **raise `DataInsufficiencyError("Data Insufficiency: Sample size < 100")` and halt execution immediately**. **BLOCKED BY T009**.
+- [ ] T014 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `calculate_descriptors()`: Compute 2D descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, ring count) for all retained molecules (FR-003). **BLOCKED BY T009**.
+- [ ] T015 [US1] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` -> `write_processed_data()`: Output `projects/PROJ-066-investigating-correlations-between-molec/data/processed/molecules_processed.csv` and validate against `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/molecule.schema.yaml` (T004a) before saving. **Must explicitly call `update_state.py` (from T033) to record the new artifact hash**. **BLOCKED BY T009, T004a**.
+- [ ] T016 [US1] Write unit tests in `projects/PROJ-066-investigating-correlations-between-molec/tests/test_preprocess.py` for sanitization, deduplication logic, and descriptor calculation accuracy. **Dependency: Must run after T010-T015 implementation**.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: Blocked until T009 (Download) and T004a (Schema) complete. User Story 1 is NOT functional until then.
 
 ---
 
@@ -77,13 +82,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T017 [US2] Implement `code/models/train.py` -> `split_data()`: Load `molecules_processed.csv`, perform stratified train/test split (seed=42) by target variable (FR-004)
-- [ ] T018 [US2] Implement `code/models/train.py` -> `train_linear_regression()`: Fit Linear Regression model on training set; save artifact to `data/processed/model_lr.pkl` (FR-005)
-- [ ] T019 [US2] Implement `code/models/train.py` -> `train_random_forest()`: Fit Random Forest model on training set with memory-conscious parameters (max_depth, n_estimators) for CPU runner; **include memory profiling hooks**; save artifact to `data/processed/model_rf.pkl` (FR-005)
-- [ ] T020 [US2] Implement `code/models/train.py` -> `generate_feature_importance()`: Extract and rank feature importances from Random Forest; save report to `data/processed/feature_importance.json` (FR-005)
-- [ ] T021 [P] [US2] Write unit tests in `tests/test_models.py` for model training success, artifact loading, and memory usage checks
+- [ ] T017 [US2] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` -> `split_data()`: Load `molecules_processed.csv`, perform stratified train/test split (seed=42) by target variable (FR-004). **BLOCKED BY T015**.
+- [ ] T018 [US2] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` -> `train_linear_regression()`: Fit Linear Regression model on training set; save artifact to `projects/PROJ-066-investigating-correlations-between-molec/data/processed/model_lr.pkl` using **joblib** (scikit-learn version pinned in `requirements.txt`). **BLOCKED BY T017**.
+- [ ] T019 [US2] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` -> `train_random_forest()`: Fit Random Forest model on training set with memory-conscious parameters (max_depth, n_estimators) for CPU runner; **include memory profiling hooks**; save artifact to `projects/PROJ-066-investigating-correlations-between-molec/data/processed/model_rf.pkl` using **joblib** (scikit-learn version pinned in `requirements.txt`). **BLOCKED BY T017**.
+- [ ] T020 [US2] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` -> `generate_feature_importance()`: Extract and rank feature importances from Random Forest; save report to `projects/PROJ-066-investigating-correlations-between-molec/data/processed/feature_importance.json` (FR-005). **BLOCKED BY T019**.
+- [ ] T021 [P] [US2] Write unit tests in `projects/PROJ-066-investigating-correlations-between-molec/tests/test_models.py` for model training success, artifact loading, and memory usage checks.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: Blocked until T018 and T019 (Model Training) complete. User Story 2 is NOT functional until then.
 
 ---
 
@@ -95,18 +100,18 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Implement `code/models/evaluate.py` -> `calculate_metrics()`: Load test set and models; compute RMSE and Pearson correlation coefficient (r) for both models; print results (FR-006, SC-001, SC-002)
-- [ ] T023 [US3] Implement `code/models/evaluate.py` -> `baseline_comparison()`: Compute RMSE against a mean predictor baseline. **Must explicitly write this baseline RMSE to `metrics_summary.json` and print it** to satisfy SC-002 (SC-002)
-- [ ] T024 [US3] Implement `code/models/evaluate.py` -> `plot_predicted_vs_experimental()`: Generate scatter plot of predicted vs. experimental values; save as `data/processed/plot_scatter.png` (FR-007)
-- [ ] T025 [US3] Implement `code/models/evaluate.py` -> `plot_feature_importance()`: Generate bar chart of feature importances; save as `data/processed/plot_importance.png` (FR-007, SC-003)
-- [ ] T026 [US3] Implement `code/models/evaluate.py` -> `save_metrics_summary()`: Write final metrics (including baseline RMSE from T023) and plot paths to `data/processed/metrics_summary.json` and validate against `contracts/model_output.schema.yaml`. **Must explicitly call `update_state.py` (from T033) to record the new artifact hashes in the state file.** (FR-006, SC-002)
-- [ ] T027 [P] [US3] Write integration tests in `tests/test_models.py` for end-to-end evaluation pipeline and visualization generation
+- [ ] T022 [US3] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/evaluate.py` -> `calculate_metrics()`: Load test set and models; compute RMSE and Pearson correlation coefficient (r) for both models; print results (FR-006, SC-001, SC-002). **BLOCKED BY T018, T019**.
+- [ ] T023 [US3] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/evaluate.py` -> `baseline_comparison()`: Compute RMSE against a mean predictor baseline. **Logic**: Calculate mean of training set target values; compute RMSE of this mean against test set. **Output**: Write to `metrics_summary.json` under key `mean_predictor_rmse`. **Validation**: Must verify `metrics_summary.json` contains `mean_predictor_rmse` key before task completion. **BLOCKED BY T018, T019**.
+- [ ] T024 [US3] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/evaluate.py` -> `plot_predicted_vs_experimental()`: Generate scatter plot of predicted vs. experimental values; save as `projects/PROJ-066-investigating-correlations-between-molec/data/processed/plot_scatter.png` (FR-007). **BLOCKED BY T018, T019**.
+- [ ] T025 [US3] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/evaluate.py` -> `plot_feature_importance()`: Generate bar chart of feature importances; save as `projects/PROJ-066-investigating-correlations-between-molec/data/processed/plot_importance.png` (FR-007, SC-003). **BLOCKED BY T020**.
+- [ ] T026 [US3] Implement `projects/PROJ-066-investigating-correlations-between-molec/code/models/evaluate.py` -> `save_metrics_summary()`: Write final metrics (including baseline RMSE from T023) and plot paths to `projects/PROJ-066-investigating-correlations-between-molec/data/processed/metrics_summary.json`. **JSON Schema**: `{baseline_rmse, model_lr_rmse, model_rf_rmse, model_lr_r, model_rf_r, pipeline_time_seconds, peak_memory_mb, plot_scatter_path, plot_importance_path}`. Validate against `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml`. **Must explicitly call `update_state.py` (from T033) to record the new artifact hashes**. **BLOCKED BY T018, T019, T023**.
+- [ ] T027 [P] [US3] Write integration tests in `projects/PROJ-066-investigating-correlations-between-molec/tests/test_models.py` for end-to-end evaluation pipeline and visualization generation.
 
 ### Validation & Resource Gates (Mandatory)
 
-- [ ] T034 [P] Run full pipeline verification: Execute the complete pipeline from download to visualization. **Must capture pipeline execution time and peak memory usage programmatically**, writing these values to `metrics_summary.json` and the project state file. Verify the pipeline completes within 6 hours and <7GB RAM peak. **This is a mandatory gate, not optional optimization** (SC-004, SC-005, Constitution Principle VII)
+- [ ] T034 [P] Run full pipeline verification: Execute the complete pipeline from download to visualization. **Method**: Use `time.perf_counter()` for duration (seconds) and `psutil.Process().memory_info().rss` for peak memory (convert to MB). **Input**: Capture values from monitoring hooks implemented in T030a. **Output**: Write these values to `metrics_summary.json` (keys: `pipeline_time_seconds`, `peak_memory_mb`). Verify pipeline completes within 6 hours and <7GB RAM peak. **BLOCKED BY T009, T018, T019, T026**.
 
-**Checkpoint**: All user stories should now be independently functional, and resource constraints verified.
+**Checkpoint**: Blocked until T018, T019, and T026 complete. User Story 3 is NOT functional until then.
 
 ---
 
@@ -114,10 +119,10 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T035 [P] Documentation updates: Ensure `quickstart.md` explains how to run the full pipeline from download to visualization
-- [ ] T036 Code cleanup: Refactor `code/data/preprocess.py` and `code/models/train.py` for modularity and readability
-- [ ] T037 [P] Run `pytest` suite to ensure all tests pass
-- [ ] T038 Run quickstart.md validation to confirm end-to-end reproducibility
+- [ ] T035 [P] Documentation updates: Ensure `quickstart.md` explains how to run the full pipeline from download to visualization.
+- [ ] T036 [P] Code cleanup: Refactor `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py` and `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py` for modularity and readability.
+- [ ] T037 [P] Run `pytest` suite to ensure all tests pass.
+- [ ] T038 [P] Run quickstart.md validation to confirm end-to-end reproducibility.
 
 ---
 

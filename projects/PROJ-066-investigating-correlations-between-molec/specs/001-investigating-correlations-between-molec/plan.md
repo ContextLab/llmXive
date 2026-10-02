@@ -17,7 +17,7 @@ This project implements a computational pipeline to investigate the correlation 
 **Project Type**: Data Science Pipeline / Research Tool  
 **Performance Goals**: Complete full pipeline (download to visualization) within 6 hours; peak memory < 7GB.  
 **Constraints**: Dataset size capped at [deferred] molecules (stratified sample) to fit memory; no GPU usage for training; strict handling of duplicate SMILES.
-**Scale/Scope**: Analysis of ~15k molecules; 2 models (Linear, RF); 3 target variables (Bioavailability, Papp, Clearance).
+**Scale/Scope**: Analysis of a large-scale dataset of molecules; 2 models (Linear, RF); 3 target variables (Bioavailability, Papp, Clearance).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -59,7 +59,7 @@ projects/PROJ-066-investigating-correlations-between-molec/
 │   ├── __init__.py
 │   ├── requirements.txt
 │   ├── data/
-│   │   ├── download.py          # Fetches ChEMBL 33, validates file
+│   │   ├── download.py          # Fetches the latest available ChEMBL release, validates file
 │   │   └── preprocess.py        # Sanitizes, filters, deduplicates, calculates descriptors, samples
 │   ├── models/
 │   │   ├── train.py             # Trains LR and RF, saves artifacts
