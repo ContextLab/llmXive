@@ -3141,3 +3141,527 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T06:44:54Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_2a5bb683
+  context: Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json`
+    containing ALL 164 tasks (unfiltered, including those with pass_rate < 0.80).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 tasks.
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:35:04Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Study design requires fixed sample size N=164
+  claim_id: c_2aa2eaf2
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in `code/statistical_tests.py`
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study design requires a fixed sample size of N=164 for sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:19Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: MDES calculation assumes power of 0.80
+  claim_id: c_a6b6ec41
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in `code/statistical_tests.py`
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum detectable effect size calculation assumes a power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:27Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: MDES calculation uses alpha of 0.05
+  claim_id: c_23b9fd54
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in `code/statistical_tests.py`
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Minimum Detectable Effect Size (MDES) calculation uses an alpha of
+    0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:36Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset hosted at openai/openai_humaneval on HuggingFace
+  claim_id: c_2368f8cf
+  context: Implement `code/download_data.py` to download the full HumanEval dataset
+    from HuggingFace (`openai/openai_humaneval`) using a specific commit SHA.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_hosted_at_openai/openai_humaneval_on_Huggi
+  kind: entity_fact
+  raw_text: The HumanEval dataset is hosted on HuggingFace under the repository openai/openai_humaneval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:49Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Primary model is Salesforce/codegen-mono-4b
+  claim_id: c_48144774
+  context: 'Implement `code/generate_code.py` to load Primary Model: `Salesforce/codegen-mono-4b`
+    (-bit quantized) on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary model for code generation is Salesforce/codegen-mono-4b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:39:53Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fallback model is Salesforce/codegen-mono-350M
+  claim_id: c_ccecbaa9
+  context: If the 4B model fails to load (OOM or timeout), the script MUST automatically
+    switch to `Salesforce/codegen-mono-350M` and continue generation.
+  evidence:
+    entailment_evidence: Fallback model is Salesforce/codegen-mono-350M
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_is_Salesforce/codegen-mono-350M
+  kind: entity_fact
+  raw_text: The fallback model for code generation is Salesforce/codegen-mono-350M.
+  resolved_value: Fallback model is Salesforce/codegen-mono-350M
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:39:55Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model from TheBloke/CodeLlamab-Instruct-GGUF
+  claim_id: c_17b12cc7
+  context: Implement `code/generate_code_llama.py` to generate code samples using
+    a quantized CodeLlama model (specifically from repository TheBloke/CodeLlamab-Instruct-GGUF).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama_model_from_TheBloke/CodeLlamab-Instruct-GGUF
+  kind: entity_fact
+  raw_text: The CodeLlama model for sensitivity analysis is from repository TheBloke/CodeLlamab-Instruct-GGUF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:40:01Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama n_ctx is 2048
+  claim_id: c_e9dbc962
+  context: 'Constraint: Use `llama-cpp-python` with `n_ctx=2048 ` and `n_threads=4
+    `.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model configuration uses a context window (n_ctx) of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:43:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama n_threads is 4
+  claim_id: c_0ec8c04a
+  context: 'Constraint: Use `llama-cpp-python` with `n_ctx=2048 ` and `n_threads=4
+    `.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model configuration uses 4 threads (n_threads).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:43:48Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset commit SHA d82884567991811251419242208479796794843
+  claim_id: c_ebc6a090
+  context: Use `datasets.load_dataset(..., revision='d82884567991811251419242208479796794843')`
+    to fetch, convert the resulting Dataset object to a `pandas.DataFrame`, and use
+    `df.to_parquet('data/raw/humaneval.parquet')`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_commit_SHA_d828845679918112514192422084797
+  kind: entity_fact
+  raw_text: The HumanEval dataset was downloaded using commit SHA d82884567991811251419242208479796794843.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:43:59Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon Signed-Rank test is two-tailed
+  claim_id: c_af4dc97a
+  context: 'Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for
+    continuous metrics... Parameters: Use a two-tailed test with `alpha=0.05`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_Signed-Rank_test_is_two-tailed
+  kind: entity_fact
+  raw_text: The Wilcoxon Signed-Rank test is used with a two-tailed configuration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:44:13Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Task execution timeout is 60 seconds
+  claim_id: c_e25493cd
+  context: 'Timeout: Enforce a strict 60-second timeout per task execution (per FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task execution timeout is enforced at 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:44:20Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Valid tasks have pass_rate >= 0.80
+  claim_id: c_6448f665
+  context: '`data/analysis/valid_task_metrics.json` exists and contains only tasks
+    with `pass_rate` >= 0.80.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Valid_tasks_have_pass_rate_%3E=_0.80
+  kind: magnitude
+  raw_text: Tasks with a pass_rate greater than or equal to 0.80 are considered valid.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:44:32Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Achieved power calculation includes 95% Confidence Intervals
+  claim_id: c_4eefd2a4
+  context: Implement Achieved Power (post-hoc) calculation with 95% Confidence Intervals
+    based on the actual observed effect sizes and the full sample size N=164.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The achieved power calculation includes 95% Confidence Intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:44:32Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Achieved power calculation includes 95% Confidence Intervals
+  claim_id: c_923efa14
+  context: Update `code/statistical_tests.py` to explicitly calculate and report Achieved
+    Power (post-hoc) with 95% Confidence Intervals for the Wilcoxon test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The achieved power calculation includes 95% Confidence Intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:44:33Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pass rate is passed_tests divided by total_tests
+  claim_id: c_2ba96a2c
+  context: 'Metric: Record `pass_rate` as a float (`passed_tests / total_tests`) per
+    sample.'
+  evidence:
+    entailment_evidence: Pass rate is passed tests divided by total tests
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Pass_rate_is_passed_tests_divided_by_total_tests
+  kind: entity_fact
+  raw_text: The pass_rate metric is defined as the ratio of passed tests to total
+    tests.
+  resolved_value: Pass rate is passed_tests divided by total_tests
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:44:35Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_032e46ac
+  context: Implement aggregation in code/analyze_metrics.py to produce data/analysis/metrics.json
+    containing ALL 164 tasks (unfiltered, including those with pass_rate < 0.80).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 tasks.
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:45:33Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: Fallback model is Salesforce/codegen-mono-350M
+  claim_id: c_8efcd43e
+  context: If the 4B model fails to load (OOM or timeout), the script MUST automatically
+    switch to Salesforce/codegen-mono-350M and continue generation.
+  evidence:
+    entailment_evidence: Fallback model is Salesforce/codegen-mono-350M
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_is_Salesforce/codegen-mono-350M
+  kind: entity_fact
+  raw_text: The Salesforce/codegen-mono-350M model is the fallback model for code
+    generation.
+  resolved_value: Fallback model is Salesforce/codegen-mono-350M
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:45:36Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power analysis reports achieved power >= 0.8
+  claim_id: c_3e1e827a
+  context: "Verify p-values are calculated correctly and power analysis reports required\
+    \ n \u2265 38 and The power analysis reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_achieved_power_%3E=_0.8
+  kind: magnitude
+  raw_text: The power analysis reports achieved power greater than or equal to 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:50:39Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power analysis reports required n >= 38
+  claim_id: c_e3d8500f
+  context: "Verify p-values are calculated correctly and power analysis reports required\
+    \ n \u2265 38 and The power analysis reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_required_n_%3E=_38
+  kind: magnitude
+  raw_text: The power analysis reports required a sample size of at least 38.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:54:14Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Primary model is Salesforce/codegen-mono-4b
+  claim_id: c_c1721e97
+  context: 'Implement code/generate_code.py to load Primary Model: Salesforce/codegen-mono-4b
+    (-bit quantized) on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Salesforce/codegen-mono-4b model is the primary model for code generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:54:15Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: CodeLlama model has 3 billion parameters
+  claim_id: c_d3b6e4f7
+  context: The script MUST verify that the loaded model has a parameter count consistent
+    with the target scale (3B parameters) and matches the pinned repository/commit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model used for sensitivity analysis has 3 billion parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:54:16Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model sourced from TheBloke/CodeLlamab-Instruct-GGUF
+  claim_id: c_3fa276d6
+  context: Implement code/generate_code_llama.py to generate code samples using a
+    quantized CodeLlama model (specifically from repository TheBloke/CodeLlamab-Instruct-GGUF).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama_model_sourced_from_TheBloke/CodeLlamab-Instruct-GG
+  kind: entity_fact
+  raw_text: The CodeLlama model is sourced from TheBloke/CodeLlamab-Instruct-GGUF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:56:34Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset from openai/openai_humaneval
+  claim_id: c_f0305798
+  context: Implement code/download_data.py to download the full HumanEval dataset
+    from HuggingFace (openai/openai_humaneval) using a specific commit SHA.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_from_openai/openai_humaneval
+  kind: entity_fact
+  raw_text: The HumanEval dataset is sourced from HuggingFace under the openai/openai_humaneval
+    repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:57:29Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval commit SHA d82884567991811251419242208479796794843
+  claim_id: c_00eb125c
+  context: Use datasets.load_dataset(..., revision='d82884567991811251419242208479796794843')
+    to fetch, convert the resulting Dataset object to a pandas.DataFrame.
+  evidence:
+    entailment_evidence: HumanEval commit SHA d82884567991811251419242208479796794843
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_commit_SHA_d82884567991811251419242208479796794843
+  kind: entity_fact
+  raw_text: The HumanEval dataset commit SHA is d82884567991811251419242208479796794843.
+  resolved_value: HumanEval commit SHA d82884567991811251419242208479796794843
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T22:57:32Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Significance level alpha is 0.05
+  claim_id: c_a2b06849
+  context: 'Use a two-tailed test with alpha=0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a significance level (alpha) of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:57:52Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Target statistical power is 0.80
+  claim_id: c_007a7fc7
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study aims for a statistical power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:58:30Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama n_ctx is 2048
+  claim_id: c_d902f8ea
+  context: 'Constraint: Use llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model configuration uses a context window (n_ctx) of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:58:31Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama n_threads is 4
+  claim_id: c_13f1e65e
+  context: 'Constraint: Use llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model configuration uses 4 threads (n_threads).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:58:32Z'

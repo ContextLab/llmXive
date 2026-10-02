@@ -1,4 +1,1 @@
-# tests package for PROJ-294-evaluating-the-impact-of-code-generation
-"""
-This package contains all test modules for the project.
-"""
+# Auto-generated package init file created for T001a

@@ -1,3 +1,10 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings, `.gitkeep` files, or any other evidence of the required\
+    \ `code/`, `data/`, `results/`, `tests/`, and `docs/` folders under `projects/PROJ-294-evaluating-the-impact-of-code-generation/`\
+    \ were provided. The implementer\u2019s claim cannot be verified without concrete\
+    \ artifacts."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

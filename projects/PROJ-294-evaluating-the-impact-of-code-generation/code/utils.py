@@ -4,117 +4,201 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Optional, Any, Dict, List, Union
+from typing import Optional, Any, Dict
 
 # Global state for task context
-_current_task_id: Optional[str] = None
+_task_id: Optional[str] = None
+_unique_id: Optional[str] = None
 
 class TaskIdFilter(logging.Filter):
-    """Filter to inject task_id into log records."""
-    def filter(self, record: logging.LogRecord) -> bool:
-        record.task_id = _current_task_id or "UNKNOWN"
+    """Filter to add task_id to log records."""
+    def filter(self, record):
+        if _task_id:
+            record.task_id = _task_id
         return True
 
 def set_task_id(task_id: str) -> None:
     """Set the global task ID for logging context."""
-    global _current_task_id
-    _current_task_id = task_id
+    global _task_id
+    _task_id = task_id
 
 def get_task_id() -> Optional[str]:
-    """Get the current global task ID."""
-    return _current_task_id
+    """Get the current task ID."""
+    return _task_id
 
 def get_unique_id() -> str:
-    """Generate a unique identifier for this run."""
-    return str(uuid.uuid4())
+    """Generate or return a unique ID for the current run."""
+    global _unique_id
+    if not _unique_id:
+        _unique_id = str(uuid.uuid4())
+    return _unique_id
 
 def get_timestamp() -> str:
-    """Get the current timestamp in ISO format."""
+    """Get current timestamp string."""
     return datetime.now().isoformat()
 
 def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Setup logging infrastructure.
-    Accepts:
-      - setup_logging()
-      - setup_logging(task_id="...")
-      - setup_logging(level=logging.INFO)
-      - setup_logging(task_id=TASK_ID)
+    Setup logging infrastructure with task ID and unique run ID.
+    
+    Accepts flexible arguments to support various call patterns:
+    - setup_logging()
+    - setup_logging(task_id="T001a")
+    - setup_logging(task_id=TASK_ID)
+    - setup_logging(level=logging.INFO)
+    
+    Args:
+        task_id: Optional task identifier.
+        level: Logging level (default INFO).
+        
+    Returns:
+        logging.Logger: Configured logger instance.
     """
-    global _current_task_id
+    # Handle flexible argument passing
     if task_id is not None:
-        _current_task_id = task_id
-
-    # Configure root logger if not already configured
-    if not logging.root.handlers:
-        logging.basicConfig(
-            level=level,
-            format="%(asctime)s [%(levelname)s] [%(task_id)s] - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+        set_task_id(task_id)
+    
+    # Use a consistent logger name
+    logger_name = "llmXive"
+    logger = logging.getLogger(logger_name)
+    
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        logger.setLevel(level)
+        
+        # Create console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        
+        # Create formatter with task_id and timestamp
+        formatter = logging.Formatter(
+            '%(asctime)s [%(levelname)s] [%(task_id)s] - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
-
-    logger = logging.getLogger(__name__)
+        formatter.converter = datetime.fromtimestamp
+        
+        # Add task_id filter
+        task_filter = TaskIdFilter()
+        ch.addFilter(task_filter)
+        
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
     
-    # Ensure the filter is added
-    if not any(isinstance(f, TaskIdFilter) for f in logger.filters):
-        logger.addFilter(TaskIdFilter())
-    
+    # Ensure task_id is in record if not set
+    if not _task_id:
+        set_task_id("GLOBAL")
+        
     return logger
 
-def get_logger(name: str = __name__) -> logging.Logger:
-    """Get a logger instance, ensuring task_id context is available."""
-    logger = logging.getLogger(name)
-    if not any(isinstance(f, TaskIdFilter) for f in logger.filters):
-        logger.addFilter(TaskIdFilter())
-    return logger
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance, optionally with a specific name.
+    
+    Args:
+        name: Optional logger name suffix.
+        
+    Returns:
+        logging.Logger: Logger instance.
+    """
+    base_name = "llmXive"
+    if name:
+        base_name = f"{base_name}.{name}"
+    return logging.getLogger(base_name)
 
-def log_info(msg: str) -> None:
+def log_info(message: str, logger: Optional[logging.Logger] = None) -> None:
     """Log an info message."""
-    logging.info(msg)
+    if logger is None:
+        logger = get_logger()
+    logger.info(message)
 
-def log_error(msg: str) -> None:
+def log_error(message: str, logger: Optional[logging.Logger] = None) -> None:
     """Log an error message."""
-    logging.error(msg)
+    if logger is None:
+        logger = get_logger()
+    logger.error(message)
 
-def log_warning(msg: str) -> None:
+def log_warning(message: str, logger: Optional[logging.Logger] = None) -> None:
     """Log a warning message."""
-    logging.warning(msg)
+    if logger is None:
+        logger = get_logger()
+    logger.warning(message)
 
 def compute_sha256(file_path: str) -> str:
-    """Compute the SHA256 hash of a file."""
+    """
+    Compute SHA256 hash of a file.
+    
+    Args:
+        file_path: Path to the file.
+        
+    Returns:
+        str: Hex digest of the SHA256 hash.
+    """
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
-    """Verify the SHA256 checksum of a file against an expected value."""
-    actual_checksum = compute_sha256(file_path)
-    return actual_checksum == expected_checksum
+def verify_checksum(file_path: str, expected_hash: str) -> bool:
+    """
+    Verify file hash against expected value.
+    
+    Args:
+        file_path: Path to the file.
+        expected_hash: Expected SHA256 hex string.
+        
+    Returns:
+        bool: True if hash matches, False otherwise.
+    """
+    actual_hash = compute_sha256(file_path)
+    return actual_hash.lower() == expected_hash.lower().strip()
 
 def ensure_directory(path: str) -> bool:
-    """Ensure a directory exists, creating it if necessary."""
+    """
+    Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        path: Directory path.
+        
+    Returns:
+        bool: True if directory exists or was created, False on error.
+    """
     try:
         os.makedirs(path, exist_ok=True)
         return True
-    except OSError as e:
-        logging.error(f"Failed to create directory {path}: {e}")
+    except OSError:
         return False
 
-def safe_json_loads(data: str) -> Any:
-    """Safely parse JSON string, returning None on error."""
+def safe_json_loads(json_str: str) -> Any:
+    """
+    Safely parse JSON string.
+    
+    Args:
+        json_str: JSON string.
+        
+    Returns:
+        Parsed object or None on error.
+    """
     try:
-        return json.loads(data)
+        return json.loads(json_str)
     except (json.JSONDecodeError, TypeError):
         return None
 
-def safe_json_dumps(obj: Any) -> Optional[str]:
-    """Safely serialize object to JSON string, returning None on error."""
+def safe_json_dumps(obj: Any, **kwargs) -> str:
+    """
+    Safely serialize object to JSON string.
+    
+    Args:
+        obj: Object to serialize.
+        **kwargs: Additional json.dumps arguments.
+        
+    Returns:
+        JSON string or empty string on error.
+    """
     try:
-        return json.dumps(obj, indent=2)
+        return json.dumps(obj, **kwargs)
     except (TypeError, ValueError):
-        return None
+        return ""
+
+# Import sys here to avoid circular imports if needed in setup_logging
+import sys
