@@ -1,83 +1,100 @@
+"""
+Variable Engineering & Output (Task T017)
+
+This module implements the variable engineering pipeline:
+1. Loads cleaned data from the ingestion step.
+2. Verifies required variables are present.
+3. Computes derived variables (switching_index).
+4. Handles missing outcomes.
+5. Outputs the final cleaned dataset.
+
+Dependencies:
+- T015 (Dataset Ingestion) must have produced data/processed/*_cleaned.csv
+"""
+
 import os
 import sys
 import logging
 import yaml
-from pathlib import Path
-from typing import List, Optional, Dict, Any
 import pandas as pd
-import numpy as np
+from pathlib import Path
 
-from logging_config import setup_logging, get_logger
+# Import from local project structure
+from logging_config import get_logger, setup_logging
 from config import DATA_ROOT, RESULTS_ROOT
+from utils import checksum_file
 
-# Setup logging
-logger = get_logger("engineer")
+# Setup logging for this module
+logger = get_logger(__name__)
 
-def load_schema_contract(schema_path: Path) -> Dict[str, Any]:
-    """Load the schema contract from YAML."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+def load_schema_contract(schema_path: str) -> dict:
+    """Load the dataset schema contract."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema contract not found: {schema_path}")
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_schema_structure(data: pd.DataFrame, schema: Dict[str, Any]) -> bool:
-    """Validate that the dataframe matches the schema structure."""
-    required_columns = list(schema.get("columns", {}).keys())
-    missing = [col for col in required_columns if col not in data.columns]
+def validate_schema_structure(df: pd.DataFrame, schema: dict) -> bool:
+    """Validate that dataframe columns match the schema."""
+    required_columns = schema.get('required_columns', [])
+    missing = [col for col in required_columns if col not in df.columns]
     if missing:
-        raise ValueError(f"Schema validation failed: Missing columns {missing}")
+        raise ValueError(f"Schema mismatch: Missing columns {missing}")
     return True
 
-def load_all_raw_data(raw_dir: Path) -> List[pd.DataFrame]:
-    """Load all raw CSV files from the data/raw directory."""
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+def load_all_raw_data() -> pd.DataFrame:
+    """
+    Load cleaned data from the ingestion step.
+    Looks for *_cleaned.csv in data/processed directory.
+    """
+    processed_dir = Path(DATA_ROOT) / "processed"
+    if not processed_dir.exists():
+        raise FileNotFoundError(f"Processed directory not found: {processed_dir}")
     
-    csv_files = list(raw_dir.glob("*.csv"))
-    if not csv_files:
-        raise FileNotFoundError(f"No raw CSV files found in {raw_dir}")
+    cleaned_files = list(processed_dir.glob("*_cleaned.csv"))
+    if not cleaned_files:
+        raise FileNotFoundError(f"No cleaned data found in {processed_dir}. Expected *_cleaned.csv")
     
-    dfs = []
-    for file in csv_files:
-        logger.info(f"Loading raw data from {file}")
-        df = pd.read_csv(file)
-        dfs.append(df)
-    return dfs
+    # Load the first found cleaned file (or merge if multiple)
+    # For now, assume single dataset as per T015 logic
+    logger.info(f"Loading cleaned data from: {cleaned_files[0]}")
+    df = pd.read_csv(cleaned_files[0])
+    return df
 
 def engineer_switching_index(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute derived variables.
-    switching_index = num_platforms * self_reported_switching_frequency
+    Compute derived variable: switching_index = num_platforms * switching_frequency
+    
+    Requirement: Verify 'self_reported_switching_frequency' exists before proceeding.
     """
-    logger.info("Engineering switching index...")
+    # T017 Logic Step 1: Verify Variable Presence
+    if 'self_reported_switching_frequency' not in df.columns:
+        raise ValueError("Data Gap: Required variable 'self_reported_switching_frequency' not found in input data.")
     
-    # Verify required source variables exist
-    required_source_vars = ['num_platforms', 'self_reported_switching_frequency']
-    missing_vars = [v for v in required_source_vars if v not in df.columns]
-    if missing_vars:
-        raise ValueError(f"Missing required source variables for engineering: {missing_vars}")
-    
-    # Compute switching_index
-    # Handle potential non-numeric values or NaNs by coercing to float
-    df['num_platforms'] = pd.to_numeric(df['num_platforms'], errors='coerce')
-    df['self_reported_switching_frequency'] = pd.to_numeric(df['self_reported_switching_frequency'], errors='coerce')
+    # T017 Logic Step 2: Compute switching_index
+    # Note: The task description says 'switching_frequency' in the output schema,
+    # but the input variable is 'self_reported_switching_frequency'.
+    # We will use the input variable for calculation and ensure the output has 'switching_frequency'.
+    if 'num_platforms' not in df.columns:
+        raise ValueError("Data Gap: Required variable 'num_platforms' not found in input data.")
     
     df['switching_index'] = df['num_platforms'] * df['self_reported_switching_frequency']
     
-    # Standardize column names for output
-    # Map 'self_reported_switching_frequency' to 'switching_frequency' if present
-    if 'self_reported_switching_frequency' in df.columns:
+    # Ensure 'switching_frequency' column exists in output as per schema
+    # We map the input variable to the expected output column name
+    if 'switching_frequency' not in df.columns:
         df['switching_frequency'] = df['self_reported_switching_frequency']
     
-    logger.info(f"Switching index computed. Range: [{df['switching_index'].min():.2f}, {df['switching_index'].max():.2f}]")
     return df
 
-def handle_missing_outcomes(df: pd.DataFrame, outcome_col: str = 'cognitive_flexibility_score') -> pd.DataFrame:
+def handle_missing_outcomes(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handle missing outcome values by excluding rows.
+    Handle missing outcomes by excluding rows and logging exclusion count.
+    Outcome variable: 'cognitive_flexibility_score'
     """
+    outcome_col = 'cognitive_flexibility_score'
     if outcome_col not in df.columns:
-        raise ValueError(f"Outcome column '{outcome_col}' not found in dataframe")
+        raise ValueError(f"Data Gap: Outcome variable '{outcome_col}' not found in input data.")
     
     initial_count = len(df)
     df_clean = df.dropna(subset=[outcome_col])
@@ -87,84 +104,75 @@ def handle_missing_outcomes(df: pd.DataFrame, outcome_col: str = 'cognitive_flex
         logger.warning(f"Excluded {excluded_count} rows due to missing {outcome_col} data.")
     else:
         logger.info("No rows excluded due to missing outcome data.")
-        
+    
     return df_clean
 
-def validate_and_save(df: pd.DataFrame, output_path: Path, schema: Dict[str, Any]) -> None:
+def validate_and_save(df: pd.DataFrame, output_path: str, schema: dict) -> None:
     """
-    Validate the final dataframe against the output schema and save to CSV.
+    Validate the final dataframe against the output schema and save to disk.
     """
-    logger.info(f"Valid and saving output to {output_path}")
+    # Validate columns
+    output_columns = schema.get('required_columns', [])
+    missing_cols = [col for col in output_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Output schema validation failed: Missing columns {missing_cols}")
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure correct column order (optional but good practice)
+    df = df[output_columns]
     
-    # Check required output columns based on task description
-    required_output_cols = [
-        'participant_id', 'age', 'total_screen_time', 'num_platforms',
-        'switching_frequency', 'switching_index', 'cognitive_flexibility_score'
-    ]
+    # Save to disk
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
     
-    # Map input columns to output columns if names differ
-    # Ensure 'participant_id' exists, otherwise create a dummy one if not present
-    if 'participant_id' not in df.columns:
-        logger.warning("participant_id column not found. Creating default index-based IDs.")
-        df['participant_id'] = range(len(df))
+    # Verify file exists
+    if not os.path.exists(output_path):
+        raise RuntimeError(f"Failed to write output file: {output_path}")
     
-    # Ensure all required columns exist
-    for col in required_output_cols:
-        if col not in df.columns:
-            # Try to find a similar column if exact match fails
-            possible_matches = [c for c in df.columns if col in c or c in col]
-            if possible_matches:
-                logger.warning(f"Column '{col}' not found. Using '{possible_matches[0]}' instead.")
-                df[col] = df[possible_matches[0]]
-            else:
-                raise ValueError(f"Required output column '{col}' missing and no substitute found.")
-    
-    # Select and order columns
-    final_df = df[required_output_cols]
-    
-    # Save to CSV
-    final_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved processed data to {output_path}")
-    logger.info(f"Output shape: {final_df.shape}")
+    # Compute checksum for integrity
+    checksum = checksum_file(output_path)
+    logger.info(f"Output saved to {output_path} (Checksum: {checksum})")
 
 def main():
-    """Main entry point for variable engineering pipeline."""
-    logger.info("Starting variable engineering pipeline.")
+    """Main entry point for T017."""
+    logger.info("Starting variable engineering pipeline (T017).")
     
-    # Paths
-    schema_path = Path("contracts/dataset.schema.yaml")
-    raw_dir = Path(DATA_ROOT) / "raw"
-    output_path = Path(DATA_ROOT) / "processed" / "participants_cleaned.csv"
-    
-    # Load Schema
-    schema = load_schema_contract(schema_path)
-    
-    # Load Raw Data
-    dfs = load_all_raw_data(raw_dir)
-    
-    # Combine if multiple files
-    if len(dfs) > 1:
-        combined_df = pd.concat(dfs, ignore_index=True)
-        logger.info(f"Combined {len(dfs)} raw files into one dataframe.")
-    else:
-        combined_df = dfs[0]
+    try:
+        # 1. Load Schema Contract
+        schema_path = os.path.join("contracts", "dataset.schema.yaml")
+        schema = load_schema_contract(schema_path)
         
-    # Validate Input Schema
-    validate_schema_structure(combined_df, schema)
-    
-    # Engineer Variables
-    engineered_df = engineer_switching_index(combined_df)
-    
-    # Handle Missing Outcomes
-    cleaned_df = handle_missing_outcomes(engineered_df, 'cognitive_flexibility_score')
-    
-    # Validate and Save
-    validate_and_save(cleaned_df, output_path, schema)
-    
-    logger.info("Variable engineering pipeline completed successfully.")
+        # 2. Load Data
+        df = load_all_raw_data()
+        logger.info(f"Loaded {len(df)} rows from cleaned data.")
+        
+        # 3. Validate Input Schema
+        validate_schema_structure(df, schema)
+        
+        # 4. Engineer Variables
+        df = engineer_switching_index(df)
+        
+        # 5. Handle Missing Outcomes
+        df = handle_missing_outcomes(df)
+        
+        # 6. Validate and Save Output
+        output_path = os.path.join(DATA_ROOT, "processed", "participants_cleaned.csv")
+        
+        # Define output schema columns explicitly as per task description
+        output_schema = {
+            'required_columns': [
+                'participant_id', 'age', 'total_screen_time', 
+                'num_platforms', 'switching_frequency', 'switching_index', 
+                'cognitive_flexibility_score'
+            ]
+        }
+        
+        validate_and_save(df, output_path, output_schema)
+        
+        logger.info("Variable engineering pipeline completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     setup_logging()

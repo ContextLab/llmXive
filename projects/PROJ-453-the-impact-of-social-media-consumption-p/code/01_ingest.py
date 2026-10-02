@@ -1,213 +1,249 @@
 """
-Data Ingestion Module: Downloads and validates raw data.
-Implements T015: Dataset Ingestion for HILDA, ESS, and AddHealth.
+Dataset Ingestion Script (T015).
+
+This script handles the download, validation, and cleaning of the primary dataset
+for the project. It strictly adheres to the "Fail Loudly" principle regarding
+data availability and schema compliance.
+
+Dependencies:
+- code/config.py
+- code/logging_config.py
+- code/utils.py
+- contracts/dataset.schema.yaml
+- results/feasibility_status.json
 """
+
 import os
 import sys
 import logging
+import json
 import yaml
 import requests
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-import shutil
-
 import pandas as pd
-from datasets import load_dataset
+from pathlib import Path
+from typing import Dict, Any, List, Optional
 
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from config import DATA_ROOT, RESULTS_ROOT, DATA_URL, ensure_directories
 from logging_config import setup_logging, get_logger
-from config import DATA_ROOT
+from utils import checksum_file
 
-def load_schema_contract(path: str) -> Dict[str, Any]:
-    """Load the dataset schema contract from YAML."""
-    with open(path, "r") as f:
+logger = get_logger(__name__)
+
+# Constants
+RAW_DIR = Path(DATA_ROOT) / "raw"
+PROCESSED_DIR = Path(DATA_ROOT) / "processed"
+FEASIBILITY_FILE = Path(RESULTS_ROOT) / "feasibility_status.json"
+SCHEMA_FILE = Path("contracts") / "dataset.schema.yaml"
+SAMPLE_SIZE = 1000  # Rows to load for validation before full processing
+
+def load_schema_contract() -> Dict[str, Any]:
+    """Load the dataset schema contract."""
+    if not SCHEMA_FILE.exists():
+        raise FileNotFoundError(f"Schema contract not found at {SCHEMA_FILE}")
+    with open(SCHEMA_FILE, "r") as f:
         return yaml.safe_load(f)
 
-def validate_schema_structure(schema: Dict[str, Any], df: pd.DataFrame) -> bool:
-    """Validate that all required columns from schema exist in DataFrame."""
-    required = list(schema.keys())
-    missing = [col for col in required if col not in df.columns]
+def validate_schema_structure(data_df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """
+    Validate that the dataframe columns match the schema.
+    Raises ValueError if mismatch.
+    """
+    required_columns = schema.get("required_columns", [])
+    current_columns = list(data_df.columns)
+    
+    missing = [col for col in required_columns if col not in current_columns]
     if missing:
-        logging.error(f"Schema mismatch: Missing columns {missing}")
-        return False
-    return True
-
-def validate_data_types_and_constraints(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
-    """Basic type and constraint validation."""
-    for col, spec in schema.items():
-        if col in df.columns:
-            # Placeholder for strict type checking if needed
-            pass
-    return True
-
-def download_data(url: str, dest_path: str) -> None:
-    """Download data from URL to destination path."""
-    logger = get_logger("ingest")
-    logger.info(f"Downloading {url} to {dest_path}")
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(dest_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-def load_hilda() -> Optional[pd.DataFrame]:
-    """
-    Load HILDA dataset.
-    T015 Implementation: Fetches real data from HuggingFace.
-    """
-    logger = get_logger("ingest")
-    try:
-        logger.info("Attempting to load HILDA 2023 dataset...")
-        # Use streaming to handle large datasets and verify existence without full load
-        ds = load_dataset("hilda/hilda_2023", split="train", streaming=True)
-        
-        # Convert to pandas (this will materialize the data if not streaming further)
-        # For ingestion, we need the full dataframe or a chunked save. 
-        # Given the task requires saving to CSV, we load to memory or stream to file.
-        # Assuming the dataset fits in the runner's memory for the 'cleaned' step,
-        # but we use streaming to verify first.
-        df = ds.to_pandas()
-        
-        # Pre-flight variable check per T015 spec
-        required_vars = ["self_reported_switching_frequency", "cognitive_flexibility_score"]
-        missing_vars = [v for v in required_vars if v not in df.columns]
-        if missing_vars:
-            # Check if we need to map columns or if the dataset is wrong
-            logger.warning(f"HILDA missing required vars: {missing_vars}. Columns: {list(df.columns[:10])}")
-            # Per T015: "If missing, raise ValueError"
-            raise ValueError(f"Data Gap: HILDA lacks required variables {missing_vars}")
-        
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load HILDA: {e}")
-        raise e
-
-def load_ess() -> Optional[pd.DataFrame]:
-    """
-    Load ESS dataset.
-    T015 Implementation: Fetches real data from HuggingFace.
-    """
-    logger = get_logger("ingest")
-    try:
-        logger.info("Attempting to load ESS Round 10 dataset...")
-        ds = load_dataset("ess/ess_round10", split="train", streaming=True)
-        df = ds.to_pandas()
-        
-        required_vars = ["self_reported_switching_frequency", "cognitive_flexibility_score"]
-        missing_vars = [v for v in required_vars if v not in df.columns]
-        if missing_vars:
-            logger.warning(f"ESS missing required vars: {missing_vars}")
-            raise ValueError(f"Data Gap: ESS lacks required variables {missing_vars}")
-        
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load ESS: {e}")
-        raise e
-
-def load_addhealth() -> Optional[pd.DataFrame]:
-    """
-    Load AddHealth dataset.
-    T015 Implementation: Fetches real data from HuggingFace.
-    """
-    logger = get_logger("ingest")
-    try:
-        logger.info("Attempting to load AddHealth Wave 4 dataset...")
-        # Try the specific ID mentioned in T001
-        ds = load_dataset("nrc/addhealth_wave4", split="train", streaming=True)
-        df = ds.to_pandas()
-        
-        required_vars = ["self_reported_switching_frequency", "cognitive_flexibility_score"]
-        missing_vars = [v for v in required_vars if v not in df.columns]
-        if missing_vars:
-            logger.warning(f"AddHealth missing required vars: {missing_vars}")
-            raise ValueError(f"Data Gap: AddHealth lacks required variables {missing_vars}")
-        
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load AddHealth: {e}")
-        raise e
-
-def validate_and_save(df: pd.DataFrame, schema: Dict[str, Any], output_path: str) -> bool:
-    """Validate schema and save DataFrame to CSV."""
-    logger = get_logger("ingest")
-    if not validate_schema_structure(schema, df):
-        raise ValueError("Data Gap: Downloaded data schema mismatch.")
+        raise ValueError(f"Data Gap: Downloaded data schema mismatch. Missing columns: {missing}")
     
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved data to {output_path} with shape {df.shape}")
+    logger.info(f"Schema validation passed. Found {len(current_columns)} columns.")
     return True
 
-def write_instrument_sources(dataset_id: str, output_path: str) -> None:
-    """Write instrument sources YAML (placeholder for T016a logic, called here for completeness)."""
-    logger = get_logger("ingest")
-    sources = {
-        "survey_name": dataset_id,
-        "validation_citation": "Verified in T016a",
-        "variable_mapping": [],
-        "verified_status": True
+def validate_data_types_and_constraints(df: pd.DataFrame, schema: Dict[str, Any]) -> None:
+    """
+    Validate data types and basic constraints (e.g., non-negative ages).
+    """
+    constraints = schema.get("constraints", {})
+    
+    for col, rules in constraints.items():
+        if col not in df.columns:
+            continue
+        
+        if "min_value" in rules:
+            if df[col].min() < rules["min_value"]:
+                logger.warning(f"Constraint violation: {col} has values < {rules['min_value']}")
+        
+        if "non_null" in rules and rules["non_null"]:
+            null_count = df[col].isnull().sum()
+            if null_count > 0:
+                logger.warning(f"Constraint violation: {col} has {null_count} null values")
+
+def download_data(url: str, output_path: Path) -> None:
+    """
+    Download data from URL using requests.
+    FAILS LOUDLY if the download fails. No synthetic fallback.
+    """
+    logger.info(f"Attempting to download data from: {url}")
+    
+    try:
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()
+        
+        # Ensure directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        
+        logger.info(f"Successfully downloaded data to {output_path}")
+        logger.info(f"File size: {output_path.stat().st_size} bytes")
+        
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP Error during download: {e}")
+        raise RuntimeError(f"Data fetch failed: {e}") from e
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error during download: {e}")
+        raise RuntimeError(f"Data fetch failed: {e}") from e
+    except Exception as e:
+        logger.error(f"Unexpected error during download: {e}")
+        raise RuntimeError(f"Data fetch failed: {e}") from e
+
+def load_fallback_data() -> None:
+    """
+    This function is explicitly NOT implemented.
+    Per project constraints, we must NOT fall back to synthetic data.
+    If the real fetch fails, the script must crash.
+    """
+    raise RuntimeError("Synthetic fallback is forbidden. Real data fetch must succeed.")
+
+def validate_and_save(raw_df: pd.DataFrame, schema: Dict[str, Any], dataset_id: str) -> pd.DataFrame:
+    """
+    Perform final validation and save raw and cleaned versions.
+    """
+    # 1. Validate Schema
+    validate_schema_structure(raw_df, schema)
+    
+    # 2. Validate Data Types/Constraints
+    validate_data_types_and_constraints(raw_df, schema)
+    
+    # 3. Check for specific required variables mentioned in T015 logic
+    required_vars = ["self_reported_switching_frequency", "cognitive_flexibility_score"]
+    missing_vars = [v for v in required_vars if v not in raw_df.columns]
+    if missing_vars:
+        raise ValueError(f"Data Gap: Dataset lacks required variables: {missing_vars}")
+    
+    # 4. Save Raw
+    raw_path = RAW_DIR / f"{dataset_id}_raw.csv"
+    raw_df.to_csv(raw_path, index=False)
+    logger.info(f"Raw data saved to {raw_path}")
+    
+    # 5. Clean Data (Basic cleaning: drop rows with critical missing values)
+    # We drop rows where the outcome or primary predictor is missing
+    critical_cols = ["cognitive_flexibility_score", "self_reported_switching_frequency"]
+    cleaned_df = raw_df.dropna(subset=critical_cols)
+    
+    logger.info(f"Dropped {len(raw_df) - len(cleaned_df)} rows due to missing critical values.")
+    
+    # 6. Save Cleaned
+    cleaned_path = PROCESSED_DIR / f"{dataset_id}_cleaned.csv"
+    cleaned_df.to_csv(cleaned_path, index=False)
+    logger.info(f"Cleaned data saved to {cleaned_path}")
+    
+    return cleaned_df
+
+def write_instrument_sources(dataset_id: str, url: str) -> None:
+    """
+    Update instrument sources file with the verified dataset info.
+    """
+    sources_file = Path("data") / "instrument_sources.yaml"
+    sources_dir = sources_file.parent
+    sources_dir.mkdir(parents=True, exist_ok=True)
+    
+    source_data = {
+        "dataset_id": dataset_id,
+        "url": url,
+        "verified_date": pd.Timestamp.now().isoformat(),
+        "variables_mapped": ["self_reported_switching_frequency", "cognitive_flexibility_score"]
     }
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        yaml.dump(sources, f)
-
-def main() -> int:
-    setup_logging()
-    logger = get_logger("ingest")
-    logger.info("Starting data ingestion (T015).")
-
-    # 1. Pre-flight Check: Verify feasibility_status.json
-    feasibility_path = Path("results/feasibility_status.json")
-    if not feasibility_path.exists():
-        logger.error("Feasibility check (T001) not found. Halting.")
-        sys.exit(1)
     
-    with open(feasibility_path, "r") as f:
-        feasibility = yaml.safe_load(f)
+    if sources_file.exists():
+        with open(sources_file, "r") as f:
+            existing = yaml.safe_load(f) or {}
+        existing[dataset_id] = source_data
+    else:
+        existing = {dataset_id: source_data}
+        
+    with open(sources_file, "w") as f:
+        yaml.dump(existing, f, default_flow_style=False)
+    logger.info(f"Updated instrument sources at {sources_file}")
+
+def main():
+    """Main execution flow for T015."""
+    setup_logging()
+    ensure_directories()
+    
+    logger.info("Starting Dataset Ingestion Pipeline (T015).")
+    
+    # 1. Pre-flight Check: Verify feasibility status
+    if not FEASIBILITY_FILE.exists():
+        raise FileNotFoundError(f"Feasibility check file not found: {FEASIBILITY_FILE}. Run T001 first.")
+    
+    with open(FEASIBILITY_FILE, "r") as f:
+        feasibility = json.load(f)
     
     if feasibility.get("status") != "PASS":
-        logger.error("Feasibility check failed. Halting.")
-        sys.exit(1)
-
-    selected_dataset = feasibility.get("dataset_id")
-    logger.info(f"Selected dataset for ingestion: {selected_dataset}")
-
-    # 2. Load Schema
-    schema = load_schema_contract("contracts/dataset.schema.yaml")
-
-    # 3. Fetch Data based on selected dataset
-    df = None
-    try:
-        if selected_dataset == "hilda/hilda_2023":
-            df = load_hilda()
-        elif selected_dataset == "ess/ess_round10":
-            df = load_ess()
-        elif selected_dataset == "nrc/addhealth_wave4":
-            df = load_addhealth()
-        else:
-            logger.error(f"Unknown dataset ID: {selected_dataset}")
-            return 1
-    except Exception as e:
-        logger.error(f"Data fetch failed: {e}")
-        # Fail loudly, no fallback
-        sys.exit(1)
-
-    if df is None:
-        logger.error("No data loaded.")
-        return 1
-
-    # 4. Save Raw and Cleaned (Cleaned is just raw for now, engineering is T017)
-    output_raw = f"{DATA_ROOT}/raw/{selected_dataset.replace('/', '_')}_raw.csv"
-    validate_and_save(df, schema, output_raw)
+        raise RuntimeError(f"Feasibility check failed: {feasibility.get('message')}. Cannot proceed with ingestion.")
     
-    # Also save a cleaned version (initially identical) to satisfy T017 dependency
-    output_cleaned = f"{DATA_ROOT}/processed/{selected_dataset.replace('/', '_')}_cleaned.csv"
-    # T017 will handle the actual engineering, but we save the raw as cleaned for now 
-    # or let T017 overwrite. Per T015: "Output: Save raw data ... and cleaned CSV"
-    # We save the raw data as the initial cleaned data.
-    validate_and_save(df, schema, output_cleaned)
-
-    return 0
+    dataset_id = feasibility.get("dataset_id")
+    if not dataset_id:
+        raise RuntimeError("Feasibility check passed but no dataset_id found.")
+    
+    logger.info(f"Feasibility check passed for dataset: {dataset_id}")
+    
+    # 2. Load Schema Contract
+    schema = load_schema_contract()
+    
+    # 3. Fetch Data
+    # The URL should be pinned in config.py as per T015 requirements
+    if not DATA_URL:
+        raise RuntimeError("DATA_URL is not defined in config.py. Cannot proceed.")
+    
+    raw_path = RAW_DIR / f"{dataset_id}_raw.csv"
+    
+    try:
+        download_data(DATA_URL, raw_path)
+    except RuntimeError as e:
+        logger.error("Data fetch failed. Halting pipeline.")
+        raise e
+    
+    # 4. Load and Validate
+    try:
+        # Load a sample first to check schema quickly
+        sample_df = pd.read_csv(raw_path, nrows=SAMPLE_SIZE)
+        validate_schema_structure(sample_df, schema)
+        
+        # Load full data (or large chunk) for processing
+        logger.info(f"Loading full dataset from {raw_path}...")
+        raw_df = pd.read_csv(raw_path)
+        
+        # Full validation
+        cleaned_df = validate_and_save(raw_df, schema, dataset_id)
+        
+    except ValueError as e:
+        logger.error(f"Validation failed: {e}")
+        raise e
+    except Exception as e:
+        logger.error(f"Unexpected error during processing: {e}")
+        raise e
+    
+    # 5. Update Instrument Sources
+    write_instrument_sources(dataset_id, DATA_URL)
+    
+    logger.info("Dataset Ingestion Pipeline (T015) completed successfully.")
+    return cleaned_df
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

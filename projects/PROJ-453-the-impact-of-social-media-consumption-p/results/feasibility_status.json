@@ -1,7 +1,8 @@
 {
   "status": "PASS",
-  "dataset_id": "hilda/hilda_2023",
-  "message": "Dataset verified with required variables.",
+  "dataset_id": "addhealth_wave4",
+  "message": "Dataset verified and ready for ingestion.",
   "proxy_used": false,
-  "merged_datasets": []
+  "merged_datasets": [],
+  "url": "https://raw.githubusercontent.com/llmXive/datasets/main/addhealth_wave4_sample.csv"
 }

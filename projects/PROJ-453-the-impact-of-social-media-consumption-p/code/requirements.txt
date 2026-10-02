@@ -7,6 +7,5 @@ requests
 datasets
 pytest
 matplotlib
-ruff
-black
-pydocstyle
+seaborn
+scipy

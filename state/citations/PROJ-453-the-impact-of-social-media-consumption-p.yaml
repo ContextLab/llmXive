@@ -42,14 +42,3 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6311820707a7682790299c75/89e871f8ebca1d79ac65bdd2a6c350ef7527ffa76114801aecf2daa92d584aa2?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27EssayForum_Essays_cleaned.csv%3B+filename%3D%22EssayForum_Essays_cleaned.csv%22%3B&response-content-type=text%2Fcsv&Expires=1785921158&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMxMTgyMDcwN2E3NjgyNzkwMjk5Yzc1Lzg5ZTg3MWY4ZWJjYTFkNzlhYzY1YmRkMmE2YzM1MGVmNzUyN2ZmYTc2MTE0ODAxYWVjZjJkYWE5MmQ1ODRhYTJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3RXNzYXlGb3J1bV9Fc3NheXNfY2xlYW5lZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJFc3NheUZvcnVtX0Vzc2F5c19jbGVhbmVkLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1OTIxMTU4fX19XX0_&Signature=MEUCIBUkDWt9wIszgGHiFvPDNaHRUH8sbLwc9eTBMTJlxQdpAiEAh5GfzWgo0HHXmqgZDW%7EnKmty66nkeoWluv2q2ywkEec_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-08-05T08:12:35.671813Z'
-- artifact_hash: 27b3b2b7de66ba7d57874077b65611fa2c8f367a3958e5a5d376223a7ea23df5
-  artifact_path: projects/PROJ-453-the-impact-of-social-media-consumption-p/specs/001-the-impact-of-social-media-consumption-p/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/{id}`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/%7Bid/datasets
-  verified_at: '2026-10-01T04:16:38.499418Z'

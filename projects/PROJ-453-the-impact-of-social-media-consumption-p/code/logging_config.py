@@ -3,51 +3,40 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_file: Optional[str] = None) -> None:
-    """
-    Configure the root logger with a standard format and destination.
+_logger = None
+
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Configure logging for the project."""
+    global _logger
     
-    Args:
-        log_file: Optional path to a log file. If None, logs go to stdout.
-    """
-    formatter = logging.Formatter(
-        "[%(asctime)s] %(levelname)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    if _logger:
+        return _logger
     
-    handlers = []
+    # Create logger
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(logging.INFO)
     
-    # Console handler (stdout)
+    # Create formatter
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
+    
+    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO)
-    handlers.append(console_handler)
+    _logger.addHandler(console_handler)
     
-    # File handler (optional)
+    # File handler if specified
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        handlers.append(file_handler)
+        _logger.addHandler(file_handler)
     
-    logging.basicConfig(
-        level=logging.INFO,
-        handlers=handlers,
-        force=True
-    )
+    return _logger
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Retrieve a logger instance.
-    
-    Args:
-        name: Logger name. If None, returns the root logger.
-    
-    Returns:
-        Configured logging.Logger instance.
-    """
-    if name is None:
-        return logging.getLogger()
-    return logging.getLogger(name)
+    """Get a logger instance."""
+    if _logger is None:
+        setup_logging()
+    if name:
+        return _logger.getChild(name)
+    return _logger

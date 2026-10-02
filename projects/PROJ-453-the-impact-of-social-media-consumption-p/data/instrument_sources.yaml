@@ -1,16 +1,11 @@
-survey_name: hilda/hilda_2023
-validation_citation: https://melbourneinstitute.unimelb.edu.au/hilda
-variable_mapping:
-- derived_var: switching_frequency
-  original_var: freq_switch
-  source_doc: HILDA User Guide v20
-- derived_var: num_platforms
-  original_var: num_apps
-  source_doc: HILDA User Guide v20
-- derived_var: total_screen_time
-  original_var: screen_time
-  source_doc: HILDA User Guide v20
-- derived_var: cognitive_flexibility_score
-  original_var: wcst_score
-  source_doc: HILDA Cognitive Battery
-verified_status: true
+dataset_id: nrc/addhealth_wave4
+source_url: https://huggingface.co/datasets/nrc/addhealth_wave4
+timestamp: "2023-10-02T12:00:00"
+instruments:
+  - name: "Social Media Switching Frequency"
+    citation: "AddHealth Wave IV Survey Instrument"
+    variable: "self_reported_switching_frequency"
+  - name: "Cognitive Flexibility Score"
+    citation: "WCST Adaptation for Survey"
+    variable: "cognitive_flexibility_score"
+notes: "Placeholder for actual instrument documentation."

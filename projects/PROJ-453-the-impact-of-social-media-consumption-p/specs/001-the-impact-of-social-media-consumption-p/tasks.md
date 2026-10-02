@@ -58,7 +58,7 @@
  4. **Implement Scoring Script**: Create `code/02_score.py` (or similar) that implements the reproducible transformation logic from raw survey responses to the "platform-switching frequency" score as defined in the Constitution Principle VI. This script MUST be documented and executable.
  - **Dependency**: T001, T004, T005.
 
-- [X] T017a [P0] **Ingestion Setup**: Prepare `code/01_ingest.py` for instrumentation.
+- [ ] T017a [P0] **Ingestion Setup**: Prepare `code/01_ingest.py` for instrumentation.
  - **Logic**:
  1. Define helper functions for data loading.
  2. Prepare the structure for instrument documentation integration.
@@ -108,7 +108,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] **Dataset Ingestion**: Implement `code/01_ingest.py`.
+- [ ] T015 [US1] **Dataset Ingestion**: Implement `code/01_ingest.py`.
  - **Logic**:
  1. **Pre-flight Check**: Verify `results/feasibility_status.json` exists and indicates "PASS" for the specific dataset. **HALT** if feasibility check failed (do not skip).
  2. **Fetch**: Use **`wget` or `curl`** to download raw files from the URL pinned in `code/config.py` (`DATA_URL`). This ensures the exact same canonical source is used every run (Constitution Principle I).
@@ -118,7 +118,7 @@
  6. **Output**: Save raw data to `data/raw/[dataset]_raw.csv` and cleaned CSV to `data/processed/[dataset]_cleaned.csv`.
  - **Dependency**: T001, T004, T017a.
 
-- [X] T017 [US1] **Variable Engineering & Output**: Implement `code/02_engineer.py`.
+- [ ] T017 [US1] **Variable Engineering & Output**: Implement `code/02_engineer.py`.
  - **Logic**:
  1. **Verify Variable Presence**: explicitly check for the presence of `self_reported_switching_frequency` before proceeding; if missing, halt with a `ValueError`.
  2. Compute `switching_index = num_platforms * switching_frequency`. Store as derived variable.
@@ -147,7 +147,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T025 [US2] **Core Model Fitting & Diagnostics**: Implement `code/03_model.py` (Part 1: Core OLS).
+- [ ] T025 [US2] **Core Model Fitting & Diagnostics**: Implement `code/03_model.py` (Part 1: Core OLS). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Steps**:
  1. **Load Data**: Read `data/processed/participants_cleaned.csv`.
  2. **Mean-center** `switching_index` and `age` **THEN create interaction term** `switching_index * age` **IF** `config.py` `INCLUDE_INTERACTION` is set to True (default False).
@@ -169,7 +169,7 @@
  9. **Output**: Write intermediate model summary to `results/models/core_model.json`.
  - **Dependency**: T017, T024.
 
-- [X] T026 [US2] **Sensitivity Analysis & FDR**: Implement `code/03_model.py` (Part 2: Sensitivity).
+- [ ] T026 [US2] **Sensitivity Analysis & FDR**: Implement `code/03_model.py` (Part 2: Sensitivity). <!-- FAILED: unspecified -->
  - **Steps**:
  1. **Check Residuals**: Check if `results/models/residuals.csv` exists.
  2. **Sensitivity Runs**: Run regression with alternative definitions: `platform_count` only, `switching_frequency` only.
@@ -186,7 +186,7 @@
  - `message`: "SC-003 Met: p < 0.10 across operationalizations" or "SC-003 FAIL: Sign instability or p > 0.10 detected".
  - **Dependency**: T025.
 
-- [X] T027 [US2] **Final Validation & Report**: Implement `code/03_model.py` (Part 3: Final Report).
+- [ ] T027 [US2] **Final Validation & Report**: Implement `code/03_model.py` (Part 3: Final Report). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
  - **Steps**:
  1. **Merge Results**: Combine core model and sensitivity results.
  2. **Validate Output Schema**: Validate `results/models/regression_summary.json` against `contracts/output.schema.yaml`. If missing, fail with "Schema file missing".
@@ -217,13 +217,13 @@
 
 ### Implementation for User Story 3
 
-- [X] T036 [US3] **Scatter Plot**: Implement `code/04_visualize.py` (Part 1).
+- [ ] T036 [US3] **Scatter Plot**: Implement `code/04_visualize.py` (Part 1). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Actions**:
  1. **Scatter Plot**: Generate scatter plot with `switching_index` (X) vs `cognitive_score` (Y) and save to `results/figures/regression_plot.png`.
  2. **Confidence Interval**: Overlay fitted regression line with 95% confidence intervals.
  - **Dependency**: T025.
 
-- [X] T037 [US3] **Stratified Plot**: Implement `code/04_visualize.py` (Part 2).
+- [ ] T037 [US3] **Stratified Plot**: Implement `code/04_visualize.py` (Part 2). <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
  - **Actions**:
  1. **Significance Check**: Extract the p-value for the interaction term from `results/models/core_model.json` using the key `diagnostics.interaction_p_value`.
  2. **Threshold**: Read the significance threshold from `code/config.py` (`INTERACTION_SIG_THRESHOLD`, default 0.05).
@@ -231,14 +231,14 @@
  4. **Significance Label**: If the interaction term is significant, label the plot "Significant Interaction". If not, **do NOT generate the plot**.
  - **Dependency**: T025.
 
-- [X] T038 [US3] **Sensitivity Table**: Implement `code/04_visualize.py` (Part 3).
+- [ ] T038 [US3] **Sensitivity Table**: Implement `code/04_visualize.py` (Part 3). <!-- ATOMIZE: requested -->
  - **Actions**:
  1. **Input**: Read `results/sensitivity_comparison.csv`.
  2. **Sensitivity Table**: Generate `results/figures/sensitivity_table.png` containing beta coefficients, p-values, n, and sign for all operationalizations.
  3. **Columns**: Ensure the visual table includes: `definition`, `beta`, `p_value`, `fdr_p_value`, `n`, `sign`.
  - **Dependency**: T026.
 
-- [X] T039 [US3] **Final Report**: Implement `code/04_visualize.py` (Part 4).
+- [ ] T039 [US3] **Final Report**: Implement `code/04_visualize.py` (Part 4). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Actions**:
  1. **Final Report**: Write final JSON report (`results/final_report.json`) merging model summary with the associational text summary.
  2. **Validation**: Run `causal_language_scanner` on the `interpretation` field and fail if matches found.

@@ -1,18 +1,19 @@
 {
   "project_id": "PROJ-453-the-impact-of-social-media-consumption-p",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/04_visualize.py; 2 command(s) failed: python code/02_engineer.py (rc=1); python code/03_model.py (rc=1); 1 declared deliverable(s) absent: data/processed/participants_cleaned.csv",
+  "reason": "4 command(s) failed: python code/01_ingest.py (rc=1); python code/02_engineer.py (rc=1); python code/03_model.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/02_engineer.py -> rc=1\n    [2026-09-21 04:42:45,470] INFO: Starting variable engineering pipeline.\n[2026-09-21 04:42:45,470] ERROR: No raw CSV files found in data/raw/",
-    "python code/03_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/03_model.py\", line 134, in <module>\n    ) -> Tuple[sm.OLSResults, Dict[str, Any]]:\n               ^^^^^^^^^^^^^\nAttributeError: module 'statsmodels.api' has no attribute 'OLSResults'",
-    "python code/04_visualize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/04_visualize.py': [Errno 2] No such file or directory"
+    "python code/01_ingest.py -> rc=1\n    requests/models.py\", line 1167, in raise_for_status\n    raise HTTPError(http_error_msg, response=self)\nrequests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/llmXive/datasets/main/addhealth_wave4_sample.csv\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/01_ingest.py\", line 249, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/project",
+    "python code/02_engineer.py -> rc=1\n    453-the-impact-of-social-media-consumption-p/code/02_engineer.py\", line 145, in main\n    df = load_all_raw_data()\n         ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/02_engineer.py\", line 56, in load_all_raw_data\n    raise FileNotFoundError(f\"No cleaned data found in {processed_dir}. Expected *_cleaned.csv\")\nFileNotFoundError: No cleaned data found in data/processed. Expected *_cleaned.csv\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/project",
+    "python code/03_model.py -> rc=1\n    [2026-10-02 21:33:14,488] INFO: Starting Sensitivity Analysis & FDR (T026).\n[2026-10-02 21:33:14,488] ERROR: Cleaned data not found at data/processed/participants_cleaned.csv.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/03_model.py\", line 296, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-453-the-impact-of-social-media-consumption-p/code/03_model.py\", line 247, in main\n    raise FileNotFoundError(f\"C",
+    "python code/04_visualize.py -> rc=1\n    [2026-10-02 21:33:15,656] INFO: Starting visualization pipeline (T036-T039).\n[2026-10-02 21:33:15,656] ERROR: File not found: Cleaned data not found at data/processed/participants_cleaned.csv"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 6,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-21T04:42:48Z"
+  "updated_at": "2026-10-02T21:33:16Z"
 }

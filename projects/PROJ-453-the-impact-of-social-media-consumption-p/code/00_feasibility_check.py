@@ -1,104 +1,110 @@
-"""
-Feasibility Check Module: Validates dataset schema and variable presence.
-"""
 import os
 import sys
 import logging
-from datetime import datetime
+import json
+import yaml
+import requests
+import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-import yaml
-from datasets import load_dataset
-
+# Local imports
+from config import DATA_ROOT, RESULTS_ROOT
 from logging_config import setup_logging, get_logger
-from config import DATA_ROOT
 
-def load_schema_contract(path: str) -> Dict[str, Any]:
-    """Load the schema contract YAML."""
-    with open(path, "r") as f:
+logger = setup_logging() if 'setup_logging' in dir() else logging.getLogger(__name__)
+try:
+    logger = get_logger(__name__)
+except Exception:
+    pass
+
+def load_schema_contract(schema_path: str) -> Dict[str, Any]:
+    """Load the schema contract from a YAML file."""
+    with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_schema_structure(schema: Dict[str, Any], data_headers: List[str]) -> bool:
-    """Check if data headers match schema keys."""
-    required_keys = list(schema.keys())
-    return all(k in data_headers for k in required_keys)
+def validate_schema_structure(data: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """Validate that the DataFrame columns match the schema requirements."""
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Data must be a pandas DataFrame")
+    required_columns = schema.get('required_columns', [])
+    data_cols = set(data.columns)
+    missing = [col for col in required_columns if isinstance(col, str) and col not in data_cols]
+    if missing:
+        raise ValueError(f"Schema mismatch: Missing columns {missing}")
+    return True
 
-def check_dataset_feasibility(candidate_ids: List[str], schema: Dict[str, Any]) -> Dict[str, Any]:
+def check_dataset_feasibility(dataset_id: str) -> Optional[str]:
     """
-    Stream a 1-row peek from candidate datasets to verify variables.
+    Check if a dataset ID exists and is accessible.
+    Returns the URL if accessible, None otherwise.
     """
-    logger = get_logger("feasibility_check")
-    results = {
-        "status": "FAIL",
-        "dataset_id": None,
-        "message": "No viable dataset found.",
-        "proxy_used": False,
-        "merged_datasets": []
+    base_url = "https://huggingface.co/datasets"
+    card_url = f"{base_url}/{dataset_id}"
+    
+    try:
+        response = requests.head(card_url, timeout=10)
+        if response.status_code == 200:
+            return card_url
+    except Exception:
+        pass
+    return None
+
+def write_feasibility_report(status: str, dataset_id: Optional[str], message: str, 
+                             proxy_used: bool = False, merged_datasets: List[str] = None) -> None:
+    """Write the feasibility status to a JSON file."""
+    report = {
+        "status": status,
+        "dataset_id": dataset_id,
+        "message": message,
+        "proxy_used": proxy_used,
+        "merged_datasets": merged_datasets or []
     }
-
-    for ds_id in candidate_ids:
-        try:
-            logger.info(f"Checking candidate dataset: {ds_id}")
-            ds = load_dataset(ds_id, split="train", streaming=True)
-            first_row = next(iter(ds))
-            headers = list(first_row.keys())
-
-            # Check required variables
-            required = list(schema.keys())
-            missing = [r for r in required if r not in headers]
-
-            if not missing:
-                results["status"] = "PASS"
-                results["dataset_id"] = ds_id
-                results["message"] = f"Dataset {ds_id} passed feasibility check."
-                logger.info(f"Feasibility PASS for {ds_id}")
-                return results
-            else:
-                logger.warning(f"Missing variables in {ds_id}: {missing}")
-        except Exception as e:
-            logger.error(f"Failed to check {ds_id}: {e}")
-
-    return results
-
-def write_feasibility_report(report: Dict[str, Any], output_path: str) -> None:
-    """Write the feasibility report to JSON."""
-    import json
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
+    output_path = Path(RESULTS_ROOT) / "feasibility_status.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Feasibility report written to {output_path}")
 
-def write_schema_validation_log(log_path: str, message: str) -> None:
+def write_schema_validation_log(status: str, details: str) -> None:
     """Write schema validation log."""
-    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, "w") as f:
-        f.write(f"[{datetime.now()}] {message}\n")
+    output_path = Path(RESULTS_ROOT) / "schema_validation_status.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump({"status": status, "details": details}, f, indent=2)
 
-def main() -> int:
-    """Main entry point for feasibility check."""
-    setup_logging()
-    logger = get_logger("feasibility_check")
+def main():
+    """Main feasibility check."""
     logger.info("Starting feasibility check.")
-
-    schema_path = "contracts/dataset.schema.yaml"
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema contract not found: {schema_path}")
-        return 1
-
-    schema = load_schema_contract(schema_path)
+    
     candidates = ["nrc/addhealth_wave4", "hilda/hilda_2023", "ess/ess_round10"]
-
-    report = check_dataset_feasibility(candidates, schema)
-
-    output_path = "results/feasibility_status.json"
-    write_feasibility_report(report, output_path)
-
-    if report["status"] == "FAIL":
-        logger.error("Data Gap: No viable dataset found. Project cannot proceed.")
-        return 1
-
-    logger.info(f"Feasibility check passed for {report['dataset_id']}")
-    return 0
+    required_vars = ["self_reported_switching_frequency", "cognitive_flexibility_score"]
+    
+    schema_path = Path("contracts/dataset.schema.yaml")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema contract missing: {schema_path}")
+    schema = load_schema_contract(str(schema_path))
+    
+    for candidate in candidates:
+        url = check_dataset_feasibility(candidate)
+        if url:
+            logger.info(f"Found candidate: {candidate} at {url}")
+            # Try to fetch sample (first 1000 rows)
+            try:
+                # Attempt to download a sample
+                sample_df = pd.read_csv(f"{url}/data.csv", nrows=1000)
+                # Validate schema
+                if validate_schema_structure(sample_df, schema):
+                    write_feasibility_report("PASS", candidate, "Dataset feasible.", 
+                                           proxy_used=False, merged_datasets=[])
+                    logger.info("Feasibility check passed.")
+                    return
+            except Exception as e:
+                logger.warning(f"Failed to validate sample from {candidate}: {e}")
+                continue
+                
+    write_feasibility_report("FAIL", None, "No feasible dataset found.")
+    logger.error("Feasibility check failed for all candidates.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
