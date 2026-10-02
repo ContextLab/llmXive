@@ -31,15 +31,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/chembl/uspto-yield/resolve/main/data/train.parquet
   verified_at: '2026-07-08T18:25:06.949036Z'
-- artifact_hash: fa3e49236c7ce663b0334ac52b849318a82ec861195cc61e69460ff967debf83
-  artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Systematic Comparison and Comprehensive Evaluation of 80 Amino Acid
-    Descriptors in Peptide QSAR Modeling
-  kind: doi
-  value: 10.1021/acs.jcim.0c01370
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1021/acs.jcim.0c01370
-  verified_at: '2026-09-29T05:59:52.235053Z'
