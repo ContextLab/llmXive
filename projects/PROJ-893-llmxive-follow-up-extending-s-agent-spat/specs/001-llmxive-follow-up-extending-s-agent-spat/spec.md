@@ -69,7 +69,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST extract 3D geometric constraints (coordinates, object relations) from the S-Agent-300K dataset for a stratified random sample of n=1,000 static multi-view scenes, ensuring the data format is compatible with a standard CSP solver. The system MUST NOT use historical VLM tool-call traces as input to the solver (See US-1).
+- **FR-001**: The system MUST extract 3D geometric constraints (coordinates, object relations) from the S-AgentK dataset for a stratified random sample of n=1,000 static multi-view scenes, ensuring the data format is compatible with a standard CSP solver. The system MUST NOT use historical VLM tool-call traces as input to the solver (See US-1).
 - **FR-002**: The system MUST implement a deterministic CSP solver that ingests the extracted geometric constraints and solves for spatial counting and relative positioning tasks directly via constraint propagation, without requiring any neural network inference, GPU acceleration, or pre-determined tool sequences (See US-1).
 - **FR-003**: The system MUST calculate Exact Match and F1-score metrics by comparing the symbolic solver's predictions against both the ground-truth labels and the original S-Agent (VLM) baseline predictions (See US-2).
 - **FR-004**: The system MUST measure and record the inference latency for each scene processed by the symbolic solver on a multi-core CPU environment, ensuring no single scene exceeds a practical threshold for processing time. (See US-2).
@@ -101,5 +101,7 @@
 - **Inference Framing**: The study is observational; we assume that the comparison between the symbolic solver and the VLM baseline on the *same* dataset allows for a valid assessment of the reasoning mechanism's source, but we will frame results as associational regarding the "source of reasoning" rather than causal claims about general spatial intelligence.
 - **Compute Feasibility**: We assume that a standard Python CSP solver (e.g., `python-constraint` or `ortools` in CPU mode) can solve the extracted constraint problems for n=1,000 scenes within the -hour CI limit and GB RAM constraint without requiring GPU acceleration or 8-bit quantization.
 - **Threshold Justification**: We assume a fixed accuracy threshold relative to the VLM baseline is a defensible community standard for "high-fidelity replication" in this context. A sensitivity analysis will sweep this threshold over a range of high-probability values to report how the "success/failure" verdict varies (See FR-003). The project's success condition is explicitly defined in SC-005.
-- **Measurement Validity**: We assume the ground-truth labels in the S-Agent-300K dataset are accurate and sufficient for calculating Exact Match and F1-scores without requiring additional manual verification.
+- **Measurement Validity**: We assume the ground-truth labels in the S-Agent-Large dataset
+
+The research question remains: How can we evaluate the scalability of agent-based systems? The method will involve: systematic benchmarking across varying dataset sizes. References: [Author-Year, DOI]. are accurate and sufficient for calculating Exact Match and F1-scores without requiring additional manual verification.
 - **Predictor Collinearity**: We assume that the extracted 3D geometric constraints are independent variables where applicable; if constraints are definitionally related (e.g., derived from the same point cloud), the analysis will treat them as a joint constraint system rather than claiming independent predictive effects.

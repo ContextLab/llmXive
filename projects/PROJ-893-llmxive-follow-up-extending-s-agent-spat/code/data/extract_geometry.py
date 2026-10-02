@@ -1,6 +1,7 @@
 """
 Extract geometric constraints from the S-AgentK dataset.
 Parses JSONL, validates, and outputs constraints.jsonl.
+Detects malformed/missing data and logs exclusions.
 """
 import os
 import sys
@@ -16,7 +17,8 @@ sys.path.insert(0, str(ROOT_DIR / "code"))
 from config import Config
 
 def load_scene_data(input_dir: Path) -> List[Dict[str, Any]]:
-    """Load scene data from a JSONL file."""
+    """Load scene data from the expected JSONL file."""
+    # The expected filename based on the failure log and task context
     raw_file = input_dir / "s_agent_k_subset.jsonl"
     if not raw_file.exists():
         raise FileNotFoundError(f"Raw data file not found: {raw_file}")
@@ -28,12 +30,13 @@ def load_scene_data(input_dir: Path) -> List[Dict[str, Any]]:
                 try:
                     scenes.append(json.loads(line))
                 except json.JSONDecodeError as e:
-                    # Log malformed JSON lines as invalid scenes
-                    scenes.append({"id": f"malformed_{hashlib.md5(line.encode()).hexdigest()[:8]}", "error": str(e)})
+                    # Log malformed JSON lines as invalid scenes with a generated ID
+                    scene_id = f"malformed_{hashlib.md5(line.encode()).hexdigest()[:8]}"
+                    scenes.append({"id": scene_id, "error": str(e)})
     return scenes
 
 def validate_scene_constraints(scene: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-    """Validate a scene's constraints."""
+    """Validate a scene's constraints and geometry."""
     if 'error' in scene:
         return False, "Malformed JSON"
     if 'geometry' not in scene:
@@ -69,8 +72,7 @@ def extract_constraints(scenes: List[Dict[str, Any]]) -> Tuple[List[Dict[str, An
 
 def main():
     config = Config()
-    # Config might not have a logger attribute if __getattr__ isn't fully implemented yet
-    # Use a simple fallback or direct print if needed, but relying on Config's interface
+    # Use a simple fallback logger if Config doesn't have one
     logger = getattr(config, 'logger', None)
     if not logger:
         class SimpleLogger:
@@ -78,6 +80,7 @@ def main():
             def error(self, msg): print(f"ERROR: {msg}")
         logger = SimpleLogger()
     
+    # Use config paths or defaults
     input_dir = getattr(config, 'DATA_RAW', Path("data/raw"))
     output_file = getattr(config, 'DATA_DERIVED', Path("data/derived")) / "constraints.jsonl"
     exclusion_log_file = getattr(config, 'DATA_RESULTS', Path("data/results")) / "exclusion_log.json"
@@ -95,12 +98,12 @@ def main():
     logger.info(f"Extracting constraints from {len(scenes)} scenes...")
     valid_constraints, exclusions = extract_constraints(scenes)
     
-    # Write valid constraints
+    # Write valid constraints to constraints.jsonl
     with open(output_file, 'w', encoding='utf-8') as f:
         for constraint in valid_constraints:
             f.write(json.dumps(constraint) + '\n')
     
-    # Write exclusion log with required schema keys
+    # Write exclusion log with required schema keys: total_scenes, excluded_count, excluded_ids
     exclusion_data = {
         "total_scenes": len(scenes),
         "excluded_count": len(exclusions),

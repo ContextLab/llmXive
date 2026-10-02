@@ -5,54 +5,13 @@ T004:
     typo and the script never writes the computed hashes back to the YAML), and the
     required state file `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
     does not exist at all. Both the implementation and the target artifact are missing/incomplete.
-T006:
-  c: false
-  h: 70af8aabf00b375118edb40342e9d81c1ba2d19e92b9d6f7b6c871a2acc74535
-  r: The provided `code/data/download.py` is truncated (ends with `df = pd.`) and
-    never reaches the stratified sampling, column checks, abort logic, or manifest
-    creation. Moreover, `data/manifest.json` does not exist. The required manifest
-    file and full implementation of the sampling and hashing steps are missing.
 T006a:
-  c: false
-  h: 044eb84c752af1d7c0577442cac7a340e8db8adb9841bf4729ef7b2a1e773178
-  r: "The `code/data/verify_checksum.py` file is present but the code is truncated\
-    \ (ends mid\u2011function with no main execution block) and does not demonstrate\
-    \ a complete checksum\u2011verification workflow. Additionally, the required `data/manifest.json`\
-    \ is absent, so the script cannot actually perform the verification it is meant\
-    \ to implement. The task therefore remains unfinished."
-T010:
-  c: false
-  h: 8b0f714cd1d8ac2852fab4e396751d20f9979cb510d471f77ebeee57292f4531
-  r: The repository contains `code/data/extract_geometry.py`, but the file is truncated
-    and does not show a complete implementation of parsing, validation, exclusion
-    logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
-    output file `data/derived/constraints.jsonl` is absent. Both the artifact and
-    its expected result are missing or incomplete.
-T012:
-  c: false
-  h: 38e8cfbcc8ef95652d383918e9dea59b002f0d3859afcce05e18f9258bcf5ca4
-  r: "The repository contains only a partially shown `code/solver/run_solver.py`;\
-    \ the required output files (`data/derived/predictions.jsonl`, `data/derived/latency_log.jsonl`,\
-    \ `data/derived/solver_failures.json`, and `data/results/wall_clock_time.json`)\
-    \ are absent, and there is no evidence that the script was executed to produce\
-    \ them. The task\u2019s core deliverables are therefore missing."
-T012e:
-  c: false
-  h: c1177aa4bacfdd977e7c0ee9e032070af56fca927e419adeb8a129852a2cc000
-  r: "The repository contains a partially shown `run_solver.py`, but there is no evidence\
-    \ that it was executed on the 1,000\u2011scene batch, and the required output\
-    \ files (`data/derived/predictions.jsonl`, `latency_log.jsonl`, `solver_failures.json`)\
-    \ are missing. Consequently the task\u2019s core deliverables and verification\
-    \ criteria are not satisfied."
-T013:
-  c: false
-  h: d77da7757768fc7c09941203bd5862ae1c1c3f260a98a702e05d46925b748344
-  r: "The required `data/derived/solver_failures.json` file is missing, so the script\
-    \ cannot merge solver\u2011stage exclusions as specified. Moreover, the provided\
-    \ `merge_exclusions.py` is truncated and shows no logic for parsing `error_type`\
-    \ or writing the final categorized log, indicating the implementation is incomplete.\
-    \ The next implementer must supply the missing `solver_failures.json` and ensure\
-    \ the script fully merges and categorizes exclusions per the task description."
+  c: true
+  h: 5e4a8c79b8eb5dfd7abdf774d3735b6b1a1b25c92e1ab996aa20ccd33444d4b7
+  r: "The repository contains a non\u2011empty `code/data/verify_checksum.py` that\
+    \ implements SHA\u2011256 checksum computation, loads `sampled_manifest.json`,\
+    \ validates its presence and format, and raises errors when the manifest is missing\
+    \ or checksums mismatch, fulfilling the task\u2019s requirements."
 T017:
   c: false
   h: 8c5104abe3364ba27a33d568f00a414b29c80e1e993b0a7ac9d6227aedf60009
@@ -76,13 +35,20 @@ T026:
     end and that all acceptance scenarios in `spec.md` were satisfied. The claim lacks\
     \ concrete evidence such as solver run results, latency measurements, or statistical\
     \ test outputs."
-T030:
+T027:
   c: false
-  h: a010d091055eabe6bdc9803064d8b48448f14b5710cd0c8e8de6b5bdc09bfaf8
-  r: "The `sensitivity.py` script is present but its implementation is truncated and\
-    \ never performs a threshold sweep or writes `data/results/sensitivity_analysis.csv`.\
-    \ Moreover, the required CSV output file does not exist. The task\u2019s core\
-    \ output is missing."
+  h: d6925e1c9207b652c970db26e757f171b7707cbbe092763af4c78bb3e9b2d82a
+  r: The repository lacks the required `data/raw/sampled_scenes.jsonl` and the generated
+    `data/results/vlm_trace_audit.json`. Moreover, `code/validate/vlm_audit.py` is
+    truncated (e.g., undefined `excluded_id` and no code that writes the audit JSON),
+    so it cannot produce the specified output. The task therefore remains unfinished.
+T029:
+  c: false
+  h: 9d05a564943c4e4380c1349691edbdec97d02a9aaee5e0e0b7c4cccb6a891af9
+  r: The `dry_run.py` script is truncated and never writes `data/results/dry_run_status.json`;
+    the required `constraints.schema.yaml` file is missing, and the expected output
+    file does not exist. Consequently the validation step is not fully implemented
+    nor does it produce the required status JSON.
 T030a:
   c: false
   h: 996c3948e64c248c5bffa4c20605ebd32fbf9ac299d5a36dcbac1632246c7437

@@ -4,189 +4,220 @@ import json
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any, Optional
 
-# Import from existing project modules
+# Ensure imports work relative to project root if run as module
+try:
+    from benchmark.analyze_failures import classify_failure
+except ImportError:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from benchmark.analyze_failures import classify_failure
+
 from config import Config
-from benchmark.analyze_failures import analyze_failures, classify_failure
 
-def load_jsonl(path: Path) -> List[Dict[str, Any]]:
+def load_jsonl(file_path: str) -> list:
     """Load a JSONL file into a list of dictionaries."""
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
     data = []
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if line:
                 data.append(json.loads(line))
     return data
 
-def load_csv_as_dict(path: Path) -> Dict[str, Dict[str, Any]]:
+def load_json(file_path: str) -> dict:
+    """Load a JSON file into a dictionary."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def load_csv_as_dict(file_path: str) -> dict:
     """Load a CSV file into a dictionary keyed by scene_id."""
     import csv
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
     data = {}
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            scene_id = row.get('scene_id')
-            if scene_id:
-                data[scene_id] = row
+            if 'scene_id' in row:
+                data[row['scene_id']] = row
     return data
 
 def generate_report(
-    analysis_results: List[Dict[str, Any]],
-    benchmark_results: Dict[str, Dict[str, Any]],
-    exclusion_log: Optional[Dict[str, Any]] = None
-) -> str:
+    benchmark_results_path: str,
+    failure_classification_path: str,
+    output_path: str
+):
     """
-    Generate the Markdown failure analysis report.
+    Generate a Markdown report summarizing failure analysis.
     
     Args:
-        analysis_results: List of dicts from analyze_failures (contains scene_id, failure_type, etc.)
-        benchmark_results: Dict of scene_id -> metrics row
-        exclusion_log: Optional dict containing exclusion counts and IDs
-        
-    Returns:
-        Markdown string content for the report.
+        benchmark_results_path: Path to data/results/benchmark_results.csv
+        failure_classification_path: Path to data/derived/failure_classification.json
+        output_path: Path to write the markdown report
     """
-    total_failures = len(analysis_results)
-    
-    if total_failures == 0:
-        return "# Failure Analysis Report\n\nNo failures detected to analyze.\n"
-
-    # Count failure types
-    type_counts = {}
-    for item in analysis_results:
-        f_type = item.get('failure_type', 'Unknown')
-        type_counts[f_type] = type_counts.get(f_type, 0) + 1
-
-    # Calculate proportions
-    proportions = {}
-    for f_type, count in type_counts.items():
-        proportions[f_type] = count / total_failures
-
-    # Identify representative examples (up to 3 per type)
-    examples_by_type = {}
-    for f_type in type_counts:
-        examples_by_type[f_type] = []
-    
-    for item in analysis_results:
-        f_type = item.get('failure_type', 'Unknown')
-        if len(examples_by_type[f_type]) < 3:
-            examples_by_type[f_type].append(item)
-
-    # Build Markdown
-    lines = []
-    lines.append("# Failure Analysis Report")
-    lines.append("")
-    lines.append(f"**Generated**: {datetime.now().isoformat()}")
-    lines.append("")
-    lines.append("## Executive Summary")
-    lines.append("")
-    lines.append(f"- **Total Failures Analyzed**: {total_failures}")
-    
-    if exclusion_log:
-        lines.append(f"- **Excluded Scenes**: {exclusion_log.get('total_excluded', 0)}")
-        lines.append(f"  - Invalid Geometry: {exclusion_log.get('invalid_geometry', 0)}")
-        lines.append(f"  - Missing Constraints: {exclusion_log.get('missing_constraints', 0)}")
-    
-    lines.append("")
-    lines.append("## Failure Distribution")
-    lines.append("")
-    lines.append("| Failure Type | Count | Proportion |")
-    lines.append("| :--- | :--- | :--- |")
-    
-    for f_type, count in sorted(type_counts.items(), key=lambda x: x[1], reverse=True):
-        prop = proportions[f_type]
-        lines.append(f"| {f_type} | {count} | {prop:.2%} |")
-    
-    lines.append("")
-    lines.append("## Semantic Gap Analysis")
-    lines.append("")
-    semantic_gap_count = type_counts.get('Semantic Gap', 0)
-    semantic_gap_prop = semantic_gap_count / total_failures if total_failures > 0 else 0.0
-    
-    lines.append(f"The proportion of failures attributable to **Semantic Gap** (disambiguation issues) is **{semantic_gap_prop:.2%}** ({semantic_gap_count} / {total_failures}).")
-    lines.append("")
-    lines.append("This metric quantifies the extent to which the symbolic solver underperforms due to ambiguity in natural language constraints that require world knowledge or context not explicitly encoded in the geometric constraints.")
-    lines.append("")
-    lines.append("## Representative Failure Examples")
-    lines.append("")
-    
-    for f_type, examples in examples_by_type.items():
-        lines.append(f"### {f_type}")
-        lines.append("")
-        for ex in examples:
-            scene_id = ex.get('scene_id', 'Unknown')
-            reason = ex.get('reason', 'No reason provided')
-            lines.append(f"- **Scene ID**: `{scene_id}`")
-            lines.append(f"  - **Reason**: {reason}")
-            
-            # Try to enrich with benchmark data if available
-            if scene_id in benchmark_results:
-                row = benchmark_results[scene_id]
-                lines.append(f"  - **Symbolic Prediction**: {row.get('symbolic_prediction', 'N/A')}")
-                lines.append(f"  - **Ground Truth**: {row.get('ground_truth', 'N/A')}")
-                lines.append(f"  - **VLM Prediction**: {row.get('vlm_prediction', 'N/A')}")
-            lines.append("")
-    
-    lines.append("---")
-    lines.append("*Generated by llmXive automated science pipeline.*")
-    
-    return "\n".join(lines)
-
-def main():
-    """
-    Main entry point to generate the failure analysis report.
-    
-    Reads:
-    - data/derived/failure_analysis.jsonl (from T021)
-    - data/results/benchmark_results.csv (from T019)
-    - data/results/exclusion_log.json (from T013)
-    
-    Writes:
-    - data/results/failure_analysis_report.md
-    """
-    config = Config()
-    
-    # Define paths
-    analysis_path = config.DATA_DERIVED_PATH / "failure_analysis.jsonl"
-    benchmark_path = config.DATA_RESULTS_PATH / "benchmark_results.csv"
-    exclusion_path = config.DATA_RESULTS_PATH / "exclusion_log.json"
-    output_path = config.DATA_RESULTS_PATH / "failure_analysis_report.md"
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     # Load data
     try:
-        analysis_data = load_jsonl(analysis_path)
+        benchmark_data = load_csv_as_dict(benchmark_results_path)
     except FileNotFoundError as e:
-        print(f"Error: Could not load failure analysis data. Ensure T021 has run. ({e})")
+        print(f"ERROR: {e}")
         sys.exit(1)
-        
+
     try:
-        benchmark_data = load_csv_as_dict(benchmark_path)
+        failure_data = load_json(failure_classification_path)
     except FileNotFoundError as e:
-        print(f"Error: Could not load benchmark results. Ensure T019 has run. ({e})")
+        print(f"ERROR: {e}")
         sys.exit(1)
+
+    # If failure_data is a list (as per T021 spec), ensure we can process it
+    if isinstance(failure_data, list):
+        # Check if it has the summary key or if we need to compute it
+        # Assuming the list contains the detailed failures and maybe a summary object at the end or separate
+        # T021 spec says: "The summary object (if separate) or the aggregate calculation MUST include the key semantic_gap_proportion"
+        # Let's assume the list is the detailed entries, and we look for a summary or compute it.
+        # However, the task says T021 generates `failure_classification.json`. 
+        # Let's assume the file might be a list of failures + a summary, or just a list.
+        # We will iterate the list to count types.
+        detailed_failures = [item for item in failure_data if isinstance(item, dict) and 'scene_id' in item]
         
-    exclusion_log = None
-    if exclusion_path.exists():
-        with open(exclusion_path, 'r', encoding='utf-8') as f:
-            exclusion_log = json.load(f)
+        # Check for a summary object in the list (sometimes appended)
+        summary_obj = next((item for item in failure_data if isinstance(item, dict) and 'semantic_gap_proportion' in item), None)
+        
+        if summary_obj:
+            semantic_gap_proportion = summary_obj.get('semantic_gap_proportion', 0.0)
+        else:
+            # Compute from detailed failures if summary is missing
+            total_symbolic_fail = len(detailed_failures)
+            if total_symbolic_fail == 0:
+                semantic_gap_proportion = 0.0
+            else:
+                # Count VLM_correct AND Symbolic_fail (which is what detailed_failures represents if it's only failures)
+                # Actually, the detailed list is usually just the failures.
+                # The proportion is count(VLM_correct AND Symbolic_fail) / count(Symbolic_fail)
+                # If the list contains all symbolic failures, we check VLM status in each.
+                vlm_correct_count = 0
+                for item in detailed_failures:
+                    # Check if VLM was correct in this failure case
+                    # We need to cross-reference with benchmark results if VLM status isn't in the failure item
+                    scene_id = item.get('scene_id')
+                    if scene_id in benchmark_data:
+                        # In benchmark_results, we have symbolic_pred, vlm_pred, ground_truth
+                        # If symbolic_pred != ground_truth, it's a failure.
+                        # If vlm_pred == ground_truth, then VLM was correct.
+                        b_row = benchmark_data[scene_id]
+                        try:
+                            s_pred = int(b_row['symbolic_pred'])
+                            v_pred = int(b_row['vlm_pred'])
+                            gt = int(b_row['ground_truth'])
+                            if s_pred != gt and v_pred == gt:
+                                vlm_correct_count += 1
+                        except (ValueError, KeyError):
+                            pass
+                semantic_gap_proportion = vlm_correct_count / total_symbolic_fail if total_symbolic_fail > 0 else 0.0
+
+        failure_list = detailed_failures
+    elif isinstance(failure_data, dict):
+        # If it's a dict with a 'failures' key or similar
+        if 'failures' in failure_data:
+            failure_list = failure_data['failures']
+        else:
+            failure_list = []
+        semantic_gap_proportion = failure_data.get('semantic_gap_proportion', 0.0)
+    else:
+        failure_list = []
+        semantic_gap_proportion = 0.0
+
+    # Count categories
+    geometric_ambiguity_count = 0
+    semantic_gap_count = 0
     
-    # Generate report
-    report_content = generate_report(analysis_data, benchmark_data, exclusion_log)
+    # Also collect representative examples
+    geo_examples = []
+    sem_examples = []
     
-    # Write report
+    for item in failure_list:
+        classification = item.get('classification', 'Unknown')
+        if classification == 'Geometric Ambiguity':
+            geometric_ambiguity_count += 1
+            if len(geo_examples) < 3:
+                geo_examples.append(item)
+        elif classification == 'Semantic Gap':
+            semantic_gap_count += 1
+            if len(sem_examples) < 3:
+                sem_examples.append(item)
+        else:
+            # Could be other or unknown
+            pass
+
+    total_failures = geometric_ambiguity_count + semantic_gap_count
+
+    # Generate Report
+    report_lines = []
+    report_lines.append("# Failure Analysis Report")
+    report_lines.append("")
+    report_lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report_lines.append("")
+    report_lines.append("## Summary")
+    report_lines.append("")
+    report_lines.append(f"- **Total Symbolic Failures:** {total_failures}")
+    report_lines.append(f"- **Geometric Ambiguity:** {geometric_ambiguity_count}")
+    report_lines.append(f"- **Semantic Gap:** {semantic_gap_count}")
+    report_lines.append(f"- **Semantic Gap Proportion:** {semantic_gap_proportion:.4f}")
+    report_lines.append("")
+    report_lines.append("## Representative Failure Cases")
+    report_lines.append("")
+
+    if geometric_ambiguity_count > 0:
+        report_lines.append("### Geometric Ambiguity")
+        report_lines.append("")
+        report_lines.append("| Scene ID | Explanation |")
+        report_lines.append("|---|---|")
+        for ex in geo_examples:
+            scene_id = ex.get('scene_id', 'N/A')
+            reason = ex.get('reason', 'No explanation provided.')
+            # Clean up reason for markdown table
+            reason = reason.replace('\n', ' ').replace('|', '\\|')
+            report_lines.append(f"| {scene_id} | {reason} |")
+        report_lines.append("")
+
+    if semantic_gap_count > 0:
+        report_lines.append("### Semantic Gap")
+        report_lines.append("")
+        report_lines.append("| Scene ID | Explanation |")
+        report_lines.append("|---|---|")
+        for ex in sem_examples:
+            scene_id = ex.get('scene_id', 'N/A')
+            reason = ex.get('reason', 'No explanation provided.')
+            reason = reason.replace('\n', ' ').replace('|', '\\|')
+            report_lines.append(f"| {scene_id} | {reason} |")
+        report_lines.append("")
+
+    # Write to file
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_content)
-        
-    print(f"Failure analysis report generated: {output_path}")
+        f.write('\n'.join(report_lines))
+    
+    print(f"Report generated at: {output_path}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate failure analysis report.")
+    parser.add_argument("--results", type=str, required=True, help="Path to benchmark_results.csv")
+    parser.add_argument("--classification", type=str, required=True, help="Path to failure_classification.json")
+    parser.add_argument("--output", type=str, required=True, help="Path to output markdown report")
+    
+    args = parser.parse_args()
+    
+    generate_report(
+        benchmark_results_path=args.results,
+        failure_classification_path=args.classification,
+        output_path=args.output
+    )
 
 if __name__ == "__main__":
     main()

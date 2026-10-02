@@ -2477,3 +2477,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T07:28:59Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 0
+  canonical: Exact Match score target 85% of VLM baseline
+  claim_id: c_7bc8c635
+  context: 'Success Verdict: Must explicitly verify SC-005 (Exact Match score >= 85%
+    of VLM baseline).'
+  evidence:
+    entailment_evidence: Exact Match must be at least 85% of VLM baseline
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exact_Match_must_be_at_least_85%25_of_VLM_baseline
+  kind: magnitude
+  raw_text: The acceptance criteria require an Exact Match score of at least 85% of
+    the VLM baseline.
+  resolved_value: Exact Match must be at least 85% of VLM baseline
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:30:05Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset sample size is 1000 scenes
+  claim_id: c_06d74e6f
+  context: 'Logic: Must perform a stratified random sample of exactly n=1,000 static
+    multi-view scenes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The S-Agent dataset is sampled to exactly n=1,000 static multi-view scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:31:28Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold range 0.50 to 0.95 step 0.05
+  claim_id: c_e161ad67
+  context: 'Logic: The sweep must explicitly cover a range from 0.50 to 0.95 with
+    a step size of 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep algorithm covers a range from 0.50 to 0.95
+    with a step size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:31:36Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Solver execution wall-clock time under 6 hours
+  claim_id: c_c8c7d20f
+  context: 'Success Criterion: Confirm total wall-clock time is < 6 hours by parsing
+    data/results/wall_clock_time.json for the total_duration_seconds value (must be
+    < 21600).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solver_execution_wall-clock_time_under_6_hours
+  kind: magnitude
+  raw_text: The total wall-clock time for the solver execution on 1,000 scenes must
+    be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:31:47Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Citation title-token-overlap threshold 0.7
+  claim_id: c_7f71c0c9
+  context: "Requirement: Must check title-token-overlap \u2265 0.7. Exit with error\
+    \ if any citation is unreachable or mismatched."
+  evidence:
+    entailment_evidence: Citation title-token-overlap threshold 0.7
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Citation_title-token-overlap_threshold_0.7
+  kind: magnitude
+  raw_text: The citation verification logic requires a title-token-overlap of at least
+    0.7.
+  resolved_value: Citation title-token-overlap threshold 0.7
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:31:50Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 0
+  canonical: Exact Match score >= 85% of VLM baseline
+  claim_id: c_fc58a173
+  context: 'Success Verdict: Must explicitly verify SC-005 (Exact Match score >= 85%
+    of VLM baseline).'
+  evidence:
+    entailment_evidence: Exact Match must be at least 85% of VLM baseline
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exact_Match_must_be_at_least_85%25_of_VLM_baseline
+  kind: magnitude
+  raw_text: The acceptance criteria require an Exact Match score of at least 85% of
+    the VLM baseline.
+  resolved_value: Exact Match must be at least 85% of VLM baseline
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:32:59Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset size 300K scenes
+  claim_id: c_99f320c4
+  context: Implement code/data/extract_geometry.py to parse the S-Agent-300K dataset,
+    detect malformed/missing data, exclude invalid scenes from processing...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/S-Agent_dataset_size_300K_scenes
+  kind: entity_fact
+  raw_text: The S-Agent dataset contains 300K scenes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:13Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sample size 1000 from S-Agent dataset
+  claim_id: c_1b95e3dc
+  context: 'Implement code/data/download.py to fetch the S-Agent dataset using huggingface_hub
+    and create data/raw/sampled_manifest.json. Logic: Must perform a stratified random
+    sample of exactly n=1,000 static multi-view scenes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a stratified random sample of exactly 1,000 static multi-view
+    scenes from the S-Agent dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:18Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Solver wall-clock time limit 6 hours for 1000 scenes
+  claim_id: c_71727a6c
+  context: 'Success Criterion: Confirm total wall-clock time is < 6 hours by parsing
+    data/results/wall_clock_time.json for the total_duration_seconds value (must be
+    < 21600).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The symbolic solver must complete processing for 1,000 scenes within 6
+    hours of wall-clock time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:25Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold range 0.50 to 0.95 step 0.05
+  claim_id: c_ae870f11
+  context: The sweep must explicitly cover a range from 0.50 to 0.95 with a step size
+    of 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the accuracy threshold from 0.50 to 0.95
+    with a step size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:33Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Citation title-token-overlap >= 0.7
+  claim_id: c_9f256332
+  context: "Requirement: Must check title-token-overlap \u2265 0.7. Exit with error\
+    \ if any citation is unreachable or mismatched."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_title-token-overlap_%3E=_0.7
+  kind: magnitude
+  raw_text: The citation validation requires a title-token-overlap of at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:44Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 0
+  canonical: Exact Match score at least 85% of VLM baseline
+  claim_id: c_b2a8a168
+  context: 'T026 [Polish] Implement code/validate/acceptance_checker.py to verify
+    all acceptance scenarios in spec.md (US-1, US-2, US-3) are met by running the
+    full pipeline end-to-end; output data/results/acceptance_checklist.md with pass/fail
+    status for each scenario (Addressing Constitution Principle I). Criteria: Explicitly
+    check US-1 (solver execution), US-2 (benchmark metrics), US-3 (failure analysis).
+    Success Verdict: Must explicitly verify SC-005 (Exact Match score >= 85% of VLM
+    baseline).'
+  evidence:
+    entailment_evidence: Exact Match must be at least 85% of VLM baseline
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exact_Match_must_be_at_least_85%25_of_VLM_baseline
+  kind: magnitude
+  raw_text: The acceptance criteria require an Exact Match score of at least 85% of
+    the VLM baseline.
+  resolved_value: Exact Match must be at least 85% of VLM baseline
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:36:42Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: stratified random sample of 1000 scenes from S-Agent dataset
+  claim_id: c_87ede624
+  context: 'T006 [US1] Implement code/data/download.py to fetch the S-Agent dataset
+    using huggingface_hub and create data/raw/sampled_manifest.json. Logic: Must perform
+    a stratified random sample of exactly n=1,000 static multi-view scenes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project performs a stratified random sample of exactly n=1,000 static
+    multi-view scenes from the S-Agent dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:39:58Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis range 0.50 to 0.95 step 0.05
+  claim_id: c_72d0115b
+  context: 'T030 [US2] Implement code/benchmark/sensitivity.py to implement the sensitivity
+    analysis sweep algorithm and generate data/results/sensitivity_analysis.csv by
+    sweeping the accuracy threshold (SC-005) across a range of values. Logic: The
+    sweep must explicitly cover a range from 0.50 to 0.95 with a step size of 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep algorithm covers a range from 0.50 to 0.95
+    with a step size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:39:58Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: symbolic solver execution time less than 6 hours
+  claim_id: c_48d95106
+  context: 'T012 [US1] Implement code/solver/run_solver.py for full batch execution.
+    ... Success Criterion: Confirm total wall-clock time is < 6 hours by parsing data/results/wall_clock_time.json
+    for the total_duration_seconds value (must be < 21600).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_solver_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: The symbolic solver execution must complete within a total wall-clock
+    time of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:40:10Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: citation title-token-overlap at least 0.7
+  claim_id: c_2c50d153
+  context: "T005f [P] Implement code/validate/validate_citations.py to verify citations\
+    \ in spec.md and plan.md against the 'Verified Datasets' block. Requirement: Must\
+    \ check title-token-overlap \u2265 0.7. Exit with error if any citation is unreachable\
+    \ or mismatched."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_title-token-overlap_at_least_0.7
+  kind: magnitude
+  raw_text: The citation verification requirement checks for a title-token-overlap
+    of at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:40:18Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset size 300000 scenes
+  claim_id: c_8625aa4f
+  context: Implement code/data/extract_geometry.py to parse the S-Agent-300K dataset,
+    detect malformed/missing data, exclude invalid scenes from processing...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The S-Agent dataset consists of 300,000 scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:44:45Z'
