@@ -1,3 +1,6 @@
+"""
+Unit tests for the constants module.
+"""
 import pytest
 import math
 from code.src.utils import constants
@@ -6,84 +9,104 @@ from code.src.utils import constants
 class TestAtomicWeights:
     """Tests for atomic weight retrieval functionality."""
 
-    def test_magnesium_weight(self):
-        """Verify Mg atomic weight is approximately correct."""
-        weight = constants.get_atomic_weight("Mg")
-        assert 24.0 < weight < 25.0
+    def test_mg_atomic_weight(self):
+        """Verify Magnesium atomic weight."""
+        weight = constants.get_atomic_weight('Mg')
+        assert abs(weight - 24.305) < 0.001
 
-    def test_boron_weight(self):
-        """Verify B atomic weight is approximately correct."""
-        weight = constants.get_atomic_weight("B")
-        assert 10.0 < weight < 11.0
+    def test_b_atomic_weight(self):
+        """Verify Boron atomic weight."""
+        weight = constants.get_atomic_weight('B')
+        assert abs(weight - 10.81) < 0.001
 
-    def test_unknown_element_raises(self):
-        """Verify unknown element raises KeyError."""
+    def test_c_atomic_weight(self):
+        """Verify Carbon atomic weight."""
+        weight = constants.get_atomic_weight('C')
+        assert abs(weight - 12.011) < 0.001
+
+    def test_invalid_element(self):
+        """Verify KeyError is raised for invalid element."""
         with pytest.raises(KeyError):
-            constants.get_atomic_weight("Xyz")
+            constants.get_atomic_weight('X')
 
-    def test_case_insensitivity(self):
-        """Verify element lookup is case-insensitive."""
-        weight_upper = constants.get_atomic_weight("MG")
-        weight_lower = constants.get_atomic_weight("mg")
-        assert weight_upper == weight_lower
+    def test_case_sensitivity(self):
+        """Verify element names are case-sensitive."""
+        with pytest.raises(KeyError):
+            constants.get_atomic_weight('mg')
+
 
 class TestUnitConversions:
     """Tests for unit conversion factors."""
 
-    def test_kelvin_to_celsius_offset(self):
-        """Verify Kelvin to Celsius offset is 273.15."""
-        assert constants.KELVIN_TO_CELSIUS_OFFSET == 273.15
+    def test_kelvin_to_celsius(self):
+        """Verify Kelvin to Celsius conversion factor."""
+        assert constants.KELVIN_TO_CELSIUS == 273.15
 
-    def test_gpa_to_atm_conversion(self):
-        """Verify GPa to atm conversion factor is approximately correct."""
-        # 1 GPa = 10^9 Pa, 1 atm = 101325 Pa
-        expected = 1e9 / 101325
-        assert abs(constants.GPA_TO_ATM_FACTOR - expected) < 0.1
+    def test_celsius_to_kelvin(self):
+        """Verify Celsius to Kelvin conversion factor."""
+        assert constants.CELSIUS_TO_KELVIN == 273.15
 
-    def test_atomic_pct_to_weight_pct_formula(self):
-        """Verify the formula components exist."""
-        assert hasattr(constants, "ATOMIC_TO_WEIGHT_CONVERSION_FACTOR") or True
-        # The conversion logic is in preprocess.py, constants just needs weights
+    def test_gpa_to_pa(self):
+        """Verify GPa to Pa conversion factor."""
+        assert constants.GPA_TO_PA == 1e9
+
+    def test_pa_to_gpa(self):
+        """Verify Pa to GPa conversion factor."""
+        assert constants.PA_TO_GPA == 1e-9
+
+    def test_mev_to_ev(self):
+        """Verify MeV to eV conversion factor."""
+        assert constants.MEV_TO_EV == 1e6
+
+    def test_ev_to_mev(self):
+        """Verify eV to MeV conversion factor."""
+        assert constants.EV_TO_MEV == 1e-6
+
 
 class TestVIFThresholds:
-    """Tests for Variance Inflation Factor thresholds."""
+    """Tests for VIF threshold constants."""
 
-    def test_vif_threshold_exists(self):
-        """Verify VIF threshold constant is defined."""
-        assert hasattr(constants, "VIF_COLLINEARITY_THRESHOLD")
+    def test_vif_threshold_low(self):
+        """Verify low VIF threshold value."""
+        assert constants.VIF_THRESHOLD_LOW == 5.0
 
-    def test_vif_threshold_reasonable(self):
-        """Verify VIF threshold is a positive number."""
-        assert constants.VIF_COLLINEARITY_THRESHOLD > 0
-        assert constants.VIF_COLLINEARITY_THRESHOLD <= 100
+    def test_vif_threshold_high(self):
+        """Verify high VIF threshold value."""
+        assert constants.VIF_THRESHOLD_HIGH == 10.0
+
 
 class TestDataProcessingConstants:
-    """Tests for data processing related constants."""
+    """Tests for data processing constants."""
 
-    def test_missing_value_threshold(self):
-        """Verify missing value threshold constant exists."""
-        assert hasattr(constants, "MAX_MISSING_VALUE_RATIO")
+    def test_synthesis_range_default(self):
+        """Verify default synthesis range uncertainty."""
+        assert constants.SYNTHESIS_RANGE_DEFAULT == 0.05
 
-    def test_synthesis_range_midpoint(self):
-        """Verify synthesis range handling constant exists."""
-        assert hasattr(constants, "USE_MIDPOINT_IMPUTATION")
+    def test_null_value_threshold(self):
+        """Verify null value percentage threshold."""
+        assert constants.NULL_VALUE_THRESHOLD == 0.5
+
 
 class TestConstantsIntegrity:
-    """Tests to ensure all expected constants are present."""
+    """Tests for overall constants module integrity."""
 
-    def test_all_atomic_weights_present(self):
-        """Verify common elements used in MgB2 research are present."""
-        required_elements = ["Mg", "B", "C", "Al", "Si", "O", "N", "Fe", "Ni", "Cu"]
-        for element in required_elements:
-            try:
-                constants.get_atomic_weight(element)
-            except KeyError:
-                # Some elements might not be needed, but common ones should be
-                if element in ["Mg", "B", "C", "Al", "Si"]:
-                    pytest.fail(f"Required element {element} not found in constants")
+    def test_all_elements_present(self):
+        """Verify all common elements are in the database."""
+        common_elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Na', 'Mg', 'Al', 'Si', 'Fe', 'Cu', 'Zn']
+        for element in common_elements:
+            assert element in constants.ATOMIC_WEIGHTS
 
-    def test_constants_not_none(self):
-        """Verify critical constants are not None."""
-        assert constants.KELVIN_TO_CELSIUS_OFFSET is not None
-        assert constants.GPA_TO_ATM_FACTOR is not None
-        assert constants.VIF_COLLINEARITY_THRESHOLD is not None
+    def test_atomic_weight_range(self):
+        """Verify atomic weights are positive and reasonable."""
+        for weight in constants.ATOMIC_WEIGHTS.values():
+            assert weight > 0
+            assert weight < 300  # No element heavier than 300 g/mol
+
+    def test_conversion_factors_positive(self):
+        """Verify all conversion factors are positive."""
+        assert constants.KELVIN_TO_CELSIUS > 0
+        assert constants.GPA_TO_PA > 0
+        assert constants.MEV_TO_EV > 0
+        assert constants.PA_TO_GPA > 0
+        assert constants.EV_TO_MEV > 0
+        assert constants.CELSIUS_TO_KELVIN > 0

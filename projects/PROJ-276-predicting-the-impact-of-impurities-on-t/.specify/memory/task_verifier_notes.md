@@ -18,3 +18,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T020** — declared artifact(s) missing/empty/invalid: src/modeling/train.py
 - **T021** — declared artifact(s) missing/empty/invalid: data/processed/model_metrics.json
 - **T022** — declared artifact(s) missing/empty/invalid: tests/integration/test_modeling.py
+- **T026** — The required file `src/modeling/significance_test.py` does not exist, so no VIF calculation, collinearity handling, or `reduced_feature_set.csv` output is provided. The task’s core artifact is missing.
+- **T026a** — No artifact (e.g., a script, notebook, log, or updated `reduced_feature_set.csv` with new p‑values) was provided to demonstrate that the significance‑testing logic was re‑executed on the non‑collinear feature set. Consequently, there is no evidence that valid p‑values were generated or that the task’s requirement was fulfilled.

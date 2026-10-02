@@ -1,50 +1,32 @@
 """
-Standardized logging configuration for the MgB2 Impurity Impact project.
+Standardized logging configuration for the llmXive MgB2 Impurity Impact project.
 
-Provides specialized loggers for ingestion, modeling, and visualization modules
-with consistent formatting and output handlers.
+Provides pre-configured loggers for ingestion, modeling, and visualization modules,
+ensuring consistent log formatting, levels, and handlers across the pipeline.
 """
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
+
+# Project root directory for relative path logging
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
+# Log format configuration
+_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
+_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Cache for created loggers to prevent duplicate handlers
+_logger_cache: Dict[str, logging.Logger] = {}
 
 
-# Default log level
-DEFAULT_LEVEL = logging.INFO
-
-# Log format structure
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Cache for loggers to ensure single instance per name
-_logger_cache: dict = {}
-
-
-def _get_formatter() -> logging.Formatter:
-    """Create and return the standard log formatter."""
-    return logging.Formatter(fmt=LOG_FORMAT, datefmt=DATE_FORMAT)
-
-
-def _create_handler(stream: sys.stdout = sys.stderr) -> logging.StreamHandler:
-    """Create a standard stream handler with the project formatter."""
-    handler = logging.StreamHandler(stream)
-    handler.setFormatter(_get_formatter())
-    return handler
-
-
-def get_logger(
-    name: str,
-    level: int = DEFAULT_LEVEL,
-    log_file: Optional[Path] = None
-) -> logging.Logger:
+def _get_base_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Get or create a logger with the specified name.
+    Create or retrieve a named logger with standard configuration.
 
     Args:
-        name: The name of the logger (usually __name__ or module path).
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Optional path to write logs to a file.
+        name: The name of the logger (usually __name__ of the caller).
+        level: The logging level to set.
 
     Returns:
         A configured logging.Logger instance.
@@ -55,62 +37,85 @@ def get_logger(
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    # Avoid adding duplicate handlers if called multiple times
+    # Avoid adding handlers if already present (prevents duplicate logs in tests)
     if not logger.handlers:
-        # Add console handler
-        console_handler = _create_handler()
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
+        formatter = logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
+        console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
-        # Add file handler if specified
-        if log_file:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(_get_formatter())
-            logger.addHandler(file_handler)
+        # Optional: File handler for persistent logs (disabled by default to avoid clutter,
+        # can be enabled by setting LOG_TO_FILE env var or specific logic if needed)
+        # For now, we stick to stdout/stderr for pipeline visibility.
 
-    # Prevent propagation to root logger to avoid duplicate console output
-    logger.propagate = False
-
+    logger.propagate = False  # Prevent double logging if parent loggers exist
     _logger_cache[name] = logger
     return logger
 
 
-def get_ingestion_logger() -> logging.Logger:
+def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Get the logger specifically for data ingestion tasks.
+    Generic logger getter.
+
+    Args:
+        name: Logger name.
+        level: Minimum log level.
 
     Returns:
-        A logger named 'ingestion' with INFO level.
+        Configured logger.
     """
-    return get_logger("ingestion", level=DEFAULT_LEVEL)
+    return _get_base_logger(name, level)
 
 
-def get_modeling_logger() -> logging.Logger:
+def get_ingestion_logger(level: int = logging.INFO) -> logging.Logger:
     """
-    Get the logger specifically for model training and evaluation tasks.
+    Retrieve the logger for data ingestion tasks.
+
+    Args:
+        level: Minimum log level (default: INFO).
 
     Returns:
-        A logger named 'modeling' with INFO level.
+        Logger instance configured for ingestion modules.
     """
-    return get_logger("modeling", level=DEFAULT_LEVEL)
+    return _get_base_logger("ingestion", level)
 
 
-def get_visualization_logger() -> logging.Logger:
+def get_modeling_logger(level: int = logging.INFO) -> logging.Logger:
     """
-    Get the logger specifically for visualization and plotting tasks.
+    Retrieve the logger for model training and evaluation tasks.
+
+    Args:
+        level: Minimum log level (default: INFO).
 
     Returns:
-        A logger named 'visualization' with INFO level.
+        Logger instance configured for modeling modules.
     """
-    return get_logger("visualization", level=DEFAULT_LEVEL)
+    return _get_base_logger("modeling", level)
 
 
-# Convenience function for testing or quick access
-def get_project_logger() -> logging.Logger:
+def get_visualization_logger(level: int = logging.INFO) -> logging.Logger:
     """
-    Get the main project logger.
+    Retrieve the logger for visualization and plotting tasks.
+
+    Args:
+        level: Minimum log level (default: INFO).
 
     Returns:
-        A logger named 'mgb2_project' with INFO level.
+        Logger instance configured for visualization modules.
     """
-    return get_logger("mgb2_project", level=DEFAULT_LEVEL)
+    return _get_base_logger("visualization", level)
+
+
+def get_project_logger(level: int = logging.INFO) -> logging.Logger:
+    """
+    Retrieve the root project logger.
+
+    Args:
+        level: Minimum log level (default: INFO).
+
+    Returns:
+        Logger instance configured for general project use.
+    """
+    return _get_base_logger("llmXive_mgb2", level)

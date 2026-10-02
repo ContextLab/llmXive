@@ -43,7 +43,7 @@
  Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/resolve_strategy.py`.
  **Logic**:
  1. Parse `spec.md` to extract the token target from FR‑001 (expected 10M).
- 2. Parse `plan.md` to extract the token target from the Summary (1M). [UNRESOLVED-CLAIM: c_8706479e — status=not_enough_info]
+ 2. Parse `plan.md` to extract the token target from the Summary (1M).
  3. Run the static RAM validator (T009) for both regimes to determine feasibility.
  4. If the plan regime (1M) is feasible and the spec regime (10M) is not, write `data/artifacts/conflict_resolution_strategy.json` with `chosen_regime: "1M"`, `override_reason: "Plan feasibility overrides Spec requirement"`, `spec_requirement: "10M"`, `plan_requirement: "1M"`, `status: "RESOLVED"`.
  5. If both are feasible, default to Spec (10M). If neither, raise `FatalError`.
@@ -69,7 +69,7 @@
 
 - [ ] T005 **Initialize Python project with `requirements.txt`**: Create `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt` with pinned versions: `transformers>=4.40.0`, `datasets>=2.18.0`, `torch>=2.2.0`, `scikit-learn>=1.4.0`, `scipy>=1.12.0`, `pandas>=2.2.0`, `pyyaml>=6.0`, `huggingface_hub>=0.21.0`, `pingouin>=0.5.0`, `psutil>=5.9.0`.
 
-- [ ] T006 **Initialize Linting and Formatting Configuration**: Create `ruff.toml` and `pyproject.toml` as previously described.
+- [X] T006 **Initialize Linting and Formatting Configuration**: Create `ruff.toml` and `pyproject.toml` as previously described.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -90,9 +90,9 @@
  **Gate**: Raises `FatalError` if the regime cannot be accommodated within RAM.
  **Traceability**: T001, Spec FR‑007.
 
-- [ ] T010 **Implement State Manager with Hashing**: Create `state_manager.py` in `utils/`; computes SHA‑256 hashes of all files under `code/` and `data/`, updates `state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `artifact_hashes`.
+- [X] T010 **Implement State Manager with Hashing**: Create `state_manager.py` in `utils/`; computes SHA‑256 hashes of all files under `code/` and `data/`, updates `state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `artifact_hashes`.
 
-- [ ] T028 **Power Analysis for Approved Regime**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/power_analysis.py`.
+- [X] T028 **Power Analysis for Approved Regime**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/power_analysis.py`.
  **Logic**: Read `regime` and `token_target` from `config.yaml`; using a simple effect‑size assumption (e.g., Cohen's d = 0.5) compute statistical power for the planned multiple seeds per group. Write `data/artifacts/power_analysis.json` with `{ "status": "PASS", "power_value": float, "effect_size_used": float, "required_seeds": int }`. Raise `FatalError` if power < 0.8.
  **Traceability**: Spec FR‑009, Plan Summary (Feasible Regime).
 
@@ -184,7 +184,7 @@
 
 - [ ] T036.1 **Update README Installation**: Add `pip install -r requirements.txt` section.
 
-- [ ] T036.2 **Update README Usage**: Add usage example `python main.py` (defaults to 1M regime).
+- [ ] T036.2 **Update README Usage**: Add usage example `python main.py` (defaults to 1M regime [UNRESOLVED-CLAIM: c_a85183a3 — status=not_enough_info]).
 
 - [ ] T036.3 **Update Quickstart**: Provide step‑by‑step commands covering conflict resolution, corpus construction, training, and analysis.
 

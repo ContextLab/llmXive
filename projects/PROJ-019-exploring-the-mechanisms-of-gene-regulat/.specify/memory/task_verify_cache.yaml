@@ -1,35 +1,35 @@
-T014:
-  c: false
-  h: 96628ac0b7f228bf4d2cb3da9883ee8c61719624354c249bd33e866238ffbfe0
-  r: "The required output file `data/interim/background_union.bed` is not present,\
-    \ and the provided `code/preprocess.py` snippet is incomplete (truncated) with\
-    \ no visible logic that performs gene annotation, background aggregation, or writes\
-    \ the specified BED file. The task\u2019s core deliverable is therefore missing."
-T015:
-  c: false
-  h: 0fd25cafa691c6d7f3d4afd6d6db57d32c49354e49b44362b40f9a17ad30922e
-  r: "The repository contains `code/main.py` with a `run_ingestion` function that\
-    \ validates cell types and computes summary values, but the function only returns\
-    \ a dictionary and never writes `data/processed/ingestion_summary.json`. The required\
-    \ output file is absent from the project tree, so the task\u2019s primary artifact\
-    \ is missing."
 T016:
   c: false
-  h: 57872593667cab7fbc424a9f71f9676e2af0466b1ba2e3ff3416d31b6c052bd8
-  r: "`code/main.py` imports and calls `check_memory`, but the required file `code/utils/memory_check.py`\
-    \ does not exist, so the integration cannot work. Additionally, the truncated\
-    \ portion of `main.py` does not show that `run_preflight_checks` is invoked before\
-    \ the ingestion step, leaving the orchestration requirement unverified. The missing\
-    \ `memory_check.py` must be added (with a `check_memory` function) and the pre\u2011\
-    flight call wired into the ingestion flow."
+  h: 02d7f90ae120082738afcfa876dba0276e3a869872dc90aca3a6013f5feedc15
+  r: "The `code/main.py` imports `start_timer` and `check_time_limit` from `code.utils.time_check`,\
+    \ but the `time_check.py` file is missing from the repository, so the integration\
+    \ cannot succeed. Additionally, there is no evidence in the shown code that `run_preflight_checks()`\
+    \ is actually invoked before `run_ingestion()`. The missing `time_check.py` (and\
+    \ its functions) must be added and the pre\u2011flight checks called prior to\
+    \ ingestion for the task to be complete."
+T021a:
+  c: false
+  h: 56dc979ff696baca802dbc97a74160209b00af3eafaafcd9a9be9f5393a8595c
+  r: "The repository contains a partially shown `code/scan.py`, but the file is truncated\
+    \ and does not demonstrate the required subprocess call to FIMO with a p\u2011\
+    value \u2264\u202F0.0001, nor does it reference the required `data/interim/background_union.bed`.\
+    \ Moreover, the `background_union.bed` file is absent from the project. Both the\
+    \ core functionality and a required input file are missing."
+T022:
+  c: false
+  h: 8126108b25ad38778039d893e672510fe45deb6432e5ab8ae5810fe566481a2b
+  r: "The `code/enrichment.py` file is present but the shown code stops after loading\
+    \ data and a memory\u2011check stub; there is no implementation of Fisher\u2019\
+    s exact test or any enrichment calculation, and the required `data/interim/background_union.bed`\
+    \ file does not exist. Both the core functionality and the declared dependency\
+    \ are missing."
 T024:
   c: false
-  h: fdb5ab697c28d5c7d8152e0b10dffb494ed98df8468bbd4e0c1e085e583d26be
-  r: The provided `code/main.py` excerpt does not contain a `run_enrichment(matches,
-    background)` function, nor does it show any logic that writes `data/processed/enrichment_matrix.csv`.
-    Additionally, the required `enrichment_matrix.csv` file is absent from the repository.
-    Both the function implementation and the output artifact are missing, so the task
-    is not satisfied.
+  h: e5732f29d6182c9a69c73f259ca4ec969fefdb7f5aa89e5503d1891fdb0533ca
+  r: "The provided `code/main.py` is truncated and the `run_enrichment` function is\
+    \ incomplete (wrong signature, missing implementation, typo `aggregate_enrichment_result`).\
+    \ Moreover, the required output file `data/processed/enrichment_matrix.csv` does\
+    \ not exist. The task\u2019s core artifact and functionality are therefore missing."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

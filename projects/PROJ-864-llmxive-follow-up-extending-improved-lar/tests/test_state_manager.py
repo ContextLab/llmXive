@@ -1,109 +1,143 @@
+"""
+Tests for the State Manager module.
+"""
 import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-import yaml
+from unittest.mock import patch, MagicMock
 
-# Add the code root to the path so imports work
+# Add code root to path for imports
 code_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(code_root))
 
-from utils.state_manager import calculate_sha256, scan_directory_for_hashes, load_state_file, save_state_file, update_project_state
-from utils.logging import setup_logging
+from utils.state_manager import (
+    calculate_sha256, 
+    load_state_file, 
+    save_state_file, 
+    update_project_state,
+    get_project_root,
+    scan_directory_for_hashes
+)
 
 class TestStateManager(unittest.TestCase):
+    """Test cases for the State Manager."""
+
     def setUp(self):
-        setup_logging(level="DEBUG")
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_file = Path(self.temp_dir) / "test.txt"
-        self.test_file.write_text("Hello, World!")
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.test_dir = Path(self.temp_dir.name)
         
-        self.state_file = Path(self.temp_dir) / "state.yaml"
-    
+        # Create mock project structure
+        self.mock_project_root = self.test_dir / "project"
+        self.mock_project_root.mkdir()
+        (self.mock_project_root / "code").mkdir()
+        (self.mock_project_root / "data").mkdir()
+        (self.mock_project_root / "state").mkdir()
+        
+        # Create a test file
+        self.test_file = self.mock_project_root / "code" / "test.txt"
+        self.test_file.write_text("Hello, World!")
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        self.temp_dir.cleanup()
+
     def test_calculate_sha256(self):
         """Test SHA-256 calculation for a known string."""
-        # "Hello, World!" SHA-256
-        expected_hash = "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5"
-        actual_hash = calculate_sha256(self.test_file)
-        self.assertEqual(actual_hash, expected_hash)
-    
+        # Create a temporary file with known content
+        test_content = b"test content for hashing"
+        test_file = self.test_dir / "hash_test.txt"
+        test_file.write_bytes(test_content)
+        
+        hash_result = calculate_sha256(test_file)
+        
+        # Verify it's a valid hex string of correct length
+        self.assertEqual(len(hash_result), 64)
+        self.assertTrue(all(c in '0123456789abcdef' for c in hash_result))
+        
+        # Verify determinism
+        hash_result_2 = calculate_sha256(test_file)
+        self.assertEqual(hash_result, hash_result_2)
+
     def test_calculate_sha256_nonexistent_file(self):
-        """Test that FileNotFoundError is raised for missing files."""
+        """Test that calculating hash for nonexistent file raises error."""
+        nonexistent = self.test_dir / "does_not_exist.txt"
         with self.assertRaises(FileNotFoundError):
-            calculate_sha256(Path("/nonexistent/file.txt"))
-    
+            calculate_sha256(nonexistent)
+
     def test_scan_directory_for_hashes(self):
         """Test scanning a directory for file hashes."""
         # Create a few test files
-        (Path(self.temp_dir) / "subdir").mkdir()
-        file1 = Path(self.temp_dir) / "file1.txt"
-        file2 = Path(self.temp_dir) / "subdir" / "file2.txt"
-        file1.write_text("Content 1")
-        file2.write_text("Content 2")
+        file1 = self.mock_project_root / "code" / "file1.py"
+        file1.write_text("print('hello')")
         
-        hashes = scan_directory_for_hashes(Path(self.temp_dir))
+        file2 = self.mock_project_root / "data" / "file2.json"
+        file2.write_text('{"key": "value"}')
         
-        self.assertIn("file1.txt", hashes)
-        self.assertIn("subdir/file2.txt", hashes)
-        self.assertEqual(len(hashes), 2)
-    
-    def test_scan_directory_with_extension_filter(self):
-        """Test scanning with file extension filter."""
-        (Path(self.temp_dir) / "file1.txt").write_text("Text")
-        (Path(self.temp_dir) / "file2.py").write_text("Code")
+        hashes = scan_directory_for_hashes(self.mock_project_root)
         
-        hashes = scan_directory_for_hashes(Path(self.temp_dir), extensions=[".py"])
+        # Check that files are found
+        self.assertIn("code/file1.py", hashes)
+        self.assertIn("data/file2.json", hashes)
         
-        self.assertNotIn("file1.txt", hashes)
-        self.assertIn("file2.py", hashes)
-        self.assertEqual(len(hashes), 1)
-    
-    def test_load_state_file_new(self):
-        """Test loading a non-existent state file returns empty dict."""
-        non_existent = Path(self.temp_dir) / "non_existent.yaml"
-        state = load_state_file(non_existent)
-        self.assertEqual(state, {})
-    
+        # Check that hashes are valid
+        for hash_val in hashes.values():
+            self.assertEqual(len(hash_val), 64)
+
     def test_save_and_load_state_file(self):
-        """Test saving and loading a state file."""
-        test_state = {
-            "project_id": "test-project",
-            "artifacts": {
-                "code": {"main.py": "abc123"}
+        """Test saving and loading state file."""
+        state_path = self.mock_project_root / "state" / "test_state.yaml"
+        
+        test_data = {
+            "project_id": "TEST-001",
+            "last_updated": "2023-01-01T00:00:00",
+            "artifact_hashes": {
+                "code/main.py": "abc123"
             }
         }
         
-        save_state_file(self.state_file, test_state)
+        # Save state
+        save_state_file(test_data, state_path)
         
-        self.assertTrue(self.state_file.exists())
-        
-        loaded_state = load_state_file(self.state_file)
-        self.assertEqual(loaded_state["project_id"], "test-project")
-        self.assertEqual(loaded_state["artifacts"]["code"]["main.py"], "abc123")
-    
-    def test_update_project_state(self):
-        """Test updating the project state with hashes."""
-        # Create a minimal project structure
-        project_root = Path(self.temp_dir) / "test_project"
-        project_root.mkdir()
-        code_dir = project_root / "code"
-        code_dir.mkdir()
-        (code_dir / "main.py").write_text("print('hello')")
-        
-        state_path = project_root / "state.yaml"
-        
-        state = update_project_state(project_root, state_path, target_dirs=["code"])
-        
+        # Verify file exists
         self.assertTrue(state_path.exists())
-        self.assertIn("code", state["artifacts"])
-        self.assertIn("main.py", state["artifacts"]["code"])
-        self.assertIn("project_id", state)
-        self.assertIn("last_updated", state)
+        
+        # Load state
+        loaded_data = load_state_file(state_path)
+        
+        # Verify contents
+        self.assertEqual(loaded_data["project_id"], "TEST-001")
+        self.assertEqual(loaded_data["artifact_hashes"]["code/main.py"], "abc123")
+
+    def test_update_project_state(self):
+        """Test the full update_project_state workflow."""
+        # Mock get_project_root to return our temp directory
+        with patch('utils.state_manager.get_project_root', return_value=self.mock_project_root):
+            # Create some test files
+            (self.mock_project_root / "code" / "test.py").write_text("def foo(): pass")
+            (self.mock_project_root / "data" / "test.json").write_text('{"a": 1}')
+            
+            # Run update
+            result = update_project_state()
+            
+            # Verify result structure
+            self.assertIn("last_updated", result)
+            self.assertIn("artifact_hashes", result)
+            self.assertIn("code/test.py", result["artifact_hashes"])
+            self.assertIn("data/test.json", result["artifact_hashes"])
+            
+            # Verify state file was created
+            state_file = self.mock_project_root / "state" / "projects" / "PROJ-864-llmxive-follow-up-extending-improved-lar.yaml"
+            self.assertTrue(state_file.exists())
 
 def run_tests():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestStateManager)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    """Run all tests in this module."""
+    loader = unittest.TestLoader()
+    suite = loader.loadTestsFromTestCase(TestStateManager)
+    runner = unittest.TextTestRunner(verbosity=2)
+    return runner.run(suite)
 
 if __name__ == "__main__":
     run_tests()

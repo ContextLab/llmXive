@@ -1,162 +1,208 @@
+"""
+Summary Table Generation (Task T034)
+
+Generates the final summary table by reading the enrichment matrix and validation report,
+filtering for top motifs, and calculating Jaccard overlap percentages.
+"""
+
 import os
 import sys
-import logging
 import json
+import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
 import pandas as pd
 
-# Import from existing API surface
 from code.config import DATA_PROCESSED_DIR
-from code.validate import get_top_motifs_summary
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_enrichment_csv(csv_path: Path) -> pd.DataFrame:
+def load_enrichment_csv() -> pd.DataFrame:
     """
-    Load the enrichment matrix from CSV.
-    Expected columns: motif_id, cell_type, p_value, q_value
+    Loads the enrichment matrix from data/processed/enrichment_matrix.csv.
+    Raises FileNotFoundError if the file does not exist.
     """
-    if not csv_path.exists():
-        raise FileNotFoundError(f"Enrichment matrix not found at {csv_path}")
+    file_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {file_path}. "
+            "Ensure enrichment analysis (T024) has been run successfully."
+        )
     
-    df = pd.read_csv(csv_path)
-    required_cols = {'motif_id', 'cell_type', 'p_value', 'q_value'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Enrichment matrix missing columns: {missing}")
+    logger.info(f"Loading enrichment matrix from {file_path}")
+    df = pd.read_csv(file_path)
+    
+    required_cols = ['motif_id', 'cell_type', 'p_value', 'q_value']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Enrichment matrix missing required columns: {missing_cols}")
     
     return df
 
-def load_validation_json(json_path: Path) -> Dict[str, Any]:
+def load_validation_json() -> Dict[str, Any]:
     """
-    Load the validation report JSON.
-    Expected structure:
-    {
-        "overlap_pct": float,
-        "top_motifs": [{"motif_id": str, "q_value": float, "overlap_pct": float}, ...],
-        "silhouette_score": float
-    }
+    Loads the validation report from data/processed/validation_report.json.
+    Raises FileNotFoundError if the file does not exist.
     """
-    if not json_path.exists():
-        raise FileNotFoundError(f"Validation report not found at {json_path}")
+    file_path = DATA_PROCESSED_DIR / "validation_report.json"
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {file_path}. "
+            "Ensure validation pipeline (T033) has been run successfully."
+        )
     
-    with open(json_path, 'r') as f:
+    logger.info(f"Loading validation report from {file_path}")
+    with open(file_path, 'r') as f:
         data = json.load(f)
     
-    # Validate structure
     if 'top_motifs' not in data:
-        raise ValueError("Validation report missing 'top_motifs' key")
+        raise ValueError("Validation report missing 'top_motifs' key.")
     
     return data
 
-def generate_summary_table(enrichment_csv: Path, validation_json: Path, output_path: Path) -> pd.DataFrame:
+def calculate_jaccard_overlap(predicted_peaks: List[Dict], observed_peaks: List[Dict]) -> float:
     """
-    Generate the final summary table.
+    Calculates the Jaccard overlap (Intersection over Union) between two sets of peaks.
     
-    Reads from:
-    - enrichment_csv: data/processed/enrichment_matrix.csv
-    - validation_json: data/processed/validation_report.json
+    Args:
+        predicted_peaks: List of dicts with keys 'chrom', 'start', 'end'
+        observed_peaks: List of dicts with keys 'chrom', 'start', 'end'
+        
+    Returns:
+        Float percentage of overlap (0.0 to 100.0).
+    """
+    if not predicted_peaks or not observed_peaks:
+        return 0.0
     
-    Outputs:
-    - summary_table.csv with columns: motif_id, p_value_raw, q_value_adj, chip_overlap_pct
+    # Convert to sets of tuples for efficient intersection/union
+    # Assuming peaks are normalized (chrom, start, end)
+    p_set = set((p['chrom'], p['start'], p['end']) for p in predicted_peaks)
+    o_set = set((p['chrom'], p['start'], p['end']) for p in observed_peaks)
+    
+    intersection = len(p_set.intersection(o_set))
+    union = len(p_set.union(o_set))
+    
+    if union == 0:
+        return 0.0
+    
+    return (intersection / union) * 100.0
+
+def generate_summary_table(enrichment_df: pd.DataFrame, validation_data: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Generates the final summary table.
     
     Logic:
-    1. Load enrichment matrix
-    2. Load validation report (contains top_motifs with overlap_pct)
-    3. Filter enrichment to top motifs (q < 0.05) as per T032a
-    4. Merge with overlap data from validation report
-    5. Output final table
+    1. Filter enrichment results to top N motifs by q-value (ranking).
+       Note: The task description implies selecting 'top N' to satisfy FR-005.
+       We will select the top 10 motifs overall by lowest q_value.
+    2. Retrieve the 'chip_overlap_pct' from the validation report.
+       Note: The validation report (T033) contains 'top_motifs' which includes
+       'overlap_pct' for specific motifs. However, the summary table requires
+       a column 'chip_overlap_pct'.
+       
+       According to T033 spec: 'top_motifs' is a list of objects with keys:
+       motif_id, q_value, overlap_pct.
+       
+       We will map the overlap_pct from the validation report to the corresponding
+       motif_id in the summary table. If a motif in the top list isn't in the
+       validation report's top_motifs (unlikely if we filter strictly), we default
+       to 0.0 or NaN.
+       
+    3. Construct the output DataFrame with columns:
+       motif_id, p_value_raw, q_value_adj, chip_overlap_pct.
     """
-    # Load data
-    enrichment_df = load_enrichment_csv(enrichment_csv)
-    validation_data = load_validation_json(validation_json)
     
-    # Get top motifs summary (already filtered by q < 0.05 in T032a)
-    top_motifs = validation_data['top_motifs']
+    logger.info("Generating summary table...")
     
-    if not top_motifs:
-        logger.warning("No top motifs found in validation report. Creating empty summary table.")
-        summary_df = pd.DataFrame(columns=['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct'])
-        summary_df.to_csv(output_path, index=False)
-        return summary_df
+    # 1. Filter to top motifs by q-value
+    # Sort by q_value ascending
+    sorted_df = enrichment_df.sort_values(by='q_value', ascending=True)
     
-    # Create a lookup dict for overlap percentages by motif_id
-    overlap_lookup = {motif['motif_id']: motif['overlap_pct'] for motif in top_motifs}
+    # Select top N. Let's choose top 10 as a representative "top enriched" set.
+    # If the dataset is smaller, take all.
+    top_n = min(10, len(sorted_df))
+    top_motifs_df = sorted_df.head(top_n).copy()
     
-    # Filter enrichment to only top motifs
-    top_motif_ids = set(overlap_lookup.keys())
-    filtered_df = enrichment_df[enrichment_df['motif_id'].isin(top_motif_ids)].copy()
+    # 2. Map overlap percentages from validation report
+    # The validation report has a list of 'top_motifs' with overlap_pct
+    validation_motifs = {
+        m['motif_id']: m.get('overlap_pct', 0.0) 
+        for m in validation_data.get('top_motifs', [])
+    }
     
-    if filtered_df.empty:
-        logger.warning("No matching motifs found between enrichment and validation. Creating empty summary table.")
-        summary_df = pd.DataFrame(columns=['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct'])
-        summary_df.to_csv(output_path, index=False)
-        return summary_df
+    # Apply overlap percentage to the dataframe
+    # If a motif_id is not found in the validation mapping, set to 0.0 or NaN
+    # Based on T033 spec, overlap_pct is float or null.
+    top_motifs_df['chip_overlap_pct'] = top_motifs_df['motif_id'].map(
+        lambda x: validation_motifs.get(x, 0.0)
+    )
     
-    # Add overlap percentage column
-    # For each motif, get the overlap_pct from the validation report
-    # If a motif appears in multiple cell types, we take the max overlap or average?
-    # Based on task description, we assume one row per motif_id in summary
-    # So we need to aggregate if there are duplicates
+    # 3. Select and rename columns for final output
+    # Output columns: motif_id, p_value_raw, q_value_adj, chip_overlap_pct
+    result_df = top_motifs_df[[
+        'motif_id', 
+        'p_value', 
+        'q_value', 
+        'chip_overlap_pct'
+    ]].copy()
     
-    # First, map overlap_pct to each row
-    filtered_df['chip_overlap_pct'] = filtered_df['motif_id'].map(overlap_lookup)
+    result_df.columns = [
+        'motif_id', 
+        'p_value_raw', 
+        'q_value_adj', 
+        'chip_overlap_pct'
+    ]
     
-    # Rename columns to match output specification
-    summary_df = filtered_df[['motif_id', 'p_value', 'q_value', 'chip_overlap_pct']].copy()
-    summary_df.columns = ['motif_id', 'p_value_raw', 'q_value_adj', 'chip_overlap_pct']
+    # Ensure formatting: overlap_pct to 2 decimal places
+    result_df['chip_overlap_pct'] = result_df['chip_overlap_pct'].round(2)
     
-    # If there are duplicate motif_ids (from different cell types), we need to aggregate
-    # The task doesn't specify aggregation method, so we'll take the row with the lowest q_value
-    summary_df = summary_df.sort_values('q_value_adj').drop_duplicates('motif_id', keep='first')
-    
-    # Round values as per specification
-    summary_df['p_value_raw'] = summary_df['p_value_raw'].round(6)  # Standard p-value precision
-    summary_df['q_value_adj'] = summary_df['q_value_adj'].round(4)  # 4 decimal places as per T032
-    summary_df['chip_overlap_pct'] = summary_df['chip_overlap_pct'].round(2)  # 2 decimal places as per T032
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    summary_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Summary table generated with {len(summary_df)} motifs at {output_path}")
-    
-    return summary_df
+    return result_df
 
 def main():
     """
-    Main entry point for generating the summary table.
+    Entry point for T034.
+    Reads inputs, generates table, and writes to data/processed/summary_table.csv.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Define paths
-    enrichment_csv = DATA_PROCESSED_DIR / 'enrichment_matrix.csv'
-    validation_json = DATA_PROCESSED_DIR / 'validation_report.json'
-    output_path = DATA_PROCESSED_DIR / 'summary_table.csv'
-    
-    # Check if input files exist
-    if not enrichment_csv.exists():
-        logger.error(f"Enrichment matrix not found at {enrichment_csv}")
-        logger.error("Please run the enrichment pipeline first (T024)")
-        sys.exit(1)
-    
-    if not validation_json.exists():
-        logger.error(f"Validation report not found at {validation_json}")
-        logger.error("Please run the validation pipeline first (T032)")
-        sys.exit(1)
-    
     try:
-        generate_summary_table(enrichment_csv, validation_json, output_path)
-        logger.info("Summary table generation completed successfully")
+        # Ensure output directory exists
+        DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Load inputs
+        enrichment_df = load_enrichment_csv()
+        validation_data = load_validation_json()
+        
+        # Generate table
+        summary_df = generate_summary_table(enrichment_df, validation_data)
+        
+        # Write output
+        output_path = DATA_PROCESSED_DIR / "summary_table.csv"
+        summary_df.to_csv(output_path, index=False)
+        
+        logger.info(f"Successfully wrote summary table to {output_path}")
+        logger.info(f"Table shape: {summary_df.shape}")
+        logger.info(f"Columns: {list(summary_df.columns)}")
+        
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file missing: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error generating summary table: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during summary generation: {e}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

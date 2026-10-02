@@ -1,16 +1,21 @@
+"""
+Data provenance utilities for tracking the origin and processing history of datasets.
+"""
 from typing import Dict
+from datetime import datetime
 
-def generate_provenance_header(source: str, timestamp: str, version: str) -> Dict[str, str]:
+
+def generate_provenance_header(source: str, timestamp: str, version: str) -> dict:
     """
-    Generate a provenance header dictionary for dataset tracking.
+    Generate a standardized provenance header dictionary for data artifacts.
 
     Args:
-        source (str): The identifier of the data source (e.g., 'MaterialsProject', 'SuperCon').
-        timestamp (str): The ISO format timestamp of data generation or retrieval.
-        version (str): The version string of the dataset or processing pipeline.
+        source (str): The identifier of the data source (e.g., 'Materials Project', 'SuperCon').
+        timestamp (str): ISO 8601 formatted timestamp of when the data was processed.
+        version (str): The version string of the processing pipeline or dataset.
 
     Returns:
-        Dict[str, str]: A dictionary containing exactly the keys: 'source', 'timestamp', 'version'.
+        dict: A dictionary containing exactly the keys 'source', 'timestamp', and 'version'.
     """
     return {
         "source": source,

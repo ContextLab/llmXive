@@ -91,7 +91,7 @@
 
 - [ ] T012 [P] [US1] Implement `src/ingestion/download_materials_project.py` to fetch Mg-B entries via API, handling rate limits and empty responses (exit code 1 if empty)
 - [ ] T013 [P] [US1] Implement `src/ingestion/download_supercon.py` to fetch `taqwa92/cm.mgb2` from HuggingFace; **FAIL with exit code 1 if >50% of entries lack impurity columns**. Verification: Add unit test in `tests/unit/test_ingestion.py` using a synthetic dataset with a significant proportion of nulls to confirm exit code 1.
-- [ ] T014 [US1] Implement `src/ingestion/preprocess.py` to merge datasets, convert units (weight% -> atomic%), handle synthesis ranges (midpoint imputation), and attach provenance metadata. **Verification**: Ensure provenance metadata is attached to CACHED files (bypassing T012/T013) as per FR-001.
+- [ ] T014 [US1] Implement `src/ingestion/preprocess.py` to merge datasets, convert units (weight% -> atomic%), handle synthesis ranges (midpoint imputation), and attach provenance metadata. **Verification**: Ensure provenance metadata is attached to CACHED files (bypassing T012/T013) as per FR-001. <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `tests/integration/test_pipeline.py` to run full ingestion flow (T012->T013->T014) and verify `mgb2_clean.csv` integrity (count > 0, no nulls in target columns)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -134,7 +134,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/modeling/significance_test.py` to calculate VIF for all predictors. If VIF ≥ 5.0, group/remove collinear predictors and output a `reduced_feature_set.csv`. **Depends on**: T020 (Model Training)
+- [ ] T026 [US3] Implement `src/modeling/significance_test.py` to calculate VIF for all predictors. If VIF ≥ 5.0, group/remove collinear predictors and output a `reduced_feature_set.csv`. **Depends on**: T020 (Model Training) <!-- FAILED: unspecified -->
 - [ ] T026a [US3] Re-run significance testing logic on the `reduced_feature_set.csv` (output of T026) to ensure valid p-values on the non-collinear set. **Depends on**: T026
 - [ ] T025 [US3] Implement `src/modeling/significance_test.py` to perform ANOVA (Linear) or **Feature Permutation Importance** (shuffling feature column X, re-predicting, comparing to baseline) for tree models. **Logic**: This implements the Plan's correction to FR-004. Filter features by p < 0.05. **Depends on**: T026a
 - [ ] T025a [US3] **Documentation**: Create `docs/fr004_deviation_report.md` explicitly documenting why the Spec's "Target Permutation Test" (shuffling Y) was not implemented (methodologically invalid) and confirming the use of "Feature Permutation" as per Plan.

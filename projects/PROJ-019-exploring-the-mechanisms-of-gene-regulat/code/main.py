@@ -1,3 +1,7 @@
+"""
+Main orchestration module for the gene regulation pipeline.
+Implements the run_validation_report function to generate the final validation report.
+"""
 import sys
 import json
 import logging
@@ -5,190 +9,258 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
-from code.config import DATA_PROCESSED_DIR, TMP_DIR
-from code.utils.disk_check import check_disk_space, InsufficientDiskSpaceError
-from code.utils.memory_check import check_memory, InsufficientMemoryError
-from code.utils.time_check import TimeTracker
-from code.ingest import parse_bed_file
-from code.preprocess import process_cell_type_peaks, aggregate_background_model, DataParseError
-from code.provenance import initialize_provenance, save_provenance, add_encode_accession
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Expected cell types as per specification
-EXPECTED_CELL_TYPES = ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']
+# Import configuration
+from code.config import DATA_PROCESSED_DIR, DATA_INTERIM_DIR, TMP_DIR
+
+# Import pipeline components
+from code.utils.disk_check import check_disk_space
+from code.utils.memory_check import check_memory
+from code.utils.time_check import start_timer, check_time_limit
+from code.download import download_all_peaks
+from code.preprocess import preprocess_all_cell_types, aggregate_background_model
+from code.scan import scan_all_cell_types, save_scan_results
+from code.enrichment import aggregate_enrichment_results
+from code.visualize import generate_heatmap, calculate_silhouette_score
+from code.validate import (
+    load_silhouette_score,
+    enforce_silhouette_threshold,
+    validate_motifs,
+    load_validation_stats
+)
+from code.provenance import initialize_provenance, save_provenance, add_encode_accession, set_jaspar_version
 
 def run_preflight_checks():
-    """Execute pre-flight checks for disk, memory, and time."""
+    """Run pre-flight checks for disk, memory, and time."""
     logger.info("Running pre-flight checks...")
-    try:
-        check_disk_space()
-        check_memory()
-        logger.info("Pre-flight checks passed.")
-    except (InsufficientDiskSpaceError, InsufficientMemoryError) as e:
-        logger.critical(f"Pre-flight check failed: {e}")
-        sys.exit(1)
+    
+    # Check disk space
+    check_disk_space()
+    
+    # Check memory
+    check_memory()
+    
+    # Start time tracking
+    start_timer()
+    
+    logger.info("Pre-flight checks passed.")
 
-def run_ingestion(peak_files: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Orchestrate the ingestion of parsed peaks and generate the summary report.
+def run_ingestion():
+    """Run the data ingestion pipeline."""
+    logger.info("Starting data ingestion...")
     
-    Args:
-        peak_files: A dictionary mapping cell type names to file paths of parsed peaks.
-                    Expected keys must match EXPECTED_CELL_TYPES.
+    # Download peaks
+    peak_files = download_all_peaks()
     
-    Returns:
-        A dictionary containing the ingestion summary statistics.
+    # Preprocess peaks
+    processed_peaks = preprocess_all_cell_types()
     
-    Raises:
-        ValueError: If the input contains unexpected cell types.
-        DataParseError: If parsing fails for any file.
-    """
-    logger.info("Starting ingestion orchestration...")
+    # Aggregate background model
+    background_model = aggregate_background_model(processed_peaks)
     
-    # Validate input cell types
-    input_types = set(peak_files.keys())
-    expected_set = set(EXPECTED_CELL_TYPES)
-    
-    if input_types != expected_set:
-        missing = expected_set - input_types
-        extra = input_types - expected_set
-        error_msg = f"Input cell types mismatch. Expected: {EXPECTED_CELL_TYPES}. "
-        if missing:
-            error_msg += f"Missing: {list(missing)}. "
-        if extra:
-            error_msg += f"Unexpected: {list(extra)}. "
-        raise ValueError(error_msg)
-    
-    total_peaks = 0
-    parsed_count = 0
-    processed_peaks = {}
-    
-    # Process each cell type's peak file
-    for cell_type, file_path in peak_files.items():
-        try:
-            logger.info(f"Processing peaks for cell type: {cell_type}")
-            # Parse the peak file (assumes file_path is a parsed BED or raw file to be parsed)
-            # Depending on T013 implementation, this might be a direct read or a re-parse
-            # Assuming T013 outputs a standardized BED-like structure or path to it.
-            # If file_path is a string path to a parsed file, we parse it here to count.
-            peaks = parse_bed_file(Path(file_path))
-            
-            if not isinstance(peaks, list):
-                raise DataParseError(f"Unexpected output type from parse_bed_file for {cell_type}")
-            
-            peak_count = len(peaks)
-            total_peaks += peak_count
-            parsed_count += 1
-            processed_peaks[cell_type] = peaks
-            
-            logger.info(f"Successfully parsed {peak_count} peaks for {cell_type}")
-            
-        except Exception as e:
-            logger.error(f"Failed to process peaks for {cell_type}: {e}")
-            raise DataParseError(f"Error processing {cell_type}: {e}")
-    
-    # Generate background model (union of all other cell types) as per T014
-    # Note: T014 logic is embedded here or called if it returns the aggregated object.
-    # Based on task description, T014 writes background_union.bed. 
-    # We assume process_cell_type_peaks or aggregate_background_model handles the writing.
-    # If T014 is separate, we might need to call it explicitly.
-    # For this orchestration, we call the aggregation logic to ensure the file is written.
-    try:
-        logger.info("Aggregating background model...")
-        aggregate_background_model(processed_peaks)
-    except Exception as e:
-        logger.error(f"Failed to aggregate background model: {e}")
-        # Depending on strictness, we might fail here. T015 depends on T014 completion.
-        # We assume T014 logic is available and successful if called.
-        raise e
-    
-    # Construct summary
-    summary = {
-        "total_peaks": total_peaks,
-        "cell_types": EXPECTED_CELL_TYPES, # Exact values as required
-        "parsed_count": parsed_count,
-        "timestamp": datetime.now(timezone.utc).isoformat()
+    # Generate ingestion summary
+    ingestion_summary = {
+        "total_peaks": sum(len(peaks) for peaks in processed_peaks.values()),
+        "cell_types": list(processed_peaks.keys()),
+        "parsed_count": len(processed_peaks)
     }
     
-    # Write output to data/processed/ingestion_summary.json
-    output_path = Path(DATA_PROCESSED_DIR) / "ingestion_summary.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Write ingestion summary
+    ingestion_summary_path = DATA_PROCESSED_DIR / "ingestion_summary.json"
+    with open(ingestion_summary_path, 'w') as f:
+        json.dump(ingestion_summary, f, indent=2)
     
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
+    logger.info(f"Ingestion summary written to {ingestion_summary_path}")
+    return ingestion_summary, processed_peaks, background_model
+
+def run_enrichment(processed_peaks, background_model):
+    """Run the enrichment analysis pipeline."""
+    logger.info("Starting enrichment analysis...")
     
-    logger.info(f"Ingestion summary written to {output_path}")
-    return summary
+    # Scan for motifs
+    motif_matches = scan_all_cell_types(processed_peaks)
+    
+    # Save scan results
+    save_scan_results(motif_matches)
+    
+    # Calculate enrichment
+    enrichment_results = aggregate_enrichment_results(motif_matches, background_model)
+    
+    # Write enrichment matrix
+    enrichment_matrix_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    with open(enrichment_matrix_path, 'w') as f:
+        f.write("motif_id,cell_type,p_value,q_value\n")
+        for result in enrichment_results:
+            f.write(f"{result['motif_id']},{result['cell_type']},{result['p_value']},{result['q_value']}\n")
+    
+    logger.info(f"Enrichment matrix written to {enrichment_matrix_path}")
+    return enrichment_results
+
+def run_visualization_and_validation_pipeline(enrichment_results):
+    """Run the visualization and validation pipeline."""
+    logger.info("Starting visualization and validation...")
+    
+    # Generate heatmap
+    heatmap_path = DATA_PROCESSED_DIR / "heatmap.png"
+    generate_heatmap(enrichment_results, heatmap_path)
+    logger.info(f"Heatmap written to {heatmap_path}")
+    
+    # Calculate silhouette score
+    silhouette_score = calculate_silhouette_score(enrichment_results)
+    
+    # Write silhouette score
+    silhouette_score_path = DATA_PROCESSED_DIR / "silhouette_score.json"
+    with open(silhouette_score_path, 'w') as f:
+        json.dump({"silhouette_score": round(silhouette_score, 2)}, f, indent=2)
+    logger.info(f"Silhouette score written to {silhouette_score_path}")
+    
+    # Enforce silhouette threshold
+    silhouette_test_passed = enforce_silhouette_threshold(silhouette_score)
+    
+    # Validate motifs
+    validation_stats = validate_motifs(enrichment_results)
+    
+    # Write validation stats
+    validation_stats_path = DATA_PROCESSED_DIR / "validation_stats.json"
+    with open(validation_stats_path, 'w') as f:
+        json.dump(validation_stats, f, indent=2)
+    logger.info(f"Validation stats written to {validation_stats_path}")
+    
+    # Determine overlap test passed
+    overlap_test_passed = validation_stats.get("overlap_pct", 0) >= 60.0 if validation_stats.get("overlap_pct") is not None else False
+    
+    return {
+        "silhouette_score": silhouette_score,
+        "silhouette_test_passed": silhouette_test_passed,
+        "overlap_test_passed": overlap_test_passed,
+        "validation_stats": validation_stats
+    }
+
+def run_validation_report(heatmap_data, chip_data, score, silhouette_flag, overlap_flag):
+    """
+    Generate the final validation report.
+    
+    Args:
+        heatmap_data: Dictionary containing heatmap-related data (unused in final report structure)
+        chip_data: Dictionary containing ChIP-seq validation stats
+        score: The silhouette score (float)
+        silhouette_flag: Boolean indicating if silhouette test passed
+        overlap_flag: Boolean indicating if overlap test passed
+    
+    Returns:
+        Dictionary containing the validation report
+    """
+    logger.info("Generating validation report...")
+    
+    # Load top motifs from enrichment results (filtered by q < 0.05)
+    enrichment_matrix_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    top_motifs = []
+    
+    try:
+        with open(enrichment_matrix_path, 'r') as f:
+            lines = f.readlines()[1:]  # Skip header
+            motif_data = {}
+            for line in lines:
+                parts = line.strip().split(',')
+                if len(parts) >= 4:
+                    motif_id, cell_type, p_value, q_value = parts[0], parts[1], float(parts[2]), float(parts[3])
+                    if q_value < 0.05:
+                        if motif_id not in motif_data or q_value < motif_data[motif_id]['q_value']:
+                            motif_data[motif_id] = {
+                                'motif_id': motif_id,
+                                'q_value': q_value,
+                                'cell_type': cell_type
+                            }
+            
+            # Get top motifs (sorted by q_value)
+            sorted_motifs = sorted(motif_data.values(), key=lambda x: x['q_value'])
+            
+            # Calculate overlap for each top motif (simplified: use overall overlap from validation_stats)
+            overall_overlap = chip_data.get("overlap_pct") if chip_data else None
+            for motif in sorted_motifs[:10]:  # Top 10 motifs
+                top_motifs.append({
+                    "motif_id": motif['motif_id'],
+                    "q_value": round(motif['q_value'], 4),
+                    "overlap_pct": round(overall_overlap, 2) if overall_overlap is not None else None
+                })
+    except FileNotFoundError:
+        logger.warning("Enrichment matrix not found, using empty top_motifs list")
+        top_motifs = []
+    
+    # Determine overall validation status
+    validation_passed = silhouette_flag and overlap_flag
+    
+    # Construct report
+    report = {
+        "overlap_pct": round(chip_data.get("overlap_pct"), 2) if chip_data and chip_data.get("overlap_pct") is not None else None,
+        "top_motifs": top_motifs,
+        "silhouette_score": round(score, 2),
+        "silhouette_test_passed": silhouette_flag,
+        "overlap_test_passed": overlap_flag,
+        "validation_passed": validation_passed
+    }
+    
+    # Write report
+    report_path = DATA_PROCESSED_DIR / "validation_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Validation report written to {report_path}")
+    return report
 
 def run_ingestion_pipeline():
-    """
-    Full pipeline for User Story 1: Download -> Parse -> Aggregate -> Summary.
-    This function orchestrates T012, T013, T014, and T015.
-    """
-    logger.info("Starting full ingestion pipeline...")
+    """Run the full ingestion pipeline."""
     run_preflight_checks()
-    
-    # T012: Download peaks
-    from code.download import download_all_peaks
-    downloaded_files = download_all_peaks()
-    
-    # T013: Parse downloaded files
-    from code.preprocess import preprocess_all_cell_types
-    # This function should return a dict of {cell_type: path_to_parsed_file}
-    # or modify internal state to have parsed files ready.
-    # Assuming it returns the paths to the parsed intermediate files.
-    parsed_files = preprocess_all_cell_types(downloaded_files)
-    
-    # T015: Run ingestion logic (Summary generation)
-    summary = run_ingestion(parsed_files)
-    
-    # Update provenance
-    try:
-        initialize_provenance()
-        # Add accessions if available in downloaded_files metadata
-        save_provenance()
-    except Exception as e:
-        logger.warning(f"Failed to update provenance: {e}")
-    
-    return summary
+    ingestion_summary, processed_peaks, background_model = run_ingestion()
+    return ingestion_summary, processed_peaks, background_model
 
-def run_enrichment_pipeline():
-    """Orchestrate scanning and enrichment (US2)."""
-    logger.info("Starting enrichment pipeline...")
-    # Implementation for US2 (T021-T024) would go here.
-    # Placeholder for now as T015 is the focus.
-    pass
+def run_enrichment_pipeline(processed_peaks, background_model):
+    """Run the full enrichment pipeline."""
+    return run_enrichment(processed_peaks, background_model)
 
-def run_visualization_and_validation_pipeline():
-    """Orchestrate visualization and validation (US3)."""
-    logger.info("Starting visualization and validation pipeline...")
-    # Implementation for US3 (T028-T034) would go here.
-    pass
-
-def run_validation_report():
-    """Generate the final validation report."""
-    logger.info("Generating validation report...")
-    # Implementation for final report generation.
-    pass
+def run_visualization_and_validation_pipeline_wrapper(enrichment_results):
+    """Wrapper for visualization and validation pipeline."""
+    return run_visualization_and_validation_pipeline(enrichment_results)
 
 def main():
-    """Entry point for the pipeline."""
-    if len(sys.argv) > 1 and sys.argv[1] == "--pipeline":
-        run_ingestion_pipeline()
-    elif len(sys.argv) > 1 and sys.argv[1] == "--enrichment":
-        run_enrichment_pipeline()
-    elif len(sys.argv) > 1 and sys.argv[1] == "--validate":
-        run_visualization_and_validation_pipeline()
-    else:
-        # Default: run full ingestion pipeline for T015 verification
-        run_ingestion_pipeline()
+    """Main entry point for the pipeline."""
+    logger.info("Starting gene regulation analysis pipeline...")
+    
+    try:
+        # Run ingestion
+        ingestion_summary, processed_peaks, background_model = run_ingestion_pipeline()
+        
+        # Run enrichment
+        enrichment_results = run_enrichment_pipeline(processed_peaks, background_model)
+        
+        # Run visualization and validation
+        validation_data = run_visualization_and_validation_pipeline_wrapper(enrichment_results)
+        
+        # Generate validation report
+        validation_report = run_validation_report(
+            heatmap_data={},  # Heatmap data is not needed for the report structure
+            chip_data=validation_data.get("validation_stats", {}),
+            score=validation_data.get("silhouette_score", 0.0),
+            silhouette_flag=validation_data.get("silhouette_test_passed", False),
+            overlap_flag=validation_data.get("overlap_test_passed", False)
+        )
+        
+        # Check if validation passed
+        if not validation_report["validation_passed"]:
+            logger.error("Validation failed. Check logs for details.")
+            sys.exit(1)
+        
+        logger.info("Pipeline completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

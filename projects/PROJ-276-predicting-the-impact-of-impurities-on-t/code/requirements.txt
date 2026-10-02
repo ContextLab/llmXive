@@ -9,5 +9,4 @@ seaborn
 statsmodels
 pytest
 datasets
-ruff
-black
+scipy

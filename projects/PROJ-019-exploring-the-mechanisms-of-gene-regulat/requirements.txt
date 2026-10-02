@@ -8,5 +8,4 @@ biopython
 pytest
 psutil
 joblib
-numpy
-scikit-learn
+fimo

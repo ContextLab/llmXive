@@ -3455,3 +3455,380 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-12T21:29:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Plan 1M regime feasible, Spec 10M regime not feasible
+  claim_id: c_717a3b16
+  context: 'If the plan regime (1M) is feasible and the spec regime (10M) is not,
+    write data/artifacts/conflict_resolution_strategy.json with chosen_regime: "1M"'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_1M_regime_feasible,_Spec_10M_regime_not_feasible
+  kind: entity_fact
+  raw_text: 'The plan regime (1M) is feasible and the spec regime (10M) is not, write
+    data/artifacts/conflict_resolution_strategy.json with chosen_regime: "1M"'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:28:04Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Plan Summary token target is 1M
+  claim_id: c_54c7f779
+  context: Parse plan.md to extract the token target from the Summary (1M)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_Summary_token_target_is_1M
+  kind: entity_fact
+  raw_text: Parse plan.md to extract the token target from the Summary (1M)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:31:30Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: RAM monitor implemented using psutil returning GB
+  claim_id: c_1d864d24
+  context: Implement get_ram_usage() in utils/monitor.py using psutil (returns GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_monitor_implemented_using_psutil_returning_GB
+  kind: entity_fact
+  raw_text: Implement get_ram_usage() in utils/monitor.py using psutil (returns GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:32:33Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: TimeoutError raised after 6 hours
+  claim_id: c_4539e0b3
+  context: Implement get_elapsed_time() and check_timeout() in utils/monitor.py; raise
+    TimeoutError after 6 h
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise TimeoutError after 6 h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:32:43Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: RAM budget 7 GB with FP16 2 bytes/param and FP32 4 bytes/param
+  claim_id: c_012b159b
+  context: Using fixed constants (FP16 = 2 bytes/param, FP32 = 4 bytes/param) and
+    a target RAM budget of 7 GB, compute the maximum feasible d_model and num_layers
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using fixed constants (FP16 = 2 bytes/param, FP32 = 4 bytes/param) and
+    a target RAM budget of 7 GB, compute the maximum feasible d_model and num_layers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:32:46Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Power analysis uses Cohen's d 0.5
+  claim_id: c_f7029031
+  context: using a simple effect-size assumption (e.g., Cohen's d = 0.5) compute statistical
+    power
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Compute statistical power for the planned multiple seeds per group using
+    a simple effect-size assumption (e.g., Cohen's d = 0.5)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:32:47Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: FatalError raised if power is less than 0.8
+  claim_id: c_1492a74c
+  context: Raise FatalError if power < 0.8
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FatalError_raised_if_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Raise FatalError if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:32:55Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Corpus sources bigcode/the-stack python subset and gutenberg text
+  claim_id: c_edc9d769
+  context: Stream bigcode/the-stack (python subset) and gutenberg (text) via datasets.load_dataset(...,
+    streaming=True)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Corpus_sources_bigcode/the-stack_python_subset_and_gutenberg
+  kind: entity_fact
+  raw_text: Stream bigcode/the-stack (python subset) and gutenberg (text)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:03Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Chunk size 10000 for interleaving
+  claim_id: c_5373daa0
+  context: Interleave chunks round-robin with chunk_size=10 000
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interleave chunks round-robin with chunk_size=10 000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:06Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Token balance ratio within 10% of 50/50
+  claim_id: c_c00b7fe1
+  context: Assert the ratio is within 10 % of 50/50; otherwise raise RuntimeError
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert the ratio is within 10 % of 50/50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Token count within 1% of target
+  claim_id: c_080a00ea
+  context: "Ensure token count is within \xB11 % of token_target"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure token count is within \xB11 % of token_target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:21Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Train/test split 90/10
+  claim_id: c_e8c2f1ef
+  context: Split micro_corpus_full.jsonl into train/test (90/10 split)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split micro_corpus_full.jsonl into train/test (90/10 split)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:25Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Truncate if tokens exceed target plus 10000
+  claim_id: c_f7857fa0
+  context: If total tokens exceed token_target + 10 000, truncate to that limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total tokens exceed token_target + 10 000, truncate to that limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:33:29Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Autoregressive model dimensions identical to diffusion model
+  claim_id: c_48c0d6cf
+  context: construct a causal LM with those exact dimensions (identical embed dim,
+    heads, layers to diffusion model)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Autoregressive_model_dimensions_identical_to_diffusion_model
+  kind: entity_fact
+  raw_text: Construct a causal LM with those exact dimensions (identical embed dim,
+    heads, layers to diffusion model)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:38:14Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 5 seeds per architecture for training
+  claim_id: c_033f8780
+  context: For each architecture (AR, MDM) and each seed (5 seeds), invoke train_loop.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each architecture (AR, MDM) and each seed (5 seeds), invoke train_loop.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:39:32Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Training aborts if batch size less than 4
+  claim_id: c_50b8ebf8
+  context: halt batch size, retry; abort if batch size < 4
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P9644: ABORT'
+      source_id: Q99905668
+      url: https://www.wikidata.org/wiki/Q99905668
+      value: '4'
+    filled: true
+  kind: magnitude
+  raw_text: Abort if batch size < 4
+  resolved_value: '4'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:39:43Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: ANOVA requires at least 3 seeds per group
+  claim_id: c_4486978f
+  context: Require at least 3 seeds per group; warn if fewer
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_requires_at_least_3_seeds_per_group
+  kind: magnitude
+  raw_text: Require at least 3 seeds per group for ANOVA
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:39:55Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Correlation threshold |r| >= 0.5
+  claim_id: c_01d19100
+  context: "include a boolean threshold_met indicating whether |r| \u2265 0.5 for\
+    \ each model"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.5'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Correlation_threshold_r_%3E=_0.5
+    source_value: https://en.wikipedia.org/wiki/Correlation_threshold_r_>=_0.5
+    subject: Correlation threshold
+  kind: relational
+  raw_text: "Include a boolean threshold_met indicating whether |r| \u2265 0.5 for\
+    \ each model"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:40:08Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Peak RAM must be less than 6.5 GB
+  claim_id: c_093bbd9a
+  context: verify_ram.py reads training_logs.csv, asserts max RAM < 6.5 GB
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The iPhone 6s and iPhone 6s Plus are smartphones that were designed,
+        developed, and marketed by Apple. They are the ninth generation of the iPhone.
+        They were announced on September 9, 2015, at the Bill Graham Civic Auditorium
+        in San Francisco by Apple CEO Tim Cook, with pre-orders beginning September
+        12 and official release on September 25, 2015. They were succeeded by the
+        iPhone 7 and iPhone 7 Plus on September 7, 2016, and were discontinued with
+        the announcement of the iPhone XS, iPhone XS Max, and iPhone XR on September
+        12, 2018.
+      source_id: IPhone 6s
+      url: https://en.wikipedia.org/wiki/IPhone_6s
+      value: '2'
+    filled: true
+  kind: magnitude
+  raw_text: Assert max RAM < 6.5 GB
+  resolved_value: '2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:40:22Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Quickstart commands must exit with code 0
+  claim_id: c_47e1d874
+  context: Execute commands in quickstart.md; ensure exit code 0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure exit code 0 for quickstart.md commands
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:40:25Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Default regime is 1M
+  claim_id: c_a85183a3
+  context: Add usage example python main.py (defaults to 1M regime)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_regime_is_1M
+  kind: entity_fact
+  raw_text: defaults to 1M regime
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:42:44Z'

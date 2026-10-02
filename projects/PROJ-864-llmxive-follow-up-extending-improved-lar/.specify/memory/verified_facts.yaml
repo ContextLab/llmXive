@@ -1,0 +1,16 @@
+'|abort batch if size':
+  quote: 'P9644: ABORT'
+  source_id: Q99905668
+  url: https://www.wikidata.org/wiki/Q99905668
+  value: '4'
+'|assert gb max ram':
+  quote: The iPhone 6s and iPhone 6s Plus are smartphones that were designed, developed,
+    and marketed by Apple. They are the ninth generation of the iPhone. They were
+    announced on September 9, 2015, at the Bill Graham Civic Auditorium in San Francisco
+    by Apple CEO Tim Cook, with pre-orders beginning September 12 and official release
+    on September 25, 2015. They were succeeded by the iPhone 7 and iPhone 7 Plus on
+    September 7, 2016, and were discontinued with the announcement of the iPhone XS,
+    iPhone XS Max, and iPhone XR on September 12, 2018.
+  source_id: IPhone 6s
+  url: https://en.wikipedia.org/wiki/IPhone_6s
+  value: '2'

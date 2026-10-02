@@ -1,202 +1,255 @@
 """
 Configuration management for the MgB2 Impurity Impact project.
 
-Handles environment variable loading, API key validation, and project settings.
+Handles environment variable loading, API key retrieval, and project root detection.
 """
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 import json
-
+import requests
 from .logging import get_project_logger
-
-logger = get_project_logger(__name__)
-
 
 class ConfigError(Exception):
     """Custom exception for configuration errors."""
     pass
 
-
-def load_env_file(env_path: Optional[Path] = None) -> Dict[str, str]:
+def load_env_file(env_path: Optional[str] = None) -> Dict[str, str]:
     """
-    Load environment variables from a .env file if it exists.
+    Load environment variables from a .env file.
     
     Args:
-        env_path: Path to the .env file. Defaults to project root/.env.
+        env_path: Path to the .env file. If None, looks for .env in project root.
         
     Returns:
-        Dictionary of loaded environment variables.
-    """
-    if env_path is None:
-        env_path = Path(__file__).parent.parent.parent.parent / ".env"
+        Dictionary of key-value pairs from the file.
         
+    Raises:
+        ConfigError: If the file is not found or cannot be parsed.
+    """
+    logger = get_project_logger()
+    
+    if env_path is None:
+        project_root = get_project_root()
+        env_path = str(project_root / ".env")
+    
     env_vars = {}
     
-    if env_path.exists():
-        logger.info(f"Loading environment variables from {env_path}")
+    if not os.path.exists(env_path):
+        logger.warning(f".env file not found at {env_path}. Using system environment variables.")
+        return env_vars
+    
+    try:
         with open(env_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 # Skip empty lines and comments
                 if not line or line.startswith('#'):
                     continue
-                # Parse KEY=VALUE
+                
                 if '=' in line:
                     key, value = line.split('=', 1)
+                    # Remove quotes if present
                     key = key.strip()
                     value = value.strip().strip('"').strip("'")
                     env_vars[key] = value
-    else:
-        logger.warning(f"No .env file found at {env_path}")
+                    
+        logger.info(f"Loaded configuration from {env_path}")
+    except Exception as e:
+        raise ConfigError(f"Failed to load .env file: {e}")
         
     return env_vars
 
-
-def get_api_key(service_name: str, required: bool = True) -> Optional[str]:
+def get_api_key(key_name: str, env_vars: Optional[Dict[str, str]] = None) -> str:
     """
-    Retrieve an API key for a specific service from environment variables.
-    
-    This function checks the environment for a key in the format:
-    {SERVICE_NAME}_API_KEY (uppercase)
+    Retrieve an API key from environment variables or .env file.
     
     Args:
-        service_name: Name of the service (e.g., "MATERIALS_PROJECT", "HUGGINGFACE").
-        required: If True, raises ConfigError if key is missing.
+        key_name: The name of the environment variable (e.g., 'MATERIALS_PROJECT_API_KEY').
+        env_vars: Optional pre-loaded environment variables. If None, loads from .env.
         
     Returns:
-        The API key string if found, None otherwise (unless required=True).
+        The API key string.
         
     Raises:
-        ConfigError: If the key is required but not found.
+        ConfigError: If the key is not found in environment or .env file.
     """
-    # Normalize service name to uppercase with underscores
-    env_var_name = f"{service_name.upper().replace('-', '_')}_API_KEY"
+    logger = get_project_logger()
     
-    # First check if already in os.environ (from .env loading or system)
-    api_key = os.environ.get(env_var_name)
+    # First check system environment
+    if key_name in os.environ:
+        logger.debug(f"Found {key_name} in system environment")
+        return os.environ[key_name]
     
-    if api_key is None:
-        # Try to load from .env file explicitly
+    # Then check .env file
+    if env_vars is None:
         env_vars = load_env_file()
-        if env_var_name in env_vars:
-            api_key = env_vars[env_var_name]
-            # Set it in os.environ for future access
-            os.environ[env_var_name] = api_key
-    
-    if required and api_key is None:
-        raise ConfigError(
-            f"Required API key '{env_var_name}' not found. "
-            f"Please set it in your environment or add it to a .env file."
-        )
         
-    if api_key:
-        logger.info(f"API key found for {service_name}")
-    else:
-        logger.warning(f"No API key found for {service_name}")
+    if key_name in env_vars:
+        logger.debug(f"Found {key_name} in .env file")
+        return env_vars[key_name]
         
-    return api_key
+    raise ConfigError(f"API key '{key_name}' not found in environment variables or .env file.")
 
-
-def get_materials_project_api_key() -> Optional[str]:
+def get_materials_project_api_key() -> str:
     """
-    Get the Materials Project API key.
+    Retrieve the Materials Project API key.
     
     Returns:
-        The API key string or None if not configured.
+        The Materials Project API key.
+        
+    Raises:
+        ConfigError: If the key is not configured.
     """
-    return get_api_key("materials_project", required=False)
+    return get_api_key("MATERIALS_PROJECT_API_KEY")
 
-
-def get_huggingface_token() -> Optional[str]:
+def get_huggingface_token() -> str:
     """
-    Get the HuggingFace token for dataset access.
+    Retrieve the HuggingFace token.
     
     Returns:
-        The token string or None if not configured.
+        The HuggingFace token.
+        
+    Raises:
+        ConfigError: If the token is not configured.
     """
-    return get_api_key("huggingface", required=False)
-
+    return get_api_key("HUGGINGFACE_TOKEN")
 
 def validate_materials_project_connection(api_key: Optional[str] = None) -> bool:
     """
-    Validate that the Materials Project API key is configured.
+    Validate the connection to the Materials Project API.
     
     Args:
-        api_key: Optional API key to validate. If None, retrieves from env.
+        api_key: Optional API key. If None, retrieves from config.
         
     Returns:
-        True if key is present and non-empty, False otherwise.
-    """
-    if api_key is None:
-        api_key = get_materials_project_api_key()
+        True if connection is valid, False otherwise.
         
-    is_valid = api_key is not None and len(api_key) > 0
+    Raises:
+        ConfigError: If no API key is provided or found.
+    """
+    logger = get_project_logger()
     
-    if is_valid:
-        logger.info("Materials Project API key is configured.")
-    else:
-        logger.warning("Materials Project API key is NOT configured. "
-                     "Data ingestion from Materials Project will fail.")
-                     
-    return is_valid
-
+    if api_key is None:
+        try:
+            api_key = get_materials_project_api_key()
+        except ConfigError:
+            logger.error("Materials Project API key not configured. Cannot validate connection.")
+            return False
+    
+    try:
+        # Test connection with a simple endpoint
+        url = "https://api.materialsproject.org/v2/materials/MP-123"
+        headers = {"X-API-Key": api_key}
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            logger.info("Materials Project API connection validated successfully.")
+            return True
+        elif response.status_code == 401:
+            logger.error("Materials Project API key is invalid (401 Unauthorized).")
+            return False
+        else:
+            logger.warning(f"Materials Project API returned status {response.status_code}.")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to connect to Materials Project API: {e}")
+        return False
 
 def get_project_root() -> Path:
     """
-    Get the root directory of the project.
+    Determine the project root directory.
+    
+    Looks for a marker file or directory to identify the root.
+    Assumes the project root contains 'src', 'tests', 'data', etc.
     
     Returns:
-        Path object pointing to the project root.
+        Path to the project root.
     """
-    # Assuming this file is at code/src/utils/config.py
-    # Project root is 4 levels up
-    return Path(__file__).parent.parent.parent.parent
-
+    # Start from current working directory
+    current = Path.cwd()
+    
+    # Look for markers going up the tree
+    markers = ['.git', 'pyproject.toml', 'setup.py', 'README.md']
+    
+    while current != current.parent:
+        if any(current / marker for marker in markers):
+            return current
+        current = current.parent
+        
+    # Fallback: assume current directory is root
+    return Path.cwd()
 
 def get_config_summary() -> Dict[str, Any]:
     """
-    Get a summary of current configuration status (without exposing secrets).
+    Generate a summary of the current configuration.
     
     Returns:
-        Dictionary with configuration status for each service.
+        Dictionary containing configuration status (without exposing actual keys).
     """
-    mp_key = get_materials_project_api_key()
-    hf_token = get_huggingface_token()
+    project_root = get_project_root()
+    env_path = project_root / ".env"
+    
+    # Check which keys are configured
+    keys_to_check = [
+        "MATERIALS_PROJECT_API_KEY",
+        "HUGGINGFACE_TOKEN"
+    ]
+    
+    configured_keys = []
+    missing_keys = []
+    
+    for key in keys_to_check:
+        if key in os.environ or (env_path.exists() and key in load_env_file(str(env_path))):
+            configured_keys.append(key)
+        else:
+            missing_keys.append(key)
     
     return {
-        "materials_project": {
-            "configured": mp_key is not None and len(mp_key) > 0,
-            "key_length": len(mp_key) if mp_key else 0
-        },
-        "huggingface": {
-            "configured": hf_token is not None and len(hf_token) > 0,
-            "key_length": len(hf_token) if hf_token else 0
-        },
-        "project_root": str(get_project_root())
+        "project_root": str(project_root),
+        "env_file_exists": env_path.exists(),
+        "configured_keys": configured_keys,
+        "missing_keys": missing_keys,
+        "total_configured": len(configured_keys),
+        "total_required": len(keys_to_check)
     }
-
 
 def main():
     """
-    Main entry point for running config validation as a script.
-    
-    Usage: python -m src.utils.config
+    Main entry point for configuration validation and summary.
     """
-    print("=== Project Configuration Status ===")
-    summary = get_config_summary()
-    print(json.dumps(summary, indent=2))
+    logger = get_project_logger()
+    logger.info("Running configuration validation...")
     
-    # Validate critical services
-    if not summary["materials_project"]["configured"]:
-        print("\n⚠️  WARNING: Materials Project API key not configured.")
-        print("   Add it to a .env file as: MATERIALS_PROJECT_API_KEY=your_key")
-        return 1
+    summary = get_config_summary()
+    
+    print("\n=== Configuration Summary ===")
+    print(f"Project Root: {summary['project_root']}")
+    print(f".env File Exists: {summary['env_file_exists']}")
+    print(f"Configured Keys ({summary['total_configured']}): {', '.join(summary['configured_keys'])}")
+    if summary['missing_keys']:
+        print(f"Missing Keys ({len(summary['missing_keys'])}): {', '.join(summary['missing_keys'])}")
+    print("=============================\n")
+    
+    # Validate Materials Project connection if key is available
+    if "MATERIALS_PROJECT_API_KEY" in summary['configured_keys']:
+        logger.info("Validating Materials Project connection...")
+        if validate_materials_project_connection():
+            print("✓ Materials Project API: Connected")
+        else:
+            print("✗ Materials Project API: Connection failed or invalid key")
+    else:
+        print("⚠ Materials Project API: Key not configured")
         
-    print("\n✅ All critical configurations are valid.")
-    return 0
-
+    # Validate HuggingFace token presence
+    if "HUGGINGFACE_TOKEN" in summary['configured_keys']:
+        print("✓ HuggingFace Token: Configured")
+    else:
+        print("⚠ HuggingFace Token: Not configured")
+        
+    logger.info("Configuration validation complete.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

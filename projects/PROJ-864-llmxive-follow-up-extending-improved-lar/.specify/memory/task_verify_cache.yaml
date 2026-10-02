@@ -26,11 +26,10 @@ T004:
     the specified path.
 T005:
   c: false
-  h: c240ee51cb4acc896f109b24e49b0c1223cbe0df398302c276a68e7d98c67572
-  r: The required file `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt`
-    does not exist, and the existing `code/requirements.txt` has a lower torch version
-    (`torch>=2.0.0` instead of `>=2.2.0`) and includes extra packages not specified.
-    The task is therefore not fulfilled.
+  h: 2fbbbd4661eb7d1db46c465069f9c8c770c177b60dda6d20fff5db9e645f63f3
+  r: "The required file `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt`\
+    \ does not exist; only a different `code/requirements.txt` and a top\u2011level\
+    \ `requirements.txt` are present, so the specified artifact is missing."
 T006:
   c: false
   h: 175963997e5c7269a2e49c0829d66745bd9c615e0408584671d828be6157e85d

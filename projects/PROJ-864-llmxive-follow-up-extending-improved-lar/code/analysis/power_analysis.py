@@ -1,239 +1,179 @@
-"""
-Power Analysis Module for llmXive Follow-up Project.
-
-Performs a priori power analysis to determine if the chosen experimental regime
-(1M or 10M tokens) provides sufficient statistical power (>= 0.8) for the
-planned Mixed-Model Repeated-Measures ANOVA.
-
-Traceability: Spec FR-009
-Depends on: T001 (config.yaml generation)
-"""
-
 import json
 import sys
 import math
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-
 import numpy as np
-from statsmodels.stats.power import FTestAnovaPower, TTestIndPower
+import yaml
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Ensure we can import from the project root if running as script
+# The task assumes the script is run from the project root or code/
+# We will resolve paths relative to the project root structure
 
-from utils.logging import get_logger, info, error, warning
+def get_project_root() -> Path:
+    """Returns the root of the llmXive project."""
+    # Assuming standard structure: code/analysis/power_analysis.py
+    # Root is 2 levels up from this file
+    return Path(__file__).resolve().parent.parent.parent
 
-logger = get_logger(__name__)
+def load_config() -> Dict[str, Any]:
+    """Loads the config.yaml from the code directory."""
+    config_path = get_project_root() / "code" / "config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found at {config_path}. "
+                                "Run T000_CONFIG and T001 first.")
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
-
-def compute_effect_size(
-    regime: str,
-    expected_gap_autoregressive: float = 0.05,
-    expected_gap_diffusion: float = 0.04,
-    expected_std: float = 0.02,
-    n_seeds: int = 5
-) -> float:
+def compute_effect_size(effect_size_cohen_d: float = 0.5) -> float:
     """
-    Compute the expected effect size (Cohen's f) for the ANOVA.
-
-    The effect size depends on the expected difference in generalization gap
-    between AR and Diffusion models, and the expected variance.
-
-    Args:
-        regime: The token regime ('1M' or '10M').
-        expected_gap_autoregressive: Expected mean gap for AR model.
-        expected_gap_diffusion: Expected mean gap for Diffusion model.
-        expected_std: Expected standard deviation of the gap.
-        n_seeds: Number of seeds per model.
-
-    Returns:
-        Cohen's f effect size.
+    Returns the effect size (Cohen's d) to be used for power analysis.
+    Default is 0.5 (medium effect size).
     """
-    # Adjust expectations based on regime
-    # With more tokens (10M), we expect smaller gaps and potentially smaller variance
-    if regime == "10M":
-        # Larger dataset -> smaller gaps, potentially smaller variance
-        # But we keep the relative difference assumption
-        expected_gap_autoregressive *= 0.6
-        expected_gap_diffusion *= 0.6
-        expected_std *= 0.7
-    elif regime == "1M":
-        # Smaller dataset -> larger gaps, potentially larger variance
-        expected_gap_autoregressive *= 1.2
-        expected_gap_diffusion *= 1.2
-        expected_std *= 1.3
-
-    # Effect size for ANOVA: f = sigma_m / sigma
-    # sigma_m = sqrt(sum((mu_i - mu_overall)^2) / k)
-    mu_ar = expected_gap_autoregressive
-    mu_diff = expected_gap_diffusion
-    mu_overall = (mu_ar + mu_diff) / 2.0
-
-    # Variance of means
-    sigma_m_sq = ((mu_ar - mu_overall)**2 + (mu_diff - mu_overall)**2) / 2.0
-    sigma_m = math.sqrt(sigma_m_sq)
-
-    # Cohen's f
-    if expected_std == 0:
-        logger.warning("Expected standard deviation is zero, using fallback.")
-        expected_std = 0.01
-
-    f = sigma_m / expected_std
-
-    info(f"Computed effect size (Cohen's f) for {regime} regime: {f:.4f}")
-    return f
-
+    return effect_size_cohen_d
 
 def perform_power_analysis(
     effect_size: float,
     alpha: float = 0.05,
     power_target: float = 0.80,
-    n_groups: int = 2,
-    n_repeats: int = 10,  # Approximate number of epochs/measures
-    n_seeds: int = 5
-) -> Dict[str, Any]:
+    num_groups: int = 2,
+    seeds_per_group: int = 5
+) -> Tuple[float, int]:
     """
-    Perform a priori power analysis for the Mixed-Model Repeated-Measures ANOVA.
+    Performs a statistical power analysis to determine if the planned number of seeds
+    is sufficient to detect the given effect size with the target power.
 
-    Since statsmodels doesn't have a direct "Mixed Model" power calculator,
-    we use FTestAnovaPower as a conservative approximation for the main effect
-    (Model Type) in a repeated measures design. This is a standard approach
-    when exact mixed-model power calculators are unavailable.
-
-    Args:
-        effect_size: Cohen's f effect size.
-        alpha: Significance level.
-        power_target: Target power.
-        n_groups: Number of between-subject groups (Model Types: AR, Diffusion).
-        n_repeats: Number of repeated measures (epochs).
-        n_seeds: Number of subjects (seeds) per group.
+    Uses the standard formula for power in a two-sample t-test (approximate for ANOVA contexts
+    in experimental design of multiple seeds).
+    
+    Formula:
+    n = 2 * ((Z_alpha + Z_beta) / d)^2
+    
+    Where:
+    - n is the sample size per group
+    - d is Cohen's d (effect size)
+    - Z_alpha is the critical value for significance level (one-tailed or two-tailed)
+    - Z_beta is the critical value for power (1 - beta)
 
     Returns:
-        Dictionary with power analysis results.
+        Tuple[calculated_power, required_seeds_per_group]
     """
-    total_subjects = n_groups * n_seeds
+    # Z-scores for standard normal distribution
+    # For alpha = 0.05 (two-tailed), Z_alpha/2 = 1.96
+    z_alpha = 1.96 
+    # For target power = 0.80, beta = 0.20, Z_beta = 0.84
+    z_beta_target = 0.84
 
-    # Use FTestAnovaPower for the main effect of Model Type
-    # This approximates the power to detect a difference between AR and Diffusion
-    power_analyzer = FTestAnovaPower()
+    # Calculate required sample size per group for the target power
+    # n = 2 * ((Z_alpha + Z_beta) / d)^2
+    if effect_size <= 0:
+        raise ValueError("Effect size must be positive.")
+    
+    n_required = 2 * math.pow((z_alpha + z_beta_target) / effect_size, 2)
+    required_seeds = int(math.ceil(n_required))
+    
+    # If the planned seeds (seeds_per_group) is less than required, calculate actual power
+    # Actual power Z_beta = (d * sqrt(n/2)) - Z_alpha
+    # power = Phi(Z_beta)
+    
+    planned_n = seeds_per_group
+    if planned_n <= 0:
+        raise ValueError("Number of seeds must be positive.")
 
-    # Calculate power for the given parameters
-    # We assume the repeated measures increase the effective sample size slightly,
-    # but we use the number of subjects for a conservative estimate.
-    try:
-        calculated_power = power_analyzer.solve_power(
-            effect_size=effect_size,
-            nobs1=total_subjects,
-            alpha=alpha,
-            power=None,
-            ratio=1.0
-        )
-    except ValueError as e:
-        logger.error(f"Power calculation failed: {e}")
-        # If effect size is too small or parameters are invalid, power might be NaN or fail
-        calculated_power = 0.0
+    # Calculate Z_beta for the planned sample size
+    z_beta_planned = (effect_size * math.sqrt(planned_n / 2)) - z_alpha
+    
+    # Calculate actual power using cumulative distribution function (CDF) of normal distribution
+    # Using scipy.stats.norm.cdf would be ideal, but to avoid extra deps if not strictly needed,
+    # we can use math.erf or assume scipy is available (it is in requirements.txt).
+    # Given requirements.txt includes scipy, we use it for accuracy.
+    from scipy.stats import norm
+    actual_power = norm.cdf(z_beta_planned)
 
-    # Determine if power is sufficient
-    is_sufficient = calculated_power >= power_target
+    return actual_power, required_seeds
 
-    results = {
-        "regime": "1M",  # Will be overwritten by caller
-        "effect_size": effect_size,
-        "alpha": alpha,
-        "target_power": power_target,
-        "calculated_power": calculated_power,
-        "is_sufficient": is_sufficient,
-        "total_subjects": total_subjects,
-        "groups": n_groups,
-        "seeds_per_group": n_seeds,
-        "repeated_measures": n_repeats,
-        "recommendation": "PASS" if is_sufficient else "FAIL"
-    }
-
-    return results
-
-
-def main() -> int:
+def main():
     """
-    Main entry point for power analysis.
-
-    1. Reads regime from code/config.yaml.
-    2. Performs a priori power analysis.
-    3. If power < 0.8, HALT with error.
-    4. Otherwise, logs success and exits.
-
-    Returns:
-        0 on success, 1 on failure.
+    Main entry point for Power Analysis.
+    
+    Logic:
+    1. Read 'regime' and 'token_target' from code/config.yaml.
+    2. Use a fixed effect size (Cohen's d = 0.5).
+    3. Assume 5 seeds per group (AR vs MDM) as per project plan.
+    4. Compute statistical power.
+    5. Write data/artifacts/power_analysis.json.
+    6. Raise FatalError if power < 0.8.
     """
-    # Determine project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
-    config_path = project_root / "code" / "config.yaml"
-
-    if not config_path.exists():
-        error(f"Config file not found: {config_path}")
-        error("Please run T001 (generate_config.py) first.")
-        return 1
-
-    # Load config
-    try:
-        import yaml
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-    except Exception as e:
-        error(f"Failed to load config: {e}")
-        return 1
-
-    regime = config.get("regime", "1M")
-    token_target = config.get("token_target", 1000000)
-
-    info(f"Starting Power Analysis for regime: {regime} ({token_target:,} tokens)")
-
-    # Perform power analysis
-    # Parameters can be adjusted based on domain knowledge
-    # For now, we use reasonable defaults
-    effect_size = compute_effect_size(regime=regime)
-
-    power_results = perform_power_analysis(
-        effect_size=effect_size,
-        n_seeds=5,  # As per plan
-        n_groups=2, # AR and Diffusion
-        n_repeats=10 # Approximate epochs
-    )
-    power_results["regime"] = regime
-    power_results["token_target"] = token_target
-
-    # Log results
-    info(f"Calculated Power: {power_results['calculated_power']:.4f}")
-    info(f"Target Power: {power_results['target_power']}")
-    info(f"Effect Size: {power_results['effect_size']:.4f}")
-
-    # Save results to artifacts
+    project_root = get_project_root()
     artifacts_dir = project_root / "data" / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
-    output_path = artifacts_dir / "power_analysis_results.json"
+    
+    output_path = artifacts_dir / "power_analysis.json"
 
     try:
-        with open(output_path, 'w') as f:
-            json.dump(power_results, f, indent=2)
-        info(f"Power analysis results saved to: {output_path}")
+        config = load_config()
+        regime = config.get("regime")
+        token_target = config.get("token_target")
+        
+        if regime is None:
+            raise ValueError("Config missing 'regime'.")
+        if token_target is None:
+            raise ValueError("Config missing 'token_target'.")
+
+        # Constants
+        EFFECT_SIZE = 0.5
+        ALPHA = 0.05
+        TARGET_POWER = 0.80
+        SEEDS_PER_GROUP = 5
+        NUM_GROUPS = 2 # AR vs MDM
+
+        # Perform analysis
+        calculated_power, required_seeds = perform_power_analysis(
+            effect_size=EFFECT_SIZE,
+            alpha=ALPHA,
+            power_target=TARGET_POWER,
+            num_groups=NUM_GROUPS,
+            seeds_per_group=SEEDS_PER_GROUP
+        )
+
+        status = "PASS" if calculated_power >= TARGET_POWER else "FAIL"
+        
+        result = {
+            "status": status,
+            "power_value": float(calculated_power),
+            "effect_size_used": float(EFFECT_SIZE),
+            "required_seeds": required_seeds,
+            "planned_seeds": SEEDS_PER_GROUP,
+            "regime": regime,
+            "token_target": token_target,
+            "alpha": ALPHA,
+            "target_power": TARGET_POWER
+        }
+
+        # Write output
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=2)
+
+        print(f"Power analysis complete. Output written to {output_path}")
+        print(f"Calculated Power: {calculated_power:.4f} (Target: {TARGET_POWER})")
+        print(f"Status: {status}")
+
+        if calculated_power < TARGET_POWER:
+            # FatalError as per task requirement
+            raise SystemExit(f"FATAL: Statistical power ({calculated_power:.4f}) is below threshold ({TARGET_POWER}). "
+                             f"Required seeds per group: {required_seeds}, Planned: {SEEDS_PER_GROUP}.")
+            
+        return 0
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        raise SystemExit(1)
+    except ValueError as e:
+        print(f"Validation Error: {e}", file=sys.stderr)
+        raise SystemExit(1)
     except Exception as e:
-        error(f"Failed to save power analysis results: {e}")
-        return 1
-
-    # Check power threshold
-    if not power_results["is_sufficient"]:
-        error(f"Power analysis FAILED. Calculated power ({power_results['calculated_power']:.4f}) is below target ({power_results['target_power']}).")
-        error("The chosen regime does not provide sufficient statistical power.")
-        error("Recommendation: Increase token target, increase number of seeds, or reconsider effect size assumptions.")
-        return 1
-
-    info("Power analysis PASSED. The chosen regime provides sufficient statistical power.")
-    return 0
-
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     sys.exit(main())

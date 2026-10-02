@@ -3,9 +3,14 @@ from pathlib import Path
 import sys
 
 def verify_structure():
-    """Verify that all required directories from T001 exist."""
-    base_path = Path(__file__).parent.parent  # points to code/
-    
+    """
+    Verifies that the directory structure created by T001 exists.
+    Returns True if all required directories exist, False otherwise.
+    """
+    # Determine project root (assuming this script is in code/scripts/)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+
     required_dirs = [
         "src/ingestion",
         "src/modeling",
@@ -18,21 +23,21 @@ def verify_structure():
         "data/processed",
         "docs"
     ]
-    
+
     missing = []
-    for dir_name in required_dirs:
-        full_path = base_path / dir_name
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
         if not full_path.is_dir():
-            missing.append(str(full_path))
-    
+            missing.append(dir_path)
+
     if missing:
-        print("ERROR: The following directories are missing:")
-        for m in missing:
-            print(f"  - {m}")
+        print("VERIFICATION FAILED: Missing directories:")
+        for d in missing:
+            print(f"  - {d}")
         return False
-    
-    print("SUCCESS: All required directories exist.")
-    return True
+    else:
+        print("VERIFICATION PASSED: All required directories exist.")
+        return True
 
 if __name__ == "__main__":
     success = verify_structure()

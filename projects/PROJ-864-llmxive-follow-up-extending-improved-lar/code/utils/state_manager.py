@@ -1,38 +1,42 @@
 """
-State Manager Module for llmXive.
-
-Implements Constitution Principle V by tracking file integrity via SHA-256 hashes.
-Scans 'data/' and 'code/' directories, computes hashes, and updates the state file.
+State Manager for llmXive project.
+Computes SHA-256 hashes of all files under code/ and data/ directories
+and updates the project state file.
 """
 import hashlib
 import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 from utils.logging import get_logger, error, info
 
 logger = get_logger(__name__)
 
 def get_project_root() -> Path:
-    """Returns the absolute path to the project root."""
-    # Assuming the script is run from code/ or code/utils/
-    current_file = Path(__file__).resolve()
-    # Navigate up: code/utils -> code -> root
-    return current_file.parent.parent.parent
+    """Returns the root directory of the current project."""
+    # Assuming the project root is the parent of the 'code' directory
+    # This script is located at code/utils/state_manager.py
+    return Path(__file__).resolve().parent.parent.parent
+
+def get_state_dir() -> Path:
+    """Returns the path to the state directory."""
+    return get_project_root() / "state"
 
 def calculate_sha256(file_path: Path) -> str:
     """
-    Calculates the SHA-256 hash of a file's contents.
-    
+    Calculate the SHA-256 hash of a file.
+
     Args:
-        file_path: Path to the file.
-        
+        file_path: Path to the file to hash.
+
     Returns:
-        Hex digest of the SHA-256 hash.
+        Hexadecimal string of the SHA-256 hash.
     """
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
@@ -40,144 +44,158 @@ def calculate_sha256(file_path: Path) -> str:
         logger.error(f"Failed to hash file {file_path}: {e}")
         raise
 
-def scan_directory_for_hashes(directory: Path, base_path: Path) -> Dict[str, str]:
+def scan_directory_for_hashes(directory: Path) -> Dict[str, str]:
     """
-    Recursively scans a directory and computes SHA-256 hashes for all files.
-    
+    Recursively scan a directory and compute hashes for all files.
+
     Args:
-        directory: The directory to scan.
-        base_path: The base path to strip from the result keys (relative path).
-        
+        directory: Root directory to scan.
+
     Returns:
         Dictionary mapping relative file paths to their SHA-256 hashes.
     """
     hashes = {}
     if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
+        logger.warning(f"Directory {directory} does not exist, skipping.")
         return hashes
-    
+
     for root, _, files in os.walk(directory):
         for file in files:
-            full_path = Path(root) / file
-            # Calculate relative path from base_path (e.g., project root)
-            try:
-                rel_path = full_path.relative_to(base_path)
-            except ValueError:
-                # Should not happen if directory is under base_path, but safety check
+            file_path = Path(root) / file
+            # Skip state files themselves to avoid circular dependency
+            if "state" in str(file_path):
                 continue
             
-            # Skip the state file itself to avoid circular dependency or changing hash during write
-            if "state" in str(rel_path) and rel_path.suffix == ".yaml":
-                continue
-                
+            relative_path = file_path.relative_to(get_project_root())
             try:
-                file_hash = calculate_sha256(full_path)
-                hashes[str(rel_path)] = file_hash
+                file_hash = calculate_sha256(file_path)
+                hashes[str(relative_path)] = file_hash
+                logger.debug(f"Hashed {relative_path}: {file_hash[:8]}...")
             except Exception as e:
-                logger.error(f"Skipping file {rel_path} due to hash error: {e}")
-                
+                logger.error(f"Skipping file {relative_path} due to error: {e}")
+    
     return hashes
 
-def load_state_file(state_path: Path) -> Dict[str, Any]:
+def load_state_file(state_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Loads the existing state file or returns a default structure if it doesn't exist.
-    
-    Args:
-        state_path: Path to the state YAML file.
-        
-    Returns:
-        Dictionary containing the state data.
-    """
-    if state_path.exists():
-        try:
-            with open(state_path, "r") as f:
-                return yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.error(f"Failed to load state file {state_path}: {e}")
-            return {}
-    return {
-        "project_id": "PROJ-864-llmxive-follow-up-extending-improved-lar",
-        "artifact_hashes": {},
-        "last_updated": None
-    }
+    Load the existing state file or return an empty structure.
 
-def save_state_file(state_path: Path, state_data: Dict[str, Any]) -> None:
-    """
-    Saves the state dictionary to the YAML file.
-    
     Args:
-        state_path: Path to the state YAML file.
-        state_data: Dictionary to save.
+        state_path: Optional path to the state file. Defaults to project state file.
+
+    Returns:
+        Dictionary representing the state file contents.
     """
+    if state_path is None:
+        state_path = get_state_dir() / "projects" / "PROJ-864-llmxive-follow-up-extending-improved-lar.yaml"
+    
+    if not state_path.exists():
+        logger.info(f"State file {state_path} not found. Initializing new state.")
+        return {
+            "project_id": "PROJ-864-llmxive-follow-up-extending-improved-lar",
+            "last_updated": None,
+            "artifact_hashes": {}
+        }
+    
     try:
-        state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(state_path, "w") as f:
+        with open(state_path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        logger.error(f"Failed to parse state file {state_path}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to load state file {state_path}: {e}")
+        raise
+
+def save_state_file(state_data: Dict[str, Any], state_path: Optional[Path] = None) -> None:
+    """
+    Save the state dictionary to the state file.
+
+    Args:
+        state_data: Dictionary to save.
+        state_path: Optional path to the state file.
+    """
+    if state_path is None:
+        state_path = get_state_dir() / "projects" / "PROJ-864-llmxive-follow-up-extending-improved-lar.yaml"
+    
+    # Ensure directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        with open(state_path, "w", encoding="utf-8") as f:
             yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"State file saved to {state_path}")
+        logger.info(f"State saved to {state_path}")
     except Exception as e:
         logger.error(f"Failed to save state file {state_path}: {e}")
         raise
 
-def get_artifact_hash(relative_path: str, current_hashes: Dict[str, str]) -> Optional[str]:
+def get_artifact_hash(relative_path: str) -> Optional[str]:
     """
-    Retrieves the hash for a specific relative path from the current state.
+    Get the hash for a specific artifact if it exists in the current state.
+    
+    Args:
+        relative_path: Relative path to the artifact.
+        
+    Returns:
+        Hash string or None if not found.
     """
-    return current_hashes.get(relative_path)
+    state = load_state_file()
+    return state.get("artifact_hashes", {}).get(relative_path)
 
 def update_project_state() -> Dict[str, Any]:
     """
-    Main function to update the project state file.
-    
-    Scans 'data/' and 'code/' directories relative to the project root,
-    computes SHA-256 hashes for all files, and updates the state file.
-    
+    Main entry point to update the project state.
+    Scans code/ and data/ directories, computes hashes, and saves to state file.
+
     Returns:
-        The updated state dictionary.
+        Updated state dictionary.
     """
-    project_root = get_project_root()
-    data_dir = project_root / "data"
-    code_dir = project_root / "code"
-    state_dir = project_root / "state"
-    state_file_path = state_dir / "projects" / "PROJ-864-llmxive-follow-up-extending-improved-lar.yaml"
+    logger.info("Starting state update for project...")
     
-    logger.info(f"Starting state update. Project root: {project_root}")
+    # Directories to scan
+    dirs_to_scan = [
+        get_project_root() / "code",
+        get_project_root() / "data"
+    ]
+    
+    all_hashes: Dict[str, str] = {}
+    
+    for directory in dirs_to_scan:
+        if directory.exists():
+            logger.info(f"Scanning directory: {directory}")
+            dir_hashes = scan_directory_for_hashes(directory)
+            all_hashes.update(dir_hashes)
+        else:
+            logger.warning(f"Directory {directory} not found, skipping.")
     
     # Load existing state
-    state_data = load_state_file(state_file_path)
+    state = load_state_file()
     
-    # Initialize artifact_hashes if missing
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
-        
-    # Scan directories
-    all_hashes = {}
+    # Update state
+    import datetime
+    state["last_updated"] = datetime.datetime.now().isoformat()
+    state["artifact_hashes"] = all_hashes
     
-    logger.info(f"Scanning directory: {data_dir}")
-    all_hashes.update(scan_directory_for_hashes(data_dir, project_root))
-    
-    logger.info(f"Scanning directory: {code_dir}")
-    all_hashes.update(scan_directory_for_hashes(code_dir, project_root))
-    
-    # Update state data
-    state_data["artifact_hashes"] = all_hashes
-    state_data["last_updated"] = str(Path.cwd().parent) # Placeholder for timestamp if needed, or use datetime
-    from datetime import datetime
-    state_data["last_updated"] = datetime.now().isoformat()
-    
-    # Save updated state
-    save_state_file(state_file_path, state_data)
+    # Save state
+    save_state_file(state)
     
     logger.info(f"State update complete. Total artifacts tracked: {len(all_hashes)}")
-    return state_data
+    return state
 
-def main():
-    """CLI entry point for state manager."""
+def main() -> int:
+    """
+    Command-line entry point for the state manager.
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
     try:
         update_project_state()
-        print("State updated successfully.")
+        return 0
     except Exception as e:
-        error(f"State update failed: {e}")
-        raise
+        error(f"State manager failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

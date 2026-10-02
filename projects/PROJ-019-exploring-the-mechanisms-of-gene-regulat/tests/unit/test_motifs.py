@@ -10,6 +10,11 @@ def test_fisher_exact_correction():
     
     This test uses a known contingency table and verifies the mathematical
     correctness of the enrichment calculation and FDR correction.
+    
+    NOTE: This test is expected to FAIL until T022 (implementation of 
+    calculate_enrichment and benjamini_hochberg_correction in code/enrichment.py)
+    is complete. Verification: Run `pytest tests/unit/test_motifs.py::test_fisher_exact_correction`
+    and assert exit code 1.
     """
     # Known contingency table for a single motif:
     #               In Target Peaks    Not in Target Peaks

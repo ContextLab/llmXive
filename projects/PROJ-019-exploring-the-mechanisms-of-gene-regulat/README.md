@@ -1,113 +1,66 @@
 # PROJ-019: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
 
 ## Overview
+This project implements an automated pipeline to analyze ATAC-seq and ChIP-seq peak data across multiple human cell types. It downloads real data from ENCODE, scans for transcription factor motifs using FIMO, calculates enrichment scores against a dynamic background model, and validates findings against independent ChIP-seq data.
 
-This project investigates gene regulation mechanisms by analyzing ATAC-seq and ChIP-seq peak data across five distinct cell types: GM12878, K562, HepG2, H1-hESC, and IMR90. The pipeline downloads raw data from ENCODE, preprocesses it into a unified format, scans for transcription factor motifs using FIMO/JASPAR, calculates enrichment scores, and generates visualizations.
-
-## Prerequisites
-
-- **Python**: 3.11+
-- **Disk Space**: Minimum 14GB free space required for intermediate files and downloads.
-- **RAM**: ~7GB recommended for processing large datasets.
-- **External Tools**:
- - `FIMO` (MEME Suite): Required for motif scanning. Install via `conda install -c bioconda meme` or `apt-get install meme`.
- - `JASPAR` database: Downloaded automatically or provided via environment variable.
+## Requirements
+- Python 3.11+
+- ≥16GB RAM (SC-004 requirement)
+- ≥14GB free disk space (FR-002 requirement)
+- FIMO (from MEME suite) installed and in PATH
+- Internet connection for data download
 
 ## Installation
-
-1. **Clone the repository** and navigate to the project root.
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. **Install dependencies**:
+1. Clone the repository
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
+3. Ensure FIMO is installed and accessible via `fimo --version`
 
-## Directory Structure
-
-```text
-PROJ-019-exploring-the-mechanisms-of-gene-regulat/
-├── code/ # Source code
-│ ├── config.py # Configuration and path constants
-│ ├── main.py # Orchestration logic
-│ ├── download.py # ENCODE data ingestion
-│ ├── preprocess.py # BED parsing and gene annotation
-│ ├── scan.py # FIMO motif scanning
-│ ├── enrichment.py # Fisher's exact test and BH correction
-│ ├── visualize.py # Heatmap generation
-│ ├── validate.py # Cross-validation against ChIP-seq
-│ ├── summary_table.py # Final summary generation
-│ ├── ingest.py # BED parsing utilities
-│ ├── provenance.py # Data provenance tracking
-│ └── utils/ # Utility modules
-│ ├── disk_check.py # Disk space verification
-│ └── network.py # Retry logic for downloads
-├── data/
-│ ├── raw/ # Downloaded ENCODE files
-│ ├── interim/ # Intermediate processed files
-│ ├── processed/ # Final outputs (JSON, CSV, PNG)
-│ └── provenance.json # Data lineage record
-├── specs/
-│ └── 001-gene-regulation/
-│ ├── quickstart.md # Detailed execution guide
-│ └──...
-├── tests/ # Unit and contract tests
-├── requirements.txt # Python dependencies
-└── pyproject.toml # Linting and formatting config
-```
-
-## Quick Start
-
-To run the full pipeline end-to-end:
-
+## Running the Pipeline
+Execute the full pipeline end-to-end:
 ```bash
-python code/main.py
+python -m code.main
 ```
 
-This command executes the following stages in order:
-1. **Disk Check**: Verifies sufficient free space.
-2. **Ingestion**: Downloads ENCODE peak files and parses them.
-3. **Preprocessing**: Annotates peaks with gene symbols and builds background models.
-4. **Scanning**: Runs FIMO to identify motif occurrences.
-5. **Enrichment**: Calculates statistical significance of motif enrichment.
-6. **Visualization**: Generates heatmaps and calculates clustering quality.
-7. **Validation**: Cross-references with independent ChIP-seq data.
-8. **Reporting**: Generates final summary tables and JSON reports.
+## Output Artifacts
+The pipeline produces the following artifacts in `data/processed/`:
 
-**Outputs** are saved to `data/processed/`:
-- `ingestion_summary.json`: Peak counts and metadata.
-- `enrichment_matrix.csv`: Motif enrichment scores per cell type.
-- `heatmap.png`: Clustering visualization of enrichment profiles.
-- `validation_report.json`: Overlap statistics and top motifs.
-- `summary_table.csv`: Consolidated results.
+1. **ingestion_summary.json**: Summary of downloaded and parsed peak data
+ - `total_peaks`: Total number of peaks across all cell types
+ - `cell_types`: List of cell types processed
+ - `parsed_count`: Number of successfully parsed files
 
-## Configuration
+2. **enrichment_matrix.csv**: Motif enrichment results
+ - Columns: `motif_id`, `cell_type`, `p_value`, `q_value`
+ - Motif IDs in JASPAR format (e.g., 'MA0001.1')
+ - Cell types: GM12878, K562, HepG2, H1-hESC, IMR90
 
-Edit `code/config.py` to modify:
-- `TMP_DIR`: Directory for temporary files (default: `data/interim/`).
-- `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`: Output paths.
-- `ENCODE_VERSION`: Dataset version to download.
-- `JASPAR_VERSION`: Motif database version.
+3. **validation_report.json**: Validation metrics
+ - `overlap_pct`: Percentage overlap with independent ChIP-seq data
+ - `top_motifs`: List of top enriched motifs with q-values and overlap
+ - `silhouette_score`: Clustering quality metric
+ - `silhouette_test_passed`: Boolean (True if score ≥ 0.4)
+ - `overlap_test_passed`: Boolean (True if overlap ≥ 60%)
+ - `validation_passed`: True only if both tests pass
 
-## Testing
+4. **summary_table.csv**: Final summary of top enriched motifs
+ - Columns: `motif_id`, `p_value_raw`, `q_value_adj`, `chip_overlap_pct`
 
-Run the test suite with `pytest`:
+5. **heatmap.png**: Visual representation of enrichment patterns
 
-```bash
-pytest tests/ -v
-```
+## System Checks
+The pipeline performs pre-flight checks for:
+- Available RAM (≥16GB)
+- Available disk space (≥14GB)
+- Runtime duration (<6 hours)
 
-Specific test modules:
-- `tests/unit/test_ingest.py`: BED parsing edge cases.
-- `tests/unit/test_network.py`: Network retry logic.
-- `tests/unit/test_background.py`: Background model aggregation.
-- `tests/unit/test_motifs.py`: Fisher's exact test and BH correction.
-- `tests/unit/test_viz.py`: Heatmap silhouette scoring.
-- `tests/unit/test_validate.py`: ChIP-seq overlap calculation.
+If any check fails, the pipeline exits with a clear error message.
+
+## Data Sources
+- ENCODE: ATAC-seq/ChIP-seq peak files for human cell lines
+- JASPAR: Transcription factor motif database
 
 ## License
-
-This project is for research purposes. Data from ENCODE and JASPAR is subject to their respective licenses.
+See LICENSE file for details.

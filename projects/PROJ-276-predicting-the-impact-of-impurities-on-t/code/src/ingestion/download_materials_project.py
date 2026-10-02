@@ -1,13 +1,3 @@
-"""
-Download Magnesium Diboride (MgB2) entries from the Materials Project API.
-
-This script fetches crystal structure and property data for Mg-B compounds,
-filters for entries with critical temperature (Tc) data, and handles rate limits.
-
-Exit codes:
-    0: Success (data downloaded and saved)
-    1: Failure (API error, empty results, or missing configuration)
-"""
 import os
 import sys
 import time
@@ -16,253 +6,175 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import requests
-from requests.exceptions import RequestException, Timeout
 
-# Project imports
-from src.utils.config import get_materials_project_api_key, get_project_root
-from src.utils.logging import get_ingestion_logger
+# Import from existing project API
+from code.src.utils.config import get_materials_project_api_key
+from code.src.utils.logging import get_ingestion_logger
 
-# Constants
-RATE_LIMIT_DELAY = 1.5  # seconds between requests
-MAX_RETRIES = 3
-REQUEST_TIMEOUT = 30  # seconds
-MATERIALS_PROJECT_API_URL = "https://api.materialsproject.org/v2/materials"
+# Constants for MgB2 search
+ELEMENTS = ["Mg", "B"]
+MIN_ELEMENTS = 2  # MgB2 has exactly 2 elements
+MAX_ELEMENTS = 2  # Strictly MgB2
 
 logger = get_ingestion_logger()
 
-
 def fetch_materials_project_entries(
     api_key: str,
-    chemical_system: str = "Mg-B",
-    fields: Optional[List[str]] = None
+    elements: List[str] = None,
+    max_results: int = 1000,
+    timeout: int = 30
 ) -> List[Dict[str, Any]]:
     """
-    Fetch entries from Materials Project API for a specific chemical system.
-    
+    Fetch entries from Materials Project API containing specified elements.
+
     Args:
         api_key: Materials Project API key
-        chemical_system: Chemical system to query (e.g., "Mg-B")
-        fields: List of specific fields to retrieve (defaults to essential fields)
-        
+        elements: List of chemical elements to filter (e.g., ["Mg", "B"])
+        max_results: Maximum number of entries to fetch
+        timeout: Request timeout in seconds
+
     Returns:
         List of material entries as dictionaries
-        
-    Raises:
-        RequestException: If API request fails after retries
-        ValueError: If API key is invalid or missing
     """
-    if fields is None:
-        fields = [
-            "material_id", "formula_pretty", "nsites", "structure",
-            "e_above_hull", "decomp_energy", "formation_energy_per_atom",
-            "band_gap", "is_metal", "is_stable", "space_group.number",
-            "space_group.symbol", "thermo.Tc", "thermo.Tc_method",
-            "thermo.Tc_temperature"
-        ]
-    
+    if elements is None:
+        elements = ELEMENTS
+
+    base_url = "https://next-gen.materialsproject.org/api/v2/materials"
     headers = {
         "X-API-Key": api_key,
         "Content-Type": "application/json"
     }
-    
-    # Build query parameters
-    params = {
-        "chemical_system": chemical_system,
-        "fields": ",".join(fields),
-        "limit": 1000  # Max allowed per request
-    }
-    
-    url = f"{MATERIALS_PROJECT_API_URL}/search"
-    
-    all_entries = []
-    retry_count = 0
-    
-    while retry_count < MAX_RETRIES:
-        try:
-            logger.info(f"Fetching Mg-B entries from Materials Project (attempt {retry_count + 1})...")
-            response = requests.get(url, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
-            
-            # Handle rate limiting
-            if response.status_code == 429:
-                retry_after = int(response.headers.get("Retry-After", RATE_LIMIT_DELAY))
-                logger.warning(f"Rate limited. Waiting {retry_after} seconds...")
-                time.sleep(retry_after)
-                retry_count += 1
-                continue
-            
-            # Check for other errors
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            if "data" not in data:
-                logger.error("Invalid API response: 'data' key missing")
-                raise ValueError("Invalid API response structure")
-            
-            entries = data.get("data", [])
-            all_entries.extend(entries)
-            
-            # Check if there are more pages (pagination not fully implemented for simplicity)
-            if len(entries) < params["limit"]:
-                break
-                
-            # If we got the max limit, there might be more data
-            # For now, we stop at 1000 as per API limit per request
-            logger.info(f"Retrieved {len(entries)} entries. Total: {len(all_entries)}")
-            break
-            
-        except Timeout:
-            logger.warning(f"Request timed out (attempt {retry_count + 1})")
-            retry_count += 1
-            time.sleep(RATE_LIMIT_DELAY)
-            
-        except RequestException as e:
-            logger.error(f"Request failed: {e}")
-            if retry_count < MAX_RETRIES - 1:
-                time.sleep(RATE_LIMIT_DELAY * (retry_count + 1))
-                retry_count += 1
-            else:
-                raise
-                
-        except ValueError as e:
-            logger.error(f"API response error: {e}")
-            raise
-    
-    if not all_entries:
-        logger.warning("No entries returned from Materials Project API")
-        
-    return all_entries
 
+    # Construct query parameters for element presence
+    # MP API uses ?elements=Mg,B for OR logic, but we need AND logic (Mg AND B)
+    # We'll fetch all Mg-B compounds and filter client-side for strict MgB2
+    params = {
+        "elements": ",".join(elements),
+        "limit": max_results,
+        "fields": "material_id,elements,nelements,structure,band_gap,e_form_energy_per_atom,final_structure"
+    }
+
+    entries = []
+    retry_count = 0
+    max_retries = 3
+
+    while retry_count < max_retries:
+        try:
+            logger.info(f"Fetching materials from MP API with elements: {elements}")
+            response = requests.get(base_url, headers=headers, params=params, timeout=timeout)
+            response.raise_for_status()
+            data = response.json()
+
+            if "data" not in data:
+                logger.warning("API response missing 'data' key")
+                return []
+
+            entries.extend(data["data"])
+            logger.info(f"Successfully fetched {len(entries)} entries from MP")
+            return entries
+
+        except requests.exceptions.RequestException as e:
+            retry_count += 1
+            logger.warning(f"Request failed (attempt {retry_count}/{max_retries}): {e}")
+            if retry_count < max_retries:
+                time.sleep(2 ** retry_count)  # Exponential backoff
+            else:
+                logger.error("Max retries exceeded. Aborting fetch.")
+                raise
 
 def filter_mgb2_entries(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter entries to keep only those relevant to MgB2 superconductivity research.
-    
+    Filter entries to keep only those that are strictly MgB2.
+
     Criteria:
-        - Contains Magnesium (Mg) and Boron (B)
-        - Has critical temperature (Tc) data available
-        - Preferentially selects stoichiometric MgB2 or close variants
-        
+    - Contains exactly Mg and B elements
+    - Has exactly 2 distinct elements (nelements == 2)
+
     Args:
-        entries: List of raw API entries
-        
+        entries: List of raw material entries
+
     Returns:
-        Filtered list of entries
+        Filtered list of MgB2 entries
     """
     filtered = []
-    
     for entry in entries:
-        formula = entry.get("formula_pretty", "")
-        
-        # Check for Mg and B in formula
-        if "Mg" not in formula or "B" not in formula:
-            continue
-        
-        # Check for Tc data
-        thermo = entry.get("thermo", {})
-        tc_value = thermo.get("Tc")
-        
-        if tc_value is None or tc_value == "null":
-            logger.debug(f"Skipping {formula} (material_id: {entry.get('material_id')}) - No Tc data")
-            continue
-        
-        # Additional validation: check if it's a reasonable superconductor
-        try:
-            tc_float = float(tc_value) if isinstance(tc_value, str) else tc_value
-            if tc_float <= 0:
-                logger.debug(f"Skipping {formula} - Non-positive Tc: {tc_float}")
-                continue
-        except (ValueError, TypeError):
-            logger.debug(f"Skipping {formula} - Invalid Tc value: {tc_value}")
-            continue
-        
-        filtered.append(entry)
-    
-    logger.info(f"Filtered {len(entries)} entries down to {len(filtered)} with valid Tc data")
-    return filtered
+        elements = entry.get("elements", [])
+        nelements = entry.get("nelements", 0)
 
+        # Check if entry has exactly Mg and B
+        element_names = [el["element"] if isinstance(el, dict) else el for el in elements]
+        
+        # Normalize to set of unique element symbols
+        unique_elements = set(element_names)
+        
+        # Must have exactly Mg and B, no more, no less
+        if unique_elements == {"Mg", "B"} and nelements == 2:
+            filtered.append(entry)
+        else:
+            logger.debug(f"Skipping entry {entry.get('material_id')}: elements={unique_elements}, nelements={nelements}")
+
+    logger.info(f"Filtered {len(entries)} entries down to {len(filtered)} MgB2 entries")
+    return filtered
 
 def save_entries_to_json(entries: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Save filtered entries to a JSON file with metadata.
-    
+    Save entries to a JSON file.
+
     Args:
-        entries: List of entries to save
+        entries: List of material entries
         output_path: Path to output JSON file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    metadata = {
-        "source": "Materials Project API",
-        "chemical_system": "Mg-B",
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "total_entries": len(entries),
-        "api_version": "v2"
-    }
-    
-    output_data = {
-        "metadata": metadata,
-        "entries": entries
-    }
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2, default=str)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(entries, f, indent=2)
     
     logger.info(f"Saved {len(entries)} entries to {output_path}")
 
-
 def main() -> int:
     """
-    Main entry point for downloading Materials Project data.
-    
+    Main entry point for downloading MgB2 data from Materials Project.
+
     Returns:
-        Exit code: 0 for success, 1 for failure
+        Exit code: 0 for success, 1 for failure (empty response or API error)
     """
     try:
-        # Get configuration
-        project_root = get_project_root()
+        # Get API key
         api_key = get_materials_project_api_key()
-        
         if not api_key:
-            logger.error("Materials Project API key not found. Set MATERIALS_PROJECT_API_KEY environment variable.")
+            logger.error("Materials Project API key not found. Set MP_API_KEY environment variable.")
             return 1
-        
-        # Define output path
-        output_dir = project_root / "data" / "raw"
-        output_path = output_dir / "materials_project_mgb2.json"
-        
-        logger.info("Starting Materials Project download for Mg-B system")
-        
-        # Fetch data
-        raw_entries = fetch_materials_project_entries(api_key)
-        
-        if not raw_entries:
-            logger.error("No entries found in Materials Project API response")
-            return 1
-        
-        # Filter entries
-        filtered_entries = filter_mgb2_entries(raw_entries)
-        
-        if not filtered_entries:
-            logger.error("No valid MgB2 entries with Tc data found after filtering")
-            return 1
-        
-        # Save data
-        save_entries_to_json(filtered_entries, output_path)
-        
-        logger.info(f"Successfully downloaded {len(filtered_entries)} MgB2 entries")
-        return 0
-        
-    except KeyError as e:
-        logger.error(f"Missing configuration key: {e}")
-        return 1
-    except RequestException as e:
-        logger.error(f"API request failed: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return 1
 
+        # Fetch entries
+        entries = fetch_materials_project_entries(api_key)
+
+        # Check for empty response
+        if not entries:
+            logger.error("No entries returned from Materials Project API.")
+            return 1
+
+        # Filter for MgB2
+        mgb2_entries = filter_mgb2_entries(entries)
+
+        # Check for empty filtered result
+        if not mgb2_entries:
+            logger.error("No MgB2 entries found after filtering.")
+            return 1
+
+        # Determine output path
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        output_dir = project_root / "data" / "raw"
+        output_file = output_dir / "materials_project_mgb2_raw.json"
+
+        # Save results
+        save_entries_to_json(mgb2_entries, output_file)
+
+        logger.info(f"Successfully downloaded and saved {len(mgb2_entries)} MgB2 entries.")
+        return 0
+
+    except Exception as e:
+        logger.exception(f"Critical error in download_materials_project: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

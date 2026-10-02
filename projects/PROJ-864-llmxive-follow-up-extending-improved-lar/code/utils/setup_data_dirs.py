@@ -7,55 +7,77 @@ from utils.logging import get_logger, info, error
 
 def setup_data_directories() -> bool:
     """
-    Create the required project directories: code/, data/, tests/, state/.
-    Verifies their existence after creation.
-    
-    Returns:
-        True if all directories were created/verified successfully.
-        Raises RuntimeError if verification fails.
+    Create the required directory structure for the project:
+    - code/
+    - data/
+    - tests/
+    - state/
+
+    Returns True if all directories exist (created or pre-existing) and are accessible.
+    Returns False if any directory creation fails.
     """
-    # Determine project root based on this file's location
-    # Assuming this file is at: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/setup_data_dirs.py
-    # The project root is 4 levels up from this file.
-    current_file_path = Path(__file__).resolve()
-    project_root = current_file_path.parent.parent.parent.parent
+    logger = get_logger("setup_data_dirs")
+    project_root = Path(__file__).resolve().parent.parent.parent
     
-    directories_to_create: List[Path] = [
-        project_root / "code",
-        project_root / "data",
-        project_root / "tests",
-        project_root / "state"
+    # The task specifies paths relative to the project root:
+    # projects/PROJ-864-llmxive-follow-up-extending-improved-lar/
+    # Since this script is at code/utils/setup_data_dirs.py, parent.parent.parent is the project root.
+    
+    required_dirs = [
+        "code",
+        "data",
+        "tests",
+        "state"
     ]
     
-    logger = get_logger("setup_data_dirs")
-    info(f"Project root identified at: {project_root}")
+    created_dirs: List[Path] = []
+    failed_dirs: List[Path] = []
     
-    created_count = 0
-    verified_count = 0
-    
-    for dir_path in directories_to_create:
-        try:
-            # Create parents if they don't exist (though usually they do)
-            dir_path.mkdir(parents=True, exist_ok=True)
-            info(f"Ensured existence of directory: {dir_path}")
-            created_count += 1
-            
-            # Verify existence
-            if dir_path.exists() and dir_path.is_dir():
-                verified_count += 1
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        
+        if dir_path.exists():
+            if not dir_path.is_dir():
+                error(f"Path exists but is not a directory: {dir_path}")
+                failed_dirs.append(dir_path)
             else:
-                error(f"Failed to verify directory creation: {dir_path}")
-                
-        except OSError as e:
-            error(f"OS error while creating directory {dir_path}: {e}")
-            raise RuntimeError(f"Failed to create directory {dir_path}: {e}")
-        except Exception as e:
-            error(f"Unexpected error while creating directory {dir_path}: {e}")
-            raise RuntimeError(f"Unexpected error creating directory {dir_path}: {e}")
+                info(f"Directory already exists: {dir_path}")
+        else:
+            try:
+                dir_path.mkdir(parents=True, exist_ok=True)
+                created_dirs.append(dir_path)
+                info(f"Created directory: {dir_path}")
+            except OSError as e:
+                error(f"Failed to create directory {dir_path}: {e}")
+                failed_dirs.append(dir_path)
     
-    if verified_count == len(directories_to_create):
-        info(f"Successfully created and verified {verified_count} directories.")
-        return True
-    else:
-        error(f"Verification failed. Created {created_count}, Verified {verified_count} out of {len(directories_to_create)}.")
-        raise RuntimeError(f"Directory verification failed. Expected {len(directories_to_create)}, verified {verified_count}.")
+    if failed_dirs:
+        error(f"Failed to create {len(failed_dirs)} directories.")
+        return False
+    
+    # Verification step: Ensure all directories exist and are writable
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        if not os.path.isdir(dir_path):
+            error(f"Verification failed: Directory does not exist after attempt: {dir_path}")
+            return False
+        
+        # Check writability
+        try:
+            test_file = dir_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+        except OSError as e:
+            error(f"Verification failed: Directory not writable: {dir_path} - {e}")
+            return False
+    
+    info(f"Successfully initialized and verified {len(created_dirs)} directories.")
+    return True
+
+def main():
+    """Entry point for running the directory setup script directly."""
+    success = setup_data_directories()
+    sys.exit(0 if success else 1)
+
+if __name__ == "__main__":
+    main()

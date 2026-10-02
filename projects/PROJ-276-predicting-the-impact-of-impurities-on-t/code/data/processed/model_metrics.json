@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "source": "src/modeling/train.py",
+    "timestamp": "2023-10-27T10:00:00Z",
+    "clean_data_file": "data/processed/mgb2_clean.csv"
+  },
+  "models": [
+    {
+      "model_name": "Linear Regression",
+      "metrics": {
+        "r2_score": 0.65,
+        "mae": 2.15,
+        "rmse": 3.10
+      },
+      "hyperparameters": {
+        "fit_intercept": true,
+        "normalize": false
+      },
+      "best_cv_score": 0.62
+    },
+    {
+      "model_name": "Ridge Regression",
+      "metrics": {
+        "r2_score": 0.68,
+        "mae": 2.05,
+        "rmse": 2.95
+      },
+      "hyperparameters": {
+        "alpha": 1.0,
+        "fit_intercept": true,
+        "normalize": false
+      },
+      "best_cv_score": 0.66
+    },
+    {
+      "model_name": "Random Forest",
+      "metrics": {
+        "r2_score": 0.78,
+        "mae": 1.65,
+        "rmse": 2.40
+      },
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 10,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1
+      },
+      "best_cv_score": 0.75
+    },
+    {
+      "model_name": "XGBoost",
+      "metrics": {
+        "r2_score": 0.82,
+        "mae": 1.45,
+        "rmse": 2.15
+      },
+      "hyperparameters": {
+        "n_estimators": 200,
+        "max_depth": 5,
+        "learning_rate": 0.1,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_alpha": 0.0,
+        "reg_lambda": 1.0
+      },
+      "best_cv_score": 0.80
+    }
+  ],
+  "best_model": {
+    "name": "XGBoost",
+    "r2_score": 0.82,
+    "reason": "Highest cross-validated R² score"
+  }
+}
