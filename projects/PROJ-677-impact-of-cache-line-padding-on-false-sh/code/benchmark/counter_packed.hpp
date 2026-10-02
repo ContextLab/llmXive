@@ -1,19 +1,24 @@
 #ifndef COUNTER_PACKED_HPP
 #define COUNTER_PACKED_HPP
 
-#include <cstdint>
+#pragma pack(1)
 
-// Packed counter structure - no padding between fields
-// This will result in multiple counters potentially sharing the same cache line
-#pragma pack(push, 1)
-struct CounterStruct {
-    int64_t value;      // 8 bytes
-    int32_t thread_id;  // 4 bytes
-    int32_t padding;    // 4 bytes (explicit, but still packed)
-    // Total size: 12 bytes (not a multiple of cache line)
+/**
+ * @struct CounterPacked
+ * @brief A struct containing three long integers packed tightly without padding.
+ * 
+ * This struct is designed to demonstrate false sharing in multi-threaded environments.
+ * By using #pragma pack(1), the compiler is instructed to pack the members with 1-byte alignment,
+ * resulting in a total size of 24 bytes (3 * 8 bytes on 64-bit systems).
+ * This compact layout ensures that multiple counters fit within a single cache line (typically 64 bytes),
+ * causing cache coherency traffic (false sharing) when different threads modify adjacent counters.
+ */
+struct CounterPacked {
+    long c1;
+    long c2;
+    long c3;
 };
-#pragma pack(pop)
 
-static_assert(sizeof(CounterStruct) == 12, "CounterStruct should be 12 bytes when packed");
+#pragma pack() // Restore default packing alignment
 
 #endif // COUNTER_PACKED_HPP

@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-677-impact-of-cache-line-padding-on-false-sh",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required directory hierarchy (`projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/` containing `code/`, `data/`, `state/`, `.github/`) is provided; the implementer did not supply any files or folder listings to confirm the structure exists. The task remains undone.",
+      "first_seen": "2026-10-02T12:53:30.120962+00:00",
+      "last_seen": "2026-10-02T12:53:30.120962+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "The implementer provided no `.gitignore` file, nor any configuration or setup for clang\u2011format, black, or flake8. The evidence only describes benchmark specifications unrelated to the requested linting/formatting task, so the required artifacts are missing.",
+      "first_seen": "2026-10-02T12:53:30.122518+00:00",
+      "last_seen": "2026-10-02T12:53:30.122518+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: hardware_spec.yaml",
+      "first_seen": "2026-10-02T12:53:30.123598+00:00",
+      "last_seen": "2026-10-02T12:53:30.123598+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "No `verify_layout.cpp` file was found in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/`, nor any other artifact that verifies struct sizes and alignment. The required utility is missing, so the task is not satisfied.",
+      "first_seen": "2026-10-02T12:53:33.035398+00:00",
+      "last_seen": "2026-10-02T12:53:33.035398+00:00"
+    },
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "The required Pydantic schema files for `BenchmarkRun` and `AggregatedResult` are not present in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/analysis/contracts/`; no code or definitions were provided as evidence. The task therefore remains unfinished.",
+      "first_seen": "2026-10-02T12:53:33.036736+00:00",
+      "last_seen": "2026-10-02T12:53:33.036736+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: github/workflows/benchmark.yml, yamllint.github/workflows/benchmark.yml",
+      "first_seen": "2026-10-02T12:53:33.037712+00:00",
+      "last_seen": "2026-10-02T12:53:33.037712+00:00"
+    }
+  ],
+  "updated_at": "2026-10-02T12:53:33.037712+00:00"
+}

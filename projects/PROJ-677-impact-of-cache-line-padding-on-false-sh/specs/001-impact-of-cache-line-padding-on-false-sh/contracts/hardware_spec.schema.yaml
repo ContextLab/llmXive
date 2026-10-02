@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: HardwareSpec
+description: Schema for hardware specification of the execution environment.
+type: object
+properties:
+  cpu_model:
+    type: string
+    description: CPU model name
+    minLength: 1
+  core_count:
+    type: integer
+    description: Number of physical cores
+    minimum: 1
+  cache_line_size:
+    type: integer
+    description: Cache line size in bytes
+    minimum: 32
+    maximum: 128
+  compiler_flags:
+    type: string
+    description: Compilation flags (e.g., "-O3 -march=native")
+    minLength: 1
+  timestamp:
+    type: string
+    format: date-time
+    description: Detection timestamp
+required:
+  - cpu_model
+  - core_count
+  - cache_line_size
+  - compiler_flags
+  - timestamp
+additionalProperties: false

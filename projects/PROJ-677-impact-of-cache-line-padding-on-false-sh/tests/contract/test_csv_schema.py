@@ -3,22 +3,25 @@ import pandas as pd
 from pathlib import Path
 import sys
 import os
+from pydantic import ValidationError
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-def test_csv_schema():
+# Import the Pydantic schemas defined in the project
+from code.analysis.contracts.benchmark_contracts import BenchmarkRun
+
+def test_csv_schema_contract():
     """
     Contract test for CSV output schema.
-    Verifies that the benchmark generates a CSV with the required columns:
-    thread_count, configuration, iteration_count, wall_clock_time_ms
+    Verifies that the benchmark generates a CSV with the required columns
+    and that the data validates against the BenchmarkRun Pydantic schema.
     """
     # Expected path based on run_benchmarks.sh
     csv_path = PROJECT_ROOT / "data" / "raw_benchmark_results.csv"
     
     # If the file doesn't exist, we assume the test is run after the benchmark
-    # If it does exist, validate it.
     if not csv_path.exists():
         pytest.skip(f"CSV file not found at {csv_path}. Run benchmark first.")
     
@@ -54,4 +57,22 @@ def test_csv_schema():
     assert (df["iteration_count"] > 0).all(), "iteration_count must be positive"
     assert (df["wall_clock_time_ms"] >= 0).all(), "wall_clock_time_ms must be non-negative"
     
-    print("CSV Schema validation passed.")
+    # CONTRACT TEST: Validate each row against the Pydantic BenchmarkRun schema
+    # This ensures the data structure strictly matches the defined contract
+    failed_validations = []
+    for idx, row in df.iterrows():
+        try:
+            # Map CSV columns to Pydantic model fields
+            # Note: BenchmarkRun expects 'configuration' (str), 'thread_count' (int), etc.
+            BenchmarkRun(
+                thread_count=int(row["thread_count"]),
+                configuration=str(row["configuration"]),
+                iteration_count=int(row["iteration_count"]),
+                wall_clock_time_ms=float(row["wall_clock_time_ms"])
+            )
+        except ValidationError as e:
+            failed_validations.append((idx, str(e)))
+    
+    assert len(failed_validations) == 0, f"Pydantic validation failed for {len(failed_validations)} rows:\n{failed_validations}"
+    
+    print("CSV Schema and Contract validation passed.")

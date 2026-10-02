@@ -2,81 +2,75 @@ name: Benchmark Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
 
 jobs:
-  benchmark:
+  run-benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 360
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f code/analysis/requirements.txt ]; then
-            pip install -r code/analysis/requirements.txt
-          else
-            pip install pandas scipy matplotlib pydantic pyyaml
-          fi
+    - name: Install Python dependencies
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/code/analysis
+        pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Install C++ build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+    - name: Set up C++17 environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ cmake
 
-      - name: Configure CPU Governor (Performance)
-        run: |
-          # Attempt to set governor via cpupower, fallback to sysfs
-          if command -v cpupower &> /dev/null; then
-            sudo cpupower frequency-set -g performance
-          else
-            echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
-          fi
+    - name: Run Hardware Detection
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+        python code/analysis/hardware_detect.py
 
-      - name: Detect Hardware
-        run: |
-          python code/analysis/hardware_detect.py
+    - name: Build Benchmark
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/code/scripts
+        bash build.sh
 
-      - name: Build Benchmark
-        run: |
-          cd code/scripts
-          bash build.sh
+    - name: Run Benchmarks
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/code/scripts
+        bash run_benchmarks.sh
 
-      - name: Run Benchmarks
-        run: |
-          cd code/scripts
-          bash run_benchmarks.sh
+    - name: Validate Raw Data
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+        python code/analysis/validate_raw_data.py
 
-      - name: Validate Raw Data
-        run: |
-          python code/analysis/validate_raw_data.py
+    - name: Run Analysis
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+        python code/analysis/run_analysis.py
 
-      - name: Run Analysis
-        run: |
-          python code/analysis/run_analysis.py
+    - name: Verify Results
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+        python code/analysis/verify_results.py
 
-      - name: Update Checksums
-        run: |
-          python code/analysis/update_checksums.py
+    - name: Update Checksums
+      run: |
+        cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+        python code/analysis/update_checksums.py
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results
-          path: |
-            data/
-            state/
-            figures/
-            hardware_spec.yaml
-            code/analysis/checksums.json
-        if: always()
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: |
+          projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/data/
+          projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/state/
+          projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/figures/

@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory hierarchy (`projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/`
-    containing `code/`, `data/`, `state/`, `.github/`) is provided; the implementer
-    did not supply any files or folder listings to confirm the structure exists. The
-    task remains undone.
 T002:
   c: false
   h: c07050ad0e1f65d4590794482994789105fd73620520ee0d3fafef6904a99a3a
@@ -12,32 +5,19 @@ T002:
     \ but there is no C++17 build system file (neither a `Makefile` nor a `CMakeLists.txt`)\
     \ in the specified directory, so the task\u2019s requirement to initialize a C++\
     \ build system is not satisfied."
-T003:
+T007a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no `.gitignore` file, nor any configuration or setup\
-    \ for clang\u2011format, black, or flake8. The evidence only describes benchmark\
-    \ specifications unrelated to the requested linting/formatting task, so the required\
-    \ artifacts are missing."
-T005:
+  r: No `counter_packed.hpp` file was presented, nor any compilation test, `static_assert`,
+    or grep output showing `#pragma pack(1)`. The required source file and verification
+    evidence are missing, so the task is not satisfied.
+T007b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `verify_layout.cpp` file was found in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/`,
-    nor any other artifact that verifies struct sizes and alignment. The required
-    utility is missing, so the task is not satisfied.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The required Pydantic schema files for `BenchmarkRun` and `AggregatedResult`
-    are not present in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/analysis/contracts/`;
-    no code or definitions were provided as evidence. The task therefore remains unfinished.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `counter_packed.hpp` or `counter_padded.hpp` files are present in the indicated\
-    \ directory, nor any content showing the required `#pragma pack(1)` or `alignas(64)`\
-    \ definitions. The implementer provided only a textual description without the\
-    \ actual source files, so the task\u2019s core deliverable is missing."
+  r: "The repository does not contain a `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/counter_padded.hpp`\
+    \ file, nor any test source that includes it and performs the required `static_assert`.\
+    \ Without the header and compilation verification, the task\u2019s requirement\
+    \ is not satisfied."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,6 +38,21 @@ T016:
     \ is provided; without the actual source code we cannot confirm that atomic increments\
     \ are protected from compiler optimization as required. The implementer must supply\
     \ the modified `main.cpp` (or a patch) containing the validation code."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `build.sh` that redirects stdout/stderr to `build.log`,
+    nor any generated `build.log` or verification output (exit code checks, log content)
+    is provided. The required artifacts and test results are missing.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` source, compiled binary, or runtime output was provided; thus\
+    \ we cannot verify that a multi\u2011threaded worker using `std::thread` and `std::atomic<long>`\
+    \ was implemented, that the loop runs exactly 10\u202F000\u202F000 iterations\
+    \ per thread, that `CounterPacked` objects are allocated contiguously with `sizeof(CounterPacked)\
+    \ < 64`, or that the program runs without segfaults. The required artifacts are\
+    \ missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

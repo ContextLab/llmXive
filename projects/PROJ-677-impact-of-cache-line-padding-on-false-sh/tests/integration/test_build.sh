@@ -1,100 +1,65 @@
 #!/bin/bash
-# Integration test for build script build.sh success
+# Integration test for build script `build.sh` success
 # Task: T013 [US1]
-# Dependence: T015 (build.sh implementation)
-# Description: Verifies that the build script compiles the C++ benchmark harness
-#              successfully with the required optimization flags.
+# Verification: Run `bash tests/integration/test_build.sh` and verify it calls `build.sh` and checks for binary existence.
 
 set -e
+set -u
+set -o pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-BUILD_SCRIPT="${PROJECT_ROOT}/code/scripts/build.sh"
-BENCHMARK_DIR="${PROJECT_ROOT}/code/benchmark"
-TEMP_BUILD_DIR="${PROJECT_ROOT}/code/benchmark/build_test"
+# Project root relative to script location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CODE_SCRIPTS_DIR="$PROJECT_ROOT/code/scripts"
+BINARY_NAME="benchmark"
+BINARY_PATH="$PROJECT_ROOT/code/benchmark/$BINARY_NAME"
 
-echo "=== Integration Test: T013 - Build Script Success ==="
-echo "Project Root: ${PROJECT_ROOT}"
-echo "Build Script: ${BUILD_SCRIPT}"
+echo "=== T013 Integration Test: Build Script Success ==="
+echo "Project Root: $PROJECT_ROOT"
+echo "Scripts Dir: $CODE_SCRIPTS_DIR"
+echo "Expected Binary: $BINARY_PATH"
 
-# Check prerequisites
-if [[ ! -f "${BUILD_SCRIPT}" ]]; then
-    echo "ERROR: Build script not found at ${BUILD_SCRIPT}"
+# Check if build.sh exists
+BUILD_SCRIPT="$CODE_SCRIPTS_DIR/build.sh"
+if [ ! -f "$BUILD_SCRIPT" ]; then
+    echo "ERROR: build.sh not found at $BUILD_SCRIPT"
     exit 1
 fi
+echo "OK: build.sh found at $BUILD_SCRIPT"
 
-if [[ ! -x "${BUILD_SCRIPT}" ]]; then
-    echo "ERROR: Build script is not executable. Fixing permissions..."
-    chmod +x "${BUILD_SCRIPT}"
-fi
+# Ensure build.sh is executable
+chmod +x "$BUILD_SCRIPT"
 
-# Clean up any previous test build artifacts
-if [[ -d "${TEMP_BUILD_DIR}" ]]; then
-    rm -rf "${TEMP_BUILD_DIR}"
-fi
-mkdir -p "${TEMP_BUILD_DIR}"
-
-# Execute the build script
-echo "Executing build script..."
-# We run the script from the project root to ensure relative paths work
-cd "${PROJECT_ROOT}"
-
-if ! bash "${BUILD_SCRIPT}" --output-dir "${TEMP_BUILD_DIR}" --verify; then
-    echo "ERROR: Build script execution failed."
+# Execute build.sh
+echo "Executing build.sh..."
+if ! bash "$BUILD_SCRIPT"; then
+    echo "ERROR: build.sh failed with exit code $?"
+    echo "Check build.log for details."
     exit 1
 fi
+echo "OK: build.sh executed successfully"
 
-# Verify that the expected binaries were created
-EXPECTED_BINARIES=(
-    "benchmark_packed"
-    "benchmark_padded"
-    "verify_layout"
-)
-
-echo "Verifying generated binaries..."
-ALL_FOUND=true
-for binary in "${EXPECTED_BINARIES[@]}"; do
-    if [[ -f "${TEMP_BUILD_DIR}/${binary}" ]]; then
-        echo "  [OK] ${binary} found"
-    else
-        echo "  [FAIL] ${binary} NOT found"
-        ALL_FOUND=false
-    fi
-done
-
-if [[ "${ALL_FOUND}" != "true" ]]; then
-    echo "ERROR: One or more expected binaries are missing."
+# Verify binary existence
+if [ ! -f "$BINARY_PATH" ]; then
+    echo "ERROR: Binary '$BINARY_NAME' not found at $BINARY_PATH"
     exit 1
 fi
+echo "OK: Binary '$BINARY_NAME' exists at $BINARY_PATH"
 
-# Verify binaries are executable
-echo "Verifying binary executability..."
-for binary in "${EXPECTED_BINARIES[@]}"; do
-    if [[ -x "${TEMP_BUILD_DIR}/${binary}" ]]; then
-        echo "  [OK] ${binary} is executable"
-    else
-        echo "  [FAIL] ${binary} is NOT executable"
-        ALL_FOUND=false
-    fi
-done
-
-if [[ "${ALL_FOUND}" != "true" ]]; then
-    echo "ERROR: One or more binaries are not executable."
+# Verify binary is executable
+if [ ! -x "$BINARY_PATH" ]; then
+    echo "ERROR: Binary '$BINARY_NAME' is not executable"
     exit 1
 fi
+echo "OK: Binary '$BINARY_NAME' is executable"
 
-# Optional: Run a quick single-threaded validation if verify_layout exists
-if [[ -f "${TEMP_BUILD_DIR}/verify_layout" ]]; then
-    echo "Running verify_layout quick check..."
-    if "${TEMP_BUILD_DIR}/verify_layout"; then
-        echo "  [OK] verify_layout passed"
-    else
-        echo "  [WARN] verify_layout returned non-zero (may be expected if strict checks fail, but build succeeded)"
-    fi
+# Verify binary is valid ELF (basic check)
+if ! file "$BINARY_PATH" | grep -q "ELF"; then
+    echo "WARNING: Binary '$BINARY_PATH' does not appear to be a valid ELF executable"
+    # Not a hard failure, as it might be a script or other valid format, but likely an issue
+else
+    echo "OK: Binary '$BINARY_PATH' is a valid ELF executable"
 fi
 
-# Cleanup test artifacts
-echo "Cleaning up test build directory..."
-rm -rf "${TEMP_BUILD_DIR}"
-
-echo "=== Integration Test T013 PASSED ==="
+echo "=== T013 Integration Test: PASSED ==="
 exit 0

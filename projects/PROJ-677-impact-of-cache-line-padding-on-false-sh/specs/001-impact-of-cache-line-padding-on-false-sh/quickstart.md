@@ -1,82 +1,99 @@
 # Quickstart: Impact of Cache Line Padding on False Sharing in Concurrent Counters
 
-## Prerequisites
+## 1. Prerequisites
 
-- Git
-- C++ compiler (g++ with C++17 support)
-- Python 3.11+
-- pip
+- **System**: Linux (Ubuntu 20.04+), macOS, or Windows (WSL2)
+- **Compiler**: GCC 11+ or Clang 13+ (C++17 support)
+- **Python**: 3.11+
+- **Dependencies**: `cmake`, `make`, `pip`, `venv`, `cpupower` (for CPU pinning)
 
-## Setup
+## 2. Setup
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
-   ```
+### 2.1. Clone & Initialize
+```bash
+git clone <repo-url>
+cd projects/PROJ-677-impact-of-cache-line-padding-on-false-sh
+```
 
-2. **Install Python dependencies**:
-   ```bash
-   cd code/analysis
-   pip install -r requirements.txt
-   cd ../..
-   ```
+### 2.2. Build C++ Benchmark
+```bash
+cd code/benchmark
+mkdir -p build && cd build
+cmake ..
+make -j$(nproc)
+```
 
-## Build the Benchmark
+### 2.3. Install Python Dependencies
+```bash
+cd ../analysis
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or: venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+```
 
-1. **Compile the C++ code**:
-   ```bash
-   cd code/scripts
-   ./build.sh
-   ```
-   This compiles `code/benchmark/main.cpp` with `-O3 -march=native` and places the executable in `code/benchmark/benchmark`.
+## 3. Run Benchmark
 
-2. **Verify compilation**:
-   ```bash
-   ./code/benchmark/benchmark --threads 1 --config packed --iterations 1000
-   ```
-   The benchmark should complete quickly and print timing data.
+### 3.1. Hardware Detection
+```bash
+python code/benchmark/hardware_detect.py
+# Output: data/hardware_spec.yaml
+# Verification: Check keys cpu_model, core_count, cache_line_size
+```
 
-## Run the Experiments
+### 3.2. Layout Verification
+```bash
+./build/verify_layout
+# Verifies struct sizes and alignment
+```
 
-1. **Execute the full benchmark suite**:
-   ```bash
-   cd code/scripts
-   ./run_benchmarks.sh
-   ```
-   This script runs the benchmark for all thread counts (1, 2, 4, 8) and configurations (packed, padded), with 5 replications each. Raw CSV files are saved to `data/raw/`.
+### 3.3. Execute Full Benchmark
+```bash
+cd code/scripts
+./run_benchmarks.sh
+# Note: This script sets CPU governor to 'performance' and pins threads.
+# Output: data/raw/benchmark_results.csv
+```
 
-   *Note: This step may take up to 6 hours on a GitHub Actions runner.*
+## 4. Analyze Results
 
-## Analyze the Results
+```bash
+cd code/analysis
+python analysis.py
+# Output:
+#   - data/processed/aggregated_results.csv
+#   - data/processed/statistical_comparisons.csv
+#   - data/processed/throughput_plot.png
+```
 
-1. **Run the analysis script**:
-   ```bash
-   cd code/analysis
-   python run_analysis.py
-   ```
-   This script:
-   - Reads raw CSV files from `../data/raw/`.
-   - Computes aggregated statistics and 95% CIs.
-   - Performs t-tests and FDR correction.
-   - Generates a plot (`../data/processed/throughput_plot.png`).
-   - Saves results to `../data/processed/`.
+## 5. Validate Data
 
-2. **View the results**:
-   - Aggregated results: `../data/processed/aggregated_results.csv`
-   - Statistical comparisons: `../data/processed/statistical_comparison.csv`
-   - Plot: `../data/processed/throughput_plot.png`
+```bash
+python validate_raw_data.py data/raw/benchmark_results.csv
+# Checks: schema compliance, NaNs, missing values
+```
 
-## Run on GitHub Actions
+## 6. CI/CD
 
-1. **Push to the feature branch**:
-   ```bash
-   git push origin 001-cache-line-padding-false-sharing
-   ```
-
-2. **Trigger the workflow**:
-   The `.github/workflows/benchmark.yml` workflow will automatically run the build, experiment, and analysis steps on a GitHub Actions runner.
-
-3. **View results**:
-   - Check the "Actions" tab in the repository for workflow logs.
-   - Download artifacts (CSVs and plots) from the workflow run summary.
+Run on GitHub Actions:
+```yaml
+# .github/workflows/benchmark.yml
+name: Benchmark
+on: [push, pull_request]
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          cd code/benchmark && mkdir -p build && cd build
+          cmake .. && make -j$(nproc)
+      - name: Run
+        run: |
+          cd code/scripts && ./run_benchmarks.sh
+      - name: Analyze
+        run: |
+          cd code/analysis && python analysis.py
+```

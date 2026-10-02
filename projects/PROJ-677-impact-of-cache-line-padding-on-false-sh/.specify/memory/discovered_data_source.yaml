@@ -1,0 +1,11 @@
+status: none
+intent: Generated Benchmark Data benchmark timing results python package dataset
+required_fields:
+- run_id
+- variant
+- thread_count
+- elapsed_time_seconds
+- timestamp
+cache_key: f7bbe5bf97a46db30f73e6410243be4dc23501e89215e6e137a55453a04e0e1f
+searched_at: '2026-10-02T12:21:56.451747+00:00'
+retry_count: 1

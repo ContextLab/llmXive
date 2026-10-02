@@ -467,3 +467,313 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-16T15:49:54Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CounterPacked struct size is 24 bytes
+  claim_id: c_a757471a
+  context: Task T007a defines the packed counter struct and requires verification
+    that its size is 24 bytes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define struct CounterPacked { long c1; long c2; long c3; } with #pragma
+    pack(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:44:51Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CounterPadded struct size is >= 192 bytes
+  claim_id: c_b0cab841
+  context: Task T007b defines the padded counter struct and requires verification
+    that its size is at least 192 bytes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define struct CounterPadded { alignas(64) long c1; alignas(64) long c2;
+    alignas(64) long c3; }.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:21Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CounterPacked struct size is less than 64 bytes
+  claim_id: c_4be7c716
+  context: Task T021 requires verification that packed instances are allocated in
+    a contiguous array where the size is less than 64 bytes to ensure false sharing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CounterPacked_struct_size_is_less_than_64_bytes
+  kind: magnitude
+  raw_text: Verify that sizeof(CounterPacked) < 64.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:39Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark loop executes 10000000 iterations per thread
+  claim_id: c_aa96429c
+  context: Task T021 specifies that the benchmark loop must execute exactly 10 million
+    iterations per thread.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the loop in main.cpp executes exactly 10000000 iterations
+    per thread.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:45:55Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark thread counts are 1, 2, 4, and 8
+  claim_id: c_f7400ad6
+  context: Task T026 specifies executing benchmarks for thread counts of 1, 2, 4,
+    and 8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute multiple runs per configuration for thread counts {1, 2, 4, 8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:46:15Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark retry limit is 10 attempts
+  claim_id: c_c1ff96c2
+  context: Task T026 specifies a retry logic of up to 10 times for failed benchmark
+    runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 10 times total for that config if a run fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:46:42Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark output contains 5 valid rows per configuration
+  claim_id: c_75fc03f8
+  context: Task T026 requires the output CSV to contain exactly 5 rows per configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/raw/*.csv contains exactly 5 rows per config (excluding
+    failed retries).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:12Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Statistical analysis performed for thread counts 1, 2, 4, and 8
+  claim_id: c_4e0cb28e
+  context: Task T032 requires statistical testing for thread counts 1, 2, 4, and 8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform two-sample t-tests and Cohen's d calculation for each thread\
+    \ count comparison (N \u2208 {1, 2, 4, 8})."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:28Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: FDR correction applied for thread counts 1, 2, 4, and 8
+  claim_id: c_6c80c5ee
+  context: Task T033 requires FDR correction to be applied for thread counts 1, 2,
+    4, and 8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction to p-values for all thread counts\
+    \ (N \u2208 {1, 2, 4, 8})."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:34Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Significance threshold is p <= 0.05
+  claim_id: c_6d984d41
+  context: Task T035 defines the significance criterion based on the FDR-adjusted
+    p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set is_significant to true ONLY if fdr_adjusted_p <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:40Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Q threshold value is 0.05
+  claim_id: c_2ff28c60
+  context: Task T035 specifies including the q_threshold value of 0.05 in the output
+    CSV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include q_threshold (0.05) in the statistical_comparison.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:47:58Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CounterPacked struct size is 24 bytes with pragma pack(1)
+  claim_id: c_90a6d7d7
+  context: Create counter_packed.hpp in projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/code/benchmark/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define struct CounterPacked { long c1; long c2; long c3; } with #pragma
+    pack(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:36Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CounterPadded struct size is >= 192 bytes with alignas(64)
+  claim_id: c_c5eb7489
+  context: Create counter_padded.hpp in projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/code/benchmark/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define struct CounterPadded { alignas(64) long c1; alignas(64) long c2;
+    alignas(64) long c3; }.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:48:37Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark loop executes 10000000 iterations per thread
+  claim_id: c_0f4e64eb
+  context: Verify that the loop in main.cpp executes exactly 10000000 iterations per
+    thread.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loop in main.cpp executes exactly 10000000 iterations per thread.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:06Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark runs for thread counts 1, 2, 4, and 8
+  claim_id: c_8e51baaf
+  context: Add logic to run_benchmarks.sh to execute multiple runs per configuration
+    for thread counts {1, 2, 4, 8}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute multiple runs per configuration for thread counts {1, 2, 4, 8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:06Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Benchmark retry limit is 10 times
+  claim_id: c_c117678f
+  context: If a run fails (timeout/crash), retry up to 10 times total for that config.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 10 times total for that config if a run fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:07Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: CSV output contains 5 rows per configuration
+  claim_id: c_c7115256
+  context: Verify that data/raw/*.csv contains exactly 5 rows per config (excluding
+    failed retries).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/raw/*.csv contains exactly 5 rows per config (excluding
+    failed retries).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:07Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Significance threshold for FDR-adjusted p-value is 0.05
+  claim_id: c_a7ba1ea1
+  context: Implement logic where is_significant is set to true ONLY if fdr_adjusted_p
+    <= 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: is_significant is set to true ONLY if fdr_adjusted_p <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:07Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: Q threshold for statistical comparison is 0.05
+  claim_id: c_65ec3229
+  context: Write final statistical_comparison.csv to data/processed/ as the Single
+    Source of Truth with columns... and q_threshold (0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: q_threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T12:49:13Z'
