@@ -57,7 +57,7 @@ A researcher needs to confirm whether the optimal CA configuration achieves stat
 
 - **What happens when** the CA parameters (e.g., non-linearity) are set to extreme values that cause the state space to grow exponentially, potentially exceeding the RAM limit?
   - *Handling*: The system must detect memory usage exceeding a predefined high threshold and terminate the specific run gracefully, logging it as an "Out of Bounds" configuration rather than crashing the CI job.
-- **How does the system handle** a scenario where the neural baseline (throttled) still exceeds the 6-hour job limit due to the sheer size of the 14B model?
+- **How does the system handle** a scenario where the neural baseline (throttled) still exceeds the job time limit due to the sheer size of the 14B model?
   - *Handling*: The system must enforce a hard timeout on the neural baseline run (e.g., a predefined duration) and record the result as a "Time-Bound Baseline" rather than failing the entire study.
 - **What happens when** the dataset (LingBot-World 2.0) is unavailable or the synthetic generation fails to produce [deferred] valid state transitions?
   - *Handling*: The system must fall back to a smaller synthetic dataset (e.g., a reduced number of steps) and flag the result as "Power-Limited" in the final report, ensuring the methodological comparison still proceeds.
@@ -90,7 +90,7 @@ A researcher needs to confirm whether the optimal CA configuration achieves stat
 
 - **SC-001**: The latency of the optimal CA variant is measured against the throttled neural baseline to verify a reduction of ≥90%. (See US-3)
 - **SC-002**: The coherence and diversity scores of the CA variants are measured against the neural baseline to determine statistical parity via LMM p-values (accounting for temporal autocorrelation). (See US-2)
-- **SC-003**: The false-positive rate of the "coherence" classification is measured against a sensitivity sweep of thresholds (0.01, 0.05, 0.1) to ensure robustness of the metric definition. (See US-3)
+- **SC-003**: The false-positive rate of the "coherence" classification is measured against a sensitivity sweep of thresholds (low, moderate, high) to ensure robustness of the metric definition. (See US-3)
 - **SC-004**: The number of valid time-steps completed is measured against the target of [deferred] to ensure sufficient data density for long-term coherence analysis. (See US-2)
 - **SC-005**: The memory footprint of the simulation is measured against the system memory limit to ensure all runs complete without OOM errors. (See US-1)
 - **SC-006**: The independence of coherence metrics from input parameters is measured via partial correlation analysis, ensuring the correlation coefficient between 'memory depth' and 'diversity' (controlling for other factors) is < 0.05. (See US-2)

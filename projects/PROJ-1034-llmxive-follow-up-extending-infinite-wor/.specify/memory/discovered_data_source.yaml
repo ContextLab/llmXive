@@ -1,13 +1,13 @@
 status: none
-intent: Stochastic Physics Sandbox generator python package dataset
+intent: Stochastic Physics Sandbox cellular automata LingBot robotic trajectories
+  python package dataset
 required_fields:
 - time_step
 - grid_state
-- external_force_vector
+- external_noise_vector
 - agent_collision_events
-- neighborhood_radius
-- state_memory_depth
-- update_function_parameters
-cache_key: 443223209f2c5ddf41106c00fb7105193cbf6ced947ce3b96690f8f4bc7badbc
-searched_at: '2026-09-06T15:39:05.250275+00:00'
+- random_force_vector
+- state_history_window
+cache_key: a93c7ebd1af640a09a31bc4032698ad5b404203b14bda8659e76fd71861b02f8
+searched_at: '2026-10-02T19:42:21.839886+00:00'
 retry_count: 1
