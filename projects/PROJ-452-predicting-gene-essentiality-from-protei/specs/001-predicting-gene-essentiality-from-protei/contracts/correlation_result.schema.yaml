@@ -1,51 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CorrelationResult"
-description: "Schema for a single correlation result between a centrality metric and essentiality labels."
-type: "object"
+title: "Correlation Result"
+description: "Schema for aggregated correlation statistics"
+type: object
 properties:
   organism_id:
-    type: "string"
-    description: "Identifier for the organism (e.g., '9606')."
+    type: string
+    description: "Source organism ID"
   metric_type:
-    type: "string"
+    type: string
     enum:
-      - "degree_centrality"
-      - "betweenness_centrality"
-      - "eigenvector_centrality"
-    description: "The centrality metric used."
-  confidence_threshold:
-    type: "integer"
-    description: "STRING confidence score threshold used (e.g., 700)."
+      - degree
+      - betweenness
+      - eigenvector
+    description: "Type of centrality metric analyzed"
+  threshold:
+    type: integer
+    minimum: 0
+    maximum: 1000
+    description: "STRING confidence score threshold used"
   spearman_rho:
-    type: "number"
-    description: "Spearman's rank correlation coefficient."
+    type: number
+    description: "Spearman correlation coefficient"
   p_value:
-    type: "number"
-    description: "Raw p-value for the correlation."
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Two-tailed p-value"
   sample_size:
-    type: "integer"
-    description: "Number of genes included in the analysis."
-  mapping_coverage_percent:
-    type: "number"
-    description: "Percentage of essential genes successfully mapped between STRING and DEG."
-  null_distribution_mean:
-    type: "number"
-    description: "Mean correlation from label permutation null distribution."
-  null_distribution_p_value:
-    type: "number"
-    description: "Empirical p-value against the label permutation null distribution."
-  is_low_power:
-    type: "boolean"
-    description: "True if sample size < 30."
+    type: integer
+    minimum: 1
+    description: "Number of genes analyzed"
+  significant:
+    type: boolean
+    description: "Whether p < 0.05 (uncorrected)"
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value"
 required:
   - organism_id
   - metric_type
-  - confidence_threshold
+  - threshold
   - spearman_rho
   - p_value
   - sample_size
-  - mapping_coverage_percent
-  - null_distribution_mean
-  - null_distribution_p_value
-  - is_low_power
+  - significant
 additionalProperties: false

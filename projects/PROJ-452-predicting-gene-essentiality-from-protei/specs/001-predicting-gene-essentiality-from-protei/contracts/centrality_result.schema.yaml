@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Centrality Result"
+description: "Schema for centrality metrics per gene"
+type: object
+properties:
+  gene_id:
+    type: string
+    description: "Mapped gene identifier"
+  organism_id:
+    type: string
+    description: "Source organism ID"
+  degree_centrality:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized degree centrality"
+  betweenness_centrality:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized betweenness centrality"
+  eigenvector_centrality:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized eigenvector centrality"
+  essentiality:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Binary essentiality label (1=Essential, 0=Non-essential)"
+required:
+  - gene_id
+  - organism_id
+  - degree_centrality
+  - betweenness_centrality
+  - eigenvector_centrality
+  - essentiality
+additionalProperties: false

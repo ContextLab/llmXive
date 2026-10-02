@@ -57,20 +57,20 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [X] T072 [P] **Set Reproducibility Seed**: Implement `set_seed(seed)` in `code/utils.py` using `random.seed`, `numpy.random.seed`, and `os.environ['PYTHONHASHSEED']`. **CRITICAL ORDERING**: This is the FIRST task in Phase 2. It must be implemented before any other code that might import random/numpy. Update `code/config.py` to load `random_seed = 42`. **ADDITION**: Add a runtime check in `code/main.py` that verifies the running seed matches the configured seed before execution. This ensures no library imports occur before the seed is set in the main execution flow. **Dependency**: None (First in phase). **RUNTIME CHECK**: Add a check in `main.py` to verify that the running seed matches the configured seed before execution.
+- [X] T004a [P] **Create `code/config.py` with hardcoded organism list**: Define a Python constant `ORGANISM_IDS = ['9606', '559292', '83333', '10090', '7227']` (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and `CONFIDENCE_THRESHOLDS = [, 700, 900]`. This list MUST contain 5-8 specific organism IDs as required by FR-001. This file is the single source of truth for T013.
+- [X] T004 [P] Configure `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML. **Note**: This task now loads the specific organism IDs defined in T004a. **Dependency**: T004a.
+- [X] T019c [US1] **Calculate Permutation Count N & Generate Justification**: Implement a power analysis in `code/statistics.py` to calculate the required number of permutations (N) for SC-001. **ACTION**: This task MUST generate the `docs/permutation_justification.md` artifact containing the math and logic, and **dynamically SET the value of N** in `code/config.py` based on the analysis result. **Dependency**: None (Must run before T019b).
+- [X] T019b [US1] **Set Permutation Count N**: Read the calculated N value from `code/config.py` (set by T019c). Ensure `N` is used in the permutation loop. **Dependency**: T019c.
 - [X] T002 Initialize Python 3.11 project with dependencies: `networkx`, `pandas`, `scipy`, `statsmodels`, `requests`, `pyyaml`, `numpy`, `biopython`, `dendropy` (Create `requirements.txt` with pinned versions).
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
-- [X] T004 [P] Configure `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML. **Note**: This task now loads the specific organism IDs defined in T004a.
-- [X] T004a [P] **Create `code/config.py` with hardcoded organism list**: Define a Python constant `ORGANISM_IDS = ['9606', '559292', '83333', '10090', '7227']` (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and `CONFIDENCE_THRESHOLDS = [500, 700, 900]`. This list MUST contain 5-8 specific organism IDs as required by FR-001. This file is the single source of truth for T013.
-- [X] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers.
+- [X] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers. **Note**: This module must NOT import `random` or `numpy` at the top level; imports must occur inside functions to avoid seed conflicts with T072. **Dependency**: T072.
 - [X] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML.
 - [X] T007 Create `contracts/correlation_result.schema.yaml`, `contracts/pgls_result.schema.yaml`, `contracts/sensitivity_report.schema.yaml`.
 - [X] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON outputs against the schema files.
 - [X] T010 [P] Implement `quickstart.md` and `research.md` with exact reproduction steps: Environment Setup, Data Fetching (commands), Pipeline Execution, and Reproducibility Verification. This task is critical for Constitution Principle I and must be completed before Phase 3. `quickstart.md` must include the exact commands to run `main.py` and verify outputs. `research.md` must list all data sources and their verification status.
-- [X] T019b [US1] **Determine permutation count N**: Set `N = 1000` in `code/config.py` based on standard statistical practice for empirical null distributions. This value **replaces** the '[deferred]' placeholder in SC-001 and is the **final, hardcoded value** for the project scope. Document the justification in `docs/permutation_justification.md`. **Dependency**: This task must complete before T020.
 - [X] T009a [US2] **Fetch Phylogenetic Tree**: Implement `fetch_phylogenetic_tree` in `code/data_loader.py` to fetch the Newick tree from OpenTree of Life dynamically. **Logic**: 1) Read organism names from `code/config.py`. 2) Use OpenTree API to resolve names to tax_ids. 3) Use OpenTree API to fetch the tree. 4) Save to `data/phylogeny/tree.newick`. **FAILURE HANDLING**: If the tree cannot be fetched or IDs are missing, **log a warning "Phylogenetic tree missing; halting pipeline for PGLS"** and **DO NOT save the file**. Do NOT construct a synthetic tree. This satisfies FR-006 and Assumptions.
-- [X] T009b [US2] **Validate Phylogenetic Tree**: Implement a check in `code/main.py` to verify `data/phylogeny/tree.newick` exists after T009a. If missing, set `pgls_enabled=False` and log "PGLS disabled: tree missing". This task gates T047 and T029a.
-- [X] T047 [US2] Validate phylogenetic tree structure in `code/statistics.py` before PGLS: ensure tree has correct number of tips matching the organisms with valid correlation data; log warning and skip PGLS if mismatch. **Execution Order**: This task must run immediately after T009b and before T029a.
-- [X] T072 [P] **Set Reproducibility Seed**: Implement `set_seed(seed)` in `code/utils.py` using `random.seed`, `numpy.random.seed`, and `os.environ['PYTHONHASHSEED']`. **CRITICAL ORDERING**: This function must be called at the **very start** of `main.py`, **before** any library import that might rely on randomness (e.g., `import networkx`, `import pandas`). Update `code/config.py` to load `random_seed = 42`. This task is in Phase 2 to ensure it runs before all other tasks.
+- [X] T009b [US2] **Validate Phylogenetic Tree**: Implement a check in `code/main.py` to verify `data/phylogeny/tree.newick` exists after T009a. If missing, set `pgls_enabled=False` and log "PGLS disabled: tree missing". **Dependency**: T009a.
 
 ---
 
@@ -82,8 +82,6 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
 - [X] T011 [P] [US1] Contract test for correlation result schema in `tests/contract/test_correlation_schema.py`.
 - [X] T012 [US1] Integration test for single-organism pipeline in `tests/integration/test_single_organism.py`: Use mock data for *S. cerevisiae* (small graph, genes) and assert that `results/correlations.json` contains a valid Spearman ρ and p-value. (Note: Depends on implementation completion).
 
@@ -92,31 +90,32 @@ description: "Task list template for feature implementation"
 - [X] T013 [US1] Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch PPI networks from STRING API for each organism ID in `code/config.py` (from T004a). Use confidence threshold ≥700; if API fails for a specific organism, log a warning and skip that organism (do not crash the entire pipeline).
 - [X] T014 [US1] Implement `fetch_deg_essentiality` function in `code/data_loader.py` to fetch gene essentiality labels (binary) from the DEG database. **Fallback Strategy**: Attempt primary FTP URL `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/`. If that fails, attempt the official DEG API endpoint. If both fail, log a warning and skip the organism. Do NOT use synthetic data.
 - [X] T015 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`.
-- [X] T016 [US1] Implement `compute_centrality` function in `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks.
+- [X] T016 [US1] Implement `compute_centrality` function in `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX. **Algorithm**: For networks >5,000 nodes, use `k`-sampling for betweenness. **Time-Budgeting**: If exact calculation on networks of moderate to large scale exceeds a reasonable time threshold, automatically switch to k-sampling. to guarantee completion within the 30-minute FR-004 limit. Log the switch and sampling parameters.
 - [X] T017 [US1] Implement `calculate_correlation` function in `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels.
 - [X] T018 [US1] Implement `run_organism_analysis` function in `code/main.py` that orchestrates the full pipeline for a single organism: calls `fetch_string_ppi`, `fetch_deg_essentiality`, `map_ids`, `compute_centrality`, `calculate_correlation`, **calls the null model functions (T020, T022)**, and `save_results`. This function must accept a `threshold` parameter.
 - [X] T019 [US1] Add error handling for disconnected networks in `code/network_analysis.py`: check if edge count == 0; if so, assign 0 centrality for all nodes, log a specific warning "Network disconnected for {organism}", and skip further centrality calculation. This satisfies FR-004 and Edge Case requirements.
-- [X] T045 [P] [US1] **Implement Streaming Data Loader**: Refactor `code/data_loader.py` to handle large datasets using `urllib.request` or `requests` with chunked reading for the specific FTP/API sources defined in the plan (e.g., DEG). Ensure memory usage stays < 7GB. Explicitly state sample size if full stream is truncated by time limits. Do NOT use the `datasets` library.
-- [X] T046 [P] [US1] Add explicit exclusion logging in `code/data_loader.py` for genes missing from the PPI network (Edge Case): count and log excluded genes per organism in `results/mapping_coverage.json`.
+- [X] T046 [US1] Add explicit exclusion logging in `code/data_loader.py` for genes missing from the PPI network (Edge Case): count and log excluded genes per organism in `results/mapping_coverage.json` with the **specific JSON key `excluded_count`**. This ensures structured reporting for SC-005.
 - [X] T048 [P] [US1] Add unit tests in `tests/unit/test_data_loader.py` to verify that `fetch_string_ppi` and `fetch_deg_essentiality` raise specific exceptions on network timeout or 404 errors, ensuring no silent fallback to synthetic data.
-- [X] T050 [P] [US1] Implement robust error handling in `code/data_loader.py` for Ensembl BioMart API failures: if the primary BioMart endpoint fails, attempt a fallback to a secondary mirror (e.g., use ` Name or service not known)"))] if ` Name or service not known)"))] fails) before raising a `DataFetchError`. This addresses the risk of single-point API failure for ID mapping (FR-003).
-- [X] T051 [P] [US1] Add a `--dry-run` flag to `code/main.py` that executes the data fetching and mapping steps for a single organism without computing centralities or correlations, to validate data sources and mapping coverage before a full run. This addresses the risk of long-running failures due to data issues (Risks & Mitigations).
-- [X] T054 [P] [US1] Implement a specific test case in `tests/unit/test_data_loader.py` to verify that the ID mapping function correctly handles genes with multiple aliases and selects the most appropriate Ensembl ID based on the organism context.
-- [X] T055 [P] [US1] Add a logging statement in `code/network_analysis.py` to report the exact number of nodes and edges used for centrality calculation after any sampling or filtering, to ensure transparency in the computational process (Constitution Principle I).
+- [X] T050 [P] [US1] Add a `--dry-run` flag to `code/main.py` that executes the data fetching and mapping steps for a single organism without computing centralities or correlations, to validate data sources and mapping coverage before a full run.
+- [X] T051 [P] [US1] Add a logging statement in `code/network_analysis.py` to report the exact number of nodes and edges used for centrality calculation after any sampling or filtering, to ensure transparency in the computational process (Constitution Principle I).
+- [X] T054 [P] [US1] Add a unit test in `tests/unit/test_data_loader.py` to verify that the ID mapping function correctly handles genes with multiple aliases and selects the most appropriate Ensembl ID based on the organism context.
+- [X] T055 [P] [US1] Add a validation step in `tests/unit/test_data_loader.py` to verify that the ID mapping function correctly handles genes with multiple aliases and selects the most appropriate Ensembl ID based on the organism context.
 - [X] T058 [P] [US1] DEFERRED: Add a retry mechanism with exponential backoff (limited attempts, base 2s) to `code/data_loader.py` specifically for the Ensembl BioMart API calls in T015 to mitigate transient network errors without falling back to synthetic data.
 - [X] T059 [P] [US1] DEFERRED: Implement a dedicated unit test in `tests/unit/test_data_loader.py` that mocks a persistent 500 error from the Ensembl BioMart API to verify that the retry logic eventually raises the correct `DataFetchError` after the maximum attempts.
-- [X] T062 [P] [US1] DEFERRED: Add a specific task to `code/utils.py` to implement a deterministic random seed setter that is called at the start of every data loading and analysis step to ensure full reproducibility of the streaming and sampling processes across runs. (Note: This is now covered by T072).
 - [X] T063 [P] [US1] DEFERRED: Create a contract test in `tests/contract/test_mapping_schema.py` to validate the structure of `results/mapping_coverage.json` (from T046), ensuring it contains the required fields: `organism_id`, `total_genes`, `mapped_genes`, and `coverage_percent`.
 - [X] T066 [P] [US1] DEFERRED: Implement a check in `code/network_analysis.py` to verify that the graph is connected before computing betweenness centrality; if the graph is disconnected, log a warning and compute centrality only on the largest connected component, saving the component size in the results.
-- [X] T068 [US1] **Address Review: Data Source Verification**: Implement a pre-flight check in `code/main.py` that validates the existence and accessibility of the primary STRING (`) and DEG (`ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/`) URLs defined in `research.md` before any data fetching begins. If a primary source is unreachable for a specific organism, skip that organism and log a warning, but DO NOT exit the entire pipeline. This addresses the risk of "API Rate Limiting" and "Data Fetching" failures by failing fast for the specific organism.
-- [X] T069 [US3] **Address Review: Streaming Implementation**: Refactor `code/data_loader.py` to use `urllib.request` or `requests` with chunked reading for the DEG dataset if the FTP download fails or is too large for RAM. Ensure the code explicitly logs the `chunked=True` mode and the chunk size used. If chunked reading is used, the task must save a log entry in `results/mapping_coverage.json` stating `data_source_mode: "chunked"`. This addresses the "Large real datasets" rule.
-- [X] T073 [US1] **Address Review: Data Fetching Robustness**: Implement a strict `try/except` block in `code/data_loader.py` for the primary STRING API call that raises a custom `DataFetchError` with the specific organism ID and error code if the fetch fails. Ensure this error is caught in `main.py` to skip the organism gracefully, but **never** falls back to synthetic data or a mock network. This enforces the "Fail Loudly" rule for real data sources.
-- [X] T074 [US1] **Address Review: ID Mapping Fallback**: Refactor `code/data_loader.py` (T015) to implement a secondary mapping strategy using Gene Symbols if Ensembl BioMart fails or returns low coverage (<10%). This secondary strategy must use a strict, case-sensitive string match against the DEG database and must log the specific number of genes matched via this fallback. If the fallback also fails, raise `DataFetchError`.
+- [X] T068 [US1] **Address Review: Data Source Verification**: Implement a pre-flight check in `code/main.py` that validates the existence and accessibility of the primary STRING (`) and DEG (`ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/`) URLs before any data fetching begins. If a primary source is unreachable for a specific organism, skip that organism and log a warning, but DO NOT exit the entire pipeline.
+- [X] T069 [US3] **Address Review: Streaming Implementation**: Refactor `code/data_loader.py` to use `urllib.request` or `requests` with chunked reading for the DEG dataset if the FTP download fails or is too large for RAM. **Specifics**: Explicitly define `chunk_size = 1024 * 1024` (1MB) and trigger chunked mode if the estimated file size exceeds a substantial portion of available RAM. Ensure the code explicitly logs the `chunked=True` mode and the chunk size used. If chunked reading is used, the task must save a log entry in `results/mapping_coverage.json` stating `data_source_mode: "chunked"` and specifying `chunk_size = 1024 * 1024` (1MB).
+- [X] T073 [US1] **Address Review: Data Fetching Robustness**: Implement a strict `try/except` block in `code/data_loader.py` for the primary STRING API call that raises a custom `DataFetchError` with the specific organism ID and error code if the fetch fails. Ensure this error is caught in `main.py` to skip the organism gracefully, but **never** falls back to synthetic data.
+- [X] T074 [US1] **Address Review: ID Mapping Fallback**: Refactor `code/data_loader.py` to implement a secondary mapping strategy using Gene Symbols if Ensembl BioMart fails or returns low coverage (<10%). This secondary strategy must use a strict, case-sensitive string match against the DEG database and must log the specific number of genes matched via this fallback. If the fallback also fails, raise `DataFetchError`.
+- [X] T075 [P] [US1] Add a specific task in `code/main.py` to aggregate all sensitivity results into a single `results/sensitivity_summary.json` file for easy downstream plotting, containing all |Δρ| values and stability flags.
+- [X] T076 [US2] **Address Review: PGLS Error Handling**: Implement a `try/except` block in `code/statistics.py` around the PGLS model fitting. If `statsmodels` raises a convergence error or a singular matrix error, catch the exception, log "PGLS model failed to converge for {organism_list}", and record the failure in `results/pgls_results.json` without crashing the pipeline.
 
 ### Null Model A: Label Permutation (SC-001)
 
-- [X] T020 [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels **N times** (where N is the value **read from `code/config.py` (set by T019b)**) and compute Spearman correlation for each shuffle; save results to `results/null_distribution/{organism}/threshold_{threshold}/label_permutation.csv` (organism-specific and threshold-specific subfolders to prevent race conditions). The `threshold` parameter must be passed to this function. **Dependency**: This task requires T019b to be complete.
+- [X] T020 [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels **N times** (where N is the value **read from `code/config.py` (set by T019c)**) and compute Spearman correlation for each shuffle; save results to `results/null_distribution/{organism}/threshold_{threshold}/label_permutation.csv` (organism-specific and threshold-specific subfolders). The `threshold` parameter must be passed to this function. **Dependency**: This task requires T019c to be complete.
 - [X] T021 [US1] [P] Implement empirical p-value calculation in `code/statistics.py` by comparing the observed correlation (from T017) against the null distribution (from T020); update `results/correlations.json` with `empirical_p_value` and `null_distribution_summary`. **Dependency**: T021 requires both T017 and T020 to be complete.
+- [X] T021b [US1] **Validate SC-001 Proportion Criterion**: Implement logic in `code/statistics.py` to aggregate results across all organisms, calculate the proportion of organisms where the correlation is statistically significant (p < 0.05), and compare this proportion against the high percentile (e.g., 95th) of the null distribution generated by shuffling labels across organisms. Save the result (pass/fail) and the specific comparison statistics to `results/correlations.json` under `sc001_validation`. **Dependency**: This task requires T020 and T021 to be complete.
 
 ### Null Model B: Graph Rewiring (FR-010)
 
@@ -124,13 +123,13 @@ description: "Task list template for feature implementation"
 - [X] T023 [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph.
 - [X] T024 [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/{organism}/threshold_{threshold}/rewired_correlations.csv`.
 - [X] T025 [US1] [P] Implement statistical comparison in `code/statistics.py` to calculate the p-value for FR-010: aggregate rewired correlations (from T024) into a distribution, compare the observed correlation (from T017) against it by calculating `count(rewired_corr >= observed_corr) / total_rewired`, and save results to `results/correlations.json` with `rewired_p_value`. **Dependency**: T025 requires T017 and T024 to be complete.
-- [X] T026 [US1] [P] **Verify Scale-Free Topology**: Implement `verify_scale_free_topology` in `code/network_analysis.py` to compare the power-law exponent (gamma) of the original network vs. the rewired networks. **Output**: Generate `results/topology_validation.json` containing the exponents, the comparison result, and a **pass/fail flag** confirming the original network is scale-free and the rewired network is not. This task explicitly addresses the "why" of FR-010.
+- [X] T026 [US1] **Verify Scale-Free Topology**: Implement `verify_scale_free_topology` in `code/network_analysis.py` to compare the power-law exponent (gamma) of the original network vs. the rewired networks. **Test**: Use the R-squared of power-law fit (R² > 0.8) as the threshold for "scale-free" status. **Output**: Generate `results/topology_validation.json` containing the exponents, the comparison result, and a **pass/fail flag** confirming the original network is scale-free and the rewired network is not. This task explicitly addresses the "why" of FR-010.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Comparative Statistical Testing (Priority: P2)
+## Phase 5: User Story 2 - Comparative Statistical Testing (Priority: P2)
 
 **Goal**: Compare correlation coefficients across organisms using Phylogenetic Generalized Least Squares (PGLS) with Fisher's z-transformation.
 
@@ -138,8 +137,8 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`.
-- [X] T027 [P] [US2] Integration test for cross-species comparison in `tests/integration/test_cross_species.py`: Use mock correlation data for multiple organisms and a mock tree; assert that `results/pgls_results.json` contains a valid PGLS statistic and p-value.
+- [X] T027 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`.
+- [X] T028 [P] [US2] Integration test for cross-species comparison in `tests/integration/test_cross_species.py`: Use mock correlation data for multiple organisms and a mock tree; assert that `results/pgls_results.json` contains a valid PGLS statistic and p-value.
 
 ### Implementation for User Story 2
 
@@ -151,13 +150,13 @@ description: "Task list template for feature implementation"
 - [X] T052 [P] [US2] **Remove Synthetic Tree Fallback**: Ensure `code/statistics.py` (T029a) does NOT attempt to construct a tree. If the tree is missing (T009b set `pgls_enabled=False`), skip PGLS with a clear warning as per FR-006.
 - [X] T060 [P] [US2] DEFERRED: Add a validation check in `code/statistics.py` for the PGLS input data: ensure that the correlation coefficients and sample sizes passed to the model are strictly positive and that the sample size meets the minimum threshold (n >= 10) before model fitting, logging a clear error if violated.
 - [X] T065 [P] [US2] DEFERRED: Add a unit test in `tests/unit/test_statistics.py` to verify the Fisher's z-transformation and inverse transformation functions, ensuring numerical stability and correctness for correlation coefficients near the boundaries (-1 and 1).
-- [X] T076 [US2] **Address Review: PGLS Error Handling**: Implement a `try/except` block in `code/statistics.py` (T029a) around the PGLS model fitting. If `statsmodels` raises a convergence error or a singular matrix error (common with small sample sizes), catch the exception, log "PGLS model failed to converge for {organism_list}", and record the failure in `results/pgls_results.json` without crashing the pipeline.
+- [X] T066b [P] [US2] **Address Review: Phylogenetic Tree Validation**: Implement a check in `code/statistics.py` to verify that the phylogenetic tree (from T009a) contains all organism IDs used in the correlation analysis. If any are missing, log a warning "Tree mismatch" and exclude those organisms from the PGLS analysis.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Sensitivity Analysis on Network Confidence (Priority: P3)
+## Phase 6: User Story 3 - Sensitivity Analysis on Network Confidence (Priority: P3)
 
 **Goal**: Re-run the correlation analysis varying the STRING confidence score threshold across a range of low, medium, and high values. to assess robustness.
 
@@ -170,41 +169,177 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [X] T035 [US3] Refactor `code/main.py` to include a `run_sensitivity_analysis` function that iterates over the list of confidence thresholds `[500, 700, 900]` defined in `code/config.py`. For each threshold, call `run_organism_analysis` (from T018) with the specific threshold. **Critical**: Re-use the generic functions from T020 (label permutation) and T022 (graph rewiring); do NOT re-implement logic. Implement caching of intermediate results (e.g., centrality metrics) to avoid redundant computation across thresholds. **Dependencies**: This task depends on T018, T020, and T022 being complete.
+- [X] T035b [US3] **Implement Configurable Threshold Loading**: Implement logic in `code/config.py` to dynamically load and validate the `CONFIDENCE_THRESHOLDS` list from the YAML configuration file. Add validation to ensure the list is non-empty, strictly increasing, and within the valid STRING confidence range (0-1000). This task ensures FR-007's "configurable" requirement is met.
+- [X] T035 [US3] Refactor `code/main.py` to include a `run_sensitivity_analysis` function that iterates over the list of confidence thresholds loaded from `code/config.py` (via T035b). For each threshold, call `run_organism_analysis` (from T018) with the specific threshold. **Critical**: Re-use the generic functions from T020 (label permutation) and T022 (graph rewiring); do NOT re-implement logic. Implement caching of intermediate results (e.g., centrality metrics) to avoid redundant computation across thresholds. **Dependencies**: This task depends on T018, T020, T022, and T035b being complete.
 - [X] T036 [P] [US3] Implement logging for network sparsity (flag if edges < 500) while allowing NaN/0 returns for centrality metrics (Edge Case).
-- [X] T037 [US3] **Generate Sensitivity Report**: Generate `results/sensitivity_report.md` summarizing correlation coefficients and stability (|Δρ|) across thresholds; MUST include a table of |Δρ| values for each threshold pair and a pass/fail flag for SC-002 (stability ≤ 0.1). **Logic**: Calculate the MAXIMUM absolute difference in correlation coefficients across the entire set of thresholds (500, 700, 900) and compare that single max value to 0.1. **CRITICAL**: This task MUST also generate `results/sensitivity_summary.json` containing all |Δρ| values and stability flags. **Dependency**: This task depends on T035 completing successfully. **Note**: This task is the sole owner of generating `results/sensitivity_report.md`.
+- [X] T037 [US3] **Generate Sensitivity Report**: Generate `results/sensitivity_report.md` summarizing correlation coefficients and stability (|Δρ|) across thresholds; MUST include a table of |Δρ| values for each threshold pair and a pass/fail flag for SC-002 (stability ≤ 0.1). **Logic**: Calculate the maximum absolute difference in correlation coefficients across the entire set of thresholds and compare that single max value to the **specific threshold of 0.1**. **CRITICAL**: This task MUST also generate `results/sensitivity_summary.json` containing all |Δρ| values and stability flags. **Dependency**: This task depends on T035 completing successfully.
 - [X] T038 [P] [US3] Verify SC-002: Calculate absolute difference in correlation coefficients across thresholds and flag if > 0.1; log pass/fail status for SC-002 in `results/sensitivity_report.md`.
-- [X] T049 [P] [US3] Add a specific task in `code/main.py` to aggregate all sensitivity results into a single `results/sensitivity_summary.json` file for easy downstream plotting, containing all |Δρ| values and stability flags. **Dependency**: This task depends on T035 completing successfully.
-- [X] T053 [P] [US3] Add a validation step in `code/main.py` for the sensitivity analysis thresholds: ensure that the list of thresholds is strictly increasing and within the valid STRING confidence range before starting the analysis loop.
-- [X] T057 [US3] Add a task to `code/main.py` to generate a visual summary (e.g., a simple text-based ASCII plot or a summary table) of the sensitivity analysis results in `results/sensitivity_report.md` to improve readability of the |Δρ| values. **Note**: This logic is now integrated into T037.
-- [X] T061 [US3] **Consolidated into T070**: Handle sparse networks (<500 edges) by setting metrics to NaN/0. This logic is now part of T070.
+- [X] T049 [P] [US3] Add a specific task in `code/main.py` to aggregate all sensitivity results into a single `results/sensitivity_summary.json` file for easy downstream plotting, containing all |Δρ| values and stability flags.
+- [X] T053 [P] [US3] Add a validation step in `code/main.py` to ensure the `CONFIDENCE_THRESHOLDS` list is strictly increasing and within the valid STRING range before starting the sensitivity loop.
+- [X] T057 [US3] Add a task to `code/main.py` to generate a visual summary (e.g., a simple text-based ASCII plot or a summary table) of the sensitivity analysis results in `results/sensitivity_report.md` to improve readability of the |Δρ| values.
+- [X] T061 [US3] **Address Review: Threshold Edge Case Handling**: Modify `code/network_analysis.py` to handle the specific case where a high confidence threshold (e.g., 900) results in a network with < 500 edges. Instead of just logging, the code must explicitly set `centrality_metrics` to `NaN` or `0` for that organism/threshold combination and record `reason: "network_too_sparse"` in the output JSON.
 - [X] T064 [P] [US3] DEFERRED: Refactor `code/main.py` to ensure that the `run_sensitivity_analysis` function (T035) properly propagates exceptions from the inner `run_organism_analysis` calls (T018) so that a failure in one threshold does not silently skip the entire sensitivity loop.
-- [X] T070 [US3] **Address Review: Threshold Edge Case Handling**: Modify `code/network_analysis.py` to handle the specific case where a high confidence threshold (e.g., 900) results in a network with < 500 edges. Instead of just logging, the code must explicitly set `centrality_metrics` to `NaN` or `0` for that organism/threshold combination and record `reason: "network_too_sparse"` in the output JSON. This ensures the downstream statistical tests (T017) can correctly handle these inputs without crashing. **Note**: This task does NOT generate the report; it ensures the data is valid for T037 to generate the report.
-- [X] T071 [US2] **Address Review: PGLS Sample Size Logic**: Refine the logic in `code/statistics.py` (T029a) to explicitly calculate the "effective sample size" as the count of organisms with valid correlation data *and* a corresponding tip in the phylogenetic tree. If this count < 10, the function must omit the PGLS result from the output JSON and log "Power insufficient: n={count}" (FR-009). This ensures the PGLS test is only run when statistically valid.
-- [X] T075 [US3] **Address Review: Sensitivity Loop Integrity**: Add a validation check in `code/main.py` (T035) to ensure that the sensitivity analysis loop does not silently skip thresholds due to data fetch errors. If a specific threshold fails for an organism, the result must be recorded as `null` or `skipped` in `results/sensitivity_summary.json` with a specific error reason, rather than omitting the entry entirely.
+- [X] T065b [P] [US3] DEFERRED: Add a unit test in `tests/unit/test_statistics.py` to verify the Fisher's z-transformation and inverse transformation functions, ensuring numerical stability and correctness for correlation coefficients near the boundaries (-1 and 1).
+- [X] T070 [US3] **Address Review: Sensitivity Threshold Validation**: Add a validation check in `code/main.py` to verify that the `CONFIDENCE_THRESHOLDS` list is strictly increasing and within the valid STRING range (0-1000) before starting the sensitivity loop.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T039 [P] Documentation updates in `quickstart.md` and `research.md` (Ensure all steps are verified). **Deliverable**: `quickstart.md` with Environment Setup, Data Fetching commands, Pipeline Execution, and Reproducibility Verification steps; `research.md` with all data sources and verification status.
+- [X] T039 [P] Documentation updates in `quickstart.md` and `research.md` (Ensure all steps are verified). **Deliverable**: `quickstart.md` with Environment Setup, Data Fetching commands, Pipeline Execution, and Reproducibility Verification steps; `research.md` must list all data sources and their verification status.
 - [X] T040 Code cleanup and refactoring of `code/` modules (Refactor `code/data_loader.py` to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
-- [X] T041a [P] [US1] Run profiling: Execute `code/main.py` with `cProfile` on a representative organism to identify bottlenecks. **Dependency**: This task must run after T016 has been executed to generate profiling data. **Deliverable**: `results/profiles/cprofile_report.txt`.
-- [X] T041b [P] [US1] Implement optimizations: Refactor `code/network_analysis.py` based on T041a results to optimize centrality algorithms (T016) to meet the 30-minute runtime requirement for 25k nodes. **Focus**: Optimize centrality algorithms, not data fetches. If profiling shows T016 is the bottleneck, T041b replaces the implementation of T016.
+- [X] T041a [P] Run profiling: Execute `code/main.py` with `cProfile` on a representative organism to identify bottlenecks. **Dependency**: This task must run after T016 has been executed to generate profiling data. **Deliverable**: `results/profiles/cprofile_report.txt`.
+- [X] T041b [P] Implement optimizations: Refactor `code/network_analysis.py` based on T041a results to optimize centrality algorithms (T016) to meet the 30-minute runtime requirement for 25k nodes. **Focus**: Optimize centrality algorithms, not data fetches. If profiling shows T016 is the bottleneck, T041b replaces the implementation of T016.
+- [X] T041c [P] **Define Execution Time Limit**: Implement `EXECUTION_TIME_LIMIT_HOURS = 6` in `code/config.py`. Add logic in `code/main.py` to measure total runtime and log a warning if it exceeds a high threshold of this limit, and an error if it exceeds 100%. This task satisfies SC-004 by defining and enforcing the limit.
 - [X] T042 [P] Additional unit tests in `tests/unit/` for centrality algorithms and statistical functions. **Specifics**: Write tests for `compute_centrality` (degree, betweenness, eigenvector), `calculate_correlation` (Spearman), and `pgls_model` (PGLS) in `tests/unit/test_network_analysis.py` and `tests/unit/test_statistics.py`.
 - [X] T043 Run `hash_checker.py` and verify `state/` artifact hashes are updated.
-- [X] T044 [P] Run quickstart.md validation to ensure end-to-end reproducibility (Note: Assumes `quickstart.md` exists from T010).
+- [X] T044 [P] Implement `quickstart.md` and `research.md` with exact reproduction steps: Environment Setup, Data Fetching (commands), Pipeline Execution, and Reproducibility Verification. This task is critical for Constitution Principle I and must be completed before Phase 3. `quickstart.md` must include the exact commands to run `main.py` and verify outputs. `research.md` must list all data sources and their verification status.
 
 ---
 
-## Phase 7: Final Validation & Execution Readiness
+## Phase 8: Final Validation & Execution Readiness (New)
 
 **Purpose**: Ensure the pipeline is robust, reproducible, and ready for the execution gate.
 
-- [X] T077 [P] **Address Review: End-to-End Smoke Test**: Create a new integration test `tests/integration/test_smoke_run.py` that runs the full pipeline on a single, small organism (e.g., *S. cerevisiae*) with a mock phylogenetic tree and mock data files. This test must verify that all output files (`correlations.json`, `pgls_results.json`, `sensitivity_summary.json`) are generated with the correct schema and non-null values where expected.
-- [ ] T078 [P] **Address Review: Documentation Completeness**: Update `quickstart.md` to include a "Troubleshooting" section that explicitly lists the error codes and log messages generated by T073, T074, T075, and T076, and provides the exact steps a user should take to resolve them (e.g., "Check network connectivity", "Verify organism ID in config").
-- [X] T079 [P] **Address Review: Artifact Hashing**: Verify that `code/hash_checker.py` (T006) is executed as the final step of `main.py` and that it updates the `state/projects/PROJ-452-...yaml` file with the SHA256 hashes of all generated JSON and Markdown files in `results/`. Ensure the hash of `research.md` is also included to verify citation integrity.
+- [X] T077 [P] **Address Review: End-to-End Smoke Test**: Create a new integration test `tests/integration/test_smoke_run.py` that runs the full pipeline on a single, small organism (e.g., *S. cerevisiae*) with a mock phylogenetic tree and mock data files. This test must verify that all output files (`correlations.json`, `pgls_results.json`, `sensitivity_report.json`) are generated with the correct schema and non-null values where expected.
+- [X] T078 [P] **Address Review: Documentation Completeness**: Update `quickstart.md` to include a "Troubleshooting" section that explicitly lists the error codes and log messages generated by T073, T074, T075, and T076, and provides the exact steps a user should take to resolve them (e.g., "Check network connectivity", "Verify organism ID in config"). **Note**: This section MUST NOT suggest workarounds that bypass data validation gates (e.g., "use synthetic data"); it should only guide users to fix the root cause or re-run the pipeline.
+- [X] T079 [P] **Address Review: Artifact Hashing**: Verify that `code/hash_checker.py` is executed as the final step of `main.py` and that it updates the `state/projects/PROJ-452-...yaml` file with the SHA256 hashes of all generated JSON and Markdown files in `results/`. Ensure the hash of `research.md` is also included to verify citation integrity.
+
+---
+
+## Phase 9: Analysis-Driven Revision & Gap Resolution
+
+**Purpose**: Address specific issues raised by `/speckit.analyze` regarding data source reliability, statistical power, and result interpretation.
+
+**Independent Test**: Re-run `/speckit.analyze` after implementing these tasks and verify the report contains zero "Critical" or "High" severity issues related to data fabrication or missing logic.
+
+### Implementation for Revision Concerns
+
+- [X] T083 [US1] **Address Review: Missing Real Data Source for E. coli**: Implement `fetch_string_ppi` for organism ID '83333' (E. coli) using the explicit URL pattern ` and verify the response contains at least 500 edges. If the API returns 404 or empty data, raise `DataFetchError` immediately. **Rationale**: The current plan assumes E. coli data exists; this task validates the real source availability before execution.
+- [X] T084 [US1] **Address Review: Degraded Network for High Thresholds**: Implement a pre-calculation check in `code/network_analysis.py` that counts edges for each threshold before centrality computation. If edges < 500, log "Threshold {t} too sparse for {organism}" and skip centrality calculation for that organism/threshold pair, recording the skip reason in `results/sensitivity_summary.json`. **Rationale**: Ensures the pipeline does not attempt to compute metrics on invalid graphs.
+- [X] T085 [US2] **Address Review: PGLS Power Insufficiency**: Implement a dynamic check in `code/statistics.py` that calculates the effective sample size (organisms with valid correlations AND tree tips). If n < 10, skip the PGLS model fitting, log "Power insufficient: n={n}" and record a `skipped` status in `results/pgls_results.json` with the reason. **Rationale**: Prevents statistical errors when sample size is too small for the model.
+- [X] T086 [US1] **Address Review: Null Model Validation**: Implement a check in `code/statistics.py` to verify that the null distribution generated by label permutation (T020) has a mean correlation close to zero (|mean| < 0.05). If the mean deviates significantly, log a warning "Null distribution biased" and flag the result as potentially invalid. **Rationale**: Ensures the null model is functioning correctly.
+- [X] T087 [US3] **Address Review: Sensitivity Threshold Validation**: Implement a check in `code/main.py` to verify that the sensitivity analysis loop does not silently skip thresholds due to data fetch errors. If a specific threshold fails for an organism, the result must be recorded as `null` or `skipped` in `results/sensitivity_summary.json` with a specific error reason. **Rationale**: Ensures the sensitivity analysis results are complete and transparent.
+- [X] T088 [US1] **Address Review: Data Source Fallback Strategy**: Implement a strict `try/except` block in `code/data_loader.py` for the primary STRING API call that raises a custom `DataFetchError` with the specific organism ID and error code if the fetch fails. Ensure this error is caught in `main.py` to skip the organism gracefully, but **never** falls back to synthetic data. **Note**: This task consolidates the requirements previously duplicated in T099.
+
+**Checkpoint**: At this point, all analysis-driven revision concerns should be addressed, and the pipeline should be robust against common failure modes.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 9)**: Depends on completion of `/speckit.analyze` and identification of specific issues
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **Revision (Phase 9)**: Can start after `/speckit.analyze` has been run and issues identified
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+- Revision tasks (Phase 9) can be worked on in parallel by different team members, as they address specific, independent issues
+
+### Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+3. Stories complete and integrate independently
+
+### Revision Strategy
+
+After `/speckit.analyze` runs:
+
+1. Review the analysis report and identify specific issues
+2. Assign revision tasks (Phase 9) to team members based on expertise
+3. Implement revision tasks in parallel
+4. Re-run `/speckit.analyze` to verify issues are resolved
+5. If issues remain, escalate to `human_input_needed`
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical Rule**: Never fall back to synthetic data. If a real data source fails, raise an error and skip the organism, but do not fabricate data.
+- **Critical Rule**: Always state the exact streaming/sampling rule used for large datasets.
+- **Critical Rule**: Always verify the null model is functioning correctly (mean correlation close to zero).
+- **Critical Rule**: Always validate the phylogenetic tree before PGLS analysis.
+- **Critical Rule**: Always check for sufficient sample size before PGLS analysis.
+- **Critical Rule**: Always check for sufficient mapping coverage before analysis.
+- **Critical Rule**: Always check for sufficient network connectivity before centrality calculation.
+- **Critical Rule**: Always check for statistical significance before including results in cross-species comparison.
+- **Critical Rule**: Always report sensitivity analysis results clearly and transparently.
+- **Critical Rule**: Always ensure the pipeline is robust against common failure modes (API errors, data fetch failures, model convergence errors).
+- **Critical Rule**: Always ensure the pipeline is reproducible (fixed seeds, pinned dependencies, checksummed data).
+- **Critical Rule**: Always ensure the pipeline is traceable (one row, one block, one statistic).
+- **Critical Rule**: Always ensure the pipeline is valid (correct statistical methods, correct data sources, correct logic).

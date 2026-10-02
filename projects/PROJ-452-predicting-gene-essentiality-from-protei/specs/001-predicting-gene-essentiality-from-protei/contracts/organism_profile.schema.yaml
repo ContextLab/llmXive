@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Organism Profile"
+description: "Schema for organism metadata and configuration"
+type: object
+properties:
+  organism_id:
+    type: string
+    description: "NCBI Taxonomy ID (e.g., '9606' for Human)"
+  scientific_name:
+    type: string
+    description: "Binomial name (e.g., 'Homo sapiens')"
+  common_name:
+    type: string
+    description: "Common name (e.g., 'Human')"
+  phylogenetic_position:
+    type: string
+    description: "Clade or position in the phylogenetic tree"
+required:
+  - organism_id
+  - scientific_name
+additionalProperties: false

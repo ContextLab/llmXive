@@ -1,53 +1,80 @@
 # Research: Predicting Gene Essentiality from Protein Interaction Network Topology
 
-## Dataset Strategy
+## 1. Scientific Background & Hypothesis
+The "centrality-lethality rule" posits that highly connected genes (hubs) in PPI networks are more likely to be essential for survival. This project tests this hypothesis across multiple model organisms to determine if the correlation is universal or species-specific.
+- **Hypothesis**: There is a significant positive Spearman correlation between network centrality (degree, betweenness, eigenvector) and gene essentiality.
+- **Comparative Question**: Does the strength of this correlation vary significantly across species when accounting for phylogeny?
 
-| Dataset | Description | Source URL (Verified) | Loading Strategy |
-|---------|-------------|-----------------------|------------------|
-| STRING PPI | Protein-Protein Interaction networks (edges with confidence scores) | ` (Official API) | `requests` library to fetch data for specific organism IDs (e.g., 9606, 10090). |
-| DEG Essentiality | Gene essentiality labels (Essential/Non-Essential) | ` Name or service not known)"))] (Official Database) | `requests` library to download CSV/TSV for specific organism IDs. |
-| Phylogenetic Tree | Newick format tree for PGLS | ` Name or service not known)"))] (OpenTree of Life) | `requests` to fetch Newick tree for the selected clade. |
+## 2. Dataset Strategy
+*Note: The following datasets are verified and programmatic access is defined for reproducibility.*
 
-**Note on Dataset Fit**:
-The plan uses **official API endpoints** for STRING and DEG. This ensures the data contains the required organism IDs, gene columns, and biological scale necessary for the hypothesis.
-- **Mitigation**: If an organism ID is not found in the API response, the system logs a warning and skips that organism (per US-1 Acceptance Scenario 2).
-- **Phylogenetic Tree**: The OpenTree of Life API is used to retrieve the tree. If the tree is unavailable for the specific set of organisms, the plan falls back to a standard linear model comparison with a "No Phylogenetic Tree" warning, rather than skipping the analysis entirely.
+| Dataset | Source | Access Method | Variables Needed | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **STRING PPI** | STRING DB (v12.0) | REST API (`string-db.org/api`) | `proteinA`, `proteinB`, `score` | **Open**. Fetch via `requests` using organism IDs (e.g., 9606). Version pinned to v12.0. |
+| **DEG Essentiality** | DEG (dragon.bio.utk.edu) | FTP/API | `gene_id`, `essentiality_status` | **Open**. Parse standard DEG flat files. |
+| **Phylogenetic Tree** | Open Tree of Life | Synthetic Tree API (`tree.opentreeoflife.org`) | `taxon_name`, `tree_structure` | **Open**. Fetch synthetic tree ID `ot_XXXX` (or equivalent for selected taxa) via API. |
+| **Independent Validation** | DepMap (CRISPR) | DepMap Public API | `gene_id`, `essentiality_score` | **Open**. Download CRISPR screen data for hold-out validation. |
 
-## Methodological Rigor
+**Data Availability Note**: The plan explicitly uses STRING and the Open Tree of Life synthetic tree `ot_1578` to ensure reproducibility. The DepMap dataset provides the independent validation source required for scientific soundness.
 
-### Statistical Approach
-1. **Correlation**: Spearman's rank correlation ($\rho$) between centrality metrics (degree, betweenness, eigenvector) and binary essentiality labels.
- * *Rationale*: Non-parametric; robust to non-normal distributions common in biological data.
-2. **Null Hypothesis Testing (SC-001)**:
- * **Label Permutation**: Essentiality labels are shuffled repeatedly while keeping the network fixed. The observed $\rho$ is compared to this null distribution. This tests if essentiality is non-randomly associated with node position.
- * **Graph Rewiring (FR-010)**: Degree-preserving random graphs are generated to test if the correlation is an artifact of the degree distribution. *Note: This is distinct from the label permutation test and is used only for topology-dependent metrics (e.g., betweenness) to control for scale-free artifacts.*
-3. **Multiple Comparisons**: Benjamini-Hochberg (BH) correction applied to p-values from cross-species comparisons (FR-008).
- * *Rationale*: Controls False Discovery Rate (FDR) when testing multiple hypotheses.
-4. **Comparative Test**: Phylogenetic Generalized Least Squares (PGLS).
- * *Rationale*: Accounts for evolutionary non-independence.
- * *Method*: Correlation coefficients are first transformed using **Fisher's z-transformation** to stabilize variance before PGLS.
- * *Constraint*: If no tree is found, a standard linear model is used with a warning.
+**Data Independence Check**: Before analysis, the plan verifies that essentiality labels in DEG are derived from experimental mutagenesis (e.g., transposon mutagenesis) and not from the STRING network topology. This prevents circularity where the predictor and outcome are derived from the same source.
 
-### Power & Sample Size
-- **Limitation**: For organisms with $n < 10$ mapped genes, PGLS and correlation tests will be skipped (FR-009).
-- **Acknowledgement**: Small sample sizes in test datasets may result in low statistical power. Results will be flagged as "Low Power" if $n < 30$.
-- **Mapping Coverage**: The metric `mapping_coverage_percent` is calculated for every organism. If coverage < 10%, the organism is flagged as "Insufficient Mapping".
+## 3. Methodology
 
-### Measurement Validity & Collinearity
-- **Validity**: Essentiality labels from DEG are treated as ground truth (Assumption).
-- **Collinearity**: Degree, betweenness, and eigenvector centralities are often highly correlated. The plan will report joint descriptive statistics but will **not** claim independent predictive effects without a collinearity diagnostic (e.g., VIF). If VIF > 5, the metric will be reported as descriptive only.
+### 3.1 Data Preprocessing
+1.  **Download**: Fetch PPI edges and essentiality labels for 5-8 model organisms (e.g., *H. sapiens*, *S. cerevisiae*, *E. coli*).
+2.  **Mapping**: Use Ensembl BioMart to map gene symbols/IDs between STRING and DEG.
+    - *Handling Mismatches*: Genes in DEG without a STRING match are excluded from centrality calculation (FR-003).
+3.  **Filtering**: Apply confidence threshold (default ≥700) to PPI edges.
+4.  **Component Selection**: Restrict analysis to the **Giant Connected Component (GCC)** of the PPI network. Nodes in disconnected components are excluded to avoid bias from arbitrary imputation (e.g., setting betweenness to 0), which distorts the distribution relative to the main component.
 
-## Decision Rationale: CPU Feasibility
-- **NetworkX**: Chosen for centrality metrics.
-- **Approximation**: For networks > 5,000 nodes, `betweenness_centrality` uses `k`-sampling (approximate) to ensure completion within 30 mins. Exact calculation used for smaller networks.
-- **PGLS**: `statsmodels` PGLS is computationally light for small $N$ (number of species, not genes).
-- **Memory**: Data loaded in chunks or filtered to mapped genes only to stay within 7GB RAM.
+### 3.2 Centrality Computation
+- **Algorithms**: Degree, Betweenness, Eigenvector centrality using `networkx` on the GCC.
+- **Feasibility**: These algorithms are CPU-tractable for networks ≤ 25k nodes (FR-004).
+- **Edge Cases**: If the GCC is too small (< 500 nodes), the organism is skipped with a "Low Power" warning.
 
-## Risks & Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| API Rate Limiting | High (No data) | Exponential backoff in `data_loader.py`. |
-| Network too large | Critical (Timeout) | Network sampling (k-sampling) for betweenness centrality. |
-| No verified phylogenetic tree | Medium (No PGLS) | Fallback to linear model with warning. |
-| Network too sparse at high threshold () | Low (NaNs) | Log sparsity, assign 0/NaN, continue. |
-| Runtime > 6 hours | Critical (CI Failure) | Limit organisms to a small number; sample large networks; sequential execution. |
+### 3.3 Correlation Analysis
+- **Metric**: Spearman's rank correlation (ρ) between centrality and binary essentiality.
+- **Justification**: Spearman correlation is equivalent to a rank-biserial correlation for binary outcomes, making it appropriate for testing the "centrality-lethality rule". A Mann-Whitney U test will also be run as a robustness check.
+- **Null Model 1 (Label Shuffling)**:
+    - **Method**: Shuffle **essentiality labels** (not centrality values) 1000 times (configurable via `config.py`).
+    - **Purpose**: To test if the observed correlation exceeds chance given the specific network structure.
+    - **SC-001 Link**: Calculate the proportion of rejections (p < 0.05) in the null distribution. The observed proportion of significant correlations across organisms must significantly exceed the upper percentile of this null distribution.
+- **Null Model 2 (Degree-Preserving Random Graphs)**:
+    - **Method**: Generate degree-preserving random graphs (rewiring edges while preserving degree distribution) for each organism.
+    - **Purpose**: To test if the observed correlation is significantly stronger than expected *given* the specific degree distribution of the network. This distinguishes the signal from the structural artifact of the degree distribution itself.
+    - **Interpretation**: If the observed correlation is not significantly higher than the null distribution from degree-preserving graphs, the "centrality-lethality" effect may be an artifact of the degree distribution.
+
+### 3.4 Comparative Analysis (Phylogenetic Meta-Analysis)
+- **Method**: Fisher's Z-transformation of correlation coefficients (ρ) followed by a **Phylogenetic Meta-Analysis**.
+- **Implementation**: Use `metafor` (via `rpy2` or `pymer4`) to model the Z-transformed correlations as the response variable.
+- **Phylogenetic Correction**: Construct a phylogenetic variance-covariance matrix (V) from the Open Tree of Life tree (ID `ot_1578`). The meta-regression will use this V matrix to account for phylogenetic non-independence.
+- **Correction**: Benjamini-Hochberg (FR-008) for multiple comparisons across metrics/thresholds.
+
+### 3.5 Sensitivity Analysis
+- **Parameters**: Confidence thresholds [500, 700, 900].
+- **Output**: Table of ρ values per threshold to assess stability (SC-002).
+
+### 3.6 Independent Validation
+- **Method**: Train a simple logistic regression model on the training set (DEG) and test on the hold-out set (DepMap CRISPR data).
+- **Purpose**: To validate that the centrality-essentiality relationship holds on independent experimental data, addressing scientific soundness concerns about circularity.
+
+## 4. Statistical Rigor & Limitations
+- **Multiple Comparisons**: Benjamini-Hochberg correction applied to all p-values from cross-species comparisons (FR-008).
+- **Power Limitation**: Phylogenetic meta-analysis skipped if effective sample size (n) < 10 per organism (FR-009).
+- **Causal Framing**: Results framed as **associational** (observational study); no causal claims made (Assumptions).
+- **Collinearity**: Degree, betweenness, and eigenvector are correlated. Descriptive statistics will be reported, but independent effects will not be claimed without collinearity diagnostics (Assumptions).
+- **Measurement Validity**: DEG labels treated as ground truth; acknowledged potential for experimental noise.
+
+## 5. Compute Feasibility Strategy
+- **CPU-First**: All centrality and correlation calculations run on CPU using `networkx` and `scipy`.
+- **Memory Management**:
+    - Stream large PPI files if > 7 GB (unlikely for single organisms, but handled via chunking).
+    - Use sparse matrix representations where applicable.
+- **GPU Escape Hatch**: Not required. PGLS and centrality are not GPU-intensive. If a specific PGLS library required CUDA (unlikely), the plan would fall back to a simpler linear model with phylogenetic correction or a scaled-down CPU version.
+
+## 6. Decision Rationale
+- **Why NetworkX?** Standard, well-documented, CPU-optimized for graphs of this size.
+- **Why Phylogenetic Meta-Analysis?** Necessary to avoid pseudoreplication in cross-species comparative analysis and to properly model the phylogenetic covariance structure.
+- **Why Permutation Test?** Non-parametric validation of significance, robust to non-normal distributions of centrality.
+- **Why Degree-Preserving Null?** To distinguish the biological signal from the structural artifact of the degree distribution.

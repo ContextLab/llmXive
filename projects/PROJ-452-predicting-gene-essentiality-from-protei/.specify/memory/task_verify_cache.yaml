@@ -13,10 +13,3 @@ T063:
     so the contract test cannot be executed as specified. The implementer must provide
     a complete test that reads the JSON file and validates the required fields, and
     ensure the `results/mapping_coverage.json` file exists with appropriate content.
-T078:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` file (or its contents) was provided, and thus\
-    \ we cannot confirm that a \u201CTroubleshooting\u201D section listing the error\
-    \ codes, log messages from T073\u2011T076, and step\u2011by\u2011step resolution\
-    \ instructions has been added. The required documentation update is missing."

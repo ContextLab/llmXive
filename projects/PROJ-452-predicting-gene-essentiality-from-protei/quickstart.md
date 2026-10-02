@@ -1,197 +1,142 @@
 # Quickstart Guide: Predicting Gene Essentiality from Protein Interaction Network Topology
 
-This guide provides exact steps to reproduce the full analysis pipeline for predicting gene essentiality using protein-protein interaction (PPI) network topology.
-
-## Prerequisites
-
-- Python 3.11+
-- pip (Python package manager)
-- Access to the internet (for fetching data from STRING, DEG, and OpenTree APIs)
-- At least 14GB disk space and 7GB RAM (for full dataset processing)
+This guide provides the exact steps to set up the environment, fetch real data, run the analysis pipeline, and verify reproducibility.
 
 ## 1. Environment Setup
 
-### Clone and Install Dependencies
+### Prerequisites
+- Python 3.11+
+- pip (Python package manager)
+- Access to the internet (for data fetching)
 
+### Installation
 ```bash
-# Ensure you are in the project root directory
+# Clone the repository (if not already done)
+git clone <repo-url>
+cd PROJ-452-predicting-gene-essentiality-from-protei
+
+# Create a virtual environment
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
 
-# Install required packages
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Verify Installation
+## 2. Configuration
 
-```bash
-python -c "import networkx, pandas, scipy, statsmodels, requests, pyyaml, numpy, Bio; print('All dependencies installed successfully.')"
-```
+Ensure `code/config.py` contains the correct organism IDs and thresholds.
+The default configuration includes:
+- Organisms: Human (9606), S. cerevisiae (559292), E. coli (83333), Mouse (10090), D. melanogaster (7227)
+- Confidence Thresholds: 500, 700, 900
+- Random Seed: 42
 
-## 2. Project Structure Initialization
-
-Run the initialization script to create the required directory structure:
-
-```bash
-bash scripts/init_project_structure.sh
-```
-
-This creates:
-- `code/` - Source code
-- `data/raw/` - Raw downloaded data
-- `data/processed/` - Processed data
-- `data/phylogeny/` - Phylogenetic tree data
-- `results/` - Analysis outputs
-- `tests/` - Test suites
+You can modify `code/config.py` or the associated YAML config file if needed.
 
 ## 3. Data Fetching
 
-The pipeline automatically fetches real data from external sources. No manual download is required.
+The pipeline automatically fetches data from the following real sources during execution:
+- **STRING API**: Protein-Protein Interaction (PPI) networks.
+- **DEG Database**: Gene essentiality labels (via FTP/API).
+- **OpenTree of Life**: Phylogenetic tree for comparative analysis.
+- **Ensembl BioMart**: Gene ID mapping.
 
-### Phylogenetic Tree (Hard Prerequisite)
-
-The phylogenetic tree is fetched from OpenTree of Life. This step MUST succeed before any analysis can proceed.
-
-```bash
-python code/fetch_phylogeny.py
-```
-
-**Output**: `data/phylogeny/tree.newick`
-
-**Failure Condition**: If this script fails, the entire pipeline will abort. Do not proceed until this file exists.
-
-### PPI Networks and Essentiality Labels
-
-The main pipeline script will automatically fetch:
-- PPI networks from STRING API (confidence ≥ 700)
-- Essentiality labels from DEG database
+No manual download is required. The pipeline will fetch data on first run.
 
 ## 4. Pipeline Execution
 
-### Full Analysis Run
-
-Execute the complete pipeline for all model organisms:
-
+Run the full analysis pipeline:
 ```bash
 python code/main.py
 ```
 
-This will:
-1. Fetch PPI networks for each organism
-2. Fetch essentiality labels
-3. Map gene identifiers
-4. Compute centrality metrics (degree, betweenness, eigenvector)
-5. Calculate Spearman correlations
-6. Run null models (label permutation and graph rewiring)
-7. Perform PGLS statistical testing
-8. Generate sensitivity analysis report
-
-### Organism-Specific Run
-
-To run analysis for a single organism:
-
+To run a dry-run (data fetching and mapping only, no analysis):
 ```bash
-python code/main.py --organism saccharomyces_cerevisiae --threshold 700
+python code/main.py --dry-run
 ```
 
-### Sensitivity Analysis
-
-Run sensitivity analysis across confidence thresholds:
-
+To run with a specific organism (optional, for debugging):
 ```bash
-python code/main.py --sensitivity
+python code/main.py --organism 559292
 ```
 
-## 5. Output Files
+### Expected Outputs
+After successful execution, the following files will be generated in the `results/` directory:
+- `results/correlations.json`: Spearman correlations and p-values.
+- `results/pgls_results.json`: Phylogenetic Generalized Least Squares results.
+- `results/sensitivity_report.md`: Sensitivity analysis report.
+- `results/sensitivity_summary.json`: Summary of sensitivity analysis.
+- `results/mapping_coverage.json`: ID mapping statistics.
+- `results/topology_validation.json`: Scale-free topology validation.
+- `state/projects/PROJ-452-...yaml`: Hash state for reproducibility.
 
-After successful execution, the following files will be generated:
+## 5. Reproducibility Verification
 
-- `results/correlations.json` - Spearman correlations and empirical p-values for each organism
-- `results/pgls_results.json` - Phylogenetic Generalized Least Squares results with Benjamini-Hochberg corrected p-values
-- `results/sensitivity_report.md` - Markdown report of stability analysis across thresholds
-- `results/null_distribution/{organism}/threshold_<value>/` - Null model results (label permutation and graph rewiring)
-
-## 6. Reproducibility Verification
-
-### Hash Verification
-
-Verify data integrity using the hash checker:
-
+To verify reproducibility, run the pipeline again and compare the output hashes:
 ```bash
 python code/hash_checker.py
 ```
 
-This updates `state/hashes.yaml` with SHA256 checksums of all data and result files.
+The `state/` directory will be updated with the SHA256 hashes of all generated files. Compare these hashes with previous runs to ensure consistency.
 
-### Contract Tests
+## 6. Troubleshooting
 
-Validate output schemas:
+If you encounter errors during execution, refer to the sections below.
 
-```bash
-pytest tests/contract/ -v
-```
+### Data Fetching Errors (T073, T074, T075)
 
-### Integration Tests
+**Error Code: `DataFetchError`**
+- **Log Message**: "Failed to fetch data for organism {organism_id}: {error_code}"
+- **Cause**: The primary data source (STRING API, DEG FTP, Ensembl BioMart) is unreachable or returned an error.
+- **Resolution Steps**:
+ 1. Check your internet connection.
+ 2. Verify the organism ID in `code/config.py` is correct.
+ 3. Check the status of the external APIs (STRING, DEG, Ensembl).
+ 4. If the error persists, the pipeline will skip the affected organism and log a warning. No synthetic data is used.
 
-Run integration tests with mock data:
+**Error Code: `IDMappingError`**
+- **Log Message**: "ID mapping failed for organism {organism_id}: {error_message}"
+- **Cause**: Ensembl BioMart failed to map gene IDs, and the fallback strategy (Gene Symbol) also failed.
+- **Resolution Steps**:
+ 1. Ensure the Ensembl BioMart endpoint is accessible.
+ 2. Check if the organism has a valid Ensembl database.
+ 3. If mapping coverage is low (<10%), the fallback strategy will be attempted. If this also fails, the organism is skipped.
 
-```bash
-pytest tests/integration/ -v
-```
+### Network Analysis Errors (T070)
 
-## 7. Troubleshooting
+**Error Code: `NetworkAnalysisError`**
+- **Log Message**: "Network too sparse for organism {organism_id} at threshold {threshold}"
+- **Cause**: The confidence threshold is too high, resulting in a network with <500 edges.
+- **Resolution Steps**:
+ 1. Lower the confidence threshold in `code/config.py`.
+ 2. The pipeline will set centrality metrics to NaN/0 for this organism/threshold combination and record the reason in the output JSON.
 
-### API Rate Limiting
+### PGLS Analysis Errors (T076)
 
-If you encounter rate limiting errors:
-- Add a small delay between requests (handled automatically by `exponential_backoff` in `utils.py`)
-- Consider running analysis for fewer organisms simultaneously
+**Error Code: `PGLSModelError`**
+- **Log Message**: "PGLS model failed to converge for {organism_list}"
+- **Cause**: The phylogenetic tree or correlation data is insufficient for the PGLS model (e.g., small sample size, singular matrix).
+- **Resolution Steps**:
+ 1. Verify that the phylogenetic tree (`data/phylogeny/tree.newick`) exists and contains the correct number of tips.
+ 2. Check if the effective sample size (number of organisms with valid data) is >= 10.
+ 3. If the model fails to converge, the result will be omitted from the output JSON, and a warning will be logged.
 
-### Memory Issues
+### General Errors
 
-For large networks (>5,000 nodes):
-- The pipeline automatically uses k-sampling for betweenness centrality
-- Ensure you have at least 7GB RAM available
+**Error Code: `ConfigError`**
+- **Log Message**: "Configuration error: {error_message}"
+- **Cause**: Invalid configuration in `code/config.py` or YAML files.
+- **Resolution Steps**:
+ 1. Check the syntax of `code/config.py` and any associated YAML files.
+ 2. Ensure all required fields are present and valid.
 
-### Missing Data
+**Error Code: `FileNotFoundError`**
+- **Log Message**: "File not found: {file_path}"
+- **Cause**: A required file (e.g., phylogenetic tree, config) is missing.
+- **Resolution Steps**:
+ 1. Run the data fetching step again to ensure all necessary files are downloaded.
+ 2. Verify the file paths in `code/config.py`.
 
-If the phylogenetic tree cannot be fetched:
-- Verify internet connectivity
-- Check OpenTree API status
-- The pipeline will fail immediately (no fallback to synthetic data)
+## 7. Support
 
-## 8. Configuration
-
-Modify `config.yaml` to adjust:
-- Organism IDs
-- Confidence thresholds
-- File paths
-- Logging levels
-
-Example configuration:
-```yaml
-organisms:
- - saccharomyces_cerevisiae
- - homo_sapiens
- - mus_musculus
-confidence_thresholds:
- - 500
- - 700
- - 900
-```
-
-## 9. Performance Notes
-
-- Expected runtime: < 6 hours on standard hardware
-- Betweenness centrality uses sampling for large networks
-- Parallel processing available for null model generation
-
-## 10. Support
-
-For issues or questions, refer to:
-- `research.md` for detailed methodology
-- `specs/` directory for feature specifications
-- `tests/` directory for test coverage
-
----
-*Last updated: Generated for project PROJ-452-predicting-gene-essentiality-from-protei*
+For further assistance, please refer to the `research.md` file for detailed information on data sources and the `specs/` directory for feature specifications.

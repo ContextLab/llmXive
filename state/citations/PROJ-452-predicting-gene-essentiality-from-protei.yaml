@@ -1,58 +1,3 @@
-- artifact_hash: 83b539cace947c2b29493aa78f9437d2ebe3bd647a0704b56e4d0b6b73493860
-  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'STRING: functional protein association networks'
-  kind: url
-  value: https://string-db.org/api/`
-  verification_status: verified
-  verified_against_url: https://string-db.org/api/
-  verified_at: '2026-07-02T21:54:53.191149Z'
-- artifact_hash: 83b539cace947c2b29493aa78f9437d2ebe3bd647a0704b56e4d0b6b73493860
-  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: http://www.deg.umd.edu/`
-  verification_status: unreachable
-  verified_against_url: http://www.deg.umd.edu/
-  verified_at: '2026-07-02T21:54:53.191149Z'
-- artifact_hash: e6ea68eaf3d50ce6929d436934840dd7ce9b35d8317bf700f0369a339745d488
-  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'STRING: functional protein association networks'
-  kind: url
-  value: https://string-db.org/`
-  verification_status: verified
-  verified_against_url: https://string-db.org/
-  verified_at: '2026-07-02T21:55:25.393547Z'
-- artifact_hash: e6ea68eaf3d50ce6929d436934840dd7ce9b35d8317bf700f0369a339745d488
-  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: http://www.deg.umd.edu/`
-  verification_status: unreachable
-  verified_against_url: http://www.deg.umd.edu/
-  verified_at: '2026-07-02T21:55:25.393547Z'
-- artifact_hash: e6ea68eaf3d50ce6929d436934840dd7ce9b35d8317bf700f0369a339745d488
-  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://api.opentree.org/`
-  verification_status: unreachable
-  verified_against_url: https://api.opentree.org/
-  verified_at: '2026-07-02T21:55:25.393547Z'
 - artifact_hash: 96b06640e36a0e590be1a6064505227d43ae521864b5941055770e87cbbd1b19
   artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
   cite_id: c-001
@@ -64,3 +9,47 @@
   verification_status: pending
   verified_against_url: https://string-db.org/
   verified_at: '2026-09-25T06:46:17.556099Z'
+- artifact_hash: faa894b617a1234673a00397d07091c42d3cfa20d37d45695ff9f1438659a608
+  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/docs/troubleshooting_guide.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'STRING: functional protein association networks'
+  kind: url
+  value: https://api.string-db.org/`
+  verification_status: pending
+  verified_against_url: https://api.string-db.org/
+  verified_at: '2026-10-02T15:10:37.298715Z'
+- artifact_hash: faa894b617a1234673a00397d07091c42d3cfa20d37d45695ff9f1438659a608
+  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/docs/troubleshooting_guide.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Service unavailable
+  kind: url
+  value: https://www.ensembl.org/biomart/martservice`
+  verification_status: pending
+  verified_against_url: https://jun2026.archive.ensembl.org/biomart/martservice
+  verified_at: '2026-10-02T15:10:37.298715Z'
+- artifact_hash: 88ddde30e10c1e340fceac476aade41c6a12006d2c8d4d311d7f95967523064a
+  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'STRING: functional protein association networks'
+  kind: url
+  value: https://string-db.org/api/`
+  verification_status: pending
+  verified_against_url: https://string-db.org/api/
+  verified_at: '2026-10-02T16:21:12.036498Z'
+- artifact_hash: 88ddde30e10c1e340fceac476aade41c6a12006d2c8d4d311d7f95967523064a
+  artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://string-db.org/api/1.0.0/networks/83333`
+  verification_status: mismatch
+  verified_against_url: https://string-db.org/api/1.0.0/networks/83333
+  verified_at: '2026-10-02T16:21:12.036498Z'
