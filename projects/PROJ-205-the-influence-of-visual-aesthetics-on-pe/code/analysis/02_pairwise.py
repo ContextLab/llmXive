@@ -1,189 +1,153 @@
-"""
-Pairwise comparisons script for User Story 2.
-Implements Bonferroni-corrected and FDR-corrected t-tests with effect sizes (Cohen's d)
-and confidence intervals via bootstrapping.
-"""
 import os
 import sys
 import json
 import argparse
 import warnings
 import numpy as np
-import pandas as pd
-from scipy import stats
 from pathlib import Path
+import pandas as pd
+import pingouin as pg
+from typing import Optional, Dict, Any
 
-# Ensure project root is in path
-def get_project_root():
-    """Get the project root directory."""
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
-    return project_root
+# Import seed enforcement from helpers
+from utils.helpers import set_reproducibility_seed, get_project_root
 
-sys.path.insert(0, str(get_project_root()))
+# Set seed at the very start of the script
+set_reproducibility_seed()
 
-def load_wide_data(input_path):
-    """
-    Load wide-format data from CSV.
-    Expected columns: participant_id, Professional_cred, Minimalist_cred, Low-Quality_cred, Neutral_cred,
-                      Professional_prof, Minimalist_prof, Low-Quality_prof, Neutral_prof
-    """
-    if not os.path.exists(input_path):
+def get_project_root() -> Path:
+    """Returns the project root directory."""
+    return Path(__file__).resolve().parent.parent
+
+def get_anova_results_path() -> Path:
+    """Returns the path to the ANOVA results JSON file."""
+    return get_project_root() / "data" / "processed" / "anova_results.json"
+
+def get_pairwise_results_path() -> Path:
+    """Returns the path to the pairwise results JSON file."""
+    return get_project_root() / "data" / "processed" / "pairwise_results.json"
+
+def get_cleaned_csv_path() -> Path:
+    """Returns the path to the cleaned CSV file."""
+    return get_project_root() / "data" / "processed" / "clean_data.csv"
+
+def load_wide_data(input_path: Optional[Path] = None) -> pd.DataFrame:
+    """Loads the wide-format data for pairwise tests."""
+    if input_path is None:
+        input_path = get_cleaned_csv_path()
+    
+    if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
+    
     df = pd.read_csv(input_path)
+    
+    # Pivot if needed
+    if 'stimulus_id' in df.columns:
+        df = df.pivot_table(
+            index='participant_id',
+            columns='stimulus_id',
+            values='rating_credibility',
+            aggfunc='mean'
+        ).reset_index()
+    
     return df
 
-def calculate_cohens_d(group1, group2):
-    """
-    Calculate Cohen's d for two related samples (paired).
-    d = (mean1 - mean2) / std_diff
-    """
-    mean_diff = np.mean(group1) - np.mean(group2)
-    std_diff = np.std(group1 - group2, ddof=1)
-    if std_diff == 0:
+def calculate_cohens_d(group1: pd.Series, group2: pd.Series) -> float:
+    """Calculates Cohen's d for two groups."""
+    mean_diff = group1.mean() - group2.mean()
+    pooled_std = np.sqrt((group1.std()**2 + group2.std()**2) / 2)
+    if pooled_std == 0:
         return 0.0
-    return mean_diff / std_diff
+    return float(mean_diff / pooled_std)
 
-def bootstrap_cohens_d(group1, group2, n_iterations=1000, seed=42):
-    """
-    Calculate Cohen's d with bootstrapped confidence intervals.
-    Resamples participants (rows) with replacement.
-    """
-    np.random.seed(seed)
-    n = len(group1)
-    bootstrap_dists = []
-
-    for _ in range(n_iterations):
-        # Resample indices with replacement
-        indices = np.random.choice(n, size=n, replace=True)
-        g1_boot = group1[indices]
-        g2_boot = group2[indices]
-        d_boot = calculate_cohens_d(g1_boot, g2_boot)
-        bootstrap_dists.append(d_boot)
-
-    bootstrap_dists = np.array(bootstrap_dists)
-    mean_d = np.mean(bootstrap_dists)
-    ci_lower = np.percentile(bootstrap_dists, 2.5)
-    ci_upper = np.percentile(bootstrap_dists, 97.5)
-
+def bootstrap_cohens_d(group1: pd.Series, group2: pd.Series, n_boot: int = 1000) -> Dict[str, float]:
+    """Calculates bootstrapped Cohen's d with confidence intervals."""
+    cohens_d_values = []
+    for _ in range(n_boot):
+        sample1 = group1.sample(n=len(group1), replace=True)
+        sample2 = group2.sample(n=len(group2), replace=True)
+        cohens_d_values.append(calculate_cohens_d(sample1, sample2))
+    
     return {
-        "cohen_d": mean_d,
-        "ci_lower": ci_lower,
-        "ci_upper": ci_upper,
-        "n_iterations": n_iterations
+        "mean": float(np.mean(cohens_d_values)),
+        "ci_lower": float(np.percentile(cohens_d_values, 2.5)),
+        "ci_upper": float(np.percentile(cohens_d_values, 97.5))
     }
 
-def apply_bonferroni(p_value, n_comparisons):
-    """Apply Bonferroni correction."""
-    corrected = p_value * n_comparisons
-    return min(corrected, 1.0)
+def apply_bonferroni(p_values: List[float]) -> List[float]:
+    """Applies Bonferroni correction to p-values."""
+    m = len(p_values)
+    return [min(p * m, 1.0) for p in p_values]
 
-def apply_fdr_bh(p_values):
-    """Apply Benjamini-Hochberg FDR correction."""
-    p_values = np.array(p_values)
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
+def apply_fdr_bh(p_values: List[float]) -> List[float]:
+    """Applies Benjamini-Hochberg FDR correction to p-values."""
+    from statsmodels.stats.multitest import multipletests
+    _, corrected_p, _, _ = multipletests(p_values, method='fdr_bh')
+    return corrected_p.tolist()
 
-    ranks = np.arange(1, n + 1)
-    fdr_corrected = (sorted_p * n) / ranks
-    fdr_corrected = np.minimum(fdr_corrected, 1.0)
-    fdr_corrected = np.maximum(np.cummin(fdr_corrected[::-1])[::-1], 0)
-
-    # Restore original order
-    result = np.empty(n)
-    result[sorted_indices] = fdr_corrected
-    return result
-
-def run_pairwise_tests_with_effects(df, correction_method="bonferroni"):
-    """
-    Run pairwise t-tests between conditions with effect sizes and CIs.
-    Conditions: Professional, Minimalist, Low-Quality, Neutral
-    Metrics: credibility, professionalism
-    """
-    conditions = ["Professional", "Minimalist", "Low-Quality", "Neutral"]
-    metrics = ["cred", "prof"]
-    comparisons = []
-
-    # Generate all unique pairs
-    pair_indices = []
-    for i in range(len(conditions)):
-        for j in range(i + 1, len(conditions)):
-            pair_indices.append((i, j))
-
-    n_comparisons = len(pair_indices)
-
-    for metric in metrics:
-        for idx_i, idx_j in pair_indices:
-            cond_i = conditions[idx_i]
-            cond_j = conditions[idx_j]
-
-            col_i = f"{cond_i}_{metric}"
-            col_j = f"{cond_j}_{metric}"
-
-            # Drop NaNs for this pair
-            valid_mask = df[[col_i, col_j]].notna().all(axis=1)
-            if valid_mask.sum() < 2:
-                continue
-
-            group_i = df.loc[valid_mask, col_i].values
-            group_j = df.loc[valid_mask, col_j].values
-
-            # Paired t-test
-            t_stat, p_val = stats.ttest_rel(group_i, group_j)
-
-            # Effect size
-            cohens_d_result = bootstrap_cohens_d(group_i, group_j, n_iterations=1000, seed=42)
-
-            # Corrections
-            bonf_p = apply_bonferroni(p_val, n_comparisons)
-            fdr_p = apply_fdr_bh([p_val])[0]
-
-            comparisons.append({
-                "metric": metric,
-                "condition_1": cond_i,
-                "condition_2": cond_j,
-                "t_statistic": float(t_stat),
-                "p_value_unadjusted": float(p_val),
-                "p_value_bonferroni": float(bonf_p),
-                "p_value_fdr": float(fdr_p),
-                "cohen_d": float(cohens_d_result["cohen_d"]),
-                "ci_lower": float(cohens_d_result["ci_lower"]),
-                "ci_upper": float(cohens_d_result["ci_upper"]),
-                "n_iterations": cohens_d_result["n_iterations"],
-                "n_participants": int(valid_mask.sum())
-            })
-
-    return comparisons
+def run_pairwise_tests_with_effects(df: pd.DataFrame) -> Dict[str, Any]:
+    """Runs pairwise t-tests with effect sizes."""
+    # Melt data for pairwise tests
+    df_long = df.melt(
+        id_vars=['participant_id'],
+        var_name='condition',
+        value_name='credibility'
+    )
+    
+    # Run pairwise t-tests with Bonferroni correction
+    pairwise_result = pg.pairwise_ttests(
+        data=df_long,
+        dv='credibility',
+        within='condition',
+        subject='participant_id',
+        padjust='bonf'
+    )
+    
+    pairwise_comparisons = []
+    for _, row in pairwise_result.iterrows():
+        cohen_d = float(row['cohen-d']) if pd.notna(row['cohen-d']) else 0.0
+        pairwise_comparisons.append({
+            "comparison": f"{row['A']}_vs_{row['B']}",
+            "p_value": float(row['p-corr']),
+            "cohen_d": cohen_d,
+            "significant": bool(row['sig'])
+        })
+    
+    return {
+        "pairwise_comparisons": pairwise_comparisons
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Run pairwise comparisons with bootstrapped effect sizes.")
-    parser.add_argument("--input", type=str, required=True, help="Path to wide-format CSV")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
-    parser.add_argument("--correction-method", type=str, choices=["bonferroni", "fdr"], default="bonferroni",
-                        help="Correction method for p-values")
+    """Main entry point for the pairwise tests script."""
+    parser = argparse.ArgumentParser(description='Run pairwise t-tests')
+    parser.add_argument('--input', type=str, help='Input CSV file path')
+    parser.add_argument('--output', type=str, help='Output JSON file path')
     args = parser.parse_args()
+    
+    input_path = Path(args.input) if args.input else get_cleaned_csv_path()
+    output_path = Path(args.output) if args.output else get_pairwise_results_path()
+    
+    try:
+        # Load data
+        print(f"Loading data from {input_path}...")
+        df = load_wide_data(input_path)
+        
+        # Run pairwise tests
+        results = run_pairwise_tests_with_effects(df)
+        
+        # Save results
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2)
+        
+        print(f"Pairwise results saved to {output_path}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
-    print(f"Loading data from {args.input}...")
-    df = load_wide_data(args.input)
-
-    print(f"Running pairwise tests with {args.correction_method} correction...")
-    results = run_pairwise_tests_with_effects(df, correction_method=args.correction_method)
-
-    output_data = {
-        "correction_method": args.correction_method,
-        "n_comparisons": len(results),
-        "pairwise_results": results
-    }
-
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-
-    print(f"Results saved to {args.output}")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

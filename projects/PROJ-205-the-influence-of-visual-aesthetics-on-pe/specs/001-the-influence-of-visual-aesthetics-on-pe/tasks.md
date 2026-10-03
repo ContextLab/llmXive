@@ -51,7 +51,7 @@ description: "Task list template for feature implementation"
 - [X] T001 Create project structure per `projects/PROJ-205-.../` in `plan.md`. Execute: `mkdir -p code/stimuli code/survey code/analysis code/utils data/raw data/processed tests/unit tests/integration tests/contract state/projects`
 - [X] T002 Initialize Python project with `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pyyaml, **pingouin**). **Note**: `pingouin` is required for effect size calculations in US2.
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting tools. Create `.ruff.toml` with rules E, W, F, I, N, D, UP, C90, B, C4, PT, RUF, SIM, TCH, TID, ARG, TCH, TID, ARG. Create `pyproject.toml` with `[tool.black]` and `[tool.isort]` sections.
-- [X] T063 [P] **Implement Reproducibility Seed Enforcement**. **Action**: Add a global seed setting function in `code/utils/helpers.py` that sets `numpy.random.seed`, `random.seed` at the very start of `code/analysis/00_preprocess.py`, `code/analysis/01_anova.py`, `code/analysis/02_pairwise.py`, and `code/analysis/03_mixed_effects.py`. **Requirement**: The seed value must be read from an environment variable `RANDOM_SEED` (default to 42). **Verification**: Add a unit test in `tests/unit/test_seeds.py` that runs a small analysis pipeline twice with the same seed and asserts the output checksums are identical. **Note**: Removed `torch.manual_seed` to align with CPU-only stack.
+- [ ] T063 [P] **Implement Reproducibility Seed Enforcement**. **Action**: Add a global seed setting function in `code/utils/helpers.py` that sets `numpy.random.seed`, `random.seed` at the very start of `code/analysis/00_preprocess.py`, `code/analysis/01_anova.py`, `code/analysis/02_pairwise.py`, and `code/analysis/03_mixed_effects.py`. **Requirement**: The seed value must be read from an environment variable `RANDOM_SEED` (default to 42). **Verification**: Add a unit test in `tests/unit/test_seeds.py` that runs a small analysis pipeline twice with the same seed and asserts the output checksums are identical. **Note**: Removed `torch.manual_seed` to align with CPU-only stack.
 
 ---
 
@@ -70,22 +70,22 @@ description: "Task list template for feature implementation"
 - [X] T010 [P] Create `code/utils/helpers.py` for CSV export formatting, ID generation, and IP hashing (`hash_ip` function). **Requirement**: The IP hashing MUST use **PBKDF2** with **SHA-256** and a **minimum of 100,000 iterations** to satisfy the "IP hashing mandatory" security constraint. The salt for `hash_ip` MUST be loaded from the environment variable `IP_HASH_SALT`. The task must also create a `.env.example` file in the root with `IP_HASH_SALT=your_secure_salt_here` and a comment instructing the user to set this variable. The code must fail loudly if `IP_HASH_SALT` is not set.
 - [X] T011e_new [P] **IRB File Requirement**. **Action**: Ensure `data/consent/irb_approved.txt` exists prior to execution. This file must be provided by the researcher and contains the approved IRB text. The code in T012 will read this file. **Note**: This is a prerequisite check, not a manual insertion task. **Implementation**: Create a script or validation step that checks for the file's existence and raises an error if missing, ensuring T012 has a concrete producer.
 - [X] T011g [P] **IRB Protocol Registry Setup**. **Action**: Create `data/consent/protocol_registry.json` as a researcher-maintained list of approved IRB Protocol IDs. **Content**: A JSON list of valid protocol IDs (e.g., `["IRB-2024-001", "IRB-2024-002"]`). **Requirement**: This file serves as the source of truth for valid protocols. **Verification**: Unit test asserts the file exists and is valid JSON.
-- [X] T011f [P] **IRB Content Validation**. **Action**: Create `code/utils/irb_validator.py`. **Logic**: 
-  1. Read `data/consent/irb_approved.txt`.
-  2. Extract the `IRB_PROTOCOL_ID` string from the content.
-  3. **Validate**: Check if the extracted ID exists in `data/consent/protocol_registry.json`.
-  4. **Requirement**: If the ID is missing or not in the registry, raise a fatal error. This ensures the file contains valid approved protocol text, not just an empty file or a placeholder ID.
-  5. **Verification**: Unit test in `tests/unit/test_irb_validator.py` asserts that valid content (ID in registry) passes and invalid content (ID missing or not in registry) fails.
-- [X] T057 [P] **Implement Data Integrity Checksums**. **Action**: Create `code/utils/checksums.py`. **Logic**: Compute a cryptographic checksum of the `data/raw/submissions.csv` file. **Trigger**: Execute `code/utils/checksums.py` immediately after any write operation in `code/survey/app.py` that appends to `data/raw/submissions.csv`. **Verification**: Add a check in `code/analysis/00_preprocess.py` to verify the checksum of the input file before processing. If the checksum mismatches, raise a fatal error.
+- [X] T011f [P] **IRB Content Validation**. **Action**: Create `code/utils/irb_validator.py`. **Logic**:
+ 1. Read `data/consent/irb_approved.txt`.
+ 2. Extract the `IRB_PROTOCOL_ID` string from the content.
+ 3. **Validate**: Check if the extracted ID exists in `data/consent/protocol_registry.json`.
+ 4. **Requirement**: If the ID is missing or not in the registry, raise a fatal error. This ensures the file contains valid approved protocol text, not just an empty file or a placeholder ID.
+ 5. **Verification**: Unit test in `tests/unit/test_irb_validator.py` asserts that valid content (ID in registry) passes and invalid content (ID missing or not in registry) fails.
+- [ ] T057 [P] **Implement Data Integrity Checksums**. **Action**: Create `code/utils/checksums.py`. **Logic**: Compute a cryptographic checksum of the `data/raw/submissions.csv` file. **Trigger**: Execute `code/utils/checksums.py` immediately after any write operation in `code/survey/app.py` that appends to `data/raw/submissions.csv`. **Verification**: Add a check in `code/analysis/00_preprocess.py` to verify the checksum of the input file before processing. If the checksum mismatches, raise a fatal error.
 - [X] T070 [US0/1] **Implement Stimulus Content Hashing**. **Action**: Create `code/utils/stimuli_hash.py`. **Logic**: Compute SHA-256 hashes for all HTML files in `code/stimuli/` upon project initialization or before survey launch. Store hashes in `state/stimuli_hashes.json`. **Requirement**: This is a **mandatory** blocking task for data collection. If hashes change, the survey MUST halt. **Verification**: Add a unit test in `tests/unit/test_stimuli_integrity.py` that asserts if a stimulus file is modified, the hash changes and a warning is raised during the next survey run. **Rationale**: Ensures stimulus consistency and prevents silent drift in experimental conditions, addressing Constitution Principle VII (Stimulus Standardization).
 - [X] T073 [P] **Add Comprehensive Error Logging**. **Action**: Configure Python `logging` module in `code/utils/helpers.py` to write all errors, warnings, and critical events to `logs/survey_error.log`. **Logic**: Ensure log rotation is enabled with a maximum file size limit and a defined number of backup files. **Verification**: Unit test asserts that a simulated error is correctly captured in the log file. **Rationale**: Facilitates debugging and operational monitoring without exposing sensitive data in console outputs.
-- [X] T072 [P] **Implement Automated Data Backup**. **Action**: Create `code/utils/backup.py`. **Logic**: Triggered after every successful write to `data/raw/submissions.csv`, copy the file to `data/backups/` with a timestamped filename (e.g., `submissions_20240115_120000.csv`). **Verification**: Unit test asserts backup file creation and content match. **Rationale**: Provides an immutable audit trail and protects against accidental data loss, reinforcing Constitution Principle III.
-- [X] T024a [US2] **Create Preprocess Script**. **Action**: Create `code/analysis/00_preprocess.py`. **Dependency**: This script must call the checksum verification logic from T057 before processing `data/raw/submissions.csv`. **Logic**: 
-  1. Load `data/raw/submissions.csv`.
-  2. Verify checksum against `data/raw/.checksums.json`.
-  3. **Transform**: Cast `age` to integer, `education` to string, `ratings` to float. Drop rows with missing `participant_id` or `stimulus_id`. Rename columns to snake_case if needed.
-  4. Output: `data/processed/clean_data.csv`.
-  5. **Verification**: Unit test in `tests/unit/test_preprocess.py` asserts that valid input produces clean output and invalid checksums raise `FileChecksumError`.
+- [ ] T072 [P] **Implement Automated Data Backup**. **Action**: Create `code/utils/backup.py`. **Logic**: Triggered after every successful write to `data/raw/submissions.csv`, copy the file to `data/backups/` with a timestamped filename (e.g., `submissions_20240115_120000.csv`). **Verification**: Unit test asserts backup file creation and content match. **Rationale**: Provides an immutable audit trail and protects against accidental data loss, reinforcing Constitution Principle III.
+- [ ] T024a [US2] **Create Preprocess Script**. **Action**: Create `code/analysis/00_preprocess.py`. **Dependency**: This script must call the checksum verification logic from T057 before processing `data/raw/submissions.csv`. **Logic**:
+ 1. Load `data/raw/submissions.csv`.
+ 2. Verify checksum against `data/raw/.checksums.json`.
+ 3. **Transform**: Cast `age` to integer, `education` to string, `ratings` to float. Drop rows with missing `participant_id` or `stimulus_id`. Rename columns to snake_case if needed.
+ 4. Output: `data/processed/clean_data.csv`.
+ 5. **Verification**: Unit test in `tests/unit/test_preprocess.py` asserts that valid input produces clean output and invalid checksums raise `FileChecksumError`.
 - [X] T024b [P] **Implement Dependency Order Verification**. **Action**: Create `code/analysis/00_verify_dependencies.py`. **Logic**: Before running `01_anova.py`, this script must verify that `00_preprocess.py` has successfully generated `data/processed/clean_data.csv` and that the file checksum matches the one recorded in `data/raw/submissions.csv`. **Requirement**: If dependencies are missing or stale, the script must raise an error and prevent the ANOVA from running. **Note**: Moved from Phase 8 to Phase 2 to resolve logical paradox. This task acts as a gate for Phase 5 (Analysis) execution.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -106,11 +106,11 @@ description: "Task list template for feature implementation"
 - [X] T015 [US0] Implement redirect logic to withdrawal page on "I Do Not Agree". Create `code/survey/withdrawal.py` with a simple "Thank you for your time" message. Add `st.switch_page("withdrawal.py")` in the "I Do Not Agree" handler.
 - [X] T022a [US1] Implement session initialization in `code/survey/app.py`: Generate a unique `participant_id` (UUID v4) at the start of the session and store it in `st.session_state`. **This ID must persist for the entire session and be written to every row of the CSV.**
 - [X] T022b [US1] Implement IP extraction, hashing, and session rejection logic in `code/survey/app.py`: Extract IP using `st.context.headers.get('X-Forwarded-For')`. If missing in production, display error "Session Rejected: Unable to verify identity." and call `st.stop()`. Hash the IP with `helpers.hash_ip()` immediately after extraction.
-- [X] T069 [US1] **Define and Implement Metadata Schema**. **Action**: Create `code/survey/constants.py` with a `METADATA_SCHEMA` constant defining all required fields beyond Age/Education. **Fields**: `browser_version` (extracted from user_agent), `session_duration` (calculated from start/end timestamps). **Output**: This schema defines the columns for `data/raw/submissions.csv`. **Verification**: Unit test in `tests/unit/test_schema.py` asserts that exported CSV headers match this schema. **Note**: Resolves ambiguity of "metadata" in US1.
+- [ ] T069 [US1] **Define and Implement Metadata Schema**. **Action**: Create `code/survey/constants.py` with a `METADATA_SCHEMA` constant defining all required fields beyond Age/Education. **Fields**: `browser_version` (extracted from user_agent), `session_duration` (calculated from start/end timestamps). **Output**: This schema defines the columns for `data/raw/submissions.csv`. **Verification**: Unit test in `tests/unit/test_schema.py` asserts that exported CSV headers match this schema. **Note**: Resolves ambiguity of "metadata" in US1.
 - [X] T022d [US1] **Render Form**. **Action**: Render the demographic input form in `code/survey/app.py` using the schema defined in T069. **Explicit Fields**: The form MUST include input fields for **Age** (numeric) and **Education** (categorical) as required by US1. **Verification**: Unit test asserts fields are present.
-- [X] T022f [US1] **Capture and Export Data**. **Action**: On form submission, append a row to `data/raw/submissions.csv` with columns defined in `METADATA_SCHEMA` from T069. **Schema**: `participant_id` (UUID), `age` (int), `education` (str), `timestamp` (ISO8601), `hashed_ip` (str), `browser_version` (str), `session_duration` (int). **Robustness**: Use atomic writes (write to a temporary file `data/raw/submissions.csv.tmp`, then `os.rename` to `data/raw/submissions.csv`). **Verification**: Unit test asserts atomic write success and schema compliance.
+- [ ] T022f [US1] **Capture and Export Data**. **Action**: On form submission, append a row to `data/raw/submissions.csv` with columns defined in `METADATA_SCHEMA` from T069. **Schema**: `participant_id` (UUID), `age` (int), `education` (str), `timestamp` (ISO8601), `hashed_ip` (str), `browser_version` (str), `session_duration` (int). **Robustness**: Use atomic writes (write to a temporary file `data/raw/submissions.csv.tmp`, then `os.rename` to `data/raw/submissions.csv`). **Verification**: Unit test asserts atomic write success and schema compliance.
 - [X] T022g_test [US1] Verify CSV schema. **Action**: Create `tests/unit/test_csv_schema.py` with function `test_csv_columns_match_spec` to verify the exported CSV headers match the spec.
-- [X] T022h [US1] **Implement Post-Hoc Duplicate Detection**. **Action**: Create `code/utils/dedup.py`. **Logic**: Read `data/raw/submissions.csv` after T022f writes it. Identify duplicate `participant_id` entries. **Output**: Generate `data/processed/dedup_report.csv` listing removed duplicates. **Verification**: Add a unit test in `tests/unit/test_dedup.py` that simulates duplicate entries and asserts that N duplicates are removed and the report is generated.
+- [ ] T022h [US1] **Implement Post-Hoc Duplicate Detection**. **Action**: Create `code/utils/dedup.py`. **Logic**: Read `data/raw/submissions.csv` after T022f writes it. Identify duplicate `participant_id` entries. **Output**: Generate `data/processed/dedup_report.csv` listing removed duplicates. **Verification**: Add a unit test in `tests/unit/test_dedup.py` that simulates duplicate entries and asserts that N duplicates are removed and the report is generated.
 - [X] T028e [US1] **Define and Implement Latin Square Sequences**. **Action**: Create `code/survey/constants.py` with the `LATIN_SQUARE_SEQUENCES` constant. **Content**: `[['professional', 'minimalist', 'low_quality', 'neutral'], ['minimalist', 'neutral', 'professional', 'low_quality'], ['low_quality', 'professional', 'neutral', 'minimalist'], ['neutral', 'low_quality', 'minimalist', 'professional']]`. **Verification**: Unit test asserts this list forms a valid Latin Square.
 - [X] T016a [US1] Verify Latin Square validity: Add a unit test in `tests/unit/test_randomization.py` that mathematically verifies the hardcoded sequences form a balanced Latin Square.
 - [X] T016b [US1] **Implement Balanced Latin Square Selection Logic**. **Action**: Create `code/survey/randomization.py` with function `generate_latin_square(stimuli_list)`. **Logic**: Select a sequence based on participant ID modulo N. **Verification**: Unit test asserts every stimulus appears exactly once per position across all sequences.
@@ -132,21 +132,21 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [X] T025a [US2] **Create ANOVA Script**. **Action**: Create `code/analysis/01_anova.py`. **Input**: `data/processed/clean_data.csv`. **Logic**: 
-  1. Load data.
-  2. Run Repeated-Measures ANOVA using `pingouin.rm_anova` with formula: `Credibility ~ Condition + Error(Participant/Condition)`.
-  3. Calculate **Effect Sizes**: Compute `eta_squared` (partial) and **`cohen_d` for the main effect** using `pingouin.compute_effsize`. **Note**: This task MUST output the aggregate main effect Cohen's d regardless of pairwise execution.
-  4. **Output**: Save results to `data/processed/anova_results.json` with keys: `f_statistic`, `p_value`, `eta_squared`, `cohen_d_main`, `degrees_of_freedom`.
-  5. **Verification**: Unit test asserts JSON schema validity and presence of `cohen_d_main`.
-- [X] T025b [US2] **Execute ANOVA Script**. **Action**: Run `code/analysis/01_anova.py` on sample data. **Verification**: Unit test `tests/unit/test_anova_execution.py` asserts the script runs without error and produces a non-empty JSON file. **Note**: This is an automated pipeline step, not a manual one-off.
-- [X] T026_integrated [US2] **Implement Conditional Pairwise T-Tests**. **Action**: Create `code/analysis/02_pairwise.py`. **Dependency**: Requires `data/processed/anova_results.json` from T025b. **Logic**: 
-  1. Load ANOVA results.
-  2. If `p_value < 0.05`, run Bonferroni-corrected pairwise t-tests using `pingouin.pairwise_ttests`.
-  3. Calculate `cohen_d` for each pair.
-  4. **Output**: Append `pairwise_comparisons` array (with `comparison`, `p_value`, `cohen_d`, `significant`) to `data/processed/anova_results.json`.
-  5. **Verification**: Unit test asserts pairwise results are present if ANOVA is significant.
+- [ ] T025a [US2] **Create ANOVA Script**. **Action**: Create `code/analysis/01_anova.py`. **Input**: `data/processed/clean_data.csv`. **Logic**:
+ 1. Load data.
+ 2. Run Repeated-Measures ANOVA using `pingouin.rm_anova` with formula: `Credibility ~ Condition + Error(Participant/Condition)`.
+ 3. Calculate **Effect Sizes**: Compute `eta_squared` (partial) and **`cohen_d` for the main effect** using `pingouin.compute_effsize`. **Note**: This task MUST output the aggregate main effect Cohen's d regardless of pairwise execution.
+ 4. **Output**: Save results to `data/processed/anova_results.json` with keys: `f_statistic`, `p_value`, `eta_squared`, `cohen_d_main`, `degrees_of_freedom`.
+ 5. **Verification**: Unit test asserts JSON schema validity and presence of `cohen_d_main`.
+- [ ] T025b [US2] **Execute ANOVA Script**. **Action**: Run `code/analysis/01_anova.py` on sample data. **Verification**: Unit test `tests/unit/test_anova_execution.py` asserts the script runs without error and produces a non-empty JSON file. **Note**: This is an automated pipeline step, not a manual one-off.
+- [ ] T026_integrated [US2] **Implement Conditional Pairwise T-Tests**. **Action**: Create `code/analysis/02_pairwise.py`. **Dependency**: Requires `data/processed/anova_results.json` from T025b. **Logic**:
+ 1. Load ANOVA results.
+ 2. If `p_value < 0.05`, run Bonferroni-corrected pairwise t-tests using `pingouin.pairwise_ttests`.
+ 3. Calculate `cohen_d` for each pair.
+ 4. **Output**: Append `pairwise_comparisons` array (with `comparison`, `p_value`, `cohen_d`, `significant`) to `data/processed/anova_results.json`.
+ 5. **Verification**: Unit test asserts pairwise results are present if ANOVA is significant.
 - [X] T026_verify [US2] **Verify Statistical Output**. **Action**: Create `tests/unit/test_anova_output.py` with assertions for JSON schema validity, presence of `eta_squared`, `cohen_d_main`, and the `pairwise_comparisons` array (if applicable).
-- [X] T027a_b [US2] **Create Report Script**. **Action**: Create `code/analysis/02_report.py`. **Input**: `data/processed/anova_results.json`. **Output**: Generate `data/processed/summary_table.csv`. **Verification**: Unit test asserts CSV contains expected columns.
+- [ ] T027a_b [US2] **Create Report Script**. **Action**: Create `code/analysis/02_report.py`. **Input**: `data/processed/anova_results.json`. **Output**: Generate `data/processed/summary_table.csv`. **Verification**: Unit test asserts CSV contains expected columns.
 
 **Checkpoint**: Preprocessing scripts ready; data analysis blocked until T024a completes.
 
@@ -160,14 +160,14 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [X] T032a [US3] **Create Mixed-Effects Model**. **Action**: Create `code/analysis/03_mixed_effects.py`. **Logic**: Implement `run_mixed_effects()` function. **Formula**: `Credibility ~ Condition + Age + Education + (1|Participant)`. **Output**: Save results to `data/processed/mixed_effects_results.json` with keys: `condition_coefficient`, `condition_p_value`, `age_coefficient`, `education_coefficient`, `convergence_status`. **Verification**: Unit test asserts convergence and presence of covariate coefficients.
+- [ ] T032a [US3] **Create Mixed-Effects Model**. **Action**: Create `code/analysis/03_mixed_effects.py`. **Logic**: Implement `run_mixed_effects()` function. **Formula**: `Credibility ~ Condition + Age + Education + (1|Participant)`. **Output**: Save results to `data/processed/mixed_effects_results.json` with keys: `condition_coefficient`, `condition_p_value`, `age_coefficient`, `education_coefficient`, `convergence_status`. **Verification**: Unit test asserts convergence and presence of covariate coefficients.
 - [X] T032b [US3] **Verify Mixed-Effects Output**. **Action**: Create `tests/unit/test_mixed_effects_output.py` with assertions for JSON schema validity and specific statistical fields.
-- [X] T035 [US3] **Implement Comparison Logic**. **Action**: Create `code/analysis/04_compare.py`. **Dependency**: Requires `data/processed/anova_results.json` from T025a and `data/processed/mixed_effects_results.json` from T032a. **Logic**: 
-  1. Extract `condition_coefficient` and `condition_p_value` from Mixed-Effects results.
-  2. Extract `f_statistic` and `p_value` from ANOVA results.
-  3. **Compare**: Check if the sign of `condition_coefficient` matches the direction of the ANOVA effect. Check if `condition_p_value` is significant (p < 0.05) consistent with ANOVA.
-  4. **Output**: Save comparison report to `data/processed/mixed_effects_comparison.json` with keys: `sign_consistent`, `significance_aligned`, `robustness_conclusion`.
-  5. **Verification**: Unit test asserts comparison report contains both ANOVA and Mixed-Effects stats and the comparison logic.
+- [ ] T035 [US3] **Implement Comparison Logic**. **Action**: Create `code/analysis/04_compare.py`. **Dependency**: Requires `data/processed/anova_results.json` from T025a and `data/processed/mixed_effects_results.json` from T032a. **Logic**:
+ 1. Extract `condition_coefficient` and `condition_p_value` from Mixed-Effects results.
+ 2. Extract `f_statistic` and `p_value` from ANOVA results.
+ 3. **Compare**: Check if the sign of `condition_coefficient` matches the direction of the ANOVA effect. Check if `condition_p_value` is significant (p < 0.05) consistent with ANOVA.
+ 4. **Output**: Save comparison report to `data/processed/mixed_effects_comparison.json` with keys: `sign_consistent`, `significance_aligned`, `robustness_conclusion`.
+ 5. **Verification**: Unit test asserts comparison report contains both ANOVA and Mixed-Effects stats and the comparison logic.
 
 **Checkpoint**: Robustness checks are complete; findings are validated against demographics.
 
@@ -179,7 +179,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for Post-Collection
 
-- [X] T064 [US2] **Implement Post-Collection Power Analysis**. **Action**: Create `code/analysis/04_power_analysis.py`. **Logic**: After data collection, calculate statistical power based on the **actual sample size (N)** from `data/raw/submissions.csv` and a default moderate effect size (Cohen's d). **Output**: Save report to `data/processed/power_analysis_report.json`. **Constraint**: If power < 0.80, print warning but do not halt. **Note**: Diagnostic only. Must run after Phase 4.
+- [ ] T064 [US2] **Implement Post-Collection Power Analysis**. **Action**: Create `code/analysis/04_power_analysis.py`. **Logic**: After data collection, calculate statistical power based on the **actual sample size (N)** from `data/raw/submissions.csv` and a default moderate effect size (Cohen's d). **Output**: Save report to `data/processed/power_analysis_report.json`. **Constraint**: If power < 0.80, print warning but do not halt. **Note**: Diagnostic only. Must run after Phase 4.
 - [X] T074 [US1] **Validate Randomization Balance Post-Collection**. **Action**: Create `code/analysis/05_validate_randomization.py`. **Logic**: After data collection, verify that the distribution of stimuli orders matches the expected Latin Square proportions. **Output**: Save report to `data/processed/randomization_balance_report.json`. **Verification**: Unit test asserts that the report correctly identifies significant deviations from the expected distribution. **Rationale**: Ensures the experimental design was executed correctly and validates the internal validity of the study.
 
 ---
@@ -212,7 +212,7 @@ description: "Task list template for feature implementation"
 - **T066 (Sample Size Declaration for Streaming)**: **REMOVED**. This task assumed a streaming/sampling architecture not present in the spec. Removed to prevent "silent constitution drift".
 
 **Remaining Review Tasks**:
-- [X] T062_new [US0] **Implement Withdrawal Logging**. **Action**: Create `code/survey/withdrawal_handler.py`. **Logic**: When a participant withdraws, log their `participant_id` and `timestamp` to `data/processed/withdrawal_log.csv`. **Constraint**: Do NOT modify `data/raw/submissions.csv`. This creates a new versioned artifact for audit purposes, satisfying Constitution Principle III.
+- [ ] T062_new [US0] **Implement Withdrawal Logging**. **Action**: Create `code/survey/withdrawal_handler.py`. **Logic**: When a participant withdraws, log their `participant_id` and `timestamp` to `data/processed/withdrawal_log.csv`. **Constraint**: Do NOT modify `data/raw/submissions.csv`. This creates a new versioned artifact for audit purposes, satisfying Constitution Principle III.
 
 **Checkpoint**: All prior research-stage review concerns have been addressed and verified.
 

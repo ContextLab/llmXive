@@ -1,8 +1,8 @@
 """
 Data Integrity Checksums Module.
 
-Provides functionality to compute, store, and verify SHA-256 checksums for data files
-to ensure data integrity throughout the research pipeline.
+This module provides functions to compute, store, and verify cryptographic
+checksums for data files to ensure integrity throughout the research pipeline.
 """
 
 import os
@@ -11,9 +11,12 @@ import json
 from pathlib import Path
 from typing import Optional, Tuple
 
-# Import existing helpers from utils.helpers
-# These are defined in the existing API surface provided in the prompt
 from utils.helpers import get_project_root, get_submissions_csv_path, ensure_data_dirs
+
+
+class FileChecksumError(Exception):
+    """Raised when a checksum verification fails."""
+    pass
 
 
 def compute_sha256(file_path: str) -> str:
@@ -30,212 +33,188 @@ def compute_sha256(file_path: str) -> str:
         FileNotFoundError: If the file does not exist.
         IOError: If the file cannot be read.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
+    if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found for checksum: {file_path}")
 
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
+            # Read in chunks to handle large files efficiently
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except IOError as e:
-        raise IOError(f"Error reading file {file_path}: {e}")
+        raise IOError(f"Failed to read file for checksum: {file_path}") from e
 
 
 def get_checksum_store_path() -> Path:
     """
-    Get the path where checksums are stored.
+    Get the path to the checksums store file.
 
     Returns:
-        Path to the checksums JSON file.
+        Path to the .checksums.json file in data/raw/.
     """
     project_root = get_project_root()
-    return project_root / "data" / "processed" / "checksums.json"
+    return project_root / "data" / "raw" / ".checksums.json"
+
+
+def load_checksums() -> dict:
+    """
+    Load existing checksums from the store file.
+
+    Returns:
+        Dictionary mapping file paths to their checksums.
+    """
+    store_path = get_checksum_store_path()
+    if not store_path.exists():
+        return {}
+
+    try:
+        with open(store_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        # If the file is corrupted or unreadable, start fresh
+        return {}
 
 
 def store_data_checksum(file_path: str, checksum: Optional[str] = None) -> None:
     """
-    Store the checksum of a file in the checksums store.
+    Store a checksum for a file in the persistent store.
 
     Args:
         file_path: Path to the file.
-        checksum: Optional pre-computed checksum. If None, it will be computed.
+        checksum: Optional pre-computed checksum. If None, computes it.
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the checksum store cannot be written.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot store checksum: file not found {file_path}")
-
     if checksum is None:
         checksum = compute_sha256(file_path)
 
     store_path = get_checksum_store_path()
-    ensure_data_dirs()  # Ensure data/processed exists
+    ensure_data_dirs()  # Ensure data/raw exists
 
-    # Load existing checksums or initialize
-    checksums = {}
-    if store_path.exists():
-        try:
-            with open(store_path, "r", encoding="utf-8") as f:
-                checksums = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            checksums = {}
+    # Load existing checksums
+    checksums = load_checksums()
 
-    # Store the new checksum keyed by the relative file path
-    relative_path = str(file_path.relative_to(get_project_root()))
-    checksums[relative_path] = {
-        "checksum": checksum,
-        "timestamp": os.path.getmtime(file_path)
-    }
+    # Update with new checksum
+    checksums[file_path] = checksum
 
     # Write back atomically (write to temp, then rename)
-    temp_path = store_path.with_suffix(".tmp")
+    temp_path = str(store_path) + ".tmp"
     try:
         with open(temp_path, "w", encoding="utf-8") as f:
             json.dump(checksums, f, indent=2)
-        os.replace(temp_path, store_path)
-    except IOError as e:
-        if temp_path.exists():
-            temp_path.unlink()
-        raise IOError(f"Failed to write checksum store: {e}")
+        os.replace(temp_path, str(store_path))
+    except Exception as e:
+        # Clean up temp file if it exists
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise IOError(f"Failed to store checksum: {e}") from e
 
 
-def verify_data_checksum(file_path: str) -> Tuple[bool, str, str]:
+def verify_data_checksum(file_path: str, expected_checksum: Optional[str] = None) -> bool:
     """
-    Verify the checksum of a file against the stored checksum.
+    Verify the checksum of a file against a stored value.
 
     Args:
         file_path: Path to the file to verify.
+        expected_checksum: Optional expected checksum. If None, loads from store.
 
     Returns:
-        Tuple of (is_valid, current_checksum, stored_checksum).
-        If no stored checksum exists, stored_checksum is None.
+        True if checksums match.
 
     Raises:
-        FileNotFoundError: If the file or checksum store does not exist.
+        FileChecksumError: If checksums do not match or no checksum is stored.
+        FileNotFoundError: If the file does not exist.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
+    if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found for verification: {file_path}")
 
     current_checksum = compute_sha256(file_path)
 
-    store_path = get_checksum_store_path()
-    if not store_path.exists():
-        return False, current_checksum, None
+    if expected_checksum is None:
+        checksums = load_checksums()
+        expected_checksum = checksums.get(file_path)
 
-    try:
-        with open(store_path, "r", encoding="utf-8") as f:
-            checksums = json.load(f)
-    except (json.JSONDecodeError, IOError):
-        return False, current_checksum, None
+    if expected_checksum is None:
+        raise FileChecksumError(
+            f"No stored checksum found for file: {file_path}. "
+            "Run store_data_checksum first."
+        )
 
-    relative_path = str(file_path.relative_to(get_project_root()))
-    if relative_path not in checksums:
-        return False, current_checksum, None
+    if current_checksum != expected_checksum:
+        raise FileChecksumError(
+            f"Checksum mismatch for file: {file_path}\n"
+            f"  Expected: {expected_checksum}\n"
+            f"  Current:  {current_checksum}"
+        )
 
-    stored_checksum = checksums[relative_path]["checksum"]
-    return current_checksum == stored_checksum, current_checksum, stored_checksum
+    return True
 
 
 def verify_submissions_integrity() -> bool:
     """
     Verify the integrity of the submissions CSV file.
 
-    This function computes the current SHA-256 checksum of data/raw/submissions.csv
-    and compares it against the stored checksum.
+    This is a convenience function specifically for the main data file.
 
     Returns:
-        True if the checksum matches or if no stored checksum exists (first run).
+        True if verification passes.
 
     Raises:
-        FileNotFoundError: If the submissions file does not exist.
-        ValueError: If the checksum mismatches (data integrity failure).
+        FileChecksumError: If verification fails.
+        FileNotFoundError: If the file does not exist.
     """
     submissions_path = get_submissions_csv_path()
-
-    if not Path(submissions_path).exists():
-        raise FileNotFoundError(f"Submissions file not found: {submissions_path}")
-
-    # Check if we have a stored checksum to verify against
-    is_valid, current, stored = verify_data_checksum(submissions_path)
-
-    if stored is None:
-        # First time running or no stored checksum.
-        # We store the current checksum for future verification.
-        store_data_checksum(submissions_path, current)
-        return True
-
-    if not is_valid:
-        raise ValueError(
-            f"DATA INTEGRITY FAILURE: Checksum mismatch for {submissions_path}.\n"
-            f"  Expected: {stored}\n"
-            f"  Found:    {current}\n"
-            "The data file has been modified or corrupted since the last checksum was recorded."
-        )
-
-    return True
+    return verify_data_checksum(str(submissions_path))
 
 
-def main() -> None:
+def main():
     """
-    CLI entry point for checksum operations.
+    Command-line interface for checksum operations.
 
     Usage:
-        python code/utils/checksums.py --store  : Compute and store checksum for submissions.csv
-        python code/utils/checksums.py --verify : Verify checksum of submissions.csv
+        python -m utils.checksums compute <file_path>
+        python -m utils.checksums store <file_path>
+        python -m utils.checksums verify <file_path>
     """
-    import argparse
+    import sys
 
-    parser = argparse.ArgumentParser(description="Data Integrity Checksums Utility")
-    parser.add_argument(
-        "--store",
-        action="store_true",
-        help="Compute and store the SHA-256 checksum for data/raw/submissions.csv"
-    )
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="Verify the SHA-256 checksum of data/raw/submissions.csv against stored value"
-    )
+    if len(sys.argv) < 3:
+        print("Usage: python -m utils.checksums <command> <file_path>")
+        print("Commands: compute, store, verify")
+        sys.exit(1)
 
-    args = parser.parse_args()
-
-    if not args.store and not args.verify:
-        parser.print_help()
-        print("\nPlease specify --store or --verify.")
-        return
+    command = sys.argv[1]
+    file_path = sys.argv[2]
 
     try:
-        if args.store:
-            print(f"Storing checksum for {get_submissions_csv_path()}...")
-            store_data_checksum(get_submissions_csv_path())
-            print("Checksum stored successfully.")
+        if command == "compute":
+            checksum = compute_sha256(file_path)
+            print(f"SHA-256: {checksum}")
 
-        if args.verify:
-            print(f"Verifying checksum for {get_submissions_csv_path()}...")
-            if verify_submissions_integrity():
-                print("Integrity check passed.")
-            else:
-                # This path should technically not be reached if verify_submissions_integrity raises on mismatch
-                # But kept for safety if logic changes
-                print("Integrity check failed or no stored checksum.")
+        elif command == "store":
+            store_data_checksum(file_path)
+            print(f"Checksum stored for: {file_path}")
+
+        elif command == "verify":
+            verify_submissions_integrity() if file_path == "submissions" else verify_data_checksum(file_path)
+            print(f"Checksum verified for: {file_path}")
+
+        else:
+            print(f"Unknown command: {command}")
+            sys.exit(1)
 
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        return
-    except ValueError as e:
-        print(f"CRITICAL ERROR: {e}")
-        return
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileChecksumError as e:
+        print(f"Integrity Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        return
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

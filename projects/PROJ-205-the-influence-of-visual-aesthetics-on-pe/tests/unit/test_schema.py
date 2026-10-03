@@ -1,12 +1,11 @@
 """
 Unit tests for the Metadata Schema defined in code/survey/constants.py.
-Verifies that the exported CSV headers match the schema definition.
+Verifies that the schema structure is correct and CSV headers match the definition.
 """
 import os
 import sys
 import csv
 import tempfile
-import shutil
 import uuid
 from datetime import datetime
 
@@ -37,7 +36,7 @@ def test_csv_headers_match_schema():
     Verify that the headers in a generated CSV match the METADATA_SCHEMA keys.
     This simulates the export logic from code/survey/app.py.
     """
-    # Define the expected headers based on the schema
+    # Define the expected headers based on the schema keys
     expected_headers = list(METADATA_SCHEMA.keys())
 
     # Create a temporary CSV file with sample data matching the schema
@@ -101,3 +100,12 @@ def test_schema_field_types():
 
     assert METADATA_SCHEMA['browser_version']['type'] == 'string'
     assert METADATA_SCHEMA['browser_version']['required'] is True
+
+def test_schema_completeness():
+    """Ensure all required fields have validation constraints."""
+    for field_name, field_def in METADATA_SCHEMA.items():
+        if field_def.get('required', False):
+            assert 'type' in field_def, f"Required field {field_name} missing type"
+            if field_def['type'] == 'integer':
+                assert 'min_value' in field_def or 'max_value' in field_def, \
+                    f"Integer field {field_name} should have range constraints"
