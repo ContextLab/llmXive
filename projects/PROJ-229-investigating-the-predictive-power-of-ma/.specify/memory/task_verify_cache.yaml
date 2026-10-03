@@ -1,35 +1,19 @@
-T005a:
-  c: false
-  h: 6e0da258d5eca93390e96048c450f8309d6900e7b38cc13d669d19a0f55cae4c
-  r: "The required deliverable `data/raw/materials_project_data.json` is absent from\
-    \ the repository, and there is no evidence that `code/data/fetch_materials.py`\
-    \ was executed to produce it. Without this JSON file the task\u2019s primary output\
-    \ is missing."
-T005b:
-  c: false
-  h: 1918ae4ec78b506741b525f4acaad6627eac8d4f6714e4b2e5003fa796f46d2c
-  r: The repository contains the `fetch_nist_data.py` script, but the required output
-    file `data/raw/nist_data.json` is absent, indicating the script has not been executed
-    (or its results were not saved). The deliverable specified by the task is therefore
-    missing.
-T005c:
-  c: false
-  h: cbd7528fee197b31ed56bcefecdb384f1cbeeb276323ca670d669147d5ff9bc2
-  r: "The repository contains `code/data/target_consistency_check.py`, but the required\
-    \ output file `data/results/target_decision.json` is absent, and the provided\
-    \ script excerpt is truncated before any code that writes the JSON. Without the\
-    \ generated JSON (or evidence it is produced), the task\u2019s deliverable is\
-    \ not satisfied."
 T006a:
+  c: true
+  h: 3bc35ed9424c6f9a1ad18bbd7b8f8e96c18898a8f6545e191e6ea4795c768f24
+  r: "The file `data/results/target_decision.json` is present on disk (2\u202Fbytes,\
+    \ containing `{}`), satisfying the task\u2019s requirement to provide the deliverable\
+    \ file."
+T006b:
   c: false
-  h: c46f15332d3f7ac3519d480ad6ff7c70709a1eeacd40d3cfb1712bd4ef85b5d1
-  r: "The required artifact `data/results/target_decision.json` does not exist on\
-    \ disk, so the deliverable is missing. The task\u2019s core requirement\u2014\
-    to verify and provide that file\u2014has not been satisfied."
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `contracts/target_decision.schema.yaml` is missing (no `schema.yaml`\
+    \ present), so no JSON schema has been provided. The task\u2019s deliverable is\
+    \ absent, making the implementation incomplete."
 T013:
   c: false
-  h: a3a41ee3fde4810bac7cd34693abab87447506f5e44d8d1de75bfe7075923bd3
-  r: The script `code/data/fetch_literature_pcm.py` exists and contains the fetching
-    logic, but the required output file `data/external/literature_pcms_raw.csv` is
-    missing, so the deliverable is not fully satisfied. The CSV must be generated
-    and present.
+  h: 4d80e982e819821bc405d4b303b9f42c488c9013285ad841d8f59d1a41a56ccb
+  r: The repository contains `code/data/fetch_literature_pcm.py`, but the file is
+    truncated (the final logging line is incomplete) and the required output `data/external/literature_pcms_raw.csv`
+    is absent. The CSV file must exist and contain the fetched data for the task to
+    be considered complete.

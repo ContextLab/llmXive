@@ -1,13 +1,9 @@
 """
 Logger utility for the project.
 
-Provides a singleton pipeline logger that writes to a file defined in
-``config.yaml`` under the key ``log_file``. If the configuration does not
-specify a log file, a default location ``data/logs/pipeline.log`` is used.
-
-The helper functions ``log_debug``, ``log_info`` etc. are thin wrappers
-around the standard :pyclass:`logging.Logger` methods and automatically
-initialise the logger on first use.
+Provides a lazily-initialized pipeline logger that writes to a file
+(default: ``data/logs/pipeline.log``) and helper functions for the
+standard logging levels as well as exception traceback logging.
 """
 
 import logging
@@ -16,120 +12,122 @@ import traceback
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# The config module loads ``config.yaml`` and provides ``get_config``.
-# Import is placed inside a function to avoid import‑time side effects if
-# ``config.yaml`` is missing or malformed; any error will be raised when
-# the logger is first set up.
+import yaml
+
+# Global variable to hold the singleton logger instance
+_pipeline_logger: Optional[logging.Logger] = None
+
+# ----------------------------------------------------------------------
+# Helper functions to load configuration
+# ----------------------------------------------------------------------
 def _load_config() -> Dict[str, Any]:
-    try:
-        from config import get_config
-    except Exception as exc:
-        # If the config module cannot be imported we fall back to an empty
-        # configuration – the logger will use its default path.
+    """
+    Load ``config.yaml`` from the project root if it exists.
+    Returns an empty dict if the file cannot be read.
+    """
+    config_path = Path("config.yaml")
+    if not config_path.is_file():
         return {}
     try:
-        return get_config()
-    except Exception:
-        # Any problem reading the config (e.g. missing file) results in an
-        # empty dict so the logger can still operate.
+        with config_path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except Exception:  # pragma: no cover – any parsing error is fatal for logging
         return {}
 
-_logger: Optional[logging.Logger] = None
-
-def _ensure_log_directory(log_path: Path) -> None:
-    """Create parent directories for the log file if they do not exist."""
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-def setup_logger(level: int = logging.INFO) -> logging.Logger:
+def _get_log_file_path() -> Path:
     """
-    Initialise the singleton pipeline logger.
+    Determine the log file location.
 
-    Parameters
-    ----------
-    level: int, optional
-        Logging level; defaults to ``logging.INFO``.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    The path can be overridden via a ``log_path`` key in ``config.yaml``.
+    If the key is missing, fall back to the default
+    ``data/logs/pipeline.log``.
     """
-    global _logger
-    if _logger is not None:
-        return _logger
+    cfg = _load_config()
+    log_path = cfg.get("log_path", "data/logs/pipeline.log")
+    return Path(log_path).expanduser().resolve()
 
-    config = _load_config()
-    log_file = config.get("log_file", "data/logs/pipeline.log")
-    log_path = Path(log_file)
+# ----------------------------------------------------------------------
+# Logger creation
+# ----------------------------------------------------------------------
+def setup_logger(name: str = "pipeline") -> logging.Logger:
+    """
+    Create (or retrieve) a configured logger.
 
-    _ensure_log_directory(log_path)
+    The logger writes to a file with a simple format that includes the
+    timestamp, log level and message.  The logger is configured only once;
+    subsequent calls return the same instance.
+    """
+    global _pipeline_logger
+    if _pipeline_logger is not None:
+        return _pipeline_logger
 
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(level)
-    logger.propagate = False  # Prevent double logging in notebooks/tests
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False  # Prevent double logging if root logger has handlers
 
-    # File handler
-    file_handler = logging.FileHandler(log_path, encoding="utf-8")
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    log_file = _get_log_file_path()
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        fmt="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
-    file_handler.setFormatter(file_formatter)
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    # Stream handler (stderr) for immediate feedback
+    # Also output to stderr for immediate visibility during CI runs
     stream_handler = logging.StreamHandler(sys.stderr)
-    stream_formatter = logging.Formatter("%(levelname)s - %(message)s")
-    stream_handler.setFormatter(stream_formatter)
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
 
-    _logger = logger
+    _pipeline_logger = logger
     return logger
 
+# ----------------------------------------------------------------------
+# Public accessor
+# ----------------------------------------------------------------------
 def get_pipeline_logger() -> logging.Logger:
     """
     Return the singleton pipeline logger, creating it on first use.
     """
-    if _logger is None:
+    if _pipeline_logger is None:
         return setup_logger()
-    return _logger
+    return _pipeline_logger
 
-# Convenience wrappers -----------------------------------------------------
-
+# ----------------------------------------------------------------------
+# Convenience logging wrappers
+# ----------------------------------------------------------------------
 def log_debug(message: str) -> None:
-    """Log a DEBUG level message."""
     get_pipeline_logger().debug(message)
 
 def log_info(message: str) -> None:
-    """Log an INFO level message."""
     get_pipeline_logger().info(message)
 
 def log_warning(message: str) -> None:
-    """Log a WARNING level message."""
     get_pipeline_logger().warning(message)
 
 def log_error(message: str) -> None:
-    """Log an ERROR level message."""
     get_pipeline_logger().error(message)
 
 def log_critical(message: str) -> None:
-    """Log a CRITICAL level message."""
     get_pipeline_logger().critical(message)
 
-def log_exception_details(exc: BaseException, context: str = "") -> None:
+def log_exception_details(exc: BaseException, context_msg: str = "") -> None:
     """
     Log an exception with its traceback.
 
     Parameters
     ----------
-    exc: BaseException
-        The caught exception instance.
-    context: str, optional
-        Additional context message to prepend to the traceback.
+    exc : BaseException
+        The caught exception.
+    context_msg : str, optional
+        Additional context to prepend to the traceback.
     """
     logger = get_pipeline_logger()
-    tb_lines = traceback.format_exception(type(exc), exc, exc.__traceback__)
-    tb_text = "".join(tb_lines)
-    if context:
-        logger.error("%s\n%s", context, tb_text)
-    else:
-        logger.error("%s", tb_text)
+    if context_msg:
+        logger.error(context_msg)
+    tb_str = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    logger.error(tb_str)

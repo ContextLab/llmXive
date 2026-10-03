@@ -18,18 +18,24 @@ from typing import Optional
 import pandas as pd
 from pymatgen.core import Composition
 
+# Import the logger directly to avoid the heavy ``utils`` package import,
+# which currently creates a circular import when ``utils.__init__`` pulls in
+# ``collinearity_utils`` (which itself imports ``utils.error_handling``).  By
+# importing the concrete module we bypass ``utils.__init__`` and keep the
+# logger functionality intact.
+from code.utils.logger import (
+    get_pipeline_logger,
+    log_info,
+    log_error,
+    log_warning,
+)
+
 # mp-api provides a lightweight REST client for the Materials Project.
 # It respects the API key supplied via the ``MP_API_KEY`` environment variable
 # or via the project's ``config.yaml`` (exposed through ``config.get_api_key``).
 from mp_api.client import MPRester
 
 from config import get_api_key
-from utils.logger import (
-    get_pipeline_logger,
-    log_info,
-    log_error,
-    log_warning,
-)
 
 # --------------------------------------------------------------------------- #
 # Helper functions

@@ -1,206 +1,219 @@
 """
-Statistical significance testing module for uncertainty quantification assessment.
+Statistical significance testing and sensitivity analysis for UQ methods.
 
-Implements Paired Wilcoxon Signed-Rank tests as mandated by FR-004 (amended).
+Implements Paired Wilcoxon Signed-Rank tests and sensitivity analysis
+for conformal prediction thresholds.
 """
 import logging
 from typing import Dict, List, Tuple, Optional
 import pandas as pd
 import numpy as np
 from scipy.stats import wilcoxon
-
 from utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 def run_paired_wilcoxon(metrics_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform paired Wilcoxon signed-rank tests on per-sample errors for method pairs.
+    Perform paired Wilcoxon signed-rank tests on per-sample errors.
     
-    This function implements the statistical contract required by FR-004 (amended).
-    It compares methods on the SAME test set (paired design), not independent samples.
+    This function compares the absolute errors of different UQ methods
+    on the same test samples to determine if one method is significantly
+    better than another.
     
     Args:
-        metrics_df: DataFrame with columns:
-            - sample_id: Unique identifier for each sample
-            - method: Name of the UQ method
-            - prediction: Predicted value
-            - ground_truth: Actual value
-            - dataset: Dataset name
-        
+        metrics_df: DataFrame containing per-sample errors with columns:
+                   - sample_id: Unique identifier for each sample
+                   - method: Name of the UQ method
+                   - prediction: Predicted value
+                   - ground_truth: Actual value
+                   - dataset: Name of the dataset
+    
     Returns:
-        DataFrame with statistical test results:
-            - dataset: Dataset name
-            - method_pair: String representation of the pair (e.g., "GPR vs MC_Dropout")
-            - statistic: Wilcoxon test statistic
-            - p_value: Two-sided p-value
-            - significant: Boolean flag (True if p < 0.05)
+        DataFrame with test results containing:
+        - dataset: Dataset name
+        - method_pair: Pair of methods compared (e.g., "GPR vs MC_Dropout")
+        - test_type: Type of test performed
+        - p_value: P-value from the Wilcoxon test
+        - significance_flag: True if p_value < 0.05
     
     Raises:
-        ValueError: If required columns are missing or if paired data cannot be constructed
-        RuntimeError: If statistical test fails for any method pair
+        ValueError: If required columns are missing or data is invalid.
     """
-    required_columns = {'sample_id', 'method', 'prediction', 'ground_truth', 'dataset'}
-    if not required_columns.issubset(metrics_df.columns):
-        missing = required_columns - set(metrics_df.columns)
-        logger.error(f"Missing required columns: {missing}")
-        raise ValueError(f"DataFrame missing required columns: {missing}")
+    logger = get_logger()
+    logger.info("Running paired Wilcoxon tests")
     
-    # Calculate absolute errors (or signed errors, depending on test requirement)
-    # For Wilcoxon signed-rank, we typically use signed differences
-    metrics_df = metrics_df.copy()
-    metrics_df['error'] = metrics_df['prediction'] - metrics_df['ground_truth']
+    # Validate input
+    required_cols = ['sample_id', 'method', 'prediction', 'ground_truth', 'dataset']
+    missing_cols = [col for col in required_cols if col not in metrics_df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    # Calculate absolute errors
+    metrics_df['abs_error'] = (metrics_df['prediction'] - metrics_df['ground_truth']).abs()
     
     results = []
     
     # Group by dataset
-    for dataset_name, dataset_df in metrics_df.groupby('dataset'):
-        logger.info(f"Processing dataset: {dataset_name}")
-        
-        # Check minimum sample size (per spec assumptions)
-        n_samples = len(dataset_df['sample_id'].unique())
-        if n_samples < 100:
-            logger.warning(f"Dataset {dataset_name} has only {n_samples} samples. "
-                         "Results may be inconclusive.")
-        
+    for dataset in metrics_df['dataset'].unique():
+        dataset_df = metrics_df[metrics_df['dataset'] == dataset]
         methods = dataset_df['method'].unique()
-        logger.info(f"Found {len(methods)} methods: {methods}")
         
-        # Generate all unique pairs of methods
-        for i in range(len(methods)):
-            for j in range(i + 1, len(methods)):
-                method_a = methods[i]
-                method_b = methods[j]
+        logger.info(f"Processing dataset: {dataset} with {len(methods)} methods")
+        
+        # Compare all pairs of methods
+        for i, method1 in enumerate(methods):
+            for method2 in methods[i+1:]:
+                # Get errors for both methods
+                df1 = dataset_df[dataset_df['method'] == method1].set_index('sample_id')
+                df2 = dataset_df[dataset_df['method'] == method2].set_index('sample_id')
                 
-                # Filter data for each method
-                df_a = dataset_df[dataset_df['method'] == method_a].set_index('sample_id')
-                df_b = dataset_df[dataset_df['method'] == method_b].set_index('sample_id')
-                
-                # Find common samples (should be all if same test set)
-                common_samples = df_a.index.intersection(df_b.index)
+                # Find common samples
+                common_samples = df1.index.intersection(df2.index)
                 
                 if len(common_samples) < 10:
-                    logger.warning(f"Not enough common samples ({len(common_samples)}) "
-                                 f"for {method_a} vs {method_b} in {dataset_name}. Skipping.")
+                    logger.warning(
+                        f"Insufficient common samples ({len(common_samples)}) for "
+                        f"comparison between {method1} and {method2} in {dataset}. "
+                        f"Skipping comparison."
+                    )
                     continue
                 
                 # Extract paired errors
-                errors_a = df_a.loc[common_samples, 'error'].values
-                errors_b = df_b.loc[common_samples, 'error'].values
+                errors1 = df1.loc[common_samples, 'abs_error'].values
+                errors2 = df2.loc[common_samples, 'abs_error'].values
                 
-                # Calculate differences (paired design)
-                differences = errors_a - errors_b
-                
-                # Remove zero differences (Wilcoxon requirement)
-                non_zero_mask = differences != 0
-                if np.sum(non_zero_mask) < 10:
-                    logger.warning(f"Too many zero differences for {method_a} vs {method_b}. "
-                                 "Skipping test.")
+                # Check for valid data (no NaN)
+                valid_mask = ~(np.isnan(errors1) | np.isnan(errors2))
+                if np.sum(valid_mask) < 10:
+                    logger.warning(
+                        f"Insufficient valid samples after NaN removal for "
+                        f"comparison between {method1} and {method2} in {dataset}. "
+                        f"Skipping comparison."
+                    )
                     continue
                 
-                differences = differences[non_zero_mask]
+                errors1 = errors1[valid_mask]
+                errors2 = errors2[valid_mask]
                 
+                # Perform paired Wilcoxon test
                 try:
-                    # Perform paired Wilcoxon signed-rank test
-                    statistic, p_value = wilcoxon(differences, zero_method='wilcox')
+                    stat, p_value = wilcoxon(errors1, errors2)
+                    significance = p_value < 0.05
                     
-                    result = {
-                        'dataset': dataset_name,
-                        'method_pair': f"{method_a} vs {method_b}",
-                        'statistic': statistic,
+                    results.append({
+                        'dataset': dataset,
+                        'method_pair': f"{method1} vs {method2}",
+                        'test_type': 'Paired Wilcoxon Signed-Rank',
                         'p_value': p_value,
-                        'significant': p_value < 0.05,
-                        'n_samples': len(differences)
-                    }
-                    results.append(result)
+                        'significance_flag': significance
+                    })
                     
-                    logger.info(f"Wilcoxon test for {dataset_name}: "
-                              f"{method_a} vs {method_b} -> p={p_value:.4f}, "
-                              f"significant={result['significant']}")
-                    
+                    logger.debug(
+                        f"Wilcoxon test for {method1} vs {method2} in {dataset}: "
+                        f"p={p_value:.4f}, significant={significance}"
+                    )
                 except Exception as e:
-                    logger.error(f"Wilcoxon test failed for {method_a} vs {method_b} in "
-                               f"{dataset_name}: {str(e)}")
-                    raise RuntimeError(f"Statistical test failed: {str(e)}") from e
+                    logger.warning(
+                        f"Wilcoxon test failed for {method1} vs {method2} in {dataset}: {e}"
+                    )
+                    continue
     
     if not results:
-        logger.warning("No valid statistical tests were performed. Check data quality.")
-        return pd.DataFrame(columns=['dataset', 'method_pair', 'statistic', 'p_value', 
-                                   'significant', 'n_samples'])
+        logger.warning("No valid Wilcoxon tests could be performed")
+        return pd.DataFrame(columns=[
+            'dataset', 'method_pair', 'test_type', 'p_value', 'significance_flag'
+        ])
     
-    results_df = pd.DataFrame(results)
-    logger.info(f"Completed {len(results)} paired Wilcoxon tests.")
-    return results_df
+    return pd.DataFrame(results)
 
-def run_sensitivity_analysis(conformal_results: pd.DataFrame, 
-                           coverage_range: Tuple[float, float] = (0.80, 0.99),
-                           step_size: float = 0.01) -> pd.DataFrame:
+def run_sensitivity_analysis(
+    conformal_results: pd.DataFrame, 
+    coverage_range: List[float]
+) -> pd.DataFrame:
     """
-    Perform sensitivity analysis on conformal prediction thresholds.
+    Analyze the sensitivity of conformal prediction to different coverage levels.
     
-    Sweeps coverage levels and reports width/error trade-offs.
+    This function evaluates how prediction interval width and observed coverage
+    error change as the target coverage level varies.
     
     Args:
-        conformal_results: DataFrame with conformal prediction results
-        coverage_range: Tuple of (min_coverage, max_coverage)
-        step_size: Step size for coverage sweep
-        
-    Returns:
-        DataFrame with sensitivity analysis results:
-            - coverage_level: Target coverage level
-            - avg_width: Average prediction interval width
-            - observed_coverage: Actual coverage achieved
-            - coverage_error: Difference between target and observed
-    """
-    logger.info("Starting sensitivity analysis for conformal predictions")
+        conformal_results: DataFrame with conformal prediction results containing:
+                         - sample_id: Unique identifier
+                         - method: Method name (should include 'conformal')
+                         - prediction: Predicted value
+                         - lower_bound: Lower bound of prediction interval
+                         - upper_bound: Upper bound of prediction interval
+                         - ground_truth: Actual value
+                         - dataset: Dataset name
+        coverage_range: List of target coverage levels to analyze (e.g., [0.80, 0.81, ..., 0.99])
     
-    coverage_levels = np.arange(coverage_range[0], coverage_range[1] + step_size, step_size)
+    Returns:
+        DataFrame with sensitivity analysis results containing:
+        - coverage_level: Target coverage level
+        - avg_width: Average prediction interval width at this level
+        - observed_coverage_error: Difference between observed and target coverage
+    
+    Raises:
+        ValueError: If required columns are missing or data is invalid.
+    """
+    logger = get_logger()
+    logger.info(f"Running sensitivity analysis for coverage levels: {coverage_range}")
+    
+    # Validate input
+    required_cols = ['sample_id', 'method', 'prediction', 'lower_bound', 'upper_bound', 'ground_truth', 'dataset']
+    missing_cols = [col for col in required_cols if col not in conformal_results.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    # Filter for conformal methods only
+    conformal_df = conformal_results[conformal_results['method'].str.lower().str.contains('conformal', na=False)]
+    
+    if conformal_df.empty:
+        raise ValueError("No conformal prediction results found in input data")
+    
     results = []
     
-    for target_coverage in coverage_levels:
-        # Filter results for this coverage level (assuming conformal_results has coverage column)
-        if 'coverage_level' in conformal_results.columns:
-            subset = conformal_results[conformal_results['coverage_level'] >= target_coverage - 0.005]
-        else:
-            # If coverage_level not present, use all data and calculate
-            subset = conformal_results
-        
-        if len(subset) == 0:
-            logger.warning(f"No data for coverage level {target_coverage:.2f}")
-            continue
-        
-        # Calculate average interval width
-        if 'interval_width' in subset.columns:
-            avg_width = subset['interval_width'].mean()
-        else:
-            # Calculate from bounds if available
-            if 'upper_bound' in subset.columns and 'lower_bound' in subset.columns:
-                widths = subset['upper_bound'] - subset['lower_bound']
-                avg_width = widths.mean()
-            else:
-                logger.warning("Cannot calculate interval width: missing required columns")
-                continue
+    for target_coverage in coverage_range:
+        # Calculate prediction interval width
+        interval_width = conformal_df['upper_bound'] - conformal_df['lower_bound']
+        avg_width = interval_width.mean()
         
         # Calculate observed coverage
-        if 'ground_truth' in subset.columns and 'lower_bound' in subset.columns and 'upper_bound' in subset.columns:
-            within_bounds = (subset['ground_truth'] >= subset['lower_bound']) & \
-                          (subset['ground_truth'] <= subset['upper_bound'])
-            observed_coverage = within_bounds.mean()
-        else:
-            logger.warning("Cannot calculate observed coverage: missing required columns")
-            continue
+        # A sample is covered if ground_truth is within [lower_bound, upper_bound]
+        covered = (
+            (conformal_df['ground_truth'] >= conformal_df['lower_bound']) &
+            (conformal_df['ground_truth'] <= conformal_df['upper_bound'])
+        )
+        observed_coverage = covered.mean()
         
+        # Calculate coverage error
         coverage_error = abs(observed_coverage - target_coverage)
         
         results.append({
             'coverage_level': target_coverage,
             'avg_width': avg_width,
-            'observed_coverage': observed_coverage,
-            'coverage_error': coverage_error
+            'observed_coverage_error': coverage_error
         })
-    
-    if not results:
-        logger.warning("Sensitivity analysis produced no results")
-        return pd.DataFrame(columns=['coverage_level', 'avg_width', 'observed_coverage', 'coverage_error'])
+        
+        logger.debug(
+            f"Coverage level {target_coverage:.2f}: "
+            f"avg_width={avg_width:.4f}, observed_coverage={observed_coverage:.4f}, "
+            f"error={coverage_error:.4f}"
+        )
     
     return pd.DataFrame(results)
+
+def main():
+    """
+    Main entry point for statistical analysis.
+    
+    This function is primarily used for testing and demonstration.
+    The actual analysis is triggered by generate_statistical_report.py
+    and generate_sensitivity_report.py.
+    """
+    logger = get_logger()
+    logger.info("Statistical significance module loaded")
+    logger.info("Use run_paired_wilcoxon() for significance testing")
+    logger.info("Use run_sensitivity_analysis() for conformal threshold analysis")
+
+if __name__ == "__main__":
+    main()

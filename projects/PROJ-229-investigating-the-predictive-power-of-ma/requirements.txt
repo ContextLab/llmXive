@@ -1,3 +1,4 @@
+# Core scientific stack
 pymatgen
 scikit-learn
 pysr
@@ -9,5 +10,11 @@ requests
 pyyaml
 mp-api
 datasets
+
+# Additional dependency for correlation analysis
 scipy
-# Added scipy for statistical calculations in evaluate.py.
+
+# Logging & utilities
+tqdm
+psutil
+# Pin versions as needed in the actual environment; left unpinned for brevity.

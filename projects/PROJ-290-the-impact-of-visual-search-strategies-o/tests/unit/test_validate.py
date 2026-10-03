@@ -1,151 +1,186 @@
-"""
-Unit tests for code/data/validate.py
-"""
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+import json
+import os
+import sys
+from pathlib import Path
+import tempfile
+import logging
+
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from data.validate import (
     check_variable_presence,
     validate_data_content,
     apply_roi_fallback,
-    validate_dataset,
     write_validation_report,
-    CRITICAL_VARS
+    validate_dataset
 )
-from config import get_config
+from utils.logging import get_logger
 
 @pytest.fixture
-def sample_dataframe():
-    """Create a sample DataFrame for testing."""
-    return pd.DataFrame({
+def sample_df_with_all_vars():
+    """Create a sample dataframe with all required variables."""
+    data = {
         'gaze_coordinates': [[10, 20], [30, 40], [50, 60]],
-        'response_times': [0.5, 0.6, 0.7],
+        'response_times': [0.5, 0.7, 0.6],
         'emotion_labels': ['happy', 'sad', 'neutral'],
-        'roi_annotations': [{'x': 0, 'y': 0, 'w': 100, 'h': 100}],
-        'participant_id': ['P1', 'P2', 'P3']
-    })
+        'roi_annotations': ['grid_3x3', 'grid_3x3', 'grid_3x3']
+    }
+    return pd.DataFrame(data)
 
 @pytest.fixture
-def incomplete_dataframe():
-    """Create a DataFrame missing critical variables."""
-    return pd.DataFrame({
+def sample_df_missing_roi():
+    """Create a sample dataframe missing roi_annotations."""
+    data = {
         'gaze_coordinates': [[10, 20], [30, 40]],
-        'response_times': [0.5, 0.6],
-        # Missing emotion_labels and roi_annotations
-    })
+        'response_times': [0.5, 0.7],
+        'emotion_labels': ['happy', 'sad']
+    }
+    return pd.DataFrame(data)
 
 @pytest.fixture
-def empty_dataframe():
-    """Create a DataFrame with empty critical variables."""
-    return pd.DataFrame({
-        'gaze_coordinates': [None, None],
-        'response_times': [None, None],
-        'emotion_labels': [None, None],
-    })
+def sample_df_missing_critical():
+    """Create a sample dataframe missing a critical variable (response_times)."""
+    data = {
+        'gaze_coordinates': [[10, 20], [30, 40]],
+        'emotion_labels': ['happy', 'sad'],
+        'roi_annotations': ['grid', 'grid']
+    }
+    return pd.DataFrame(data)
 
-def test_check_variable_presence_all_present(sample_dataframe):
-    """Test checking presence when all variables are present."""
-    result = check_variable_presence(sample_dataframe, CRITICAL_VARS)
-    for var in CRITICAL_VARS:
-        assert result[var] is True
+@pytest.fixture
+def sample_df_empty():
+    """Create an empty dataframe."""
+    return pd.DataFrame()
 
-def test_check_variable_presence_missing_vars(incomplete_dataframe):
-    """Test checking presence when some variables are missing."""
-    result = check_variable_presence(incomplete_dataframe, CRITICAL_VARS)
-    assert result['gaze_coordinates'] is True
-    assert result['response_times'] is True
-    assert result['emotion_labels'] is False
+@pytest.fixture
+def sample_df_null_critical():
+    """Create a dataframe with null values in a critical variable."""
+    data = {
+        'gaze_coordinates': [[10, 20], [30, 40]],
+        'response_times': [np.nan, np.nan],
+        'emotion_labels': ['happy', 'sad'],
+        'roi_annotations': ['grid', 'grid']
+    }
+    return pd.DataFrame(data)
 
-def test_validate_data_content_valid(sample_dataframe):
-    """Test validation of data content for valid variables."""
-    for var in CRITICAL_VARS:
-        assert validate_data_content(sample_dataframe, var) is True
+@pytest.fixture
+def temp_output_path():
+    """Create a temporary file path for the report."""
+    with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+        yield Path(f.name)
+    os.unlink(f.name)
 
-def test_validate_data_content_empty(empty_dataframe):
-    """Test validation of data content for empty variables."""
-    for var in CRITICAL_VARS:
-        assert validate_data_content(empty_dataframe, var) is False
+@pytest.fixture
+def logger():
+    return get_logger("test_validate")
 
-def test_validate_data_content_nonexistent(sample_dataframe):
-    """Test validation of a non-existent variable."""
-    assert validate_data_content(sample_dataframe, 'nonexistent_var') is False
-
-def test_apply_roi_fallback(sample_dataframe):
-    """Test applying ROI fallback."""
-    # Remove roi_annotations
-    df_no_roi = sample_dataframe.drop(columns=['roi_annotations'])
+def test_check_variable_presence_all_present(sample_df_with_all_vars, logger):
+    """Test that all present variables are detected correctly."""
+    required = ['gaze_coordinates', 'response_times', 'emotion_labels', 'roi_annotations']
+    present, missing = check_variable_presence(sample_df_with_all_vars, required, logger)
     
-    # Apply fallback
-    result_df = apply_roi_fallback(df_no_roi)
+    assert len(missing) == 0
+    assert set(present) == set(required)
+
+def test_check_variable_presence_missing_one(sample_df_missing_roi, logger):
+    """Test detection of a single missing variable."""
+    required = ['gaze_coordinates', 'response_times', 'emotion_labels', 'roi_annotations']
+    present, missing = check_variable_presence(sample_df_missing_roi, required, logger)
+    
+    assert 'roi_annotations' in missing
+    assert len(missing) == 1
+    assert len(present) == 3
+
+def test_validate_data_content_empty_df(sample_df_empty, logger):
+    """Test that an empty dataframe fails validation."""
+    required = ['gaze_coordinates', 'response_times', 'emotion_labels']
+    result = validate_data_content(sample_df_empty, required, logger)
+    assert result is False
+
+def test_validate_data_content_null_critical(sample_df_null_critical, logger):
+    """Test that null values in critical variables fail validation."""
+    required = ['gaze_coordinates', 'response_times', 'emotion_labels']
+    result = validate_data_content(sample_df_null_critical, required, logger)
+    assert result is False
+
+def test_validate_data_content_valid(sample_df_with_all_vars, logger):
+    """Test that valid data passes content validation."""
+    required = ['gaze_coordinates', 'response_times', 'emotion_labels']
+    result = validate_data_content(sample_df_with_all_vars, required, logger)
+    assert result is True
+
+def test_apply_roi_fallback_missing(sample_df_missing_roi, logger):
+    """Test that ROI fallback adds the column when missing."""
+    df = sample_df_missing_roi.copy()
+    result_df = apply_roi_fallback(df, logger)
     
     assert 'roi_annotations' in result_df.columns
-    assert len(result_df) == len(sample_dataframe)
+    assert len(result_df) == len(sample_df_missing_roi)
 
-def test_write_validation_report():
-    """Test writing validation report to file."""
-    report = {
-        'status': 'PASS',
-        'test': 'value'
-    }
+def test_apply_roi_fallback_present(sample_df_with_all_vars, logger):
+    """Test that ROI fallback does nothing when column exists."""
+    df = sample_df_with_all_vars.copy()
+    original_len = len(df)
+    result_df = apply_roi_fallback(df, logger)
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        temp_path = Path(f.name)
+    assert 'roi_annotations' in result_df.columns
+    # Should not modify the data, just confirm it exists
+    assert result_df['roi_annotations'].iloc[0] == 'grid_3x3'
+
+def test_write_validation_report(temp_output_path, logger):
+    """Test that the validation report is written correctly."""
+    status = "PASS"
+    missing = []
+    present = ['gaze_coordinates', 'response_times']
+    total = 10
+    valid = 10
+    roi_fallback = False
     
-    try:
-        write_validation_report(report, temp_path)
-        
-        assert temp_path.exists()
-        
-        with open(temp_path, 'r') as f:
-            loaded_report = json.load(f)
-        
-        assert loaded_report['status'] == 'PASS'
-        assert loaded_report['test'] == 'value'
-    finally:
-        temp_path.unlink()
+    write_validation_report(
+        output_path=temp_output_path,
+        status=status,
+        missing_vars=missing,
+        present_vars=present,
+        total_records=total,
+        valid_records=valid,
+        roi_fallback_applied=roi_fallback,
+        logger=logger
+    )
+    
+    assert temp_output_path.exists()
+    with open(temp_output_path, 'r') as f:
+        report = json.load(f)
+    
+    assert report['status'] == status
+    assert report['missing_variables'] == missing
+    assert report['present_variables'] == present
+    assert report['statistics']['total_records'] == total
 
-def test_validate_dataset_with_valid_data(sample_dataframe):
-    """Test full validation with valid data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        dataset_path = tmpdir_path / "test_dataset.csv"
-        output_path = tmpdir_path / "validation_report.json"
-        
-        # Save sample data
-        sample_dataframe.to_csv(dataset_path, index=False)
-        
-        # Mock get_config to return our temp directory
-        with patch('data.validate.get_config') as mock_config:
-            mock_config.return_value.data_dir = str(tmpdir_path)
-            
-            report = validate_dataset(dataset_path, output_path)
-            
-            assert report['status'] == 'PASS'
-            assert 'missing_critical_vars' in report
-            assert len(report['missing_critical_vars']) == 0
-            assert output_path.exists()
+def test_validate_dataset_critical_missing_raises(sample_df_missing_critical, temp_output_path, logger):
+    """Test that validate_dataset raises an error when critical vars are missing."""
+    with pytest.raises(ValueError, match="Validation failed"):
+        validate_dataset(sample_df_missing_critical, temp_output_path, logger)
 
-def test_validate_dataset_with_missing_critical(incomplete_dataframe):
-    """Test full validation with missing critical variables."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        dataset_path = tmpdir_path / "test_dataset.csv"
-        output_path = tmpdir_path / "validation_report.json"
-        
-        # Save incomplete data
-        incomplete_dataframe.to_csv(dataset_path, index=False)
-        
-        # Mock get_config
-        with patch('data.validate.get_config') as mock_config:
-            mock_config.return_value.data_dir = str(tmpdir_path)
-            
-            # Should exit with code 1 due to missing critical vars
-            with pytest.raises(SystemExit) as exc_info:
-                validate_dataset(dataset_path, output_path)
-            
-            assert exc_info.value.code == 1
+def test_validate_dataset_full_success(sample_df_with_all_vars, temp_output_path, logger):
+    """Test that a full valid dataset passes without error."""
+    result = validate_dataset(sample_df_with_all_vars, temp_output_path, logger)
+    assert result is True
+    assert temp_output_path.exists()
+    
+    with open(temp_output_path, 'r') as f:
+        report = json.load(f)
+    assert report['status'] == 'PASS'
+
+def test_validate_dataset_missing_roi_fallback_success(sample_df_missing_roi, temp_output_path, logger):
+    """Test that missing ROI triggers fallback and passes validation."""
+    result = validate_dataset(sample_df_missing_roi, temp_output_path, logger)
+    assert result is True
+    
+    with open(temp_output_path, 'r') as f:
+        report = json.load(f)
+    assert report['roi_fallback_applied'] is True
+    assert report['status'] == 'PASS'

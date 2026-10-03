@@ -1,261 +1,152 @@
-"""
-Memory profiling script for the image loading and preprocessing pipeline.
-
-This script runs the image download and preprocessing pipeline while
-monitoring memory usage to ensure it stays within the 7GB limit.
-
-Deliverable: docs/memory_profile.md
-"""
 import os
 import sys
 import time
 import logging
 import tracemalloc
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-import psutil
+from typing import Dict, Any, Optional
 
-# Add project root to path if needed
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Import existing pipeline modules to profile
+# Note: These imports assume the modules are in the code/ directory and added to sys.path
+# The main entry point is expected to be run from the project root or code/
+try:
+    from download_images import main as download_main
+    from preprocess_images import main as preprocess_main
+except ImportError as e:
+    # Fallback for execution context if not in code/ directory
+    sys.path.insert(0, str(Path(__file__).parent))
+    from download_images import main as download_main
+    from preprocess_images import main as preprocess_main
 
-from code.config import ensure_directories, get_config_summary
-from code.download_images import main as download_main
-from code.preprocess_images import main as preprocess_main
-
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'state' / 'memory_profile.log')
+        logging.FileHandler('state/pipeline.log'),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
 def get_current_memory_mb() -> float:
     """Get current memory usage in MB."""
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    current, peak = tracemalloc.get_traced_memory()
+    return current / (1024 * 1024)
 
 def get_peak_memory_mb() -> float:
     """Get peak memory usage in MB."""
-    process = psutil.Process(os.getpid())
-    return process.memory_info().peak_wset / (1024 * 1024) if hasattr(process.memory_info(), 'peak_wset') else get_current_memory_mb()
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 * 1024)
 
-def run_pipeline_with_profiling() -> Tuple[float, float, Dict[str, Any]]:
+def run_pipeline_with_profiling() -> Dict[str, float]:
     """
-    Run the full image pipeline while profiling memory usage.
+    Run the image loading and preprocessing pipeline with memory profiling.
     
     Returns:
-        Tuple of (peak_memory_mb, final_memory_mb, profile_stats)
+        Dict containing peak memory usage at various stages.
     """
-    logger.info("Starting memory profiling of image pipeline...")
-    
-    # Ensure directories exist
-    config = get_config_summary()
-    ensure_directories()
-    
-    # Start memory tracking
-    tracemalloc.start()
-    
-    initial_memory = get_current_memory_mb()
-    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
-    
-    profile_stats = {
-        'initial_memory_mb': initial_memory,
-        'stages': []
+    stats = {
+        'start_memory_mb': 0.0,
+        'download_peak_mb': 0.0,
+        'preprocess_peak_mb': 0.0,
+        'end_memory_mb': 0.0
     }
-    
-    try:
-        # Stage 1: Download images
-        logger.info("Stage 1: Downloading images...")
-        stage_start = time.time()
-        stage_memory_start = get_current_memory_mb()
-        
-        # Run download (this will download to data/raw/nppn_images/)
-        # Note: We catch exceptions to handle cases where download might fail
-        # but still record memory usage
-        try:
-            download_main()
-        except Exception as e:
-            logger.warning(f"Download stage encountered issue (expected if no real data): {e}")
-            # We continue to profile the rest of the pipeline structure
-        
-        stage_memory_end = get_current_memory_mb()
-        stage_time = time.time() - stage_start
-        
-        profile_stats['stages'].append({
-            'name': 'download',
-            'duration_seconds': stage_time,
-            'memory_start_mb': stage_memory_start,
-            'memory_end_mb': stage_memory_end,
-            'memory_delta_mb': stage_memory_end - stage_memory_start
-        })
-        
-        # Stage 2: Preprocess images
-        logger.info("Stage 2: Preprocessing images...")
-        stage_start = time.time()
-        stage_memory_start = get_current_memory_mb()
-        
-        try:
-            preprocess_main()
-        except Exception as e:
-            logger.warning(f"Preprocess stage encountered issue: {e}")
-        
-        stage_memory_end = get_current_memory_mb()
-        stage_time = time.time() - stage_start
-        
-        profile_stats['stages'].append({
-            'name': 'preprocess',
-            'duration_seconds': stage_time,
-            'memory_start_mb': stage_memory_start,
-            'memory_end_mb': stage_memory_end,
-            'memory_delta_mb': stage_memory_end - stage_memory_start
-        })
-        
-        # Get final measurements
-        current_memory = get_current_memory_mb()
-        peak_memory = tracemalloc.get_traced_memory()[1] / (1024 * 1024)
-        
-        profile_stats['final_memory_mb'] = current_memory
-        profile_stats['peak_memory_mb'] = peak_memory
-        profile_stats['total_memory_delta_mb'] = current_memory - initial_memory
-        
-        logger.info(f"Pipeline completed. Peak memory: {peak_memory:.2f} MB")
-        
-        return peak_memory, current_memory, profile_stats
-        
-    finally:
-        tracemalloc.stop()
 
-def generate_memory_report(profile_stats: Dict[str, Any], output_path: Path) -> None:
-    """Generate the memory profile markdown report."""
-    
-    report_lines = [
-        "# Memory Profile Report: Image Loading Pipeline",
-        "",
-        "## Overview",
-        "",
-        "This report documents the memory usage characteristics of the image loading",
-        "and preprocessing pipeline for the plant drought tolerance prediction project.",
-        "",
-        "## Configuration",
-        "",
-        "- **Random Seed**: 42",
-        "- **Target Memory Limit**: 7 GB (7168 MB)",
-        "- **Python Version**: 3.11+",
-        "",
-        "## Results Summary",
-        "",
-        f"- **Initial Memory Usage**: {profile_stats['initial_memory_mb']:.2f} MB",
-        f"- **Peak Memory Usage**: {profile_stats['peak_memory_mb']:.2f} MB",
-        f"- **Final Memory Usage**: {profile_stats['final_memory_mb']:.2f} MB",
-        f"- **Total Memory Delta**: {profile_stats['total_memory_delta_mb']:.2f} MB",
-        "",
-        "## Compliance Check",
-        "",
-    ]
-    
-    peak = profile_stats['peak_memory_mb']
-    limit = 7168  # 7 GB in MB
-    
-    if peak < limit:
-        report_lines.append(f"✅ **PASS**: Peak memory usage ({peak:.2f} MB) is within the 7 GB limit ({limit} MB).")
-    else:
-        report_lines.append(f"❌ **FAIL**: Peak memory usage ({peak:.2f} MB) exceeded the 7 GB limit ({limit} MB).")
-    
-    report_lines.extend([
-        "",
-        "## Stage-by-Stage Breakdown",
-        "",
-        "| Stage | Duration (s) | Memory Start (MB) | Memory End (MB) | Delta (MB) |",
-        "|-------|--------------|-------------------|-----------------|------------|",
-    ])
-    
-    for stage in profile_stats['stages']:
-        report_lines.append(
-            f"| {stage['name']} | {stage['duration_seconds']:.2f} | {stage['memory_start_mb']:.2f} | "
-            f"{stage['memory_end_mb']:.2f} | {stage['memory_delta_mb']:.2f} |"
-        )
-    
-    report_lines.extend([
-        "",
-        "## Analysis",
-        "",
-        "The image pipeline processes root system architecture (RSA) images from the NPPN dataset.",
-        "Key memory consumers include:",
-        "",
-        "1. **Image Loading**: Raw image data loaded into memory",
-        "2. **Skeletonization**: Intermediate arrays for 8-connectivity skeleton processing",
-        "3. **Contour Extraction**: Memory for surface area calculations",
-        "",
-        "### Optimization Strategies Employed",
-        "",
-        "- **Lazy Loading**: Images are processed one at a time rather than all at once",
-        "- **In-place Operations**: Where possible, operations modify arrays in-place",
-        "- **Garbage Collection**: Explicit cleanup between major processing stages",
-        "- **Generator-based Processing**: Used for large dataset iteration",
-        "",
-        "## Recommendations",
-        "",
-        "If memory usage approaches the 7GB limit in production:",
-        "",
-        "1. Implement batched processing with explicit memory cleanup",
-        "2. Use `numba` or `cython` for compute-intensive loops to reduce overhead",
-        "3. Consider downsampling very large images before skeletonization",
-        "4. Monitor for memory leaks in third-party libraries (opencv, scikit-image)",
-        "",
-        "## Methodology",
-        "",
-        "Memory was measured using `psutil.Process.memory_info()` for RSS (Resident Set Size)",
-        "and `tracemalloc` for peak Python-allocated memory. Measurements were taken at:",
-        "",
-        "- Pipeline start",
-        "- End of image download stage",
-        "- End of image preprocessing stage",
-        "- Pipeline completion",
-        "",
-        "## Execution Date",
-        "",
-        f"Generated on: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}",
-        ""
-    ])
-    
-    # Write report
+    # Start tracking
+    tracemalloc.start()
+    stats['start_memory_mb'] = get_current_memory_mb()
+    logger.info(f"Initial memory: {stats['start_memory_mb']:.2f} MB")
+
+    try:
+        # Profile Download Images
+        logger.info("Starting image download profiling...")
+        download_main()
+        stats['download_peak_mb'] = get_peak_memory_mb()
+        logger.info(f"Download peak memory: {stats['download_peak_mb']:.2f} MB")
+
+        # Profile Preprocess Images
+        logger.info("Starting image preprocessing profiling...")
+        preprocess_main()
+        stats['preprocess_peak_mb'] = get_peak_memory_mb()
+        logger.info(f"Preprocess peak memory: {stats['preprocess_peak_mb']:.2f} MB")
+
+    except Exception as e:
+        logger.error(f"Pipeline execution failed during profiling: {e}")
+        raise
+    finally:
+        # Stop tracking
+        tracemalloc.stop()
+        stats['end_memory_mb'] = get_current_memory_mb()
+
+    return stats
+
+def generate_memory_report(stats: Dict[str, float]) -> None:
+    """
+    Generate a markdown report of the memory profiling results.
+    Writes to state/memory_profile.md as per T039b specification.
+    """
+    # T039b explicitly requests output to state/memory_profile.md
+    output_path = Path("state/memory_profile.md")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("\n".join(report_lines))
-    logger.info(f"Memory profile report written to: {output_path}")
+
+    peak_memory = max(
+        stats['download_peak_mb'],
+        stats['preprocess_peak_mb']
+    )
+    limit = 7.0  # 7GB limit as per task spec
+    limit_mb = limit * 1024
+
+    status = "PASS" if peak_memory < limit_mb else "FAIL"
+    
+    content = f"""# Memory Profiling Report
+
+## Summary
+- **Status**: {status}
+- **Peak Memory Usage**: {peak_memory:.2f} MB
+- **Constraint**: < {limit_mb} MB (7 GB)
+
+## Detailed Metrics
+| Stage | Memory Usage (MB) |
+|-------|-------------------|
+| Start | {stats['start_memory_mb']:.2f} |
+| Download Peak | {stats['download_peak_mb']:.2f} |
+| Preprocess Peak | {stats['preprocess_peak_mb']:.2f} |
+| End | {stats['end_memory_mb']:.2f} |
+
+## Analysis
+The image loading and preprocessing pipeline was executed with memory profiling enabled.
+The peak memory usage observed was **{peak_memory:.2f} MB**.
+
+{'The pipeline successfully stayed within the 7GB memory limit.' if peak_memory < limit_mb else 'WARNING: The pipeline exceeded the 7GB memory limit. Optimization (e.g., streaming) is required.'}
+
+## Methodology
+- Used Python's `tracemalloc` module for accurate memory tracking.
+- Profiled the full execution of `download_images.py` and `preprocess_images.py`.
+- Measured peak memory consumption during the most intensive phases.
+- Output written to: {output_path}
+"""
+
+    with open(output_path, 'w') as f:
+        f.write(content)
+
+    logger.info(f"Memory profile report generated at {output_path}")
 
 def main():
     """Main entry point for memory profiling."""
-    logger.info("=" * 60)
-    logger.info("Starting Memory Profiling for Image Pipeline (Task T034a)")
-    logger.info("=" * 60)
+    logger.info("Starting memory profiling for image loading pipeline...")
     
+    # Ensure required directories exist
+    Path("state").mkdir(exist_ok=True)
+    Path("docs").mkdir(exist_ok=True)
+
     try:
-        peak_memory, final_memory, profile_stats = run_pipeline_with_profiling()
-        
-        # Generate report
-        output_path = Path("docs/memory_profile.md")
-        generate_memory_report(profile_stats, output_path)
-        
-        # Print summary
-        print("\n" + "=" * 60)
-        print("MEMORY PROFILING SUMMARY")
-        print("=" * 60)
-        print(f"Peak Memory Usage: {peak_memory:.2f} MB")
-        print(f"Limit: 7168 MB (7 GB)")
-        print(f"Status: {'PASS' if peak_memory < 7168 else 'FAIL'}")
-        print(f"Report: {output_path}")
-        print("=" * 60)
-        
-        return 0
-        
+        stats = run_pipeline_with_profiling()
+        generate_memory_report(stats)
+        logger.info("Memory profiling completed successfully.")
     except Exception as e:
-        logger.error(f"Memory profiling failed: {e}", exc_info=True)
-        return 1
+        logger.error(f"Memory profiling failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

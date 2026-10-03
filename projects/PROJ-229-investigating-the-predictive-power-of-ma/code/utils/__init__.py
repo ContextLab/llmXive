@@ -1,7 +1,24 @@
 """
-Utilities package for the llmXive pipeline.
+utils package initialization.
+
+This module deliberately avoids eager imports of sub‑modules that depend on each
+other (e.g., ``collinearity_utils``) to prevent circular‑import errors.
+Only lightweight, dependency‑free utilities are imported here.
 """
-from .logger import setup_logger, get_pipeline_logger
+
+# Re‑export the most commonly used logger utilities
+from .logger import (
+    setup_logger,
+    get_pipeline_logger,
+    log_debug,
+    log_info,
+    log_warning,
+    log_error,
+    log_critical,
+    log_exception_details,
+)
+
+# Re‑export error‑handling classes and helpers
 from .error_handling import (
     PipelineError,
     DataFetchError,
@@ -10,17 +27,19 @@ from .error_handling import (
     ConfigError,
     handle_error,
     validate_not_null,
-    validate_positive
+    validate_positive,
+    pipeline_error_handler,
 )
-from .create_data_dirs import create_data_directories
-from .collinearity_utils import calculate_vif, identify_high_collinearity
-from .stability_checks import check_nan_inf, get_memory_stats, check_memory_usage, validate_dataframe, validate_features
-from .generate_dataset_schema import load_target_decision, generate_schema, validate_schema, save_schema
-from .setup_data_dirs import create_data_dirs as setup_data_dirs_utils
 
 __all__ = [
     "setup_logger",
     "get_pipeline_logger",
+    "log_debug",
+    "log_info",
+    "log_warning",
+    "log_error",
+    "log_critical",
+    "log_exception_details",
     "PipelineError",
     "DataFetchError",
     "DataProcessingError",
@@ -29,17 +48,5 @@ __all__ = [
     "handle_error",
     "validate_not_null",
     "validate_positive",
-    "create_data_directories",
-    "calculate_vif",
-    "identify_high_collinearity",
-    "check_nan_inf",
-    "get_memory_stats",
-    "check_memory_usage",
-    "validate_dataframe",
-    "validate_features",
-    "load_target_decision",
-    "generate_schema",
-    "validate_schema",
-    "save_schema",
-    "setup_data_dirs_utils"
+    "pipeline_error_handler",
 ]

@@ -1,3 +1,6 @@
-# This file allows running `ruff check .` directly
-# It extends the settings in pyproject.toml if needed, or overrides for CLI
-extend = "pyproject.toml"
+# Extends the configuration in pyproject.toml
+# This file exists to allow `ruff check` to run without arguments
+target-version = "py311"
+line-length = 100
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008", "C901"]

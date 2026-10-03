@@ -2550,3 +2550,227 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T08:48:39Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: f2=0.15, alpha=0.05, power=0.80, k=3'
+  claim_id: c_aac933b6
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N) using
+    statsmodels.stats.power.FTestPower.solve_power. Parameters: Cohen''s f2=0.15 (medium
+    effect), alpha=0.05, power=0.80, k=3 predictors.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Calculate required sample size (N) using statsmodels.stats.power.FTestPower.solve_power
+    with Cohen's f2=0.15, alpha=0.05, power=0.80, k=3 predictors.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:23:27Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Power analysis halt threshold: N < 55'
+  claim_id: c_4dbfab49
+  context: Fetch species list from data/raw/nppn.parquet and data/raw/try_traits.csv.
+    If overlap N < 55, HALT with critical error Insufficient species for power analysis
+    (N < 55).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If overlap N < 55, HALT with critical error Insufficient species for power
+    analysis (N < 55).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:23:27Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Branching density formula: (branch_points - endpoints) / total_length'
+  claim_id: c_b490b551
+  context: 'Algorithm: skimage.morphology.skeletonize (8-connectivity) for depth/branching.
+    cv2.findContours for surface area. Branching density = (branch_points - endpoints)
+    / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_density_formula:_(branch_points_-_endpoints)_/_tot
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:24:01Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: RSA metrics validation using jsonschema against rsametrics.schema.yaml
+  claim_id: c_fc99e161
+  context: 'Validate data/derived/rsametrics.csv. Schema: Columns species_id (str),
+    depth (float, >0), branching_density (float, >0), surface_area (float, >0). Logic:
+    Run T013 on all images. Validate output against contracts/rsametrics.schema.yaml
+    using jsonschema.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RSA_metrics_validation_using_jsonschema_against_rsametrics.s
+  kind: entity_fact
+  raw_text: Validate output against contracts/rsametrics.schema.yaml using jsonschema.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:24:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'VIF flag threshold: > 5'
+  claim_id: c_4cce811e
+  context: 'Implement code/analysis.py function perform_pca() to transform RSA traits
+    for collinearity handling (VIF > 5 check included). Logic: Calculate VIF using
+    statsmodels.stats.outliers_influence.variance_inflation_factor. If VIF > 5 for
+    any predictor, flag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5 for any predictor, flag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:24:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: GroupKFold cross-validation with groups=species_name
+  claim_id: c_c7dfe30a
+  context: GroupKFold cross-validation (groups=species_name) with a multi-fold strategy.
+    to prevent phylogenetic leakage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GroupKFold_cross-validation_with_groups=species_name
+  kind: entity_fact
+  raw_text: Perform GroupKFold cross-validation with groups=species_name.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:24:44Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Random Forest Regression parameters: n_estimators=100, max_depth=None'
+  claim_id: c_a96360d4
+  context: 'Implement code/models.py function fit_random_forest() to predict stomatal
+    conductance/photosynthesis using Random Forest Regression. Specs: R2 metric. 5-fold
+    GroupKFold (groups=species_name) to prevent phylogenetic leakage. n_estimators=100,
+    max_depth=None, regularization via min_samples_leaf.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100, max_depth=None, regularization
+    via min_samples_leaf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:25:04Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Multiple-comparison correction method: fdr_bh'
+  claim_id: c_6a52c2de
+  context: 'Implement multiple-comparison correction (Bonferroni/FDR) in code/analysis.py
+    for hypothesis testing. Logic: Apply correction to p-values from T023a, T023c
+    using statsmodels.stats.multitest.multipletests(..., method=''fdr_bh'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_method:_fdr_bh
+  kind: entity_fact
+  raw_text: Apply multiple-comparison correction using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:25:33Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis threshold sweep: 0.0 to 1.0 with step 0.01'
+  claim_id: c_2835120d
+  context: 'Implement code/analysis.py function run_sensitivity_analysis(). Logic:
+    If classification exists: Sweep predicted probability threshold across the full
+    range (0.0 to 1.0) using np.arange(0.0, 1.0, 0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep predicted probability threshold across the full range (0.0 to 1.0)
+    using np.arange(0.0, 1.0, 0.01).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:25:54Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Pipeline total runtime limit: 6 hours'
+  claim_id: c_11163152
+  context: 'Profile total pipeline runtime. Logic: Use cProfile. Deliverable: state/runtime_profile.yaml
+    with total runtime. Logic: Verify total runtime <= 6h.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total runtime <= 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:26:15Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Peak memory limit: 7 GB'
+  claim_id: c_ff7ace49
+  context: 'Refactor code/download_images.py to implement streaming for large NPPN
+    datasets. Verification: Run code/profile_memory.py to generate the profile. Ensure
+    state/memory_profile.md confirms peak memory < 7GB during full dataset processing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure peak memory < 7GB during full dataset processing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:26:15Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'API retry logic: 3 attempts with 5s, 10s, 20s delays'
+  claim_id: c_74867312
+  context: 'Add retry logic with exponential backoff for Open Tree of Life API fetch
+    in code/fetch_phylogeny.py. Logic: Retry up to 3 times with 5s, 10s, 20s delays.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with 5s, 10s, 20s delays for Open Tree of Life API
+    fetch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:26:58Z'

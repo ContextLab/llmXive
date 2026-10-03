@@ -1,134 +1,114 @@
+import pytest
 import os
-import json
-import tempfile
-import hashlib
+import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
+from huggingface_hub import RepositoryNotFoundError, LocalEntryNotFoundError
 
-# Import the functions we want to test
-# Note: We assume these are in code/download_images.py
-# Adjust import path if necessary based on project structure
-import sys
-sys.path.insert(0, 'code')
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from download_images import (
-    compute_sha256,
-    load_existing_checksums,
-    save_checksums,
-    verify_checksums,
-    get_hf_files_list
-)
+from download_images import main, get_hf_files_list, verify_checksums, compute_sha256
 
+class TestDownloadImages:
+    """Tests for download_images.py focusing on loud failure on fetch errors."""
 
-class TestChecksumFunctions:
-    
+    @patch('download_images.api.list_repo_files')
+    @patch('download_images.snapshot_download')
+    def test_download_fails_loudly_repo_not_found(self, mock_snapshot, mock_list_files):
+        """
+        Test that the script raises RuntimeError with the exact message
+        "No real NPPN root images found. Pipeline cannot proceed."
+        when the repository is not found.
+        """
+        mock_list_files.side_effect = RepositoryNotFoundError("Repo not found")
+
+        with pytest.raises(RuntimeError) as excinfo:
+            main()
+
+        assert str(excinfo.value) == "No real NPPN root images found. Pipeline cannot proceed."
+
+    @patch('download_images.api.list_repo_files')
+    @patch('download_images.snapshot_download')
+    def test_download_fails_loudly_local_entry_not_found(self, mock_snapshot, mock_list_files):
+        """
+        Test that the script raises RuntimeError with the exact message
+        when LocalEntryNotFoundError occurs.
+        """
+        mock_list_files.return_value = ["image.png"]
+        mock_snapshot.side_effect = LocalEntryNotFoundError("Local entry not found")
+
+        with pytest.raises(RuntimeError) as excinfo:
+            main()
+
+        assert str(excinfo.value) == "No real NPPN root images found. Pipeline cannot proceed."
+
+    @patch('download_images.api.list_repo_files')
+    @patch('download_images.snapshot_download')
+    def test_download_fails_loudly_empty_repo(self, mock_snapshot, mock_list_files):
+        """
+        Test that the script raises RuntimeError if no image files are found in the repo.
+        """
+        mock_list_files.return_value = ["readme.txt"] # No images
+
+        with pytest.raises(RuntimeError) as excinfo:
+            main()
+
+        assert str(excinfo.value) == "No real NPPN root images found. Pipeline cannot proceed."
+
+    @patch('download_images.HfApi')
+    def test_get_hf_files_list_no_images(self, mock_api_class):
+        """Test get_hf_files_list raises when no matching files exist."""
+        mock_api = MagicMock()
+        mock_api.list_repo_files.return_value = ["readme.md", "data.csv"]
+        mock_api_class.return_value = mock_api
+
+        with pytest.raises(RuntimeError) as excinfo:
+            get_hf_files_list(mock_api, "fake/repo", ["*.png"])
+
+        assert "No image files found" in str(excinfo.value)
+
     def test_compute_sha256(self, tmp_path):
-        """Test that SHA256 is computed correctly."""
+        """Test SHA256 computation on a real file."""
         test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-        
-        expected_hash = hashlib.sha256(content).hexdigest()
-        actual_hash = compute_sha256(test_file)
-        
-        assert actual_hash == expected_hash
-    
-    def test_save_and_load_checksums(self, tmp_path):
-        """Test saving and loading checksums."""
-        checksums = {"file1.jpg": "abc123", "file2.jpg": "def456"}
-        checksum_file = tmp_path / "checksums.json"
-        
-        # Patch the global CHECKSUM_FILE constant or pass path
-        # Since the functions use global constants, we need to be careful
-        # For this test, we'll test the logic directly
-        
-        with patch('download_images.CHECKSUM_FILE', checksum_file):
-            save_checksums(checksums)
-            loaded = load_existing_checksums()
-            assert loaded == checksums
-    
-    def test_verify_checksums_pass(self, tmp_path):
-        """Test successful checksum verification."""
-        # Create test files
-        file1 = tmp_path / "file1.jpg"
-        file1.write_bytes(b"data1")
-        file2 = tmp_path / "file2.jpg"
-        file2.write_bytes(b"data2")
-        
-        # Create checksums
-        checksums = {
-            "file1.jpg": compute_sha256(file1),
-            "file2.jpg": compute_sha256(file2)
-        }
-        
-        # Verify
-        result = verify_checksums([file1, file2], checksums)
-        assert result is True
-    
-    def test_verify_checksums_fail(self, tmp_path):
-        """Test checksum verification failure."""
-        # Create test files
-        file1 = tmp_path / "file1.jpg"
-        file1.write_bytes(b"data1")
-        
-        # Create wrong checksum
-        wrong_checksums = {
-            "file1.jpg": "wrong_hash_value"
-        }
-        
-        # Verify should raise RuntimeError
-        with pytest.raises(RuntimeError, match="Data integrity check failed for NPPN images."):
-            verify_checksums([file1], wrong_checksums)
-    
-    def test_verify_checksums_generates_manifest(self, tmp_path):
-        """Test that verify_checksums generates a manifest if none exists."""
-        file1 = tmp_path / "file1.jpg"
-        file1.write_bytes(b"data1")
-        
-        # No existing checksums
-        with patch('download_images.CHECKSUM_FILE', tmp_path / "new_checksums.json"):
-            result = verify_checksums([file1], {})
-            assert result is True
-            
-            # Check that file was created
-            assert (tmp_path / "new_checksums.json").exists()
+        test_file.write_text("hello world")
 
+        hash_val = compute_sha256(test_file)
+        # Known SHA256 for "hello world"
+        expected = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+        assert hash_val == expected
 
-class TestHFIntegration:
-    
-    @patch('download_images.HfApi')
-    def test_get_hf_files_list_success(self, MockHfApi):
-        """Test successful file listing from HF."""
-        mock_instance = MagicMock()
-        MockHfApi.return_value = mock_instance
-        mock_instance.list_repo_files.return_value = [
-            "root1.jpg", "root2.png", "readme.md"
-        ]
-        
-        files = get_hf_files_list()
-        
-        assert len(files) == 2
-        assert "root1.jpg" in files
-        assert "root2.png" in files
-    
-    @patch('download_images.HfApi')
-    def test_get_hf_files_list_failure(self, MockHfApi):
-        """Test failure to access HF repository."""
-        from huggingface_hub.utils import RepositoryNotFoundError
-        mock_instance = MagicMock()
-        MockHfApi.return_value = mock_instance
-        mock_instance.list_repo_files.side_effect = RepositoryNotFoundError("Not found")
-        
-        with pytest.raises(RuntimeError, match="No real NPPN root images found. Pipeline cannot proceed."):
-            get_hf_files_list()
-    
-    @patch('download_images.HfApi')
-    def test_get_hf_files_list_no_images(self, MockHfApi):
-        """Test repository with no image files."""
-        mock_instance = MagicMock()
-        MockHfApi.return_value = mock_instance
-        mock_instance.list_repo_files.return_value = ["readme.md", "data.txt"]
-        
-        files = get_hf_files_list()
-        assert len(files) == 0
+    def test_verify_checksums_mismatch(self, tmp_path):
+        """Test verify_checksums returns False on mismatch."""
+        file_a = tmp_path / "a.txt"
+        file_a.write_text("content")
+
+        checksums = {"a.txt": "wrong_hash"}
+
+        assert verify_checksums(tmp_path, checksums) is False
+
+    def test_verify_checksums_match(self, tmp_path):
+        """Test verify_checksums returns True on match."""
+        file_a = tmp_path / "a.txt"
+        file_a.write_text("content")
+
+        # Compute actual hash
+        from download_images import compute_sha256
+        actual_hash = compute_sha256(file_a)
+
+        checksums = {"a.txt": actual_hash}
+
+        assert verify_checksums(tmp_path, checksums) is True
+
+    @patch('download_images.snapshot_download')
+    @patch('download_images.api.list_repo_files')
+    def test_download_fails_loudly_generic_exception(self, mock_list, mock_snapshot):
+        """Test that generic exceptions during download are caught and re-raised as the standard error."""
+        mock_list.return_value = ["img.png"]
+        mock_snapshot.side_effect = Exception("Network timeout")
+
+        with pytest.raises(RuntimeError) as excinfo:
+            main()
+
+        assert str(excinfo.value) == "No real NPPN root images found. Pipeline cannot proceed."
+        assert excinfo.value.__cause__ is not None

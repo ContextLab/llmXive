@@ -139,7 +139,7 @@
 
 - [X] T027 [US2] [D:T021] Implement `code/analysis.py` function `detect_tolerance_proxies()` to check for and ingest 'independent tolerance proxies' (e.g., survival rate) if available, as required by FR-009. Generate explicit framing text in `data/derived/report_framing.md` (predicting 'physiological state'). **Logic**: Check for columns `survival_rate`, `biomass_stress`. **Deliverable**: `state/proxy_detection.yaml` (boolean `has_proxy`).
 
-- [X] T027c [US3] [D:T021, D:T027] Implement `code/models.py` function `binarize_target()` to binarize the target variable. **Logic**: 
+- [X] T027c [US3] [D:T021, D:T027] Implement `code/models.py` function `binarize_target()` to binarize the target variable. **Logic**:
  1. Check `state/proxy_detection.yaml` for `has_proxy`.
  2. **If False (No Proxy)**: **MANDATORY**: Binarize the *physiological metrics* (stomatal conductance/photosynthesis) using median split to create a binary target. **DO NOT** skip this step. Generate `data/derived/binary_physio_target.csv` with columns `species_id`, `conductance_bin`, `photosynthesis_bin`. **Deliverable**: `data/derived/binary_physio_target.csv`.
  3. **If True (Proxy Exists)**: Use `df['proxy'] > df['proxy'].median()` to binarize the *proxy* variable. **Deliverable**: `data/derived/binary_target.csv`.
@@ -176,7 +176,7 @@
 
 - [ ] T045 [US2] [D:T022] Generate VIF visualization in `results/figures/vif_heatmap.png`. **Logic**: Read VIF scores from `state/vif_report.yaml`. Use `seaborn.heatmap` with `cmap='viridis'` to plot the correlation matrix and VIF scores. **Deliverable**: `results/figures/vif_heatmap.png` (Required for SC-004).
 
-- [ ] T046 [US3] [D:T028, T028a] Generate sensitivity analysis plot in `results/figures/sensitivity_curve.png`. **Logic**: 
+- [ ] T046 [US3] [D:T028, T028a] Generate sensitivity analysis plot in `results/figures/sensitivity_curve.png`. **Logic**:
  1. Check `state/classification_status.yaml`.
  2. **If status == 'SKIPPED'**: Read `results/sensitivity_na_justification.md` and generate a placeholder plot or skip. **Deliverable**: `results/figures/sensitivity_curve.png` (placeholder or N/A).
  3. **If status != 'SKIPPED'**: Read columns `threshold`, `FPR`, `FNR` from `results/sensitivity_fpr_fnr.csv`. Plot using `matplotlib` with threshold on X-axis and FPR/FNR on Y-axis. **Deliverable**: `results/figures/sensitivity_curve.png` (Required for SC-003).
@@ -214,7 +214,7 @@
 
 - [X] T033 [P] Code cleanup and refactoring. **Logic**: Remove unused imports, fix linting errors using ruff/black.
 
-- [ ] T034a [P] [D:T012,T013] Profile memory usage of image loading pipeline. **Logic**: Use `memory_profiler`. **Deliverable**: `docs/memory_profile.md` with peak usage <7GB.
+- [X] T034a [P] [D:T012,T013] Profile memory usage of image loading pipeline. **Logic**: Use `memory_profiler`. **Deliverable**: `docs/memory_profile.md` with peak usage <7GB.
 
 - [ ] T034b [P] [D:T012,T013] Profile total pipeline runtime. **Logic**: Use `cProfile`. **Deliverable**: `state/runtime_profile.yaml` with total runtime. **Logic**: Verify total runtime <= 6h.
 
@@ -230,20 +230,20 @@
 
 **Purpose**: Address specific review concerns regarding data integrity, streaming, and error handling.
 
-- [ ] T039a [US1] [D:T012] Refactor `code/download_images.py` to implement **streaming** for large NPPN datasets. **Logic**:
+- [X] T039a [US1] [D:T012] Refactor `code/download_images.py` to implement **streaming** for large NPPN datasets. **Logic**:
  1. Use `huggingface_hub` streaming API to list repository files.
  2. Implement a generator that downloads and processes images in chunks (e.g., a manageable batch size) to ensure memory usage remains within acceptable limits.
  3. **Constraint**: Do NOT download the entire repository to local disk if it exceeds a significant storage threshold; process and discard raw images immediately after RSA extraction.
  4. **Verification**: Run `code/profile_memory.py` to generate the profile. Ensure `state/memory_profile.md` confirms peak memory < 7GB during full dataset processing.
 
-- [ ] T039b [US1] [D:T039a] Verify memory profile of image loading pipeline. **Logic**: Run `code/profile_memory.py` and generate `state/memory_profile.md`. Ensure peak memory < 7GB. **Deliverable**: `state/memory_profile.md`.
+- [X] T039b [US1] [D:T039a] Verify memory profile of image loading pipeline. **Logic**: Run `code/profile_memory.py` and generate `state/memory_profile.md`. Ensure peak memory < 7GB. **Deliverable**: `state/memory_profile.md`.
 
-- [ ] T040 [US1] [D:T012] Update `code/download_images.py` to strictly **FAIL LOUDLY** on fetch errors. **Logic**:
+- [X] T040 [US1] [D:T012] Update `code/download_images.py` to strictly **FAIL LOUDLY** on fetch errors. **Logic**:
  1. Remove any `try/except` blocks that catch `RepositoryNotFoundError` or `HTTPError` and fall back to synthetic data.
  2. Ensure the script raises a `RuntimeError` with the exact message "No real NPPN root images found. Pipeline cannot proceed." if the fetch fails.
  3. **Verification**: Add unit test `test_download_fails_loudly` in `tests/unit/test_download.py` asserting `RuntimeError: No real NPPN root images found. Pipeline cannot proceed."
 
-- [ ] T042 [US2] [D:T015] Update `code/merge_data.py` to handle **species-level stratification** explicitly. **Logic**:
+- [X] T042 [US2] [D:T015] Update `code/merge_data.py` to handle **species-level stratification** explicitly. **Logic**:
  1. Ensure that the merge operation preserves species IDs.
  2. Add a check to verify that the merged dataset does not contain duplicate species entries that could bias the GroupKFold.
  3. **Verification**: Add unit test in `tests/unit/test_merge.py` asserting unique species IDs in the merged output.

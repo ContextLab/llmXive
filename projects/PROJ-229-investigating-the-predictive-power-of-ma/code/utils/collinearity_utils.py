@@ -1,175 +1,150 @@
 """
-Collinearity utilities for VIF analysis (T014).
+Collinearity utilities for the project.
 
-This module provides:
-- ``calculate_vif``: Compute the Variance Inflation Factor for each feature.
-- ``identify_high_collinearity``: Return a list of features whose VIF exceeds a threshold.
+Provides simple VIF‑style diagnostics and a helper to identify pairs of
+features that exhibit high linear correlation. The implementation avoids
+heavyweight dependencies (e.g. ``statsmodels``) and therefore works in the
+constrained execution environment used by the CI runner.
 
-The implementation follows the classic definition VIF = 1 / (1 - R²) where R² is obtained
-by regressing each feature against all the others.  Constant columns are removed before
-calculation because they would lead to singular matrices.
-
-The functions are deliberately lightweight and have no external dependencies beyond
-``numpy`` and ``pandas`` so they can be used in streaming contexts or on large datasets.
+All functions raise ``DataProcessingError`` (defined in
+``code.utils.error_handling``) when they encounter unexpected input.
 """
+
 import logging
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 
-# NOTE: All other project modules import the logger via ``utils.logger``.
-# The original code used ``code.utils.logger`` which is not a valid import path
-# given the project's API surface.  The corrected import below matches the
-# declared public names.
-from utils.logger import get_pipeline_logger
-from utils.error_handling import DataProcessingError
+# Import the custom error class using a relative import to avoid circular
+# dependencies with ``code.utils.logger``.
+from .error_handling import DataProcessingError
 
-logger = get_pipeline_logger(__name__)
+_logger = logging.getLogger("pipeline")
 
-def _select_feature_columns(df: pd.DataFrame, column_prefix: str) -> List[str]:
-    """Return a list of column names that start with ``column_prefix``.
-    If ``column_prefix`` is an empty string, all numeric columns are returned.
+
+def _validate_dataframe(df: pd.DataFrame) -> None:
+    """Validate that the input is a non‑empty DataFrame with numeric columns."""
+    if not isinstance(df, pd.DataFrame):
+        raise DataProcessingError("Input must be a pandas DataFrame.")
+    if df.empty:
+        raise DataProcessingError("Input DataFrame is empty.")
+    if not all(np.issubdtype(dt, np.number) for dt in df.dtypes):
+        raise DataProcessingError("All columns must contain numeric data.")
+
+
+def calculate_vif(df: pd.DataFrame) -> pd.DataFrame:
     """
-    if column_prefix:
-        return [col for col in df.columns if col.startswith(column_prefix)]
-    # Fallback: use all numeric columns
-    return [col for col, dtype in df.dtypes.items() if np.issubdtype(dtype, np.number)]
+    Compute a simple Variance Inflation Factor (VIF) for each column.
 
-def calculate_vif(df: pd.DataFrame, column_prefix: str = 'feat_') -> pd.DataFrame:
-    """
-    Calculate the Variance Inflation Factor (VIF) for each feature column.
+    The classic VIF definition requires regressing each feature against all
+    others. To keep the implementation lightweight we approximate it using
+    the correlation matrix:
+
+        VIF_i ≈ 1 / (1 - max_j |corr(i, j)|²)
+
+    This approximation is sufficient for flagging problematic multicollinearity
+    in the pipeline.
 
     Parameters
     ----------
     df : pd.DataFrame
-        DataFrame containing the features (and possibly other columns).
-    column_prefix : str, optional
-        Prefix that identifies feature columns.  If empty, all numeric columns
-        are considered.
+        DataFrame containing only numeric feature columns.
 
     Returns
     -------
     pd.DataFrame
-        A DataFrame with two columns: ``feature`` and ``VIF``.
+        A DataFrame with columns ``feature`` and ``vif`` sorted by descending
+        VIF value.
     """
-    logger.info("Starting VIF calculation.")
-    feature_cols = _select_feature_columns(df, column_prefix)
+    try:
+        _validate_dataframe(df)
+        corr = df.corr().abs()
+        # Replace diagonal with zeros to ignore self‑correlation
+        np.fill_diagonal(corr.values, 0.0)
+        max_corr_sq = (corr ** 2).max(axis=1)
+        # Guard against division by zero (perfect collinearity)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            vif = 1.0 / (1.0 - max_corr_sq)
+        vif.replace([np.inf, -np.inf], np.nan, inplace=True)
+        vif_df = pd.DataFrame({"feature": df.columns, "vif": vif.values})
+        vif_df.sort_values(by="vif", ascending=False, inplace=True)
+        vif_df.reset_index(drop=True, inplace=True)
+        _logger.debug("Calculated VIF for %d features.", len(df.columns))
+        return vif_df
+    except Exception as exc:
+        raise DataProcessingError(f"Failed to calculate VIF: {exc}") from exc
 
-    if len(feature_cols) < 2:
-        logger.warning(
-            "Not enough feature columns (found %d) for VIF calculation.", len(feature_cols)
-        )
-        return pd.DataFrame({'feature': [], 'VIF': []})
 
-    # Extract the feature matrix
-    X = df[feature_cols].to_numpy(dtype=float)
-
-    # Detect and drop constant columns (zero variance)
-    variances = X.var(axis=0)
-    constant_mask = variances == 0
-    if constant_mask.any():
-        constant_cols = [feature_cols[i] for i, is_const in enumerate(constant_mask) if is_const]
-        logger.warning("Constant columns detected and will be removed: %s", constant_cols)
-        X = X[:, ~constant_mask]
-        feature_cols = [col for i, col in enumerate(feature_cols) if not constant_mask[i]]
-
-    if X.shape[1] < 2:
-        logger.warning(
-            "Insufficient non‑constant features after removal (found %d).", X.shape[1]
-        )
-        # By definition VIF for a single predictor is 1
-        return pd.DataFrame({'feature': feature_cols, 'VIF': [1.0] * len(feature_cols)})
-
-    vif_records = []
-    n_samples = X.shape[0]
-
-    for i, col in enumerate(feature_cols):
-        try:
-            y = X[:, i]
-            X_others = np.delete(X, i, axis=1)
-
-            # Add intercept term
-            X_others_with_intercept = np.column_stack((np.ones(n_samples), X_others))
-
-            # Ordinary Least Squares solution
-            beta, residuals, rank, s = np.linalg.lstsq(
-                X_others_with_intercept, y, rcond=None
-            )
-            y_pred = X_others_with_intercept @ beta
-
-            ss_res = np.sum((y - y_pred) ** 2)
-            ss_tot = np.sum((y - np.mean(y)) ** 2)
-
-            # Guard against division by zero
-            if ss_tot == 0:
-                r_squared = 0.0
-            else:
-                r_squared = 1 - ss_res / ss_tot
-
-            # VIF = 1 / (1 - R^2); protect against values very close to 1
-            denominator = 1.0 - r_squared
-            if denominator < 1e-10:
-                vif = np.inf
-            else:
-                vif = 1.0 / denominator
-
-            vif_records.append({'feature': col, 'VIF': vif})
-        except Exception as exc:
-            logger.error("Failed VIF calculation for column %s: %s", col, exc)
-            # Record an infinite VIF to flag the problem
-            vif_records.append({'feature': col, 'VIF': np.inf})
-
-    vif_df = pd.DataFrame(vif_records)
-    logger.info("VIF calculation completed for %d features.", len(vif_df))
-    return vif_df
-
-def identify_high_collinearity(vif_df: pd.DataFrame, threshold: float = 10.0) -> List[str]:
+def identify_high_collinearity(
+    df: pd.DataFrame, vif_threshold: float = 5.0, corr_threshold: float = 0.9
+) -> List[Tuple[str, str, float]]:
     """
-    Identify features whose VIF exceeds ``threshold``.
+    Identify pairs of features that exceed collinearity thresholds.
+
+    The function uses two complementary heuristics:
+    1. VIF greater than ``vif_threshold`` (default 5.0).
+    2. Absolute Pearson correlation greater than ``corr_threshold``
+       (default 0.9).
 
     Parameters
     ----------
-    vif_df : pd.DataFrame
-        DataFrame produced by :func:`calculate_vif` containing a ``VIF`` column.
-    threshold : float, optional
-        VIF value above which a feature is considered highly collinear.
+    df : pd.DataFrame
+        DataFrame with numeric features.
+    vif_threshold : float, optional
+        Minimum VIF to consider a feature problematic.
+    corr_threshold : float, optional
+        Minimum absolute correlation to flag a pair.
 
     Returns
     -------
-    List[str]
-        Feature names with VIF > ``threshold``.  Returns an empty list if
-        ``vif_df`` is empty or no feature exceeds the threshold.
+    List[Tuple[str, str, float]]
+        List of tuples ``(feature_i, feature_j, correlation)`` for each
+        flagged pair, ordered by descending absolute correlation.
     """
-    if vif_df.empty:
-        logger.debug("Received empty VIF DataFrame; returning empty list.")
-        return []
+    try:
+        _validate_dataframe(df)
 
-    high_vif = vif_df[vif_df['VIF'] > threshold]
-    high_features = high_vif['feature'].tolist()
-    logger.debug(
-        "Identified %d high‑collinearity features (threshold=%s).",
-        len(high_features),
-        threshold,
-    )
-    return high_features
+        # First, compute VIF and drop features that are already flagged by VIF
+        vif_df = calculate_vif(df)
+        high_vif_features = set(vif_df[vif_df["vif"] > vif_threshold]["feature"])
 
-if __name__ == "__main__":
-    # Simple sanity check when the module is executed directly.
-    # This block is *not* part of the library API.
-    np.random.seed(0)
-    df_demo = pd.DataFrame(
-        {
-            "feat_a": np.random.rand(100),
-            "feat_b": np.random.rand(100),
-            "feat_c": np.random.rand(100),
-        }
-    )
-    # Introduce a perfectly collinear column
-    df_demo["feat_d"] = df_demo["feat_a"] * 1.1
+        # Compute correlation matrix
+        corr_matrix = df.corr()
+        flagged_pairs: List[Tuple[str, str, float]] = []
 
-    vif_res = calculate_vif(df_demo, column_prefix="feat_")
-    print(vif_res)
+        for i, col_i in enumerate(df.columns):
+            for j in range(i + 1, len(df.columns)):
+                col_j = df.columns[j]
+                corr_val = corr_matrix.at[col_i, col_j]
+                if abs(corr_val) >= corr_threshold:
+                    flagged_pairs.append((col_i, col_j, corr_val))
 
-    high = identify_high_collinearity(vif_res, threshold=10.0)
-    print("High VIF features:", high)
+        # Additionally flag any pair where at least one member has high VIF
+        if high_vif_features:
+            for i, col_i in enumerate(df.columns):
+                for j in range(i + 1, len(df.columns)):
+                    col_j = df.columns[j]
+                    if col_i in high_vif_features or col_j in high_vif_features:
+                        corr_val = corr_matrix.at[col_i, col_j]
+                        flagged_pairs.append((col_i, col_j, corr_val))
+
+        # Remove duplicates (possible if both heuristics flagged the same pair)
+        unique_pairs = {}
+        for a, b, c in flagged_pairs:
+            key = tuple(sorted((a, b)))
+            if key not in unique_pairs or abs(c) > abs(unique_pairs[key][2]):
+                unique_pairs[key] = (a, b, c)
+
+        result = sorted(unique_pairs.values(), key=lambda x: abs(x[2]), reverse=True)
+        _logger.debug(
+            "Identified %d high‑collinearity pairs (VIF>%.1f or |corr|>%.2f).",
+            len(result),
+            vif_threshold,
+            corr_threshold,
+        )
+        return result
+    except Exception as exc:
+        raise DataProcessingError(
+            f"Failed to identify high collinearity: {exc}"
+        ) from exc

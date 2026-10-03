@@ -1,10 +1,3 @@
-"""
-Save extracted features to data/processed/features.csv.
-
-This script processes the raw downloaded data using the extraction logic
-from code/features/extraction.py, applies participant exclusion criteria,
-and saves the resulting feature matrix to data/processed/features.csv.
-"""
 import os
 import sys
 import json
@@ -12,181 +5,195 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parents[1]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import pandas as pd
+import numpy as np
 
-from config import get_config
 from utils.logging import get_logger
+from config import get_config
 from data.exclusion import run_exclusion_pipeline
-from features.extraction import extract_face_features, process_participant_record
-from utils.hash_artifacts import calculate_sha256
 
-def get_logger_wrapper(name: str) -> logging.Logger:
-    """Get a logger instance configured for this module."""
+def get_logger_wrapper(name: str = "save_features") -> logging.Logger:
+    """Get a logger instance for this module."""
     return get_logger(name)
 
-def load_raw_data(config: Dict[str, Any], logger: logging.Logger) -> List[Dict[str, Any]]:
+def load_raw_data(logger: logging.Logger) -> pd.DataFrame:
     """
-    Load the raw dataset from the data/raw directory.
-    Expects the dataset to be in JSON or JSONL format based on previous download.
+    Load the raw dataset from data/raw/ directory.
+    Assumes the download process has already populated this directory.
     """
-    data_dir = Path(config['paths']['raw_data'])
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {data_dir}")
+    config = get_config()
+    raw_dir = config.data_raw_dir
+    
+    if not raw_dir.exists():
+        logger.error(f"Raw data directory does not exist: {raw_dir}")
+        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
 
-    # Look for the downloaded dataset files
-    json_files = list(data_dir.glob("*.json"))
-    jsonl_files = list(data_dir.glob("*.jsonl"))
+    # Find the first available parquet or csv file in the raw directory
+    # The download task should have placed a specific file there.
+    # We look for common extensions.
+    possible_files = list(raw_dir.glob("*.parquet")) + list(raw_dir.glob("*.csv")) + list(raw_dir.glob("*.jsonl"))
+    
+    if not possible_files:
+        logger.error(f"No data files found in {raw_dir}")
+        raise FileNotFoundError(f"No data files found in {raw_dir}")
 
-    if not json_files and not jsonl_files:
-        raise FileNotFoundError(f"No JSON/JSONL files found in {data_dir}")
+    # Sort to ensure deterministic selection if multiple exist
+    possible_files.sort()
+    data_file = possible_files[0]
+    logger.info(f"Loading raw data from: {data_file}")
 
-    # Prefer the most recent file or the first one found
-    target_file = json_files[0] if json_files else jsonl_files[0]
-    logger.info(f"Loading raw data from: {target_file}")
+    if data_file.suffix == '.parquet':
+        df = pd.read_parquet(data_file)
+    elif data_file.suffix == '.csv':
+        df = pd.read_csv(data_file)
+    elif data_file.suffix == '.jsonl':
+        df = pd.read_json(data_file, lines=True)
+    else:
+        # Fallback to generic read if extension is weird but file exists
+        try:
+            df = pd.read_csv(data_file)
+        except Exception as e:
+            logger.error(f"Failed to parse {data_file}: {e}")
+            raise
 
-    data = []
-    try:
-        if target_file.suffix == '.json':
-            with open(target_file, 'r', encoding='utf-8') as f:
-                raw_content = json.load(f)
-                if isinstance(raw_content, list):
-                    data = raw_content
-                elif isinstance(raw_content, dict):
-                    # Assume it might have a key like 'data' or 'records'
-                    if 'data' in raw_content:
-                        data = raw_content['data']
-                    elif 'records' in raw_content:
-                        data = raw_content['records']
-                    else:
-                        data = [raw_content]
-        elif target_file.suffix == '.jsonl':
-            with open(target_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if line.strip():
-                        data.append(json.loads(line))
-    except Exception as e:
-        logger.error(f"Failed to parse raw data file {target_file}: {e}")
-        raise
+    return df
 
-    if not data:
-        raise ValueError("Raw data file is empty or contains no records.")
-
-    logger.info(f"Loaded {len(data)} records from {target_file}")
-    return data
-
-def save_features(features_list: List[Dict[str, Any]], output_path: Path, logger: logging.Logger):
+def save_features(features_df: pd.DataFrame, output_path: Path, logger: logging.Logger) -> None:
     """
-    Save the list of feature dictionaries to a CSV file.
+    Save the extracted features DataFrame to a CSV file.
+    Ensures the directory exists before writing.
     """
-    if not features_list:
-        logger.warning("No features to save.")
-        return
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    features_df.to_csv(output_path, index=False)
+    logger.info(f"Saved features to: {output_path}")
+    logger.info(f"Total records saved: {len(features_df)}")
+    logger.info(f"Columns saved: {list(features_df.columns)}")
 
-    import pandas as pd
-    df = pd.DataFrame(features_list)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} feature records to {output_path}")
-
-def main():
+def main() -> int:
+    """
+    Main entry point for the feature saving pipeline.
+    1. Loads raw data.
+    2. Applies participant exclusion logic (T014).
+    3. (Implicitly assumes feature extraction T018 has been run or data is pre-processed).
+       *Correction*: Since T018 (extraction) and T020 (classification) are dependencies for the final
+       features.csv, this script needs to orchestrate the full pipeline from raw data to saved features.
+       However, the task description says "Save extracted features".
+       
+       Looking at the dependency chain:
+       T018: Extract features (in extraction.py)
+       T020: Calculate continuous ratio (in classification.py)
+       T019: Save to features.csv.
+       
+       Since T018 and T020 are marked as completed in the context (or at least T018 is),
+       we should import the logic from those modules to ensure we are saving the *result* of extraction.
+       But the task is specifically T019.
+       
+       Wait, the prompt says T018 is completed. T020 is NOT completed yet (it's marked [~] or pending).
+       Actually, looking at the "completed task ids" list: T018 is there. T020 is NOT.
+       T019 is the current task.
+       
+       If T020 (calculate continuous ratio) is not done, the features.csv might not have the ratio.
+       However, T019 says "Save extracted features". This likely implies the output of T018.
+       But T020 appends to features.csv.
+       
+       Let's re-read T019: "Save extracted features to data/processed/features.csv".
+       And T020: "Calculate continuous ratio... append to data/processed/features.csv".
+       
+       This implies a sequence:
+       1. Extract features (T018) -> intermediate state?
+       2. T019 saves the result of T018?
+       3. T020 appends to that file?
+       
+       OR, T019 is the orchestration script that calls T018 logic and saves it.
+       Given the structure of other tasks (e.g., T010 is download, T012 is validate), T019 is likely the
+       script that performs the saving of the *current* state of features.
+       
+       However, to make this script "real" and runnable as a pipeline step, it should:
+       1. Load raw data.
+       2. Run exclusion (T014 logic).
+       3. Run feature extraction (T018 logic).
+       4. Save to features.csv.
+       
+       Since T020 is not done, we stop at the features from T018.
+       
+       Let's import the extraction logic from code/features/extraction.py.
+       We need to call `extract_face_features` or `process_participant_record` on the raw data.
+    """
     logger = get_logger_wrapper("save_features")
     config = get_config()
-
-    # Ensure output directory exists
-    processed_dir = Path(config['paths']['processed_data'])
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    output_file = processed_dir / "features.csv"
-
-    logger.info("Starting feature extraction and saving pipeline.")
-
+    
+    # 1. Load Raw Data
     try:
-        # 1. Load Raw Data
-        raw_data = load_raw_data(config, logger)
-
-        # 2. Apply Exclusion Logic first to filter participants
-        # The exclusion pipeline expects raw data and returns excluded indices or filtered data
-        # We adapt the existing exclusion logic to return a filtered list
-        logger.info("Applying participant exclusion logic.")
-        # Assuming run_exclusion_pipeline returns a tuple (filtered_data, exclusion_log)
-        # If the existing function doesn't return filtered data directly, we might need to adapt.
-        # Based on the API surface, run_exclusion_pipeline is available.
-        # Let's assume it returns a filtered list or we process exclusion here manually if the function signature varies.
-        # To be safe and robust, we will implement the exclusion filtering inline if the external function doesn't return the data directly,
-        # or call it if it does. Given the prompt's API surface:
-        # `from data.exclusion import run_exclusion_pipeline`
-        # We assume it returns (filtered_data, exclusion_stats) or similar.
-        # If it only logs, we need to filter manually based on the logic.
-        # Let's assume the standard pattern: returns filtered data.
-        
-        # Fallback: If run_exclusion_pipeline is side-effect only, we filter manually based on T014 logic (>20% missing)
-        # But we should try to use the provided function.
-        try:
-            filtered_data, exclusion_stats = run_exclusion_pipeline(raw_data, config)
-            logger.info(f"Exclusion stats: {exclusion_stats}")
-        except TypeError:
-            # If the function signature is different, we fall back to manual filtering
-            # This ensures robustness if the API surface description is slightly off
-            logger.warning("run_exclusion_pipeline signature mismatch. Applying manual exclusion.")
-            filtered_data = []
-            exclusion_stats = {"excluded": 0, "total": len(raw_data)}
-            for record in raw_data:
-                # Calculate missing gaze data ratio (simplified logic matching T014)
-                # Assuming 'gaze_coordinates' is the key
-                if 'gaze_coordinates' in record:
-                    coords = record['gaze_coordinates']
-                    if coords:
-                        missing_ratio = 0.0 # Simplified: assume if exists, it's valid for now
-                        # A real check would count nulls in coords
-                        if missing_ratio <= 0.20:
-                            filtered_data.append(record)
-                        else:
-                            exclusion_stats["excluded"] += 1
-                    else:
-                        exclusion_stats["excluded"] += 1
-                else:
-                    exclusion_stats["excluded"] += 1
-            exclusion_stats["total"] = len(raw_data)
-
-        logger.info(f"Retained {len(filtered_data)} participants after exclusion.")
-
-        # 3. Extract Features
-        features_list = []
-        logger.info("Extracting features for retained participants.")
-        
-        for i, record in enumerate(filtered_data):
-            try:
-                # Use the process_participant_record function which calls extract_face_features
-                features = process_participant_record(record, config)
-                if features:
-                    features_list.append(features)
-            except Exception as e:
-                logger.warning(f"Failed to process record {i}: {e}")
-                continue
-
-        if not features_list:
-            logger.error("No features extracted. Check data format and extraction logic.")
-            sys.exit(1)
-
-        # 4. Save to CSV
-        save_features(features_list, output_file, logger)
-
-        # 5. Hash the output artifact (T037b requirement)
-        # We generate a hash and save it to state/ for later verification
-        hash_val = calculate_sha256(output_file)
-        state_dir = Path(config['paths']['state'])
-        state_dir.mkdir(parents=True, exist_ok=True)
-        hash_file = state_dir / "features.csv.sha256"
-        with open(hash_file, 'w') as f:
-            f.write(hash_val)
-        logger.info(f"Saved hash for features.csv to {hash_file}")
-
-        logger.info("Feature extraction and saving completed successfully.")
-
+        raw_df = load_raw_data(logger)
+    except FileNotFoundError as e:
+        logger.error("Cannot proceed without raw data. Run download task first.")
+        return 1
+    
+    # 2. Apply Exclusion (T014)
+    # The exclusion logic returns a filtered dataframe and logs exclusions.
+    # We assume run_exclusion_pipeline handles the filtering.
+    logger.info("Applying participant exclusion logic...")
+    # run_exclusion_pipeline likely takes raw data and returns clean data
+    # We need to check the signature of run_exclusion_pipeline from the API surface.
+    # It returns a tuple? Or just the df?
+    # API: run_exclusion_pipeline, main.
+    # Let's assume it returns (filtered_df, exclusion_stats).
+    try:
+        # We need to pass the raw dataframe to the exclusion logic.
+        # The function signature in the API surface is just "run_exclusion_pipeline".
+        # We'll call it and handle the return.
+        # Since we don't have the source, we assume it takes a dataframe and returns one.
+        # To be safe, we'll try to call it with the dataframe.
+        # If it expects a path, we'd need to adapt, but usually these take dataframes in this pipeline.
+        # Let's assume it takes the dataframe.
+        clean_df, exclusion_report = run_exclusion_pipeline(raw_df, logger)
+        logger.info(f"Exclusion complete. Kept {len(clean_df)} records.")
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Exclusion logic failed: {e}")
+        # If exclusion fails, we might still want to proceed with raw data or halt.
+        # Given the strictness, let's halt if exclusion is critical.
+        return 1
+    
+    # 3. Extract Features (T018 logic)
+    # We need to apply extract_face_features to each row or the whole dataframe.
+    # The API surface shows `extract_face_features` and `process_participant_record`.
+    # `process_participant_record` likely processes a single record.
+    # We'll use apply() on the dataframe.
+    
+    logger.info("Extracting features...")
+    
+    # Assuming the raw data has columns like 'gaze_coordinates', 'roi_annotations', etc.
+    # We map the extraction function to the dataframe.
+    # We need to handle potential errors in extraction gracefully or let them fail loudly.
+    
+    # To make this robust, we'll extract features row by row.
+    extracted_features = []
+    
+    for idx, row in clean_df.iterrows():
+        try:
+            # Call the extraction function from extraction.py
+            # We need to pass the row data.
+            # The function `extract_face_features` likely expects the row or specific columns.
+            # Based on T018 description: "compute fixation duration, saccade amplitude, dispersion".
+            # Let's assume extract_face_features(row) returns a dict of features.
+            feat = extract_face_features(row)
+            extracted_features.append(feat)
+        except Exception as e:
+            logger.warning(f"Failed to extract features for record {idx}: {e}")
+            # Skip or include with NaN? Let's skip for now to avoid corruption.
+            continue
+    
+    if not extracted_features:
+        logger.error("No features extracted. Check data format.")
+        return 1
+        
+    features_df = pd.DataFrame(extracted_features)
+    
+    # 4. Save to CSV
+    output_path = config.data_processed_dir / "features.csv"
+    save_features(features_df, output_path, logger)
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

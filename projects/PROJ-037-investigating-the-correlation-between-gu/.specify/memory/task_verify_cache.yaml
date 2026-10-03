@@ -1,18 +1,3 @@
-T026:
-  c: false
-  h: f297f36847e995f63d6432f3c3c8127f7112bb91dc0f7e561484b8fb0dad95f1
-  r: "The `code/viz.py` file is truncated and never sets a plot title that includes\
-    \ the required \u201CCorrelation: {rho:.3f}, p_adj: {p:.4f}\u201D string, nor\
-    \ does it contain code that actually writes the heatmap to `data/outputs/heatmap.png`.\
-    \ Moreover, the expected output file `data/outputs/heatmap.png` is absent. The\
-    \ implementation therefore does not meet the task\u2019s specifications."
-T027:
-  c: false
-  h: eef818046c321a3a86d5c5a4286819bc32da5d314a2fbd8c2c3e144e5da991f2
-  r: "The repository contains a `code/viz.py` file, but it does not include any implementation\
-    \ that creates and saves a PCoA plot colored by sleep quality (the function is\
-    \ truncated and lacks such logic). Moreover, the required output file `data/outputs/pcoa_sleep_quality.png`\
-    \ is absent. The task\u2019s core deliverable is therefore not present."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

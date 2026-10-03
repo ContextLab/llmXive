@@ -1,42 +1,52 @@
+"""
+Setup script to create the required directory structure for the project.
+Ensures all necessary folders for data, code, results, and tests exist.
+"""
 import os
 import sys
 from pathlib import Path
 
+# Define the base directory (project root)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "code/models",
+    "code/metrics",
+    "code/stats",
+    "results",
+    "tests/unit",
+    "tests/integration",
+    "code/utils"
+]
+
 def main():
     """
-    Creates the required directory structure for the llmXive project.
-    Ensures all paths listed in tasks.md T001a exist on disk.
+    Creates all required directories if they do not already exist.
+    Prints a summary of created directories.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    
-    # Define the directories required by T001a
-    # Note: 'code' and 'tests' are already present as packages, but we ensure subdirs exist.
-    directories = [
-        "data/raw",
-        "data/processed",
-        "code/models",
-        "code/metrics",
-        "code/stats",
-        "code/utils",
-        "results",
-        "tests/unit",
-        "tests/integration"
-    ]
-    
     created_count = 0
     existing_count = 0
-    
-    for dir_name in directories:
-        full_path = project_root / dir_name
+
+    print(f"Project Root: {BASE_DIR}")
+    print("Checking/Creating directories...")
+
+    for dir_path in REQUIRED_DIRS:
+        full_path = BASE_DIR / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {full_path}")
             created_count += 1
-            print(f"Created directory: {full_path.relative_to(project_root)}")
         else:
             existing_count += 1
-            print(f"Directory already exists: {full_path.relative_to(project_root)}")
-    
-    print(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+
+    print("-" * 40)
+    print(f"Directories created: {created_count}")
+    print(f"Directories already existing: {existing_count}")
+    print("Directory structure setup complete.")
+
     return 0
 
 if __name__ == "__main__":

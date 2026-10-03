@@ -6530,3 +6530,377 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T10:35:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 0
+  canonical: collinearity diagnostic flags VIF greater than 5
+  claim_id: c_ae6f4d6c
+  context: T040_test unit test confirms that collinearity_diagnostic.json includes
+    VIF scores and flags any variable pairs with VIF > 5.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: "The collinearity_diagnostic.json contains VIF scores and flags variables\
+    \ with VIF\u202F>\u202F5."
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:43:00Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: final CSV contains at least 5000 rows and memory usage <=7GB
+  claim_id: c_54f5587a
+  context: "T041 unit test verifies the final CSV contains \u2265\u202F5,000 rows\
+    \ with required fields and that peak memory usage stays within 7\u202FGB."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/final_CSV_contains_at_least_5000_rows_and_memory_usage_%3C=7GB
+  kind: magnitude
+  raw_text: "The final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011\
+    point, latent\u2011heat (where available), all feature columns, and peak memory\
+    \ usage \u2264\u202F7\u202FGB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:43:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: streaming fetcher never exceeds 7GB memory
+  claim_id: c_81dc3dfa
+  context: "T087_streaming_test unit test verifies that the streaming fetcher processes\
+    \ data in chunks without exceeding 7\u202FGB of RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The streaming fetcher processes data in chunks and never exceeds the\
+    \ 7\u202FGB memory limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:43:52Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: random_seed sets global seed from config
+  claim_id: c_399c52a1
+  context: T044_test unit test checks that importing the random_seed module initializes
+    the global random seed to the value specified in config.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_seed_sets_global_seed_from_config
+  kind: entity_fact
+  raw_text: Importing random_seed sets the global seed to the value defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:44:21Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: sensitivity variation <=5 percent
+  claim_id: c_aeb02ca6
+  context: "T062_sensitivity_threshold_test unit test verifies that the variation\
+    \ metric in sensitivity_report.json stays below the 5\u202F% limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The variation reported in sensitivity_report.json does not exceed the\
+    \ 5\u202F% threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:44:43Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch_materials output row count >=5000 and checksum matches
+  claim_id: c_f0251669
+  context: "T005a task ensures that the fetched Materials Project data file has a\
+    \ row count of \u2265\u202F5,000 and that its checksum is correct."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/fetch_materials_output_row_count_%3E=5000_and_checksum_matches
+  kind: magnitude
+  raw_text: The fetch_materials.py output contains at least 5,000 rows and matches
+    the expected checksum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:45:06Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch_nist_data output row count >=500 and checksum matches
+  claim_id: c_99346777
+  context: "T005b task ensures that the fetched NIST data file has a row count of\
+    \ \u2265\u202F500 and that its checksum is correct."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/fetch_nist_data_output_row_count_%3E=500_and_checksum_matches
+  kind: magnitude
+  raw_text: The fetch_nist_data.py output contains at least 500 rows and matches the
+    expected checksum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:45:31Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: row count at least 5000
+  claim_id: c_62f5f3eb
+  context: T005a [P] Execute `code/data/fetch_materials.py` to fetch data. Verify
+    output exists, row count >= 5000, and checksum matches.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q47604
+        url: https://www.wikidata.org/wiki/Q47604
+        value: '12500'
+      quote: 'P12542: 0029VaFDQf34NVieEM8hNb3p'
+      source_id: Q126592664
+      url: https://www.wikidata.org/wiki/Q126592664
+      value: 0029VaFDQf34NVieEM8hNb3p
+    filled: true
+  kind: magnitude
+  raw_text: Verify output exists, row count >= 5000, and checksum matches.
+  resolved_value: 0029VaFDQf34NVieEM8hNb3p
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:46:36Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: row count at least 500
+  claim_id: c_560d5df0
+  context: T005b [P] Execute `code/data/fetch_nist_data.py` to fetch NIST data. Verify
+    output exists, row count >= 500, and checksum matches.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q47604
+        url: https://www.wikidata.org/wiki/Q47604
+        value: '12500'
+      quote: 'P12542: 0029VaFDQf34NVieEM8hNb3p'
+      source_id: Q126592664
+      url: https://www.wikidata.org/wiki/Q126592664
+      value: 0029VaFDQf34NVieEM8hNb3p
+    filled: true
+  kind: magnitude
+  raw_text: Verify output exists, row count >= 500, and checksum matches.
+  resolved_value: 0029VaFDQf34NVieEM8hNb3p
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:46:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "streaming fetcher memory usage \u2264 7 GB"
+  claim_id: c_524772cd
+  context: "T087_streaming_test [P] Unit test verifying that the streaming fetcher\
+    \ processes data in chunks and never exceeds the 7\u202FGB memory limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test verifying that the streaming fetcher processes data in chunks\
+    \ and never exceeds the 7\u202FGB memory limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:47:01Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: final dataset contains at least 5000 rows
+  claim_id: c_aa57ecdf
+  context: "T041 [P] Unit test (`tests/unit/test_preprocessed_dataset.py`) that verifies\
+    \ the final CSV contains \u2265\u202F5,000 rows ... and that peak memory usage\
+    \ \u2264\u202F7\u202FGB."
+  evidence:
+    entailment_evidence: Final dataset contains at least 5000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Final_dataset_contains_at_least_5000_rows
+  kind: magnitude
+  raw_text: "Unit test (`tests/unit/test_preprocessed_dataset.py`) that verifies the\
+    \ final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011point,\
+    \ latent\u2011heat (where available), all feature columns, and that peak memory\
+    \ usage \u2264\u202F7\u202FGB."
+  resolved_value: final dataset contains at least 5000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:47:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "peak memory usage \u2264 7 GB"
+  claim_id: c_9554b466
+  context: "T041 [P] Unit test (`tests/unit/test_preprocessed_dataset.py`) that verifies\
+    \ the final CSV contains \u2265\u202F5,000 rows ... and that peak memory usage\
+    \ \u2264\u202F7\u202FGB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test (`tests/unit/test_preprocessed_dataset.py`) that verifies the\
+    \ final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011point,\
+    \ latent\u2011heat (where available), all feature columns, and that peak memory\
+    \ usage \u2264\u202F7\u202FGB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:47:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "latent heat R\xB2 drop > 20%"
+  claim_id: c_345eb7f2
+  context: "T074_core [P] ... If R\xB2 on latent heat drops by >20%, flag \"PROXY\
+    \ LEAKAGE DETECTED\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Proxy Leakage Test in `code/models/evaluate.py`: Run ablation\
+    \ study removing melting point as a feature. If R\xB2 on latent heat drops by\
+    \ >20%, flag \"PROXY LEAKAGE DETECTED\"."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:47:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "false positive rate variation \u2264 5%"
+  claim_id: c_8ab20996
+  context: "T024a [P] Define acceptance threshold for robustness: false\u2011positive\
+    \ rate variation across thresholds must be \u2264\u202F5\u202F%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define acceptance threshold for robustness: false\u2011positive rate\
+    \ variation across thresholds must be \u2264\u202F5\u202F%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:47:59Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "sensitivity variation \u2264 5%"
+  claim_id: c_8ba01afd
+  context: "T062_sensitivity_threshold_test [P] Unit test verifying that the variation\
+    \ reported in `sensitivity_report.json` does not exceed the 5\u202F% threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test verifying that the variation reported in `sensitivity_report.json`\
+    \ does not exceed the 5\u202F% threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:48:21Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: VIF scores > 5 flagged
+  claim_id: c_d35e7487
+  context: "T040_test [P] Unit test checking that `collinearity_diagnostic.json` contains\
+    \ VIF scores and flags variables with VIF\u202F>\u202F5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test checking that `collinearity_diagnostic.json` contains VIF scores\
+    \ and flags variables with VIF\u202F>\u202F5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:48:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: streaming fetcher stays below 7 GB memory usage
+  claim_id: c_20ee4d26
+  context: "Task T087_streaming_test verifies that the streaming fetcher processes\
+    \ data in chunks and never exceeds the 7\u202FGB memory limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "streaming fetcher processes data in chunks and never exceeds the 7\u202F\
+    GB memory limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:49:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: final dataset has at least 5000 rows and uses no more than 7 GB memory
+  claim_id: c_6f84d3a9
+  context: "Unit test T041 checks that the final CSV contains \u2265\u202F5,000 rows\
+    \ with non\u2011null melting\u2011point, latent\u2011heat (where available), all\
+    \ feature columns, and that peak memory usage \u2264\u202F7\u202FGB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_dataset_has_at_least_5000_rows_and_uses_no_more_than_7
+  kind: magnitude
+  raw_text: "final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011\
+    point, latent\u2011heat (where available), all feature columns, and peak memory\
+    \ usage \u2264\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T22:49:47Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: sensitivity variation is at most 5 percent
+  claim_id: c_b4f03954
+  context: "Unit tests T062_sensitivity_threshold_test and T024a_test verify that\
+    \ the variation reported in sensitivity_report.json does not exceed the 5\u202F\
+    % threshold."
+  evidence:
+    entailment_evidence: Sensitivity variation is at most 5 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_variation_is_at_most_5_percent
+  kind: magnitude
+  raw_text: "variation reported in sensitivity_report.json does not exceed the 5\u202F\
+    % threshold"
+  resolved_value: sensitivity variation is at most 5 percent
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T22:49:50Z'

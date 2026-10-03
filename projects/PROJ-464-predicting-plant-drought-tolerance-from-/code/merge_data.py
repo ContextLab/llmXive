@@ -1,179 +1,186 @@
-"""
-Merge RSA metrics with physiological trait data.
-
-Implements strict listwise deletion for missing species, enforces
-the minimum sample size constraint (N >= 55), and ensures species-level
-stratification to prevent bias in GroupKFold cross-validation.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
-from typing import Tuple, Optional
-
+from typing import Tuple, Optional, List
 import pandas as pd
+import yaml
 
-# Import project config for paths
-from config import ensure_directories, get_config_summary
+# Configure logging to output to state/pipeline.log as per T005
+LOG_PATH = Path("state/pipeline.log")
+LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='{"time": "%(asctime)s", "level": "%(levelname)s", "message": "%(message)s"}',
+    handlers=[
+        logging.FileHandler(LOG_PATH),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_rsa_metrics(input_path: Path) -> pd.DataFrame:
-    """Load RSA metrics from the derived CSV."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"RSA metrics file not found: {input_path}")
+# Import from config to ensure paths are consistent
+from config import ensure_directories, get_config_summary
+
+def load_rsa_metrics(filepath: str = "data/derived/rsametrics.csv") -> pd.DataFrame:
+    """
+    Load RSA metrics from the derived CSV file.
+    Validates that the file exists and contains required columns.
+    """
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"RSA metrics file not found at {filepath}. Run T013/T015 first.")
     
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded RSA metrics: {len(df)} rows, columns: {list(df.columns)}")
+    df = pd.read_csv(filepath)
+    required_cols = ['species_id', 'depth', 'branching_density', 'surface_area']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"RSA metrics missing required columns: {missing}")
+    
+    logger.info(f"Loaded RSA metrics: {len(df)} rows, {len(df.columns)} columns.")
     return df
 
-def load_physiological_data(input_path: Path) -> pd.DataFrame:
-    """Load physiological trait data from the derived CSV."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Physiological data file not found: {input_path}")
+def load_physiological_data(filepath: str = "data/raw/try_traits.csv") -> pd.DataFrame:
+    """
+    Load physiological trait data from the raw CSV file.
+    Validates that the file exists and contains required columns.
+    """
+    path = Path(filepath)
+    if not path.exists():
+        # Try alternative path if standard one is missing (common in some pipeline runs)
+        alt_path = Path("data/derived/try_traits.csv")
+        if alt_path.exists():
+            filepath = str(alt_path)
+            path = alt_path
+        else:
+            raise FileNotFoundError(f"Physiological traits file not found at {filepath}. Run T020 first.")
     
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded physiological data: {len(df)} rows, columns: {list(df.columns)}")
+    df = pd.read_csv(filepath)
+    # Ensure species_id is the join key and exists
+    if 'species_id' not in df.columns:
+        # Check for common alternatives
+        if 'species' in df.columns:
+            df = df.rename(columns={'species': 'species_id'})
+        else:
+            raise ValueError("Physiological traits file must contain 'species_id' or 'species' column.")
+    
+    logger.info(f"Loaded physiological data: {len(df)} rows, {len(df.columns)} columns.")
     return df
 
 def merge_datasets(
     rsa_df: pd.DataFrame, 
-    physio_df: pd.DataFrame, 
-    key_col: str = "species_id"
+    physio_df: pd.DataFrame,
+    output_path: str = "data/derived/merged_data.csv"
 ) -> pd.DataFrame:
     """
-    Merge RSA and physiological data using inner join (listwise deletion).
+    Merge RSA metrics with physiological data on species_id.
+    Performs species-level stratification checks to prevent duplicate species entries
+    that could bias GroupKFold cross-validation.
     
-    This implements strict listwise deletion: any species missing from either
-    dataset is removed from the final merged dataset.
-    
-    Additionally, this function ensures species-level stratification by:
-    1. Verifying unique species IDs in the merged output.
-    2. Dropping duplicate species entries if any are found (keeping the first).
-    
-    Args:
-        rsa_df: DataFrame containing RSA metrics
-        physio_df: DataFrame containing physiological traits
-        key_col: Column name to join on (default: species_id)
-        
-    Returns:
-        Merged DataFrame with only species present in both datasets,
-        with unique species IDs preserved.
+    Logic:
+    1. Ensure species_id is unique in both datasets before merge to avoid Cartesian products.
+       If duplicates exist in the source data, we aggregate them (mean) to enforce 1:1 mapping
+       per species for the regression analysis, or drop duplicates if aggregation is inappropriate.
+       Here we aggregate numeric columns by mean to preserve species-level representation.
+    2. Perform inner join on 'species_id'.
+    3. Validate sample size and species uniqueness in the result.
     """
-    # Perform inner join to enforce listwise deletion
-    merged = pd.merge(
-        rsa_df, 
-        physio_df, 
-        on=key_col, 
-        how="inner",
-        suffixes=('_rsa', '_physio')
-    )
+    logger.info("Starting data merge with species-level stratification.")
     
-    logger.info(f"Merged dataset size before deduplication: {len(merged)} rows")
+    # Ensure species_id is the key
+    rsa_df = rsa_df.copy()
+    physio_df = physio_df.copy()
     
-    # Check for duplicate species entries that could bias GroupKFold
-    duplicate_count = merged[key_col].duplicated().sum()
-    if duplicate_count > 0:
-        logger.warning(f"Found {duplicate_count} duplicate species entries. Dropping duplicates.")
-        # Keep the first occurrence of each species to ensure unique IDs
-        merged = merged.drop_duplicates(subset=[key_col], keep='first')
-        logger.info(f"Dropped {duplicate_count} duplicates. New size: {len(merged)} rows")
+    # Normalize species_id column names if necessary
+    if 'species' in rsa_df.columns and 'species_id' not in rsa_df.columns:
+        rsa_df = rsa_df.rename(columns={'species': 'species_id'})
+    if 'species' in physio_df.columns and 'species_id' not in physio_df.columns:
+        physio_df = physio_df.rename(columns={'species': 'species_id'})
     
-    # Verify unique species IDs in the merged output
-    if not merged[key_col].is_unique:
-        error_msg = f"Species ID '{key_col}' is not unique in merged dataset. This violates GroupKFold requirements."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    # Check for duplicates in RSA metrics per species
+    rsa_dupes = rsa_df[rsa_df.duplicated(subset=['species_id'], keep=False)]
+    if not rsa_dupes.empty:
+        logger.warning(f"Found {len(rsa_dupes)} duplicate species entries in RSA metrics. Aggregating by mean.")
+        # Aggregate numeric columns by mean, keeping the first species_id
+        numeric_cols = rsa_df.select_dtypes(include=['float64', 'int64']).columns
+        rsa_df = rsa_df.groupby('species_id')[numeric_cols].mean().reset_index()
     
-    logger.info(f"Species-level stratification verified: {key_col} is unique.")
-    logger.info(f"Merged dataset size: {len(merged)} rows")
-    logger.info(f"Columns in merged dataset: {list(merged.columns)}")
+    # Check for duplicates in Physiological data per species
+    physio_dupes = physio_df[physio_df.duplicated(subset=['species_id'], keep=False)]
+    if not physio_dupes.empty:
+        logger.warning(f"Found {len(physio_dupes)} duplicate species entries in physiological data. Aggregating by mean.")
+        numeric_cols = physio_df.select_dtypes(include=['float64', 'int64']).columns
+        physio_df = physio_df.groupby('species_id')[numeric_cols].mean().reset_index()
     
-    return merged
+    # Perform the merge (Inner join to keep only species present in both)
+    merged_df = pd.merge(rsa_df, physio_df, on='species_id', how='inner')
+    
+    logger.info(f"Merged dataset shape: {merged_df.shape}")
+    
+    # Validate species uniqueness in the result (Critical for GroupKFold)
+    if merged_df.duplicated(subset=['species_id']).any():
+        raise ValueError("CRITICAL: Duplicate species entries found in merged dataset. This will bias GroupKFold.")
+    
+    # Save to output
+    merged_df.to_csv(output_path, index=False)
+    logger.info(f"Merged data saved to {output_path}")
+    
+    return merged_df
 
-def validate_sample_size(merged_df: pd.DataFrame, min_size: int = 55) -> bool:
+def validate_sample_size(df: pd.DataFrame, min_n: int = 55) -> bool:
     """
-    Validate that the merged dataset meets the minimum sample size requirement.
+    Validate that the merged dataset has sufficient sample size for power analysis.
+    Returns True if N >= min_n, otherwise raises a critical error.
+    """
+    n = len(df)
+    logger.info(f"Validating sample size: N={n} (Minimum required: {min_n})")
     
-    Args:
-        merged_df: The merged DataFrame
-        min_size: Minimum required sample size (default: 55)
-        
-    Returns:
-        True if sample size is sufficient, False otherwise
-        
-    Raises:
-        RuntimeError: If sample size is below minimum
-    """
-    n = len(merged_df)
-    if n < min_size:
-        error_msg = f"Insufficient species after merge (N = {n} < {min_size}). Pipeline halted."
+    if n < min_n:
+        error_msg = f"Insufficient species after merge (N={n} < {min_n}). Pipeline halted per power analysis requirements."
         logger.error(error_msg)
         raise RuntimeError(error_msg)
     
-    logger.info(f"Sample size validation passed: N = {n} >= {min_size}")
+    logger.info(f"Sample size validation passed (N={n}).")
     return True
 
 def main():
-    """Main entry point for data merging."""
+    """
+    Main entry point for the merge data task.
+    Orchestrates loading, merging, stratification validation, and sample size checks.
+    """
+    ensure_directories()
+    
     try:
-        # Get configuration and ensure directories exist
-        config = get_config_summary()
-        ensure_directories()
+        # Load data
+        rsa_df = load_rsa_metrics()
+        physio_df = load_physiological_data()
         
-        # Define paths
-        rsa_metrics_path = Path("data/derived/rsametrics.csv")
-        physio_data_path = Path("data/derived/physio_traits.csv")
-        output_path = Path("data/derived/merged_dataset.csv")
-        
-        logger.info(f"Starting data merge process...")
-        logger.info(f"RSA metrics source: {rsa_metrics_path}")
-        logger.info(f"Physiological data source: {physio_data_path}")
-        logger.info(f"Output destination: {output_path}")
-        
-        # Load datasets
-        rsa_df = load_rsa_metrics(rsa_metrics_path)
-        physio_df = load_physiological_data(physio_data_path)
-        
-        # Merge datasets (listwise deletion + stratification check)
+        # Merge with stratification logic
         merged_df = merge_datasets(rsa_df, physio_df)
         
-        # Validate sample size (strict constraint)
-        validate_sample_size(merged_df, min_size=55)
+        # Validate sample size
+        validate_sample_size(merged_df)
         
-        # Save merged dataset
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        merged_df.to_csv(output_path, index=False)
+        # Generate a summary report for state/
+        summary = {
+            "task": "merge_data",
+            "status": "completed",
+            "total_rows": len(merged_df),
+            "columns": list(merged_df.columns),
+            "species_count": merged_df['species_id'].nunique(),
+            "stratification_check": "passed"
+        }
         
-        logger.info(f"Successfully saved merged dataset to {output_path}")
-        logger.info(f"Final dataset shape: {merged_df.shape}")
-        logger.info(f"Columns: {list(merged_df.columns)}")
+        state_dir = Path("state")
+        state_dir.mkdir(parents=True, exist_ok=True)
+        with open(state_dir / "merge_summary.yaml", "w") as f:
+            yaml.dump(summary, f)
         
-        # Print summary
-        print(f"\nMerge Summary:")
-        print(f"  Input RSA rows: {len(rsa_df)}")
-        print(f"  Input Physio rows: {len(physio_df)}")
-        print(f"  Merged rows: {len(merged_df)}")
-        print(f"  Listwise deletion: {len(rsa_df) + len(physio_df) - 2*len(merged_df)} species removed")
-        print(f"  Sample size check: PASSED (N={len(merged_df)} >= 55)")
-        print(f"  Species stratification: VERIFIED (unique IDs)")
+        logger.info("Merge task completed successfully.")
         
-    except FileNotFoundError as e:
-        logger.critical(f"Data file missing: {e}")
-        sys.exit(1)
-    except RuntimeError as e:
-        logger.critical(f"Validation failed: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.critical(f"Stratification failed: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.critical(f"Unexpected error during merge: {e}")
+        logger.critical(f"Merge task failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

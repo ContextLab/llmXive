@@ -1,3 +1,6 @@
+"""
+Visualization module for generating PCoA plots and heatmaps.
+"""
 import os
 import sys
 import logging
@@ -9,200 +12,322 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.spatial.distance import squareform
+from scipy.spatial.distance import squareform, pdist
 from skbio import DistanceMatrix
 from skbio.stats.ordination import pcoa
 
-# Import from local project modules (API surface)
-from utils.logging_utils import setup_logging, get_logger
-from utils.seeding import set_seed
-
-# Configure logging
-logger = get_logger(__name__)
-
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
 DATA_OUTPUTS = PROJECT_ROOT / "data" / "outputs"
-COHORT_FILE = DATA_PROCESSED / "cohort_merged.csv"
-DISTANCE_MATRIX_FILE = DATA_PROCESSED / "bray_curtis_distance_matrix.tsv"
-OUTPUT_PCOA = DATA_OUTPUTS / "pcoa_sleep_quality.png"
-OUTPUT_HEATMAP = DATA_OUTPUTS / "heatmap.png"
 
-def load_correlation_results() -> pd.DataFrame:
-    """Load the correlation results CSV."""
-    results_path = DATA_OUTPUTS / "correlation_results.csv"
-    if not results_path.exists():
-        raise FileNotFoundError(f"Correlation results not found at {results_path}")
-    return pd.read_csv(results_path)
+# Ensure output directories exist
+DATA_OUTPUTS.mkdir(parents=True, exist_ok=True)
 
-def load_beta_diversity_data() -> DistanceMatrix:
-    """Load the pre-computed Bray-Curtis distance matrix."""
-    if not DISTANCE_MATRIX_FILE.exists():
-        raise FileNotFoundError(
-            f"Beta diversity matrix not found at {DISTANCE_MATRIX_FILE}. "
-            "Please run code/diversity.py first to generate it."
-        )
-    # skbio DistanceMatrix can read from a file-like object or path
-    return DistanceMatrix.read(DISTANCE_MATRIX_FILE)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-def create_distance_matrix(otu_table, metadata):
-    """Calculate Bray-Curtis distance matrix from OTU table and metadata."""
-    # This is a placeholder if the file doesn't exist, but the file loader is preferred
-    # to ensure consistency with the pipeline.
-    raise NotImplementedError("Use load_beta_diversity_data() for pre-computed matrix.")
 
-def create_pcoa(distance_matrix, metadata):
-    """Perform PCoA on the distance matrix."""
-    return pcoa(distance_matrix)
+def load_correlation_results(filepath: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load correlation results from CSV.
 
-def generate_heatmap(correlations_df, output_path):
+    Args:
+        filepath: Path to correlation results CSV. Defaults to standard location.
+
+    Returns:
+        DataFrame with correlation results.
+    """
+    if filepath is None:
+        filepath = DATA_OUTPUTS / "correlation_results.csv"
+    
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Correlation results file not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded correlation results with {len(df)} rows from {filepath}")
+    return df
+
+
+def load_beta_diversity_data(
+    distance_matrix_path: Optional[str] = None,
+    metadata_path: Optional[str] = None
+) -> Tuple[DistanceMatrix, pd.DataFrame]:
+    """
+    Load beta diversity distance matrix and metadata.
+
+    Args:
+        distance_matrix_path: Path to distance matrix file.
+        metadata_path: Path to metadata file.
+
+    Returns:
+        Tuple of (DistanceMatrix, metadata DataFrame).
+    """
+    if distance_matrix_path is None:
+        distance_matrix_path = DATA_PROCESSED / "beta_diversity_distance_matrix.tsv"
+    
+    if metadata_path is None:
+        metadata_path = DATA_PROCESSED / "cohort_merged.csv"
+
+    if not Path(distance_matrix_path).exists():
+        raise FileNotFoundError(f"Distance matrix file not found: {distance_matrix_path}")
+    
+    if not Path(metadata_path).exists():
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+
+    # Load distance matrix
+    dm = DistanceMatrix.read(distance_matrix_path)
+    
+    # Load metadata
+    metadata = pd.read_csv(metadata_path)
+    metadata.set_index('participant_id', inplace=True)
+    
+    logger.info(f"Loaded distance matrix with {len(dm.ids)} samples and metadata with {len(metadata)} rows")
+    return dm, metadata
+
+
+def create_distance_matrix(dm: DistanceMatrix) -> np.ndarray:
+    """
+    Convert skbio DistanceMatrix to numpy array.
+
+    Args:
+        dm: skbio DistanceMatrix object.
+
+    Returns:
+        Numpy array of distances.
+    """
+    return np.array(dm.data)
+
+
+def create_pcoa(
+    dm: DistanceMatrix,
+    metadata: pd.DataFrame,
+    color_column: str = "sleep_quality"
+) -> Tuple[Any, pd.DataFrame]:
+    """
+    Perform PCoA on distance matrix and merge with metadata.
+
+    Args:
+        dm: skbio DistanceMatrix object.
+        metadata: Metadata DataFrame with participant_id as index.
+        color_column: Column in metadata to use for coloring.
+
+    Returns:
+        Tuple of (OrdinationResults, metadata with PCoA coordinates).
+    """
+    # Perform PCoA
+    ord_result = pcoa(dm)
+    
+    # Extract coordinates
+    coords = ord_result.samples
+    
+    # Merge with metadata
+    coords_reset = coords.reset_index()
+    coords_reset.columns = ['participant_id'] + [f'PC{i+1}' for i in range(coords_reset.shape[1]-1)]
+    
+    # Merge with metadata
+    merged = coords_reset.merge(metadata.reset_index(), on='participant_id')
+    merged.set_index('participant_id', inplace=True)
+    
+    logger.info(f"PCoA completed with {len(merged)} samples")
+    return ord_result, merged
+
+
+def generate_heatmap(
+    results_df: pd.DataFrame,
+    output_path: Optional[str] = None,
+    top_n: int = 20
+) -> None:
     """
     Generate a heatmap of taxa-sleep associations.
-    Requires correlations_df with columns: ['taxon', 'variable', 'correlation', 'p_adj']
+
+    Args:
+        results_df: DataFrame with correlation results.
+        output_path: Path to save the heatmap image.
+        top_n: Number of top correlations to display.
     """
-    if correlations_df.empty:
-        logger.warning("Correlation dataframe is empty. Skipping heatmap generation.")
+    if output_path is None:
+        output_path = DATA_OUTPUTS / "heatmap.png"
+    
+    if results_df.empty:
+        logger.warning("Empty results DataFrame, cannot generate heatmap")
         return
 
-    # Pivot for heatmap: index=taxon, columns=variable, values=correlation
-    # Ensure we only have numeric correlation values
-    pivot_data = correlations_df.pivot_table(
+    # Sort by absolute correlation and take top N
+    results_df = results_df.sort_values(by='abs_correlation', ascending=False).head(top_n)
+    
+    # Pivot for heatmap
+    # Assuming columns: 'taxon', 'sleep_variable', 'correlation', 'p_adj'
+    if 'taxon' not in results_df.columns or 'sleep_variable' not in results_df.columns:
+        logger.error("Results DataFrame missing required columns 'taxon' or 'sleep_variable'")
+        return
+
+    pivot_data = results_df.pivot_table(
         index='taxon',
-        columns='variable',
+        columns='sleep_variable',
         values='correlation',
         aggfunc='first'
     )
-
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(pivot_data, annot=True, fmt=".3f", cmap='coolwarm', center=0,
-                cbar_kws={'label': 'Correlation Coefficient (Spearman)'})
-    plt.title("Taxa-Sleep Associations (Correlation Coefficients)")
-    plt.xlabel("Sleep Variable")
-    plt.ylabel("Taxon")
+    
+    # Create figure
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(
+        pivot_data,
+        annot=True,
+        fmt=".3f",
+        cmap='coolwarm',
+        center=0,
+        cbar_kws={'label': 'Correlation Coefficient'}
+    )
+    plt.title(f'Top {top_n} Taxa-Sleep Associations')
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    
+    # Save
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
+    
     logger.info(f"Heatmap saved to {output_path}")
 
-def generate_pcoa_ordination(metadata_df, output_path):
+
+def generate_pcoa_ordination(
+    output_path: Optional[str] = None,
+    color_column: str = "sleep_quality"
+) -> None:
     """
     Generate a PCoA ordination plot colored by sleep quality scores.
+
+    Args:
+        output_path: Path to save the PCoA plot image.
+        color_column: Column in metadata to use for coloring.
     """
-    # 1. Load pre-computed distance matrix
-    logger.info(f"Loading beta diversity matrix from {DISTANCE_MATRIX_FILE}...")
+    if output_path is None:
+        output_path = DATA_OUTPUTS / "pcoa_sleep_quality.png"
+
+    logger.info(f"Generating PCoA plot colored by {color_column}")
+
+    # Load data
     try:
-        dm = load_beta_diversity_data()
+        dm, metadata = load_beta_diversity_data()
     except FileNotFoundError as e:
-        logger.error(str(e))
+        logger.error(f"Failed to load data: {e}")
         raise
 
-    # 2. Load metadata to ensure alignment
-    if not COHORT_FILE.exists():
-        raise FileNotFoundError(f"Cohort file not found at {COHORT_FILE}")
-    metadata_df = pd.read_csv(COHORT_FILE)
+    # Perform PCoA
+    ord_result, merged_data = create_pcoa(dm, metadata, color_column)
 
-    # Ensure metadata index matches distance matrix ids
-    # DistanceMatrix ids are usually the participant IDs
-    if 'participant_id' in metadata_df.columns:
-        metadata_df = metadata_df.set_index('participant_id')
+    # Check if color column exists
+    if color_column not in merged_data.columns:
+        logger.error(f"Color column '{color_column}' not found in metadata. Available: {merged_data.columns.tolist()}")
+        raise ValueError(f"Color column '{color_column}' not found in metadata")
 
-    # Filter DM to only include IDs present in metadata (and vice versa)
-    common_ids = list(set(dm.ids) & set(metadata_df.index))
-    if len(common_ids) == 0:
-        raise ValueError("No common participants between distance matrix and metadata.")
+    # Extract PC1 and PC2 coordinates
+    pc1_col = 'PC1'
+    pc2_col = 'PC2'
+    
+    if pc1_col not in merged_data.columns or pc2_col not in merged_data.columns:
+        logger.error(f"PCoA coordinates not found. Available: {merged_data.columns.tolist()}")
+        raise ValueError("PCoA coordinates PC1 and PC2 not found")
 
-    dm_filtered = dm.subset(common_ids)
-    metadata_filtered = metadata_df.loc[common_ids]
+    x = merged_data[pc1_col]
+    y = merged_data[pc2_col]
+    colors = merged_data[color_column]
 
-    # 3. Perform PCoA
-    logger.info("Performing PCoA...")
-    ordination = create_pcoa(dm_filtered, metadata_filtered)
-
-    # 4. Prepare plot data
-    # PCoA scores are in ordination.samples
-    # We need to map sleep_quality to the sample IDs
-    if 'sleep_quality' not in metadata_filtered.columns:
-        raise ValueError("Column 'sleep_quality' not found in metadata.")
-
-    # Create a DataFrame for plotting
-    plot_df = pd.DataFrame(ordination.samples, index=common_ids)
-    plot_df['sleep_quality'] = metadata_filtered['sleep_quality']
-
-    # 5. Generate Plot
+    # Create plot
     plt.figure(figsize=(10, 8))
-    # Use sleep_quality as the coloring variable
     scatter = plt.scatter(
-        plot_df.iloc[:, 0],
-        plot_df.iloc[:, 1],
-        c=plot_df['sleep_quality'],
+        x, y,
+        c=colors,
         cmap='viridis',
-        edgecolors='k',
         alpha=0.7,
-        s=50
+        edgecolors='w',
+        s=50,
+        vmin=colors.min(),
+        vmax=colors.max()
     )
 
-    plt.xlabel(f"PCoA Axis 1 ({ordination.proportion_explained[0]:.2%} variance)")
-    plt.ylabel(f"PCoA Axis 2 ({ordination.proportion_explained[1]:.2%} variance)")
-    plt.title("PCoA Ordination Colored by Sleep Quality")
-
-    # Add legend
+    # Add colorbar
     cbar = plt.colorbar(scatter)
-    cbar.set_label("Sleep Quality Score")
+    cbar.set_label(color_column.replace('_', ' ').title())
+
+    # Labels and title
+    plt.xlabel(f'PC1 ({ord_result.proportion_explained[0]:.2%} variance explained)')
+    plt.ylabel(f'PC2 ({ord_result.proportion_explained[1]:.2%} variance explained)')
+    plt.title('PCoA Ordination Colored by Sleep Quality')
     
-    plt.grid(True, linestyle='--', alpha=0.5)
+    # Add legend
+    plt.legend(
+        title='Sleep Quality',
+        loc='best',
+        frameon=True,
+        fontsize='medium'
+    )
+
+    plt.grid(True, linestyle='--', alpha=0.3)
     plt.tight_layout()
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=150)
+
+    # Save
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    
+
     logger.info(f"PCoA plot saved to {output_path}")
 
+
 def main():
-    """Main entry point for visualization tasks."""
-    parser = argparse.ArgumentParser(description="Generate visualization artifacts.")
-    parser.add_argument("--output-dir", type=str, default=str(DATA_OUTPUTS),
-                        help="Directory to save output plots.")
-    parser.add_argument("--cohort", type=str, default=str(COHORT_FILE),
-                        help="Path to merged cohort CSV.")
+    """
+    Main entry point for visualization scripts.
+    """
+    parser = argparse.ArgumentParser(description="Generate visualizations for microbiome-sleep analysis")
+    parser.add_argument(
+        "--type",
+        choices=["heatmap", "pcoa"],
+        default="pcoa",
+        help="Type of visualization to generate"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output file path"
+    )
+    parser.add_argument(
+        "--color-column",
+        type=str,
+        default="sleep_quality",
+        help="Metadata column to color by (for PCoA)"
+    )
+    parser.add_argument(
+        "--top-n",
+        type=int,
+        default=20,
+        help="Number of top correlations for heatmap"
+    )
+
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logging()
-    set_seed(42)
+    if args.type == "heatmap":
+        # Load correlation results
+        try:
+            results = load_correlation_results()
+            generate_heatmap(results, args.output, args.top_n)
+        except FileNotFoundError as e:
+            logger.error(f"Cannot generate heatmap: {e}")
+            sys.exit(1)
+    elif args.type == "pcoa":
+        try:
+            generate_pcoa_ordination(args.output, args.color_column)
+        except (FileNotFoundError, ValueError) as e:
+            logger.error(f"Cannot generate PCoA plot: {e}")
+            sys.exit(1)
+    else:
+        logger.error(f"Unknown visualization type: {args.type}")
+        sys.exit(1)
 
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Visualization generation completed successfully")
 
-    # 1. Generate Heatmap
-    try:
-        logger.info("Generating Heatmap...")
-        corr_df = load_correlation_results()
-        # Ensure we have the right columns for heatmap
-        # Assuming analysis.py produced: taxon, variable, correlation, p_adj
-        heatmap_path = output_dir / "heatmap.png"
-        generate_heatmap(corr_df, heatmap_path)
-    except FileNotFoundError as e:
-        logger.warning(f"Skipping Heatmap: {e}")
-    except Exception as e:
-        logger.error(f"Error generating heatmap: {e}")
-
-    # 2. Generate PCoA Plot
-    try:
-        logger.info("Generating PCoA Ordination Plot...")
-        pcoa_path = output_dir / "pcoa_sleep_quality.png"
-        # We load metadata inside the function to ensure it matches the DM
-        generate_pcoa_ordination(None, pcoa_path)
-    except FileNotFoundError as e:
-        logger.warning(f"Skipping PCoA Plot: {e}")
-    except Exception as e:
-        logger.error(f"Error generating PCoA plot: {e}")
-        import traceback
-        traceback.print_exc()
-
-    logger.info("Visualization tasks completed.")
 
 if __name__ == "__main__":
     main()

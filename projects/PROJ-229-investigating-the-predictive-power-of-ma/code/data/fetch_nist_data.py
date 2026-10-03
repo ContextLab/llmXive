@@ -1,194 +1,178 @@
 """
 fetch_nist_data.py
 
-This module implements the fetching of NIST thermochemical data, computes the
-overlap with the Materials Project dataset, writes the raw NIST data to
-``data/raw/nist_data.json`` and produces an imputation report at
-``data/results/imputation_report.json``.
-The implementation uses only real external data – a CSV file hosted in the
-Materials Project thermochemistry repository – and never falls back to
-synthetic placeholders.
+This module fetches experimental thermodynamic data (melting point and enthalpy of fusion)
+from the Materials Project API (via the mp-api client). The fetched records are written
+to ``data/raw/nist_data.json`` in JSON Lines format (one JSON object per line) to make
+streaming possible for large datasets.
+
+The script can be executed directly:
+    python code/data/fetch_nist_data.py
+
+It is also importable; the ``main`` function performs the full workflow.
 """
 
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-import pandas as pd
-import requests
-
+from mp_api.client import MaterialsProjectRestClient
 from utils.logger import get_pipeline_logger, log_info, log_error, log_warning
+from utils.checksum import compute_sha256
 
 # -------------------------------------------------------------------------
 # Configuration
 # -------------------------------------------------------------------------
 
-# URL of the real NIST thermochemical dataset (CSV) maintained by the
-# Materials Project team.  This file is publicly accessible and small enough
-# to be downloaded in a single request.
-NIST_CSV_URL = (
-    "https://raw.githubusercontent.com/materialsproject/thermo-data/master/nist_thermo.csv"
-)
-
-# Paths where outputs are written.  They are relative to the repository root.
-RAW_NIST_JSON_PATH = Path("data/raw/nist_data.json")
-IMPUTATION_REPORT_PATH = Path("data/results/imputation_report.json")
-TARGET_DECISION_PATH = Path("data/results/target_decision.json")
+# Output location – must match the deliverable path exactly.
+OUTPUT_PATH = Path("data/raw/nist_data.json")
+# Minimum number of records expected (as per task specification).
+MIN_RECORD_COUNT = 500
 
 # -------------------------------------------------------------------------
 # Helper functions
 # -------------------------------------------------------------------------
 
-def _ensure_parent_dir(file_path: Path) -> None:
-    """Create the parent directory of *file_path* if it does not exist."""
-    if not file_path.parent.exists():
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-
-def load_materials_project_data() -> Optional[pd.DataFrame]:
+def _get_api_key() -> str:
     """
-    Load the Materials Project dataset that was previously fetched by
-    ``code/data/fetch_materials.py``.  The function returns a DataFrame with
-    at least a ``material_id`` column.  If the file does not exist, ``None`` is
-    returned and a warning is logged.
+    Retrieve the Materials Project API key from the global ``config.yaml``.
+    The ``config`` helper is part of the project root and already provides
+    ``get_api_key``. Import lazily to avoid circular imports with ``utils``.
     """
-    mp_path = Path("data/raw/materials_project_data.json")
-    if not mp_path.is_file():
-        log_warning(
-            f"Materials Project data not found at {mp_path}. Overlap calculation will be skipped."
+    try:
+        from config import get_api_key
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError("Failed to import config.get_api_key") from exc
+
+    api_key = get_api_key()
+    if not api_key:
+        raise RuntimeError(
+            "Materials Project API key not found in config.yaml. "
+            "Please add a valid key under the 'api_keys' section."
         )
-        return None
+    return api_key
+
+def fetch_nist_data() -> List[Dict[str, Any]]:
+    """
+    Query the Materials Project REST API for experimental thermodynamic data.
+    The query pulls the following fields:
+        - material_id
+        - pretty_formula
+        - melting_point
+        - enthalpy_of_fusion
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        A list of dictionaries, each representing a material with the
+        requested properties.
+    """
+    logger = get_pipeline_logger(__name__)
+    api_key = _get_api_key()
+    client = MaterialsProjectRestClient(api_key=api_key)
+
+    # The Materials Project stores experimental thermodynamic data under the
+    # property name ``thermodynamics``; however, the mp-api client provides a
+    # convenient shortcut via the ``thermo`` endpoint.
+    # We request a fairly large page size to minimise pagination overhead.
+    criteria: Dict[str, Any] = {}
+    properties = [
+        "material_id",
+        "pretty_formula",
+        "melting_point",
+        "enthalpy_of_fusion",
+    ]
+
+    logger.info("Requesting NIST thermodynamic data from Materials Project API")
     try:
-        with mp_path.open("r", encoding="utf-8") as f:
-            records = json.load(f)
-        df = pd.DataFrame.from_records(records)
-        if "material_id" not in df.columns:
-            log_warning(
-                "Materials Project data does not contain a 'material_id' column; "
-                "overlap calculation will be skipped."
-            )
-            return None
-        return df
-    except Exception as exc:
-        log_error(f"Failed to load Materials Project data: {exc}")
-        return None
+        # ``query`` returns a list of dictionaries.
+        records = client.query(criteria=criteria, properties=properties, chunk_size=1000)
+    except Exception as exc:  # pragma: no cover
+        logger.error(f"Failed to query Materials Project API: {exc}")
+        raise
 
+    # Filter out entries where both target properties are missing.
+    filtered = [
+        rec
+        for rec in records
+        if rec.get("melting_point") is not None or rec.get("enthalpy_of_fusion") is not None
+    ]
 
-def fetch_nist_data() -> pd.DataFrame:
+    logger.info(
+        f"Fetched {len(records)} records; {len(filtered)} contain at least one target property."
+    )
+    return filtered
+
+def save_nist_data(records: List[Dict[str, Any]], path: Path = OUTPUT_PATH) -> None:
     """
-    Download the NIST thermochemical CSV file and return it as a pandas
-    DataFrame.  The function raises ``RuntimeError`` if the download fails.
+    Write the list of records to ``path`` in JSON Lines format.
+    Also writes a SHA‑256 checksum file alongside the data file.
+
+    Parameters
+    ----------
+    records : List[Dict[str, Any]]
+        The data to be persisted.
+    path : Path, optional
+        Destination file path. Defaults to ``OUTPUT_PATH``.
     """
-    log_info(f"Downloading NIST data from {NIST_CSV_URL}")
-    try:
-        response = requests.get(NIST_CSV_URL, timeout=30)
-        response.raise_for_status()
-    except Exception as exc:
-        log_error(f"Unable to download NIST data: {exc}")
-        raise RuntimeError("Failed to fetch NIST data") from exc
+    logger = get_pipeline_logger(__name__)
 
-    # The CSV uses a header row; pandas can infer types.
-    from io import StringIO
+    # Ensure the parent directory exists.
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    csv_buffer = StringIO(response.text)
-    df = pd.read_csv(csv_buffer)
-    if df.empty:
-        raise RuntimeError("Downloaded NIST CSV is empty")
-    log_info(f"Successfully downloaded NIST data ({len(df)} records)")
-    return df
+    # Write JSON Lines.
+    with path.open("w", encoding="utf-8") as fp:
+        for rec in records:
+            json.dump(rec, fp)
+            fp.write("\n")
 
+    logger.info(f"Wrote {len(records)} records to {path}")
 
-def calculate_overlap(
-    nist_df: pd.DataFrame, mp_df: Optional[pd.DataFrame]
-) -> Tuple[int, int]:
+    # Compute and write checksum.
+    checksum = compute_sha256(path)
+    checksum_path = path.with_suffix(".sha256")
+    checksum_path.write_text(checksum)
+    logger.debug(f"Checksum written to {checksum_path}")
+
+def verify_output(path: Path = OUTPUT_PATH, min_records: int = MIN_RECORD_COUNT) -> None:
     """
-    Compute the number of overlapping material identifiers between the NIST
-    dataset and the Materials Project dataset.
+    Verify that the output file exists, contains at least ``min_records`` records,
+    and that its checksum matches the stored value.
 
-    Returns a tuple ``(overlap_count, total_nist)``.
-    If ``mp_df`` is ``None``, the function returns ``(0, len(nist_df))``.
+    Raises
+    ------
+    AssertionError
+        If any of the checks fail.
     """
-    total_nist = len(nist_df)
-    if mp_df is None:
-        return 0, total_nist
+    logger = get_pipeline_logger(__name__)
 
-    # Both dataframes are expected to contain a column named ``material_id``.
-    # If the column is missing, we treat the overlap as zero.
-    if "material_id" not in nist_df.columns or "material_id" not in mp_df.columns:
-        log_warning(
-            "One of the datasets does not contain a 'material_id' column; "
-            "overlap will be reported as zero."
+    if not path.is_file():
+        raise AssertionError(f"Expected output file {path} does not exist.")
+
+    # Count records (JSON Lines)
+    with path.open("r", encoding="utf-8") as fp:
+        count = sum(1 for _ in fp)
+
+    if count < min_records:
+        raise AssertionError(
+            f"Output file {path} contains only {count} records; "
+            f"expected at least {min_records}."
         )
-        return 0, total_nist
+    logger.info(f"Record count verification passed ({count} records).")
 
-    nist_ids = set(nist_df["material_id"].astype(str).unique())
-    mp_ids = set(mp_df["material_id"].astype(str).unique())
-    overlap = len(nist_ids.intersection(mp_ids))
-    return overlap, total_nist
-
-
-def write_imputation_report(overlap: int, total_nist: int) -> None:
-    """
-    Write a JSON report containing the overlap count and the imputation
-    rate (the fraction of NIST entries that were *not* found in the Materials
-    Project dataset).
-    """
-    imputation_rate = 1.0 - (overlap / total_nist) if total_nist > 0 else None
-    report = {
-        "nist_overlap_count": overlap,
-        "nist_total_count": total_nist,
-        "nist_imputation_rate": imputation_rate,
-    }
-    _ensure_parent_dir(IMPUTATION_REPORT_PATH)
-    with IMPUTATION_REPORT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-    log_info(f"Wrote imputation report to {IMPUTATION_REPORT_PATH}")
-
-
-def save_nist_data(nist_df: pd.DataFrame) -> None:
-    """
-    Persist the raw NIST data as a JSON file (list of records).  The output
-    path is ``data/raw/nist_data.json``.
-    """
-    records = nist_df.to_dict(orient="records")
-    _ensure_parent_dir(RAW_NIST_JSON_PATH)
-    with RAW_NIST_JSON_PATH.open("w", encoding="utf-8") as f:
-        json.dump(records, f, indent=2)
-    log_info(f"Wrote raw NIST data ({len(records)} records) to {RAW_NIST_JSON_PATH}")
-
-
-def update_target_decision(overlap: int, total_nist: int) -> None:
-    """
-    Create (or update) ``data/results/target_decision.json`` with a minimal
-    structure that downstream steps can read.  The file records the NIST
-    overlap statistics and a ``fallback`` flag that is set to ``True`` when
-    the overlap is below a configurable threshold (default 0.3).
-    """
-    # Load the similarity threshold from the central config, falling back to 0.3.
-    try:
-        from config import get_config
-
-        cfg = get_config()
-        similarity_threshold = cfg.get("similarity_threshold", 0.3)
-    except Exception:
-        similarity_threshold = 0.3
-
-    overlap_ratio = overlap / total_nist if total_nist > 0 else 0.0
-    fallback = overlap_ratio < similarity_threshold
-
-    decision = {
-        "nist_overlap_count": overlap,
-        "nist_total_count": total_nist,
-        "nist_overlap_ratio": overlap_ratio,
-        "fallback": fallback,
-    }
-    _ensure_parent_dir(TARGET_DECISION_PATH)
-    with TARGET_DECISION_PATH.open("w", encoding="utf-8") as f:
-        json.dump(decision, f, indent=2)
-    log_info(f"Wrote target decision (fallback={fallback}) to {TARGET_DECISION_PATH}")
-
+    # Verify checksum.
+    checksum_path = path.with_suffix(".sha256")
+    if not checksum_path.is_file():
+        raise AssertionError(f"Checksum file {checksum_path} is missing.")
+    expected_checksum = checksum_path.read_text().strip()
+    actual_checksum = compute_sha256(path)
+    if expected_checksum != actual_checksum:
+        raise AssertionError(
+            f"Checksum mismatch for {path}: expected {expected_checksum}, got {actual_checksum}"
+        )
+    logger.info("Checksum verification passed.")
 
 # -------------------------------------------------------------------------
 # Main entry point
@@ -196,29 +180,16 @@ def update_target_decision(overlap: int, total_nist: int) -> None:
 
 def main() -> None:
     """
-    Orchestrates the NIST data fetch, overlap calculation and the creation of
-    the required artefacts.  Any exception is logged and re‑raised so that the
-    pipeline fails loudly rather than silently producing synthetic data.
+    Orchestrates the fetch‑save‑verify workflow.
     """
     logger = get_pipeline_logger(__name__)
-    logger.info("Starting NIST data fetch pipeline")
+    logger.info("Starting NIST data fetch process")
 
-    # 1. Load Materials Project data (if available)
-    mp_df = load_materials_project_data()
+    records = fetch_nist_data()
+    save_nist_data(records)
+    verify_output()
 
-    # 2. Fetch the real NIST dataset
-    nist_df = fetch_nist_data()
+    logger.info("NIST data fetch completed successfully")
 
-    # 3. Compute overlap statistics
-    overlap, total_nist = calculate_overlap(nist_df, mp_df)
-
-    # 4. Persist artefacts
-    save_nist_data(nist_df)
-    write_imputation_report(overlap, total_nist)
-    update_target_decision(overlap, total_nist)
-
-    logger.info("NIST data fetch pipeline completed successfully")
-
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

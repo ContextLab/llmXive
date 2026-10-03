@@ -25,6 +25,20 @@ T008:
     \ pipeline\u2019s per\u2011sample output, including contract file creation and\
     \ DataFrame validation. This satisfies the task\u2019s requirement for a contract\
     \ test of `code/pipeline.py` output schema."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `pipeline.py` containing the required try/except blocks,\
+    \ error logging, skipping logic, or partial\u2011result saving is provided; the\
+    \ artifact is missing, so the task cannot be confirmed as completed."
+T024#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a script invoking `run_paired_wilcoxon`, nor the required\
+    \ `statistical_report.csv` (or any output showing paired Wilcoxon test results)\
+    \ is present. The implementer has not provided evidence that the per\u2011sample\
+    \ errors were processed or that the correct statistical test was executed, violating\
+    \ the task\u2019s core requirement."
 T024a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

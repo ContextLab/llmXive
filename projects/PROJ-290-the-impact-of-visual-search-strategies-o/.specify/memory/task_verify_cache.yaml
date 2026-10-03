@@ -1,0 +1,41 @@
+T012:
+  c: false
+  h: 696e0d701d85f8edd1f49a17c4ea382c8a9ff2e2a6cf2583c33176f4ef75675b
+  r: "The repository lacks the required `data/validation_report.json` file, and the\
+    \ provided `code/data/validate.py` only contains a partial ROI\u2011fallback function\
+    \ \u2013 it does not perform the full checks for `gaze_coordinates`, `response_times`,\
+    \ `emotion_labels`, and `roi_annotations`, nor does it write a JSON report or\
+    \ halt on missing critical variables as specified."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing the Generic ROI Fallback (3x3
+    grid) logic is present; the artifact is missing entirely, so the requirement is
+    not satisfied. The next implementer must add the fallback implementation and provide
+    the corresponding source file or test evidence.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, script, or documentation showing a participant\u2011\
+    exclusion routine that drops participants with >20\u202F% missing gaze data, nor\
+    \ any log output reporting the exclusion rate. Without these artifacts the requirement\
+    \ cannot be verified."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no visible `data/raw/` directory nor any checksum files
+    documenting downloaded datasets; no artifacts were presented to verify that the
+    required structure and checksum records exist. The task therefore remains unfulfilled.
+T020:
+  c: false
+  h: 1907e1d8569eed2a25569ed055b069cc098d5ba7f9e518b847705f5a67c51ad1
+  r: The `classification.py` script defines the ratio calculation and logs a warning,
+    but it never writes the resulting DataFrame to `data/processed/features.csv`,
+    and that CSV file is absent from the repository. Consequently the required artifact
+    (the updated features CSV) is missing.
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that `hash_artifacts.py` was executed, nor that a `state/`
+    directory containing updated hash files exists; the required artifact (the updated
+    hashes) is missing.

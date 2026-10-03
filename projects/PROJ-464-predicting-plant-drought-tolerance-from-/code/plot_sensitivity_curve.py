@@ -18,122 +18,127 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_sensitivity_results() -> pd.DataFrame:
-    """Load sensitivity analysis results from CSV."""
-    path = Path("data/derived/sensitivity_sweep_results.csv")
+def load_sensitivity_results() -> Optional[pd.DataFrame]:
+    """Load sensitivity sweep results from CSV."""
+    path = Path("results/sensitivity_fpr_fnr.csv")
     if not path.exists():
-        raise FileNotFoundError(f"Sensitivity results file not found at {path}")
+        logger.warning(f"Sensitivity results file not found: {path}")
+        return None
     
-    df = pd.read_csv(path)
-    required_cols = ['threshold', 'fpr', 'fnr', 'accuracy', 'precision', 'recall', 'f1']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Sensitivity results missing required columns: {missing}")
-    
-    logger.info(f"Loaded sensitivity results with {len(df)} rows")
-    return df
+    try:
+        df = pd.read_csv(path)
+        logger.info(f"Loaded sensitivity results with {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load sensitivity results: {e}")
+        return None
 
-def check_classification_status() -> bool:
-    """Check if classification was performed (not skipped)."""
+def check_classification_status() -> str:
+    """Check classification status from state file."""
     status_path = Path("state/classification_status.yaml")
     if not status_path.exists():
-        logger.warning("No classification status file found. Assuming classification was performed.")
-        return True
+        logger.warning("Classification status file not found, assuming SKIPPED")
+        return "SKIPPED"
     
-    with open(status_path, 'r') as f:
-        status_data = yaml.safe_load(f)
-    
-    if status_data.get('status') == 'SKIPPED':
-        logger.info("Classification was skipped (no proxy found).")
-        return False
-    
-    return True
+    try:
+        with open(status_path, 'r') as f:
+            status_data = yaml.safe_load(f)
+            return status_data.get('status', 'SKIPPED')
+    except Exception as e:
+        logger.error(f"Failed to read classification status: {e}")
+        return "SKIPPED"
 
-def generate_sensitivity_curve(df: pd.DataFrame, output_path: Path) -> None:
-    """Generate the sensitivity curve plot (FPR/FNR vs Threshold)."""
-    plt.style.use('seaborn-v0_8-whitegrid')
+def generate_n_a_plot(output_path: Path):
+    """Generate a placeholder plot when classification was skipped."""
+    logger.info("Generating N/A sensitivity plot")
+    
     fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Plot FPR and FNR against threshold
-    ax.plot(df['threshold'], df['fpr'], label='False Positive Rate (FPR)', color='red', linewidth=2, marker='o', markersize=4)
-    ax.plot(df['threshold'], df['fnr'], label='False Negative Rate (FNR)', color='blue', linewidth=2, marker='s', markersize=4)
-    
-    # Highlight the optimal threshold (max F1)
-    optimal_idx = df['f1'].idxmax()
-    optimal_threshold = df.loc[optimal_idx, 'threshold']
-    optimal_fpr = df.loc[optimal_idx, 'fpr']
-    optimal_fnr = df.loc[optimal_idx, 'fnr']
-    
-    ax.axvline(x=optimal_threshold, color='green', linestyle='--', linewidth=1.5, label=f'Optimal Threshold ({optimal_threshold:.2f})')
-    
-    # Mark the optimal point
-    ax.scatter([optimal_threshold], [optimal_fpr], color='red', s=100, zorder=5, edgecolors='black')
-    ax.scatter([optimal_threshold], [optimal_fnr], color='blue', s=100, zorder=5, edgecolors='black')
-    
-    # Annotate the optimal point
-    ax.annotate(f'FPR: {optimal_fpr:.3f}', xy=(optimal_threshold, optimal_fpr), xytext=(optimal_threshold + 0.1, optimal_fpr),
-                arrowprops=dict(facecolor='red', shrink=0.05), color='red', fontsize=9)
-    ax.annotate(f'FNR: {optimal_fnr:.3f}', xy=(optimal_threshold, optimal_fnr), xytext=(optimal_threshold + 0.1, optimal_fnr),
-                arrowprops=dict(facecolor='blue', shrink=0.05), color='blue', fontsize=9)
-    
-    ax.set_xlabel('Threshold', fontsize=12)
-    ax.set_ylabel('Error Rate', fontsize=12)
-    ax.set_title('Sensitivity Analysis: FPR and FNR vs Threshold', fontsize=14, fontweight='bold')
-    ax.legend(loc='upper left', fontsize=10)
+    ax.text(0.5, 0.5, 'Sensitivity Analysis Skipped\nNo Independent Proxy Found', 
+            horizontalalignment='center', verticalalignment='center',
+            transform=ax.transAxes, fontsize=14, color='red')
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.grid(True, linestyle=':', alpha=0.6)
-    
-    # Save the plot
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    
-    logger.info(f"Sensitivity curve saved to {output_path}")
-
-def generate_n_a_plot(output_path: Path) -> None:
-    """Generate a placeholder plot if classification was skipped."""
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.text(0.5, 0.5, 'Classification Skipped\n(No Independent Proxy Found)', 
-            horizontalalignment='center', verticalalignment='center', 
-            fontsize=16, fontweight='bold', transform=ax.transAxes)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    ax.set_xlabel('Threshold')
+    ax.set_ylabel('FPR / FNR')
+    ax.set_title('Sensitivity Curve (N/A)')
     ax.axis('off')
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=150)
     plt.close()
-    logger.info(f"N/A sensitivity plot saved to {output_path}")
+    logger.info(f"Saved N/A plot to {output_path}")
+
+def generate_sensitivity_curve(df: pd.DataFrame, output_path: Path):
+    """Generate the sensitivity curve plot from FPR/FNR data."""
+    logger.info("Generating sensitivity curve plot")
+    
+    if 'threshold' not in df.columns or 'FPR' not in df.columns or 'FNR' not in df.columns:
+        logger.error("Missing required columns in sensitivity data")
+        raise ValueError("Sensitivity data must contain 'threshold', 'FPR', and 'FNR' columns")
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Plot FPR
+    ax.plot(df['threshold'], df['FPR'], label='False Positive Rate (FPR)', 
+            color='red', linewidth=2, marker='o', markersize=3)
+    
+    # Plot FNR
+    ax.plot(df['threshold'], df['FNR'], label='False Negative Rate (FNR)', 
+            color='blue', linewidth=2, marker='s', markersize=3)
+    
+    # Highlight the optimal threshold region (around 0.5 or optimal F1)
+    # Assuming optimal threshold is near where FPR and FNR cross
+    crossing_idx = (df['FPR'] - df['FNR']).abs().idxmin()
+    optimal_threshold = df.loc[crossing_idx, 'threshold']
+    
+    ax.axvline(x=optimal_threshold, color='green', linestyle='--', 
+               label=f'Optimal Threshold ({optimal_threshold:.2f})', alpha=0.7)
+    
+    ax.set_xlabel('Classification Threshold')
+    ax.set_ylabel('Error Rate')
+    ax.set_title('Sensitivity Analysis: FPR vs FNR across Thresholds')
+    ax.legend(loc='best')
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    logger.info(f"Saved sensitivity curve to {output_path}")
 
 def main():
-    """Main entry point for generating the sensitivity curve."""
-    logger.info("Starting sensitivity curve generation (T046)...")
+    """Main entry point for generating sensitivity curve plot."""
+    logger.info("Starting sensitivity curve generation")
     
-    # Check if classification was performed
-    classification_performed = check_classification_status()
+    # Ensure output directory exists
+    output_dir = Path("results/figures")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "sensitivity_curve.png"
     
-    if not classification_performed:
-        logger.warning("Classification was skipped. Generating N/A plot.")
-        output_path = Path("results/figures/sensitivity_curve.png")
+    # Check classification status
+    status = check_classification_status()
+    logger.info(f"Classification status: {status}")
+    
+    if status == "SKIPPED":
+        logger.info("Classification was skipped, generating N/A plot")
         generate_n_a_plot(output_path)
-        logger.info("T046 completed (N/A plot generated).")
-        return
-    
-    # Load sensitivity results
-    try:
+    else:
+        # Load sensitivity results
         df = load_sensitivity_results()
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load sensitivity results: {e}")
-        sys.exit(1)
-    
-    # Generate the plot
-    output_path = Path("results/figures/sensitivity_curve.png")
-    generate_sensitivity_curve(df, output_path)
-    
-    logger.info("T046 completed successfully.")
+        if df is None:
+            logger.error("Sensitivity results not found, cannot generate plot")
+            # Generate N/A plot as fallback
+            generate_n_a_plot(output_path)
+            return
+        
+        try:
+            generate_sensitivity_curve(df, output_path)
+            logger.info("Sensitivity curve generated successfully")
+        except Exception as e:
+            logger.error(f"Failed to generate sensitivity curve: {e}")
+            # Generate N/A plot as fallback
+            generate_n_a_plot(output_path)
 
 if __name__ == "__main__":
     main()

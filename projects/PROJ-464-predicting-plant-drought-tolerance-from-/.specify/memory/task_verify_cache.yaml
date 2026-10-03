@@ -33,3 +33,16 @@ T033:
     \ user stories, not to the required code\u2011quality improvements. Consequently,\
     \ there is no evidence that the \u201Ccode cleanup and refactoring\u201D task\
     \ was actually completed."
+T034b:
+  c: false
+  h: 9a78ab9c3689e2e06a6c758638def8c7e2293de13257d5842a8121cfb3cafdfd
+  r: "The required file `state/runtime_profile.yaml` is missing, so no runtime profile\
+    \ or verification of the \u22646\u202Fhour limit is provided. The task\u2019s\
+    \ deliverable is absent."
+T034c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing that image loading was refactored\
+    \ to use Python generators (`yield`) is present, nor any profiling results demonstrating\
+    \ memory issues or the impact of the change. The required artifact (generator\u2011\
+    based image loader) is missing."

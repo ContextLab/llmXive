@@ -73,17 +73,17 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T008 [P] [US1] Unit test for retry logic with exponential backoff in `tests/unit/test_download.py`
-- [ ] T009 [P] [US1] Unit test for variable validation (missing critical vars) in `tests/unit/test_validate.py`
+- [X] T009 [P] [US1] Unit test for variable validation (missing critical vars) in `tests/unit/test_validate.py`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data/download.py` to search HuggingFace for 'eye-tracking', 'face', 'emotion' datasets; select the first dataset where schema validation passes (FR-009) and contains at least one valid record; if no valid dataset is found, halt with a clear error message. Do NOT use a hardcoded fallback dataset ID.
-- [ ] T011 [US1] Implement retry logic with exponential backoff in `code/data/download.py` (FR-002) with explicit timings: 1s, 2s, 4s.
+- [X] T010 [US1] Implement `code/data/download.py` to search HuggingFace for 'eye-tracking', 'face', 'emotion' datasets; select the first dataset where schema validation passes (FR-009) and contains at least one valid record; if no valid dataset is found, halt with a clear error message. Do NOT use a hardcoded fallback dataset ID.
+- [X] T011 [US1] Implement retry logic with exponential backoff in `code/data/download.py` (FR-002) with explicit timings: 1s, 2s, 4s.
 - [ ] T012 [US1] Implement `code/data/validate.py` to check for `gaze_coordinates`, `response_times`, `emotion_labels`, `roi_annotations`; write `data/validation_report.json` with status and missing variables list; HALT if critical vars missing (FR-009).
 - [ ] T013 [US1] Implement logic to apply Generic ROI Fallback (3x3 grid) if `roi_annotations` are missing
-- [~] T014 [US1] Implement participant exclusion logic: exclude if >20% missing gaze data; log exclusion rate
-- [~] T015 [US1] Create `data/raw/` directory structure and save downloaded dataset checksums
-- [~] T037a [US1] Run `hash_artifacts.py` to update `state/` with hashes after T015 (Data Download) <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement participant exclusion logic: exclude if >20% missing gaze data; log exclusion rate
+- [ ] T015 [US1] Create `data/raw/` directory structure and save downloaded dataset checksums
+- [ ] T037a [US1] Run `hash_artifacts.py` to update `state/` with hashes after T015 (Data Download) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,7 +104,7 @@
 
 - [X] T018 [US2] Implement `code/features/extraction.py` to compute fixation duration (eye/mouth), saccade amplitude, dispersion (FR-003)
 - [ ] T019 [US2] Save extracted features to `data/processed/features.csv`
-- [~] T020 [US2] Implement `code/features/classification.py` to calculate **continuous ratio** of eye-to-mouth fixation time (Primary Predictor); append to `data/processed/features.csv`; if mean ratio is <= 0, log a warning and proceed with descriptive statistics only (no assertion failure).
+- [ ] T020 [US2] Implement `code/features/classification.py` to calculate **continuous ratio** of eye-to-mouth fixation time (Primary Predictor); append to `data/processed/features.csv`; if mean ratio is <= 0, log a warning and proceed with descriptive statistics only (no assertion failure).
 - [X] T021 [US2] Implement k-means clustering (k=2) in `code/features/classification.py` with silhouette score calculation (FR-004)
 - [~] T022 [US2] Implement warning logic: if silhouette < 0.25 or cluster size < 5, log warning and proceed with descriptive stats only
 - [X] T023a [US2] [Plan-2.3] [FR-010] Implement **Bootstrap Stability Check** in `code/features/classification.py`: repeat clustering on multiple bootstrap samples (e.g., 100 iterations) to assess label stability; output stability metrics. This replaces k-fold CV which is invalid for unsupervised clustering.
@@ -138,7 +138,7 @@
 - [~] T034 [US3] Generate statistical results table with estimates, SE, t-values, p-values, and adjusted p-values
 - [ ] T025 [US3] [FR-010] Implement Sensitivity Analysis: sweep k over {2, 3}, run **secondary LMM using cluster labels** (from T024b) to report coefficient variance for the **descriptive model**; output `results/sensitivity_report.yaml`. This validates the stability of the exploratory cluster-based approach, not the primary continuous predictor.
 - [ ] T026 [US3] Save sensitivity analysis report to `results/sensitivity_report.yaml` (SC-006)
-- [ ] T037c [US3] Run `hash_artifacts.py` to update `state/` with hashes after T026, T034 (Final Results)
+- [~] T037c [US3] Run `hash_artifacts.py` to update `state/` with hashes after T026, T034 (Final Results)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,7 +148,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation.
 
-- [ ] T035 [P] Implement `code/validation/reference_validator.py` to validate citations against primary sources (Title overlap ≥0.7)
+- [X] T035 [P] Implement `code/validation/reference_validator.py` to validate citations against primary sources (Title overlap ≥0.7)
 - [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b.
 - [ ] T039 Create `results/figures/` directory and generate plots: `results/figures/fixation_dist.png`, `results/figures/model_coeffs.png`, `results/figures/power_curve.png`.
 - [ ] T040 Run `quickstart.md` validation to ensure end-to-end pipeline execution succeeds within 6 hours
