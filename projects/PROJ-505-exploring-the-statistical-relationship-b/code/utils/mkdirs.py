@@ -1,33 +1,21 @@
 import os
 from pathlib import Path
+from typing import List
+from utils.logging import get_logger
 
-def ensure_dirs():
+logger = get_logger(__name__)
+
+def ensure_dirs(dir_paths: List[str]) -> None:
     """
-    Create all necessary directories for the project structure.
-    This function ensures that the directory tree required for the
-    solar wind composition analysis project exists.
+    Create directories if they do not exist.
+    
+    Args:
+        dir_paths: List of directory paths to create.
     """
-    project_root = Path("projects/PROJ-505-exploring-the-statistical-relationship-b")
-    
-    directories = [
-        # Phase 1: Setup
-        project_root,
-        project_root / "code",
-        project_root / "data",
-        project_root / "tests",
-        
-        # Phase 1: Sub-directories
-        project_root / "code" / "ingestion",
-        project_root / "code" / "analysis",
-        project_root / "code" / "utils",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "artifacts",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-    ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-    
-    return list(directories)
+    for path_str in dir_paths:
+        path = Path(path_str)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {path}")
+        else:
+            logger.debug(f"Directory already exists: {path}")

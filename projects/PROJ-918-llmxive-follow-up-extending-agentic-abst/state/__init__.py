@@ -1,3 +1,3 @@
 """
-State management for the llmXive pipeline.
+State management module for llmXive pipeline.
 """

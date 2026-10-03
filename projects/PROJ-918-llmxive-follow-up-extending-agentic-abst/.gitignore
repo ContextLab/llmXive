@@ -1,14 +1,9 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
-.eggs/
-*.egg-info/
+.Python
 build/
 develop-eggs/
 dist/
@@ -21,40 +16,16 @@ parts/
 sdist/
 var/
 wheels/
+*.egg-info/
+.installed.cfg
 *.egg
+MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
 # IDE
 .idea/
@@ -63,24 +34,15 @@ venv.bak/
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre
-.pyre/
-
-# Data
+# Data and Results (generated)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/results/*
 !data/results/.gitkeep
+state/*
+!state/.gitkeep
 
 # Logs
 *.log
@@ -89,3 +51,13 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Config overrides
+.env.local
+config.local.yaml
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/

@@ -1,40 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The only evidence provided is a textual feature specification; there is no indication
-    that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/`
-    actually exists or contains any files. The required artifact (the created directory)
-    is missing.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/`\
-    \ actually exists; the response only contains a feature specification and no file\u2011\
-    system listing or confirmation of the directory creation. The required artifact\
-    \ is missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/`\
-    \ actually exists (or contains any files). The implementer\u2019s claim cannot\
-    \ be verified without a concrete listing or screenshot of the created folder.\
-    \ The missing artifact is the required directory itself."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/`
-    actually exists; the artifact list is empty, so the required folder was not created.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I could find no evidence that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion`
-    actually exists or contains any files; the response only restates the task without
-    showing the created folder. The required artifact is missing.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis`
-    actually exists; the artifact list is empty, so the required folder was not created.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -75,3 +38,31 @@ T012:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided that the directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`
     actually exists; the artifact list is empty, so the required folder was not created.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation artifact showing the added validation\
+    \ logic (temporal offset \u2264\u202F30\u202Fminutes and monotonic timestamps)\
+    \ is present. The implementer\u2019s claim cannot be verified because the required\
+    \ implementation files or evidence of integration into T024 are missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV or JSON files containing the regression results and model metrics are\
+    \ present in the `data/artifacts/` directory; the implementer provided only the\
+    \ task description without the required output artifacts. The task\u2019s core\
+    \ requirement\u2014to integrate regression results into that folder\u2014is therefore\
+    \ unmet."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content was provided for review, so we cannot confirm that the documentation
+    was updated to explicitly state the data gap and the synthetic nature of any fallback
+    data. The required artifact is missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation output, log, or report for `quickstart.md` is present; the implementer
+    provided no artifact demonstrating that the quickstart documentation was parsed,
+    checked, and passed. Consequently the required evidence of a successful quickstart
+    validation is missing.

@@ -100,17 +100,17 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for `code/models/train_meta_critic.py` output schema in `tests/contract/test_model_output.py`
-- [ ] T019 [P] [US2] Integration test for simulation loop in `tests/integration/test_simulation_loop.py`
+- [X] T019 [P] [US2] Integration test for simulation loop in `tests/integration/test_simulation_loop.py`
 
 ### Implementation for User Story 2
 
 - [ ] T020.0 [US2] Acquire, integrate, and pin the reference CONVOLVE implementation (commit/tag) to `code/simulation/convolve_ref/` to ensure the baseline matches the spec (FR-003)
 - [X] T020 [US2] Implement `code/models/train_meta_critic.py` using XGBoost/LightGBM on CPU to predict abstention labels from state features (FR-002) <!-- FAILED: unspecified -->
 - [ ] T020.5 [US2] Implement `code/simulation/simulation_framework.py` to build the agent interaction loop where the meta-critic evaluates state *before* LLM action, integrating the reference baseline from T020.0 (FR-003)
-- [ ] T021 [US2] Implement `code/simulation/run_baseline.py` to run the reference CONVOLVE implementation (seed=42, max 20 turns) via the simulation framework from T020.5 (FR-003) <!-- FAILED: unspecified -->
-- [ ] T022 [US2] Implement `code/models/evaluate.py` to run the simulation loop (using T020.5) where the Meta-Critic evaluates state *before* LLM action, calculate Timely Abstention Recall, Average Token Consumption, Wall-clock Latency, explicitly calculate the token reduction percentage vs baseline, and verify if reduction >= 40% OR Cohen's d >= 0.5 (FR-004, SC-002) <!-- FAILED: unspecified -->
-- [~] T023 [US2] Add logging for the specific turn number and feature vector when Meta-Critic triggers abstention for auditability
-- [ ] T024 [US2] Generate `data/results/baseline_comparison.json` containing metrics for both Meta-Critic and Full-Context conditions
+- [ ] T021 [US2] Implement `code/simulation/run_baseline.py` to run the reference CONVOLVE implementation (seed=42, max 20 turns) via the simulation framework from T020.5 (FR-003) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T022 [US2] Implement `code/models/evaluate.py` to run the simulation loop (using T020.5) where the Meta-Critic evaluates state *before* LLM action, calculate Timely Abstention Recall, Average Token Consumption, Wall-clock Latency, explicitly calculate the token reduction percentage vs baseline, and verify if reduction >= 40% OR Cohen's d >= 0.5 (FR-004, SC-002) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T023 [US2] Add logging for the specific turn number and feature vector when Meta-Critic triggers abstention for auditability
+- [X] T024 [US2] Generate `data/results/baseline_comparison.json` containing metrics for both Meta-Critic and Full-Context conditions
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,7 +133,7 @@
 - [X] T028 [US3] Implement `code/analysis/sensitivity_analysis.py` to sweep decision threshold over a range of values and calculate false-positive/negative rates (FR-006)
 - [X] T029 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/statistical_tests.py` to check predictors like turn number vs. token usage
 - [ ] T030 [US3] Generate `data/results/statistical_report.md` containing p-values, effect sizes (Cohen's d), survival analysis results, and threshold sensitivity plots
-- [ ] T031 [US3] Validate that the null hypothesis (median difference = 0) is rejected with p < 0.05 for token consumption reduction (SC-004)
+- [ ] T031 [US3] Validate that the null hypothesis (median difference = 0) is rejected with p < 0.05 for token consumption reduction (SC-004) <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 

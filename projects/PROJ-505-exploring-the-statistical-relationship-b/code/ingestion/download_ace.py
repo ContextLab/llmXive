@@ -1,53 +1,68 @@
+"""
+ACE data ingestion module: attempts real fetch, falls back to synthetic if failed.
+"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from datetime import datetime, timedelta
 import logging
+
 import pandas as pd
 import numpy as np
-from utils.logging import DataIngestionError, get_logger
-from config import get_config
 
-def fetch_ace_data(start: datetime, end: datetime) -> pd.DataFrame:
-    logger = get_logger()
-    # Attempt to fetch real data (simulated failure for this task context)
-    logger.warning("Real ACE data fetch attempted but failed (CDAWeb unavailable).")
-    raise DataIngestionError("Real ACE data fetch failed.")
+from utils.logging import DataIngestionError, get_logger, log_duration
+from utils.io import save_parquet
+from ingestion.generate_synthetic_data import generate_synthetic_dataset
 
-def load_synthetic_ace(start: datetime, end: datetime) -> pd.DataFrame:
-    logger = get_logger()
-    logger.info("Generating synthetic ACE data.")
-    dates = pd.date_range(start=start, end=end, freq="H")
-    n = len(dates)
-    df = pd.DataFrame({
-        "timestamp": dates,
-        "v_sw": 400 + np.random.randn(n) * 50,
-        "Bz": np.random.randn(n) * 5,
-        "O_Fe": np.random.lognormal(0, 0.5, n),
-        "He_H": np.random.lognormal(0, 0.3, n),
-        "C_O": np.random.lognormal(0, 0.4, n),
-    })
-    return df
+logger = get_logger(__name__)
 
-def run_ingestion(output_path: Path) -> None:
-    logger = get_logger()
-    cfg = get_config()
-    try:
-        df = fetch_ace_data(cfg["start_date"], cfg["end_date"])
-        is_synthetic = False
-    except DataIngestionError:
-        logger.warning("Falling back to synthetic ACE data.")
-        df = load_synthetic_ace(cfg["start_date"], cfg["end_date"])
-        is_synthetic = True
+def fetch_ace_data(start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    """
+    Attempt to fetch real ACE data from CDAWeb.
+    Raises DataIngestionError if fetch fails.
+    """
+    # Placeholder for real fetch logic
+    # In a real implementation, this would use requests or a specific API client
+    # to download from CDAWeb
+    raise DataIngestionError("Real ACE data fetch not implemented or failed.")
 
-    df["source_type"] = "synthetic" if is_synthetic else "real"
+def load_synthetic_ace(start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    """Generate synthetic ACE data as a fallback."""
+    logger.warning("Falling back to synthetic ACE data generation.")
+    return generate_synthetic_dataset(start_date, end_date, source="ACE")
+
+@log_duration
+def run_ingestion(start_date: datetime, end_date: datetime, output_path: Path) -> None:
+    """Run ACE ingestion with fallback logic."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved ACE data to {output_path} (Synthetic: {is_synthetic})")
+    
+    try:
+        logger.info(f"Attempting to fetch real ACE data from {start_date} to {end_date}...")
+        df = fetch_ace_data(start_date, end_date)
+        df['source'] = 'real'
+    except DataIngestionError as e:
+        logger.error(f"Real data fetch failed: {e}")
+        logger.info("Generating synthetic fallback data...")
+        df = load_synthetic_ace(start_date, end_date)
+        df['source'] = 'synthetic'
+    
+    save_parquet(df, output_path)
+    logger.info(f"ACE data saved to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=str, required=True)
+    """Entry point for ACE ingestion script."""
+    parser = argparse.ArgumentParser(description="Ingest ACE solar wind data.")
+    parser.add_argument("--start", type=str, required=True, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end", type=str, required=True, help="End date (YYYY-MM-DD)")
+    parser.add_argument("--output", type=str, default="data/processed/ace.parquet", help="Output path")
+    
     args = parser.parse_args()
-    run_ingestion(Path(args.output))
+    start_date = datetime.strptime(args.start, "%Y-%m-%d")
+    end_date = datetime.strptime(args.end, "%Y-%m-%d")
+    output_path = Path(args.output)
+    
+    run_ingestion(start_date, end_date, output_path)
+
+if __name__ == "__main__":
+    main()

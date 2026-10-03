@@ -8225,3 +8225,162 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T12:38:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: Typical Atmospheric River duration is 3.5 days
+  claim_id: c_ce03fadd
+  context: 'Typical AR duration: multiple days (e.g., Ralph et al.) ... ar_duration_days
+    = 3.5 # Average from literature'
+  evidence:
+    asserted: '3.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Typical AR duration: 3.5 days (Average from literature)'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T16:38:19Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: GRACE-FO measures gravity changes via inter-satellite distance tracking
+  claim_id: c_f1965433
+  context: "GRACE\u2011FO measures changes in the Earth's gravity field by tracking\
+    \ inter\u2011satellite distance variations, which are converted to spherical\u2011\
+    harmonic (Stokes) coefficients."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The two GRACE satellites, GRACE-1 and GRACE-2, were launched from Plesetsk\
+        \ Cosmodrome, Russia, on a Rockot (SS-19 + Briz upper stage) launch vehicle\
+        \ on 17 March 2002. The spacecraft were launched to an initial altitude of\
+        \ approximately 500 km at a near-polar inclination of 89\xB0. During normal\
+        \ operations, the satellites were separated by 220 km along their orbit track.\
+        \ This system was able to gather global coverage every 30 days. GRACE far\
+        \ exceeded its 5-year design lifespan, operating for 15 years until the decommissioning\
+        \ of GRACE-2 on 27 October 2017. Its successor, GRACE-FO, was successfully\
+        \ launched on 22 May 2018."
+      source_id: GRACE and GRACE-FO
+      url: https://en.wikipedia.org/wiki/GRACE_and_GRACE-FO
+      value: '220'
+    filled: true
+  kind: entity_fact
+  raw_text: "GRACE-FO measures changes in the Earth's gravity field by tracking inter\u2011\
+    satellite distance variations."
+  resolved_value: '220'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T16:38:20Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO uses gravitational potential perturbation at low Earth orbit
+    as proxy for mass redistribution
+  claim_id: c_14621153
+  context: "The analysis utilizes the perturbation in gravitational potential at the\
+    \ GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for mass\
+    \ redistribution. This is distinct from the geoid height at the Earth's surface."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_uses_gravitational_potential_perturbation_at_low_Ea
+  kind: entity_fact
+  raw_text: "The analysis utilizes the perturbation in gravitational potential at\
+    \ the GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for\
+    \ mass redistribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:38:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Target region is West Coast NA 35-50N 120-125W
+  claim_id: c_12aadb78
+  context: "filters to the **Target** region (West Coast NA: \xB0N\u201150\xB0N, 120\xB0\
+    W\u2011125\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target region for atmospheric river analysis is the West Coast NA:\
+    \ 35\xB0N\u201150\xB0N, 120\xB0W\u2011125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:39:23Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region is East Coast NA 70-75W
+  claim_id: c_17f325e9
+  context: "filters to the **Control** region (East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W, an area with minimal AR activity)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The control region for atmospheric river analysis is the East Coast NA:\
+    \ Southern to mid-latitudes, 70\xB0W\u201175\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:40:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing uses 300 km characteristic spatial scale
+  claim_id: c_3e7d21e7
+  context: performs **Gaussian smoothing** with a characteristic spatial scale of
+    **300 km** by projecting data to a 2D grid
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian smoothing is performed with a characteristic spatial scale of
+    300 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:46:20Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations seed 42
+  claim_id: c_660f13bf
+  context: performs **bootstrap** (multiple iterations) to obtain 95 % CI... iterations=1000,
+    seed=42
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:48:10Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Runtime constraint limit is 6 hours
+  claim_id: c_5fbddf81
+  context: compares it against the specified time limit... LIMIT_SECONDS = 6 * 3600
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime constraint limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T16:50:56Z'

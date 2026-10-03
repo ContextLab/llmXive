@@ -1,3 +1,3 @@
 """
-llmXive automated science pipeline code base.
+llmXive Automated Science Pipeline - Agentic Abstention Follow-up
 """

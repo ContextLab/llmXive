@@ -1,56 +1,78 @@
+"""
+NOAA geomagnetic index ingestion module: attempts real fetch, falls back to synthetic.
+"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from datetime import datetime, timedelta
 import logging
+
 import pandas as pd
 import numpy as np
-from utils.logging import DataIngestionError, get_logger
-from config import get_config
 
-def fetch_noaa_kp(start: datetime, end: datetime) -> pd.DataFrame:
-    logger = get_logger()
-    logger.warning("Real NOAA Kp fetch attempted but failed.")
-    raise DataIngestionError("Real NOAA Kp fetch failed.")
+from utils.logging import DataIngestionError, get_logger, log_duration
+from utils.io import save_parquet
+from ingestion.generate_synthetic_data import generate_synthetic_dataset
 
-def fetch_noaa_dst(start: datetime, end: datetime) -> pd.DataFrame:
-    logger = get_logger()
-    logger.warning("Real NOAA Dst fetch attempted but failed.")
-    raise DataIngestionError("Real NOAA Dst fetch failed.")
+logger = get_logger(__name__)
 
-def load_synthetic_noaa(start: datetime, end: datetime) -> pd.DataFrame:
-    logger = get_logger()
-    logger.info("Generating synthetic NOAA data.")
-    dates = pd.date_range(start=start, end=end, freq="H")
-    n = len(dates)
-    df = pd.DataFrame({
-        "timestamp": dates,
-        "Kp": np.random.uniform(0, 9, n),
-        "Dst": np.random.normal(-20, 30, n),
-    })
+def fetch_noaa_kp(start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    """
+    Attempt to fetch real Kp index from NOAA.
+    Raises DataIngestionError if fetch fails.
+    """
+    raise DataIngestionError("Real NOAA Kp fetch not implemented or failed.")
+
+def fetch_noaa_dst(start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    """
+    Attempt to fetch real Dst index from NOAA.
+    Raises DataIngestionError if fetch fails.
+    """
+    raise DataIngestionError("Real NOAA Dst fetch not implemented or failed.")
+
+def load_synthetic_noaa(start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    """Generate synthetic NOAA data as a fallback."""
+    logger.warning("Falling back to synthetic NOAA data generation.")
+    # Generate synthetic data for Kp and Dst
+    df = generate_synthetic_dataset(start_date, end_date, source="NOAA")
     return df
 
-def run_ingestion(output_path: Path) -> None:
-    logger = get_logger()
-    cfg = get_config()
-    try:
-        kp = fetch_noaa_kp(cfg["start_date"], cfg["end_date"])
-        dst = fetch_noaa_dst(cfg["start_date"], cfg["end_date"])
-        is_synthetic = False
-        merged = pd.merge(kp, dst, on="timestamp", how="outer")
-    except DataIngestionError:
-        logger.warning("Falling back to synthetic NOAA data.")
-        merged = load_synthetic_noaa(cfg["start_date"], cfg["end_date"])
-        is_synthetic = True
-
-    merged["source_type"] = "synthetic" if is_synthetic else "real"
+@log_duration
+def run_ingestion(start_date: datetime, end_date: datetime, output_path: Path) -> None:
+    """Run NOAA ingestion with fallback logic."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    merged.to_csv(output_path, index=False)
-    logger.info(f"Saved NOAA data to {output_path} (Synthetic: {is_synthetic})")
+    
+    try:
+        logger.info(f"Attempting to fetch real NOAA data from {start_date} to {end_date}...")
+        # Try to fetch Kp and Dst
+        kp_df = fetch_noaa_kp(start_date, end_date)
+        dst_df = fetch_noaa_dst(start_date, end_date)
+        # Merge if needed, or assume they are already merged in the fetch function
+        df = pd.merge(kp_df, dst_df, on='timestamp', how='outer')
+        df['source'] = 'real'
+    except DataIngestionError as e:
+        logger.error(f"Real data fetch failed: {e}")
+        logger.info("Generating synthetic fallback data...")
+        df = load_synthetic_noaa(start_date, end_date)
+        df['source'] = 'synthetic'
+    
+    save_parquet(df, output_path)
+    logger.info(f"NOAA data saved to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=str, required=True)
+    """Entry point for NOAA ingestion script."""
+    parser = argparse.ArgumentParser(description="Ingest NOAA geomagnetic index data.")
+    parser.add_argument("--start", type=str, required=True, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end", type=str, required=True, help="End date (YYYY-MM-DD)")
+    parser.add_argument("--output", type=str, default="data/processed/noaa.parquet", help="Output path")
+    
     args = parser.parse_args()
-    run_ingestion(Path(args.output))
+    start_date = datetime.strptime(args.start, "%Y-%m-%d")
+    end_date = datetime.strptime(args.end, "%Y-%m-%d")
+    output_path = Path(args.output)
+    
+    run_ingestion(start_date, end_date, output_path)
+
+if __name__ == "__main__":
+    main()

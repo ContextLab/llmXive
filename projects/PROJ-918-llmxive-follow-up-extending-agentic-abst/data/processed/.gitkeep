@@ -1,2 +1,2 @@
-# This directory stores processed, feature-extracted, and labeled datasets.
-# Intermediate and final analysis artifacts go here.
+# This directory stores processed data files ready for analysis and modeling.
+# Do not commit large data files. Add patterns to .gitignore.

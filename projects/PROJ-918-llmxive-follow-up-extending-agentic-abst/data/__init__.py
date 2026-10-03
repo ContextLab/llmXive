@@ -1,3 +1,3 @@
 """
-Data processing module for the llmXive pipeline.
+Data module for llmXive pipeline.
 """

@@ -1,112 +1,78 @@
-# Dataset Schema for Agentic Abstention Pipeline
-# This schema enforces the exclusion of full semantic context text columns
-# to prevent data leakage and ensure the model relies on state features only.
-#
-# Reference: FR-007, Constitution Principle II
-#
-# Allowed columns:
-#   - Numeric state features (int/float)
-#   - Categorical features (string, short length)
-#   - Labels (int/bool)
-#
-# Forbidden columns:
-#   - Full semantic context text (long strings, paragraphs, documents)
-#   - Raw interaction logs containing full prompt/response bodies
-#   - Any column with 'context', 'full_text', 'document', 'prompt', 'response'
-#     in the name that exceeds a character threshold.
-
-version: "1.0"
-description: >
-  Schema for the processed dataset used to train the Meta-Critic model.
-  Explicitly forbids columns containing full semantic context to prevent
-  the model from cheating by reading the answer.
-
-columns:
-  # Core State Features (Derived from T013/T014)
-  - name: turn_number
-    type: integer
-    description: Current turn number in the interaction
-    min: 1
-    nullable: false
-
-  - name: search_count
-    type: integer
-    description: Number of search actions taken so far
-    min: 0
-    nullable: false
-
-  - name: error_frequency
-    type: float
-    description: Ratio of errors to total actions
-    min: 0.0
-    max: 1.0
-    nullable: false
-
-  - name: token_usage
-    type: integer
-    description: Cumulative token count used in the trajectory
-    min: 0
-    nullable: false
-
-  - name: query_context_distance
-    type: float
-    description: Cosine distance between query and context embedding
-    min: 0.0
-    max: 2.0
-    nullable: false
-
-  - name: abstention_label
-    type: integer
-    description: Ground truth label (1 if agent should have abstained, 0 otherwise)
-    enum: [0, 1]
-    nullable: false
-
-  - name: task_id
+$schema: http://json-schema.org/draft-07/schema#
+title: Agentic Abstention Dataset Schema
+description: |
+  Schema for the processed dataset used to train and evaluate the Meta-Critic model.
+  CRITICAL: This schema explicitly EXCLUDES full semantic context text columns to prevent
+  the model from trivially solving the task via text matching and to enforce prediction
+  based on agent state dynamics (tokens, turns, errors, etc.).
+type: object
+additionalProperties: false
+properties:
+  # Primary Key / Identifier
+  task_id:
     type: string
     description: Unique identifier for the task instance
-    max_length: 128
-    nullable: false
+    minLength: 1
 
-  - name: agent_id
+  # Agent State Features (Numeric/Categorical)
+  turn_number:
+    type: integer
+    description: Current interaction turn number
+    minimum: 1
+
+  search_count:
+    type: integer
+    description: Number of search actions taken in the trajectory
+    minimum: 0
+
+  error_frequency:
+    type: number
+    description: Frequency of errors encountered (errors per turn)
+    minimum: 0.0
+    maximum: 1.0
+
+  token_usage:
+    type: integer
+    description: Cumulative token usage up to this state
+    minimum: 0
+
+  embedding_distance:
+    type: number
+    description: |
+      Scalar distance between the current query and the retrieved context
+      embeddings (computed via sentence-transformers).
+    minimum: 0.0
+
+  # Target Variable
+  abstention_label:
+    type: integer
+    description: |
+      Ground truth label indicating if the agent SHOULD have abstained at this state.
+      1 = Abstain (task is impossible or futile at this state)
+      0 = Continue (task is solvable)
+    enum: [0, 1]
+
+  # Metadata (Non-semantic)
+  dataset_source:
     type: string
-    description: Identifier for the agent instance
-    max_length: 64
-    nullable: false
+    description: Source of the benchmark data (e.g., 'agentic-abstention-benchmark')
 
-# Explicit Exclusion Rules
-# Any column matching these patterns is FORBIDDEN and will cause validation failure
-forbidden_patterns:
-  - pattern: ".*context.*"
-    reason: "Full semantic context text columns are forbidden to prevent data leakage."
-  - pattern: ".*full_text.*"
-    reason: "Full text content is not allowed in the training dataset."
-  - pattern: ".*document.*"
-    reason: "Document bodies must not be included as features."
-  - pattern: ".*prompt.*"
-    reason: "Raw prompt text is forbidden."
-  - pattern: ".*response.*"
-    reason: "Raw response text is forbidden."
-  - pattern: ".*trajectory.*"
-    reason: "Full trajectory logs are too large and contain forbidden context."
-
-# Validation Constraints
-validation:
-  # Reject any string column longer than this threshold
-  max_string_length: 256
-  # Reject any column containing newlines (indicates multi-line text blocks)
-  reject_multiline_strings: true
-  # Required columns check
-  required_columns:
-    - turn_number
-    - search_count
-    - error_frequency
-    - token_usage
-    - query_context_distance
-    - abstention_label
-    - task_id
-
-# Schema Enforcement Metadata
-enforcement:
-  tool: "code/data/verify_features.py"
-  action_on_violation: "raise"
-  error_message: "Dataset violates schema: Full semantic context detected."
+  # Explicit Exclusion Rule
+  # The following column names are FORBIDDEN in any file conforming to this schema:
+  # - context_text
+  # - full_context
+  # - prompt_text
+  # - query_text
+  # - semantic_content
+  # - raw_trajectory
+  #
+  # Validation logic must reject any record containing these keys.
+required:
+  - task_id
+  - turn_number
+  - search_count
+  - error_frequency
+  - token_usage
+  - embedding_distance
+  - abstention_label
+  - dataset_source

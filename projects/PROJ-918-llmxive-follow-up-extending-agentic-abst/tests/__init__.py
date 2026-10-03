@@ -1,3 +1,3 @@
 """
-Test suite for the llmXive pipeline.
+Test suite for llmXive pipeline.
 """

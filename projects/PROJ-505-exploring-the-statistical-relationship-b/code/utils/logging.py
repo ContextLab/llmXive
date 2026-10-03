@@ -1,11 +1,14 @@
+"""
+Logging and error handling utilities.
+"""
 import logging
 import sys
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
-import traceback
-import psutil
+import time
+import resource
 
 class PipelineError(Exception):
     pass
@@ -25,59 +28,51 @@ class ConfigError(PipelineError):
 class ValidationError(PipelineError):
     pass
 
-_logger: Optional[logging.Logger] = None
-
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        if not _logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            _logger.addHandler(handler)
-            _logger.setLevel(logging.INFO)
-    return _logger
-
-def setup_logging(level: int = logging.INFO) -> None:
-    global _logger
-    _logger = logging.getLogger("llmXive")
-    _logger.setLevel(level)
-    if not _logger.handlers:
+def get_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
-        _logger.addHandler(handler)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
-def log_error_and_raise(error: Exception, logger: logging.Logger) -> None:
-    logger.error(f"Error occurred: {str(error)}")
-    logger.debug(traceback.format_exc())
-    raise error
-
-def safe_execute(func, logger: logging.Logger, *args, **kwargs):
-    try:
-        return func(*args, **kwargs)
-    except Exception as e:
-        log_error_and_raise(e, logger)
+def setup_logging(log_file: Optional[Path] = None):
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        handler = logging.FileHandler(log_file)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logging.root.addHandler(handler)
 
 def log_duration(func):
     def wrapper(*args, **kwargs):
-        logger = kwargs.get("logger") or get_logger()
-        start = datetime.now()
+        start = time.time()
         result = func(*args, **kwargs)
-        duration = (datetime.now() - start).total_seconds()
-        logger.info(f"{func.__name__} completed in {duration:.2f}s")
+        end = time.time()
+        logger = get_logger(func.__module__)
+        logger.info(f"{func.__name__} completed in {end - start:.2f} seconds")
         return result
     return wrapper
 
-def check_memory_usage(threshold_gb: float = 6.0) -> bool:
-    """Check if current memory usage exceeds threshold. Returns True if over threshold."""
-    process = psutil.Process(os.getpid())
-    mem_gb = process.memory_info().rss / (1024 ** 3)
-    if mem_gb > threshold_gb:
-        return True
-    return False
+def check_memory_usage() -> float:
+    """Check current memory usage in GB."""
+    usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    # On Linux, ru_maxrss is in KB; on macOS, it's in bytes
+    if sys.platform == 'darwin':
+        usage_gb = usage / (1024 ** 3)
+    else:
+        usage_gb = usage / (1024 * 1024)
+    return usage_gb
+
+def log_error_and_raise(error_type: type, message: str):
+    logger = get_logger(__name__)
+    logger.error(message)
+    raise error_type(message)
+
+def safe_execute(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs), None
+    except Exception as e:
+        return None, e

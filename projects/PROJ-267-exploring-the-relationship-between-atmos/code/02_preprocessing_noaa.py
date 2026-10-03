@@ -8,190 +8,201 @@ from pathlib import Path
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_noaa_raw_data(region_type: str) -> pd.DataFrame:
+def load_noaa_raw_data(file_path: str) -> pd.DataFrame:
     """
-    Load raw NOAA AR catalog data for a specific region.
+    Loads the raw NOAA AR catalog data from a CSV file.
     
     Args:
-        region_type: 'target' or 'control'
+        file_path (str): Path to the raw CSV file.
         
     Returns:
-        DataFrame with raw AR data
+        pd.DataFrame: Loaded DataFrame.
         
     Raises:
-        FileNotFoundError: If the raw data file does not exist
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
-    base_path = Path("data/raw/noaa-ar") / region_type
-    input_file = base_path / "noaa_data.csv"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Raw NOAA data file not found: {file_path}")
     
-    if not input_file.exists():
-        raise FileNotFoundError(
-            f"Raw NOAA data file not found: {input_file}. "
-            f"Ensure T016 (target) or T016b (control) has been executed successfully."
-        )
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise ValueError(f"Failed to parse CSV {file_path}: {e}")
     
-    logger.info(f"Loading raw NOAA data from {input_file}")
-    df = pd.read_csv(input_file)
+    # Verify expected columns exist (based on typical NOAA AR Catalog structure)
+    # We expect at least 'date' and an intensity metric. 
+    # The task description mentions 'IWV_transport'.
+    required_cols = ['date']
+    if 'IWV_transport' not in df.columns:
+        # Fallback check for common variations if the column name differs
+        intensity_cols = [c for c in df.columns if 'iwv' in c.lower() or 'transport' in c.lower() or 'intensity' in c.lower()]
+        if intensity_cols:
+            logger.warning(f"Column 'IWV_transport' not found. Using '{intensity_cols[0]}' as intensity metric.")
+            df = df.rename(columns={intensity_cols[0]: 'IWV_transport'})
+        else:
+            raise ValueError(f"Could not find an Integrated Water Vapor Transport column in {file_path}. Available columns: {list(df.columns)}")
     
-    # Validate expected columns
-    required_cols = ['date', 'IWV_transport']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {input_file}: {missing_cols}")
-    
+    if 'date' not in df.columns:
+        raise ValueError(f"Required column 'date' missing in {file_path}")
+        
     return df
 
 def aggregate_monthly_ar(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate Integrated Water Vapor Transport to monthly means.
+    Aggregates AR intensity data to monthly means.
     
     Args:
-        df: DataFrame with 'date' and 'IWV_transport' columns
+        df (pd.DataFrame): DataFrame with 'date' and 'IWV_transport' columns.
         
     Returns:
-        DataFrame with monthly aggregated data
+        pd.DataFrame: DataFrame with monthly aggregated data.
     """
-    logger.info("Aggregating AR intensity to monthly means...")
-    
-    # Ensure date column is datetime
+    df = df.copy()
     df['date'] = pd.to_datetime(df['date'])
     
-    # Create a month period for grouping
+    # Create a 'month' period column for grouping
     df['month'] = df['date'].dt.to_period('M')
     
-    # Aggregate by month
-    monthly_df = df.groupby('month').agg({
-        'IWV_transport': 'mean'
-    }).reset_index()
+    # Aggregate: Mean of IWV_transport per month
+    # We also keep the count to check for missing data later
+    monthly = df.groupby('month').agg(
+        ar_intensity=('IWV_transport', 'mean'),
+        ar_count=('IWV_transport', 'count')
+    ).reset_index()
     
-    # Rename columns to match schema
-    monthly_df = monthly_df.rename(columns={
-        'IWV_transport': 'ar_intensity',
-        'month': 'date'
-    })
+    # Convert period back to timestamp for easier handling/saving
+    monthly['date'] = monthly['month'].dt.to_timestamp()
+    monthly = monthly.drop(columns=['month'])
     
-    # Convert date back to string format for consistency (YYYY-MM)
-    monthly_df['date'] = monthly_df['date'].astype(str)
-    
-    return monthly_df
+    return monthly
 
-def handle_missing_months(df: pd.DataFrame, start_date: str = None, end_date: str = None) -> pd.DataFrame:
+def handle_missing_months(df: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp) -> pd.DataFrame:
     """
-    Log warnings for any missing months in the time series.
+    Logs warnings for any missing months between the start and end of the data range.
     
     Args:
-        df: DataFrame with 'date' column
-        start_date: Optional start date string (YYYY-MM)
-        end_date: Optional end date string (YYYY-MM)
+        df (pd.DataFrame): The monthly aggregated DataFrame.
+        start_date (pd.Timestamp): The expected start date.
+        end_date (pd.Timestamp): The expected end date.
         
     Returns:
-        DataFrame (unchanged, but logs warnings)
+        pd.DataFrame: The original DataFrame (no modification, just logging).
     """
-    if start_date is None or end_date is None:
-        # Infer range from data
-        start_date = df['date'].min()
-        end_date = df['date'].max()
+    # Generate full range of months
+    full_range = pd.date_range(start=start_date, end=end_date, freq='MS')
+    current_months = pd.to_datetime(df['date']).dt.to_period('M')
+    full_range_periods = full_range.to_period('M')
     
-    # Generate expected monthly range
-    dates = pd.date_range(start=start_date, end=end_date, freq='MS')
-    expected_months = dates.strftime('%Y-%m').tolist()
+    missing = full_range_periods.difference(current_months)
     
-    existing_months = df['date'].tolist()
-    missing = [m for m in expected_months if m not in existing_months]
-    
-    if missing:
-        logger.warning(f"Missing {len(missing)} months in dataset: {missing[:5]}...")
+    if len(missing) > 0:
+        logger.warning(f"Detected {len(missing)} missing months: {list(missing)}")
     else:
-        logger.info("No missing months detected in the time series.")
+        logger.info("No missing months detected in the date range.")
         
     return df
 
 def exclude_zero_ar_months(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drop months where total AR intensity equals zero or is NaN.
+    Drops months where the total/mean AR intensity equals zero.
     
     Args:
-        df: DataFrame with 'ar_intensity' column
+        df (pd.DataFrame): DataFrame with 'ar_intensity' column.
         
     Returns:
-        Filtered DataFrame
+        pd.DataFrame: Filtered DataFrame.
     """
     initial_count = len(df)
-    
-    # Drop rows where ar_intensity is zero or NaN
     df = df[df['ar_intensity'] > 0]
-    df = df.dropna(subset=['ar_intensity'])
-    
     dropped_count = initial_count - len(df)
+    
     if dropped_count > 0:
-        logger.info(f"Dropped {dropped_count} months with zero or NaN AR intensity.")
+        logger.info(f"Dropped {dropped_count} months with zero AR intensity.")
     else:
-        logger.info("No months with zero or NaN AR intensity found.")
+        logger.info("No months with zero AR intensity found.")
         
     return df
 
-def save_processed_data(df: pd.DataFrame, region_type: str) -> str:
+def save_processed_data(df: pd.DataFrame, output_path: str):
     """
-    Save processed data to the specified output path.
+    Saves the processed DataFrame to a CSV file.
     
     Args:
-        df: Processed DataFrame
-        region_type: 'target' or 'control'
-        
-    Returns:
-        Path to the saved file
+        df (pd.DataFrame): The DataFrame to save.
+        output_path (str): The path where the CSV will be written.
     """
-    output_dir = Path("data/processed")
-    output_dir.mkdir(exist_ok=True)
-    
-    output_file = output_dir / f"noaa_preprocessed_{region_type}.csv"
-    
-    logger.info(f"Saving processed data to {output_file}")
-    df.to_csv(output_file, index=False)
-    
-    logger.info(f"Successfully saved {len(df)} rows to {output_file}")
-    return str(output_file)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created directory: {output_dir}")
+        
+    df.to_csv(output_path, index=False)
+    logger.info(f"Processed data saved to: {output_path}")
 
 def main():
-    """Main entry point for NOAA preprocessing."""
-    logger.info("=== NOAA Preprocessing Pipeline Start ===")
+    # Define paths relative to project root
+    # Target region input
+    target_raw_path = "data/raw/noaa-ar/target/noaa_data.csv"
+    # Control region input
+    control_raw_path = "data/raw/noaa-ar/control/noaa_data.csv"
     
-    regions = ['target', 'control']
+    # Output paths
+    target_out_path = "data/processed/noaa_preprocessed_target.csv"
+    control_out_path = "data/processed/noaa_preprocessed_control.csv"
     
-    for region in regions:
-        try:
-            logger.info(f"--- Processing {region.upper()} region ---")
-            
-            # 1. Load raw data
-            raw_df = load_noaa_raw_data(region)
-            
-            # 2. Aggregate to monthly means
-            monthly_df = aggregate_monthly_ar(raw_df)
-            
-            # 3. Check for missing months
-            monthly_df = handle_missing_months(monthly_df)
-            
-            # 4. Drop zero-intensity months
-            clean_df = exclude_zero_ar_months(monthly_df)
-            
-            # 5. Save processed data
-            output_path = save_processed_data(clean_df, region)
-            
-            logger.info(f"{region.upper()} processing complete: {output_path}")
-            
-        except FileNotFoundError as e:
-            logger.error(f"Failed to process {region}: {e}")
-            logger.error("Please ensure T016 (target) or T016b (control) has been executed first.")
-            sys.exit(1)
-        except Exception as e:
-            logger.error(f"Unexpected error processing {region}: {e}")
-            raise
+    # 1. Load Target Data
+    logger.info(f"Loading target data from {target_raw_path}")
+    try:
+        target_df = load_noaa_raw_data(target_raw_path)
+    except Exception as e:
+        logger.error(f"Failed to load target data: {e}")
+        sys.exit(1)
+        
+    # 2. Load Control Data
+    logger.info(f"Loading control data from {control_raw_path}")
+    try:
+        control_df = load_noaa_raw_data(control_raw_path)
+    except Exception as e:
+        logger.error(f"Failed to load control data: {e}")
+        sys.exit(1)
     
-    logger.info("=== NOAA Preprocessing Pipeline Complete ===")
+    # 3. Aggregate to Monthly Means
+    logger.info("Aggregating target data to monthly means...")
+    target_monthly = aggregate_monthly_ar(target_df)
+    
+    logger.info("Aggregating control data to monthly means...")
+    control_monthly = aggregate_monthly_ar(control_df)
+    
+    # 4. Handle Missing Months
+    # Determine global range to check for gaps
+    if not target_monthly.empty and not control_monthly.empty:
+        global_start = min(target_monthly['date'].min(), control_monthly['date'].min())
+        global_end = max(target_monthly['date'].max(), control_monthly['date'].max())
+        handle_missing_months(target_monthly, global_start, global_end)
+        handle_missing_months(control_monthly, global_start, global_end)
+    else:
+        logger.warning("One or both datasets are empty; skipping missing month analysis.")
+    
+    # 5. Drop Zero Intensity Months
+    logger.info("Filtering out months with zero AR intensity...")
+    target_monthly = exclude_zero_ar_months(target_monthly)
+    control_monthly = exclude_zero_ar_months(control_monthly)
+    
+    # 6. Save Outputs
+    logger.info("Saving processed target data...")
+    save_processed_data(target_monthly, target_out_path)
+    
+    logger.info("Saving processed control data...")
+    save_processed_data(control_monthly, control_out_path)
+    
+    logger.info("NOAA preprocessing complete.")
 
 if __name__ == "__main__":
     main()

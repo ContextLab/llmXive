@@ -1,2 +1,2 @@
-# This directory stores analysis results and reports.
-# Do not commit large binary files.
+# This directory stores analysis results, reports, and generated figures.
+# Do not commit large data files. Add patterns to .gitignore.

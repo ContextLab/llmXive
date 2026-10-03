@@ -7,10 +7,11 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T006** — No evidence of a `data/` directory with the required `raw/` and `processed/` subfolders, nor any checksum scripts, was provided. The implementer must add the directory structure and the scripts that compute and verify file checksums.
-- **T016** — The repository contains `code/data/preprocess.py` with mean‑imputation code, but the required `data/validation_report.json` file is absent, and the visible portion of the script does not show the “halt execution” logic that writes this report when >5 % of records miss a critical variable. The task’s validation‑report generation requirement is therefore unmet.
+- **T016** — The repository contains a `code/data/preprocess.py` file, but the visible code does not show any logic that writes a `data/validation_report.json` or halts execution when >5 % of records miss a critical variable, and the required `data/validation_report.json` file is absent. Consequently, the mean‑imputation and validation‑report requirements are not demonstrably fulfilled.
 - **T017** — declared artifact(s) missing/empty/invalid: data/processed/features.parquet, schema.yaml
-- **T019** — The required file `tests/integration/test_simulation_loop.py` is missing from the repository, so the integration test for the simulation loop does not exist. No artifact fulfills the task’s requirement.
-- **T020** — No evidence of a `code/simulation/convolve_ref/` directory containing a concrete CONVOLVE implementation (with a specific commit/tag) was provided; the required artifact is missing, so the task is not satisfied.
 - **T021** — declared artifact(s) missing/empty/invalid: code/simulation/run_baseline.py
 - **T022** — declared artifact(s) missing/empty/invalid: code/models/evaluate.py
-- **T024** — declared artifact(s) missing/empty/invalid: data/results/baseline_comparison.json
+- **T023** — No code, configuration, or log output was provided showing that the system now records the turn number and the full feature vector whenever the meta‑critic decides to abstain. Without concrete artifacts (e.g., updated source files, example log entries, or test output), the requirement is not satisfied.
+- **T030** — declared artifact(s) missing/empty/invalid: data/results/statistical_report.md
+- **T031** — No statistical analysis artifact (e.g., test results, p‑value, or report) is provided; without a computed Mann‑Whitney U/Kolmogorov‑Smirnov test showing median difference ≠ 0 and p < 0.05 for the token‑consumption reduction metric, the requirement is not satisfied. The implementer must supply the actual test output or a reproducible script and its results.
+- **T032** — No documentation files or changes in `docs/` or `quickstart.md` were provided; the only artifact is a feature specification, which does not satisfy the required documentation updates. The implementer must add the actual updated documentation files.
