@@ -1,155 +1,108 @@
 import os
 import sys
-import json
+import unittest
 import tempfile
 import shutil
 from pathlib import Path
-import pytest
+import json
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, get_checkpoint_path
+from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, delete_checkpoint
 
-class TestCheckpointIntegration:
-    """Integration tests for checkpoint mechanism in fetch_data and preprocess"""
-    
-    @pytest.fixture
-    def temp_checkpoint_dir(self):
-        """Create a temporary checkpoint directory"""
-        temp_dir = tempfile.mkdtemp()
-        # Temporarily override checkpoint directory
-        original_dir = os.environ.get('CHECKPOINT_DIR')
-        os.environ['CHECKPOINT_DIR'] = temp_dir
-        yield temp_dir
-        # Cleanup
-        if original_dir:
-            os.environ['CHECKPOINT_DIR'] = original_dir
-        else:
-            os.environ.pop('CHECKPOINT_DIR', None)
-        shutil.rmtree(temp_dir, ignore_errors=True)
+class TestCheckpointIntegration(unittest.TestCase):
+    """Integration tests for checkpoint mechanism in fetch_data and preprocess scripts."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.checkpoint_dir = os.path.join(self.test_dir, "checkpoints")
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, "test_checkpoint.json")
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
+
+    def test_checkpoint_save_and_load(self):
+        """Test that checkpoint can be saved and loaded correctly."""
+        ensure_checkpoint_dir(self.checkpoint_dir)
         
-    def test_checkpoint_save_and_load(self, temp_checkpoint_dir):
-        """Test basic checkpoint save and load functionality"""
-        checkpoint_path = get_checkpoint_path('test')
-        
-        test_data = {
-            'start_index': 5,
-            'processed_games': ['game1', 'game2'],
-            'timestamp': 1234567890
+        test_state = {
+            'completed_games': ['game1', 'game2'],
+            'current_index': 2,
+            'total_games': 5,
+            'partial_metrics': {
+                'games_processed': 2,
+                'total_records': 100
+            }
         }
         
-        save_checkpoint(test_data, checkpoint_path)
+        save_checkpoint(test_state, self.checkpoint_file)
         
-        assert os.path.exists(checkpoint_path)
+        self.assertTrue(os.path.exists(self.checkpoint_file))
         
-        loaded_data = load_checkpoint(checkpoint_path)
+        loaded_state = load_checkpoint(self.checkpoint_file)
         
-        assert loaded_data['start_index'] == 5
-        assert loaded_data['processed_games'] == ['game1', 'game2']
-        assert loaded_data['timestamp'] == 1234567890
+        self.assertEqual(loaded_state['completed_games'], test_state['completed_games'])
+        self.assertEqual(loaded_state['current_index'], test_state['current_index'])
+        self.assertEqual(loaded_state['partial_metrics'], test_state['partial_metrics'])
+
+    def test_checkpoint_resume_simulation(self):
+        """Test checkpoint resume simulation for fetch_data.py."""
+        ensure_checkpoint_dir(self.checkpoint_dir)
         
-    def test_checkpoint_missing_file(self, temp_checkpoint_dir):
-        """Test loading from non-existent checkpoint file"""
-        checkpoint_path = get_checkpoint_path('nonexistent')
-        
-        # Should return None or raise appropriate error
-        result = load_checkpoint(checkpoint_path)
-        assert result is None
-        
-    def test_checkpoint_directory_creation(self, temp_checkpoint_dir):
-        """Test that checkpoint directory is created if it doesn't exist"""
-        new_dir = os.path.join(temp_checkpoint_dir, 'new_subdir')
-        os.environ['CHECKPOINT_DIR'] = new_dir
-        
-        checkpoint_path = get_checkpoint_path('test')
-        ensure_checkpoint_dir()
-        
-        assert os.path.exists(os.path.dirname(checkpoint_path))
-        
-    def test_checkpoint_update(self, temp_checkpoint_dir):
-        """Test updating an existing checkpoint"""
-        checkpoint_path = get_checkpoint_path('test')
-        
-        # Save initial state
-        initial_data = {
-            'start_index': 0,
-            'processed_games': [],
-            'timestamp': 1000
-        }
-        save_checkpoint(initial_data, checkpoint_path)
-        
-        # Update with new state
-        updated_data = {
-            'start_index': 3,
-            'processed_games': ['game1', 'game2', 'game3'],
-            'timestamp': 2000
-        }
-        save_checkpoint(updated_data, checkpoint_path)
-        
-        # Verify update
-        loaded = load_checkpoint(checkpoint_path)
-        assert loaded['start_index'] == 3
-        assert len(loaded['processed_games']) == 3
-        assert loaded['timestamp'] == 2000
-        
-    def test_checkpoint_with_fetch_data_simulation(self, temp_checkpoint_dir):
-        """Simulate checkpoint usage in fetch_data.py"""
-        checkpoint_path = get_checkpoint_path('fetch_data')
-        
-        # Simulate processing first game
+        # Simulate partial completion
         state = {
-            'start_index': 1,
             'completed_games': ['super-mario-64'],
-            'timestamp': 1234567890
+            'current_index': 1,
+            'total_games': 3,
+            'partial_metrics': {
+                'games_processed': 1,
+                'total_runs_fetched': 50
+            }
         }
-        save_checkpoint(state, checkpoint_path)
         
-        # Simulate processing second game
-        state['start_index'] = 2
-        state['completed_games'].append('zelda-oot')
-        state['timestamp'] = 1234567900
-        save_checkpoint(state, checkpoint_path)
+        save_checkpoint(state, self.checkpoint_file)
         
-        # Verify final state
-        loaded = load_checkpoint(checkpoint_path)
-        assert loaded['start_index'] == 2
-        assert len(loaded['completed_games']) == 2
-        assert 'super-mario-64' in loaded['completed_games']
-        assert 'zelda-oot' in loaded['completed_games']
+        # Verify resumption logic
+        loaded = load_checkpoint(self.checkpoint_file)
+        self.assertEqual(loaded['current_index'], 1)
+        self.assertEqual(len(loaded['completed_games']), 1)
+        self.assertIn('super-mario-64', loaded['completed_games'])
+
+    def test_checkpoint_delete(self):
+        """Test checkpoint deletion on successful completion."""
+        ensure_checkpoint_dir(self.checkpoint_dir)
         
-    def test_checkpoint_with_preprocess_simulation(self, temp_checkpoint_dir):
-        """Simulate checkpoint usage in preprocess.py"""
-        checkpoint_path = get_checkpoint_path('preprocess')
+        state = {'test': 'data'}
+        save_checkpoint(state, self.checkpoint_file)
+        self.assertTrue(os.path.exists(self.checkpoint_file))
         
-        # Simulate processing
+        delete_checkpoint(self.checkpoint_file)
+        self.assertFalse(os.path.exists(self.checkpoint_file))
+
+    def test_checkpoint_with_mock_timeout(self):
+        """Test that checkpoint is saved before simulated timeout."""
+        ensure_checkpoint_dir(self.checkpoint_dir)
+        
+        # Simulate state before timeout
         state = {
-            'start_index': 0,
-            'processed_games': [],
-            'total_records': 0,
-            'timestamp': 1234567890
+            'completed_games': ['game1'],
+            'current_index': 1,
+            'total_games': 2,
+            'partial_metrics': {'games_processed': 1}
         }
-        save_checkpoint(state, checkpoint_path)
         
-        # After first game
-        state['start_index'] = 1
-        state['processed_games'] = ['super-mario-64']
-        state['total_records'] = 150
-        state['timestamp'] = 1234567900
-        save_checkpoint(state, checkpoint_path)
+        save_checkpoint(state, self.checkpoint_file)
         
-        # After second game
-        state['start_index'] = 2
-        state['processed_games'].append('zelda-oot')
-        state['total_records'] = 320
-        state['timestamp'] = 1234568000
-        save_checkpoint(state, checkpoint_path)
+        # Verify state is recoverable
+        loaded = load_checkpoint(self.checkpoint_file)
+        self.assertEqual(loaded['current_index'], 1)
         
-        # Verify
-        loaded = load_checkpoint(checkpoint_path)
-        assert loaded['start_index'] == 2
-        assert loaded['total_records'] == 320
-        assert len(loaded['processed_games']) == 2
+        # Simulate cleanup after recovery
+        delete_checkpoint(self.checkpoint_file)
 
 if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    unittest.main()

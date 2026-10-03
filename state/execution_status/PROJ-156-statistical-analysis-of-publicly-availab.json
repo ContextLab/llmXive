@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-156-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/scripts/generate_report.py; 4 command(s) failed: python code/scripts/fetch_data.py (rc=1); python code/scripts/preprocess.py (rc=1); python code/scripts/fit_distributions.py (rc=1); 5 declared deliverable(s) absent: data/processed/distribution_fits.csv; data/processed/game_metadata.csv; data/processed/model_results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/scripts/fetch_data.py -> rc=1\n    2026-10-02 23:22:24,878 - ERROR - No games specified in config.yaml",
+    "python code/scripts/preprocess.py -> rc=1\n    2026-10-02 23:22:24,923 - INFO - Starting preprocessing pipeline...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 428, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 386, in main\n    config = load_config()\n             ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-pu",
+    "python code/scripts/fit_distributions.py -> rc=1\n    2026-10-02 23:22:24,966 - INFO - Starting distribution fitting with checkpointing.\n2026-10-02 23:22:24,966 - WARNING - PyYAML not found, attempting manual parse. This may fail for complex YAML.\n2026-10-02 23:22:24,966 - ERROR - No games defined in config.",
+    "python code/scripts/fit_mixed_effects.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/fit_mixed_effects.py\", line 23, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/scripts/generate_report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/generate_report.py': [Errno 2] No such file or directory",
+    "python -c \"import pandas as pd; df = pd.read_csv('data/processed/run_records.csv'); print(f'Completeness: {df.notna().mean().mean():.2%}')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-02T23:22:25Z"
+}

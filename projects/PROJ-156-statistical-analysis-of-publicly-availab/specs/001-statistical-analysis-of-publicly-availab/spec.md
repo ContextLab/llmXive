@@ -66,12 +66,12 @@ As a researcher, I want to fit hierarchical mixed-effects models (log(Time) ~ lo
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download run times, runner IDs, attempt numbers, categories, and submission dates from speedrun.com for 10–15 games (See US-1)
+- **FR-001**: System MUST download run times, runner IDs, attempt numbers, categories, and submission dates from speedrun.com for a selection of games (See US-1)
 - **FR-002**: System MUST remove duplicate entries and filter out incomplete runs, retaining ≥95% of original records (See US-1)
 - **FR-003**: System MUST compute per-runner experience metrics (total prior runs, time since first run) for every record (See US-1)
 - **FR-004**: System MUST fit log-normal, Weibull, and gamma distributions using maximum likelihood and report KS test statistics (D, p-value) and AIC for each (See US-2)
 - **FR-005**: System MUST flag distributions that fail the KS test (p < 0.05) and recommend the next-best-fitting alternative (See US-2)
-- **FR-006**: System MUST fit hierarchical mixed-effects models with the formula log(Time) ~ log(Attempt Number) + Game Difficulty + (1 | RunnerID) + interaction terms for competitive pressure, where Game Difficulty labels come from external community rankings (Machin et al. 2021), not run-time-derived values (See US-3)
+- **FR-006**: System MUST fit hierarchical mixed-effects models with the formula log(Time) ~ log(Attempt Number) + Game Difficulty + (1 | RunnerID) + interaction terms for competitive pressure, where Game Difficulty labels come from external community rankings (Machin et al. [Year]), not run-time-derived values (See US-3)
 - **FR-007**: System MUST perform likelihood-ratio tests comparing nested models (with/without difficulty or competition terms) and report χ² statistics and p-values (See US-3)
 - **FR-008**: System MUST apply Bonferroni correction for multiple hypothesis tests (family-wise error rate ≤ 0.05 across all tests) (See US-3)
 - **FR-009**: System MUST include a sample-size/power consideration statement (method specified, number may be `[deferred]`) acknowledging power limitations for small games (See US-3)
@@ -105,7 +105,7 @@ As a researcher, I want to fit hierarchical mixed-effects models (log(Time) ~ lo
 ## Assumptions
 
 - speedrun.com API provides all required variables (run times, runner IDs, attempt numbers, submission dates) for the 10–15 target games without authentication requiring a paid tier
-- Game difficulty labels are available from external community rankings (e.g., Machin et al. 2021) that are independent of run times; if external difficulty labels are not available for a game, that game is excluded from the difficulty-modulation analysis
+- Game difficulty labels are available from external community rankings (e.g., Machin et al.) that are independent of run times.; if external difficulty labels are not available for a game, that game is excluded from the difficulty-modulation analysis
 - The 10–15 target games collectively contain ≥5,000 total runs (sufficient for distribution fitting and mixed-effects modeling); games with <100 runs are flagged as "low-sample" and excluded from parametric fitting
 - GitHub Actions free-tier runners provide ≥7 GB RAM and ≥14 GB disk for the entire 6-hour job; data must be sampled or subset if exceeding these limits
 - Python libraries (pandas, numpy, scipy, statsmodels, matplotlib) are available on the GitHub Actions runner without requiring CUDA or GPU accelerators

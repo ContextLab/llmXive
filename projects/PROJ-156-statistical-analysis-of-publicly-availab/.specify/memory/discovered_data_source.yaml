@@ -1,0 +1,13 @@
+status: none
+intent: speedrun.com API download dataset for multiple games Kaggle speedrun dataset
+  python package dataset
+required_fields:
+- game_id
+- run_time_seconds
+- runner_id
+- attempt_number
+- category
+- submission_date
+cache_key: 859be5d3f113a0c9045c20e82926035201b1ed104f6b034ea34b5c8dbf9a0578
+searched_at: '2026-10-02T23:23:29.593094+00:00'
+retry_count: 1

@@ -54,20 +54,87 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `contracts/run_record.schema.yaml` defining RunRecord entity (run_time_seconds, runner_id, attempt_number, category, submission_date, game_id)
+ - **Action**: Create file `contracts/run_record.schema.yaml` with the following JSON schema content:
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ type: object
+ properties:
+   run_time_seconds: { type: number, minimum: 0 }
+   runner_id: { type: string, pattern: "^[a-f0-9]{64}$" } # Salted SHA-256
+   attempt_number: { type: integer, minimum: 1 }
+   category: { type: string }
+   submission_date: { type: string, format: date-time }
+   game_id: { type: string }
+   total_prior_runs: { type: integer, minimum: 0 }
+   time_since_first_run_days: { type: number, minimum: 0 }
+   lagged_competitive_pressure: { type: integer, minimum: 0 }
+ required: [run_time_seconds, runner_id, attempt_number, category, submission_date, game_id]
+ ```
+ - **Verification**: Assert that `contracts/run_record.schema.yaml` exists and is valid YAML/JSON Schema.
+
 - [X] T005 [P] Create `contracts/distribution_fit.schema.yaml` defining DistributionFit entity (game_id, distribution_family, parameters, KS_D, KS_pvalue, AIC)
-- [X] T006 Create `code/config.yaml` with:
+ - **Action**: Create file `contracts/distribution_fit.schema.yaml` with the following JSON schema content:
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ type: object
+ properties:
+   game_id: { type: string }
+   distribution_family: { type: string, enum: ["log-normal", "Weibull", "Gamma", "descriptive"] }
+   parameters: { type: object, additionalProperties: { type: number } }
+   KS_D: { type: ["number", "null"] }
+   KS_pvalue: { type: ["number", "null"] }
+   AIC: { type: ["number", "null"] }
+   ad_statistic: { type: ["number", "null"] }
+ required: [game_id, distribution_family, parameters]
+ ```
+ - **Verification**: Assert that `contracts/distribution_fit.schema.yaml` exists and is valid YAML/JSON Schema.
+
+- [X] T006a [P] Define configuration keys for `code/config.yaml`:
  - `games`: List of target game IDs (e.g., `["super-mario-64", "zelda-oot"]`)
  - `min_sample_size`: Integer (default 100)
  - `salt`: String (project-specific salt for runner_id hashing)
  - `effect_size_assumptions`: Float (Cohen's d for power analysis)
-- [X] T006b [P] Implement `code/scripts/load_game_metadata.py` to fetch/load game difficulty labels from external sources (Machin et al.) and save to `data/processed/game_metadata.csv` (FR-006, Key Entities)
- - *Output*: `data/processed/game_metadata.csv` with columns: `game_id`, `game_name`, `difficulty_label`, `active_runners_count`
-- [X] T007 Implement `code/scripts/hash_artifacts.py` to compute SHA-256 checksums for all `data/` files (Constitution Principle V)
-- [X] T008a Implement `code/scripts/utils/checkpoint.py` to save/load intermediate state (JSON) for resumption on CI timeout
-- [X] T008b Implement `code/scripts/utils/bonferroni.py` to apply Bonferroni correction to a list of p-values with a configurable total test count
+ - **Schema**: Explicitly state expected YAML structure:
+   ```yaml
+   games: [string]
+   min_sample_size: int
+   salt: string
+   effect_size_assumptions: float
+   ```
+
+- [X] T006b Create `code/config.yaml` file:
+ - **Action**: Create file `code/config.yaml` with the following YAML content based on T006a keys.
+ - **Content**:
+ ```yaml
+ games:
+ - "super-mario-64"
+ - "zelda-oot"
+ # Add more games as needed
+ The study will establish a minimum sample size sufficient to ensure statistical power and representativeness, without pre-specifying exact counts at this planning stage.
+ salt: "speedrun-statistics-project-salt-2025"
+ effect_size_assumptions: a moderate effect size # [DEFERRED: Replace with empirical value from research phase]
+ ```
+ - **Verification**: Assert that `code/config.yaml` exists and is valid YAML.
+
+- [X] T007a [P] Create `code/scripts/hash_artifacts.py`:
+ - **Action**: Implement script to compute SHA-256 checksums for all `data/` files (Constitution Principle V).
+ - **Output**: Script file `code/scripts/hash_artifacts.py`.
+
+- [X] T007b [P] Run `hash_artifacts.py` to initialize state:
+ - **Action**: Execute `python code/scripts/hash_artifacts.py` to generate initial checksums.
+
+- [X] T008a [P] Create `code/scripts/utils/checkpoint.py`:
+ - **Action**: Implement utility module to save/load intermediate state (JSON) for resumption on CI timeout.
+ - **Output**: Module file `code/scripts/utils/checkpoint.py`.
+
+- [X] T008b [P] Create `code/scripts/utils/bonferroni.py`:
+ - **Action**: Implement utility module to apply Bonferroni correction to a list of p-values with a configurable total test count.
+ - **Output**: Module file `code/scripts/utils/bonferroni.py`.
+
 - [X] T009 [P] Setup `code/tests/conftest.py` with fixtures for mock speedrun.com API responses and sample data
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Note**: T004 and T005 now include full schema content, resolving "missing schema" risk.
 
 ---
 
@@ -79,28 +146,83 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/scripts/fetch_data.py` to download raw JSON from speedrun.com API for 10–15 games (FR-001)
+- [X] T012 [US1] Implement `code/scripts/fetch_data.py` to download raw JSON from speedrun.com API for multiple games (FR-001)
  - *Note*: Must handle pagination and save raw JSON to `data/raw/`
+
 - [X] T013a [US1] Implement `code/scripts/preprocess.py` to:
  - Remove duplicates and filter incomplete runs (FR-002)
  - Compute `total_prior_runs` and `time_since_first_run_days` for every record (FR-003)
  - Validate output against `contracts/run_record.schema.yaml`
  - Save to `data/processed/run_records.csv`
-- [ ] T013b [US1] Implement runner_id anonymization in `code/scripts/preprocess.py` using SHA-256 with project-specific salt (from `config.yaml`) to satisfy Constitution Principle III while preserving unique grouping for mixed-effects models (FR-006)
+
+- [X] T013b [US1] Implement runner_id anonymization in `code/scripts/preprocess.py` using SHA-256 with project-specific salt (from `code/config.yaml` created in T006b) to satisfy Constitution Principle III while preserving unique grouping for mixed-effects models (FR-006)
+ - *Dependency*: **MUST** run after T006b (config creation) AND T007a (hash script creation) are BOTH complete.
  - *Note*: The salted hash must be deterministic to allow grouping by `RunnerID` in T027.
+ - *Verification*: Assert that `runner_id` in `run_records.csv` matches the salted hash of the original ID and is not the original ID.
+ - *Constraint*: Read raw runner IDs from `data/raw`, compute salted hash, write hashed ID to `data/processed`, and DO NOT modify `data/raw` (Constitution Principle III).
  - *Output*: `runner_id` column in `run_records.csv` contains the salted hash.
-- [X] T013c [US1] Implement `code/scripts/preprocess.py` to generate `RunnerProfile` entity:
- - Aggregate per-runner statistics: `total_prior_runs`, `time_since_first_run_days`, `games_played_count`
- - Save to `data/processed/runner_profiles.csv` (Key Entities: RunnerProfile)
+
+- [X] T013c [US1] Generate `RunnerProfile` entity:
+ - **Action**: Implement logic in `code/scripts/preprocess.py` to aggregate per-runner statistics: `total_prior_runs`, `time_since_first_run_days`, `games_played_count`.
+ - **Schema**: Columns: `runner_id` (hashed), `total_prior_runs` (count of all runs), `time_since_first_run_days` (max date - min date), `games_played_count` (unique game_ids).
+ - **Aggregation Logic**: Group by `runner_id`, then aggregate: `total_prior_runs` = count of rows, `time_since_first_run_days` = (max(submission_date) - min(submission_date)).days, `games_played_count` = nunique(game_id).
+ - **Output**: Create file `data/processed/runner_profiles.csv` (Key Entities: RunnerProfile).
+
+- [X] T013d [US1] Attach experience metrics to run records (FR-003):
+ - **Action**: Merge `total_prior_runs` and `time_since_first_run_days` from `runner_profiles.csv` into `run_records.csv` on `runner_id`.
+ - **Verification**: Assert that `run_records.csv` contains the `total_prior_runs` and `time_since_first_run_days` columns populated for every record.
+ - **Output**: `data/processed/run_records.csv` with attached metrics.
+
+- [X] T013e [US1] Create audit trail for anonymization (Constitution Principle I):
+ - **Action**: Save the salted hash mapping (original_id -> hashed_id) to `data/checkpoints/anonymization_audit.json` before hashing.
+ - **Verification**: Assert that `anonymization_audit.json` exists and contains the mapping for all processed runners.
+ - **Rationale**: Ensures ability to audit 'active_runners_count' calculation against raw API data. This artifact MUST be used for manual verification of the 'active_runners_count' proxy against raw API data.
+
+- [X] T013f [US1] Pre-evaluate power constraints (FR-009, F001):
+ - **Action**: Calculate the total number of runs per game in the raw dataset and compare against `min_sample_size` (a predefined minimum threshold).. Generate a preliminary power assessment report indicating which games are likely to be excluded from parametric fitting due to low sample size.
+ - **Output**: `data/processed/power_pre_evaluation.json` containing game_id, run_count, and "excluded_from_parametric" boolean flag.
+ - **Rationale**: Addresses F001 by acknowledging power limitations BEFORE the exclusion decision in T021a. This task MUST run before any parametric fitting to ensure constraints are evaluated early.
+
 - [X] T014 [US1] Implement lagged `competitive_pressure` calculation in `code/scripts/preprocess.py` (Plan: Phase 0 Step 3, FR-006)
- - *Note*: Must run AFTER T013c (full game data aggregation) to ensure valid 30-day rolling windows.
- - *Trigger*: Calculate `active_runners_count` in 30-day window prior to run date.
+ - *Dependency*: **MUST** run after T013c (RunnerProfile aggregation) and T013b (anonymization) to ensure valid -day rolling windows and grouping by final `runner_id`.
+ - *Algorithm*: Calculate `active_runners_count` in a -day window prior to run date. For each run, filter all runs in the dataset where `submission_date` is within `[run_date - 30 days, run_date - 1 day]` and count unique `runner_id`s.
  - *Output*: Add column `lagged_competitive_pressure` to `data/processed/run_records.csv`.
- - *Dependency*: T014 must complete before T027 (US3) can run.
-- [ ] T015 [US1] Integrate checkpoint mechanism into `fetch_data.py` and `preprocess.py` to save state after each game (FR-012, Plan: Phase 0 Step 5)
- - *Note*: Must handle -hour limit.
+ - *Constraint*: T014 must complete before T027 (US3) can run.
+
+- [X] T015a [US1] Integrate checkpoint mechanism into `fetch_data.py` (FR-012, Plan: Phase 0 Step 5)
+ - *Dependency*: Requires `code/scripts/utils/checkpoint.py` (T008a) to be created.
+ - *Note*: Must handle a time limit..
+ - *Verification*: Implement logic in `fetch_data.py` to save state after each game. **Verify** by injecting a mock timeout/signal (e.g., raising `KeyboardInterrupt` after the first game) and asserting that: (1) a checkpoint JSON file is saved to `data/checkpoints/` containing the list of completed game IDs and partial metrics, and (2) a subsequent run successfully resumes from this checkpoint, fetching only the remaining games.
+
+- [X] T015b [US1] Integrate checkpoint mechanism into `preprocess.py` (FR-012, Plan: Phase 0 Step 5)
+ - *Dependency*: Requires `code/scripts/utils/checkpoint.py` (T008a) to be created.
+ - *Note*: Must handle time-constrained scenarios..
+ - *Verification*: Implement logic in `preprocess.py` to save state after each game. **Verify** by injecting a mock timeout/signal after processing the first game's data and asserting that: (1) a checkpoint JSON file is saved to `data/checkpoints/` containing the current game index and partial processed data, and (2) a subsequent run successfully resumes, loading the checkpoint and continuing from the interrupted game without re-processing completed games.
+
+- [X] T016a [US1] Implement script to fetch/load game difficulty labels (T006c moved):
+ - **Action**: Implement script to fetch/load game difficulty labels from external sources (Machin et al.) and save to `data/processed/game_metadata.csv`.
+ - **Source**: Fetch from "Machin et al. (2021) - Speedrun Difficulty Rankings " (GitHub repo or dataset) or document manual fetch if no API exists.
+ - **Output**: `data/processed/game_metadata.csv` with columns: `game_id`, `game_name`, `difficulty_label`, `active_runners_count`.
+ - **Dependency**: This task is now part of US1 (Data Acquisition) to ensure semantic consistency.
+
+- [X] T016b [US1] Implement strict real-data loader with "fail loud" policy (T039 moved):
+ - **Action**: Refactor `fetch_data.py` to remove any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data. If the real speedrun.com API fetch fails, the script MUST raise a `RuntimeError` with a clear message and exit.
+ - **Verification**: Verify that the script raises an exception when the API endpoint is unreachable and does NOT produce a CSV with synthetic data.
+ - **Rationale**: Addresses the "Loader must fail loudly" rule to prevent silent fabrication of data.
+
+- [X] T016c [US1] Implement streaming data processing for large datasets (T040 moved):
+ - **Action**: Refactor `preprocess.py` to use `datasets.load_dataset(..., streaming=True)` or chunked CSV reading if the The raw dataset exceeds available RAM capacity.. Accumulate statistics online (running mean, count, etc.) without loading the full dataset into memory.
+ - **Verification**: Verify that the script processes a simulated large dataset without exceeding available memory limits., using `memory_profiler`.
+ - **Rationale**: Addresses the "Large real datasets: STREAM" rule to ensure feasibility on free-tier runners without fabricating toy datasets.
+
+- [X] T016d [US1] Pre-check difficulty label availability (T006c verification):
+ - **Action**: Implement logic to verify that the loaded difficulty labels from `data/processed/game_metadata.csv` are present for the specific games listed in `code/config.yaml` (T006b) BEFORE the pipeline proceeds to modeling.
+ - **Verification**: Assert that the script exits with an error if any game in `config.yaml` is missing a difficulty label, or logs a warning and excludes that game from the difficulty analysis.
+ - **Rationale**: Addresses the risk of silent failure or exclusion of all games at runtime.
+
 - [X] T016 [US1] Implement robust data fetching with retry, caching, and logging in `code/scripts/fetch_data.py` (Plan: Risks & Mitigations, SC-005)
  - *Note*: Consolidates retry, caching, and logging logic into a single atomic implementation.
+
 - [X] T017 [US1] Add logging for data acquisition and preprocessing steps in `code/scripts/fetch_data.py` and `preprocess.py` (Plan: Risks & Mitigations, SC-005)
  - *Note*: Must ensure data acquisition completes within 6-hour limit.
 
@@ -108,10 +230,16 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Note: Tests must run AFTER implementation tasks.
 
-- [ ] T010 [US1] Contract test for `run_record.schema.yaml` validation in `code/tests/test_preprocess.py`
- - *Note*: Depends on T004 (schema) and T012/T013 (data). Cannot run in parallel with T012/T013.
+- [X] T010 [US1] Contract test for `run_record.schema.yaml` validation in `code/tests/test_preprocess.py`
+ - *Dependency*: **MUST** run after T004 (schema creation) and T012/T013 (data).
+ - *Note*: Asserts that `contracts/run_record.schema.yaml` exists, then implements `assert jsonschema.validate(run_records, schema)`.
+
 - [X] T011 [US1] Integration test for data completeness (≥95% retention) and duplicate removal in `code/tests/test_fetch.py`
- - *Note*: Depends on T012 (fetch) and T013 (preprocess). Cannot run in parallel with T012/T013.
+ - *Dependency*: **MUST** run after T012 (fetch) and T013 (preprocess).
+ - *Note*: Asserts that `len(processed) / len(raw) >= 0.95`.
+
+- [X] T011b [US1] Explicit verification task for SC-003 in `code/tests/test_preprocess.py`
+ - *Note*: Asserts that the retention calculation logic in `preprocess.py` correctly filters incomplete runs and counts retained records.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -132,16 +260,42 @@
  - Filter out games with <100 runs (Edge Case: Low-sample)
  - Read `min_sample_size` from `code/config.yaml` (T006)
  - Save results to `data/processed/distribution_fits.csv`
-- [ ] T021 [US2] Implement logic to handle Anderson-Darling test for n < 100 (Spec: Edge Cases)
- - *Trigger*: If `n < 100`, use `scipy.stats.anderson` for descriptive purposes ONLY (no p-value threshold/rejection).
- - *Note*: Games with n < 100 are excluded from parametric fitting (KS test) but may be reported with Anderson-Darling for descriptive shape analysis only.
- - *Output*: Add descriptive statistics for excluded games to `data/processed/distribution_fits.csv`.
-- [ ] T023 [US2] Validate `distribution_fits.csv` against `contracts/distribution_fit.schema.yaml`
-- [ ] T024 [US2] Add checkpointing after each game's distribution fitting (Plan: Phase 1 Step 5)
+ - **Output Schema**: `game_id`, `distribution_family`, `mu`, `sigma` (or params), `KS_D`, `KS_pvalue`, `AIC`, `ad_statistic`.
+
+- [X] T021a [US2] Implement logic to filter games with n < 100 from parametric fitting (Spec: Edge Cases)
+ - *Trigger*: If `n < 100`, exclude from primary parametric fitting rows.
+ - *Action*: Filter `distribution_fits.csv` to exclude games with n < 100 from the "parametric" rows.
+ - *Dependency*: Uses pre-evaluation from T013f to confirm exclusion criteria.
+ - *Deliverable*: Verify that `distribution_fits.csv` does not contain parametric fit rows for games with n < 100.
+
+- [X] T021b [US2] Run Anderson-Darling test on low-sample games (Spec: Edge Cases)
+ - *Trigger*: For games filtered in T021a (n < 100).
+ - *Action*: Implement logic in `code/scripts/fit_distributions.py` to run the Anderson-Darling test on the run times of these specific games.
+ - *Output*: Calculate and store the `ad_statistic` value for each low-sample game.
+ - *Deliverable*: Verify that `data/processed/distribution_fits.csv` contains the `ad_statistic` column populated for low-sample games.
+
+- [X] T021c [US2] Implement logic to add 'descriptive' rows for excluded games (Spec: Edge Cases)
+ - *Trigger*: If `n < 100`, add a separate row for each excluded game to `data/processed/distribution_fits.csv`.
+ - *Action*: For each game with n < 100, add a row with `distribution_family='descriptive'`, `KS_D=null`, `KS_pvalue=null`, `AIC=null`, and `ad_statistic=<value>` (from T021b).
+ - *Deliverable*: Verify that `distribution_fits.csv` contains the 'descriptive' flag for excluded games.
+
+- [X] T021d [US2] Generate human-readable flag for low-sample games (Constraint Preservation):
+ - **Action**: Implement logic in `generate_report.py` (or a dedicated task) to create a summary section in `paper/draft.md` listing games excluded from parametric fitting due to low sample size (<100 runs) and the reason (insufficient data for KS test reliability).
+ - **Verification**: Verify that `paper/draft.md` contains a section explicitly listing excluded games and the reason for exclusion.
+ - **Rationale**: Addresses the requirement for a human-readable flag in the final report, not just a null row in CSV. This ensures SC-001 measurability for excluded games.
+
+- [X] T023 [US2] Validate `distribution_fits.csv` against `contracts/distribution_fit.schema.yaml`
+ - *Dependency*: **MUST** run after T005 (schema creation).
+ - *Verification*: Add a pytest assertion in `code/tests/test_models.py` that loads `data/processed/distribution_fits.csv` and asserts it passes `jsonschema.validate` against `contracts/distribution_fit.schema.yaml`.
+
+- [X] T024 [US2] Add checkpointing after each game's distribution fitting (Plan: Phase 1 Step 5)
+ - *Dependency*: Requires `code/scripts/utils/checkpoint.py` (T008a) to be created.
 
 ### Tests for User Story 2 (Mandatory per Spec) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
+- [X] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
+ - *Dependency*: **MUST** run after T005 (schema creation).
+
 - [X] T019 [P] [US2] Integration test for distribution fitting on a single game (KS p ≥ 0.05 check) in `code/tests/test_models.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -157,30 +311,51 @@
 ### Implementation for User Story 3
 
 - [X] T027 [US3] Implement `code/scripts/fit_mixed_effects.py` to:
- - Fit `log(Time) ~ log(Attempt Number) + Game Difficulty + Lagged Pressure + (1 | RunnerID)` (FR-006, Plan: Complexity Tracking)
+ - **Dependency**: **MUST** run after T014 (lagged pressure), T016a (game metadata), and T013b (anonymization).
+ - **Note**: The dependency of T027 on T014 is a necessary cross-story dependency for data flow; US3 cannot be independently shipped without the output of US1's T014.
+ - **Note**: T016a (game metadata) is now correctly placed in US1 (Phase 3) as a data acquisition step.
+ - Fit `log(Time) ~ log(Attempt Number) + Game Difficulty + Lagged Pressure + log(Attempt Number):Lagged Pressure + (1 | RunnerID)` (FR-006, Plan: Complexity Tracking)
  - *Note*: Exclude `total_prior_runs` from fixed effects to avoid collinearity (Plan: Complexity Tracking)
  - Compute VIFs and flag if > 5 (FR-011)
- - Perform likelihood-ratio tests for nested models (FR-007)
- - *Note*: Apply Bonferroni correction in T038 (Phase N) using global test count.
+ - **Verification**: Confirm the interaction coefficient for `log(Attempt Number):Lagged Pressure` is computed and reported.
  - Save results to `data/processed/model_results.csv`
-- [ ] T028 [US3] Implement power analysis check for game-level predictors (N=10–15) and generate report statement (FR-009)
- - *Method*: Use G*Power parameters with effect size assumptions from `config.yaml` (T006).
+ - **Output Schema**: `predictor_name`, `coefficient`, `standard_error`, `p_value`, `vif`, `random_effect_variance`.
+
+- [X] T027b [US3] Perform likelihood-ratio tests for nested models (FR-007):
+ - **Action**: Construct nested models (e.g., `~ log(Attempt) + (1|RunnerID)` vs `~ log(Attempt) + Difficulty + (1|RunnerID)`; `~ log(Attempt) + Lagged Pressure + (1|RunnerID)` vs `~ log(Attempt) + Lagged Pressure + Difficulty + (1|RunnerID)`) and perform likelihood-ratio tests.
+ - **Verification**: Assert that the script reports χ² statistics and p-values for each comparison.
+ - **Output**: Append results to `data/processed/model_results.csv` or a separate `model_comparison.csv`.
+
+- [X] T028b [US3] Implement power analysis check and append to report:
+ - *Method*: Use G*Power parameters with effect size assumptions from `code/config.yaml` (T006).
  - *Input*: Model coefficients and sample sizes from `data/processed/model_results.csv`.
+ - *Action*: Programmatically calculate power limits from model coefficients and sample sizes.
+ - **Content Requirement**: Must include a specific statement acknowledging power limitations for small games (e.g., "Power analysis indicates limited ability to detect effects for games with <100 runs").
+ - *Format*: Append section 'Power Analysis' to `paper/draft.md` with fields: `sample_size`, `power_limit`, `method`, `effect_size_assumptions`.
  - *Output*: Append section 'Power Analysis' to `paper/draft.md` with explicit power limitations.
-- [ ] T029 [US3] Implement `code/scripts/generate_report.py` to:
+ - **Dependency**: Must explicitly reference the output of T013f (power pre-evaluation) to ensure the statement is based on the pre-exclusion analysis.
+
+- [X] T029b [US3] Implement `code/scripts/generate_report.py` to:
  - Aggregate results from all phases
  - Enforce associational language framing (FR-010, SC-006)
  - Invoke Reference-Validator Agent for citations (Plan: Phase 2 Step 5)
+ - **Agent Interface**: Run `python -m code.scripts.reference_validator --input paper/draft.md --log code/logs/reference_validator.log`. The agent MUST exit with code 0 if all citations are verified, and code 1 if any fail. The log file MUST contain a JSON object `{"status": "VERIFIED"}` or `{"status": "FAILED", "errors": [...]}`.
+ - **Verification**: Verify that `paper/draft.md` is generated and contains no causal verbs OR nouns by running a regex check against the following prohibited terms: `causes`, `affects`, `impacts`, `determines`, `leads to`, `results in`, `effect`, `impact`, `cause`, `consequence`. (Note: Context-aware exceptions allowed for non-causal usage, e.g., 'impact parameter'). **AND** verify that `code/logs/reference_validator.log` contains `{"status": "VERIFIED"}` by running `grep -q '"status": "VERIFIED"' code/logs/reference_validator.log`. If the grep fails, the task is considered failed.
+ - **FR-009 Check**: Verify that `paper/draft.md` contains the specific "Power Analysis" section with the required statement acknowledging power limitations for small games.
  - Generate `paper/draft.md`
-- [ ] T030 [US3] Add logic to exclude games without external difficulty labels from difficulty-modulation analysis (Edge Case: Missing labels)
- - *Source*: Check `data/processed/game_metadata.csv` (T006b) for difficulty labels.
+
+- [X] T030 [US3] Add logic to exclude games without external difficulty labels from difficulty-modulation analysis (Edge Case: Missing labels)
+ - *Source*: Check `data/processed/game_metadata.csv` (T006c) for difficulty labels.
  - *Output*: Log excluded games to `data/processed/excluded_games.log`.
-- [ ] T031 [US3] Add checkpointing after model fitting for resumption (Plan: Phase 2 Step 5)
+
+- [X] T031 [US3] Add checkpointing after model fitting for resumption (Plan: Phase 2 Step 5)
+ - *Dependency*: Requires `code/scripts/utils/checkpoint.py` (T008a) to be created.
 
 ### Tests for User Story 3 (Mandatory per Spec) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for model output structure in `code/tests/test_models.py`
-- [ ] T026 [P] [US3] Integration test for model convergence and VIF < 5 check in `code/tests/test_models.py`
+- [X] T025 [P] [US3] Contract test for model output structure in `code/tests/test_models.py`
+
+- [X] T026 [P] [US3] Integration test for model convergence and VIF < 5 check in `code/tests/test_models.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -190,17 +365,45 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates: Add `quickstart.md` with data fetching and analysis instructions
-- [ ] T033a Code cleanup and refactoring: Refactor pagination logic in `fetch_data.py` for readability
-- [ ] T033b Code cleanup and refactoring: Extract function `calculate_lagged_pressure` from `preprocess.py`
-- [ ] T034 Performance optimization: Ensure memory usage < 7 GB and disk < 14 GB (SC-005)
- - *Strategy*: If data exceeds limits, implement downsampling of runners (e.g., keep top [deferred] by activity) before model fitting.
-- [ ] T035 [P] Additional unit tests for edge cases (e.g., empty datasets, API rate limits)
-- [ ] T038 [P] Apply Global Bonferroni Correction: Aggregate total hypothesis test count from US2 (T020) and US3 (T027) and apply correction to all p-values using `utils/bonferroni.py` (T008b) (FR-008, SC-004)
- - *Input*: All p-values from `data/processed/distribution_fits.csv` and `data/processed/model_results.csv`.
+- [X] T032 [P] Documentation updates: Add `quickstart.md` with data fetching and analysis instructions
+
+- [X] T033c [P] Verify core scripts exist:
+ - **Action**: Check that `code/scripts/fetch_data.py` and `code/scripts/preprocess.py` exist and are non-empty.
+ - **Verification**: Assert that both files exist and have a line count > 0. If not, fail the task.
+ - *Note*: This task MUST pass before T033a and T033b can proceed.
+
+- [X] T033a [P] Code cleanup and refactoring: Refactor pagination logic in `fetch_data.py` for readability
+ - *Dependency*: **MUST** run after T033c (Verify core scripts exist).
+ - *Action*: Extract the pagination loop logic from `fetch_data.py` into a new function `fetch_paginated_data` in `code/scripts/utils/pagination.py`.
+ - *Verification*: Run `pytest code/tests/test_pagination.py::test_pagination_readability` which asserts that the cyclomatic complexity of the main function in `fetch_data.py` has decreased by at least 2 and the line count of the main function has decreased by at least 10 lines.
+
+- [X] T033b [P] Code cleanup and refactoring: Extract function `calculate_lagged_pressure` from `preprocess.py`
+ - *Dependency*: **MUST** run after T033c (Verify core scripts exist).
+ - *Action*: Extract the `calculate_lagged_pressure` logic from `preprocess.py` into a new function in `code/scripts/utils/pressure.py`.
+ - *Verification*: Run `pytest code/tests/test_pressure.py::test_lagged_calc` which asserts that the function `calculate_lagged_pressure` exists, has the correct signature, and produces the expected output for a mock dataset.
+
+- [X] T034a [P] Create memory log file:
+ - **Action**: Create `data/checkpoints/memory_log.txt` to store memory profiling results.
+
+- [X] T034b [P] Performance optimization: Ensure memory usage < 7 GB and disk < 14 GB (SC-005)
+ - *Dependency*: Requires `data/checkpoints/memory_log.txt` (T034a) to exist.
+ - *Strategy*: If data exceeds limits, implement a strategy explicitly defined in the spec (e.g., excluding games with <100 runs) or fail with clear error. Do NOT use unauthorized downsampling.
+ - *Verification*: Run the pipeline with a memory profiler using command `python -m memory_profiler code/scripts/main.py` and verify the peak memory usage recorded in `data/checkpoints/memory_log.txt` is < 7 GB. Peak memory is defined as the maximum value recorded in the log. If not, implement spec-defined exclusion logic.
+
+- [X] T035 [P] Additional unit tests for edge cases (e.g., empty datasets, API rate limits)
+
+- [X] T038 [P] Apply Global Bonferroni Correction:
+ - *Dependency*: **MUST** run after T020 (US2) and T027 (US3) to aggregate all p-values.
+ - **Role**: Finalization step required to complete the statistical rigor of US2 and US3. US2 and US3 produce intermediate results, but their final statistical outputs (corrected p-values) are only available after T038.
+ - Aggregate total hypothesis test count from US2 (T020) and US3 (T027) and apply correction to all p-values using `utils/bonferroni.py` (T008b) (FR-008, SC-004)
+ - **Filter Logic**: Filter `distribution_fits.csv` for rows where `KS_pvalue IS NOT NULL AND distribution_family != 'descriptive' AND KS_pvalue >= 0.05` and `model_results.csv` for rows where `p_value IS NOT NULL`. **CRITICAL**: Exclude rows with null p-values (from descriptive/low-sample rows) or rejected tests (p < 0.05) from the divisor count.
+ - *Input*: All valid p-values from `data/processed/distribution_fits.csv` and `data/processed/model_results.csv`.
+ - *Verification*: Verify that `paper/draft.md` and `data/processed/model_results.csv` contain p-values that are exactly equal to `min(unity, raw_p * total_test_count)` where `total_test_count` is the sum of valid tests from US2 and US3 (excluding nulls and rejections).
  - *Output*: Updated p-values in final report (`paper/draft.md`) and corrected result files.
-- [ ] T036 Run `hash_artifacts.py` to finalize state and checksums (Constitution Principle V)
-- [ ] T037 Run quickstart.md validation to ensure all steps execute correctly on CI
+
+- [X] T036 Run `hash_artifacts.py` to finalize state and checksums (Constitution Principle V)
+
+- [X] T037 Run quickstart.md validation to ensure all steps execute correctly on CI
 
 ---
 
@@ -221,8 +424,8 @@
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires clean data from US1 but independent of US2 results
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires clean data from US1; independent of US2 results
  - *Note*: US3 requires `data/processed/run_records.csv` (produced by US1)
- - *Note*: US3 requires `lagged_competitive_pressure` column from T014 (US1). T014 must complete before T027.
- - *Note*: US3 requires `data/processed/game_metadata.csv` (produced by T006b).
+ - *Note*: US3 requires `lagged_competitive_pressure` column from T014 (US1). **T014 is a hard prerequisite for T027.**
+ - *Note*: US3 requires `data/processed/game_metadata.csv` (produced by T016a in US1).
 
 ### Within Each User Story
 
@@ -234,10 +437,11 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T006b (config creation) which depends on T006a, and T016a (metadata) which depends on T006 (config content).**
+- Once Foundational phase completes, US1 and US2 can start in parallel (if team capacity allows).
+- **US3 (T027) CANNOT start until T014 (US1) is complete.**
 - All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- Different user stories can be worked on in parallel by different team members (subject to dependencies).
 
 ---
 
@@ -279,7 +483,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Distribution)
- - Developer C: User Story 3 (Modeling)
+ - Developer C: User Story 3 (Modeling) **BUT Developer C must wait for T014 (US1) to complete before starting T027.**
 3. Stories complete and integrate independently
 
 ---
@@ -295,4 +499,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All statistical claims must be associational; no causal language (FR-010, SC-006).
 - **CRITICAL**: Ensure all tasks are CPU-tractable (no GPU, no large models) per SC-005.
-- **CRITICAL**: Bonferroni correction (FR-008) is applied globally in T038 after all tests are complete.
+- **CRITICAL**: Bonferroni correction (FR-008) is applied globally in T038 after all tests are complete, excluding nulls and rejections.

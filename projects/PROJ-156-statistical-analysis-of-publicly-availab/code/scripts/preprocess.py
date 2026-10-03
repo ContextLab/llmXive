@@ -1,8 +1,3 @@
-"""
-Preprocessing module for speedrun data.
-Handles data cleaning, feature engineering, and runner anonymization.
-"""
-
 import csv
 import json
 import logging
@@ -10,7 +5,8 @@ import os
 import hashlib
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set, Tuple
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -18,411 +14,309 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('logs/preprocess.log')
+        logging.FileHandler('code/logs/preprocess.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
+# Import checkpoint utilities
+from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, get_checkpoint_path
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file.
-    
-    Args:
-        config_path: Path to config file (default: code/config.yaml)
-        
-    Returns:
-        Dictionary containing configuration values
-    """
-    import yaml
-    
-    if not os.path.exists(config_path):
-        logger.error(f"Config file not found: {config_path}")
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = yaml.safe_load(f)
-    
-    return config
+# Constants
+DATA_RAW_DIR = Path('data/raw')
+DATA_PROCESSED_DIR = Path('data/processed')
+DATA_CHECKPOINTS_DIR = Path('data/checkpoints')
+CONFIG_PATH = Path('code/config.yaml')
+SCHEMA_PATH = Path('contracts/run_record.schema.yaml')
 
+def load_config() -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    try:
+        import yaml
+        with open(CONFIG_PATH, 'r') as f:
+            return yaml.safe_load(f)
+    except ModuleNotFoundError:
+        logger.warning("PyYAML not found, attempting manual parse. This may fail for complex YAML.")
+        # Simple fallback for basic YAML
+        config = {}
+        if CONFIG_PATH.exists():
+            with open(CONFIG_PATH, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        if ':' in line:
+                            key, value = line.split(':', 1)
+                            key = key.strip()
+                            value = value.strip().strip('"').strip("'")
+                            if value.isdigit():
+                                value = int(value)
+                            elif value.replace('.', '', 1).isdigit():
+                                value = float(value)
+                            elif value.lower() in ('true', 'false'):
+                                value = value.lower() == 'true'
+                            elif value.startswith('[') and value.endswith(']'):
+                                # Simple list parsing
+                                items = value[1:-1].split(',')
+                                value = [item.strip().strip('"').strip("'") for item in items if item.strip()]
+                            config[key] = value
+        if not config.get('games'):
+            raise ValueError("No games specified in config.yaml")
+        return config
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        raise
 
-def load_schema(schema_path: str = "contracts/run_record.schema.yaml") -> Dict[str, Any]:
-    """Load JSON schema for run records.
-    
-    Args:
-        schema_path: Path to schema file
-        
-    Returns:
-        Schema dictionary
-    """
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema file not found: {schema_path}")
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
-    
-    return schema
+def load_schema() -> Dict[str, Any]:
+    """Load JSON schema for validation."""
+    with open(SCHEMA_PATH, 'r') as f:
+        return json.load(f)
 
-
-def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate a run record against the schema.
-    
-    Args:
-        record: Run record dictionary
-        schema: Schema dictionary
-        
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    errors = []
+def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Validate a single record against the schema."""
+    # Basic validation - check required fields
     required_fields = schema.get('required', [])
-    field_types = schema.get('properties', {})
-    
     for field in required_fields:
         if field not in record or record[field] is None:
-            errors.append(f"Missing required field: {field}")
-    
-    for field, value in record.items():
-        if field in field_types:
-            expected_type = field_types[field].get('type')
-            if expected_type == 'number' and not isinstance(value, (int, float)):
-                errors.append(f"Field {field} must be numeric, got {type(value)}")
-            elif expected_type == 'string' and not isinstance(value, str):
-                errors.append(f"Field {field} must be string, got {type(value)}")
-            elif expected_type == 'integer' and not isinstance(value, int):
-                errors.append(f"Field {field} must be integer, got {type(value)}")
-    
-    return len(errors) == 0, errors
+            return False
+    return True
 
-
-def load_raw_data(raw_data_dir: str = "data/raw") -> List[Dict[str, Any]]:
-    """Load all raw JSON data files from the raw data directory.
+def load_raw_data(game_id: str) -> List[Dict[str, Any]]:
+    """Load raw JSON data for a specific game."""
+    raw_file = DATA_RAW_DIR / f"{game_id}_raw.json"
+    if not raw_file.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_file}")
     
-    Args:
-        raw_data_dir: Directory containing raw JSON files
-        
-    Returns:
-        List of run records
-    """
-    records = []
+    with open(raw_file, 'r') as f:
+        data = json.load(f)
     
-    if not os.path.exists(raw_data_dir):
-        logger.error(f"Raw data directory not found: {raw_data_dir}")
-        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
-    
-    json_files = [f for f in os.listdir(raw_data_dir) if f.endswith('.json')]
-    
-    for filename in json_files:
-        file_path = os.path.join(raw_data_dir, filename)
-        logger.info(f"Loading {filename}...")
-        
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        # Handle different API response structures
-        if 'data' in data:
-            records.extend(data['data'])
-        elif 'runs' in data:
-            records.extend(data['runs'])
-        else:
-            logger.warning(f"Unexpected structure in {filename}, treating as list")
-            if isinstance(data, list):
-                records.extend(data)
-    
-    logger.info(f"Loaded {len(records)} raw records")
-    return records
-
+    # Handle different API response structures
+    if isinstance(data, dict):
+        # speedrun.com API typically returns {'runs': [...]}
+        return data.get('runs', [])
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError(f"Unexpected data format in {raw_file}")
 
 def remove_duplicates(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Remove duplicate records based on run_id and submission_date.
-    
-    Args:
-        records: List of run records
-        
-    Returns:
-        Deduplicated list of records
-    """
-    seen_ids: Set[Tuple[str, str]] = set()
+    """Remove duplicate records based on run_id."""
+    seen_ids = set()
     unique_records = []
-    duplicates_removed = 0
     
     for record in records:
-        run_id = record.get('run_id', record.get('id', ''))
-        submission_date = record.get('submission_date', record.get('date', ''))
-        
-        key = (run_id, submission_date)
-        
-        if key not in seen_ids:
-            seen_ids.add(key)
+        run_id = record.get('id')
+        if run_id and run_id not in seen_ids:
+            seen_ids.add(run_id)
             unique_records.append(record)
-        else:
-            duplicates_removed += 1
+        elif not run_id:
+            logger.warning(f"Record missing ID, skipping: {record}")
     
-    logger.info(f"Removed {duplicates_removed} duplicate records")
     return unique_records
 
-
-def filter_incomplete_runs(records: List[Dict[str, Any]], 
-                            required_fields: List[str] = None) -> List[Dict[str, Any]]:
-    """Filter out records with missing required fields.
-    
-    Args:
-        records: List of run records
-        required_fields: List of fields that must be present
-        
-    Returns:
-        Filtered list of records
-    """
-    if required_fields is None:
-        required_fields = ['run_time_seconds', 'runner_id', 'attempt_number', 
-                         'category', 'submission_date', 'game_id']
-    
-    filtered_records = []
-    removed_count = 0
-    
+def filter_incomplete_runs(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Filter out runs with missing critical data."""
+    valid_records = []
     for record in records:
-        is_complete = all(field in record and record[field] is not None 
-                        for field in required_fields)
-        
-        if is_complete:
-            filtered_records.append(record)
+        # Check required fields
+        if (record.get('run_time_seconds') is not None and 
+            record.get('runner_id') is not None and
+            record.get('attempt_number') is not None and
+            record.get('category') is not None and
+            record.get('submission_date') is not None and
+            record.get('game_id') is not None):
+            valid_records.append(record)
         else:
-            removed_count += 1
-            missing = [f for f in required_fields if f not in record or record[f] is None]
-            logger.debug(f"Removing record with missing fields: {missing}")
+            logger.debug(f"Filtered incomplete run: {record.get('id', 'unknown')}")
     
-    logger.info(f"Removed {removed_count} incomplete records")
-    return filtered_records
-
+    return valid_records
 
 def hash_runner_id(runner_id: str, salt: str) -> str:
-    """Hash a runner ID using SHA-256 with a project-specific salt.
-    
-    This implements Constitution Principle III by anonymizing runner IDs
-    while preserving the ability to group runs by the same runner.
-    
-    Args:
-        runner_id: The original runner ID from the API
-        salt: Project-specific salt string from config.yaml
-        
-    Returns:
-        Hex digest of the salted SHA-256 hash
-        
-    Raises:
-        ValueError: If runner_id or salt is empty
-    """
-    if not runner_id:
-        raise ValueError("runner_id cannot be empty")
-    if not salt:
-        raise ValueError("salt cannot be empty")
-    
-    # Combine salt and runner_id
-    salted_id = f"{salt}:{runner_id}"
-    
-    # Compute SHA-256 hash
-    hash_object = hashlib.sha256(salted_id.encode('utf-8'))
-    digest = hash_object.hexdigest()
-    
-    return digest
-
+    """Hash runner_id with project salt for anonymization."""
+    combined = f"{runner_id}{salt}"
+    return hashlib.sha256(combined.encode()).hexdigest()
 
 def compute_runner_metrics(records: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
-    """Compute per-runner metrics from raw records.
-    
-    Args:
-        records: List of run records
-        
-    Returns:
-        Dictionary mapping runner_id to metrics
-    """
+    """Compute per-runner statistics."""
     runner_data = defaultdict(lambda: {
         'runs': [],
         'first_run_date': None,
-        'last_run_date': None,
-        'games_played': set()
+        'games': set()
     })
     
     for record in records:
         runner_id = record['runner_id']
-        submission_date = record['submission_date']
-        game_id = record['game_id']
+        submission_date = datetime.fromisoformat(record['submission_date'].replace('Z', '+00:00'))
         
         runner_data[runner_id]['runs'].append(record)
-        runner_data[runner_id]['games_played'].add(game_id)
+        runner_data[runner_id]['games'].add(record['game_id'])
         
-        date_obj = datetime.fromisoformat(submission_date.replace('Z', '+00:00'))
-        
-        if runner_data[runner_id]['first_run_date'] is None or date_obj < runner_data[runner_id]['first_run_date']:
-            runner_data[runner_id]['first_run_date'] = date_obj
-        
-        if runner_data[runner_id]['last_run_date'] is None or date_obj > runner_data[runner_id]['last_run_date']:
-            runner_data[runner_id]['last_run_date'] = date_obj
+        if (runner_data[runner_id]['first_run_date'] is None or 
+            submission_date < runner_data[runner_id]['first_run_date']):
+            runner_data[runner_id]['first_run_date'] = submission_date
     
-    # Compute final metrics
-    metrics = {}
+    profiles = {}
     for runner_id, data in runner_data.items():
-        total_runs = len(data['runs'])
-        
-        if data['first_run_date'] and data['last_run_date']:
-            time_span = (data['last_run_date'] - data['first_run_date']).days
-        else:
-            time_span = 0
-        
-        metrics[runner_id] = {
-            'total_runs': total_runs,
-            'first_run_date': data['first_run_date'].isoformat() if data['first_run_date'] else None,
-            'time_since_first_run_days': time_span,
-            'games_played_count': len(data['games_played'])
+        profiles[runner_id] = {
+            'runner_id': runner_id,
+            'total_runs': len(data['runs']),
+            'first_run_date': data['first_run_date'].isoformat(),
+            'games_played_count': len(data['games'])
         }
     
-    return metrics
-
-
-def generate_runner_profiles(records: List[Dict[str, Any]], 
-                             salt: str) -> List[Dict[str, Any]]:
-    """Generate RunnerProfile entities from processed records.
-    
-    Args:
-        records: List of processed run records
-        salt: Salt for hashing runner IDs
-        
-    Returns:
-        List of runner profile dictionaries
-    """
-    # First compute metrics
-    metrics = compute_runner_metrics(records)
-    
-    profiles = []
-    for runner_id, metrics_data in metrics.items():
-        # Hash the runner ID for the profile
-        hashed_id = hash_runner_id(runner_id, salt)
-        
-        profile = {
-            'runner_id': hashed_id,
-            'total_prior_runs': metrics_data['total_runs'],
-            'time_since_first_run_days': metrics_data['time_since_first_run_days'],
-            'games_played_count': metrics_data['games_played_count']
-        }
-        profiles.append(profile)
-    
-    logger.info(f"Generated {len(profiles)} runner profiles")
     return profiles
 
-
-def calculate_lagged_competitive_pressure(records: List[Dict[str, Any]], 
-                                         window_days: int = 30) -> List[Dict[str, Any]]:
-    """Calculate lagged competitive pressure for each record.
-    
-    Competitive pressure is defined as the number of active runners
-    in the 30-day window prior to each run's submission date.
+def calculate_lagged_pressure(records: List[Dict[str, Any]], runner_id: str, run_date: datetime, all_records: List[Dict[str, Any]]) -> int:
+    """
+    Calculate lagged competitive pressure for a specific run.
     
     Args:
-        records: List of run records
-        window_days: Number of days for the rolling window
-        
+        records: All records in the dataset
+        runner_id: The runner's ID for this run
+        run_date: The submission date of this run
+        all_records: The full list of records to search for context
+    
     Returns:
-        Updated list of records with lagged_competitive_pressure column
+        Count of unique active runners in the 30 days prior to this run
     """
-    # Sort records by submission date
-    sorted_records = sorted(records, key=lambda x: x['submission_date'])
+    window_start = run_date - timedelta(days=30)
+    window_end = run_date - timedelta(days=1)
     
-    # Pre-compute date objects
-    for record in sorted_records:
-        record['_date_obj'] = datetime.fromisoformat(
-            record['submission_date'].replace('Z', '+00:00')
-        )
+    active_runners = set()
     
-    # For each record, count active runners in the prior window
-    for i, record in enumerate(sorted_records):
-        run_date = record['_date_obj']
-        window_start = run_date - timedelta(days=window_days)
+    for other_record in all_records:
+        other_date = datetime.fromisoformat(other_record['submission_date'].replace('Z', '+00:00'))
+        other_runner = other_record['runner_id']
         
-        # Count unique runners in the window before this run
-        active_runners = set()
-        for j in range(i):
-            other_date = sorted_records[j]['_date_obj']
-            if window_start <= other_date < run_date:
-                active_runners.add(sorted_records[j]['runner_id'])
+        # Skip the current run itself
+        if other_record['id'] == next((r['id'] for r in records if r['runner_id'] == runner_id and datetime.fromisoformat(r['submission_date'].replace('Z', '+00:00')) == run_date), {}).get('id'):
+            continue
         
-        record['lagged_competitive_pressure'] = len(active_runners)
+        if window_start <= other_date <= window_end:
+            # Include all runners except the current one to avoid self-influence
+            if other_runner != runner_id:
+                active_runners.add(other_runner)
     
-    # Remove temporary date objects
-    for record in sorted_records:
-        del record['_date_obj']
-    
-    logger.info("Calculated lagged competitive pressure for all records")
-    return sorted_records
+    return len(active_runners)
 
+def generate_runner_profiles(runner_metrics: Dict[str, Dict[str, Any]], output_path: Path) -> None:
+    """Save runner profiles to CSV."""
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['runner_id', 'total_runs', 'first_run_date', 'games_played_count'])
+        writer.writeheader()
+        for profile in runner_metrics.values():
+            writer.writerow(profile)
+    logger.info(f"Saved {len(runner_metrics)} runner profiles to {output_path}")
 
-def save_to_csv(records: List[Dict[str, Any]], output_path: str) -> None:
-    """Save records to a CSV file.
-    
-    Args:
-        records: List of record dictionaries
-        output_path: Path to output CSV file
-    """
-    if not records:
-        logger.warning("No records to save")
-        return
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    fieldnames = list(records[0].keys())
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+def save_to_csv(records: List[Dict[str, Any]], output_path: Path, fieldnames: List[str]) -> None:
+    """Save records to CSV file."""
+    with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
-    
     logger.info(f"Saved {len(records)} records to {output_path}")
 
-
 def main():
-    """Main entry point for preprocessing pipeline."""
+    """Main preprocessing pipeline."""
     logger.info("Starting preprocessing pipeline...")
     
     # Load configuration
     config = load_config()
-    salt = config.get('salt', '')
+    games = config['games']
+    salt = config.get('salt', 'default-salt')
+    checkpoint_dir = DATA_CHECKPOINTS_DIR
     
-    if not salt:
-        logger.error("Salt not found in config. Cannot proceed with anonymization.")
-        raise ValueError("Salt missing from config")
+    # Ensure output directories exist
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Load raw data
-    raw_records = load_raw_data()
-    logger.info(f"Loaded {len(raw_records)} raw records")
+    # Load schema
+    schema = load_schema()
     
-    # Remove duplicates
-    deduped_records = remove_duplicates(raw_records)
-    logger.info(f"After deduplication: {len(deduped_records)} records")
+    # Check for existing checkpoint
+    checkpoint_path = get_checkpoint_path(checkpoint_dir, 'preprocess')
+    checkpoint = load_checkpoint(checkpoint_path) if checkpoint_path.exists() else None
     
-    # Filter incomplete runs
-    filtered_records = filter_incomplete_runs(deduped_records)
-    logger.info(f"After filtering: {len(filtered_records)} records")
+    completed_games = checkpoint.get('completed_games', []) if checkpoint else []
+    current_index = checkpoint.get('current_game_index', 0) if checkpoint else 0
     
-    # Anonymize runner IDs
-    for record in filtered_records:
-        original_id = record['runner_id']
-        record['runner_id'] = hash_runner_id(original_id, salt)
+    all_processed_records = []
+    all_runner_profiles = {}
     
-    logger.info("Runner IDs anonymized")
+    for i, game_id in enumerate(games):
+        if i < current_index:
+            logger.info(f"Skipping already processed game: {game_id}")
+            continue
+        
+        logger.info(f"Processing game {i+1}/{len(games)}: {game_id}")
+        
+        try:
+            # Load raw data
+            raw_records = load_raw_data(game_id)
+            logger.info(f"Loaded {len(raw_records)} raw records for {game_id}")
+            
+            # Remove duplicates
+            unique_records = remove_duplicates(raw_records)
+            logger.info(f"Removed duplicates: {len(unique_records)} remaining")
+            
+            # Filter incomplete runs
+            valid_records = filter_incomplete_runs(unique_records)
+            retention_rate = len(valid_records) / len(raw_records) if raw_records else 0
+            logger.info(f"Retention rate: {retention_rate:.2%} ({len(valid_records)}/{len(raw_records)})")
+            
+            if retention_rate < 0.95:
+                logger.warning(f"Retention rate below 95% for {game_id}: {retention_rate:.2%}")
+            
+            # Hash runner IDs
+            for record in valid_records:
+                original_id = record['runner_id']
+                record['runner_id'] = hash_runner_id(original_id, salt)
+                record['game_id'] = game_id
+            
+            # Compute runner metrics
+            game_profiles = compute_runner_metrics(valid_records)
+            all_runner_profiles.update(game_profiles)
+            
+            # Calculate lagged competitive pressure
+            # First, combine with previously processed records for context
+            combined_records = all_processed_records + valid_records
+            
+            for record in valid_records:
+                run_date = datetime.fromisoformat(record['submission_date'].replace('Z', '+00:00'))
+                lagged_pressure = calculate_lagged_pressure(
+                    combined_records, 
+                    record['runner_id'], 
+                    run_date, 
+                    combined_records
+                )
+                record['lagged_competitive_pressure'] = lagged_pressure
+            
+            # Add to all processed records
+            all_processed_records.extend(valid_records)
+            
+            # Save checkpoint after each game
+            checkpoint_data = {
+                'completed_games': games[:i+1],
+                'current_game_index': i + 1,
+                'total_records_processed': len(all_processed_records),
+                'timestamp': datetime.now().isoformat()
+            }
+            save_checkpoint(checkpoint_dir, 'preprocess', checkpoint_data)
+            
+        except Exception as e:
+            logger.error(f"Error processing game {game_id}: {e}")
+            raise
     
-    # Compute runner metrics and generate profiles
-    runner_profiles = generate_runner_profiles(filtered_records, salt)
-    save_to_csv(runner_profiles, 'data/processed/runner_profiles.csv')
+    # Save final outputs
+    run_records_path = DATA_PROCESSED_DIR / 'run_records.csv'
+    fieldnames = ['id', 'run_time_seconds', 'runner_id', 'attempt_number', 'category', 'submission_date', 'game_id', 'lagged_competitive_pressure']
+    save_to_csv(all_processed_records, run_records_path, fieldnames)
     
-    # Calculate lagged competitive pressure
-    processed_records = calculate_lagged_competitive_pressure(filtered_records)
+    runner_profiles_path = DATA_PROCESSED_DIR / 'runner_profiles.csv'
+    generate_runner_profiles(all_runner_profiles, runner_profiles_path)
     
-    # Save processed records
-    save_to_csv(processed_records, 'data/processed/run_records.csv')
-    
-    logger.info("Preprocessing pipeline completed successfully")
-    
-    return processed_records
+    logger.info("Preprocessing pipeline completed successfully!")
+    logger.info(f"Total records processed: {len(all_processed_records)}")
+    logger.info(f"Total unique runners: {len(all_runner_profiles)}")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

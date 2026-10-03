@@ -1,3 +1,10 @@
-# Core dependencies
-# (No additional dependencies required beyond standard library for T017)
-# Existing project dependencies are assumed to be managed separately
+# Existing dependencies
+pandas
+numpy
+statsmodels
+pyyaml
+scikit-learn
+jsonschema
+matplotlib
+seaborn
+memory-profiler

@@ -99,7 +99,7 @@ projects/PROJ-156-statistical-analysis-of-publicly-availab/
 ### Phase 0: Data Acquisition & Preprocessing
 1. **Fetch**: Download raw data for 10–15 games (FR-001).
 2. **Clean**: Remove duplicates, filter incomplete runs (FR-002).
-3. **Feature Engineering**: Compute `total_prior_runs`, `time_since_first_run_days`, and **lagged** `competitive_pressure` (30-day window prior to run date) (FR-003).
+3. **Feature Engineering**: Compute `total_prior_runs`, `time_since_first_run_days`, and **lagged** `competitive_pressure` (-day window prior to run date) (FR-003).
 4. **Contract Validation**: Validate `run_records.csv` against `contracts/run_record.schema.yaml`.
 5. **Checkpoint**: Save intermediate state.
 6. **Hash**: Run `hash_artifacts.py` to update state YAML (Constitution Principle V).
