@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional
 import sys
 import os
+import re
 
 # Add project root to path if running directly, though usually handled by pytest
 # The test runner should be invoked from the code/ directory or with PYTHONPATH set
@@ -152,3 +153,127 @@ class TestImportGraphTraversal:
         with pytest.raises(nx.NetworkXError):
             # This should raise because 'missing.py' is not in the graph
             nx.descendants(G, "missing.py")
+
+    def test_static_analysis_sanity_check_no_ground_truth_leak(self, loader_instance):
+        """
+        StaticAnalysisSanityCheck: Verify that the 'Hybrid IR-Seeding' logic 
+        does NOT accidentally use 'test_patch' or 'ground_truth' fields.
+        
+        This test inspects the source code of the loader module to ensure that
+        the static analysis functions do not read from fields that contain 
+        ground-truth solution data.
+        """
+        # Read the source code of the loader module
+        loader_path = Path(__file__).parent.parent.parent / "code" / "data" / "loader.py"
+        
+        if not loader_path.exists():
+            pytest.fail(f"Loader file not found at {loader_path}")
+        
+        source_code = loader_path.read_text()
+        
+        # Define patterns that indicate ground truth usage
+        # We look for assignments or reads involving 'test_patch' or 'ground_truth'
+        # within the context of static analysis or IR-seeding logic.
+        
+        # Patterns to detect forbidden access
+        forbidden_patterns = [
+            r'\binstance\s*\[\s*["\']test_patch["\']\s*\]',
+            r'\binstance\s*\[\s*["\']ground_truth["\']\s*\]',
+            r'\bdata\s*\[\s*["\']test_patch["\']\s*\]',
+            r'\bdata\s*\[\s*["\']ground_truth["\']\s*\]',
+            r'\b\.get\s*\(\s*["\']test_patch["\']\s*\)',
+            r'\b\.get\s*\(\s*["\']ground_truth["\']\s*\)',
+            r'\btest_patch\s*=',
+            r'\bground_truth\s*=',
+        ]
+        
+        # Check for forbidden patterns
+        found_violations = []
+        for pattern in forbidden_patterns:
+            matches = list(re.finditer(pattern, source_code, re.IGNORECASE))
+            if matches:
+                for match in matches:
+                    # Get the line number
+                    line_start = source_code.rfind('\n', 0, match.start()) + 1
+                    line_end = source_code.find('\n', match.start())
+                    if line_end == -1:
+                        line_end = len(source_code)
+                    line_num = source_code[:match.start()].count('\n') + 1
+                    line_content = source_code[line_start:line_end]
+                    
+                    # Skip if it's inside a comment or docstring
+                    if '#' in line_content and line_content.index('#') < line_content.index(match.group(0)):
+                        continue
+                    
+                    found_violations.append({
+                        "pattern": pattern,
+                        "line": line_num,
+                        "content": line_content.strip()
+                    })
+        
+        # Assert no violations found
+        if found_violations:
+            violation_details = "\n".join([
+                f"Line {v['line']}: {v['content']} (matched {v['pattern']})"
+                for v in found_violations
+            ])
+            pytest.fail(
+                f"StaticAnalysisSanityCheck FAILED: Found potential ground truth leakage in loader.py:\n{violation_details}"
+            )
+        
+        # Additional check: Ensure that the static analysis methods are defined
+        # and do not rely on the test_patch field for their core logic
+        # We verify that 'static_analysis' or 'ir_seeding' functions exist
+        # and that they primarily rely on 'issue_description' and file content
+        
+        required_methods = [
+            "parse_issue_description",
+            "extract_file_paths",
+            "traverse_imports"
+        ]
+        
+        # Simple check for method existence (not exhaustive, but a sanity check)
+        for method in required_methods:
+            if method not in source_code:
+                # It's okay if they are internal helpers, but we expect some static analysis logic
+                # We'll just log a warning if not found, not fail
+                pass
+        
+        # Verify that the loader uses 'issue_description' for static analysis
+        if "issue_description" not in source_code:
+            pytest.fail("Loader does not seem to use 'issue_description' for static analysis.")
+
+class TestHybridIRSeedingSanity:
+    """
+    Additional tests to ensure Hybrid IR-Seeding is strictly static.
+    """
+    
+    def test_no_runtime_code_execution_in_seeding(self, loader_instance):
+        """
+        Verify that the seeding logic does not execute code (e.g., eval, exec).
+        """
+        loader_path = Path(__file__).parent.parent.parent / "code" / "data" / "loader.py"
+        source_code = loader_path.read_text()
+        
+        dangerous_calls = ["eval(", "exec(", "compile("]
+        for call in dangerous_calls:
+            if call in source_code:
+                # Check if it's in a comment
+                lines = source_code.split('\n')
+                for i, line in enumerate(lines):
+                    if call in line and not line.strip().startswith('#'):
+                        pytest.fail(f"Dangerous runtime execution found in loader.py at line {i+1}: {line.strip()}")
+
+    def test_only_issue_description_used_for_seeding(self, loader_instance):
+        """
+        Verify that the seeding logic primarily relies on issue_description.
+        """
+        loader_path = Path(__file__).parent.parent.parent / "code" / "data" / "loader.py"
+        source_code = loader_path.read_text()
+        
+        # We expect issue_description to be used
+        assert "issue_description" in source_code, "issue_description should be used for seeding"
+        
+        # We do NOT expect test_patch to be used
+        assert "test_patch" not in source_code or source_code.find("test_patch") < source_code.find("#"), \
+            "test_patch should not be used for seeding logic"

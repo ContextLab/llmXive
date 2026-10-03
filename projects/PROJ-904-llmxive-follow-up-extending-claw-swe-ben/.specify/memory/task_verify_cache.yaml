@@ -1,3 +1,10 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, file list, or count of `__init__.py` files was provided, so
+    we cannot confirm that every new directory under `projects/PROJ-llmxive-follow-up-extending-claw-swe-ben/code/`
+    now contains an `__init__.py`. The required artifact (the created `__init__.py`
+    files and matching count) is missing.
 T003:
   c: false
   h: 5feead8fda2bde5c72d710d0264c171d69dafb1205317609a4c90e16ed1bf3f0
@@ -47,18 +54,19 @@ T023:
     \ the provided `run_high_fidelity.py` does not show an implemented `run_strategy()`\
     \ function (the file is truncated and no such function is present). These missing\
     \ artifacts mean the task\u2019s requirements are not satisfied."
-T029:
+T045:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `glm_analyzer.py` file was presented in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/`,\
-    \ and there is no code snippet or description showing a GLM with a binomial link\
-    \ that tests the interaction between \u201Ccontext strategy\u201D and \u201Cmodel\
-    \ size\u201D. The required artifact is missing, so the task is not satisfied."
-T046:
+  h: b29309d3ad5410d33202a8406e49d4bcc6364f79b3f50835d7952bca4b4fa544
+  r: "The `threshold_validator.py` script is present and implements the required logic,\
+    \ but the required dataset file `data/filtered_swe_bench_v1.parquet` is missing,\
+    \ so the script cannot actually count rows or produce the expected log/exit behavior.\
+    \ Additionally, the `main()` function is truncated, leaving it unclear whether\
+    \ it exits with code\u202F0 on success. The missing parquet file (and incomplete\
+    \ entry\u2011point) must be provided/fixed for the task to be considered complete."
+T054:
   c: false
-  h: 2cc2580424cf41a6d8b27f1fe923242e9dd20f03bfae6d553acd4321dcf495e9
-  r: "The `threshold_validator.py` file is truncated (e.g., `def main()` lacks a body\
-    \ and no `if __name__ == \"__main__\"` guard), so it cannot be executed, and the\
-    \ required dataset `data/filtered_swe_bench_v1.parquet` is absent, preventing\
-    \ any row\u2011count check. Both the script implementation and the data file need\
-    \ to be completed for the task to be satisfied."
+  h: 77210f3399e055f256c91e0710c2d407bd6bb5883f044709d70f39ec38078870
+  r: "The repository contains the `representativeness_validator.py` script, but the\
+    \ required input file `data/filtered_swe_bench_v1.parquet` is missing, so the\
+    \ script cannot be executed to produce the KS statistic, p\u2011value, or the\
+    \ warning. Consequently the verification step cannot be satisfied."

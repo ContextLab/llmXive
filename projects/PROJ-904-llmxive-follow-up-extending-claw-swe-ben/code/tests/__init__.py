@@ -1,2 +1,1 @@
-# Tests module initialization
-pass
+"""Test suite root package."""

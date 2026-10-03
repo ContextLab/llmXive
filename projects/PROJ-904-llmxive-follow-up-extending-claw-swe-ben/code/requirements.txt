@@ -31,3 +31,7 @@ tqdm>=4.66.0
 # Environment management
 python-dotenv>=1.0.0
 scipy  # auto-added: imported by run-book but missing from venv
+packaging  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+sentence_transformers  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

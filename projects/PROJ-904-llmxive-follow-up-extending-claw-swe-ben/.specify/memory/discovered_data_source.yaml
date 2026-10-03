@@ -1,16 +1,19 @@
 status: none
-intent: download Claw-SWE-Bench dataset pip package including SWE-bench and SWE-bench
-  Dev python package dataset
+intent: download Claw-SWE-Bench dataset python package including SWE-bench reference
+  python package dataset
 required_fields:
-- issue_id
-- issue_description
+- task_id
 - repository_url
-- file_path
-- file_content
-- file_history_line_count
-- ground_truth_unit_tests
-- expected_pass_fail
-- dependency_graph
-cache_key: 29a3913e55bfadc3ef2f3a11c93a0053c65f8062f4401bac808a24635addcf97
-searched_at: '2026-09-18T21:49:58.072796+00:00'
+- issue_id
+- issue_title
+- issue_body
+- relevant_file_paths
+- file_history
+- ground_truth_patch
+- unit_tests
+- language
+- difficulty
+- metadata
+cache_key: 687a8afe14d100b8fa645052932c316ffe3406cdc8b6d74a91f7f80b9096008e
+searched_at: '2026-10-03T07:31:21.817440+00:00'
 retry_count: 1

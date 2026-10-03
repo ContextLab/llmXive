@@ -1,239 +1,294 @@
-"""
-Failure Classifier Module for llmXive Follow-up Project.
-
-This module implements logic to detect "missing context" vs "reasoning error"
-via sandbox log parsing (FR-008).
-"""
-
 import json
 import logging
 import re
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from enum import Enum
+from collections import defaultdict
+import argparse
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
 
-
-class FailureCategory(Enum):
-    """Enum representing the categories of failure detected."""
+class FailureCategory:
     MISSING_CONTEXT = "missing_context"
     REASONING_ERROR = "reasoning_error"
     TIMEOUT = "timeout"
+    OOM = "out_of_memory"
     UNKNOWN = "unknown"
 
-
-def classify_failure(log_content: str) -> FailureCategory:
+def classify_failure(log: str) -> str:
     """
-    Classify a failure based on sandbox log content.
-
-    Args:
-        log_content: The raw log output from the sandbox execution.
-
-    Returns:
-        FailureCategory: The detected category of failure.
+    Classify a failure log into a specific failure category.
+    
+    Rules:
+    - "missing context": log contains "file not found", "cannot locate", or references a file not in input context.
+    - "reasoning error": file exists but logic fails.
+    - "timeout": execution exceeded time limit.
+    - "oom": out of memory.
+    - "unknown": default if no pattern matches.
     """
-    if not log_content:
+    if not log:
         return FailureCategory.UNKNOWN
-
-    log_lower = log_content.lower()
-
-    # 1. Check for Timeout first (distinct from logic errors)
-    timeout_patterns = [
-        r"timeout",
-        r"timed out",
-        r"execution time exceeded",
-        r"maximum execution time",
-        r"deadline exceeded"
+    
+    log_lower = log.lower()
+    
+    # Check for timeout
+    if "timeout" in log_lower or "timed out" in log_lower or "deadline exceeded" in log_lower:
+        return FailureCategory.TIMEOUT
+    
+    # Check for OOM
+    if "out of memory" in log_lower or "oom" in log_lower or "memory error" in log_lower:
+        return FailureCategory.OOM
+    
+    # Check for missing context indicators
+    missing_indicators = [
+        "file not found", "cannot locate", "no such file", 
+        "file does not exist", "import error", "module not found",
+        "cannot import name"
     ]
-    for pattern in timeout_patterns:
-        if re.search(pattern, log_lower):
-            logger.debug("Detected timeout failure")
-            return FailureCategory.TIMEOUT
-
-    # 2. Check for Missing Context indicators
-    # These patterns suggest the model didn't have enough info to solve the problem
-    missing_context_patterns = [
-        r"file not found",
-        r"no such file",
-        r"cannot find module",
-        r"import error",
-        r"module not found",
-        r"undefined variable",
-        r"name '.*' is not defined",
-        r"attribute error",
-        r"has no attribute",
-        r"key error",
-        r"missing required argument",
-        r"insufficient context",
-        r"unknown reference",
-        r"could not resolve",
-        r"dependency not found",
-        r"import .* failed"
+    
+    for indicator in missing_indicators:
+        if indicator in log_lower:
+            return FailureCategory.MISSING_CONTEXT
+    
+    # Check for reasoning errors (logic failures when files exist)
+    reasoning_indicators = [
+        "assertion error", "type error", "value error", 
+        "logic error", "incorrect output", "failed to solve",
+        "unit test failed", "expected", "but got"
     ]
+    
+    for indicator in reasoning_indicators:
+        if indicator in log_lower:
+            return FailureCategory.REASONING_ERROR
+    
+    return FailureCategory.UNKNOWN
 
-    missing_context_score = 0
-    for pattern in missing_context_patterns:
-        if re.search(pattern, log_lower):
-            missing_context_score += 1
-
-    # 3. Check for Reasoning Error indicators
-    # These patterns suggest the model found the right files but implemented logic incorrectly
-    reasoning_error_patterns = [
-        r"assertion error",
-        r"assertion failed",
-        r"test failed",
-        r"expected .* but got",
-        r"incorrect output",
-        r"wrong answer",
-        r"value error",
-        r"logic error",
-        r"index out of bounds",
-        r"list index out of range",
-        r"division by zero",
-        r"zero division error",
-        r"type error",
-        r"argument .* of type",
-        r"wrong type",
-        r"unexpected value",
-        r"condition failed",
-        r"sanity check failed"
-    ]
-
-    reasoning_error_score = 0
-    for pattern in reasoning_error_patterns:
-        if re.search(pattern, log_lower):
-            reasoning_error_score += 1
-
-    # Decision Logic
-    if missing_context_score > reasoning_error_score:
-        logger.debug(f"Classified as Missing Context (score: {missing_context_score})")
-        return FailureCategory.MISSING_CONTEXT
-    elif reasoning_error_score > missing_context_score:
-        logger.debug(f"Classified as Reasoning Error (score: {reasoning_error_score})")
-        return FailureCategory.REASONING_ERROR
-    elif missing_context_score > 0:
-        # Tie-breaker: if both are present but context errors are specific to missing files
-        return FailureCategory.MISSING_CONTEXT
-    elif reasoning_error_score > 0:
-        return FailureCategory.REASONING_ERROR
-    else:
-        logger.warning(f"Could not classify failure, defaulting to UNKNOWN. Log snippet: {log_content[:200]}")
-        return FailureCategory.UNKNOWN
-
-
-def process_results(input_path: Path, output_path: Path) -> List[Dict[str, Any]]:
+def process_results(input_path: Path) -> List[Dict[str, Any]]:
     """
-    Process a JSONL file of results, classify failures, and write annotated results.
-
+    Process a JSONL file and add failure classifications to each record.
+    
     Args:
-        input_path: Path to the input JSONL file (e.g., baseline_run.jsonl).
-        output_path: Path to the output JSONL file.
-
+        input_path: Path to the input JSONL file
+        
     Returns:
-        List[Dict[str, Any]]: The list of processed results.
+        List of processed records with added 'failure_category' field
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
     results = []
-    processed_count = 0
-    unknown_count = 0
-
-    logger.info(f"Processing results from {input_path}...")
-
-    with open(input_path, 'r', encoding='utf-8') as f_in:
-        for line_num, line in enumerate(f_in, 1):
+    
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
-
+            
             try:
                 record = json.loads(line)
+                log = record.get('log', '') or record.get('error', '') or ''
+                
+                if not log and record.get('status') != 'success':
+                    # If status is not success but no log, assume unknown failure
+                    log = "No error log provided"
+                
+                failure_category = classify_failure(log)
+                record['failure_category'] = failure_category
+                results.append(record)
+                
             except json.JSONDecodeError as e:
-                logger.error(f"Skipping invalid JSON on line {line_num}: {e}")
+                logger.warning(f"Skipping invalid JSON on line {line_num}: {e}")
                 continue
-
-            # Determine log content to analyze
-            log_content = ""
-            if "sandbox_log" in record:
-                log_content = record["sandbox_log"]
-            elif "log" in record:
-                log_content = record["log"]
-            elif "output" in record:
-                log_content = record["output"]
-            elif "error" in record:
-                log_content = record["error"]
-
-            # Classify the failure
-            category = classify_failure(log_content)
-
-            # Annotate the record
-            record["failure_category"] = category.value
-            record["failure_category_label"] = category.name
-
-            # Log unknown classifications for review
-            if category == FailureCategory.UNKNOWN:
-                unknown_count += 1
-
-            results.append(record)
-            processed_count += 1
-
-            # Progress logging
-            if processed_count % 100 == 0:
-                logger.info(f"Processed {processed_count} records...")
-
-    # Write results to output file
-    with open(output_path, 'w', encoding='utf-8') as f_out:
-        for record in results:
-            f_out.write(json.dumps(record) + '\n')
-
-    logger.info(f"Processing complete. Wrote {processed_count} records to {output_path}")
-    if unknown_count > 0:
-        logger.warning(f"Found {unknown_count} records classified as UNKNOWN.")
-
+            
+            except Exception as e:
+                logger.error(f"Error processing line {line_num}: {e}")
+                continue
+    
     return results
 
+def aggregate_failure_modes(input_paths: List[Path], output_path: Path) -> Dict[str, Any]:
+    """
+    Aggregate failure modes across multiple input files and generate a summary report.
+    
+    Args:
+        input_paths: List of paths to input JSONL files
+        output_path: Path to write the summary report (JSON)
+        
+    Returns:
+        Dictionary containing the aggregated failure statistics
+    """
+    # Structure: {strategy: {model: {category: count}}}
+    aggregated = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    total_counts = defaultdict(int)
+    grand_total = 0
+    
+    for input_path in input_paths:
+        if not input_path.exists():
+            logger.warning(f"Input file not found: {input_path}, skipping")
+            continue
+        
+        logger.info(f"Processing {input_path}")
+        records = process_results(input_path)
+        
+        # Infer strategy and model from filename if not in record
+        # Expected patterns: baseline_run.jsonl, hf_run_1b_*.jsonl, hf_run_7b_*.jsonl
+        filename = input_path.stem
+        inferred_strategy = "baseline" if "baseline" in filename else "high_fidelity"
+        inferred_model = "1B" if "1b" in filename.lower() else ("7B" if "7b" in filename.lower() else "unknown")
+        
+        # Extract strategy from filename more precisely
+        if "_tfidf" in filename:
+            inferred_strategy = "tfidf"
+        elif "_diff" in filename or "_diff_aware" in filename:
+            inferred_strategy = "diff_aware"
+        elif "_summ" in filename or "_summarization" in filename:
+            inferred_strategy = "summarization"
+        elif "baseline" in filename:
+            inferred_strategy = "baseline"
+        
+        # Extract model from filename
+        if "1b" in filename.lower():
+            inferred_model = "1B"
+        elif "7b" in filename.lower():
+            inferred_model = "7B"
+        
+        for record in records:
+            # Use record values if available, otherwise use inferred
+            strategy = record.get('strategy', inferred_strategy)
+            model = record.get('model_size', record.get('model', inferred_model))
+            category = record.get('failure_category', classify_failure(record.get('log', '')))
+            
+            aggregated[strategy][model][category] += 1
+            total_counts[category] += 1
+            grand_total += 1
+    
+    # Calculate percentages
+    summary = {
+        "total_records": grand_total,
+        "by_strategy": {},
+        "by_model": {},
+        "overall": {}
+    }
+    
+    # Overall percentages
+    for category, count in total_counts.items():
+        pct = (count / grand_total * 100) if grand_total > 0 else 0
+        summary["overall"][category] = {
+            "count": count,
+            "percentage": round(pct, 2)
+        }
+    
+    # By strategy
+    for strategy, models in aggregated.items():
+        strategy_total = sum(sum(counts.values()) for counts in models.values())
+        summary["by_strategy"][strategy] = {
+            "total": strategy_total,
+            "by_model": {},
+            "by_category": {}
+        }
+        
+        strategy_counts = defaultdict(int)
+        for model, categories in models.items():
+            model_total = sum(categories.values())
+            summary["by_strategy"][strategy]["by_model"][model] = {
+                "total": model_total,
+                "categories": {}
+            }
+            
+            for category, count in categories.items():
+                pct = (count / strategy_total * 100) if strategy_total > 0 else 0
+                summary["by_strategy"][strategy]["by_model"][model]["categories"][category] = {
+                    "count": count,
+                    "percentage": round(pct, 2)
+                }
+                strategy_counts[category] += count
+        
+        for category, count in strategy_counts.items():
+            pct = (count / strategy_total * 100) if strategy_total > 0 else 0
+            summary["by_strategy"][strategy]["by_category"][category] = {
+                "count": count,
+                "percentage": round(pct, 2)
+            }
+    
+    # Write summary to output file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
+    
+    logger.info(f"Failure mode summary written to {output_path}")
+    return summary
 
 def main():
     """
-    Main entry point for the failure classifier script.
-    Expects input and output paths as command line arguments or uses defaults.
+    Main entry point for failure mode aggregation.
+    
+    Usage:
+        python code/analysis/failure_classifier.py --input 'data/intermediate/*.jsonl' --output data/intermediate/failure_summary.json
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Classify failures in experiment results.")
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/intermediate/baseline_run.jsonl"),
-        help="Path to input JSONL file (default: data/intermediate/baseline_run.jsonl)"
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("data/intermediate/baseline_run_classified.jsonl"),
-        help="Path to output JSONL file (default: data/intermediate/baseline_run_classified.jsonl)"
-    )
-
+    parser = argparse.ArgumentParser(description='Aggregate failure modes from execution results')
+    parser.add_argument('--input', nargs='+', required=True, 
+                      help='Input JSONL files (glob patterns supported)')
+    parser.add_argument('--output', required=True,
+                      help='Output JSON file for failure summary')
+    parser.add_argument('--log-level', default='INFO',
+                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+                      help='Logging level')
+    
     args = parser.parse_args()
-
+    
+    # Set logging level
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
+    
+    # Expand glob patterns
+    input_paths = []
+    for pattern in args.input:
+        path = Path(pattern)
+        if '*' in pattern:
+            # Handle glob patterns
+            parent = path.parent
+            if not str(parent) or parent == Path('.'):
+                parent = Path('.')
+            matches = list(parent.glob(path.name))
+            input_paths.extend(matches)
+        else:
+            input_paths.append(path)
+    
+    if not input_paths:
+        logger.error("No input files found matching the provided patterns")
+        sys.exit(1)
+    
+    # Validate output path
+    output_path = Path(args.output)
+    if not output_path.suffix == '.json':
+        logger.warning("Output file does not have .json extension, adding it")
+        output_path = output_path.with_suffix('.json')
+    
+    # Run aggregation
     try:
-        process_results(args.input, args.output)
-        logger.info("Success.")
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
+        summary = aggregate_failure_modes(input_paths, output_path)
+        
+        # Print summary to console
+        logger.info(f"\n=== Failure Mode Summary ===")
+        logger.info(f"Total records processed: {summary['total_records']}")
+        logger.info(f"\nOverall distribution:")
+        for category, stats in summary['overall'].items():
+            logger.info(f"  {category}: {stats['count']} ({stats['percentage']}%)")
+        
+        logger.info(f"\nDetailed breakdown by strategy:")
+        for strategy, data in summary['by_strategy'].items():
+            logger.info(f"  {strategy} (total: {data['total']}):")
+            for category, stats in data['by_category'].items():
+                logger.info(f"    {category}: {stats['count']} ({stats['percentage']}%)")
+        
+        logger.info(f"\nReport saved to: {output_path}")
+        
     except Exception as e:
-        logger.error(f"Unexpected error during processing: {e}")
+        logger.error(f"Failed to aggregate failure modes: {e}", exc_info=True)
         sys.exit(1)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

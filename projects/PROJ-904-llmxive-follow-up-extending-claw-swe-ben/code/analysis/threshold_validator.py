@@ -5,9 +5,11 @@ This module implements the validation logic to ensure the filtered dataset
 meets the minimum sample size requirements before expensive execution begins.
 
 Constraints:
-- If row count < 50 (exploratory threshold): HARD FAILURE
-- If row count < 800 (confirmatory threshold): HARD FAILURE
-- Error message: "Insufficient Context-Bound Data"
+- If row count < 50 (exploratory threshold): HARD FAILURE (exit 1)
+- If 50 <= rows < 800: Log "Exploratory Mode" (exit 0)
+- If rows >= 800: Log "Confirmatory Mode" (exit 0)
+
+Note: The 50-row threshold applies to the *filtered* dataset count.
 """
 
 import os
@@ -57,6 +59,11 @@ def validate_thresholds(row_count: int, file_path: Path) -> bool:
     """
     Validate that the row count meets the required thresholds.
 
+    Logic per T045:
+    - If rows < 50: Raise "Insufficient Context-Bound Data" (exit 1).
+    - If 50 <= rows < 800: Log "Exploratory Mode" (exit 0).
+    - If rows >= 800: Log "Confirmatory Mode" (exit 0).
+
     Args:
         row_count: Number of rows in the dataset.
         file_path: Path to the dataset (for error messaging).
@@ -69,30 +76,23 @@ def validate_thresholds(row_count: int, file_path: Path) -> bool:
     """
     logger.info(f"Validating row count for {file_path}")
     logger.info(f"Row count: {row_count}")
-    logger.info(f"Exploratory threshold: {EXPLORATORY_THRESHOLD}")
-    logger.info(f"Confirmatory threshold: {CONFIRMATORY_THRESHOLD}")
 
-    # Per task T046 spec: "If row count < 50 ... or < 800 ..., raise a hard failure"
-    # Both conditions trigger a hard failure (exit code 1).
     if row_count < EXPLORATORY_THRESHOLD:
         error_msg = (
             f"Insufficient Context-Bound Data: "
-            f"Row count ({row_count}) is below exploratory threshold ({EXPLORATORY_THRESHOLD}). "
-            f"File: {file_path}"
+            f"Row count ({row_count}) is below exploratory threshold ({EXPLORATORY_THRESHOLD})."
         )
         logger.error(error_msg)
+        # Exit 1 for hard failure
         raise SystemExit(1)
 
     if row_count < CONFIRMATORY_THRESHOLD:
-        error_msg = (
-            f"Insufficient Context-Bound Data: "
-            f"Row count ({row_count}) is below confirmatory threshold ({CONFIRMATORY_THRESHOLD}). "
-            f"File: {file_path}"
-        )
-        logger.error(error_msg)
-        raise SystemExit(1)
+        logger.info("Exploratory Mode: Row count is between 50 and 799.")
+        # Exit 0 for success (exploratory mode is allowed)
+        return True
 
-    logger.info("Threshold validation PASSED.")
+    logger.info("Confirmatory Mode: Row count is >= 800.")
+    # Exit 0 for success
     return True
 
 def main():

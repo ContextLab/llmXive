@@ -1,2 +1,1 @@
-# Unit tests module initialization
-pass
+"""Unit test suite."""

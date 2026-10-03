@@ -1,2 +1,1 @@
-# Integration tests module initialization
-pass
+"""Integration test suite."""
