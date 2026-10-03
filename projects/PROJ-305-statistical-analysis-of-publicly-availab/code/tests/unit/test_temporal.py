@@ -5,9 +5,13 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from datetime import datetime
 
-# Import the function to test
+# Import the module under test
+# Note: The project structure uses code/ as the root for source, 
+# but imports are relative to code/src.
+# We need to ensure the path is set correctly for the import to work.
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
 from src.analysis.temporal import (
     load_signals, 
     identify_top_signals, 
@@ -15,132 +19,131 @@ from src.analysis.temporal import (
     run_temporal_preparation
 )
 
+# Fixtures and sample data
 @pytest.fixture
 def sample_signals_with_data():
-    """Create a sample signals DataFrame with valid data."""
+    """Create a temporary signals.csv file with valid data."""
     data = {
-        'soc': ['SOC_1', 'SOC_2', 'SOC_3', 'SOC_4'],
-        'ror': [3.0, 2.5, 1.2, 4.0],
-        'ror_ci_lower': [1.5, 1.1, 0.8, 2.0],
-        'ror_ci_upper': [6.0, 5.0, 1.8, 8.0],
-        'prr': [2.8, 2.2, 1.1, 3.5],
-        'prr_ci_lower': [1.4, 1.0, 0.7, 1.9],
-        'prr_ci_upper': [5.6, 4.4, 1.5, 6.5],
-        'ic': [1.5, 1.2, 0.1, 1.8],
-        'ic_ci_lower': [0.5, 0.2, -0.2, 0.9],
-        'ic_ci_upper': [2.5, 2.2, 0.4, 2.7],
-        'p_adj': [0.01, 0.02, 0.45, 0.005],
-        'signal_flag': [True, True, False, True] # SOC_3 is not a signal
+        'soc': ['SOC001', 'SOC002', 'SOC003', 'SOC004', 'SOC005', 'SOC006'],
+        'ror': [3.5, 2.8, 1.9, 4.1, 2.2, 1.5],
+        'ror_ci_lower': [1.2, 1.1, 0.8, 2.0, 1.0, 0.5],
+        'ror_ci_upper': [5.8, 4.5, 3.0, 6.2, 3.4, 2.5],
+        'prr': [2.1, 1.8, 1.2, 2.5, 1.6, 0.9],
+        'prr_ci_lower': [1.1, 1.0, 0.6, 1.2, 0.9, 0.4],
+        'prr_ci_upper': [3.1, 2.6, 1.8, 3.8, 2.3, 1.4],
+        'ic': [0.8, 0.6, 0.2, 1.1, 0.5, -0.2],
+        'ic_ci_lower': [0.1, 0.0, -0.5, 0.4, -0.1, -0.9],
+        'ic_ci_upper': [1.5, 1.2, 0.9, 1.8, 1.1, 0.5],
+        'p_adj': [0.01, 0.03, 0.15, 0.005, 0.08, 0.25],
+        'signal_flag': [True, True, False, True, True, False]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        df.to_csv(f, index=False)
+        return f.name
 
 @pytest.fixture
 def sample_signals_no_signals():
-    """Create a sample signals DataFrame with no signals meeting threshold."""
+    """Create a temporary signals.csv file with no signals flagged."""
     data = {
-        'soc': ['SOC_1', 'SOC_2'],
+        'soc': ['SOC001', 'SOC002'],
         'ror': [1.1, 1.2],
-        'ror_ci_lower': [0.5, 0.6],
-        'ror_ci_upper': [2.0, 2.2],
+        'ror_ci_lower': [0.8, 0.9],
+        'ror_ci_upper': [1.4, 1.5],
         'prr': [1.0, 1.1],
-        'prr_ci_lower': [0.5, 0.6],
-        'prr_ci_upper': [1.5, 1.6],
+        'prr_ci_lower': [0.7, 0.8],
+        'prr_ci_upper': [1.3, 1.4],
         'ic': [0.1, 0.2],
-        'ic_ci_lower': [-0.5, -0.4],
-        'ic_ci_upper': [0.7, 0.8],
-        'p_adj': [0.5, 0.4],
+        'ic_ci_lower': [-0.2, -0.1],
+        'ic_ci_upper': [0.4, 0.5],
+        'p_adj': [0.5, 0.6],
         'signal_flag': [False, False]
     }
-    return pd.DataFrame(data)
-
-def test_load_signals_valid_file(sample_signals_with_data, tmp_path):
-    """Test loading signals from a valid CSV file."""
-    file_path = tmp_path / "signals.csv"
-    sample_signals_with_data.to_csv(file_path, index=False)
+    df = pd.DataFrame(data)
     
-    loaded_df = load_signals(str(file_path))
-    assert len(loaded_df) == len(sample_signals_with_data)
-    assert 'soc' in loaded_df.columns
-    assert 'signal_flag' in loaded_df.columns
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        df.to_csv(f, index=False)
+        return f.name
 
-def test_load_signals_missing_file(tmp_path):
-    """Test that load_signals raises FileNotFoundError for missing file."""
-    non_existent_path = tmp_path / "non_existent.csv"
+def test_load_signals_valid_file(sample_signals_with_data):
+    """Test loading signals from a valid CSV file."""
+    signals = load_signals(sample_signals_with_data)
+    assert signals is not None
+    assert len(signals) == 6
+    assert 'soc' in signals.columns
+    assert 'signal_flag' in signals.columns
+    assert signals['signal_flag'].sum() == 4  # 4 signals flagged
+
+def test_load_signals_missing_file():
+    """Test loading signals from a non-existent file raises an error."""
     with pytest.raises(FileNotFoundError):
-        load_signals(str(non_existent_path))
+        load_signals('/non/existent/path/signals.csv')
 
 def test_identify_top_signals_basic(sample_signals_with_data):
-    """Test basic identification of top signals."""
-    top = identify_top_signals(sample_signals_with_data, top_n=2)
+    """Test identifying top N signals when N is available."""
+    signals = load_signals(sample_signals_with_data)
+    top_signals, top_indices = identify_top_signals(signals, n=3)
     
-    assert len(top) == 2
-    # SOC_4 (ROR 4.0) and SOC_1 (ROR 3.0) should be top 2
-    # SOC_3 is excluded because signal_flag is False
-    socs = [s['soc'] for s in top]
-    assert 'SOC_4' in socs
-    assert 'SOC_1' in socs
-    assert 'SOC_3' not in socs # Not a signal
-    assert 'SOC_2' not in socs # Lower ROR than SOC_1
+    assert len(top_signals) == 3
+    assert len(top_indices) == 3
+    # Verify they are the top 3 by signal_flag and then by ROR
+    # Expected top 3 based on data: SOC004 (ROR 4.1), SOC001 (ROR 3.5), SOC002 (ROR 2.8)
+    assert top_signals['soc'].iloc[0] == 'SOC004'
+    assert top_signals['soc'].iloc[1] == 'SOC001'
+    assert top_signals['soc'].iloc[2] == 'SOC002'
 
 def test_identify_top_signals_fewer_than_n(sample_signals_with_data):
-    """Test when fewer than N signals exist."""
-    # Only 3 signals exist in fixture
-    top = identify_top_signals(sample_signals_with_data, top_n=10)
-    assert len(top) == 3 # Returns all available signals
+    """Test identifying top N signals when fewer than N are available."""
+    signals = load_signals(sample_signals_with_data)
+    # Only 4 signals are flagged, request 10
+    top_signals, top_indices = identify_top_signals(signals, n=10)
+    
+    assert len(top_signals) == 4
+    assert len(top_indices) == 4
 
 def test_identify_top_signals_no_signals(sample_signals_no_signals):
-    """Test when no signals meet the threshold."""
-    top = identify_top_signals(sample_signals_no_signals, top_n=5)
-    assert len(top) == 0
+    """Test identifying top N signals when no signals are flagged."""
+    signals = load_signals(sample_signals_no_signals)
+    top_signals, top_indices = identify_top_signals(signals, n=5)
+    
+    assert len(top_signals) == 0
+    assert len(top_indices) == 0
 
 def test_generate_empty_signal_warning(tmp_path):
-    """Test generation of empty signal warning file."""
-    output_dir = str(tmp_path)
-    result_path = generate_empty_signal_warning(output_dir)
+    """Test generating an empty signal warning file."""
+    output_dir = tmp_path / "temporal_profiles"
+    output_dir.mkdir()
     
-    assert os.path.exists(result_path)
-    with open(result_path, 'r') as f:
-        content = f.read()
-        assert "WARNING" in content
-        assert "No candidate SOCs" in content
+    warning_file = generate_empty_signal_warning(str(output_dir))
+    
+    assert warning_file.exists()
+    content = warning_file.read_text()
+    assert "No signals found" in content
+    assert "temporal analysis" in content.lower()
 
 def test_run_temporal_preparation_no_signals(sample_signals_no_signals, tmp_path):
-    """Test run_temporal_preparation when no signals exist."""
-    signals_path = tmp_path / "signals.csv"
-    output_dir = tmp_path / "output"
-    signals_path.mkdir(parents=True)
-    sample_signals_no_signals.to_csv(signals_path, index=False)
+    """Test run_temporal_preparation when no signals are found."""
+    output_dir = tmp_path / "temporal_profiles"
+    output_dir.mkdir()
     
-    result_socs = run_temporal_preparation(
-        signals_input=str(signals_path),
-        output_dir=str(output_dir),
-        top_n=5
-    )
+    result = run_temporal_preparation(sample_signals_no_signals, str(output_dir))
     
-    assert result_socs == []
-    # Check that warning file was created
-    warning_file = output_dir / "empty_signal_warning.txt"
-    assert warning_file.exists()
+    assert result is False
+    assert (output_dir / "empty_signal_warning.txt").exists()
 
 def test_run_temporal_preparation_success(sample_signals_with_data, tmp_path):
-    """Test successful run with signals."""
-    signals_path = tmp_path / "signals.csv"
-    output_dir = tmp_path / "output"
-    sample_signals_with_data.to_csv(signals_path, index=False)
+    """Test run_temporal_preparation with valid signals."""
+    output_dir = tmp_path / "temporal_profiles"
+    output_dir.mkdir()
     
-    result_socs = run_temporal_preparation(
-        signals_input=str(signals_path),
-        output_dir=str(output_dir),
-        top_n=2
-    )
+    # Note: This test verifies the preparation logic (loading and identifying top signals).
+    # The actual plotting (T033/T034) is not performed here as it requires cleaned data
+    # which is not provided in this unit test scope. The function returns True if
+    # top signals are identified successfully.
+    result = run_temporal_preparation(sample_signals_with_data, str(output_dir))
     
-    assert len(result_socs) == 2
-    assert 'SOC_4' in result_socs
-    assert 'SOC_1' in result_socs
-    
-    # Check manifest file
-    manifest = output_dir / "selected_soc_manifest.csv"
-    assert manifest.exists()
-    
-    manifest_df = pd.read_csv(manifest)
-    assert len(manifest_df) == 2
+    # Since we have signals, it should return True
+    assert result is True
+    # The warning file should NOT exist
+    assert not (output_dir / "empty_signal_warning.txt").exists()

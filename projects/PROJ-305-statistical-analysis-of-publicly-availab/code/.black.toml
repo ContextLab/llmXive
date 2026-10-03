@@ -1,3 +1,6 @@
+# Black configuration for llmXive project
+# Consistent code formatting
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -15,3 +18,6 @@ exclude = '''
     | dist
 )/
 '''
+
+# Use safe mode by default
+safe = true

@@ -45,9 +45,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 0: Spec Verification (Blocking Prerequisite)
 
-**Purpose**: Verify alignment between Spec (FR-001) and Plan regarding DementiaBank exclusion. The Spec explicitly excludes DementiaBank; the Plan must reflect this without contradiction. This phase MUST run before any setup tasks to prevent wasted effort on out-of-scope code.
+**Purpose**: Verify alignment between Spec (FR-001) and Plan regarding DementiaBank exclusion. The Spec explicitly excludes DementiaBank; the Plan must reflect this without contradiction. This phase MUST run immediately after directory setup to prevent wasted effort on out-of-scope code.
 
-- [ ] T000 [Plan] [US1] **SPEC & PLAN VERIFICATION (AUTOMATED)**: Create and execute `scripts/verify_scope.py`. This script MUST parse `spec.md` and `plan.md` for the keyword "DementiaBank". If found, it MUST exit with code 1 and print "ERROR: DementiaBank found in scope. Aborting." If not found, it MUST exit 0. **Gate Logic**: This task is a blocking gate. It MUST run FIRST. It has NO dependencies on setup tasks. If it fails, the pipeline halts. (Depends on: None)
+- [ ] T000 [Plan] [US1] **SPEC & PLAN VERIFICATION (AUTOMATED)**: Create and execute `scripts/verify_scope.py`. This script MUST parse `spec.md` and `plan.md`. It MUST verify that "DementiaBank" appears ONLY in exclusion contexts (e.g., "excluded", "not used", "removed from scope") and NEVER in active data source lists or code paths. **Gate Logic**: If "DementiaBank" is found as an active source, exit with code 1 and print "ERROR: DementiaBank found as active source. Aborting." If "DementiaBank" is found only in exclusion contexts, exit 0. If not found at all, exit 0 (assuming default exclusion). (Depends on: T001a)
 
 ---
 
@@ -55,12 +55,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure. Consolidated from fragmented tasks to ensure atomic setup.
 
-- [ ] T001a [P] **Directory Structure**: Create project directory structure (`mkdir -p data/raw data/interim data/results data/processed code tests/unit tests/contract tests/integration specs/001-statistical-cognitive-decline/contracts`). (Depends on: None)
+- [ ] T001a [P] **Directory Structure**: Create project directory structure (`mkdir -p data/raw data/interim data/results data/processed code tests/unit tests/contract tests/integration specs/001-statistical-cognitive-decline/contracts scripts`). (Depends on: None)
 - [ ] T001b [P] **Dependencies & Pinning**: Create `requirements.txt` with pinned versions (`pandas>=2.0.0`, `scikit-learn>=1.3.0`, `nltk>=3.8`, `spacy>=3.7`, `sentence-transformers>=2.2.0`, `numpy>=1.24.0`, `scipy>=1.10.0`, `pyyaml>=6.0`, `tqdm>=4.65.0`, `pytest>=7.0.0`, `huggingface_hub>=0.10.0`). This task covers both file creation and the explicit pinning of all versions to ensure reproducibility. (Depends on: T001a)
-- [ ] T001c [P] **Linting/Formatting**: Configure linting (ruff/flake8) and formatting (black) in `pyproject.toml` or `.flake8`. (Depends on: T001a)
-- [ ] T001d1 [P] **Configure Black**: Configure Black formatting in `pyproject.toml` (line length 88, target version python3.9). (Depends on: T001a)
-- [ ] T001d2 [P] **Configure Ruff**: Configure Ruff linting in `pyproject.toml` (exclude patterns, specific rules). (Depends on: T001a)
-- [ ] T001d3 [P] **Pre-commit Hooks**: Setup `.pre-commit-config.yaml` with `detect-secrets`, `black`, `ruff` and install hooks. (Depends on: T001d1, T001d2)
+- [ ] T001d [P] **Configure Linting, Formatting, and Pre-commit Hooks**: Consolidated task to configure Black (line length 88, target python3.9), Ruff (exclude patterns, specific rules), and Pre-commit Hooks (detect-secrets, black, ruff) in a single atomic write to `pyproject.toml` and `.pre-commit-config.yaml`. (Depends on: T001a)
 
 ---
 
@@ -70,8 +67,9 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003a [P] **Path/Seed Config**: Setup configuration management in `code/config.py` for paths and random seeds. (Depends on T001a)
+- [ ] T003a [P] **Path/Seed Config**: Setup configuration management in `code/config.py` for paths, random seeds, and statistical thresholds: `COLLINEARITY_TOLERANCE=1e-5`, `MIN_GROUP_SIZE_FOR_KFOLD=5`. (Depends on T001a)
 - [ ] T003b [P] **Dataset Source Config**: Setup configuration in `code/config.py` for `DATASET_SOURCE="ADReSS"`, `CANONICAL_URL`, `MIRROR_URL`. (Depends on T001a)
+- [ ] T003c [P] **Dataset Checksum Config**: Define the expected SHA-256 checksum for the ADReSS dataset in `code/config.py` as `EXPECTED_ADRESS_SHA256`. This provides the source of truth for T012d. (Depends on T001a)
 - [ ] T004 [P] **Logging Infrastructure**: Implement logging infrastructure in `code/utils.py` with file and console handlers. (Depends on T001a)
 - [ ] T005 [P] **Data Validation Utilities**: Create data validation utilities in `code/utils.py` (UTF-8 normalization, length checks). (Depends on T001a)
 - [ ] T006 [P] **Schema Definitions**: Create base schema definitions in `specs/001-statistical-cognitive-decline/contracts/`: Create `dataset.schema.yaml` and `feature.schema.yaml` using JSON Schema format in YAML, defining fields: `participant_id`, `label`, `text`. (Depends on T001a)
@@ -90,14 +88,13 @@ description: "Task list template for feature implementation"
 
 - [ ] T012c [FR-001] [US1] **Scope Validation**: Validate that `code/config.py` explicitly excludes DementiaBank (per T000). Check `DATASET_SOURCE == "ADReSS"`. If DementiaBank is detected or `DATASET_SOURCE` is missing, raise `ValueError`. (Depends on T003b)
 - [ ] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL. **Retry Logic**: Attempt primary URL; if failed, attempt `MIRROR_URL` (versioned Zenodo/Commit). **Failure**: If both fail, raise `ConnectionError` with message "ADReSS download failed. No synthetic fallback." (Depends on T012c)
-- [ ] T012d [FR-001] [US1] **Checksum Verification**: Implement SHA-256 checksum verification in `code/ingestion.py`. Compute the hash of downloaded files and compare against a known hash (or log the computed hash for manual verification if unknown). Fail loudly if mismatch. (Depends on T012)
-- [ ] T012b [FR-001] [US1] **Raw Record Count**: Implement function `count_raw_records()` in `code/ingestion.py` to count the total number of raw records in the downloaded dataset BEFORE any filtering. Save this count to `data/results/raw_record_count.json` with exact schema `{"raw_count": <int>}`. Log group counts (Control, MCI, AD) as informational messages. (Depends on T012d)
+- [ ] T012d [FR-001] [US1] **Checksum Verification**: Implement SHA-256 checksum verification in `code/ingestion.py`. Compute the hash of downloaded files and compare against `EXPECTED_ADRESS_SHA256` from `code/config.py` (defined in T003c). Fail loudly if mismatch. (Depends on T012, T003c)
+- [ ] T012b [FR-001] [US1] **Raw Record Count & Group Counts**: Implement function `count_raw_records()` in `code/ingestion.py` to count the total number of raw records in the downloaded dataset BEFORE any filtering. Save this count to `data/results/raw_record_count.json` with exact schema `{"raw_count": <int>}`. ALSO save group counts to `data/results/group_counts.json` with schema `{"Control": <int>, "MCI": <int>, "AD": <int>}`. Log group counts as informational messages. (Depends on T012d)
 - [ ] T013a [US1] **Remove Annotations**: Implement text cleaning in `code/ingestion.py` to remove non-verbal annotations (e.g., `<laughter>`, `<pause>`). (Depends on T012d)
 - [ ] T013b [US1] **UTF-8 Normalization**: Implement text cleaning in `code/ingestion.py` to normalize text to UTF-8. (Depends on T013a)
 - [ ] T014 [US1] **Filter Records**: Implement function `filter_records()` in `code/ingestion.py`: Filter records where label is null OR text length < 50 words (as per FR-001 Edge Case). **Verification**: Explicitly verify the filter logic by checking for `None` labels and counting words. Log excluded records with reason codes (`MISSING_LABEL`, `TOO_SHORT`) to `data/interim/exclusions.log`. (Depends on T013b)
-- [ ] T015 [US1] **Metadata Extraction**: Implement metadata extraction in `code/ingestion.py` to parse cognitive status (Control, MCI, AD) from ADReSS headers and generate specific reason codes for excluded records. (Depends on T013b)
-- [ ] T016 [US1] **Create Cleaned Dataset**: Implement function `create_cleaned_dataset()` in `code/ingestion.py` to save the filtered dataset to `data/interim/cleaned_adress.csv` with derivation log. (Depends on T014, T015)
-- [ ] T012g [US1] **Metadata Aggregation**: Implement function `aggregate_metadata()` in `code/ingestion.py` to merge `data/results/raw_record_count.json`, `data/interim/exclusions.log`, and `data/results/group_counts.json` (from T012b) to calculate `valid_label_proportion`. Write to `data/results/metadata.json` with schema `{"raw_count": <int>, "filtered_count": <int>, "valid_label_proportion": <float>, "group_counts": {"Control": <int>, "MCI": <int>, "AD": <int>}}. (Depends on T012b, T014)
+- [ ] T016 [US1] **Create Cleaned Dataset**: Implement function `create_cleaned_dataset()` in `code/ingestion.py` to save the filtered dataset to `data/interim/cleaned_adress.csv` with derivation log. (Depends on T014)
+- [ ] T012g [US1] **Metadata Aggregation**: Implement function `aggregate_metadata()` in `code/ingestion.py` to merge `data/results/raw_record_count.json`, `data/results/group_counts.json` (from T012b), and `data/interim/exclusions.log` to calculate `valid_label_proportion`. Write to `data/results/metadata.json` with schema `{"raw_count": <int>, "filtered_count": <int>, "valid_label_proportion": <float>, "group_counts": {"Control": <int>, "MCI": <int>, "AD": <int>}}. (Depends on T012b, T014)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -127,12 +124,12 @@ description: "Task list template for feature implementation"
 - [ ] T024 [US2] **Semantic Embeddings**: Implement semantic feature extraction (Sentence Embeddings) using the CPU-efficient model `sentence-transformers/all-MiniLM-L6-v2` in `code/features.py`. **Commit Hash**: Use `huggingface_hub.model_info` to fetch the exact model revision hash from the HuggingFace Hub config (parse `commit_hash` from `config.json`) and log it. Process in batches using `torch.no_grad` with `batch_size=32` to prevent OOM. **Atomic Write**: Save embeddings to a temp file `data/processed/embeddings.tmp.npy` then `os.replace` to `data/processed/embeddings.npy`. **Reproducibility Check**: Re-run generation on a [deferred] subset and verify checksum matches. (Depends on T001b, T016)
 - [ ] T024c [US2] **Data Hygiene**: Compute SHA-256 checksum for `data/processed/embeddings.npy` and record it in `data/processed/checksums.json` with schema `{"embeddings.npy": "<hash>"}`. (Depends on T024)
 - [ ] T024b [US2] **Cosine Similarity**: Calculate 'Sentence Embedding Cosine Similarity' (Average Intra-Document Sentence Similarity) from embeddings in `code/features.py` and append as a new column to the feature matrix. **Definition**: Compute pairwise cosine similarity between all sentence embeddings within a single transcript, then take the mean of these values to produce a single scalar per participant. This metric captures semantic coherence within the transcript. (Depends on T024)
-- [ ] T029 [US2] **Collinearity Check**: Handle edge case: Flag and exclude records with effectively identical feature vectors **before saving the final matrix**. **Definition**: Use `numpy.allclose` with `rtol=1e-5` to detect floating-point collinearity, NOT `array_equal`. Log excluded IDs to `data/interim/exclusions.log`. (Depends on T024b)
-- [ ] T025 [US2] **Save Feature Matrix**: Save processed feature matrix to `data/processed/features.csv` with metadata. This task consumes the feature matrix artifact generated by T024b (with the appended similarity column) and T029 (after collinearity filtering). **Input**: `data/processed/features.csv` (pre-collinearity) -> **Output**: `data/processed/features.csv` (final). (Depends on T024b, T029)
+- [ ] T029 [US2] **Collinearity Check**: Handle edge case: Flag and exclude records with effectively identical feature vectors **before saving the final matrix**. **Definition**: Use `numpy.allclose` with `rtol` read from `code/config.py` (`COLLINEARITY_TOLERANCE`). Log excluded IDs to `data/interim/exclusions.log`. **Output**: Save filtered feature matrix to `data/processed/features_filtered.csv`. (Depends on T024b, T003a)
+- [ ] T025 [US2] **Save Feature Matrix**: Save processed feature matrix to `data/processed/features.csv` with metadata. This task consumes the feature matrix artifact generated by T029 (filtered version). **Input**: `data/processed/features_filtered.csv` -> **Output**: `data/processed/features.csv` (final). (Depends on T029)
 - [ ] T026 [US2] **Statistical Testing**: Implement statistical testing module in `code/stats.py`: Mann-Whitney U for Control vs AD and Control vs MCI. (Depends on T025)
 - [ ] T027 [US2] **Bonferroni Correction**: Implement Bonferroni correction logic in `code/stats.py` to report raw and adjusted p-values; persist raw/adjusted p-values to `data/results/stats_p_values.json`. (Depends on T026)
 - [ ] T028 [US2] **Cohen's d**: Calculate Cohen's d effect sizes for all significant features and save to `data/results/stats_cohens_d.json`. (Depends on T026)
-- [ ] T028b [US2] [Plan] **Rank-Biserial**: Calculate Rank-Biserial effect sizes for all significant features as required by the Plan's Summary section and save to `data/results/stats_rank_biserial.json`. (Depends on T026)
+- [ ] T028b [US2] [Plan] **Rank-Biserial**: Calculate Rank-Biserial effect sizes for all significant features as required by the Plan's Summary section and US2 Acceptance Criteria #5 (amended to include Rank-Biserial) and save to `data/results/stats_rank_biserial.json`. (Depends on T026)
 - [ ] T028c [US2] **Stats Aggregation & Reporting**: Implement function `aggregate_stats()` in `code/stats.py` to merge `data/results/stats_p_values.json`, `data/results/stats_cohens_d.json`, and `data/results/stats_rank_biserial.json` into a unified `data/results/statistical_metrics.json`. **Reporting Requirement**: Ensure the final JSON explicitly reports Bonferroni-corrected p-values and effect sizes (Cohen's d, Rank-Biserial) in a single structure as per US2 Acceptance Criteria #5. (Depends on T027, T028, T028b)
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -157,11 +154,11 @@ description: "Task list template for feature implementation"
 
 - [ ] T033 [US3] **Adaptive Data Splitting & CV Config**: Implement data splitting and **Adaptive CV** in `code/modeling.py`:
  1. **Split Logic**: Use `sklearn.model_selection.train_test_split` with `stratify=y`. First split the dataset into a training set and a temporary set. Then split the temporary set into equal halves to achieve a train/validation/test distribution. IF dataset size permits.
- 2. **Adaptive Logic**: Implement a configurable adaptive strategy where the number of outer folds or the validation method is adjusted based on `min(group_counts)`. **Threshold**: If `min(group_counts) < 5`, use `LeaveOneOut()`. Else, use `KFold(n=5)`.
+ 2. **Adaptive Logic**: Implement a configurable adaptive strategy where the number of outer folds or the validation method is adjusted based on `min(group_counts)`. **Threshold**: Read `MIN_GROUP_SIZE_FOR_KFOLD` from `code/config.py` (defined in T003a). If `min(group_counts) < MIN_GROUP_SIZE_FOR_KFOLD`, use `LeaveOneOut()`. Else, use `KFold(n=5)`.
  3. **Ratio Validation**: If the dataset is large enough for 70/15/15, enforce the ratio. If the dataset is too small, the adaptive logic applies, and the ratio check is skipped.
  4. **Output Schema**: Save `data/results/cv_config.json` with schema `{"outer_folds": <int>, "method": "k-fold"|"LOOCV", "sample_size_warning": <bool>}`.
- 5. **Blocking Gate**: This task is a blocking gate. If split fails (e.g., N=0), raise `ValueError`. The pipeline runner (GitHub Actions) will halt if this task exits with non-zero code. **Input**: `data/processed/features.csv` (from T025). (Depends on T025)
-- [ ] T033b [US3] **Adaptive Logic Validation**: Implement function `validate_adaptive_logic()` in `code/modeling.py` to explicitly test the threshold logic (min_count < 5) and verify the correct CV method (LOOCV vs KFold) is selected and logged. (Depends on T033)
+ 5. **Blocking Gate**: This task is a blocking gate. If split fails (e.g., N=0), raise `ValueError`. The pipeline runner (GitHub Actions) will halt if this task exits with non-zero code. **Input**: `data/processed/features.csv` (from T025). (Depends on T025, T003a)
+- [ ] T033b [US3] **Adaptive Logic Validation**: Implement function `validate_adaptive_logic()` in `code/modeling.py` to explicitly test the threshold logic (min_count < `MIN_GROUP_SIZE_FOR_KFOLD`) and verify the correct CV method (LOOCV vs KFold) is selected and logged. (Depends on T033)
 - [ ] T034a [US3] **LogReg Definition**: Define Logistic Regression model hyperparameters in `code/modeling.py`. (Depends on T033)
 - [ ] T034b [US3] **LogReg Training**: Implement Logistic Regression training loop in `code/modeling.py`. (Depends on T034a)
 - [ ] T034c [US3] **LogReg Evaluation**: Implement Logistic Regression evaluation metrics calculation in `code/modeling.py`. (Depends on T034b)
@@ -177,7 +174,7 @@ description: "Task list template for feature implementation"
 - [ ] T030 [P] [US3] Unit test for stratified split logic in `tests/unit/test_modeling.py`. (Depends on T033)
 - [ ] T031 [P] [US3] Unit test for nested cross-validation loop in `tests/unit/test_modeling.py`. (Depends on T037)
 - [ ] T032 [P] [US3] Integration test for full pipeline (ingest -> features -> model) in `tests/integration/test_pipeline.py`. (Depends on T033, T037)
-- [ ] T054 [US3] [REVISE] Unit test for adaptive cross-validation: In `tests/unit/test_modeling.py`, create a tiny dataset (N < 15 per class) and assert that the nested CV logic reduces folds or switches to LOOCV instead of raising ValueError. (Depends on T033)
+- [ ] T054 [US3] [REVISE] Unit test for adaptive cross-validation: In `tests/unit/test_modeling.py`, create a tiny dataset (N < `MIN_GROUP_SIZE_FOR_KFOLD` per class) and assert that the nested CV logic reduces folds or switches to LOOCV instead of raising ValueError. (Depends on T033)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -250,7 +247,7 @@ Task: "Unit test for UTF-8 normalization in tests/unit/test_ingestion.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Spec Verification (T000) - **CRITICAL**
+1. Complete Phase 0: Spec Verification (T000) - **CRITICAL** (Runs after T001a)
 2. Complete Phase 1: Setup
 3. Complete Phase 2: Foundational
 4. Complete Phase 3: User Story 1
@@ -291,6 +288,6 @@ With multiple developers:
 - **Data Source**: Only ADReSS dataset is used per Plan (post-T000); DementiaBank is excluded.
 - **Robustness**: T012 ensures retry logic with mirror fallback; T014/T015 ensure short transcripts are excluded; T033 enforces adaptive logic for small datasets.
 - **Data Hygiene**: T024c ensures embeddings are checksummed. T012d ensures raw data is checksummed.
-- **Reproducibility**: T012 includes versioned mirror fallback; T024 logs exact model version and commit hash; T029 uses `np.allclose` for collinearity.
+- **Reproducibility**: T012 includes versioned mirror fallback; T024 logs exact model version and commit hash; T029 uses `np.allclose` with config-defined tolerance.
 - **Atomic Writes**: T012g, T028c, T024 use atomic write patterns to prevent race conditions.
 - **Scope Note**: Tasks T055-T058 (Verified Data Source Injection, Storage Constraint Simulation, Streaming Implementation, Feature Robustness) have been removed as they represented unapproved scope creep and lacked mapping to Spec/Plan requirements.

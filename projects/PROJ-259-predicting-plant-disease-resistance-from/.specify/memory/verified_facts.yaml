@@ -1,9 +1,4 @@
-'|cross fold model training use validation':
-  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
-  source_id: '2604.10702'
-  url: https://arxiv.org/abs/2604.10702
-  value: '5'
-'|flag flagging greater logic than value vif':
+'|flagged must vif':
   quote: 'P1533: Q113107166'
   source_id: Q113106917
   url: https://www.wikidata.org/wiki/Q113106917

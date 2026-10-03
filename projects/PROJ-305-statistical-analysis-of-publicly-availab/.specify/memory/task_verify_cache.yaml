@@ -1,24 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required project directories (`src/`, `tests/`, `data/`, `output/`)
-    is provided; the claim lacks any artifact showing that these folders exist or
-    contain files. The implementer must create and show the directory structure to
-    satisfy the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings, or related scripts) were found in the provided
-    evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
-T008:
-  c: false
-  h: bc910bb16ea9c93fd300fb4a0dd6963f7b02fbe71fd901940def4676879dcdaf
-  r: "The provided `src/data/validate.py` is truncated (the `validate_data` function\
-    \ ends mid\u2011line) and cannot fully perform validation, and the required `dataset.schema.yaml`\
-    \ file is missing, so the script cannot actually check raw data against a schema\
-    \ as the task demands. The implementation must be completed and the schema file\
-    \ supplied."
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d

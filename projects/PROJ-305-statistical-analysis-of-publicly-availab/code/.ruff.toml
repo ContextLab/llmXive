@@ -1,22 +1,34 @@
+# Ruff configuration for llmXive project
+# Enforces PEP 8, common error codes, and project-specific rules
+
 [lint]
+# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
 ]
+
+# Ignore specific rules that are too strict or not applicable
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
 ]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
+# Allow longer lines in test files for readability
+"tests/*" = ["E501"]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true

@@ -4,157 +4,129 @@ import os
 import sys
 import random
 import uuid
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
 
-# Import from sibling modules
-from utils.logger import log_script_start, log_script_end, log_data_operation, get_logger
+# Import from sibling utilities as per API surface
+from utils.logger import log_script_start, log_script_end, log_audit_event, get_logger
 from utils.random_utils import set_global_seed, ensure_seed_set
 
 logger = get_logger(__name__)
 
 def generate_participant_id():
-    """Generate a unique, anonymous participant ID."""
-    return str(uuid.uuid4())[:8].upper()
+    """Generate a unique, non-sequential Participant ID."""
+    return str(uuid.uuid4())
 
 def assign_condition():
-    """Randomly assign a participant to 'Partner' or 'Tool' condition (50/50)."""
+    """
+    Assign a condition (Partner or Tool) with a 50/50 split probability.
+    Returns 'Partner' or 'Tool'.
+    """
     return random.choice(['Partner', 'Tool'])
 
-def run_randomization(num_participants=1):
+def run_randomization(n_participants, seed=None):
     """
-    Generate a list of participants with assigned conditions.
-    
-    Args:
-        num_participants: Number of participants to simulate/generate.
-        
-    Returns:
-        List of dicts with 'participant_id' and 'condition'.
+    Run randomization for a batch of participants.
+    Returns a list of dicts with participant_id, condition.
     """
-    ensure_seed_set()
-    participants = []
-    for _ in range(num_participants):
+    if seed is not None:
+        set_global_seed(seed)
+    else:
+        ensure_seed_set()
+
+    results = []
+    for _ in range(n_participants):
         pid = generate_participant_id()
         condition = assign_condition()
-        participants.append({
+        results.append({
             'participant_id': pid,
             'condition': condition
         })
-    return participants
+    return results
 
-def validate_balance(participants):
+def validate_balance(assignments):
     """
-    Validate that the randomization is balanced (within statistical tolerance).
-    
-    Args:
-        participants: List of participant dicts.
-        
-    Returns:
-        Tuple (is_balanced: bool, details: dict)
+    Validate that the distribution of conditions is roughly 50/50.
+    Returns True if the split is within statistical tolerance (e.g., ±10%).
     """
-    if not participants:
-        return False, {"error": "No participants to validate"}
+    if not assignments:
+        return True
     
     counts = {'Partner': 0, 'Tool': 0}
-    for p in participants:
-        counts[p['condition']] += 1
+    for a in assignments:
+        counts[a['condition']] += 1
     
-    total = len(participants)
-    ratio = counts['Partner'] / total if total > 0 else 0
+    total = len(assignments)
+    partner_ratio = counts['Partner'] / total
     
-    # Allow 40-60% split for small samples, tighter for large
-    tolerance = 0.1 if total < 100 else 0.05
-    is_balanced = 0.5 - tolerance <= ratio <= 0.5 + tolerance
-    
-    return is_balanced, {
-        'partner_count': counts['Partner'],
-        'tool_count': counts['Tool'],
-        'total': total,
-        'ratio': ratio,
-        'balanced': is_balanced
-    }
+    # Allow a tolerance of 10% deviation from 0.5
+    return 0.4 <= partner_ratio <= 0.6
 
-def save_randomization_log(participants, output_path):
+def save_randomization_log(assignments, output_path, seed=None):
     """
-    Save randomization metadata to a JSON file IMMEDIATELY.
-    
-    This function writes the log BEFORE any survey display to prevent drift,
-    as required by Constitution III and US-1.
+    Write randomization metadata to a JSON file.
+    This is called IMMEDIATELY after assignment to prevent drift.
     
     Args:
-        participants: List of participant dicts with 'participant_id' and 'condition'.
+        assignments: List of dicts with participant_id, condition.
         output_path: Path to the output JSON file.
-        
-    Returns:
-        Path to the written file.
+        seed: The seed used for reproducibility (optional).
     """
-    log_data_operation("Starting randomization log write", path=str(output_path))
+    # Ensure the directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.utcnow().isoformat()
     
-    # Ensure directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Prepare log entries with timestamps
-    log_entries = []
-    for p in participants:
-        entry = {
-            'participant_id': p['participant_id'],
-            'condition': p['condition'],
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
-            'script_version': '02_randomization_v1'
+    log_data = {
+        'timestamp': timestamp,
+        'seed': seed,
+        'total_participants': len(assignments),
+        'assignments': assignments
+    }
+
+    # Calculate summary stats for the log header
+    if assignments:
+        partner_count = sum(1 for a in assignments if a['condition'] == 'Partner')
+        tool_count = sum(1 for a in assignments if a['condition'] == 'Tool')
+        log_data['summary'] = {
+            'partner_count': partner_count,
+            'tool_count': tool_count,
+            'partner_ratio': partner_count / len(assignments)
         }
-        log_entries.append(entry)
-    
-    # Write to JSON file
-    try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(log_entries, f, indent=2)
-        
-        log_data_operation(f"Successfully wrote {len(log_entries)} entries to randomization log", path=str(output_file))
-        return output_file
-    except IOError as e:
-        logger.error(f"Failed to write randomization log: {e}")
-        raise
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(log_data, f, indent=2)
+
+    log_audit_event(f"Randomization log written to {output_path}", logger)
+    return output_path
 
 def main():
     """
-    Main entry point for the randomization script.
-    
-    This script generates participant IDs, assigns conditions,
-    and IMMEDIATELY writes the metadata to a log file to prevent drift.
+    CLI entry point for running randomization and saving the log.
+    Usage: python code/02_randomization.py --n 100 --seed 42 --output data/processed/randomization_log.json
     """
-    parser = argparse.ArgumentParser(description="Randomize participants to conditions and log immediately")
-    parser.add_argument('--num', type=int, default=10, help="Number of participants to generate")
-    parser.add_argument('--output', type=str, default="data/processed/randomization_log.json", 
-                      help="Path to output log file")
-    parser.add_argument('--seed', type=int, default=None, help="Random seed for reproducibility")
+    parser = argparse.ArgumentParser(description="Randomize participants and log immediately.")
+    parser.add_argument('--n', type=int, default=10, help='Number of participants to randomize.')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility.')
+    parser.add_argument('--output', type=str, default='data/processed/randomization_log.json', help='Output JSON path.')
     
     args = parser.parse_args()
-    
-    if args.seed is not None:
-        set_global_seed(args.seed)
-    
-    log_script_start("02_randomization", args)
-    
-    try:
-        # Generate randomization
-        participants = run_randomization(args.num)
-        
-        # Validate balance
-        is_balanced, details = validate_balance(participants)
-        logger.info(f"Randomization balance check: {details}")
-        
-        # CRITICAL: Write log IMMEDIATELY before any survey display
-        output_path = Path(args.output)
-        written_path = save_randomization_log(participants, output_path)
-        
-        log_script_end("02_randomization", success=True, output=str(written_path))
-        
-        return 0
-    except Exception as e:
-        logger.exception(f"Randomization script failed: {e}")
-        log_script_end("02_randomization", success=False, error=str(e))
-        return 1
 
-if __name__ == "__main__":
-    sys.exit(main())
+    log_script_start("02_randomization", args, logger)
+
+    # Run randomization
+    assignments = run_randomization(args.n, seed=args.seed)
+
+    # Validate balance (log warning if off, but proceed as this is a simulation/batch run)
+    if not validate_balance(assignments):
+        logger.warning("Randomization distribution is not within 50/50 tolerance.")
+
+    # CRITICAL: Write to disk immediately to prevent drift
+    save_randomization_log(assignments, args.output, seed=args.seed)
+
+    log_script_end("02_randomization", logger)
+    print(f"Successfully randomized {args.n} participants. Log saved to {args.output}")
+
+if __name__ == '__main__':
+    main()

@@ -59,7 +59,7 @@
 - [X] T005 Create base data schemas and validation utilities in `code/utils/data_validation.py`
 - [X] T006 Setup random seed management utility in `code/utils/random_utils.py` to ensure reproducibility across all scripts
 - [X] T007 Configure logging infrastructure in `code/utils/logger.py` for audit trails of data processing steps
-- [X] T008 [US3] Implement `code/00_power_analysis.py` to perform prospective power analysis (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05, and enforce the N=300 target for recruitment planning (FR-009, SC-002)
+- [X] T008 [US3] Implement `code/00_power_analysis.py` to perform prospective power analysis (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05, and enforce the N=300 target for recruitment planning [UNRESOLVED-CLAIM: c_5accdc29 — status=not_enough_info] (FR-009, SC-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,8 +73,8 @@
 
 ### Sub-phase 3A: Test File Creation (Prerequisite to Implementation)
 
-- [X] T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff ≤ 2.0)
-- [X] T010 [P] [US1] Create test file `tests/test_stimuli.py` with test for sentiment check (VADER diff ≤ 0.05)
+- [X] T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff ≤ 2.0) [UNRESOLVED-CLAIM: c_9be734ec — status=not_enough_info]
+- [X] T010 [P] [US1] Create test file `tests/test_stimuli.py` with test for sentiment check (VADER diff ≤ 0.05) [UNRESOLVED-CLAIM: c_11ccf48d — status=not_enough_info]
 - [X] T011 [P] [US1] Create test file `tests/test_randomization.py` with test for randomization distribution (k runs, balanced split)
 
 ### Sub-phase 3B: Implementation
@@ -83,8 +83,8 @@
 - [X] T013 [US1] Integrate `textstat` in `code/01_stimulus_generation.py` to calculate Flesch-Kincaid scores and enforce ≤ 2.0 point difference (FR-001, SC-001)
 - [X] T014 [US1] Integrate `vaderSentiment` in `code/01_stimulus_generation.py` to calculate compound scores, enforce ≤ 0.05 difference, AND implement a rejection/regeneration loop with a `max_attempts` limit (e.g., 10) and a fallback strategy to log a warning and halt if constraints cannot be met (FR-010, SC-005)
 - [X] T015 [US1] Implement `code/02_randomization.py` to Assign a unique Participant ID to exactly one condition (Partner/Tool) with a balanced ratio. (FR-002)
-- [ ] T016 [US1] Export generated vignettes to `data/stimuli/vignettes_partner.csv` and `data/stimuli/vignettes_tool.csv`
-- [ ] T017 [US1] Implement logic to immediately write randomization metadata (Participant ID, Condition, Timestamp) to `data/processed/randomization_log.json` BEFORE survey display to prevent drift (US-1, Constitution III)
+- [X] T016 [US1] Export generated vignettes to `data/stimuli/vignettes_partner.csv` and `data/stimuli/vignettes_tool.csv`
+- [X] T017 [US1] Implement logic to immediately write randomization metadata (Participant ID, Condition, Timestamp) to `data/processed/randomization_log.json` BEFORE survey display to prevent drift (US-1, Constitution III)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,8 +98,8 @@
 
 ### Pilot Study Validation (Must precede Main Data Collection)
 
-- [X] T024 [US2] Implement `code/03_pilot_study.py` to execute a pilot study (n≥30) and validate that the manipulation check question accurately discriminates between readers and non-readers (FR-011)
-- [ ] T025 [P] [US2] Run pilot study validation and log results to `data/processed/pilot_validation_report.json`
+- [X] T024 [US2] Implement `code/03_pilot_study.py` to execute a pilot study (n≥30) [UNRESOLVED-CLAIM: c_6f275f82 — status=not_enough_info] and validate that the manipulation check question accurately discriminates between readers and non-readers (FR-011)
+- [X] T025 [P] [US2] Run pilot study validation and log results to `data/processed/pilot_validation_report.json`
 
 ### Main Data Collection Implementation
 
@@ -107,9 +107,9 @@
 - [X] T020 [P] [US2] Implement validation logic in `code/04_data_collection.py` to ensure Likert scales are integers within the expected range. (US-2, FR-003)
 - [ ] T021 [P] [US2] Implement logic to flag `manipulation_check_failed` boolean based on the manipulation check question response (US-2, FR-003)
 - [ ] T022 [US2] Implement logic to exclude partial responses (participants who abandoned halfway) from the final dataset (Edge Case)
-- [ ] T023 [US2] Export cleaned data to `data/processed/cleaned_responses.csv` with columns: `participant_id`, `condition`, `manipulation_check`, `manipulation_check_failed`, AND individual raw item responses: `attitude_item_1` through `attitude_item_7`, `usefulness_item_1` through `usefulness_item_3`, `trust_item_1` through `trust_item_4` (FR-003, Constitution VII)
-- [ ] T018 [P] [US2] Unit test for data validation (Likert range, no duplicates) in `tests/test_data_collection.py`
-- [ ] T019 [P] [US2] Unit test for manipulation check flagging logic in `tests/test_data_collection.py`
+- [X] T023 [US2] Export cleaned data to `data/processed/cleaned_responses.csv` with columns: `participant_id`, `condition`, `manipulation_check`, `manipulation_check_failed`, AND individual raw item responses: `attitude_item_1` through `attitude_item_7`, `usefulness_item_1` through `usefulness_item_3`, `trust_item_1` through `trust_item_4` (FR-003, Constitution VII)
+- [X] T018 [P] [US2] Unit test for data validation (Likert range, no duplicates) in `tests/test_data_collection.py`
+- [X] T019 [P] [US2] Unit test for manipulation check flagging logic in `tests/test_data_collection.py` <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,9 +125,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Welch's t-test calculation and effect size (Cohen's d) in `tests/test_analysis.py`
-- [ ] T027 [P] [US3] Unit test for Benjamini-Hochberg correction in `tests/test_analysis.py`
-- [ ] T028 [P] [US3] Unit test for sensitivity analysis (exclusion of failed manipulation checks) in `tests/test_analysis.py`
+- [X] T026 [P] [US3] Unit test for Welch's t-test calculation and effect size (Cohen's d) in `tests/test_analysis.py`
+- [X] T027 [P] [US3] Unit test for Benjamini-Hochberg correction in `tests/test_analysis.py`
+- [X] T028 [P] [US3] Unit test for sensitivity analysis (exclusion of failed manipulation checks) in `tests/test_analysis.py`
 
 ### Implementation for User Story 3
 
@@ -141,10 +141,10 @@
 - [ ] T034 [US3] Implement sensitivity analysis: re-run primary t-tests excluding participants where `manipulation_check_failed` is true (FR-007)
 - [ ] T040 [US3] Perform full-sample robustness check: re-run t-tests INCLUDING all participants (ignoring manipulation check failures) to compare results against the primary analysis (Edge Cases, FR-007)
 - [ ] T035 [US3] Implement robustness checks: Mann-Whitney U test and linear regression controlling for age/gender (US-3)
-- [ ] T036 [US3] Implement power analysis (MDES) to calculate observed power based on actual N collected, compare against target, and flag the report as 'insufficient power' if N < 300 (FR-009, SC-002)
+- [ ] T036 [US3] Implement power analysis (MDES) to calculate observed power based on actual N collected, compare against target, and flag the report as 'insufficient power' if N < 300 [UNRESOLVED-CLAIM: c_dfeb121d — status=not_enough_info] (FR-009, SC-002)
 - [ ] T037 [US3] Generate final analysis report in `data/processed/analysis_report.json` containing p-values, t-statistics, Cohen's d, adjusted p-values, power flags, and robustness check results
 - [ ] T045 [US3] Transform `data/processed/analysis_report.json` into a human-readable Markdown report (`data/processed/analysis_report.md`) with interpretations and effect sizes for the final paper (Constitution IV)
-- [ ] T038 [US3] Ensure all statistical computations use only CPU-based libraries (`scipy`, `statsmodels`) and the entire pipeline completes in <30 minutes on a Multi-core CPU-only runner
+- [ ] T038 [US3] Ensure all statistical computations use only CPU-based libraries (`scipy`, `statsmodels`) and the entire pipeline completes in <30 minutes on a Multi-core CPU-only runner [UNRESOLVED-CLAIM: c_2ff71eca — status=not_enough_info]
 
 The research question is [REDACTED], the method is [REDACTED], and the references are [REDACTED]. (FR-008, SC-004)
 

@@ -1,36 +1,39 @@
+name: vaers_dataset_schema
 version: "1.0"
-description: Schema for raw VAERS dataset validation
+description: Schema for raw and cleaned VAERS COVID-19 vaccine adverse event data.
 required_columns:
   - VAX_TYPE
   - SOC_CODE
   - LLT
   - REPT_DATE
   - AGE
+  - SOC
 column_definitions:
   VAX_TYPE:
     type: string
-    description: Vaccine type administered
-    required: true
+    description: Vaccine type (e.g., "COVID-19", "Influenza", "Non-COVID")
+    nullable: false
   SOC_CODE:
     type: string
     description: MedDRA System Organ Class code
-    required: true
+    nullable: false
   LLT:
     type: string
-    description: Lowest Level Term for adverse event
-    required: true
+    description: Lowest Level Term (MedDRA preferred term)
+    nullable: true
   REPT_DATE:
-    type: string
-    description: Date of report submission (YYYY-MM-DD or MM/DD/YYYY)
-    required: true
+    type: date
+    description: Date of report submission
+    nullable: false
+    format: "%m/%d/%Y"
   AGE:
+    type: numeric
+    description: Patient age
+    nullable: true
+  SOC:
     type: string
-    description: Age of the patient (numeric string or 'UNKNOWN')
-    required: true
+    description: Mapped System Organ Class name
+    nullable: false
 constraints:
-  - column: REPT_DATE
-    rule: non_empty
-  - column: VAX_TYPE
-    rule: non_empty
-  - column: SOC_CODE
-    rule: non_empty
+  min_rows: 1
+  allow_duplicates: true

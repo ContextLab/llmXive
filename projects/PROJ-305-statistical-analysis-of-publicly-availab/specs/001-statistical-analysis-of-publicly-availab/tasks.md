@@ -38,15 +38,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric thresholds. **Format**: `THRESHOLDS = {"ror_min": 2.0, "ror_ci_min": 1.0, "prr_min": 1.5, "prr_ci_min": 1.0, "ic_min": 0.0, "ic_ci_min": 0.0}`. **Note**: This file defines internal analysis parameters only. It does NOT load external background incidence rates. The analysis methodology (ROR/PRR/IC) uses internal dataset counts as the denominator; external rates are a known limitation and are not calculated.
+- [X] T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric thresholds. **Format**: `THRESHOLDS = {"ror_min": 2.0, "ror_ci_min": 1.0, "prr_min": 1.5, "prr_ci_min": 1.0, "ic_min": 0.0, "ic_ci_min": 0.0}`. **Note**: This file defines internal analysis parameters only. It does NOT load external background incidence rates. The analysis methodology (ROR/PRR/IC) uses internal dataset counts as the denominator; external rates are a known limitation and are not calculated.
 - [X] T005 [P] Verify the absence of GPU-dependent libraries (e.g., `torch`, `tensorflow`, `cupy`) in `requirements.txt` by running `pip list` and grepping for these packages. **Deliverable**: Log entry "GPU_LIB_CHECK: PASSED" or "GPU_LIB_CHECK: FAILED - <package>" in `logs/gpu_check.log`.
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining required columns (`VAX_TYPE`, `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`)
 - [ ] T007 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p)
 - [ ] T008 Implement `src/data/validate.py` to check raw data against `dataset.schema.yaml` and exit with `E_SCHEMA_MISSING` if failed
 - [ ] T009 Implement `src/utils/plots.py` with helpers for generating matplotlib figures (weekly counts, signal tables)
-- [ ] T010 Create `src/main.py` as the pipeline orchestrator that enforces phase order and memory checks
-- [ ] T039 [US1] Integrate memory check logic into `src/main.py` to halt if RAM usage > 5 GB during data cleaning and enable chunked processing. **Deliverable**: Log message "MEMORY_LIMIT_EXCEEDED: X GB > Y GB" to `logs/memory.log` and exit with code `E_MEMORY_LIMIT`. **Must be completed before T014.**
-- [ ] T040 [US2] Integrate memory check logic into `src/main.py` to halt if RAM usage > 7 GB during disproportionality analysis. **Deliverable**: Log message "MEMORY_LIMIT_EXCEEDED: X GB > Y GB" to `logs/memory.log` and exit with code `E_MEMORY_LIMIT`. **Must be completed before T024.**
+- [X] T010 Create `src/main.py` as the pipeline orchestrator that enforces phase order and memory checks
+- [X] T039 [US1] Integrate memory check logic into `src/main.py` to halt if RAM usage > 5 GB during data cleaning and enable chunked processing. **Deliverable**: Log message "MEMORY_LIMIT_EXCEEDED: X GB > Y GB" to `logs/memory.log` and exit with code `E_MEMORY_LIMIT`. **Must be completed before T014.**
+- [X] T040 [US2] Integrate memory check logic into `src/main.py` to halt if RAM usage > 7 GB during disproportionality analysis. **Deliverable**: Log message "MEMORY_LIMIT_EXCEEDED: X GB > Y GB" to `logs/memory.log` and exit with code `E_MEMORY_LIMIT`. **Must be completed before T024.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,7 +91,7 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
+- [X] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
 - [X] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
 - [X] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
 

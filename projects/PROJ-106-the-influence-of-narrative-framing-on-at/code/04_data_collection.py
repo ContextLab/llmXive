@@ -4,291 +4,308 @@ import json
 import sys
 import os
 from pathlib import Path
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
-from datetime import datetime
 
-# Import from local utils
-from utils.data_validation import (
-    validate_liker_scale,
-    validate_participant_id,
-    validate_condition,
-    validate_survey_response_row,
-    ValidationResult
-)
-from utils.logger import setup_logger, log_script_start, log_script_end, log_data_operation, info, error, warning
+# Import from existing project utilities
+from utils.logger import setup_logger, log_script_start, log_script_end, log_data_operation, error
+from utils.data_validation import validate_liker_scale, validate_participant_id, validate_condition
 from utils.random_utils import set_global_seed
 
 @dataclass
 class Participant:
+    """Data class representing a cleaned participant record."""
     participant_id: str
     condition: str
     manipulation_check: str
     manipulation_check_failed: bool
-    attitude_items: List[int]
-    usefulness_items: List[int]
-    trust_items: List[int]
-    timestamp: str
+    attitude_item_1: Optional[int] = None
+    attitude_item_2: Optional[int] = None
+    attitude_item_3: Optional[int] = None
+    attitude_item_4: Optional[int] = None
+    attitude_item_5: Optional[int] = None
+    attitude_item_6: Optional[int] = None
+    attitude_item_7: Optional[int] = None
+    usefulness_item_1: Optional[int] = None
+    usefulness_item_2: Optional[int] = None
+    usefulness_item_3: Optional[int] = None
+    trust_item_1: Optional[int] = None
+    trust_item_2: Optional[int] = None
+    trust_item_3: Optional[int] = None
+    trust_item_4: Optional[int] = None
+    timestamp: Optional[str] = None
 
-def setup_directories(base_path: Path) -> Dict[str, Path]:
-    """Ensure all required directories exist."""
-    dirs = {
-        'raw': base_path / 'data' / 'raw',
-        'processed': base_path / 'data' / 'processed',
-        'stimuli': base_path / 'data' / 'stimuli',
-        'ethics': base_path / 'data' / 'ethics'
-    }
-    for d in dirs.values():
-        d.mkdir(parents=True, exist_ok=True)
-    return dirs
+def setup_directories():
+    """Ensure required output directories exist."""
+    base_dir = Path(__file__).parent.parent
+    data_dir = base_dir / "data"
+    processed_dir = data_dir / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    return processed_dir
 
-def load_raw_data(raw_path: Path) -> List[Dict[str, Any]]:
+def load_raw_data(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Load raw survey data from CSV.
-    Expects a CSV with columns mapping to our expected schema.
-    If file doesn't exist, raises FileNotFoundError to fail loudly.
+    If input_path is None, looks for default raw data files.
     """
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_path}. "
-                                "Please ensure data collection has run and populated data/raw/responses.csv.")
+    if input_path:
+        path = Path(input_path)
+    else:
+        # Try to find raw data in data/raw
+        base_dir = Path(__file__).parent.parent
+        raw_dir = base_dir / "data" / "raw"
+        if raw_dir.exists():
+            csv_files = list(raw_dir.glob("*.csv"))
+            if csv_files:
+                path = csv_files[0]
+            else:
+                raise FileNotFoundError(f"No CSV files found in {raw_dir}")
+        else:
+            raise FileNotFoundError(f"Raw data directory {raw_dir} not found")
     
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
+
     rows = []
-    with open(raw_path, 'r', newline='', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             rows.append(row)
-    
-    log_data_operation("load_raw_data", f"Loaded {len(rows)} rows from {raw_path}")
     return rows
 
-def normalize_row(row: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Normalize raw CSV string values to appropriate types.
-    Handles missing values by converting to None.
-    """
-    normalized = {}
-    for key, value in row.items():
-        if value == '' or value is None:
-            normalized[key] = None
-        elif key.endswith('_id') or key in ['participant_id', 'condition']:
-            normalized[key] = str(value)
-        else:
-            # Attempt to parse as int for Likert scales
-            try:
-                normalized[key] = int(value)
-            except (ValueError, TypeError):
-                normalized[key] = value
-    return normalized
+def normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize row keys to lowercase and strip whitespace."""
+    return {k.strip().lower(): v.strip() if isinstance(v, str) else v for k, v in row.items()}
 
-def is_partial_response(normalized_row: Dict[str, Any]) -> bool:
+def is_partial_response(row: Dict[str, Any]) -> bool:
     """
     Check if a response is partial (abandoned halfway).
-    We consider it partial if the manipulation check or any attitude item is missing.
+    A response is partial if key survey sections (Attitude, Usefulness, Trust) 
+    have fewer than 50% of expected items filled.
     """
-    required_fields = ['manipulation_check', 'attitude_item_1']
-    for field in required_fields:
-        if normalized_row.get(field) is None:
-            return True
-    return False
+    # Expected items counts
+    attitude_count = 0
+    usefulness_count = 0
+    trust_count = 0
+    total_filled = 0
 
-def validate_and_process_row(row: Dict[str, Any], row_idx: int) -> Optional[Participant]:
-    """
-    Validate a single row and convert it to a Participant object.
-    Returns None if validation fails or response is partial.
-    """
-    # Check for partial response first
-    if is_partial_response(row):
-        log_data_operation("validate_and_process_row", f"Row {row_idx}: Excluded partial response")
-        return None
+    for i in range(1, 8):
+        key = f"attitude_item_{i}"
+        if row.get(key) not in [None, '', 'NA', 'N/A']:
+            attitude_count += 1
+            total_filled += 1
 
+    for i in range(1, 4):
+        key = f"usefulness_item_{i}"
+        if row.get(key) not in [None, '', 'NA', 'N/A']:
+            usefulness_count += 1
+            total_filled += 1
+
+    for i in range(1, 5):
+        key = f"trust_item_{i}"
+        if row.get(key) not in [None, '', 'NA', 'N/A']:
+            trust_count += 1
+            total_filled += 1
+
+    # Total expected items: 7 (attitude) + 3 (usefulness) + 4 (trust) = 14
+    total_expected = 14
+    completion_rate = total_filled / total_expected if total_expected > 0 else 0
+
+    # Flag as partial if less than 50% completed
+    return completion_rate < 0.5
+
+def validate_and_process_row(row: Dict[str, Any]) -> Optional[Participant]:
+    """
+    Validate a raw row and convert to a Participant object.
+    Returns None if validation fails or if it's a partial response.
+    """
+    # Normalize keys
+    row = normalize_row(row)
+
+    # Extract core fields
+    pid = row.get('participant_id', row.get('participantid', ''))
+    condition = row.get('condition', '')
+    manip_check = row.get('manipulation_check', row.get('manipulationcheck', ''))
+    
     # Validate Participant ID
-    p_id = row.get('participant_id')
-    if not p_id or not validate_participant_id(p_id):
-        warning(f"Row {row_idx}: Invalid participant_id '{p_id}', skipping.")
+    if not validate_participant_id(pid):
         return None
 
     # Validate Condition
-    condition = row.get('condition')
-    if not condition or not validate_condition(condition):
-        warning(f"Row {row_idx}: Invalid condition '{condition}', skipping.")
+    if not validate_condition(condition):
         return None
 
-    # Collect Attitude Items (1-7)
+    # Check for partial response (Task T022)
+    if is_partial_response(row):
+        return None
+
+    # Extract Likert items and validate
     attitude_items = []
     for i in range(1, 8):
         val = row.get(f'attitude_item_{i}')
-        if val is None:
-            warning(f"Row {row_idx}: Missing attitude_item_{i}, skipping row.")
-            return None
-        if not validate_liker_scale(val):
-            warning(f"Row {row_idx}: Invalid attitude_item_{i} value '{val}', skipping.")
-            return None
-        attitude_items.append(int(val))
+        if val is None or val == '':
+            attitude_items.append(None)
+        else:
+            try:
+                int_val = int(val)
+                if not validate_liker_scale(int_val):
+                    return None # Invalid Likert value
+                attitude_items.append(int_val)
+            except (ValueError, TypeError):
+                return None
 
-    # Collect Usefulness Items (1-3)
     usefulness_items = []
     for i in range(1, 4):
         val = row.get(f'usefulness_item_{i}')
-        if val is None:
-            warning(f"Row {row_idx}: Missing usefulness_item_{i}, skipping row.")
-            return None
-        if not validate_liker_scale(val):
-            warning(f"Row {row_idx}: Invalid usefulness_item_{i} value '{val}', skipping.")
-            return None
-        usefulness_items.append(int(val))
+        if val is None or val == '':
+            usefulness_items.append(None)
+        else:
+            try:
+                int_val = int(val)
+                if not validate_liker_scale(int_val):
+                    return None
+                usefulness_items.append(int_val)
+            except (ValueError, TypeError):
+                return None
 
-    # Collect Trust Items (1-4)
     trust_items = []
     for i in range(1, 5):
         val = row.get(f'trust_item_{i}')
-        if val is None:
-            warning(f"Row {row_idx}: Missing trust_item_{i}, skipping row.")
-            return None
-        if not validate_liker_scale(val):
-            warning(f"Row {row_idx}: Invalid trust_item_{i} value '{val}', skipping.")
-            return None
-        trust_items.append(int(val))
+        if val is None or val == '':
+            trust_items.append(None)
+        else:
+            try:
+                int_val = int(val)
+                if not validate_liker_scale(int_val):
+                    return None
+                trust_items.append(int_val)
+            except (ValueError, TypeError):
+                return None
 
-    # Process Manipulation Check
-    mc_val = row.get('manipulation_check')
-    if mc_val is None:
-        warning(f"Row {row_idx}: Missing manipulation_check, skipping.")
-        return None
-    
-    # Determine if manipulation check failed
-    # Assuming 'pass' or similar indicates success, anything else fails
-    # This logic should align with the specific survey design
-    mc_failed = str(mc_val).lower() not in ['pass', 'true', '1', 'yes']
-    
-    timestamp = row.get('timestamp', datetime.now().isoformat())
+    # Determine manipulation check failure (Task T021)
+    # Assuming manipulation_check contains "correct" or "true" if passed, else failed.
+    # Logic: If the string is empty, or explicitly "false", "incorrect", "fail", mark as failed.
+    # Otherwise, assume passed.
+    manip_failed = False
+    if not manip_check:
+        manip_failed = True
+    else:
+        mc_lower = str(manip_check).lower()
+        if mc_lower in ['false', 'incorrect', 'fail', 'failed', 'no']:
+            manip_failed = True
+        elif mc_lower in ['true', 'correct', 'pass', 'passed', 'yes']:
+            manip_failed = False
+        else:
+            # If it's a specific answer key, we might need more logic, but default to failed if ambiguous
+            # For now, if it's not clearly a pass, we flag it as failed to be safe, 
+            # or assume the raw value is the answer and compare to expected.
+            # Given the spec, we just flag the boolean based on the check.
+            # Let's assume if it's not a clear pass, it's a fail for safety in cleaning.
+            # However, usually MC is "Did you read? (Yes/No)". If "No", failed=True.
+            # If "Yes", failed=False.
+            if mc_lower == 'no':
+                manip_failed = True
+            else:
+                # If it's "Yes" or some other affirmative, assume passed unless it looks like an error
+                manip_failed = False
+
+    # Get timestamp if available
+    timestamp = row.get('timestamp', row.get('submitted_at', datetime.now().isoformat()))
 
     return Participant(
-        participant_id=p_id,
+        participant_id=pid,
         condition=condition,
-        manipulation_check=str(mc_val),
-        manipulation_check_failed=mc_failed,
-        attitude_items=attitude_items,
-        usefulness_items=usefulness_items,
-        trust_items=trust_items,
+        manipulation_check=manip_check,
+        manipulation_check_failed=manip_failed,
+        attitude_item_1=attitude_items[0], attitude_item_2=attitude_items[1],
+        attitude_item_3=attitude_items[2], attitude_item_4=attitude_items[3],
+        attitude_item_5=attitude_items[4], attitude_item_6=attitude_items[5],
+        attitude_item_7=attitude_items[6],
+        usefulness_item_1=usefulness_items[0], usefulness_item_2=usefulness_items[1],
+        usefulness_item_3=usefulness_items[2],
+        trust_item_1=trust_items[0], trust_item_2=trust_items[1],
+        trust_item_3=trust_items[2], trust_item_4=trust_items[3],
         timestamp=timestamp
     )
 
-def ingest_and_clean(raw_data: List[Dict[str, Any]]) -> List[Participant]:
+def ingest_and_clean(input_path: Optional[str] = None) -> List[Participant]:
     """
-    Ingest raw data, validate, and clean.
-    Returns list of valid Participant objects.
+    Main ingestion pipeline: load, validate, filter partials, and return clean list.
     """
+    raw_data = load_raw_data(input_path)
     cleaned = []
-    total = len(raw_data)
-    excluded = 0
-
-    for idx, row in enumerate(raw_data):
-        normalized = normalize_row(row)
-        participant = validate_and_process_row(normalized, idx)
-        if participant:
-            cleaned.append(participant)
-        else:
-            excluded += 1
-
-    info(f"Ingested {total} rows, kept {len(cleaned)}, excluded {excluded} (partial/invalid).")
+    skipped = 0
+    for i, row in enumerate(raw_data):
+        try:
+            participant = validate_and_process_row(row)
+            if participant:
+                cleaned.append(participant)
+            else:
+                skipped += 1
+        except Exception as e:
+            error(f"Error processing row {i}: {e}")
+            skipped += 1
+    
+    log_data_operation("Ingestion", f"Processed {len(raw_data)} rows, kept {len(cleaned)}, skipped {skipped}")
     return cleaned
 
-def export_cleaned_data(participants: List[Participant], output_path: Path):
+def export_cleaned_data(participants: List[Participant], output_path: str):
     """
-    Export cleaned data to CSV with the exact required columns.
+    Export cleaned participants to CSV with the exact schema required by T023.
     Columns: participant_id, condition, manipulation_check, manipulation_check_failed,
-             attitude_item_1..7, usefulness_item_1..3, trust_item_1..4
+    attitude_item_1..7, usefulness_item_1..3, trust_item_1..4
     """
-    if not participants:
-        warning("No participants to export.")
-        return
-
     fieldnames = [
-        'participant_id', 'condition', 'manipulation_check', 'manipulation_check_failed'
+        'participant_id', 'condition', 'manipulation_check', 'manipulation_check_failed',
+        'attitude_item_1', 'attitude_item_2', 'attitude_item_3', 'attitude_item_4',
+        'attitude_item_5', 'attitude_item_6', 'attitude_item_7',
+        'usefulness_item_1', 'usefulness_item_2', 'usefulness_item_3',
+        'trust_item_1', 'trust_item_2', 'trust_item_3', 'trust_item_4'
     ]
-    # Add attitude items
-    for i in range(1, 8):
-        fieldnames.append(f'attitude_item_{i}')
-    # Add usefulness items
-    for i in range(1, 4):
-        fieldnames.append(f'usefulness_item_{i}')
-    # Add trust items
-    for i in range(1, 5):
-        fieldnames.append(f'trust_item_{i}')
-    # Optional: timestamp
-    fieldnames.append('timestamp')
 
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-
         for p in participants:
-            row = {
-                'participant_id': p.participant_id,
-                'condition': p.condition,
-                'manipulation_check': p.manipulation_check,
-                'manipulation_check_failed': str(p.manipulation_check_failed),
-                'timestamp': p.timestamp
-            }
-            
-            # Flatten lists into individual columns
-            for i, val in enumerate(p.attitude_items, 1):
-                row[f'attitude_item_{i}'] = val
-            for i, val in enumerate(p.usefulness_items, 1):
-                row[f'usefulness_item_{i}'] = val
-            for i, val in enumerate(p.trust_items, 1):
-                row[f'trust_item_{i}'] = val
+            row = asdict(p)
+            # Remove timestamp if not in fieldnames (it's not in the required list for T023)
+            # But asdict includes it. We can just let it be or filter.
+            # The spec says "with columns: ...", implying these are the required ones.
+            # We will write only the required columns to be precise.
+            filtered_row = {k: v for k, v in row.items() if k in fieldnames}
+            writer.writerow(filtered_row)
+    
+    log_data_operation("Export", f"Wrote {len(participants)} records to {output_path}")
 
-            writer.writerow(row)
-
-    log_data_operation("export_cleaned_data", f"Exported {len(participants)} participants to {output_path}")
-
-def run_data_collection(raw_path: Optional[Path] = None, output_path: Optional[Path] = None):
+def run_data_collection(input_path: Optional[str] = None, output_path: Optional[str] = None):
     """
-    Main entry point for data collection and cleaning.
+    Orchestrate the data collection pipeline.
     """
-    base = Path.cwd()
-    dirs = setup_directories(base)
-
-    # Default paths
-    if raw_path is None:
-        raw_path = dirs['raw'] / 'responses.csv'
-    if output_path is None:
-        output_path = dirs['processed'] / 'cleaned_responses.csv'
-
-    log_script_start("04_data_collection")
-    info(f"Input: {raw_path}, Output: {output_path}")
-
+    base_dir = Path(__file__).parent.parent
+    if not output_path:
+        output_path = str(base_dir / "data" / "processed" / "cleaned_responses.csv")
+    
+    log_script_start("04_data_collection", input_path, output_path)
+    
     try:
-        # Load
-        raw_data = load_raw_data(raw_path)
-        
-        # Clean
-        cleaned_participants = ingest_and_clean(raw_data)
-        
-        # Export
-        export_cleaned_data(cleaned_participants, output_path)
-        
-        info("Data collection and cleaning completed successfully.")
-        return cleaned_participants
-
-    except FileNotFoundError as e:
-        error(str(e))
-        sys.exit(1)
+        participants = ingest_and_clean(input_path)
+        export_cleaned_data(participants, output_path)
+        log_script_end("04_data_collection", "Success")
+        return participants
     except Exception as e:
-        error(f"Unexpected error during data collection: {e}")
+        error(f"Pipeline failed: {e}")
         raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Ingest and clean survey response data.")
-    parser.add_argument("--input", type=str, help="Path to raw input CSV")
+    parser = argparse.ArgumentParser(description="Ingest and clean survey data.")
+    parser.add_argument("--input", type=str, help="Path to raw CSV input file")
     parser.add_argument("--output", type=str, help="Path to output cleaned CSV")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     args = parser.parse_args()
 
-    raw_path = Path(args.input) if args.input else None
-    output_path = Path(args.output) if args.output else None
-
-    run_data_collection(raw_path, output_path)
+    set_global_seed(args.seed)
+    run_data_collection(args.input, args.output)
 
 if __name__ == "__main__":
     main()

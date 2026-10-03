@@ -1,0 +1,109 @@
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: required sample size of 300 for 80% power at effect size 0.4 and alpha
+    0.05
+  claim_id: c_5accdc29
+  context: T008 [US3] Implement code/00_power_analysis.py to perform prospective power
+    analysis (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05,
+    and enforce the N=300 target for recruitment planning (FR-009, SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculating required N for 80% power at d=0.4, alpha=0.05, and enforce
+    the N=300 target for recruitment planning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:18:47Z'
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: Flesch-Kincaid readability difference threshold of 2.0 points
+  claim_id: c_9be734ec
+  context: "T009 [P] [US1] Create test file tests/test_stimuli.py with test for readability\
+    \ check (Flesch-Kincaid diff \u2264 2.0)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test for readability check (Flesch-Kincaid diff \u2264 2.0)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:18:47Z'
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: VADER sentiment compound score difference threshold of 0.05
+  claim_id: c_11ccf48d
+  context: "T010 [P] [US1] Create test file tests/test_stimuli.py with test for sentiment\
+    \ check (VADER diff \u2264 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test for sentiment check (VADER diff \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:18:47Z'
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: pilot study sample size of at least 30
+  claim_id: c_6f275f82
+  context: "T024 [US2] Implement code/03_pilot_study.py to execute a pilot study (n\u2265\
+    30) and validate that the manipulation check question accurately discriminates\
+    \ between readers and non-readers (FR-011)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pilot_study_sample_size_of_at_least_30
+  kind: magnitude
+  raw_text: "execute a pilot study (n\u226530)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:19:42Z'
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: power analysis report flags insufficient power if sample size is less
+    than 300
+  claim_id: c_dfeb121d
+  context: T036 [US3] Implement power analysis (MDES) to calculate observed power
+    based on actual N collected, compare against target, and flag the report as 'insufficient
+    power' if N < 300 (FR-009, SC-002)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_report_flags_insufficient_power_if_sample_siz
+  kind: magnitude
+  raw_text: flag the report as 'insufficient power' if N < 300
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:20:36Z'
+- artifact_path: projects/PROJ-106-the-influence-of-narrative-framing-on-at/specs/001-the-influence-of-narrative-framing-on-at/tasks.md
+  attempts: 1
+  canonical: statistical analysis pipeline runtime under 30 minutes on multi-core
+    CPU-only runner
+  claim_id: c_2ff71eca
+  context: T038 [US3] Ensure all statistical computations use only CPU-based libraries
+    (scipy, statsmodels) and the entire pipeline completes in <30 minutes on a Multi-core
+    CPU-only runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: the entire pipeline completes in <30 minutes on a Multi-core CPU-only
+    runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:20:36Z'

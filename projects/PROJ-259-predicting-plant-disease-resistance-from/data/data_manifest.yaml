@@ -1,14 +1,10 @@
 source: SIMULATED
-timestamp: "2023-10-27 12:00:00"
-notes: "Initial manifest for synthetic data generation. Updated by T042 logic if real data is missing."
-datasets:
-  - modality: SNP
-    accession_ids:
-      - "SRP123456"
-      - "ERP000001"
-    source_type: "NCBI_SRA"
-  - modality: metabolite
-    accession_ids:
-      - "MTBLS1234"
-      - "MTBLS5678"
-    source_type: "MetaboLights"
+generation_timestamp: '2023-10-27 12:00:00'
+note: Fallback to synthetic data due to inability to fetch real data
+snp_accessions: []
+metabolite_accessions: []
+sample_count: 150
+modality_types:
+  - snp
+  - metabolite
+last_updated: '2023-10-27 12:00:00'
