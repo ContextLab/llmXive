@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any
 
 from utils import get_logger, ensure_directory
-from metrics import calculate_reduced_chi2
 
 # Define the representative set of chi2 thresholds as per SC-006
 CHI2_THRESHOLDS = [1.0, 1.25, 1.5, 1.75]
@@ -17,8 +16,10 @@ def load_fit_summary(csv_path: str) -> pd.DataFrame:
     Expects columns: ['galaxy_id', 'model', 'reduced_chi2', ...]
     """
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Fit summary file not found at {csv_path}. "
-                                "Run T025 (fitting) before running sensitivity analysis.")
+        raise FileNotFoundError(
+            f"Fit summary file not found at {csv_path}. "
+            "Run T025 (fitting) before running sensitivity analysis."
+        )
     
     df = pd.read_csv(csv_path)
     required_cols = ['galaxy_id', 'model', 'reduced_chi2']

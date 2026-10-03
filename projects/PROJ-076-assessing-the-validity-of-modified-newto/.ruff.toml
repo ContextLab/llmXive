@@ -1,10 +1,34 @@
-[lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "B008"]
-target-version = "py311"
+# Ruff configuration for PROJ-076
+# Implements T003a: Linting configuration
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-length = 88
+target-version = "py310"
+
+[lint]
+# Enable Pyflakes (`F`) and a subset of pycodestyle (`E`)
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "F403", "F405"]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few generated or third-party directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "data",
+    "results",
+    "state",
+    "build",
+    "dist",
+]
+
+[lint.per-file-ignores]
+# Tests can be more relaxed about some style rules
+"tests/*" = ["D100", "D103"]
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true

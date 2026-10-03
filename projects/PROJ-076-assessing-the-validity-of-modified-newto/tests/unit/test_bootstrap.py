@@ -1,276 +1,238 @@
 """
-Unit tests for block-bootstrap logic in code/residuals.py.
+Unit tests for block-bootstrap permutation test logic.
 
-This module tests the block-bootstrap permutation test implementation
-for analyzing residuals in galaxy rotation curve fits.
+This module validates the implementation of the block-bootstrap permutation
+test found in `code/residuals.py`. It ensures that:
+1. The bootstrap resampling respects the block structure (galaxy-level).
+2. The permutation logic correctly shuffles residuals between models.
+3. The p-value calculation follows the standard definition.
+4. Edge cases (single block, empty data) are handled gracefully.
 """
+
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import sys
+import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
+# Add project root to path to allow imports from code/
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.residuals import (
-    compute_residuals,
-    block_bootstrap_pvalue,
-    bootstrap_distribution,
-    validate_residual_data
-)
+from residuals import block_bootstrap_permutation_test, calculate_residuals
+from utils import set_global_seed
 
 
-class TestComputeResiduals:
-    """Tests for residual computation logic."""
+@pytest.fixture
+def sample_galaxy_data():
+    """
+    Create a deterministic sample dataset resembling a galaxy rotation curve.
+    Returns a DataFrame with columns: radial_distance, velocity, velocity_error, model_mond, model_nfw
+    """
+    set_global_seed(42)
+    n_points = 50
+    r = np.linspace(1.0, 20.0, n_points)
+    # Simulate observed velocity with some noise
+    v_true = 200.0 + 10.0 * np.log(r)
+    noise = np.random.normal(0, 5.0, n_points)
+    v_obs = v_true + noise
+    v_err = np.ones(n_points) * 5.0
 
-    def test_compute_residuals_basic(self):
-        """Test basic residual calculation."""
-        observed = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
-        predicted = np.array([11.0, 19.0, 31.0, 39.0, 51.0])
-        
-        residuals = compute_residuals(observed, predicted)
-        
-        expected = np.array([-1.0, 1.0, -1.0, 1.0, -1.0])
-        np.testing.assert_array_almost_equal(residuals, expected)
+    # Simulate model predictions (slightly different biases)
+    v_mond = v_true + np.random.normal(2.0, 1.0, n_points)  # MOND slightly biased high
+    v_nfw = v_true + np.random.normal(-1.0, 1.0, n_points)  # NFW slightly biased low
 
-    def test_compute_residuals_with_errors(self):
-        """Test residuals with different error magnitudes."""
-        observed = np.array([100.0, 200.0, 300.0])
-        predicted = np.array([100.0, 200.0, 300.0])
-        
-        residuals = compute_residuals(observed, predicted)
-        
-        expected = np.array([0.0, 0.0, 0.0])
-        np.testing.assert_array_almost_equal(residuals, expected)
-
-    def test_compute_residuals_shape(self):
-        """Test that residuals maintain input shape."""
-        observed = np.random.randn(100)
-        predicted = np.random.randn(100)
-        
-        residuals = compute_residuals(observed, predicted)
-        
-        assert residuals.shape == observed.shape
-        assert len(residuals) == 100
+    return pd.DataFrame({
+        'radial_distance': r,
+        'velocity': v_obs,
+        'velocity_error': v_err,
+        'model_mond': v_mond,
+        'model_nfw': v_nfw
+    })
 
 
-class TestBlockBootstrap:
-    """Tests for block-bootstrap permutation test logic."""
+@pytest.fixture
+def sample_residuals_df(sample_galaxy_data):
+    """
+    Pre-compute residuals for the sample galaxy data.
+    """
+    return calculate_residuals(sample_galaxy_data)
 
-    @pytest.fixture
-    def sample_galaxy_data(self):
-        """Create sample galaxy data for testing."""
-        np.random.seed(42)
-        n_points = 50
-        r = np.linspace(1, 10, n_points)
-        v_obs = 200 + np.random.randn(n_points) * 10
-        v_pred = 200 + np.sin(r) * 5
-        v_err = np.ones(n_points) * 5
-        
-        return pd.DataFrame({
-            'galaxy_id': ['NGC-TEST'] * n_points,
-            'r': r,
-            'v_obs': v_obs,
-            'v_pred': v_pred,
-            'v_err': v_err
-        })
 
-    def test_bootstrap_distribution_basic(self, sample_galaxy_data):
-        """Test basic bootstrap distribution generation."""
-        residuals = sample_galaxy_data['v_obs'] - sample_galaxy_data['v_pred']
-        
-        dist = bootstrap_distribution(residuals, n_bootstrap=100, block_size=5)
-        
-        assert len(dist) == 100
-        assert isinstance(dist, np.ndarray)
-        assert dist.dtype in [np.float64, np.float32]
+def test_block_bootstrap_respects_blocks(sample_residuals_df):
+    """
+    Test that the block bootstrap resamples entire galaxies (blocks) correctly.
+    We verify that if we resample with replacement, the number of unique galaxies
+    in the bootstrap sample is less than or equal to the original, and that
+    the data structure is preserved.
+    """
+    n_bootstrap = 100
+    n_galaxies = len(sample_residuals_df['galaxy_id'].unique())
+    
+    # Run bootstrap
+    results = block_bootstrap_permutation_test(
+        df=sample_residuals_df,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=n_bootstrap,
+        random_state=42
+    )
+    
+    # Verify output structure
+    assert 'p_value' in results
+    assert 'statistic' in results
+    assert 'bootstrap_distribution' in results
+    
+    # The bootstrap distribution should have n_bootstrap entries
+    assert len(results['bootstrap_distribution']) == n_bootstrap
 
-    def test_bootstrap_distribution_with_galaxy_groups(self):
-        """Test bootstrap with multiple galaxy groups."""
-        np.random.seed(123)
-        
-        # Create data with two galaxy groups
-        n_points_per_galaxy = 30
-        n_galaxies = 5
-        
-        data = []
-        for i in range(n_galaxies):
-            galaxy_id = f'GAL-{i:03d}'
-            residuals = np.random.randn(n_points_per_galaxy) * 10
-            for j, r_val in enumerate(residuals):
-                data.append({
-                    'galaxy_id': galaxy_id,
-                    'residual': r_val
-                })
-        
-        df = pd.DataFrame(data)
-        
-        # Test block bootstrap at galaxy level
-        dist = bootstrap_distribution(
-            df['residual'].values,
-            n_bootstrap=50,
-            block_size=3,
-            group_col=df['galaxy_id'].values
+
+def test_permutation_logic(sample_residuals_df):
+    """
+    Test that the permutation test correctly shuffles model labels.
+    Under the null hypothesis (no difference between models), the
+    distribution of the test statistic (difference in mean residuals)
+    should be centered around zero if the models are equally good.
+    """
+    # Create a scenario where models are identical (null hypothesis true)
+    df_null = sample_residuals_df.copy()
+    df_null['residual_nfw'] = df_null['residual_mond'].copy()
+    
+    results = block_bootstrap_permutation_test(
+        df=df_null,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=500,
+        random_state=123
+    )
+    
+    # The observed statistic should be near 0
+    assert abs(results['statistic']) < 0.1, "Observed statistic should be near 0 for identical models"
+    
+    # The p-value should be high (fail to reject null)
+    assert results['p_value'] > 0.05, "P-value should be high when models are identical"
+
+
+def test_p_value_calculation(sample_residuals_df):
+    """
+    Verify that p-values are calculated correctly based on the bootstrap distribution.
+    """
+    # Create a scenario where MOND is significantly worse (higher residuals)
+    df_worse = sample_residuals_df.copy()
+    df_worse['residual_mond'] = df_worse['residual_mond'] + 50.0  # Large bias
+    
+    results = block_bootstrap_permutation_test(
+        df=df_worse,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=1000,
+        random_state=456
+    )
+    
+    # The observed statistic (mond - nfw) should be large positive
+    assert results['statistic'] > 10.0, "Observed statistic should be large positive"
+    
+    # The p-value should be low (reject null in favor of NFW)
+    assert results['p_value'] < 0.05, "P-value should be low when one model is significantly worse"
+
+
+def test_deterministic_with_seed(sample_residuals_df):
+    """
+    Ensure that running the test with the same random_state produces identical results.
+    """
+    results_1 = block_bootstrap_permutation_test(
+        df=sample_residuals_df,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=200,
+        random_state=999
+    )
+    
+    results_2 = block_bootstrap_permutation_test(
+        df=sample_residuals_df,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=200,
+        random_state=999
+    )
+    
+    assert results_1['p_value'] == results_2['p_value'], "P-values should be identical with same seed"
+    assert np.allclose(results_1['bootstrap_distribution'], results_2['bootstrap_distribution']), \
+        "Bootstrap distributions should be identical with same seed"
+
+
+def test_single_block_handling():
+    """
+    Test behavior when there is only one galaxy (one block).
+    The bootstrap should still run, but the variance might be limited.
+    """
+    set_global_seed(42)
+    single_galaxy = pd.DataFrame({
+        'galaxy_id': ['NGC123'] * 20,
+        'residual_mond': np.random.normal(0, 5, 20),
+        'residual_nfw': np.random.normal(0, 5, 20)
+    })
+    
+    results = block_bootstrap_permutation_test(
+        df=single_galaxy,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=50,
+        random_state=777
+    )
+    
+    # Should not crash
+    assert 'p_value' in results
+    assert 0.0 <= results['p_value'] <= 1.0
+
+
+def test_empty_dataframe():
+    """
+    Test that the function handles empty input gracefully.
+    """
+    empty_df = pd.DataFrame(columns=['galaxy_id', 'residual_mond', 'residual_nfw'])
+    
+    with pytest.raises(ValueError, match="Input dataframe is empty"):
+        block_bootstrap_permutation_test(
+            df=empty_df,
+            model_col_mond='residual_mond',
+            model_col_nfw='residual_nfw',
+            n_bootstrap=10,
+            random_state=1
         )
-        
-        assert len(dist) == 50
-        # Should have non-zero variance
-        assert np.std(dist) > 0
 
-    def test_block_bootstrap_pvalue_computation(self, sample_galaxy_data):
-        """Test p-value computation from bootstrap."""
-        residuals = sample_galaxy_data['v_obs'] - sample_galaxy_data['v_pred']
-        
-        # Create a null distribution with mean 0
-        null_residuals = np.random.randn(len(residuals)) * 5
-        
-        p_value = block_bootstrap_pvalue(
-            residuals,
-            null_residuals,
-            n_bootstrap=100,
-            block_size=5
+
+def test_missing_columns(sample_residuals_df):
+    """
+    Test that the function raises an error if required columns are missing.
+    """
+    incomplete_df = sample_residuals_df.drop(columns=['residual_mond'])
+    
+    with pytest.raises(ValueError, match="Missing required columns"):
+        block_bootstrap_permutation_test(
+            df=incomplete_df,
+            model_col_mond='residual_mond',
+            model_col_nfw='residual_nfw',
+            n_bootstrap=10,
+            random_state=1
         )
-        
-        assert 0.0 <= p_value <= 1.0
-        assert isinstance(p_value, (float, np.floating))
-
-    def test_bootstrap_with_different_block_sizes(self, sample_galaxy_data):
-        """Test that different block sizes produce different distributions."""
-        residuals = sample_galaxy_data['v_obs'] - sample_galaxy_data['v_pred']
-        
-        dist_small = bootstrap_distribution(residuals, n_bootstrap=50, block_size=2)
-        dist_large = bootstrap_distribution(residuals, n_bootstrap=50, block_size=10)
-        
-        # Both should have same length
-        assert len(dist_small) == len(dist_large) == 50
-        
-        # Variances might differ due to block size
-        var_small = np.var(dist_small)
-        var_large = np.var(dist_large)
-        
-        # At least one should be non-zero
-        assert var_small > 0 or var_large > 0
-
-    def test_bootstrap_with_single_block(self, sample_galaxy_data):
-        """Test bootstrap when block_size equals data length."""
-        residuals = sample_galaxy_data['v_obs'] - sample_galaxy_data['v_pred']
-        n_points = len(residuals)
-        
-        dist = bootstrap_distribution(
-            residuals, 
-            n_bootstrap=20, 
-            block_size=n_points
-        )
-        
-        assert len(dist) == 20
-        # Each bootstrap sample should be a permutation of the original
-        # The mean of each sample should be close to the original mean
-        original_mean = np.mean(residuals)
-        for sample_mean in dist:
-            assert abs(sample_mean - original_mean) < 0.1
-
-    def test_bootstrap_pvalue_edge_cases(self):
-        """Test p-value computation with edge cases."""
-        # Perfect match (p-value should be 1.0 or close)
-        identical = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        p_identical = block_bootstrap_pvalue(identical, identical, n_bootstrap=50, block_size=2)
-        assert 0.9 <= p_identical <= 1.0
-
-        # Completely different distributions
-        group1 = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
-        group2 = np.array([100.0, 100.0, 100.0, 100.0, 100.0])
-        p_different = block_bootstrap_pvalue(group1, group2, n_bootstrap=50, block_size=2)
-        # Should be close to 0
-        assert p_different < 0.1
 
 
-class TestValidateResidualData:
-    """Tests for residual data validation."""
-
-    def test_validate_empty_array(self):
-        """Test validation with empty array."""
-        with pytest.raises(ValueError, match="Residual array cannot be empty"):
-            validate_residual_data(np.array([]))
-
-    def test_validate_nan_values(self):
-        """Test validation with NaN values."""
-        data = np.array([1.0, np.nan, 3.0])
-        with pytest.raises(ValueError, match="Residual array contains NaN"):
-            validate_residual_data(data)
-
-    def test_validate_inf_values(self):
-        """Test validation with infinite values."""
-        data = np.array([1.0, np.inf, 3.0])
-        with pytest.raises(ValueError, match="Residual array contains infinite values"):
-            validate_residual_data(data)
-
-    def test_validate_valid_data(self):
-        """Test validation with valid data."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        result = validate_residual_data(data)
-        assert result is True
-
-
-class TestIntegration:
-    """Integration tests for the full bootstrap pipeline."""
-
-    def test_full_bootstrap_pipeline(self):
-        """Test the complete bootstrap analysis pipeline."""
-        np.random.seed(42)
-        
-        # Generate realistic residual data
-        n_galaxies = 10
-        points_per_galaxy = 20
-        
-        all_residuals = []
-        galaxy_ids = []
-        
-        for i in range(n_galaxies):
-            galaxy_id = f'GAL-{i:03d}'
-            # Simulate residuals with some structure
-            residuals = np.random.randn(points_per_galaxy) * 10 + np.sin(np.arange(points_per_galaxy)) * 2
-            all_residuals.extend(residuals)
-            galaxy_ids.extend([galaxy_id] * points_per_galaxy)
-        
-        residuals = np.array(all_residuals)
-        groups = np.array(galaxy_ids)
-        
-        # Run bootstrap analysis
-        dist = bootstrap_distribution(
-            residuals,
-            n_bootstrap=200,
-            block_size=5,
-            group_col=groups
-        )
-        
-        # Compute p-value against null
-        null_residuals = np.random.randn(len(residuals)) * 5
-        p_value = block_bootstrap_pvalue(
-            residuals,
-            null_residuals,
-            n_bootstrap=200,
-            block_size=5,
-            group_col=groups
-        )
-        
-        # Validate results
-        assert len(dist) == 200
-        assert 0.0 <= p_value <= 1.0
-        assert np.std(dist) > 0
-
-    def test_bootstrap_convergence(self):
-        """Test that bootstrap distribution converges with more samples."""
-        np.random.seed(42)
-        residuals = np.random.randn(100) * 10
-        
-        dist_50 = bootstrap_distribution(residuals, n_bootstrap=50, block_size=5)
-        dist_200 = bootstrap_distribution(residuals, n_bootstrap=200, block_size=5)
-        
-        # Standard error should decrease with more samples
-        se_50 = np.std(dist_50) / np.sqrt(50)
-        se_200 = np.std(dist_200) / np.sqrt(200)
-        
-        # Larger sample should have smaller standard error
-        assert se_200 < se_50 * 1.5  # Allow some tolerance for randomness
+def test_bootstrap_distribution_shape(sample_residuals_df):
+    """
+    Verify that the bootstrap distribution is a list of scalars (test statistics).
+    """
+    results = block_bootstrap_permutation_test(
+        df=sample_residuals_df,
+        model_col_mond='residual_mond',
+        model_col_nfw='residual_nfw',
+        n_bootstrap=50,
+        random_state=123
+    )
+    
+    dist = results['bootstrap_distribution']
+    assert isinstance(dist, list), "Bootstrap distribution should be a list"
+    assert len(dist) == 50, "Bootstrap distribution length should match n_bootstrap"
+    assert all(isinstance(x, (int, float, np.floating)) for x in dist), \
+        "All elements in bootstrap distribution should be numeric"

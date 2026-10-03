@@ -98,7 +98,7 @@ As a researcher, I want to analyze residual distributions between observed and p
 - **SC-003**: AIC difference between MOND and NFW models is measured against the evidence threshold of |ΔAIC| > 10 for strong preference (See US-2)
 - **SC-004**: Block-bootstrap permutation test p-values are measured against α = 0.05 to assess residual distribution differences (See US-3)
 - **SC-005**: Multiple-comparison corrected p-values are measured against the family-wise error rate of ≤0.05 (See US-3)
-- **SC-006**: Sensitivity analysis sweep results are measured across the threshold set ∈ {1.0, 1.25, 1.5, 1.75} to quantify threshold dependence (See US-2)
+- **SC-006**: Sensitivity analysis sweep results are measured across the threshold set ∈ {, 1.25, 1.5, 1.75} to quantify threshold dependence (See US-2)
 
 ## Assumptions
 

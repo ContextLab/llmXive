@@ -1,16 +1,16 @@
 """
-Unit tests for metrics.py (T024).
+Unit tests for the metrics calculator.
 
 Tests for reduced chi-squared, AIC, and BIC calculations.
 """
 
 import numpy as np
 import pytest
-import math
-
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from metrics import (
     calculate_reduced_chi2,
@@ -21,131 +21,141 @@ from metrics import (
 
 
 class TestCalculateReducedChi2:
-    def test_perfect_fit(self):
-        """Perfect fit should yield reduced chi2 = 1.0."""
+    def test_basic_calculation(self):
+        """Test basic reduced chi2 calculation."""
         residuals = np.array([0.0, 0.0, 0.0])
         uncertainties = np.array([1.0, 1.0, 1.0])
-        n_dof = 3  # 3 points, 0 params for this specific test function
+        dof = 3 - 0  # 3 points, 0 params (just for testing)
 
-        result = calculate_reduced_chi2(residuals, uncertainties, n_dof)
-        assert math.isclose(result, 0.0, abs_tol=1e-6)
+        result = calculate_reduced_chi2(residuals, uncertainties, dof)
+        assert result == 0.0
 
-    def test_good_fit(self):
-        """Residuals equal to uncertainty should yield reduced chi2 = 1.0."""
+    def test_non_zero_residuals(self):
+        """Test with non-zero residuals."""
         residuals = np.array([1.0, 1.0, 1.0])
         uncertainties = np.array([1.0, 1.0, 1.0])
-        n_dof = 3
+        dof = 3
 
-        result = calculate_reduced_chi2(residuals, uncertainties, n_dof)
-        # chi2 = 1+1+1 = 3. reduced = 3/3 = 1.0
-        assert math.isclose(result, 1.0, abs_tol=1e-6)
+        result = calculate_reduced_chi2(residuals, uncertainties, dof)
+        expected = 1.0  # sum(1^2/1^2) / 3 = 3/3 = 1
+        assert np.isclose(result, expected)
 
-    def test_bad_fit(self):
-        """Large residuals should yield reduced chi2 > 1.0."""
-        residuals = np.array([2.0, 2.0, 2.0])
-        uncertainties = np.array([1.0, 1.0, 1.0])
-        n_dof = 3
+    def test_zero_uncertainty_handling(self):
+        """Test that zero uncertainty is handled (replaced with epsilon)."""
+        residuals = np.array([1.0])
+        uncertainties = np.array([0.0])
+        dof = 1
 
-        result = calculate_reduced_chi2(residuals, uncertainties, n_dof)
-        # chi2 = 4+4+4 = 12. reduced = 12/3 = 4.0
-        assert math.isclose(result, 4.0, abs_tol=1e-6)
+        result = calculate_reduced_chi2(residuals, uncertainties, dof)
+        # Should not crash, should use epsilon
+        assert np.isfinite(result)
 
-    def test_zero_dof_raises_warning(self):
-        """Zero degrees of freedom should return inf."""
+    def test_invalid_dof(self):
+        """Test that invalid degrees of freedom returns infinity."""
         residuals = np.array([1.0])
         uncertainties = np.array([1.0])
-        n_dof = 0
+        dof = 0
 
-        result = calculate_reduced_chi2(residuals, uncertainties, n_dof)
+        result = calculate_reduced_chi2(residuals, uncertainties, dof)
         assert result == float('inf')
 
-    def test_mismatched_lengths_raises(self):
-        """Mismatched lengths should raise ValueError."""
+    def test_mismatched_lengths(self):
+        """Test that mismatched lengths raise an error."""
         residuals = np.array([1.0, 2.0])
         uncertainties = np.array([1.0])
-        n_dof = 1
+        dof = 1
 
         with pytest.raises(ValueError):
-            calculate_reduced_chi2(residuals, uncertainties, n_dof)
+            calculate_reduced_chi2(residuals, uncertainties, dof)
 
 
 class TestCalculateAic:
     def test_basic_calculation(self):
-        """AIC = 2k + chi2."""
+        """Test basic AIC calculation."""
         chi2 = 10.0
         k = 2
-        expected = 2 * 2 + 10.0  # 14.0
-        assert math.isclose(calculate_aic(chi2, k), expected)
 
-    def test_zero_params(self):
-        """Zero params should trigger warning and default to k=1."""
+        result = calculate_aic(chi2, k)
+        expected = 2 * 2 + 10.0  # 4 + 10 = 14
+        assert result == expected
+
+    def test_zero_k_handling(self):
+        """Test that zero k is handled (replaced with 1)."""
         chi2 = 10.0
         k = 0
+
         result = calculate_aic(chi2, k)
-        # Should use k=1 internally
-        assert math.isclose(result, 2 * 1 + 10.0)
+        expected = 2 * 1 + 10.0  # 2 + 10 = 12
+        assert result == expected
 
 
 class TestCalculateBic:
     def test_basic_calculation(self):
-        """BIC = k*ln(n) + chi2."""
+        """Test basic BIC calculation."""
         chi2 = 10.0
         k = 2
-        n = 10
-        expected = 2 * np.log(10) + 10.0
+        n = 100
+
         result = calculate_bic(chi2, k, n)
-        assert math.isclose(result, expected)
+        # BIC = k * ln(n) + chi2 = 2 * ln(100) + 10
+        expected = 2 * np.log(100) + 10.0
+        assert np.isclose(result, expected)
 
-    def test_large_n(self):
-        """BIC penalizes more for larger n."""
+    def test_zero_k_handling(self):
+        """Test that zero k is handled (replaced with 1)."""
         chi2 = 10.0
-        k = 2
-        n_small = 10
-        n_large = 100
+        k = 0
+        n = 100
 
-        bic_small = calculate_bic(chi2, k, n_small)
-        bic_large = calculate_bic(chi2, k, n_large)
-
-        assert bic_large > bic_small
+        result = calculate_bic(chi2, k, n)
+        expected = 1 * np.log(100) + 10.0
+        assert np.isclose(result, expected)
 
     def test_invalid_n(self):
-        """Negative or zero n should raise ValueError."""
+        """Test that invalid n raises an error."""
+        chi2 = 10.0
+        k = 2
+        n = 0
+
         with pytest.raises(ValueError):
-            calculate_bic(10.0, 2, 0)
+            calculate_bic(chi2, k, n)
 
 
 class TestComputeFitMetrics:
     def test_full_metrics(self):
-        """Test full metric calculation."""
+        """Test full metrics computation."""
         residuals = np.array([1.0, 1.0, 1.0, 1.0])
         uncertainties = np.array([1.0, 1.0, 1.0, 1.0])
         n_params = 2
 
-        metrics = compute_fit_metrics(residuals, uncertainties, n_params)
+        result = compute_fit_metrics(residuals, uncertainties, n_params)
 
-        assert 'reduced_chi2' in metrics
-        assert 'chi2' in metrics
-        assert 'aic' in metrics
-        assert 'bic' in metrics
-        assert 'n_dof' in metrics
-        assert 'n_points' in metrics
+        assert 'reduced_chi2' in result
+        assert 'chi2' in result
+        assert 'aic' in result
+        assert 'bic' in result
+        assert 'n_dof' in result
+        assert 'n_points' in result
 
-        # chi2 = 4
-        # n_dof = 4 - 2 = 2
-        # reduced_chi2 = 2.0
-        assert math.isclose(metrics['chi2'], 4.0)
-        assert math.isclose(metrics['reduced_chi2'], 2.0)
-        assert metrics['n_dof'] == 2
+        # Check values
+        # chi2 = sum(1^2/1^2) = 4
+        # dof = 4 - 2 = 2
+        # reduced_chi2 = 4/2 = 2
+        assert np.isclose(result['chi2'], 4.0)
+        assert result['n_dof'] == 2
+        assert np.isclose(result['reduced_chi2'], 2.0)
 
-    def test_nan_on_invalid_dof(self):
-        """Should return NaNs if dof <= 0."""
+    def test_invalid_dof(self):
+        """Test behavior when dof <= 0."""
         residuals = np.array([1.0, 1.0])
         uncertainties = np.array([1.0, 1.0])
-        n_params = 3  # n_dof = 2 - 3 = -1
+        n_params = 5  # More params than points
 
-        metrics = compute_fit_metrics(residuals, uncertainties, n_params)
+        result = compute_fit_metrics(residuals, uncertainties, n_params)
 
-        assert math.isnan(metrics['reduced_chi2'])
-        assert math.isnan(metrics['aic'])
-        assert math.isnan(metrics['bic'])
-        assert metrics['n_dof'] == -1
+        assert np.isnan(result['reduced_chi2'])
+        assert np.isnan(result['chi2'])
+        assert np.isnan(result['aic'])
+        assert np.isnan(result['bic'])
+        assert result['n_dof'] == -3  # 2 - 5
+        assert result['n_points'] == 2

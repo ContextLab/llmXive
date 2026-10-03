@@ -1,8 +1,17 @@
-scipy
-numpy
-pandas
-requests
-pyyaml
-pytest
-ruff
-black
+# Core dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+pyyaml>=6.0
+requests>=2.25.0
+
+# Testing
+pytest>=6.2.0
+pytest-cov>=2.12.0
+
+# Code quality
+ruff>=0.1.0
+black>=22.0.0
+
+# Utilities
+tqdm>=4.62.0

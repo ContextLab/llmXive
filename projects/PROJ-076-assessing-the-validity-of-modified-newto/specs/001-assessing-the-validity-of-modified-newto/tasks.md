@@ -43,9 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`, `state/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, requests, pyyaml, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/`, `state/`
+- [ ] T001b [P] Create `code/models/`, `code/utils/`, `code/simulations/` subdirectories
+- [X] T003a [P] Initialize `pyproject.toml` or `ruff.toml` with linting configuration (ruff/flake8)
+- [X] T003b [P] Initialize `.black` or `pyproject.toml` formatting configuration (black)
 
 ---
 
@@ -55,11 +56,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement data schema validators in `tests/contract/test_schemas.py` matching `contracts/dataset.schema.yaml`
+- [ ] T004a [P] Generate `contracts/dataset.schema.yaml` defining the schema for parsed galaxy data (FR-002, FR-003)
+- [ ] T004b [P] Generate `contracts/fit_results.schema.yaml` defining the schema for model fit outputs (FR-007, FR-009)
+- [ ] T004d Implement data schema validators in `tests/contract/test_schemas.py` matching the generated contracts (Depends on T004a AND T004b completion - removed [P] tag)
 - [X] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
 - [X] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
-- [X] T007 Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
-- [X] T008 Create logging infrastructure in `code/utils.py` to track pipeline stages
+- [X] T007 [P] Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
+- [X] T008 [P] Create logging infrastructure in `code/utils.py` to track pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,11 +81,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism in `code/download.py` (FR-001)
-- [X] T016 [US1] Implement validation in `code/download.py` to ensure no synthetic/fake data is used; verify real URLs (SPARC) immediately after download before any processing (FR-001, Data Hygiene)
-- [X] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty (FR-002)
-- [X] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points (FR-003)
-- [X] T015 [US1] Create `data/processed/filtered_galaxies.csv` and `data/metadata.yaml` with download timestamp/version
+**⚠️ CRITICAL SEQUENCE**: T012 -> T016 -> T013 -> T014 -> T015. Do NOT run in parallel.
+
+- [ ] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism (a limited number of attempts) in `code/download.py` (FR-001)
+- [ ] T016 [US1] Implement checksum verification and metadata logging for downloaded SPARC data in `data/metadata.yaml` per Constitution Principle III (Data Hygiene). **Dependency**: T012 must complete first. (FR-001, Constitution Principle III)
+- [ ] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty. **Dependency**: T016 must complete first (requires verified data). (FR-002)
+- [ ] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points. **Dependency**: T013 must complete first. (FR-003)
+- [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and update `data/metadata.yaml` with download timestamp/version. **Dependency**: T014 must complete first.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,12 +108,12 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
-- [X] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α, where α is a negative scaling exponent. (Plan Summary; Note: FR-005 spec typo flagged for correction) (FR-005)
-- [X] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting (FR-006)
-- [X] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
-- [ ] T025 [US2] Generate `results/fit_summary.csv` with all metrics per galaxy-model
-- [ ] T026 [US2] Implement sensitivity analysis in `code/sensitivity.py` sweeping χ² thresholds across the set of representative values and output `results/sensitivity_data.csv` (FR-012, SC-006)
-- [ ] T035 [US2] Generate `results/sensitivity_report.md` with visualizations comparing pass rates for thresholds across a range of values and summary text (FR-012, SC-006)
+- [ ] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α (α=0.24, std=0.1 dex) and scale radius as free parameter. **Note**: Implements specific prior per FR-005 to ensure executability. (FR-005)
+- [ ] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting. **Dependency**: T021 AND T022 must complete. (FR-006)
+- [ ] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
+- [ ] T025 [US2] Generate `results/fit_summary.csv` with all metrics per galaxy-model. **Dependency**: T023 and T024 must complete.
+- [ ] T026 [US2] Implement sensitivity analysis in `code/sensitivity.py` sweeping χ² thresholds across a range of representative values and output `results/sensitivity_data.csv`. **Dependency**: T025 must complete. (FR-012, SC-006)
+- [ ] T035 [US2] Generate `results/sensitivity_summary.txt` with a text-based summary of the sensitivity sweep results (pass rates per threshold) derived from `results/sensitivity_data.csv`. **Dependency**: T026 must complete. (FR-012, SC-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,6 +125,8 @@
 
 **Independent Test**: Run residual analysis; verify block-bootstrap p-values and corrected p-values are produced and compared to alpha thresholds.
 
+**⚠️ PLAN CONFLICT NOTE**: The plan.md 'Complexity Tracking' section states 'permutation test [was] rejected', but spec.md FR-009 MANDATES 'block-bootstrap permutation test'. This task implements the SPEC requirement. The plan.md MUST be updated to reflect this decision in the next revision cycle.
+
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028 [P] [US3] Unit test for residual calculation in `tests/unit/test_residuals.py`
@@ -128,11 +135,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
-- [X] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level (FR-009, US3)
-- [X] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests (FR-010)
-- [ ] T034 [US3] Generate `results/residual_stats.csv` with mean, median, std, p-values per model
-- [ ] T036 [US3] Generate `results/analysis_verdict.md` comparing calculated p-values against alpha=0.05 thresholds (SC-004, SC-005)
+- [ ] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
+- [ ] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level. **Note**: Implements spec FR-009 requirement despite plan.md rejection. (FR-009, US3)
+- [ ] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests. **Dependency**: T032 must complete. (FR-010)
+- [ ] T034 [US3] Generate `results/residual_stats.csv` with mean, median, std, p-values per model. **Dependency**: T031, T032, T033 must complete.
+- [ ] T036 [US3] Generate `results/analysis_verdict.md` by reading `results/residual_stats.csv` (T034 output) and applying the following logic: If p < 0.05, output "MOND preferred"; else if p > 0.95, output "NFW preferred"; else output "No significant difference". **Dependency**: T034 must complete. (SC-004, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,11 +149,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` (including the associational framing in paper text per FR-011)
-- [X] T038 Code cleanup and refactoring of `code/models/` and `code/residuals.py`
-- [ ] T039 Performance optimization: ensure fitting loop <30s/galaxy (memory profiling)
-- [ ] T040 [P] Additional unit tests in `tests/unit/` covering edge cases (malformed files, convergence failures)
-- [ ] T041 Run `quickstart.md` validation and verify all checksums
+- [ ] T049 [P] Documentation updates in `docs/` (including the associational framing in paper text per FR-011)
+- [ ] T050 Code cleanup and refactoring of `code/models/`, `code/residuals.py`
+- [ ] T051 Performance optimization: ensure fitting loop <30s/galaxy (memory profiling)
+- [ ] T052 [P] Additional unit tests in `tests/unit/` covering edge cases (malformed files, convergence failures)
+- [ ] T053 Run `quickstart.md` validation and verify all checksums
 
 ---
 
@@ -166,7 +173,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires data from US1
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires fit results from US2
-- **Sensitivity Analysis (T035)**: Moved to Phase 4 as it depends on fit results (US2), not residuals (US3)
+- **Polish (Phase N)**: Depends on all desired user stories and revisions being complete
 
 ### Within Each User Story
 
@@ -174,6 +181,16 @@
 - Models before services
 - Core implementation before integration
 - Story complete before moving to next priority
+
+### Specific Task Dependencies
+
+- **T004d**: Depends on T004a AND T004b completion.
+- **T012 -> T016 -> T013 -> T014 -> T015**: Strict sequential order in Phase 3.
+- **T023**: Depends on T021 AND T022 completion.
+- **T025**: Depends on T023 AND T024 completion.
+- **T026**: Depends on T025 completion.
+- **T035**: Depends on T026 completion.
+- **T034, T036**: Depend on T031, T032, T033 completion.
 
 ### Parallel Opportunities
 
@@ -191,7 +208,7 @@
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+3. Complete Phase 3: User Story 1 (Strictly sequential T012->T016->T013->T014->T015)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -209,7 +226,7 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Data)
+ - Developer A: User Story 1 (Data - Sequential)
  - Developer B: User Story 2 (Fitting + Sensitivity)
  - Developer C: User Story 3 (Statistics + Verdict)
 3. Stories complete and integrate independently
@@ -224,13 +241,15 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Correction**: Phase 6 removed to eliminate unapproved scope creep.
-- **Correction**: Sensitivity analysis (T035) moved to Phase 4 to align with data dependencies.
-- **Correction**: Task T027 removed to prevent data hygiene violation (no CSV disclaimers).
-- **Correction**: Task T036 added to explicitly verify Success Criteria via alpha threshold comparison.
-- **Correction**: Task T016 reordered to run before filtering to ensure data integrity.
-- **Correction**: Removed T042-T045 (Rule Runner) to eliminate unapproved scope and synthetic data generation.
-- **Correction**: Updated T026/T035 to explicitly enforce {1.0, 1.25, 1.5, 1.75} thresholds from SC-006.
-- **Correction**: Updated T021 to include M/L parameter as per plan summary.
-- **Flagged**: Spec FR-005 typo ($c \sim M_{baryon}^{()}$) vs Plan ($c \sim M_{baryon}^{\text{negative}}$); Task implements Plan.
-- **Flagged**: Plan Complexity Tracking rejects permutation test vs Spec FR-009 mandates it; Task implements Spec.
+- **Correction**: Phase 6 (Hypergraph Simulation) REMOVED due to unapproved scope creep (not in spec.md).
+- **Correction**: T035 replaced (plot removed) with text summary to comply with SC-006.
+- **Correction**: T016 updated to explicitly mandate checksums and metadata logging per Constitution Principle III (Data Hygiene) and placed BEFORE parsing.
+- **Correction**: T004a, T004b split into two tasks for atomic execution.
+- **Correction**: T013 updated to explicitly require verified data from T016 (removed [P] tag).
+- **Correction**: T022 updated to specify α=0.24 and std=0.1 dex to satisfy FR-005 executability.
+- **Correction**: T026 updated to specify exact threshold set {, 1.25, 1.5, 1.75} and removed [P] tag.
+- **Correction**: T036 updated to explicitly name output file and input source, and removed [P] tag.
+- **Correction**: T025 status changed to '[ ]' (not started) to resolve 'Pending' ambiguity.
+- **Correction**: T032 updated to implement 'block-bootstrap permutation test' per spec FR-009, overriding plan.md.
+- **Correction**: T004d [P] tag removed to reflect dependency on T004a/T004b.
+- **Correction**: Phase 3 tasks reordered to enforce T012 -> T016 -> T013 -> T014 -> T015 sequence.

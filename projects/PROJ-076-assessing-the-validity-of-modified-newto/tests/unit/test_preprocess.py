@@ -1,8 +1,10 @@
 """
-Unit tests for the rotation curve parser.
+Unit tests for the rotation curve parser and inclination filter logic.
 
 These tests verify the parsing logic for SPARC data files,
 ensuring correct extraction of radial distance, velocity, and uncertainty.
+Additionally, they test the inclination filter logic to ensure galaxies
+with inclination uncertainty >= 10° or fewer than 15 data points are excluded.
 """
 import pytest
 import pandas as pd
@@ -12,7 +14,7 @@ import tempfile
 import os
 
 # Import the module under test
-from preprocess import parse_sparc_file, parse_galaxy_directory, extract_rotation_curves
+from preprocess import parse_sparc_file, parse_galaxy_directory, extract_rotation_curves, apply_quality_filters
 
 @pytest.fixture
 def sample_sparc_file(tmp_path):
@@ -151,7 +153,7 @@ def test_parse_galaxy_directory(tmp_path):
 
 def test_extract_rotation_curves(tmp_path):
     """Test the main extraction function."""
-    # Setup directory structure
+    # Setup directory structures
     data_dir = tmp_path / "data"
     sparc_dir = data_dir / "raw"
     output_dir = tmp_path / "output"
@@ -183,3 +185,129 @@ def test_extract_rotation_curves(tmp_path):
     assert 'radius' in output_df.columns
     assert 'velocity' in output_df.columns
     assert 'uncertainty' in output_df.columns
+
+# --- Tests for T011: Inclination Filter Logic ---
+
+def test_apply_quality_filters_inclination_threshold():
+    """Test that galaxies with inclination uncertainty >= 10% are filtered out."""
+    # Create a DataFrame simulating parsed galaxy data with inclination info
+    # Columns typically include: radius, velocity, uncertainty, inclination, inclination_err
+    data = {
+        'radius': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],
+        'velocity': [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0],
+        'uncertainty': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9],
+        'inclination': [45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0],
+        'inclination_err': [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0] # All < 10, should pass
+    }
+    df_good = pd.DataFrame(data)
+    
+    # Create a second galaxy with high inclination error (>= 10%)
+    data_bad_incl = {
+        'radius': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],
+        'velocity': [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0],
+        'uncertainty': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9],
+        'inclination': [45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0],
+        'inclination_err': [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0] # Exactly 10, should fail
+    }
+    df_bad_incl = pd.DataFrame(data_bad_incl)
+
+    # Combine into a single DataFrame with a galaxy identifier
+    df_good['galaxy_id'] = 'galaxy_good'
+    df_bad_incl['galaxy_id'] = 'galaxy_bad'
+    
+    df_combined = pd.concat([df_good, df_bad_incl], ignore_index=True)
+    
+    # Apply filters
+    filtered_df = apply_quality_filters(df_combined)
+    
+    # Verify results
+    assert len(filtered_df) == 15  # Only the good galaxy should remain
+    assert all(filtered_df['galaxy_id'] == 'galaxy_good')
+
+def test_apply_quality_filters_min_points():
+    """Test that galaxies with fewer than 15 data points are filtered out."""
+    # Create a DataFrame with exactly 15 points (should pass)
+    data_15 = {
+        'radius': list(range(1, 16)),
+        'velocity': list(range(10, 160, 10)),
+        'uncertainty': [0.5] * 15,
+        'inclination': [45.0] * 15,
+        'inclination_err': [5.0] * 15,
+        'galaxy_id': ['galaxy_15'] * 15
+    }
+    df_15 = pd.DataFrame(data_15)
+    
+    # Create a DataFrame with 14 points (should fail)
+    data_14 = {
+        'radius': list(range(1, 15)),
+        'velocity': list(range(10, 150, 10)),
+        'uncertainty': [0.5] * 14,
+        'inclination': [45.0] * 14,
+        'inclination_err': [5.0] * 14,
+        'galaxy_id': ['galaxy_14'] * 14
+    }
+    df_14 = pd.DataFrame(data_14)
+    
+    df_combined = pd.concat([df_15, df_14], ignore_index=True)
+    
+    # Apply filters
+    filtered_df = apply_quality_filters(df_combined)
+    
+    # Verify results
+    assert len(filtered_df) == 15  # Only the 15-point galaxy should remain
+    assert all(filtered_df['galaxy_id'] == 'galaxy_15')
+
+def test_apply_quality_filters_combined_criteria():
+    """Test filtering with both inclination and point count criteria."""
+    # Galaxy A: Good points, Good inclination (Pass)
+    data_a = {
+        'radius': list(range(1, 20)),
+        'velocity': list(range(10, 200, 10)),
+        'uncertainty': [0.5] * 19,
+        'inclination': [45.0] * 19,
+        'inclination_err': [5.0] * 19,
+        'galaxy_id': ['galaxy_A'] * 19
+    }
+    df_a = pd.DataFrame(data_a)
+    
+    # Galaxy B: Good points, Bad inclination (Fail)
+    data_b = {
+        'radius': list(range(1, 20)),
+        'velocity': list(range(10, 200, 10)),
+        'uncertainty': [0.5] * 19,
+        'inclination': [45.0] * 19,
+        'inclination_err': [12.0] * 19,
+        'galaxy_id': ['galaxy_B'] * 19
+    }
+    df_b = pd.DataFrame(data_b)
+    
+    # Galaxy C: Bad points, Good inclination (Fail)
+    data_c = {
+        'radius': list(range(1, 10)),
+        'velocity': list(range(10, 100, 10)),
+        'uncertainty': [0.5] * 9,
+        'inclination': [45.0] * 9,
+        'inclination_err': [5.0] * 9,
+        'galaxy_id': ['galaxy_C'] * 9
+    }
+    df_c = pd.DataFrame(data_c)
+    
+    # Galaxy D: Bad points, Bad inclination (Fail)
+    data_d = {
+        'radius': list(range(1, 10)),
+        'velocity': list(range(10, 100, 10)),
+        'uncertainty': [0.5] * 9,
+        'inclination': [45.0] * 9,
+        'inclination_err': [15.0] * 9,
+        'galaxy_id': ['galaxy_D'] * 9
+    }
+    df_d = pd.DataFrame(data_d)
+    
+    df_combined = pd.concat([df_a, df_b, df_c, df_d], ignore_index=True)
+    
+    # Apply filters
+    filtered_df = apply_quality_filters(df_combined)
+    
+    # Verify results: Only Galaxy A should remain
+    assert len(filtered_df) == 19
+    assert all(filtered_df['galaxy_id'] == 'galaxy_A')

@@ -1,10 +1,23 @@
-T026:
+T001a:
   c: false
-  h: e47f0bbe341daa8f92544f0de5ab2ea0627966bcd710c26ea914679b507f1f3a
-  r: The required output file `results/sensitivity_data.csv` does not exist, so the
-    sensitivity analysis result is not produced. Additionally, the provided `code/sensitivity.py`
-    is truncated and may not fully implement the described functionality. The missing
-    CSV must be generated for the task to be considered complete.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listing showing the required folders (`code/`, `data/raw/`,
+    `data/processed/`, `results/`, `tests/`, `state/`) was provided; without concrete
+    evidence the requested project structure cannot be confirmed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required subdirectories `code/models/`, `code/utils/`,\
+    \ and `code/simulations/` actually exist in the repository; the response contains\
+    \ only the task description and no file\u2011system listing or screenshots confirming\
+    \ their creation. The implementer must add the directories (with at least placeholder\
+    \ files) and show proof they are present."
+T003a:
+  c: false
+  h: 4a226e1c0a9cbffd5fd5a7766956217f2bbd69bdc6d31687e1de47f48c991b66
+  r: The provided `pyproject.toml` lacks any `[tool.ruff]` (or flake8) configuration
+    sections, and the required `ruff.toml` file is missing entirely, so no linting
+    configuration has been initialized as the task demands.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

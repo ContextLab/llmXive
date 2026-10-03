@@ -1,3 +1,4 @@
 """
-State package for pipeline execution state.
+State storage for pipeline runs.
 """
+pass

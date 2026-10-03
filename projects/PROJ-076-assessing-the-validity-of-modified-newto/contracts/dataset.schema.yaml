@@ -1,28 +1,68 @@
-required_columns:
-  - galaxy_name
-  - radial_distance
-  - velocity
-  - uncertainty
-  - inclination
-
-column_types:
-  galaxy_name: str
-  radial_distance: float
-  velocity: float
-  uncertainty: float
-  inclination: float
-
-constraints:
-  radial_distance:
-    min: 0.0
-  velocity:
-    min: 0.0
-  uncertainty:
-    min: 0.0
-  inclination:
-    min: 0.0
-    max: 90.0
-
+%YAML 1.2
+---
+title: Galaxy Rotation Curve Dataset Schema
 description: |
-  Schema for galaxy rotation curve data.
-  Used to validate the output of the preprocessing pipeline.
+  Schema for parsed and filtered galaxy rotation curve data derived from SPARC.
+  Used to validate the structure of data loaded into the analysis pipeline.
+type: object
+required:
+  - galaxy_id
+  - distance
+  - inclination
+  - velocity_uncertainty
+  - rotation_curve
+properties:
+  galaxy_id:
+    type: string
+    description: Unique identifier for the galaxy (e.g., 'NGC2403')
+  distance:
+    type: number
+    description: Distance to the galaxy in Mpc
+  inclination:
+    type: number
+    description: Inclination angle in degrees (0-90)
+  inclination_uncertainty:
+    type: number
+    description: Uncertainty in inclination angle
+  heliocentric_velocity:
+    type: number
+    description: Heliocentric systemic velocity in km/s
+  rotation_curve:
+    type: array
+    description: Array of rotation curve measurements
+    minItems: 15
+    items:
+      type: object
+      required:
+        - radius
+        - velocity
+        - velocity_error
+      properties:
+        radius:
+          type: number
+          description: Radial distance from center in kpc
+        velocity:
+          type: number
+          description: Observed rotational velocity in km/s
+        velocity_error:
+          type: number
+          description: Uncertainty in velocity measurement in km/s
+        errorbar_direction:
+          type: integer
+          description: Direction of error bar (0: none, 1: up, -1: down, 2: both)
+          enum: [0, 1, -1, 2]
+          nullable: true
+additionalProperties: false
+examples:
+  - galaxy_id: "NGC2403"
+    distance: 3.2
+    inclination: 58.0
+    inclination_uncertainty: 2.0
+    heliocentric_velocity: 132.0
+    rotation_curve:
+      - radius: 0.5
+        velocity: 45.2
+        velocity_error: 2.1
+      - radius: 1.0
+        velocity: 85.4
+        velocity_error: 1.5

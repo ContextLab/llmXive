@@ -1,135 +1,89 @@
 """
-Unit tests for logging infrastructure in code/utils.py.
-
-Verifies that:
-1. Logging can be configured with different levels and file paths
-2. Stage logging works correctly
-3. Logger instance is retrievable
+Unit tests for the logging infrastructure in code/utils.py.
 """
-import os
 import logging
+import os
 import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
 import sys
-import io
 
-# Ensure we can import from code/
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-from utils import setup_logging, get_logger, log_stage, PROJECT_ROOT
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_setup_logging_console_only():
-    """Test that setup_logging creates a console handler."""
-    logger = setup_logging(log_level=logging.INFO)
-    
-    assert logger is not None
-    assert logger.name == 'mond_pipeline'
-    assert len(logger.handlers) >= 1
-    
-    # Verify console handler exists
-    console_handler = None
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
-            console_handler = handler
-            break
-    
-    assert console_handler is not None
-    assert console_handler.level == logging.INFO
+from utils import setup_logging, get_logger, log_stage, get_timestamp
 
-def test_setup_logging_with_file():
-    """Test that setup_logging creates a file handler when log_file is provided."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "test.log"
-        
-        logger = setup_logging(log_level=logging.DEBUG, log_file=str(log_path))
-        
-        assert log_path.exists()
-        
-        # Verify file handler exists
-        file_handler = None
-        for handler in logger.handlers:
-            if isinstance(handler, logging.FileHandler):
-                file_handler = handler
-                break
-        
-        assert file_handler is not None
-        assert file_handler.baseFilename == str(log_path)
+class TestLoggingInfrastructure:
+    """Tests for logging utilities."""
 
-def test_get_logger_returns_instance():
-    """Test that get_logger returns the configured logger instance."""
-    # First, ensure logging is set up
-    setup_logging(log_level=logging.WARNING)
-    
-    logger = get_logger()
-    assert logger is not None
-    assert logger.name == 'mond_pipeline'
+    def test_setup_logging_creates_handlers(self):
+        """Test that setup_logging creates both console and file handlers."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = os.path.join(tmpdir, "test_pipeline.log")
+            logger = setup_logging(log_level=logging.INFO, log_file=log_file)
+            
+            # Check that logger has handlers
+            assert len(logger.handlers) >= 1
+            
+            # Verify file handler exists and file is created
+            file_handler_exists = any(
+                isinstance(h, logging.FileHandler) for h in logger.handlers
+            )
+            assert file_handler_exists
+            assert os.path.exists(log_file)
 
-def test_log_stage_function():
-    """Test that log_stage logs the correct format."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "stage_test.log"
-        logger = setup_logging(log_level=logging.INFO, log_file=str(log_path))
+    def test_get_logger_returns_instance(self):
+        """Test that get_logger returns a valid logger instance."""
+        # Ensure logging is set up first
+        setup_logging(log_level=logging.WARNING)
         
-        # Capture the log output
-        stage_name = "TEST_STAGE"
-        message = "Test message"
-        log_stage(stage_name, message)
-        
-        # Read the log file
-        content = log_path.read_text()
-        
-        # Verify stage marker is present
-        assert f"[STAGE: {stage_name}]" in content
-        assert message in content
+        logger = get_logger("test_module")
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_module"
 
-def test_log_stage_without_message():
-    """Test that log_stage works without a message."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "stage_test2.log"
-        logger = setup_logging(log_level=logging.INFO, log_file=str(log_path))
+    def test_log_stage_logs_start(self, caplog):
+        """Test that log_stage logs the start of a stage."""
+        setup_logging(log_level=logging.INFO)
+        logger = get_logger("test_stage")
         
-        stage_name = "NO_MSG_STAGE"
-        log_stage(stage_name)
-        
-        content = log_path.read_text()
-        assert f"[STAGE: {stage_name}]" in content
+        with caplog.at_level(logging.INFO):
+            log_stage("Data Download", logger=logger, status="Starting")
+            
+        assert "--- Starting Data Download ---" in caplog.text
 
-def test_logger_level_respected():
-    """Test that logger respects the configured level."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "level_test.log"
-        logger = setup_logging(log_level=logging.ERROR, log_file=str(log_path))
+    def test_log_stage_logs_completion(self, caplog):
+        """Test that log_stage logs the completion of a stage."""
+        setup_logging(log_level=logging.INFO)
+        logger = get_logger("test_stage")
         
-        # Try to log at INFO level (should be ignored)
-        logger.info("This should not appear")
-        
-        # Log at ERROR level (should appear)
-        logger.error("This should appear")
-        
-        content = log_path.read_text()
-        assert "This should not appear" not in content
-        assert "This should appear" in content
+        with caplog.at_level(logging.INFO):
+            log_stage("Model Fitting", logger=logger, status="Completed")
+            
+        assert "--- Completed Model Fitting ---" in caplog.text
 
-def test_logger_cleared_on_setup():
-    """Test that setup_logging clears existing handlers."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path1 = Path(tmpdir) / "test1.log"
-        log_path2 = Path(tmpdir) / "test2.log"
+    def test_log_stage_default_status(self, caplog):
+        """Test that log_stage defaults to 'Starting' status."""
+        setup_logging(log_level=logging.INFO)
+        logger = get_logger("test_stage")
         
-        # First setup
-        logger1 = setup_logging(log_file=str(log_path1))
-        initial_count = len(logger1.handlers)
-        
-        # Second setup with different file
-        logger2 = setup_logging(log_file=str(log_path2))
-        
-        # Should still have same number of handlers (console + new file)
-        # Not doubled
-        assert len(logger2.handlers) == initial_count
+        with caplog.at_level(logging.INFO):
+            log_stage("Preprocessing", logger=logger)
+            
+        assert "--- Starting Preprocessing ---" in caplog.text
 
-def test_project_root_constant():
-    """Test that PROJECT_ROOT is defined correctly."""
-    assert PROJECT_ROOT is not None
-    assert isinstance(PROJECT_ROOT, Path)
-    # Should be parent of code/ directory
-    assert PROJECT_ROOT.name in ['code', 'PROJ-076-assessing-the-validity-of-modified-newto'] or PROJECT_ROOT.parent.name == 'code'
+    def test_get_timestamp_format(self):
+        """Test that get_timestamp returns a properly formatted string."""
+        timestamp = get_timestamp()
+        # Format should be YYYYMMDD_HHMMSS
+        assert len(timestamp) == 15
+        assert timestamp[4] == '0'  # Month separator check (simplified)
+        assert '_' in timestamp
+
+    def test_logger_propagation(self):
+        """Test that child loggers inherit configuration from parent."""
+        root_logger = setup_logging(log_level=logging.ERROR)
+        child_logger = get_logger("parent.child")
+        
+        # Child logger should inherit the level
+        assert child_logger.level == 0  # 0 means NOTSET, inherits from parent
+        assert child_logger.getEffectiveLevel() == logging.ERROR
