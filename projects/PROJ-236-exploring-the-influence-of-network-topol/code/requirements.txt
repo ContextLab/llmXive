@@ -15,3 +15,4 @@ black
 mypy
 # Added for T025c
 # pandas is already listed; no new dependencies required.
+requests  # auto-added: imported by run-book but missing from venv

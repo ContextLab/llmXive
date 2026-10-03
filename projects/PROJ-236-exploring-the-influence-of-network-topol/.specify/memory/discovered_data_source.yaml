@@ -1,0 +1,14 @@
+status: none
+intent: download atomic coordinates disordered alloys Materials Project OQMD NOMAD
+  dataset python package
+required_fields:
+- structure_id
+- composition
+- lattice_vectors
+- atomic_positions
+- element_symbols
+- site_occupancies
+- metadata_source
+cache_key: 0d5be65e323c95fef2182c7a6a3ce589a337656b37941694cd18c52c76f475c9
+searched_at: '2026-10-03T14:16:03.346865+00:00'
+retry_count: 1

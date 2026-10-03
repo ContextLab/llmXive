@@ -13,7 +13,7 @@ This project investigates the associational correlation between atomic connectiv
 **Primary Dependencies**: `networkx`, `numpy`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`  
 **Storage**: Local filesystem (`data/` for generated graphs and results, `code/` for scripts)  
 **Testing**: `pytest` (unit tests for graph generation, integration tests for transport calculation)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier: limited CPU allocation, 7 GB RAM, no GPU)  
 **Project Type**: Computational physics research pipeline  
 **Performance Goals**: Total ensemble runtime ≤ 6 hours; individual realization ≤ 15 minutes (excluding pilot/sensitivity); memory footprint ≤ 7 GB  
 **Constraints**: No GPU/CUDA; no deep learning training; no 8-bit quantization; strict CPU-only execution; all results must be real computations, not placeholders.  
