@@ -1,119 +1,111 @@
 """
-Verify HuggingFace Dataset Availability and Integrity.
-
-This script checks if the required HuggingFace datasets are accessible
-and validates their schema against the project's CeramicEntry schema.
+Verify HuggingFace dataset availability and checksum.
+Implements T074.
 """
 import os
 import sys
 import json
 import logging
+import hashlib
 from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from datasets import load_dataset
-from contracts.schemas import CeramicEntry, validate_data_against_schema
-from config import initialize_config
-
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'logs' / 'hf_verification.log')
+        logging.FileHandler('logs/hf_verification.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Initialize config
-initialize_config()
+def compute_file_hash(filepath: str) -> str:
+    """Compute SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-# Define datasets to verify
-DATASETS_TO_VERIFY = [
-    {
-        "id": "CeramicWeibull/curated-literature",
-        "description": "Curated literature data for Weibull modulus prediction",
-        "required_fields": ["composition", "weibull_modulus", "sample_count"]
-    }
-]
-
-def verify_dataset_availability(dataset_id: str, description: str, required_fields: list) -> bool:
+def verify_dataset_availability(dataset_name: str, expected_hash: str = None):
     """
-    Verify that a HuggingFace dataset is accessible and contains required fields.
-
+    Verify a dataset is available on HuggingFace Hub and optionally check checksum.
+    
     Args:
-        dataset_id: HuggingFace dataset ID
-        description: Human-readable description
-        required_fields: List of required column names
-
+        dataset_name: HuggingFace dataset identifier (e.g., 'username/dataset-name')
+        expected_hash: Optional expected SHA256 hash of the downloaded file
+    
     Returns:
-        True if dataset is accessible and valid, False otherwise
+        Path to the downloaded file if successful, None otherwise
     """
-    logger.info(f"Verifying dataset: {dataset_id}")
-    logger.info(f"Description: {description}")
+    try:
+        from huggingface_hub import hf_hub_download, HfApi
+    except ImportError:
+        logger.error("huggingface_hub not installed. Run: pip install huggingface_hub")
+        raise RuntimeError("Missing dependency: huggingface_hub")
 
     try:
-        # Attempt to load dataset (streaming to avoid large downloads)
-        logger.info(f"Loading dataset '{dataset_id}' in streaming mode...")
-        dataset = load_dataset(dataset_id, split="train", streaming=True)
-
-        # Check if dataset is empty
-        first_row = next(iter(dataset))
-        logger.info(f"First row sample: {first_row}")
-
-        # Validate required fields
-        missing_fields = [field for field in required_fields if field not in first_row]
-        if missing_fields:
-            logger.error(f"Missing required fields in dataset {dataset_id}: {missing_fields}")
-            return False
-
-        logger.info(f"Dataset '{dataset_id}' verified successfully with {len(required_fields)} required fields.")
-        return True
-
+        # Attempt to download the file (assumes first file in repo for simplicity)
+        # In a real scenario, you might specify a filename
+        api = HfApi()
+        files = api.list_repo_files(dataset_name)
+        
+        if not files:
+            logger.error(f"No files found in dataset {dataset_name}")
+            return None
+        
+        # Download the first file (or a specific one if known)
+        # For this verification, we'll download the first file
+        filename = files[0]
+        logger.info(f"Downloading {filename} from {dataset_name}...")
+        
+        local_path = hf_hub_download(
+            repo_id=dataset_name,
+            filename=filename,
+            local_dir="data/raw/hf_verify"
+        )
+        
+        logger.info(f"Downloaded to: {local_path}")
+        
+        # Verify hash if provided
+        if expected_hash:
+            actual_hash = compute_file_hash(local_path)
+            if actual_hash != expected_hash:
+                logger.error(f"Hash mismatch! Expected: {expected_hash}, Got: {actual_hash}")
+                return None
+            logger.info("Hash verification passed.")
+        
+        return local_path
+        
     except Exception as e:
-        logger.error(f"Failed to verify dataset {dataset_id}: {str(e)}")
-        return False
+        logger.error(f"Failed to verify dataset {dataset_name}: {str(e)}")
+        return None
 
 def main():
-    """Main entry point for dataset verification."""
-    logger.info("Starting HuggingFace dataset verification...")
+    """Main entry point for verification."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Verify HuggingFace dataset availability")
+    parser.add_argument('--dataset', type=str, help="Dataset name (e.g., username/dataset)")
+    parser.add_argument('--hash', type=str, help="Expected SHA256 hash")
+    args = parser.parse_args()
 
-    all_verified = True
-    results = []
+    if not args.dataset:
+        logger.warning("No dataset specified. Usage: python verify_hf_dataset.py --dataset username/dataset")
+        return 1
 
-    for dataset_config in DATASETS_TO_VERIFY:
-        is_valid = verify_dataset_availability(
-            dataset_config["id"],
-            dataset_config["description"],
-            dataset_config["required_fields"]
-        )
-        results.append({
-            "dataset_id": dataset_config["id"],
-            "verified": is_valid,
-            "description": dataset_config["description"]
-        })
-        if not is_valid:
-            all_verified = False
-
-    # Save verification results
-    results_path = project_root / "data" / "artifacts" / "hf_dataset_verification.json"
-    os.makedirs(results_path.parent, exist_ok=True)
-
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Verification results saved to {results_path}")
-
-    if all_verified:
-        logger.info("All datasets verified successfully.")
-        sys.exit(0)
+    result = verify_dataset_availability(args.dataset, args.hash)
+    
+    if result:
+        logger.info(f"Verification successful: {result}")
+        return 0
     else:
-        logger.warning("Some datasets failed verification.")
-        sys.exit(1)
+        logger.error("Verification failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

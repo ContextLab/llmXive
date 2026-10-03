@@ -125,3 +125,36 @@ T062:
     (the file ends before such a function appears) and the required `data/reports/data_availability_report.json`
     file is absent, so the statistical power field cannot have been added. Both the
     code change and the output artifact are missing.
+T078:
+  c: false
+  h: fb11990e61698ae5ff4bfa6c98748684ba62e3992a8cc63e22174e7e19ef9325
+  r: "The required files `data/processed/step_final_cleaned.csv` and `data/reports/final_report.md`\
+    \ are missing, and the existing `model_metrics.json` is unrelated to the dry\u2011\
+    run (it references task T031 and predates the project). No dry\u2011run logs or\
+    \ evidence of the pipeline execution are provided."
+T083:
+  c: false
+  h: c21e98197a743e5bba8234fb8a959d6371532de5b543e3630b718a0dd47c460b
+  r: The required artifact `data/results/descriptor_sufficiency.json` is missing,
+    so the pipeline was not run and no verification of the descriptor sufficiency
+    logic could be performed. The task therefore lacks the essential output file.
+T084:
+  c: false
+  h: 0ad73ddba2dea864636c544a506c1257fffa5c006a498c039ee847a282143f94
+  r: The required artifact `data/results/permutation_test_report.json` does not exist,
+    so there is no p-value, MAE improvement percentage, or significance flag to verify.
+    The task cannot be considered completed until this file is generated with the
+    appropriate contents.
+T086:
+  c: false
+  h: 2f6db9b08953a0a2c3b91e74fb04b32424b1ae79b7b95afd7a72c82f32882503
+  r: The required state file `state/projects/PROJ-314-predicting-the-impact-of-composition-on-.yaml`
+    does not exist, so no artifact hashes can be verified. The implementer must ensure
+    the script creates/updates this file with the expected `artifact_hashes` entries.
+T087:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No memory\u2011profiler output, logs, or benchmark data were supplied to show\
+    \ that `fetch_materials_project_data_streaming()` was run on a large dataset and\
+    \ kept memory usage below 2\u202FGB. The required artifact (e.g., a profiling\
+    \ report or screenshots) is missing, so the verification task is not satisfied."

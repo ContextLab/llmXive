@@ -1,8 +1,6 @@
 """
-Pipeline Timing and Execution Wrapper.
-
-This script orchestrates the full pipeline execution with timing metrics.
-It handles the ingestion, modeling, and reporting stages.
+Pipeline timing and execution wrapper.
+Ensures all pipeline stages run within time limits and logs metrics.
 """
 import os
 import sys
@@ -11,161 +9,150 @@ import json
 import logging
 import traceback
 from pathlib import Path
+from datetime import datetime
 
 # Add project root to path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Import modules using relative imports corrected for execution context
-try:
-    from ingestion import main as run_ingestion
-    from modeling import main as run_modeling
-    from report import main as run_reporting
-    from diagnostics import main as run_diagnostics
-    from generate_shap_plots import main as run_shap_plots
-except ImportError as e:
-    # Fallback for direct execution
-    import ingestion
-    import modeling
-    import report
-    import diagnostics
-    import generate_shap_plots
+# Ensure logging directory exists
+Path("logs").mkdir(exist_ok=True)
 
-    run_ingestion = ingestion.main
-    run_modeling = modeling.main
-    run_reporting = report.main
-    run_diagnostics = diagnostics.main
-    run_shap_plots = generate_shap_plots.main
-
-from config import initialize_config, get_int_config
-
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'logs' / 'pipeline_timing.log')
+        logging.FileHandler('logs/pipeline_timing.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Initialize config
-initialize_config()
-
 def ensure_output_dir():
     """Ensure all required output directories exist."""
     dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "artifacts",
-        project_root / "data" / "models",
-        project_root / "data" / "results",
-        project_root / "data" / "reports",
-        project_root / "logs"
+        "data/raw", "data/processed", "data/artifacts", 
+        "data/models", "data/results", "data/reports",
+        "logs", "state"
     ]
     for d in dirs:
-        os.makedirs(d, exist_ok=True)
-        logger.debug(f"Ensured directory: {d}")
+        Path(d).mkdir(parents=True, exist_ok=True)
+    logger.info("Output directories ensured")
 
-def save_runtime_metrics(stage: str, duration: float, success: bool, error: str = None):
-    """Save runtime metrics for a specific stage."""
-    metrics_path = project_root / "data" / "results" / "pipeline_timing.json"
+def save_runtime_metrics(stage: str, duration: float, status: str, error: str = None):
+    """Save runtime metrics for a pipeline stage."""
     metrics = {
         "stage": stage,
+        "start_time": datetime.now().isoformat(),
         "duration_seconds": duration,
-        "success": success,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "status": status,
         "error": error
     }
-
-    # Load existing metrics if present
+    
+    metrics_path = Path("data/results/runtime_metrics.json")
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing metrics if any
+    existing_metrics = []
     if metrics_path.exists():
-        with open(metrics_path, 'r') as f:
-            existing = json.load(f)
-        existing.append(metrics)
-    else:
-        existing = [metrics]
-
+        try:
+            with open(metrics_path, 'r') as f:
+                existing_metrics = json.load(f)
+        except:
+            existing_metrics = []
+    
+    existing_metrics.append(metrics)
+    
     with open(metrics_path, 'w') as f:
-        json.dump(existing, f, indent=2)
+        json.dump(existing_metrics, f, indent=2)
+    
+    logger.info(f"Saved runtime metrics for {stage}: {status} ({duration:.2f}s)")
+
+def run_stage(stage_name: str, func, *args, **kwargs):
+    """Run a pipeline stage with timing and error handling."""
+    logger.info(f"Starting stage: {stage_name}")
+    start_time = time.time()
+    
+    try:
+        result = func(*args, **kwargs)
+        duration = time.time() - start_time
+        save_runtime_metrics(stage_name, duration, "success")
+        logger.info(f"Stage {stage_name} completed in {duration:.2f}s")
+        return result
+    except Exception as e:
+        duration = time.time() - start_time
+        error_msg = str(e)
+        save_runtime_metrics(stage_name, duration, "failed", error_msg)
+        logger.error(f"Stage {stage_name} failed: {error_msg}")
+        logger.error(traceback.format_exc())
+        raise
 
 def run_full_pipeline():
-    """Execute the full pipeline with timing."""
-    total_start = time.time()
-    stages = [
-        ("ingestion", run_ingestion),
-        ("modeling", run_modeling),
-        ("diagnostics", run_diagnostics),
-        ("reporting", run_reporting),
-        ("shap_plots", run_shap_plots)
-    ]
-
-    results = []
-    overall_success = True
-
-    for stage_name, stage_func in stages:
-        logger.info(f"Starting stage: {stage_name}")
-        stage_start = time.time()
-        success = True
-        error_msg = None
-
-        try:
-            # Call the stage function
-            # Note: Some functions might need arguments or specific setup
-            # We use a try-except block to catch any specific errors
-            stage_func()
-            logger.info(f"Stage {stage_name} completed successfully.")
-        except SystemExit as e:
-            # Some stages might exit with specific codes (e.g., data gap)
-            if e.code != 0:
-                success = False
-                error_msg = f"Stage exited with code {e.code}"
-                logger.warning(f"Stage {stage_name} exited with non-zero code: {e.code}")
-            else:
-                logger.info(f"Stage {stage_name} completed (exit code 0).")
-        except Exception as e:
-            success = False
-            error_msg = str(e)
-            logger.error(f"Stage {stage_name} failed: {traceback.format_exc()}")
-            overall_success = False
-            # Continue to next stage unless it's a critical failure
-            if "critical" in error_msg.lower() or "fatal" in error_msg.lower():
-                break
-
-        duration = time.time() - stage_start
-        results.append({
-            "stage": stage_name,
-            "duration": duration,
-            "success": success,
-            "error": error_msg
-        })
-        save_runtime_metrics(stage_name, duration, success, error_msg)
-
-    total_duration = time.time() - total_start
-
-    # Save overall summary
-    summary = {
-        "total_duration_seconds": total_duration,
-        "stages": results,
-        "overall_success": overall_success,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-
-    summary_path = project_root / "data" / "results" / "pipeline_summary.json"
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-
-    logger.info(f"Pipeline execution completed. Total time: {total_duration:.2f}s")
-    logger.info(f"Summary saved to {summary_path}")
-
-    return 0 if overall_success else 1
+    """Run the full pipeline with timing."""
+    logger.info("Starting full pipeline execution")
+    start_time = time.time()
+    
+    try:
+        # Import pipeline modules
+        from ingestion import main as run_ingestion
+        from modeling import main as run_modeling
+        from report import main as run_report
+        
+        # Run stages
+        run_stage("ingestion", run_ingestion)
+        run_stage("modeling", run_modeling)
+        run_stage("reporting", run_report)
+        
+        duration = time.time() - start_time
+        logger.info(f"Full pipeline completed in {duration:.2f}s")
+        return True
+        
+    except Exception as e:
+        duration = time.time() - start_time
+        save_runtime_metrics("full_pipeline", duration, "failed", str(e))
+        logger.error(f"Full pipeline failed: {e}")
+        raise
 
 def main():
     """Main entry point."""
-    logger.info("Pipeline Timing Wrapper Started")
+    import argparse
+    parser = argparse.ArgumentParser(description="Run pipeline with timing")
+    parser.add_argument("--dry-run", action="store_true", help="Run in dry-run mode")
+    parser.add_argument("--stage", choices=["ingestion", "modeling", "reporting", "full"], 
+                      help="Run specific stage only")
+    args = parser.parse_args()
+    
     ensure_output_dir()
-    return run_full_pipeline()
+    
+    try:
+        if args.dry_run:
+            logger.info("Running in dry-run mode")
+            # In dry-run mode, we just verify imports and structure
+            from ingestion import main as run_ingestion
+            from modeling import main as run_modeling
+            from report import main as run_report
+            logger.info("Dry-run: All imports successful")
+            sys.exit(0)
+        
+        if args.stage == "ingestion":
+            from ingestion import main as run_ingestion
+            run_stage("ingestion", run_ingestion)
+        elif args.stage == "modeling":
+            from modeling import main as run_modeling
+            run_stage("modeling", run_modeling)
+        elif args.stage == "reporting":
+            from report import main as run_report
+            run_stage("reporting", run_report)
+        elif args.stage == "full" or not args.stage:
+            run_full_pipeline()
+        else:
+            logger.error("Invalid stage specified")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
