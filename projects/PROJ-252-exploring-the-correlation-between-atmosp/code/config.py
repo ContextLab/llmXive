@@ -1,5 +1,6 @@
 """
-Configuration management for the project.
+Configuration management for the atmospheric pressure and earthquake correlation study.
+Handles paths, parameters, and verified dataset sources.
 """
 import os
 import random
@@ -8,124 +9,164 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
-# Base paths
-BASE_DIR = Path(__file__).parent.parent
-DATA_DIR = BASE_DIR / "data"
-CODE_DIR = BASE_DIR / "code"
-DOCS_DIR = BASE_DIR / "docs"
-CONTRACTS_DIR = BASE_DIR / "contracts"
+# Base project directory (assumes code/ is at repo root or one level down)
+# We dynamically detect the project root by looking for the 'data' directory
+def _find_project_root():
+    current = Path(__file__).resolve()
+    while current != current.parent:
+        if (current / "data").exists():
+            return current
+        current = current.parent
+    # Fallback: assume current working directory
+    return Path.cwd()
 
-# Configuration defaults
-DEFAULT_CONFIG = {
-    "random_seed": 42,
-    "usgs_base_url": "https://earthquake.usgs.gov/fdsnws/event/1/query",
-    "min_magnitude": 4.0,
-    "max_depth_km": 70.0,
-    "test_event_count": 12,
-    "test_region": "Alaska",
-    "event_window_days": 30,
-    "control_window_days": 30,
-    "anomaly_window_days": 30,
-    "deviations_path": "docs/deviations.md",
-    "processed_path": "data/processed",
-    "raw_path": "data/raw",
-    "interim_path": "data/interim"
-}
+PROJECT_ROOT = _find_project_root()
 
 class Config:
-    """Configuration class to manage project settings."""
+    """Centralized configuration loading from data/processed/config.yaml."""
     
     def __init__(self):
-        self._config = DEFAULT_CONFIG.copy()
-        self._load_config_from_file()
+        self._config_path = PROJECT_ROOT / "data" / "processed" / "config.yaml"
+        self._config = self._load_config()
     
-    def _load_config_from_file(self):
-        """Load configuration from a YAML file if it exists."""
-        config_path = CODE_DIR / "config.yaml"
-        if config_path.exists():
-            with open(config_path, 'r') as f:
-                file_config = yaml.safe_load(f)
-                if file_config:
-                    self._config.update(file_config)
+    def _load_config(self) -> Dict[str, Any]:
+        """Load configuration from YAML file."""
+        if not self._config_path.exists():
+            raise FileNotFoundError(
+                f"Configuration file not found at {self._config_path}. "
+                "Please run T011d to generate the pilot scope parameters."
+            )
+        
+        with open(self._config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        
+        # Ensure required keys exist with defaults for pilot mode
+        required_keys = [
+            'pilot_mode', 
+            'expected_earthquake_count', 
+            'moving_average_days',
+            'min_permutation_iterations',
+            'max_permutation_iterations',
+            'convergence_variance_threshold'
+        ]
+        
+        for key in required_keys:
+            if key not in config:
+                raise ValueError(f"Missing required configuration key: {key}")
+        
+        return config
     
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value."""
-        return self._config.get(key, default)
+    @property
+    def pilot_mode(self) -> bool:
+        return self._config.get('pilot_mode', True)
     
-    def set(self, key: str, value: Any):
-        """Set a configuration value."""
-        self._config[key] = value
+    @property
+    def expected_earthquake_count(self) -> int:
+        return int(self._config.get('expected_earthquake_count', 12))
+    
+    @property
+    def moving_average_days(self) -> int:
+        return int(self._config.get('moving_average_days', 30))
+    
+    @property
+    def min_permutation_iterations(self) -> int:
+        return int(self._config.get('min_permutation_iterations', 1000))
+    
+    @property
+    def max_permutation_iterations(self) -> int:
+        return int(self._config.get('max_permutation_iterations', 5000))
+    
+    @property
+    def convergence_variance_threshold(self) -> float:
+        return float(self._config.get('convergence_variance_threshold', 0.001))
+    
+    @property
+    def usgs_base_url(self) -> str:
+        return self._config.get('usgs_base_url', 'https://earthquake.usgs.gov/fdsnws/event/1/query')
+    
+    @property
+    def test_region(self) -> str:
+        return self._config.get('test_region', 'Alaska')
+    
+    @property
+    def min_magnitude(self) -> float:
+        return float(self._config.get('min_magnitude', 4.0))
+    
+    @property
+    def max_depth_km(self) -> float:
+        return float(self._config.get('max_depth_km', 70.0))
 
-# Global config instance
-_config = Config()
+# Singleton instance
+_config_instance = None
 
+def get_config() -> Config:
+    """Get the global configuration singleton."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance
+
+# Path helpers
 def get_data_path() -> Path:
-    """Get the base data directory."""
-    return DATA_DIR
+    """Get the data directory path."""
+    return PROJECT_ROOT / "data"
 
-def get_raw_path(filename: str = "") -> Path:
-    """Get the raw data directory or a specific file path."""
-    path = DATA_DIR / "raw"
-    if filename:
-        path = path / filename
-    return path
+def get_raw_path() -> Path:
+    """Get the raw data directory path."""
+    return get_data_path() / "raw"
 
-def get_interim_path(filename: str = "") -> Path:
-    """Get the interim data directory or a specific file path."""
-    path = DATA_DIR / "interim"
-    if filename:
-        path = path / filename
-    return path
+def get_interim_path() -> Path:
+    """Get the interim data directory path."""
+    return get_data_path() / "interim"
 
-def get_processed_path(filename: str = "") -> Path:
-    """Get the processed data directory or a specific file path."""
-    path = DATA_DIR / "processed"
-    if filename:
-        path = path / filename
-    return path
+def get_processed_path() -> Path:
+    """Get the processed data directory path."""
+    return get_data_path() / "processed"
 
 def get_deviations_path() -> Path:
-    """Get the path to the deviations document."""
-    return DOCS_DIR / "deviations.md"
+    """Get the deviations documentation path."""
+    return PROJECT_ROOT / "docs" / "deviations.md"
 
+# Parameter helpers
 def get_event_window_days() -> int:
-    """Get the event window duration in days."""
-    return _config.get("event_window_days", 30)
+    """Get the event window duration in days (48 hours = 2 days)."""
+    return 2
 
 def get_control_window_days() -> int:
     """Get the control window duration in days."""
-    return _config.get("control_window_days", 30)
+    return 30
 
 def get_anomaly_window_days() -> int:
-    """Get the anomaly calculation window duration in days."""
-    return _config.get("anomaly_window_days", 30)
+    """Get the anomaly baseline window duration in days."""
+    return get_config().moving_average_days
 
+# Random seed management
 def get_random_seed() -> int:
     """Get the random seed for reproducibility."""
-    return _config.get("random_seed", 42)
+    return 42
 
 def set_random_seed(seed: int):
     """Set the random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    _config.set("random_seed", seed)
 
+# USGS API helpers
 def get_usgs_base_url() -> str:
     """Get the USGS API base URL."""
-    return _config.get("usgs_base_url", "https://earthquake.usgs.gov/fdsnws/event/1/query")
+    return get_config().usgs_base_url
 
 def get_min_magnitude() -> float:
     """Get the minimum magnitude threshold."""
-    return _config.get("min_magnitude", 4.0)
+    return get_config().min_magnitude
 
 def get_max_depth_km() -> float:
     """Get the maximum depth threshold in km."""
-    return _config.get("max_depth_km", 70.0)
+    return get_config().max_depth_km
 
 def get_test_event_count() -> int:
-    """Get the expected number of test events."""
-    return _config.get("test_event_count", 12)
+    """Get the expected number of test events (from config)."""
+    return get_config().expected_earthquake_count
 
 def get_test_region() -> str:
     """Get the test region name."""
-    return _config.get("test_region", "Alaska")
+    return get_config().test_region

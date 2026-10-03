@@ -77,12 +77,12 @@
 - [X] T012b [US1] Implement `code/ingestion.py` to parse SMILES to Mol using RDKit and compute descriptors (MW, logP, PSA, rotatable bonds). **Output**: Intermediate dataframe in memory.
 - [ ] T012c [US1] Implement `code/ingestion.py` to handle duplicate SMILES (aggregate targets using `mean` function) and save deduplicated rows to `data/processed/deduplicated.csv` with schema: `[smiles, target_mean, count, source_id]`. **Function**: `deduplicate_smiles(df)`.
 - [ ] T012d [US1] Implement `code/ingestion.py` to validate ≥500 unique compounds, exclude rows with missing permeability values, log exclusion reasons to `data/processed/exclusion_log.json`, and output `data/processed/validation_report.json` containing the count and status. **Constraint**: If count < 500, raise an error.
-- [~] T012e [US1] Implement `code/ingestion.py` to merge NIST, PubChem, and MTR datasets into a single `data/processed/merged_dataset.csv`. **Function**: `merge_sources(df_nist, df_pubchem, df_mtr)`.
+- [ ] T012e [US1] Implement `code/ingestion.py` to merge NIST, PubChem, and MTR datasets into a single `data/processed/merged_dataset.csv`. **Function**: `merge_sources(df_nist, df_pubchem, df_mtr)`.
 - [ ] T014 [US1] Implement logic to exclude rows with missing permeability values and log specific reasons (e.g., "Missing target variable") to `data/processed/exclusion_log.json`. **Artifact**: `data/processed/exclusion_log.json` with schema `[{"smiles": "...", "reason": "..."}]`.
 - [X] T015 [US1] Add configurable timeout enforcement logic to `code/ingestion.py` using `signal.alarm` on Linux. Read `TIMEOUT_GRAPHS` from `code/config.py` (default 300 seconds). Log "TIMEOUT: Graph construction exceeded 5 minutes" if exceeded.
-- [ ] T016 [US1] Add logging for exclusion reasons and exclusion rate statistics to `data/processed/exclusion_stats.json`. **Artifact**: `data/processed/exclusion_stats.json` with schema `{"total_rows": int, "excluded_rows": int, "rate": float}`.
-- [~] T017 [US1] Implement streaming logic (`streaming=True`) for dataset loading to ensure memory usage stays < 2GB. **Constraint**: If the full dataset cannot be processed within the available memory limit, the pipeline MUST FAIL with an error; NO fallback to random samples or synthetic data is allowed within this script.
-- [~] T017e [US1] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run ingestion on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json` with schema `{"triggered": bool, "runner_type": "gpu", "status": "success|fail"}`. **Constraint**: No Kaggle API or kernel IDs.
+- [X] T016 [US1] Add logging for exclusion reasons and exclusion rate statistics to `data/processed/exclusion_stats.json`. **Artifact**: `data/processed/exclusion_stats.json` with schema `{"total_rows": int, "excluded_rows": int, "rate": float}`.
+- [ ] T017 [US1] Implement streaming logic (`streaming=True`) for dataset loading to ensure memory usage stays < 2GB. **Constraint**: If the full dataset cannot be processed within the available memory limit, the pipeline MUST FAIL with an error; NO fallback to random samples or synthetic data is allowed within this script.
+- [ ] T017e [US1] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run ingestion on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json` with schema `{"triggered": bool, "runner_type": "gpu", "status": "success|fail"}`. **Constraint**: No Kaggle API or kernel IDs.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,13 +110,13 @@
 - [ ] T022b [US2] Save predictions to `data/processed/predictions.csv` with columns [fold, model, r2, mae, rmse, prediction, target].
 - [X] T023 [US2] Add Timeout enforcement logic to `code/training.py` using `signal.alarm` wrapper `run_training_with_timeout`. Log "TIMEOUT: Training exceeded 5 minutes" if exceeded.
 - [ ] T024 [US2] Implement **paired t-test** (alpha=0.05) to compare GNN vs. RF/LR performance. **Fallback**: If normality assumption fails, implement Wilcoxon signed-rank test as secondary. **Output**: Append p-value and test statistic to `data/processed/statistical_comparison.csv`. **Schema**: `[fold, model, p_value, statistic]`.
-- [ ] T025a [US2] Generate comparison report in `paper/report.md` summarizing mean/std metrics and statistical significance (t-test). **Constraint**: Ensure `paper/report.md` contains the exact string: "Statistical comparison used paired t-test (alpha=0.05) as per Spec FR-003. Wilcoxon used only as fallback if normality fails."
-- [ ] T026 [US2] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run training on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json`. **Constraint**: No Kaggle API or kernel IDs.
+- [~] T025a [US2] Generate comparison report in `paper/report.md` summarizing mean/std metrics and statistical significance (t-test). **Constraint**: Ensure `paper/report.md` contains the exact string: "Statistical comparison used paired t-test (alpha=0.05) as per Spec FR-003. Wilcoxon used only as fallback if normality fails."
+- [~] T026 [US2] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run training on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json`. **Constraint**: No Kaggle API or kernel IDs.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for model output metrics in `tests/contract/test_model_metrics.py`
-- [ ] T019 [P] [US2] Integration test for scaffold splitting logic in `tests/integration/test_scaffold_split.py`
+- [X] T019 [P] [US2] Integration test for scaffold splitting logic in `tests/integration/test_scaffold_split.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,7 +130,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis.py::sensitivity_sweep` with sensitivity sweep over a range of interval widths. **Output**: Write `data/processed/sensitivity_sweep.csv` with columns [width, mae, ci]. **Signature**: `def sensitivity_sweep(model, data, widths)`.
+- [~] T029 [P] [US3] Implement `code/analysis.py::sensitivity_sweep` with sensitivity sweep over a range of interval widths. **Output**: Write `data/processed/sensitivity_sweep.csv` with columns [width, mae, ci]. **Signature**: `def sensitivity_sweep(model, data, widths)`.
 - [ ] T030 [US3] Implement logic to calculate MAE variation across widths and compare against baseline error rates, saving to `data/processed/sensitivity_results.csv` with columns: [width, mae, baseline_mae, delta].
 - [ ] T031 [US3] Implement permutation importance analysis for molecular substructures using 'mask node features' perturbation method and 'drop in R²' as the metric. **Output**: Save ranked substructures to `data/processed/permutation_importance.csv` with columns [substructure, importance_score]. **Signature**: `def permutation_importance(model, data)`.
 - [ ] T032 [US3] **SC-004 IMPLEMENTATION**: Implement a perturbation experiment that **chemically removes** specific functional groups (hydroxyl, carboxyl, amine) from molecules using RDKit reaction rules and records the delta in predicted permeability.

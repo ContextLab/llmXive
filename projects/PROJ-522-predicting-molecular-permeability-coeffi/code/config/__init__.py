@@ -1,1 +1,3 @@
-# Configuration management package
+"""
+Config package.
+"""

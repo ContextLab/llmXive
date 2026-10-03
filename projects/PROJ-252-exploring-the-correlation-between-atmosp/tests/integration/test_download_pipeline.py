@@ -33,6 +33,7 @@ def test_download_pipeline_execution():
 def test_output_row_count():
     """
     Verifies the output CSV row count matches the expected count (N=12) within 1% tolerance.
+    Reads expected count from data/processed/config.yaml via get_test_event_count().
     """
     # Ensure the script has run (or run it if not)
     script_path = Path(__file__).parent.parent.parent / "code" / "download.py"
@@ -57,7 +58,7 @@ def test_output_row_count():
     # Header is the first row
     data_rows = rows[1:]
     count = len(data_rows)
-    expected_count = get_test_event_count() # Should be 12
+    expected_count = get_test_event_count() # Should be 12 from config.yaml
     
     tolerance = 0.01 * expected_count
     lower_bound = expected_count - tolerance

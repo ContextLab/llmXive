@@ -1,3 +1,6 @@
+"""
+Logging utility module.
+"""
 import logging
 import logging.config
 import os
@@ -5,26 +8,31 @@ import yaml
 from pathlib import Path
 from typing import Optional
 
-def setup_logging():
-    """Setup logging configuration."""
-    config_path = Path("code/config/logging.yaml")
-    if config_path.exists():
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-            logging.config.dictConfig(config)
-    else:
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-    return logging.getLogger(__name__)
+def setup_logging(config: dict) -> logging.Logger:
+    """
+    Setup logging based on configuration.
+    
+    Args:
+        config: Logging configuration dictionary
+        
+    Returns:
+        Configured logger instance
+    """
+    # Ensure logs directory exists
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    
+    # Apply logging configuration
+    logging.config.dictConfig(config)
+    
+    return logging.getLogger("ingestion")
 
-def log_timeout(message: str):
-    """Log a timeout message."""
-    logger = setup_logging()
-    logger.error(f"TIMEOUT: {message}")
+def log_timeout(source: str, message: str):
+    """Log a timeout event."""
+    logger = logging.getLogger("ingestion")
+    logger.error(f"TIMEOUT: {source} - {message}")
 
-def log_missing_data(message: str):
-    """Log a missing data message."""
-    logger = setup_logging()
-    logger.warning(f"MISSING DATA: {message}")
+def log_missing_data(source: str, reason: str):
+    """Log missing data event."""
+    logger = logging.getLogger("ingestion")
+    logger.warning(f"MISSING_DATA: {source} - {reason}")

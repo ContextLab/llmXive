@@ -1,1 +1,3 @@
-# Model definitions and training wrappers package
+"""
+Models package.
+"""

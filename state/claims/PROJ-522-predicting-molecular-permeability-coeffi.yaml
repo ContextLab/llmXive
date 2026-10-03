@@ -40,3 +40,112 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T22:23:01Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: Dataset of over 500 unique chemical compounds from NIST, PubChem, and
+    MTR
+  claim_id: c_bf944a21
+  context: This study presents a comparative analysis of Graph Neural Networks (GNNs)
+    versus traditional baseline models (Random Forest and Linear Regression) for predicting
+    molecular permeability coefficients across polymeric membranes. The analysis leverages
+    a multi-source dataset comprising NIST, PubChem, and MTR data, encompassing over
+    500 unique chemical compounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis leverages a multi-source dataset comprising NIST, PubChem,
+    and MTR data, encompassing over 500 unique chemical compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:26:26Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: GNN model Mean R2 0.78, Mean MAE 0.32, Mean RMSE 0.41
+  claim_id: c_6bd3fca6
+  context: "Performance Metrics Summary table showing GNN (GCN) results with Mean\
+    \ R\xB2 (\xB1 std) of 0.78 \xB1 0.04, Mean MAE (\xB1 std) of 0.32 \xB1 0.05, and\
+    \ Mean RMSE (\xB1 std) of 0.41 \xB1 0.06."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The GNN model achieved a Mean R\xB2 of 0.78 \xB1 0.04, Mean MAE of 0.32\
+    \ \xB1 0.05, and Mean RMSE of 0.41 \xB1 0.06."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:26:51Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: Random Forest model Mean R2 0.65, Mean MAE 0.45, Mean RMSE 0.58
+  claim_id: c_451d20d5
+  context: "Performance Metrics Summary table showing Random Forest results with Mean\
+    \ R\xB2 (\xB1 std) of 0.65 \xB1 0.06, Mean MAE (\xB1 std) of 0.45 \xB1 0.07, and\
+    \ Mean RMSE (\xB1 std) of 0.58 \xB1 0.08."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Random Forest model achieved a Mean R\xB2 of 0.65 \xB1 0.06, Mean\
+    \ MAE of 0.45 \xB1 0.07, and Mean RMSE of 0.58 \xB1 0.08."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:27:11Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: Linear Regression model Mean R2 0.42, Mean MAE 0.68, Mean RMSE 0.85
+  claim_id: c_bd6fd19a
+  context: "Performance Metrics Summary table showing Linear Regression results with\
+    \ Mean R\xB2 (\xB1 std) of 0.42 \xB1 0.09, Mean MAE (\xB1 std) of 0.68 \xB1 0.11,\
+    \ and Mean RMSE (\xB1 std) of 0.85 \xB1 0.12."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Linear Regression model achieved a Mean R\xB2 of 0.42 \xB1 0.09,\
+    \ Mean MAE of 0.68 \xB1 0.11, and Mean RMSE of 0.85 \xB1 0.12."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:27:45Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: GNN vs Random Forest t-test t-statistic 4.23 p-value 0.0098
+  claim_id: c_f8dbae55
+  context: 'Statistical comparison used paired t-test (alpha=0.05) as per Spec FR-003.
+    GNN vs. Random Forest: t-statistic: 4.23, p-value: 0.0098.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A paired t-test comparing GNN and Random Forest fold-wise R\xB2 scores\
+    \ yielded a t-statistic of 4.23 and a p-value of 0.0098."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:28:02Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/paper/report.md
+  attempts: 1
+  canonical: GNN vs Linear Regression t-test t-statistic 8.71 p-value 0.0003
+  claim_id: c_e4cc84de
+  context: 'Statistical comparison used paired t-test (alpha=0.05) as per Spec FR-003.
+    GNN vs. Linear Regression: t-statistic: 8.71, p-value: 0.0003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A paired t-test comparing GNN and Linear Regression fold-wise R\xB2 scores\
+    \ yielded a t-statistic of 8.71 and a p-value of 0.0003."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:28:26Z'

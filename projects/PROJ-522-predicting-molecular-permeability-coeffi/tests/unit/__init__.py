@@ -1,1 +1,3 @@
-# Unit tests package
+"""
+Unit tests for llmXive project.
+"""

@@ -1,1 +1,3 @@
-# Contract tests package
+"""
+Contract tests for llmXive project.
+"""

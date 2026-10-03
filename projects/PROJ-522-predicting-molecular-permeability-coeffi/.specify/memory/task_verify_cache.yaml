@@ -20,27 +20,48 @@ T003:
     s deliverable."
 T012a:
   c: false
-  h: 819c3f1d0163fce28428496cca2a703a5044aeefb5b50a44f1f4a4d0f095d9a5
-  r: The repository contains an `ingestion.py` script, but it never writes the required
-    Parquet files and the helper functions it calls (`fetch_nist_data`, etc.) are
-    not shown to produce or save the data. The three expected output files (`data/raw/nist.parquet`,
-    `data/raw/pubchem.parquet`, `data/raw/mtr.parquet`) are absent. The task therefore
-    remains unfinished.
+  h: b7aa5f9fd292fceec33146f8204f4016c5fd6b7ed6214aa810c1e73320d01ea6
+  r: "The `code/ingestion.py` file exists but does not contain logic to write the\
+    \ fetched datasets to `data/raw/*.parquet`, and the three required parquet files\
+    \ are absent from the repository. Consequently the task\u2019s output requirement\
+    \ is not satisfied."
 T012c:
   c: false
-  h: 3c4a353bd16d4ba012793370f5dbad236f6e89a2d731cc1c3eaa94ff0af82217
-  r: The `deduplicate_smiles` function exists but its output columns differ from the
-    required schema (`source_ids` vs. `source_id`) and the script never writes the
-    deduplicated DataFrame to `data/processed/deduplicated.csv`. Moreover, the expected
-    CSV file is missing from the repository. The task is therefore not fully satisfied.
+  h: dd0770bc82c832f3f8622fa80a87f48c62f71203381ff7a81154e04ecbf3e017
+  r: The `deduplicate_smiles` function is present and correctly aggregates duplicates,
+    but the script never writes the resulting DataFrame to `data/processed/deduplicated.csv`,
+    and that CSV file is missing. Additionally, the provided `ingestion.py` is truncated,
+    so the saving step is not implemented. The required output artifact is absent.
 T012d:
   c: false
-  h: 43ea5d5afcd3239f9aa4b7556d84dae50ac6263948dfb7113251b48b535eefb8
-  r: "The required output files `data/processed/exclusion_log.json` and `data/processed/validation_report.json`\
-    \ are absent, and the provided `code/ingestion.py` (as shown) does not contain\
-    \ logic to enforce the \u2265500 unique\u2011compound check, raise an error if\
-    \ the count is lower, or write the specified JSON reports. The implementation\
-    \ therefore does not meet the task\u2019s functional requirements."
+  h: 6602556ce2b6fdd68b6b484bafffce5de8437c6aab0ac08a2ec4b727ee66aea3
+  r: The required output files `data/processed/exclusion_log.json` and `data/processed/validation_report.json`
+    are absent, and the provided `code/ingestion.py` (as shown) does not contain logic
+    to filter rows with missing permeability values, log exclusion reasons, write
+    the validation report, or raise an error when fewer than 500 unique compounds
+    remain. These core requirements are missing.
+T012e:
+  c: false
+  h: e39ec31607264905d06d538bfe40f4459f9e9c9ffddc42b55cc68ae5f78f07a7
+  r: The `code/ingestion.py` file is truncated (the `merge_sources` implementation
+    ends abruptly and never writes the merged CSV), and the required output file `data/processed/merged_dataset.csv`
+    does not exist. Both the function implementation and the expected artifact are
+    missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No streaming implementation script, test, or logs were provided; there is no\
+    \ artifact demonstrating that dataset loading with `streaming=True` enforces a\
+    \ <\u202F2\u202FGB memory limit and fails when the full dataset cannot fit. The\
+    \ required code and evidence are missing."
+T017e:
+  c: false
+  h: 949fbdcdaf0446310abcd7cec585dff79de91f2f07cb17ca3fdc28ee4f0c4582
+  r: "The repository contains `code/escape_hatch.py`, but the provided excerpt never\
+    \ writes the required `data/processed/escape_hatch_log.json` (the file is missing)\
+    \ and the script appears to trigger a training script rather than re\u2011run\
+    \ the ingestion step. Consequently the required output file with the specified\
+    \ schema is not produced, so the task is not fully satisfied."
 T020c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

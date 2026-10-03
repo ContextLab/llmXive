@@ -6,22 +6,23 @@ formatters:
 handlers:
   console:
     class: logging.StreamHandler
-    formatter: default
     level: INFO
+    formatter: default
+    stream: ext://sys.stdout
   file:
     class: logging.FileHandler
+    level: DEBUG
     formatter: default
-    filename: data/processed/pipeline.log
-    level: INFO
+    filename: logs/ingestion.log
 loggers:
   ingestion:
-    level: INFO
+    level: DEBUG
     handlers: [console, file]
     propagate: no
   utils.data_loader:
-    level: INFO
+    level: DEBUG
     handlers: [console, file]
     propagate: no
 root:
   level: INFO
-  handlers: [console, file]
+  handlers: [console]
