@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-041-evaluating-the-use-of-graph-neural-netwo
-last_run_id: 9c40f5e3-5440-49e2-adfe-090eee09155d
+last_run_id: 715a4b50-7af4-4e67-81c1-52a3f060031a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo
 title: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network
   Traffic
-updated_at: '2026-09-29T09:36:39.665762Z'
+updated_at: '2026-10-03T02:57:32.065437Z'

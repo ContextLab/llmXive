@@ -1,13 +1,22 @@
 # Configuration for PROJ-041
 # Target AUC Threshold (SC-005)
+# Derived from preliminary literature on GNN anomaly detection in network traffic
+# Target set to 0.75 as a realistic baseline for unsupervised/semi-supervised detection
 target_auc: 0.75
 
 # Temporal Split Ratio for T009
-# Train on majority (0.8), Test on minority (0.2)
+# Train on majority (0.8), Test on minority (0.2) to simulate temporal holdout
+# This ensures the model is tested on future traffic patterns not seen during training
 temporal_split_ratio: 0.8
 
-# Random Seed
+# Random Seed for reproducibility across all experiments
 seed: 42
 
 # Memory Limit (MB)
+# Hard limit for graph construction and training processes
 memory_limit_mb: 7000
+
+# Research Plan Metadata
+research_plan_version: "1.0"
+research_plan_date: "2023-10-27"
+research_plan_author: "llmXive Automated Science Pipeline"

@@ -17,7 +17,7 @@ This project evaluates whether Graph Neural Networks (GNNs), specifically a A Gr
 **Primary Dependencies**: `networkx`, `scikit-learn`, `xgboost`, `torch` (CPU version), `pandas`, `numpy`, `tracemalloc` (standard lib), `matplotlib`, `seaborn`, `captum` (for Integrated Gradients)  
 **Storage**: Local filesystem (CSV/Parquet inputs, GraphML/NumPy intermediates)  
 **Testing**: `pytest` (unit tests for graph construction, integration tests for model training), `pytest-memprof` for memory constraints  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: vCPU, ~7GB RAM)  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: End-to-end runtime ≤6 hours; Graph construction peak memory <7GB; Model convergence within 30 epochs.  
 **Constraints**: No GPU/CUDA; No 8-bit quantization; Max [deferred] nodes per graph (subsampling enforced); Deterministic random seeds.

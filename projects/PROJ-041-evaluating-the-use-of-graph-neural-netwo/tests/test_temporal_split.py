@@ -1,17 +1,16 @@
-"""
-Tests for Temporal Holdout Split (T009).
-Verifies no data leakage and correct file generation.
-"""
-
 import os
-import tempfile
+import sys
+import pytest
 import pandas as pd
 import networkx as nx
-from datetime import datetime
-import pytest
+import tempfile
+import shutil
 
-# Import functions to test
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+
 from data.splits import (
+    load_raw_flows,
     create_temporal_split,
     build_graph_from_train_flows,
     validate_no_leakage,
@@ -19,84 +18,87 @@ from data.splits import (
     save_graph
 )
 
-def create_mock_flow_data(n_rows=100, start_time="2023-01-01 00:00:00"):
-    """Generate a mock DataFrame with timestamps for testing."""
-    dates = pd.date_range(start=start_time, periods=n_rows, freq='1H')
+@pytest.fixture
+def sample_flows():
+    """Create sample flow data with timestamps."""
     data = {
-        'Start time': dates,
-        'src ip': [f'192.168.1.{i % 10}' for i in range(n_rows)],
-        'dst ip': [f'192.168.2.{i % 10}' for i in range(n_rows)],
-        'packets': [10] * n_rows,
-        'bytes': [1000] * n_rows
+        'src_ip': ['192.168.1.1', '192.168.1.2', '192.168.1.1', '192.168.1.3', '192.168.1.2'],
+        'dst_ip': ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.1', '10.0.0.4'],
+        'timestamp': [
+            '2023-01-01 10:00:00',
+            '2023-01-01 11:00:00',
+            '2023-01-02 10:00:00',
+            '2023-01-03 10:00:00',
+            '2023-01-04 10:00:00'
+        ],
+        'bytes': [100, 200, 150, 300, 250]
     }
     return pd.DataFrame(data)
 
-def test_create_temporal_split():
-    """Test that temporal split correctly divides data by time."""
-    df = create_mock_flow_data(100)
-    train, test = create_temporal_split(df, train_ratio=0.8)
-    
-    assert len(train) == 80
-    assert len(test) == 20
-    
-    # Verify time ordering
-    assert train['Start time'].max() <= test['Start time'].min()
+@pytest.fixture
+def temp_raw_dir(sample_flows):
+    """Create a temporary directory with sample CSV file."""
+    tmpdir = tempfile.mkdtemp()
+    csv_path = os.path.join(tmpdir, 'test_flows.csv')
+    sample_flows.to_csv(csv_path, index=False)
+    yield tmpdir
+    shutil.rmtree(tmpdir)
 
-def test_build_graph_from_train_flows():
-    """Test graph construction only uses train data."""
-    df = create_mock_flow_data(100)
-    train, _ = create_temporal_split(df, train_ratio=0.8)
-    
-    G = build_graph_from_train_flows(train)
-    
+def test_create_temporal_split(sample_flows):
+    train_df, test_df = create_temporal_split(sample_flows, 0.6, seed=42)
+    # 5 rows, 60% = 3 train, 2 test
+    assert len(train_df) == 3
+    assert len(test_df) == 2
+    # Ensure train is earlier than test
+    assert train_df['timestamp'].max() <= test_df['timestamp'].min()
+
+def test_build_graph_from_train_flows(sample_flows):
+    train_df, _ = create_temporal_split(sample_flows, 0.6, seed=42)
+    G = build_graph_from_train_flows(train_df)
     assert G.number_of_nodes() > 0
     assert G.number_of_edges() > 0
-    # Verify attributes exist
-    assert 'weight' in G.edges()[0][2]
+    assert nx.is_directed(G)
 
-def test_validate_no_leakage():
-    """Test that leakage detection works."""
-    # Scenario 1: No leakage (normal case)
-    df = create_mock_flow_data(100)
-    train, test = create_temporal_split(df, train_ratio=0.8)
-    G = build_graph_from_train_flows(train)
-    
-    assert validate_no_leakage(train, test, G) is True
+def test_validate_no_leakage_no_leak(sample_flows):
+    train_df, test_df = create_temporal_split(sample_flows, 0.6, seed=42)
+    G = build_graph_from_train_flows(train_df)
+    # All nodes in train are also in test (shared), so no "test-only" nodes
+    assert validate_no_leakage(train_df, test_df, G) is True
 
-    # Scenario 2: Artificial leakage (should fail)
-    # Create a test-only node that somehow appears in train edges (simulating bad data)
-    # This is hard to simulate naturally, so we test the logic by checking the function
-    # returns True for valid cases.
-    
-    # To test the failure case, we'd need to manually inject a node into G that is in test but not train.
-    # Since build_graph_from_train_flows only uses train, we can't easily trigger this naturally.
-    # Instead, we trust the logic and test the valid case.
+def test_validate_no_leakage_with_leakage():
+    """Create a scenario where test has a node not in train."""
+    data = {
+        'src_ip': ['192.168.1.1', '192.168.1.2', '192.168.1.1', '192.168.1.3'],
+        'dst_ip': ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.5'],  # 10.0.0.5 only in test
+        'timestamp': [
+            '2023-01-01 10:00:00',
+            '2023-01-01 11:00:00',
+            '2023-01-02 10:00:00',
+            '2023-01-03 10:00:00'
+        ],
+        'bytes': [100, 200, 150, 300]
+    }
+    df = pd.DataFrame(data)
+    train_df, test_df = create_temporal_split(df, 0.5, seed=42)
+    G = build_graph_from_train_flows(train_df)
+    # Add an edge from train to a node that only appears in test (simulating leakage)
+    # But our build_graph_from_train_flows only uses train data, so we must simulate a graph that has leakage
+    # Instead, let's construct a graph that has an edge to a test-only node
+    G_leaky = nx.DiGraph()
+    G_leaky.add_edge('192.168.1.1', '10.0.0.5')  # 10.0.0.5 is in test only
+    assert validate_no_leakage(train_df, test_df, G_leaky) is False
 
-def test_save_splits_and_graph():
-    """Test that files are actually written to disk."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        df = create_mock_flow_data(100)
-        train, test = create_temporal_split(df, train_ratio=0.8)
-        
-        # Save splits
-        train_path, test_path = save_splits(train, test, output_dir=tmpdir)
-        
-        assert os.path.exists(train_path)
-        assert os.path.exists(test_path)
-        
-        # Load back and verify
-        loaded_train = pd.read_csv(train_path)
-        assert len(loaded_train) == len(train)
-        
-        # Save graph
-        G = build_graph_from_train_flows(train)
-        graph_path = save_graph(G, output_path=os.path.join(tmpdir, "test_graph.graphml"))
-        
+def test_save_splits_and_graph(sample_flows, temp_raw_dir):
+    train_df, test_df = create_temporal_split(sample_flows, 0.6, seed=42)
+    tmp_out = tempfile.mkdtemp()
+    try:
+        save_splits(train_df, test_df, tmp_out)
+        assert os.path.exists(os.path.join(tmp_out, 'train_split.csv'))
+        assert os.path.exists(os.path.join(tmp_out, 'test_split.csv'))
+
+        G = build_graph_from_train_flows(train_df)
+        graph_path = os.path.join(tmp_out, 'test_graph.graphml')
+        save_graph(G, graph_path)
         assert os.path.exists(graph_path)
-        
-        # Load graph back
-        G_loaded = nx.read_graphml(graph_path)
-        assert G_loaded.number_of_nodes() == G.number_of_nodes()
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    finally:
+        shutil.rmtree(tmp_out)

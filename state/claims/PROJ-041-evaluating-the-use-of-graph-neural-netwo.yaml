@@ -3082,3 +3082,829 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T09:36:37Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU-13 dataset fetch failed with Name or service not known
+  claim_id: c_ece97a06
+  context: 'T007a [P] Attempt Download of CTU-13 Dataset: Logic: 1) Attempt fetch
+    from Name or service not known)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T007a attempts to fetch the CTU-13 Dataset from a source that returns
+    'Name or service not known'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:35:47Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Use of CTU-13 dataset in study
+  claim_id: c_3196390e
+  context: T007a [P] Attempt Download of CTU-13 Dataset
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: BOTNETDETECTION ONCTU-13 USINGLIGHTWEIGHT
+      source_id: '2605.23004'
+      url: https://arxiv.org/abs/2605.23004
+      value: CTU-13
+    filled: true
+  kind: numeric
+  raw_text: The study utilizes the CTU-13 Dataset.
+  resolved_value: CTU-13
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:36:06Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Use of NF-BoT-IoT dataset in study
+  claim_id: c_22c7b0f9
+  context: T007b [P] Attempt Download of NF-BoT-IoT Dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_NF-BoT-IoT_dataset_in_study
+  kind: entity_fact
+  raw_text: The study utilizes the NF-BoT-IoT Dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:36:27Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Target AUC set to 0.75
+  claim_id: c_cb33283d
+  context: T007e Define target_auc (e.g., 0.75) and Temporal Holdout split ratios
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research plan defines a target AUC of 0.75.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:36:47Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph construction restricted to train subset to prevent temporal leakage
+  claim_id: c_712d89f5
+  context: T009 Construct the graph only on the Train subset flows to prevent temporal
+    leakage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_construction_restricted_to_train_subset_to_prevent_tem
+  kind: entity_fact
+  raw_text: Graph construction is restricted to the training subset to prevent temporal
+    leakage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:37:45Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Memory limit of 7GB enforced
+  claim_id: c_1365ec33
+  context: 'Goal: ... verify memory safety (<7GB) ... T010 ... asserts tracemalloc
+    < 7GB'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_of_7GB_enforced
+  kind: entity_fact
+  raw_text: The system enforces a memory limit of 7GB during graph construction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:38:09Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Node count limit of 5000 enforced
+  claim_id: c_ed714afb
+  context: "Goal: ... and node limits (\u22645,000). T011 ... asserts nodes \u2264\
+    \ 5,000"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces a node count limit of 5,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:38:42Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping patience set to 5
+  claim_id: c_50c1f2b0
+  context: "T018 ... converges \u226430 epochs per FR-003 with patience=5"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GCN model is trained using a patience of 5 for early stopping.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:39:23Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping min_delta set to 1e-4
+  claim_id: c_99cb7853
+  context: "T018 ... converges \u226430 epochs per FR-003 with patience=5, min_delta=1e-4"
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GCN model is trained using a min_delta of 1e-4 for early stopping.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:39:24Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN training limited to 30 epochs
+  claim_id: c_c9c764c2
+  context: "T018 ... converges \u226430 epochs per FR-003"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GCN model training is limited to a maximum of 30 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:39:45Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Model training restricted to CPU
+  claim_id: c_32fb7017
+  context: 'T021 Constraints: 1) CPU-only (device=''cpu'').'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: devices such as Nvidia Jetson series and Raspberry Pi.
+      source_id: '2104.03042'
+      url: https://arxiv.org/abs/2104.03042
+      value: Raspberry Pi
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses a CPU-only device for model training.
+  resolved_value: Raspberry Pi
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:40:07Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests used for N < 13 instead of Wilcoxon
+  claim_id: c_781fe8bf
+  context: The Plan deviates from Spec FR-006 (Wilcoxon) to Permutation Tests for
+    small N (<13).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_used_for_N_%3C_13_instead_of_Wilcoxon
+  kind: magnitude
+  raw_text: Permutation tests are used instead of the Wilcoxon test for scenarios
+    where N is less than 13.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:41:21Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied with FDR < 0.05
+  claim_id: c_c1be39f8
+  context: T028 ... validates FDR < 0.05 threshold per FR-006
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Benjamini-Hochberg correction is applied with an FDR threshold of
+    0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:41:50Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set includes degree, betweenness centrality, clustering coefficient,
+    edge weight variance, and page rank
+  claim_id: c_81c6e4db
+  context: 'Features: degree, betweenness_centrality, clustering_coefficient, edge_weight_variance,
+    page_rank.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_set_includes_degree,_betweenness_centrality,_clus
+  kind: entity_fact
+  raw_text: 'The hypothesis set includes five specific structural features: degree,
+    betweenness_centrality, clustering_coefficient, edge_weight_variance, and page_rank.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:42:20Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set defines 7 comparisons
+  claim_id: c_1405fc20
+  context: 'Comparisons: (1) GCN vs RF, (2) GCN vs XGB, (3-7) Top features vs. null
+    baseline. ... Validate count == 7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set defines exactly 7 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:44:06Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Distinct pattern defined by 95% CI excluding 0
+  claim_id: c_25e24e8c
+  context: A pattern is distinct if and only if the 95% CI for its rank difference
+    excludes 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A pattern is considered distinct if the 95% confidence interval for its
+    rank difference excludes 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:44:07Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime targeted < 6 hours
+  claim_id: c_88533060
+  context: T038b ... ensure end-to-end runtime < 6 hours per SC-004.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_targeted_%3C_6_hours
+  kind: magnitude
+  raw_text: The end-to-end runtime is targeted to be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:44:25Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Edgington 1980 method used for permutation test significance
+  claim_id: c_cdbac6a0
+  context: T030b ... statistical significance (Edgington, 1980).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Edgington (1980) method is used for statistical significance in permutation
+    tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:44:51Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU-13 dataset arxiv ID 2605.23004
+  claim_id: c_9ba2202a
+  context: 'T007a [P] **Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset**: **Logic**: 1) Attempt fetch from ` Name or service not known)"))].'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:45:48Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests Edgington 1980
+  claim_id: c_39b901ba
+  context: 'T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests
+    in `code/analysis/significance_tests.py`: permutations, statistical significance
+    (Edgington, 1980).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutation tests (Edgington, 1980)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:46:04Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 0
+  canonical: CTU-13 dataset arXiv ID 2605.23004
+  claim_id: c_e32e72e4
+  context: T007a [P] Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:47:10Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction FDR threshold 0.05 arXiv ID 1906.01701
+  claim_id: c_6eccf929
+  context: T028 [US3] Write test skeleton for Benjamini-Hochberg correction in tests/test_significance_tests.py
+    (validates FDR < 0.05 (1906.01701, https://arxiv.org/abs/1906.01701) threshold
+    per FR-006).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: validates FDR < 0.05 (1906.01701, https://arxiv.org/abs/1906.01701) threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:47:18Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Edgington 1980 permutation test statistical significance
+  claim_id: c_d943ed9c
+  context: 'T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests
+    in code/analysis/significance_tests.py: permutations, statistical significance
+    (Edgington, 1980).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statistical significance (Edgington, 1980)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:47:41Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests robust for sample size less than 13
+  claim_id: c_35d788de
+  context: 'Note on Statistical Method: The Plan deviates from Spec FR-006 (Wilcoxon)
+    to Permutation Tests for small N (<13). This task implements Permutation Tests
+    as per Plan.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_robust_for_sample_size_less_than_13
+  kind: magnitude
+  raw_text: N<13 scenarios
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:48:13Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN convergence limit 30 epochs
+  claim_id: c_ba0c1f6a
+  context: "T018 [US2] Write test skeleton for GCN convergence on CPU in tests/test_models.py\
+    \ (asserts no CUDA errors, converges \u226430 epochs per FR-003 with patience=5,\
+    \ min_delta=1e-4)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "converges \u226430 epochs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:48:13Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph node count limit 5000
+  claim_id: c_893a3963
+  context: "T011 [US1] Write test skeleton for node count subsampling in tests/test_graph_construction.py\
+    \ (asserts nodes \u2264 5,000 per FR-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "node count subsampling asserts nodes \u2264 5,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:48:14Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph construction runtime limit 6 hours
+  claim_id: c_a7f5d6e4
+  context: T038b [P] Optimize graph construction loop in code/data/preprocess.py to
+    ensure end-to-end runtime < 6 hours per SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure end-to-end runtime < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:48:34Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Target AUC threshold 0.75
+  claim_id: c_05dda5a9
+  context: 'T007e [P] Generate Research Plan and Thresholds: Logic: 1) Create research.md
+    if it does not exist. 2) Define target_auc (e.g., 0.75) and Temporal Holdout split
+    ratios...'
+  evidence:
+    asserted: '0.75'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: target_auc (e.g., 0.75)
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:48:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Early stopping patience 5 min delta 1e-4
+  claim_id: c_8f313cfe
+  context: 'T021 [P] [US2] [Depends on T017, T009] Implement GCN with Early Stopping:
+    Constraints: ... 3) Early Stopping (patience=5, min_delta=1e-4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: patience=5, min_delta=1e-4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:48:53Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU-13 dataset identifier 2605.23004 URL https://arxiv.org/abs/2605.23004
+  claim_id: c_e9c452f9
+  context: T007a [P] Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The CTU-13 dataset is associated with the identifier 2605.23004 and the
+    URL https://arxiv.org/abs/2605.23004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:49:53Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction identifier 1906.01701 URL https://arxiv.org/abs/1906.01701
+  claim_id: c_a77a20e6
+  context: T028 [US3] Write test skeleton for Benjamini-Hochberg correction in tests/test_significance_tests.py
+    (validates FDR < 0.05 (1906.01701, https://arxiv.org/abs/1906.01701) threshold
+    per FR-006).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The Benjamini-Hochberg correction is associated with the identifier 1906.01701
+    and the URL https://arxiv.org/abs/1906.01701.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:49:55Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation Tests attributed to Edgington 1980
+  claim_id: c_3d8b0ec0
+  context: 'T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests
+    in code/analysis/significance_tests.py: permutations, statistical significance
+    (Edgington, 1980).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Tests are attributed to Edgington, 1980.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:50:11Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 0
+  canonical: CTU-13 dataset arxiv ID 2605.23004
+  claim_id: c_0a570c16
+  context: Task T007a attempts to download the CTU-13 dataset using the identifier
+    2605.23004 and the URL https://arxiv.org/abs/2605.23004.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The CTU-13 dataset is associated with the identifier 2605.23004 and the
+    URL https://arxiv.org/abs/2605.23004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:51:11Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 0
+  canonical: Benjamini-Hochberg correction arxiv ID 1906.01701
+  claim_id: c_fb90af8f
+  context: Task T028 writes a test skeleton for Benjamini-Hochberg correction, citing
+    the identifier 1906.01701 and the URL https://arxiv.org/abs/1906.01701.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Benjamini-Hochberg correction is associated with the identifier 1906.01701
+    and the URL https://arxiv.org/abs/1906.01701.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:51:12Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests attributed to Edgington 1980
+  claim_id: c_f130c21e
+  context: Task T030b implements Permutation Tests in code/analysis/significance_tests.py,
+    citing Edgington, 1980 for statistical significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Tests for statistical significance are attributed to Edgington
+    (1980).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:51:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU-13 dataset arxiv ID 2605.23004
+  claim_id: c_2c140038
+  context: T007a [P] Attempt Download of CTU-13 (2605.23004, https://arxiv.org/abs/2605.23004)
+    Dataset
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CTU-13 dataset is associated with arXiv ID 2605.23004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:53:01Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction arxiv ID 1906.01701
+  claim_id: c_00a1846d
+  context: T028 [US3] Write test skeleton for Benjamini-Hochberg correction in tests/test_significance_tests.py
+    (validates FDR < 0.05 (1906.01701, https://arxiv.org/abs/1906.01701) threshold
+    per FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg correction is associated with arXiv ID 1906.01701.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:53:10Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation Tests statistical significance Edgington 1980
+  claim_id: c_d75111cc
+  context: 'T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests
+    in code/analysis/significance_tests.py: permutations, statistical significance
+    (Edgington, 1980).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Tests for statistical significance are attributed to Edgington
+    (1980).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:53:11Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 2
+  canonical: Graph construction memory limit 7GB
+  claim_id: c_d33edd3e
+  context: "Goal: Ingest raw NetFlow records, construct directed communication graphs,\
+    \ and verify memory safety (<7GB) and node limits (\u22645,000)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_construction_memory_limit_7GB
+  kind: entity_fact
+  raw_text: peak memory <7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:53:14Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Graph node count limit 5000
+  claim_id: c_2f1a2f3d
+  context: "Goal: Ingest raw NetFlow records, construct directed communication graphs,\
+    \ and verify memory safety (<7GB) and node limits (\u22645,000)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a maximum node count of 5,000 for network traffic
+    graphs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:53:57Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Target AUC 0.75
+  claim_id: c_8e6e86c3
+  context: 'T007e [P] Generate Research Plan and Thresholds: ... 2) Define target_auc
+    (e.g., 0.75) and Temporal Holdout split ratios...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project aims for a target AUC of 0.75 based on preliminary literature.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:54:25Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN training max 30 epochs patience 5
+  claim_id: c_84ea08d9
+  context: "T018 [US2] Write test skeleton for GCN convergence on CPU in tests/test_models.py\
+    \ (asserts no CUDA errors, converges \u226430 epochs per FR-003 with patience=5,\
+    \ min_delta=1e-4)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GCN training is constrained to a maximum of 30 epochs with patience of
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:54:45Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: FDR threshold 0.05
+  claim_id: c_c20525fa
+  context: T028 [US3] Write test skeleton for Benjamini-Hochberg correction in tests/test_significance_tests.py
+    (validates FDR < 0.05 (1906.01701, https://arxiv.org/abs/1906.01701) threshold
+    per FR-006).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "the break-even tolerance \u03B1 = 0.05. If f1 is non-increasing, then\
+        \ the oracle procedure reduces"
+      source_id: '2207.07299'
+      url: https://arxiv.org/abs/2207.07299
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical analysis uses a False Discovery Rate (FDR) threshold of
+    0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T02:55:22Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests used for sample size N less than 13
+  claim_id: c_11cfa493
+  context: 'Note on Statistical Method: The Plan deviates from Spec FR-006 (Wilcoxon)
+    to Permutation Tests for small N (<13).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_used_for_sample_size_N_less_than_13
+  kind: magnitude
+  raw_text: Permutation tests are selected over Wilcoxon tests for scenarios where
+    the sample size N is less than 13.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:56:41Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set contains 7 comparisons
+  claim_id: c_4fd619f6
+  context: T031a [P] [US3] ... 3) Validate count == 7.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set for statistical comparisons includes exactly 7 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:57:02Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime less than 6 hours
+  claim_id: c_40c2b63c
+  context: T038b [P] Optimize graph construction loop in code/data/preprocess.py to
+    ensure end-to-end runtime < 6 hours per SC-004.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The project aims for an end-to-end runtime of less than 6 hours per scenario.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T02:57:30Z'

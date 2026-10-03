@@ -1,10 +1,11 @@
-T009:
+T007a:
   c: false
-  h: 065533136130b1b77ea9243235207055fbffd0f9514048467aecd13469e4fbce
-  r: "The required output files (`data/processed/train_split.csv`, `data/processed/test_split.csv`,\
-    \ `data/processed/graph_train_split.graphml`) are absent, and the provided `splits.py`\
-    \ is truncated before the core split/graph logic is fully implemented, so the\
-    \ task\u2019s specifications are not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No download script, checksum validation code, or resulting `data/raw/ctu13_scenario_*.csv`
+    files are present; the implementer provided only a textual description of the
+    intended logic, without any actual artifact that attempts the fetch, verifies
+    the hash, writes the CSVs, or triggers the fallback task. Consequently the required
+    output does not exist.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

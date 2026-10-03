@@ -1,18 +1,12 @@
-# Core dependencies
-torch>=2.0.0
-networkx>=3.0
-scikit-learn>=1.0
-xgboost>=1.7.0
-pandas>=1.5.0
-numpy>=1.20.0
-matplotlib>=3.5.0
-seaborn>=0.12.0
-captum>=0.6.0
-pyyaml>=6.0
-
-# Testing and profiling
-pytest>=7.0.0
-pytest-memory-profiler>=0.6.0
-
-# Utilities
-requests>=2.28.0
+torch
+networkx
+scikit-learn
+xgboost
+pandas
+numpy
+matplotlib
+seaborn
+captum
+pytest
+pytest-memory-profiler
+pyyaml

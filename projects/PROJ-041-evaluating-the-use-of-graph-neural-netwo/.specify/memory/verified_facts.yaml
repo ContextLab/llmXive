@@ -1,10 +1,6 @@
-'|alpha':
-  quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
-    which he called "tests of significance", in his publication Statistical Methods
-    for Research Workers. Fisher suggested a probability of one in twenty (0.05) as
-    a convenient cutoff level to reject the null hypothesis. In a 1933 paper, Jerzy
-    Neyman and Egon Pearson called this cutoff the significance level, which they
-    named
-  source_id: Statistical significance
-  url: https://en.wikipedia.org/wiki/Statistical_significance
+'|analysi discovery false rate statistical threshold use':
+  quote: "the break-even tolerance \u03B1 = 0.05. If f1 is non-increasing, then the\
+    \ oracle procedure reduces"
+  source_id: '2207.07299'
+  url: https://arxiv.org/abs/2207.07299
   value: '0.05'

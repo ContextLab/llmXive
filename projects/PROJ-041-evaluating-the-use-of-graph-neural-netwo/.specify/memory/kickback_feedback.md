@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T007a` (rejected 1x): No dataset files, download scripts, or checksum validation logs are present; the claim provides no tangible artifact confirming that the CTU dataset was downloaded from the canonical URL or that its checksum was verified. The required evidence is missing.
-- `T007b` (rejected 1x): No artifact (downloaded NF‑BoT‑IoT files, checksum file, or validation script/log) is present; the claim provides no evidence that the dataset was retrieved or that its checksum was verified. The required download and checksum validation steps are therefore missing.
+- `T009` (rejected 1x): The required output files `data/processed/train_split.csv`, `data/processed/test_split.csv`, and `data/processed/graph_train_split.graphml` are absent from the repository, so the temporal holdout split and graph construction have not been performed. No other artifacts were provided to demonstrate that the split logic or graph creation was executed.
 
 ## Required change
 

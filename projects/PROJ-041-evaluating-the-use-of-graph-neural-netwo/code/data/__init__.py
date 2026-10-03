@@ -1,4 +1,2 @@
-"""
-Data processing module for the GNN Anomaly Detection project.
-Contains utilities for data ingestion, preprocessing, and graph construction.
-"""
+# Package initialization for data module
+pass
