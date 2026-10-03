@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 21fe650b4dbabdfd61255e3990d4eb64291c57c5aa79a8591d785ee18be9281b
+  artifact_path: projects/PROJ-064-statistical-discrepancies-in-publicly-av/specs/001-statistical-discrepancies-in-publicly-av/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmXive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmXive
+  verified_at: '2026-10-03T05:34:20.350889Z'

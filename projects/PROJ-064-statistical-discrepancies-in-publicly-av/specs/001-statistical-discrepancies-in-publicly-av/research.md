@@ -1,101 +1,77 @@
 # Research: Statistical Discrepancies in Publicly Available Election Data
 
-## Research Question
+## Problem Statement
 
-Do reported vote counts at the county level deviate from the sum of precinct-level vote counts by more than expected under a null model of random clerical error?
+The research question is whether reported vote counts at higher aggregation levels (county/state) deviate from the sum of lower-level reports (precincts) by more than expected under a model of random clerical error. This analysis aims to distinguish between benign noise (random fluctuations) and systematic anomalies (potential data entry errors or other irregularities) using statistical hypothesis testing.
 
 ## Dataset Strategy
 
-The analysis requires a dataset containing **precinct-level vote counts** and the corresponding **county-level reported totals** for the same election cycle. 
+### Available Data Sources
 
-### Verified Sources & Selection
+The spec requires data from **OpenElections** and **EAC**. However, the `# Verified datasets` block provided for this project contains **NO verified source** for OpenElections or EAC election data.
 
-Based on the "# Verified datasets" block provided:
-- **OpenElections**: NO verified source found. The plan does **not** cite a URL for OpenElections.
-- **EAC (parquet)**: Three verified Hugging Face URLs are available. 
-  - `community-datasets/europa_eac_tm` (parquet)
-  - `CVasNLPExperiments/OxfordPets_test...` (parquet - likely irrelevant, metadata-heavy)
-  - `CVasNLPExperiments/OxfordPets_test...` (parquet - likely irrelevant, metadata-heavy)
+**Critical Finding**: There is **NO verified, directly-downloadable dataset** in the provided list that contains US election precinct/county vote counts.
 
-**Critical Gap Analysis**: 
-The verified EAC URLs provided (`community-datasets/europa_eac_tm`) appear to be related to European/African datasets or specific NLP benchmark tasks (OxfordPets), not US precinct-level election data. The `community-datasets/europa_eac_tm` dataset is unlikely to contain US precinct/county vote counts. 
+**Resolution Strategy**:
+1.  **Primary Plan**: The implementation will target the **OpenElections** project as the canonical source.
+2.  **Synthetic Data Fallback (CI Mode)**: Since no verified open-source URL exists in the allowlist, the `ingestion.py` script will default to a **Synthetic Data Fallback** mode for the CI runner. This mode generates a realistic election dataset using a probabilistic model (with injected anomalies) to ensure the pipeline is testable and reproducible without relying on unverified external sources.
+3.  **Real Data Mode**: If a user provides a verified URL or a HuggingFace dataset ID in `config.py`, the script will attempt to fetch that real data. If the fetch fails or the data is too large (>10GB), it falls back to sampling or the synthetic mode.
+4.  **Dataset Verification**: Before analysis, the script will verify the presence of required columns: `precinct_id`, `precinct_vote_count`, `county_name`, `county_reported_total`.
+5. **Data Limitations**: If the full dataset exceeds processing limits, a fixed-seed random sample of [deferred] jurisdictions will be used, with the limitation explicitly noted.
 
-**Decision**: Since the verified URLs do **not** contain the required US election variables (precinct sums, county totals), the plan **cannot** proceed with these specific files as the primary data source for the *US* election question. 
+### Variable Mapping
 
-**Pivot: Synthetic Data Fallback**: 
-To ensure the statistical methodology is testable and the pipeline is functional, the plan implements a **Synthetic Data Fallback**:
-1.  **Attempt Load**: The pipeline first attempts to load the verified Hugging Face datasets to inspect their schema.
-2.  **Schema Validation**: If a source lacks US precinct/county variables, the script raises `DataIntegrityError` for the primary path.
-3.  **Fallback Execution**: The pipeline automatically switches to a **Synthetic Data Generator** that creates a dataset with:
-    -   Realistic precinct/county hierarchies.
-    -   Known "ground truth" vote counts.
-    -   Injected "clerical errors" (random noise) and "systematic anomalies" (known deviations) with controlled parameters.
-4.  **Methodology Validation**: The statistical tests (NB, Permutation, AD/KS) are run against this synthetic data. Since the ground truth is known, we can verify if the pipeline correctly identifies the injected anomalies.
-5.  **Reporting**: If only synthetic data is available, the final report explicitly states: "Analysis validated on synthetic data with known ground truth; US-specific application pending verified data source."
-
-**Data Loading Strategy**:
-- Use `datasets.load_dataset(..., streaming=True)` for the verified Hugging Face sources to check schema without downloading full files.
-- If a source is verified but lacks variables, the script triggers the Synthetic Data Generator.
-- **Never** fabricate a URL. If no verified US source exists, the pipeline proceeds with synthetic data.
+| Required Variable | Source Column (Expected) | Handling if Missing |
+|-------------------|--------------------------|---------------------|
+| Precinct ID | `precinct_id` | Error if missing; cannot aggregate. |
+| Precinct Vote Count | `total_votes` or `candidate_votes` | Sum across candidates; error if missing. |
+| County Reported Total | `county_total` | Error if missing; cannot calculate discrepancy. |
+| County Name | `county_name` | Used for aggregation key. |
 
 ## Statistical Methodology
 
-### Null Models
+### Null Model Construction
 
-**Critical Correction**: To avoid circular reasoning (fitting the null to the observed anomalies), the null models are constructed as follows:
+1.  **Robust Negative Binomial Model**:
+    -   **Rationale**: Clerical errors in vote counting are likely over-dispersed. A Poisson model assumes variance = mean, which is often too restrictive. The Negative Binomial (NB) distribution accounts for this over-dispersion.
+    -   **Robust Estimation (Two-Pass)**: To avoid 'baking in' anomalies, the NB parameters are **not** fitted to the raw observed discrepancies. Instead:
+        -   **Pass 1**: Calculate robust statistics (median and Median Absolute Deviation - MAD) on the observed discrepancies to estimate the 'clean' error scale, ignoring the heavy tails.
+        -   **Pass 2**: Use these robust parameters to fit the NB distribution. This ensures the null model represents the expected 'clean' error distribution, not the observed distribution which may contain systematic errors.
+    -   **Simulation**: Generate a substantial set of synthetic discrepancy values from the fitted NB distribution.
 
-1.  **Negative Binomial (Theoretical Prior)**:
-    -   **Rationale**: Vote discrepancies often exhibit over-dispersion (variance > mean).
-    -   **Parameter Derivation**: Instead of fitting to observed discrepancies, parameters ($\mu$, $\theta$) are derived from:
-        -   **Option A**: Historical audit studies (external priors) for typical clerical error rates.
- - **Option B**: A theoretical error model where $\mu$ is the expected error rate (e.g., [deferred]) and $\theta$ is estimated from the variance of *randomly generated noise* added to the synthetic data.
-    -   **Implementation**: The NB distribution is generated *independently* of the observed data's anomaly structure.
+2.  **Fallback: Parametric Bootstrap with Noise Injection**:
+    -   **Rationale**: If the NB fit fails (e.g., data is too sparse or zero-inflated), the 'Permutation Model' is invalid because shuffling precincts within a county preserves the county total (discrepancy = 0).
+    -   **Method**: Generate synthetic precinct sums by adding random noise (scaled by a conservative error rate derived from the median) to the reported totals. This creates a valid distribution of non-zero discrepancies for comparison.
+    -   **Interpretation**: This provides a non-parametric baseline that does not rely on the NB assumption.
 
-2.  **Permutation-Based (Intra-County Noise)**:
-    -   **Rationale**: Non-parametric approach simulating random clerical error.
-    -   **Correction**: The plan no longer shuffles precinct-to-county assignments (which destroys geography). 
-    -   **Corrected Method**: The permutation test shuffles the **sign** of the discrepancy or adds random noise to precinct counts **within their original county boundaries**. This preserves the geographic structure while simulating the "random clerical error" null hypothesis.
-    -   **Implementation**: A large number of iterations of adding random noise (drawn from a theoretical error distribution) to precinct counts, re-aggregating to county level, and calculating discrepancies.
-
-### Hypothesis Testing & Anomaly Detection
-
--   **Anderson-Darling (AD)**: Tests the global fit of the observed distribution against the null.
--   **Kolmogorov-Smirnov (KS)**: Tests for general distributional differences.
--   **Individual Jurisdiction Scoring**:
-    -   While AD/KS test the global fit, individual anomalies are flagged by calculating a **p-value for each jurisdiction**:
-        -   $p_i = \frac{\text{count of simulated discrepancies} \ge \text{observed discrepancy}_i}{\text{total simulations}}$
-    -   Jurisdictions with $p_i < \alpha$ (e.g., 0.05) are flagged as anomalies.
--   **Significance Level**: $\alpha = 0.05$.
--   **Framing**: Results will be reported as "The observed distribution deviates from the random expectation" (associational), never "Fraud was detected."
+3.  **Goodness-of-Fit Tests**:
+    -   **Anderson-Darling (AD)**: More sensitive to deviations in the tails of the distribution. Used to test if observed discrepancies follow the NB null.
+    -   **Kolmogorov-Smirnov (KS)**: Tests the maximum distance between cumulative distribution functions.
+    -   **Interpretation**: A p-value < 0.05 indicates the observed discrepancies deviate significantly from the random error model.
 
 ### Sensitivity Analysis
 
-- **Threshold Sweep**: Explicitly defined as `{[deferred], [deferred], [deferred], [deferred]}` to satisfy FR-005.
--   **Model Comparison**: Compare anomaly counts between Negative Binomial and Permutation models.
--   **Primary Threshold**: The **0.5%** threshold is fixed as the primary reference point for SC-001.
+- **Threshold Sweep**: Re-run anomaly detection at thresholds: **0.01%, 0.05%, 0.1%, [deferred]** (primary). (Resolved FR-005).
+-   **Model Comparison**: Compare results from Robust NB null vs. Parametric Bootstrap null.
+-   **Robustness Check**: If the number of flagged anomalies varies wildly across thresholds or models, the findings are considered unstable.
 
-### Collinearity & Predictor Diagnostics (SC-006)
+### Causal Framing
 
--   If the analysis extends to regression on covariates (e.g., population density):
-    -   Calculate Variance Inflation Factor (VIF) for all predictors.
-    -   If VIF > 5, report collinearity and describe relationships descriptively.
-    -   **No independent effects** are claimed for collinear variables.
--   If no regression is performed, SC-006 is marked as "Not Applicable" in the report.
+-   **Observational Design**: Since we cannot randomize data entry pipelines, we **cannot** claim that discrepancies are caused by fraud or specific systemic failures.
+-   **Language**: All results will be framed as "deviations from expected random fluctuations" or "associational anomalies." Claims of "fraud" or "causal mechanisms" are strictly prohibited.
 
-## Compute Feasibility
+## Compute Feasibility & Data Availability
 
--   **CPU-First**: All statistical tests (AD, KS, Negative Binomial fitting) are CPU-tractable.
-- **Memory Management**: Monte Carlo iterations (10,000) will be run in chunks (e.g., [deferred] iterations per batch) to keep RAM usage < 7 GB.
--   **No GPU Required**: The analysis does not involve deep learning or large language models.
-- **Time Limit**: [deferred] iterations of simple statistical sampling should complete well within 6 hours on a 2-core CPU.
--   **Synthetic Data**: Generating synthetic data is computationally inexpensive and ensures the pipeline runs even without large external datasets.
+-   **CPU-First**: The entire pipeline (ingestion, NB fitting, 10k simulations, AD/KS tests) is designed to run on CPU using `scipy` and `numpy`. No GPU is required.
+-   **Memory Management**:
+    -   **Two-Pass Streaming**: Pass 1 aggregates sufficient statistics (sum, count, sum of logs) to estimate parameters without loading full data. Pass 2 runs the simulation.
+ - **Chunked Simulation**: 10,000 iterations are run in batches (e.g., [deferred] per batch) to stay under 7GB RAM.
+    -   **Synthetic Fallback**: If no real data is available, synthetic data is generated on the fly to ensure CI reproducibility.
+-   **Disk Limit**: Intermediate files are cleaned up after use. The final `data/processed/` directory is expected to be < 500MB for a sampled analysis.
 
-## Decision / Rationale
+## Decision/Rationale
 
-| Method | Choice | Rationale |
-|--------|--------|-----------|
-| Null Model | Negative Binomial (Theoretical) + Permutation (Intra-County) | Avoids circular reasoning; preserves geographic structure. |
-| Data Source | Verified Hugging Face (if US data present) OR Synthetic Fallback | Strict adherence to "Verified datasets" block; ensures methodology is testable. |
-| Inference | Associational only | Observational data cannot support causal claims (Principle VII). |
-| Compute | CPU (Chunked) | Fits within GitHub Actions limits; no GPU needed for this statistical analysis. |
-| Sensitivity | Thresholds {0.01%, 0.05%, 0.1%, [deferred]} | Explicitly satisfies FR-005; [deferred] is primary reference. |
+-   **Why Robust NB?**: Fitting NB directly to observed data biases the null if anomalies exist. Robust estimation (median/MAD) isolates the 'clean' error signal.
+-   **Why Parametric Bootstrap Fallback?**: Permutation of precincts within a county results in zero discrepancy (sum = total). Parametric bootstrap adds noise to generate a valid non-zero distribution.
+-   **Why No Causal Claims?**: The data is observational. Without random assignment of "error-prone" vs. "error-free" pipelines, causal inference is invalid.
+-   **Why Synthetic Fallback?**: Ensures the pipeline is testable and reproducible in CI even when no verified open election dataset exists.

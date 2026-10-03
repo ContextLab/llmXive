@@ -2,75 +2,96 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip` or `poetry`
--   Access to GitHub Actions runner (for CI) or local environment with 7 GB+ RAM.
+- Python 3.11+
+- Git
+- Access to a HuggingFace account (optional, for large datasets)
+- GitHub Actions Free Tier (for CI execution)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Install dependencies**:
-    ```bash
-    pip install -r projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/requirements.txt
-    ```
-3.  **Verify environment**:
-    ```bash
-    python -c "import pandas, scipy, datasets; print('Environment OK')"
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd projects/PROJ-064-statistical-discrepancies-in-publicly-av
+ ```
+
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the `main.py` script.
+### 1. Data Ingestion
 
-### 1. Data Ingestion & Validation
+Run the ingestion script to download or generate data.
+*Note: If no verified real dataset is found, the script defaults to 'Synthetic Data Fallback' mode.*
+
 ```bash
-python projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/main.py --step ingestion
+python code/ingestion.py --source "synthetic" --state "CA"
 ```
--   Downloads data from verified Hugging Face sources.
--   Validates schema (precinct/county variables).
--   **Fallback**: If no verified US election data is found, the pipeline automatically generates **synthetic data** with known ground truth to validate the methodology.
--   **Note**: If verified sources are absent, the pipeline proceeds with synthetic data and logs a warning.
+
+This will:
+- Generate synthetic election data (or download if `--source "real"` and URL provided).
+- Calculate checksums.
+- Generate `data/processed/unified_election_data.parquet`.
 
 ### 2. Discrepancy Calculation
-```bash
-python projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/main.py --step discrepancy
-```
--   Aggregates precincts to county level.
--   Calculates absolute and relative discrepancies.
--   Handles missing data and zero-denominator edge cases.
--   Validates temporal alignment of election years.
 
-### 3. Statistical Analysis
+Calculate discrepancies between precinct sums and county totals.
+
 ```bash
-python projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/main.py --step analysis --iterations 10000
+python code/discrepancy_calc.py --input data/processed/unified_election_data.parquet --output data/processed/discrepancies.parquet
 ```
--   Runs Negative Binomial (theoretical prior) and Permutation (intra-county noise) null models.
--   Performs Anderson-Darling and KS tests.
--   Calculates individual jurisdiction p-values for anomaly detection.
-- Generates sensitivity analysis report with thresholds `{0.01%, 0.05%, 0.1%, [deferred]}`.
+
+### 3. Statistical Simulation & Analysis
+
+Run the Monte Carlo simulation (10,000 iterations) and statistical tests.
+
+```bash
+python code/simulation.py --input data/processed/discrepancies.parquet --iterations 10000 --seed 42
+python code/analysis.py --input data/processed/null_distributions.json --threshold 0.005
+```
 
 ### 4. Visualization
-```bash
-python projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/main.py --step viz
-```
--   Generates histograms, Q-Q plots, and anomaly lists.
--   Saves outputs to `data/processed/figures/`.
 
-### 5. Reproducibility Verification
+Generate histograms, Q-Q plots, and sensitivity reports.
+
 ```bash
-python projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/main.py --step verify
+python code/viz.py --input data/processed/analysis_results.json --output-dir docs/plots
 ```
--   Re-runs the entire pipeline on a fresh virtual environment to ensure end-to-end reproducibility.
 
 ## Testing
 
-Run the full test suite:
+Run the unit tests to verify the pipeline:
+
 ```bash
-pytest projects/PROJ-064-statistical-discrepancies-in-publicly-av/tests/
+pytest tests/unit/ -v
+```
+
+Run the integration test (requires data download):
+
+```bash
+pytest tests/integration/test_pipeline.py -v
 ```
 
 ## Troubleshooting
 
--   **Memory Error**: If the simulation exceeds 7 GB RAM, the `analysis` step automatically switches to chunked processing.
--   **Data Missing**: If verified sources do not contain US election data, the pipeline halts the primary path and switches to the **Synthetic Data Fallback** automatically.
--   **Collinearity**: If regression is performed and VIF > 5, the report will flag the collinearity and describe relationships descriptively.
+- **Memory Error**: If the simulation fails due to memory, reduce the `--iterations` count or ensure `streaming=True` is used in `ingestion.py`.
+- **Data Not Found**: If the script fails to find the dataset, check `config.py` for the `DATASET_SOURCE` flag. It will default to synthetic data if no real source is verified.
+- **NB Fit Failure**: If the Negative Binomial fit fails, the script will automatically switch to the Parametric Bootstrap model. Check the logs for `NB_FIT_FAILED` warnings.
+- **Reproducibility**: Use `--verify-reproducible` flag to check seed consistency and checksums.
+
+## Output Artifacts
+
+- `data/processed/unified_election_data.parquet`: Cleaned, unified dataset.
+- `data/processed/discrepancies.parquet`: Discrepancy calculations.
+- `data/processed/null_distributions.json`: Simulated null distribution.
+- `data/processed/analysis_results.json`: Final statistical results.
+- `docs/plots/`: Generated visualizations (histograms, Q-Q plots).

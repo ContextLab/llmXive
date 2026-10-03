@@ -1,63 +1,39 @@
 # Implementation Plan: Statistical Discrepancies in Publicly Available Election Data
 
 **Branch**: `001-statistical-discrepancies` | **Date**: 2026-07-24 | **Spec**: `specs/001-statistical-discrepancies/spec.md`
-**Input**: Feature specification from `specs/001-statistical-discrepancies/spec.md`
+**Input**: Feature specification from `/specs/001-statistical-discrepancies/spec.md`
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to detect discrepancies between precinct-level vote sums and county-level reported totals in US election data. The approach involves ingesting raw CSV/Parquet data from verified public sources (or generating synthetic data if verified US sources are absent), calculating absolute and relative discrepancies, and subjecting these discrepancies to a rigorous null-model test (Negative Binomial and Permutation-based) via Monte Carlo simulation. 
-
-**Critical Methodology Update**: The Negative Binomial null model is constructed from *theoretical error priors* or *pre-aggregation permutation* to avoid circular reasoning. The permutation test simulates random clerical error *within* existing geographic boundaries. If verified US datasets are unavailable, the pipeline executes a **Synthetic Data Fallback** to validate the statistical methodology against known ground truth.
-
-The system explicitly handles missing data, enforces memory constraints via chunked processing, and frames all findings as associational deviations from random expectation, avoiding causal claims.
+This feature implements a statistical pipeline to analyze discrepancies between precinct-level vote sums and county-level reported totals in US election data. The system downloads open election data (or generates synthetic data for CI reproducibility if no verified source exists), calculates absolute and relative discrepancies, and performs a 10,000-iteration Monte Carlo simulation using a robust Negative Binomial null model (estimated via median/MAD to avoid bias from anomalies) with a Parametric Bootstrap fallback. The implementation strictly adheres to GitHub Actions CPU constraints (7GB RAM, 14GB disk) via chunked processing and streaming, and frames all findings as associational deviations rather than causal claims.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `datasets` (Hugging Face)  
-**Storage**: Local ephemeral storage on GitHub Actions runner (CSV/Parquet intermediate files, limited capacity)  
-**Testing**: `pytest` (unit tests for data ingestion, statistical logic, and edge cases)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data analysis CLI / Script suite  
-**Performance Goals**: Complete Monte Carlo simulation (10k iterations) within 6 hours; Memory footprint < 7 GB.  
-**Constraints**: No local GPU; must handle missing data gracefully; must not assume causal mechanisms.  
-**Scale/Scope**: Single election cycle dataset (sampled or streamed if > 14 GB) OR Synthetic dataset with known parameters; A large number of Monte Carlo iterations.
+**Primary Dependencies**: `pandas` (data manipulation), `scipy` (statistical tests: Anderson-Darling, KS), `numpy` (simulation), `scikit-learn` (VIF/collinearity), `matplotlib`/`seaborn` (visualizations), `datasets` (Hugging Face streaming), `pyyaml` (contracts), `trufflehog`/`gitleaks` (PII scanning).  
+**Storage**: Local file system (`data/raw/`, `data/processed/`) for intermediate CSVs/Parquet and JSON results.  
+**Testing**: `pytest` with `pytest-cov` for coverage; `pytest-randomly` for seed verification.  
+**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7GB RAM, 14GB disk).  
+**Project Type**: Data Analysis Pipeline / CLI Tool.  
+**Performance Goals**: Complete 10,000 Monte Carlo iterations on a sampled dataset within 6 hours; memory footprint < 7GB.  
+**Constraints**: No GPU available on primary runner; must handle missing data gracefully; must not claim causal mechanisms.  
+**Scale/Scope**: Single election cycle analysis (sampled if full dataset > 10GB); A substantial number of jurisdictions, potentially reaching the maximum feasible scope, will be considered..
 
-> Empirical specifics (exact dataset sizes, measured discrepancy counts) are deferred to the research/implementation phase.
+> Note: If no verified open election dataset is found in the allowlist, the pipeline defaults to a 'Synthetic Data Fallback' mode to ensure CI reproducibility.
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
+This plan explicitly addresses every numbered principle in `projects/PROJ-064-statistical-discrepancies-in-publicly-av/.specify/memory/constitution.md`:
 
-1.  **Reproducibility (Principle I)**: 
-    -   Plan mandates `random_seed=42` for all simulations.
-    -   Dependencies pinned in `requirements.txt`.
-    -   Data sources restricted to verified URLs (Hugging Face) or programmatic loaders to ensure identical fetch on every run.
-    -   **Fresh Runner Verification**: The pipeline includes a `--verify-reproducible` flag that re-runs the entire analysis on a clean virtual environment to ensure end-to-end reproducibility on a fresh GitHub Actions runner context.
-2.  **Verified Accuracy (Principle II)**: 
-    -   Citations in `research.md`, `idea/`, `technical-design/`, `implementation-plan/`, and `paper/` are strictly limited to the "# Verified datasets" block provided in the prompt.
-    -   **Title-Token Overlap**: All citations must pass a title-token-overlap validation (threshold ≥ 0.7) against the primary source before contributing review points.
-    -   No external URLs invented for OpenElections/EAC; fallback to verified Hugging Face mirrors or explicit "no verified source" flags.
-3.  **Data Hygiene (Principle III)**: 
-    -   Pipeline design: Raw data downloaded to `data/raw/` with checksums; processed data written to `data/processed/` (new files, no in-place edits).
-    -   PII scan: `data/` will not contain PII (aggregated vote counts only).
-    -   Checksums recorded in `state/` YAML for all data artifacts.
-4.  **Single Source of Truth (Principle IV)**: 
-    -   Visualizations generated directly from `data/processed/` DataFrames; no manual entry of statistics in reports.
-    -   **Traceability**: Every statistic and interpretation in the final paper/report MUST trace back to exactly one row in `data/` and one code block in `code/`. A `traceability_map.json` is generated to link output metrics to source data rows.
-5.  **Versioning Discipline (Principle V)**: 
-    -   **Comprehensive Hashing**: Every artifact (code, docs, data, configs) carries a content hash.
-    -   The `state/` YAML file is updated with hashes for all artifacts.
-    -   The Advancement-Evaluator Agent invalidates stale review records when *any* hashed artifact changes, not just data files.
-6.  **Aggregation-Level Consistency (Principle VI)**: 
-    -   Data model includes explicit validation of `precinct_id` and `county_name` keys.
-    -   **Temporal Alignment**: The pipeline validates that precinct boundaries and county definitions are temporally aligned with the election cycle year (e.g., ensuring no precinct splits/merges occurred between the dataset source and the election date).
-    -   Logic ensures precincts are mapped to the correct county before discrepancy calculation.
-7.  **Null-Model Statistical Rigor (Principle VII)**: 
-    -   Plan mandates Negative Binomial and Permutation null models constructed *independently* of observed anomalies (via theoretical priors or pre-aggregation permutation).
-    -   Anderson-Darling and KS tests required before classifying any discrepancy as "anomalous."
-    -   Findings strictly framed as "deviations from random expectation."
-    -   **Individual Scoring**: Anomaly flags are generated by calculating p-values for each jurisdiction against the null distribution, not just global test statistics.
+| Principle | Implementation Strategy |
+|-----------|-------------------------|
+| **I. Reproducibility** | All scripts in `code/` will use `random.seed(None)` (defined in `config.py`). External data is fetched via `datasets.load_dataset(..., streaming=True)` from verified URLs OR generated synthetically if no verified source exists. `config.py` contains `DATASET_SOURCE` flag. |
+| **II. Verified Accuracy** | Citations in `research.md` and `paper/` will be validated against the `# Verified datasets` block. No fabricated URLs will be used. Synthetic data generation is deterministic. |
+| **III. Data Hygiene** | Raw data downloaded to `data/raw/` will be checksummed using a cryptographic hash function and recorded in `state/...yaml`. Derived data goes to `data/processed/` with no in-place modifications. PII scan enforced via `trufflehog`/`gitleaks` in `.pre-commit-config.yaml`. |
+| **IV. Single Source of Truth** | All statistics in `paper/` will be generated by `code/analysis.py` and stored in `data/processed/results.json`. No manual entry. |
+| **V. Versioning Discipline** | Artifact hashes (code, data, config) will be updated in `state/...yaml` upon any change. |
+| **VI. Aggregation-Level Consistency** | The ingestion pipeline will validate that precinct IDs and county keys are structurally consistent (matching keys) before calculating discrepancies. Temporal drift is handled via `data_quality_flag` rather than complex validation. |
+| **VII. Null-Model Statistical Rigor** | The core analysis (FR-003, FR-004) mandates a Monte Carlo simulation (10k iterations) using a Negative Binomial null model estimated via robust statistics (median/MAD) to ensure independence from anomalies. Sensitivity analysis confirms robustness across thresholds and models. |
 
 ## Project Structure
 
@@ -69,58 +45,95 @@ specs/001-statistical-discrepancies/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-064-statistical-discrepancies-in-publicly-av/
-├── data/
-│   ├── raw/             # Downloaded raw files (checksummed)
-│   └── processed/       # Unified, cleaned DataFrames
 ├── code/
-│   ├── requirements.txt
-│   ├── ingestion.py     # Data acquisition and normalization (incl. synthetic fallback)
-│   ├── discrepancy.py   # Calculation logic
-│   ├── simulation.py    # Monte Carlo, Negative Binomial, Permutation (non-circular)
-│   ├── analysis.py      # AD/KS tests, sensitivity sweeps, VIF diagnostics
-│   ├── viz.py           # Histograms, Q-Q plots
-│   └── main.py          # Orchestration script
+│   ├── __init__.py
+│   ├── config.py              # Paths, seeds (42), thresholds, DATASET_SOURCE flag
+│   ├── ingestion.py           # FR-001, FR-008, FR-010: Download/Generate, parse, normalize, validate cols
+│   ├── discrepancy_calc.py    # FR-002: Calculate abs/rel discrepancies
+│   ├── simulation.py          # FR-003, FR-009: NB Monte Carlo (robust fit), chunked, Parametric Bootstrap fallback
+│   ├── analysis.py            # FR-004, FR-005: AD, KS tests, sensitivity sweep, timing measurement
+│   ├── collinearity.py        # SC-006: VIF calculation for extended analyses
+│   ├── viz.py                 # FR-006: Histograms, Q-Q, heatmaps
+│   └── utils.py               # Logging (JSON format), error handling, --verify-reproducible flag
+├── data/
+│   ├── raw/                   # Downloaded CSV/Parquet (checksummed)
+│   └── processed/             # Unified DataFrame, null distributions, results
 ├── tests/
-│   ├── test_ingestion.py
-│   ├── test_discrepancy.py
-│   └── test_simulation.py
-└── docs/
-    └── ...
+│   ├── unit/
+│   │   ├── test_ingestion.py
+│   │   ├── test_discrepancy_calc.py
+│   │   └── test_simulation.py
+│   └── integration/
+│       └── test_pipeline.py
+├── docs/
+│   └── data_dictionary.md
+├── state/
+│   └── projects/PROJ-064-statistical-discrepancies-in-publicly-av.yaml
+├── .pre-commit-config.yaml    # PII scanning (trufflehog/gitleaks)
+├── github/
+│   └── workflows/
+│       └── verify_reproducible.yml  # CI workflow for reproducibility checks
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure selected. The project is a data analysis pipeline, not a web service or mobile app. Code is organized by functional module (ingestion, calculation, simulation, viz) to match the user stories. `data/` is split into `raw` and `processed` to satisfy the Data Hygiene principle.
+**Structure Decision**: Single project structure (Option 1) is selected. This is a data analysis pipeline, not a web service or mobile app. The `code/` directory contains modular scripts for ingestion, simulation, and analysis, allowing for isolated testing and easy integration into the CI pipeline.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Chunked Monte Carlo (FR-009) | A large number of iterations may exceed available RAM if all results are kept in memory.. | Storing full simulation arrays in memory risks OOM on the GitHub runner. Chunking ensures feasibility. |
-| Two Null Models (FR-003) | Negative Binomial may not capture all over-dispersion patterns; Permutation provides a non-parametric check. | Relying on a single parametric model risks false positives if the distributional assumption is wrong. |
-| Sensitivity Sweep (FR-005) | Thresholds (0.5%) are arbitrary; robustness must be demonstrated. | A single threshold analysis cannot prove the anomaly is not an artifact of the chosen cutoff. |
-| Synthetic Data Fallback | Verified US sources may be absent. | Without a fallback, the statistical methodology cannot be tested or validated, rendering the project non-executable. |
-| Non-Circular Null Model | Fitting NB to observed data absorbs anomalies. | Using theoretical priors or pre-aggregation permutation ensures the null is independent of the signal. |
+No complexity violations identified. The plan adheres to the CPU constraints by:
+1. **Streaming Data**: Using `datasets` library with `streaming=True` to avoid loading >7GB into RAM. If dataset > 10GB, a random sample of [deferred] jurisdictions is used.
+2.  **Chunked Simulation**: Implementing `simulation.py` to run A sufficient number of iterations will be performed to ensure convergence of the results. in batches (e.g., A fixed batch size) to keep memory usage low.
+3.  **Robust Estimation**: Using two-pass streaming (sufficient statistics) to estimate NB parameters accurately without loading full data.
+4.  **Synthetic Fallback**: If no verified real data is found, the pipeline generates synthetic data to ensure CI reproducibility.
 
-## Sensitivity Analysis Thresholds (FR-005)
+## Tasks & Implementation Details
 
-The plan explicitly defines the sensitivity sweep thresholds as:
-`{[deferred], [deferred], [deferred], [deferred]}`
+### T001: Directory Structure Setup
+Create the required directory tree (`code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`, `config/`) as defined in the Project Structure section.
 
-This set satisfies FR-005 and replaces any `[deferred]` placeholders. The primary threshold for the main metric (SC-001) is fixed at **[deferred]**.
+### T004: Data Directory Initialization
+Initialize `data/raw/` and `data/processed/` with appropriate `.gitkeep` files and checksum logs.
 
-## Collinearity & Predictor Diagnostics (SC-006)
+### T005: Logging Implementation
+Implement `code/utils.py` with a `setup_logger` function that outputs JSON-formatted logs with keys `timestamp`, `level`, `message`, `task_id`. Add `--verify-reproducible` flag to CLI scripts.
 
-If the analysis is extended to include regression on covariates (e.g., population density, precinct size) to explore systematic bias:
-1.  **VIF Calculation**: The Variance Inflation Factor (VIF) will be calculated for all predictors.
-2.  **Threshold**: If VIF > 5, the plan will report the collinearity and describe the relationship descriptively.
-3.  **No Independent Claims**: The plan will **not** claim independent predictive effects for collinear variables.
-4.  **Scope**: If no regression is performed (pure goodness-of-fit), this step is skipped, and SC-006 is marked as "Not Applicable" in the final report.
+### T009a: CI Workflow
+Create `github/workflows/verify_reproducible.yml` to run `pytest`, check checksums, and verify seed consistency.
+
+### T027: Monte Carlo Simulation (10,000 iterations)
+Execute a sufficient number of Monte Carlo iterations to ensure statistical convergence. as mandated by FR-003. Use chunked processing ([deferred] per batch) to stay within memory limits.
+
+### T029: Null Distribution Generation
+Generate `data/processed/null_distributions.json` containing the simulated discrepancy values and model parameters.
+
+### T034: Fallback Logic
+If Negative Binomial fit fails, execute 'Parametric Bootstrap with Noise Injection' as the fallback null model (FR-003).
+
+### T014e: Synthetic Data Fallback
+If no verified real dataset is found, generate synthetic election data with realistic properties and injected anomalies for CI testing.
+
+## Data Flow & Timing
+
+1.  **Ingestion**: Download/Generate data -> Validate columns -> Flag missing data (FR-008, FR-010).
+2.  **Discrepancy**: Calculate `discrepancy_abs` and `discrepancy_pct`.
+3.  **Simulation**: Pass 1 (Robust Stats) -> Pass 2 (Monte Carlo) -> Chunked aggregation.
+4. **Analysis**: AD/KS tests -> Sensitivity Sweep (%, [deferred], [deferred], [deferred]) -> Timing measurement (SC-004).
+5.  **Output**: Generate `results.json` and plots.
+
+## Success Criteria Measurement
+
+-   **SC-001**: Proportion of anomalies measured against null distribution.
+-   **SC-002**: AD p-value compared to α=0.05.
+-   **SC-003**: Stability measured across thresholds and models.
+-   **SC-004**: Execution time logged and compared to a predefined temporal limit.
+-   **SC-005**: Memory usage monitored via chunked processing.
+-   **SC-006**: VIF calculated only if predictors are added; reported as N/A for base univariate case.
