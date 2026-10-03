@@ -96,8 +96,8 @@
 - [ ] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004. **Input**: `data/processed/features.csv` (produced by T013/T014). **Dependency**: T013 AND T014 (must have completed). <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement Spearman correlation analysis in `code/analyze.py` to compute coefficient and 95% CI per FR-005, reading consistency scores from T015 output.
 - [ ] T017 [US1] [Critical] Add logic to frame results as associational only (non-causal) in **ALL** outputs. **Specific Artifacts**: Modify `outputs/correlation_report.csv`, `outputs/regression_results.md`, `outputs/unified_analysis_report.md`, and the plot title in `outputs/consistency_trust_scatter.png`. Ensure every output artifact explicitly states the associational nature of the findings.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T018 [US1] Implement "Fail Loud" Data Fetcher in `code/data_loader.py` by replacing all `try/except` fallbacks to synthetic data with a strict `raise DataFetchError` when real data is unavailable. **Requirement**: The loader MUST NOT generate or return synthetic data if the real fetch fails; it must terminate the pipeline unless a verified real source is explicitly injected by the execution environment. **Dependency**: T012 (refactor the existing logic).
+- [ ] T019 [US1] Implement Real Data Streaming Logic in `code/data_loader.py` to handle datasets larger than 7GB RAM by using `datasets.load_dataset(..., streaming=True)` and chunked processing. **Requirement**: If a real dataset is selected, the code MUST stream it in chunks to compute statistics online, never loading the full dataset into memory. **Dependency**: T018.
 
 ---
 
@@ -109,15 +109,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for ordinal regression model fitting with synthetic metadata in `tests/unit/test_analyze.py`
+- [X] T020 [P] [US2] Unit test for ordinal regression model fitting with synthetic metadata in `tests/unit/test_analyze.py`
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement ordinal regression (proportional odds model) in `code/analyze.py` including control variables per FR-006
-- [ ] T020 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls, ensuring these values are explicitly written to the final report per SC-002.
-- [ ] T021 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report containing all statistical outputs. **Output**: `outputs/unified_analysis_report.md`. **Requirement**: Must include the "associational only" disclaimer in the report header (see T017).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [X] T021 [US2] Implement ordinal regression (proportional odds model) in `code/analyze.py` including control variables per FR-006
+- [ ] T022 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls, ensuring these values are explicitly written to the final report per SC-002.
+- [ ] T023 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report containing all statistical outputs. **Output**: `outputs/unified_analysis_report.md`. **Requirement**: Must include the "associational only" disclaimer in the report header (see T017).
 
 ---
 
@@ -129,14 +127,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T022 [P] [US3] Visual regression test to check file generation and basic structure in `tests/integration/test_visualize.py`
+- [X] T024 [P] [US3] Visual regression test to check file generation and basic structure in `tests/integration/test_visualize.py`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007. **Requirement**: Implement a custom `verify_wcag_contrast()` function using `Pillow` to programmatically measure pixel contrast ratios (≥4.5:1) AND verify that axis-label font sizes meet a minimum readable magnitude (e.g., >= 12pt equivalent) before export per SC-003. The script must raise an error if these checks fail. **Requirement**: The plot title MUST include the "associational only" disclaimer (see T017). **Output**: `outputs/consistency_trust_scatter.png`.
-- [ ] T025 [US3] Export final figure to `outputs/` with proper labeling (title indicating correlation coefficient)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T025 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007. **Requirement**: Implement a custom `verify_wcag_contrast()` function using `Pillow` to programmatically measure pixel contrast ratios (≥4.5:1) AND verify that axis-label font sizes meet a minimum readable magnitude (e.g., >= 12pt equivalent) before export per SC-003. The script must raise an error if these checks fail. **Requirement**: The plot title MUST include the "associational only" disclaimer (see T017). **Output**: `outputs/consistency_trust_scatter.png`.
+- [ ] T026 [US3] Export final figure to `outputs/` with proper labeling (title indicating correlation coefficient)
 
 ---
 
@@ -144,10 +140,8 @@
 
 **Purpose**: Verify the full pipeline runs within constraints and produces valid results.
 
-- [ ] T026 [US1] Implement Proactive Optimization in `code/run_pipeline.py` by adding batch processing logic using `pandas.read_csv(chunksize=...)` and streaming data structures to ensure the pipeline fits memory constraints (<7GB) BEFORE execution. **Output**: `code/run_pipeline.py` (updated).
-- [ ] T027 [US1] Execute Full Pipeline and Validate Constraints by running `code/run_pipeline.py` with N=500 sample and verifying outputs exist in `outputs/`. **Assertion**: Must raise `SystemExit` if peak RAM > 7GB or runtime > 6h, explicitly confirming SC-005 compliance. **Dependency**: T026 (optimization must be implemented first).
-
-**Checkpoint**: Pipeline verified to meet performance constraints
+- [ ] T027 [US1] Implement Proactive Optimization in `code/run_pipeline.py` by adding batch processing logic using `pandas.read_csv(chunksize=...)` and streaming data structures to ensure the pipeline fits memory constraints (<7GB) BEFORE execution. **Output**: `code/run_pipeline.py` (updated).
+- [ ] T028 [US1] Execute Full Pipeline and Validate Constraints by running `code/run_pipeline.py` with N=500 sample and verifying outputs exist in `outputs/`. **Assertion**: Must raise `SystemExit` if peak RAM > 7GB or runtime > 6h, explicitly confirming SC-005 compliance. **Dependency**: T027 (optimization must be implemented first).
 
 ---
 
@@ -259,3 +253,4 @@ With multiple developers:
 - **Data Integrity**: Do not fabricate input data. Use real datasets (NAB/UCI) or deterministic synthetic generation via `synthpop` only as a fallback per FR-001. If synthetic is insufficient, trigger controlled data collection (T012b/c) using the protocol defined in T012a.
 - **Constitution Compliance**: T012b/c implements the actual Data Collection Protocol (consent forms, anonymization) as version-controlled artifacts. T012a is the explicit trigger script generating the IRB template.
 - **Revision Note**: T012 updated to clarify the "fail loud" -> "synthetic fallback" flow with explicit steps. T012b moved to Phase 2 to ensure trigger availability. T012_gen extracted as the explicit synthetic generation task. T023 updated with specific WCAG verification mechanism. T029-T032 added to enforce strict data hygiene and reproducibility checksums. **New**: Phase 6 split into T026 (Implement Optimization) and T027 (Execute & Validate) to separate implementation from execution. T017 expanded to cover all final outputs including the unified report and plot title.
+- **New**: T018 and T019 added to enforce "Fail Loud" data fetching and real data streaming to prevent fabrication and handle large datasets correctly.
