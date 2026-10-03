@@ -1,0 +1,16 @@
+status: none
+intent: human AI interaction dataset synchronized video audio trust scores avatar
+  type interaction duration task difficulty download python package dataset
+required_fields:
+- interaction_id
+- video_file_path
+- audio_file_path
+- trust_score
+- avatar_type
+- interaction_duration
+- task_difficulty
+- timestamp_start
+- timestamp_end
+cache_key: cd611b224cf3f89220d52efc07efe53ae848602a628776f7e0e4c668add544d2
+searched_at: '2026-10-03T07:38:07.849231+00:00'
+retry_count: 1

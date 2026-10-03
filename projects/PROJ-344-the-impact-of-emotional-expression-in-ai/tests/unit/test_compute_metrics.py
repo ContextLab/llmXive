@@ -2,6 +2,8 @@
 tests/unit/test_compute_metrics.py
 
 Unit tests for the intra-modal consistency metric calculation.
+Uses a deterministic mock timeseries file to avoid external dependencies
+while ensuring the logic runs against real numeric data.
 """
 
 import unittest
@@ -19,6 +21,21 @@ from code.compute_metrics import (
     process_interaction_features,
     validate_feature_input
 )
+
+# Ensure fixture directory exists and contains the mock data
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), '..', 'fixtures', 'mock_timeseries.npy')
+if not os.path.exists(FIXTURE_PATH):
+    os.makedirs(os.path.dirname(FIXTURE_PATH), exist_ok=True)
+    # Generate deterministic mock data if missing
+    # Shape: (N_interactions, N_timepoints, 2_features)
+    # Features: [facial_valence, vocal_energy]
+    rng = np.random.default_rng(seed=42)
+    N = 10
+    T = 100
+    mock_data = rng.standard_normal((N, T, 2))
+    # Inject a known correlation in the first interaction
+    mock_data[0, :, 1] = mock_data[0, :, 0] * 0.8 + rng.standard_normal(T) * 0.1
+    np.save(FIXTURE_PATH, mock_data)
 
 class TestCrossCorrelation(unittest.TestCase):
     
@@ -41,7 +58,6 @@ class TestCrossCorrelation(unittest.TestCase):
         signal_b = np.sin(np.linspace(0, 10*np.pi, 200) + np.pi/2) # 90 degree shift
         
         # With sufficient lag window, we should find high correlation
-        # The exact value depends on the shift and window size
         corr = compute_max_abs_cross_correlation(signal_a, signal_b, 50)
         self.assertGreater(corr, 0.5)
     
@@ -97,6 +113,26 @@ class TestProcessInteractionFeatures(unittest.TestCase):
         })
         result = process_interaction_features(bad_df, 'int-1')
         self.assertIsNone(result)
+
+    def test_mock_timeseries_loading(self):
+        """Test processing against the actual mock timeseries fixture."""
+        # Load the deterministic mock data
+        data = np.load(FIXTURE_PATH)
+        # Create a DataFrame from the first interaction (known correlation)
+        # data shape: (N, T, 2) -> (T, 2) for one interaction
+        ts = data[0] 
+        df = pd.DataFrame({
+            'interaction_id': ['int-mock'] * len(ts),
+            'timestamp': np.arange(len(ts)),
+            'facial_valence': ts[:, 0],
+            'vocal_energy': ts[:, 1]
+        })
+        
+        result = process_interaction_features(df, 'int-mock')
+        self.assertIsNotNone(result)
+        self.assertEqual(result['interaction_id'], 'int-mock')
+        # We injected a strong correlation, so score should be > 0.5
+        self.assertGreater(result['consistency_score'], 0.5)
 
 class TestValidateFeatureInput(unittest.TestCase):
     

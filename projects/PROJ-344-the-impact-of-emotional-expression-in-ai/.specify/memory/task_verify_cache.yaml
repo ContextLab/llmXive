@@ -7,28 +7,28 @@ T010:
     YAML schema is present and contains the expected schema definition.
 T013:
   c: false
-  h: 1b1e023637de63cfcabdacc2a01162c374c7a9b4de97cdc84b2055050fda1030
-  r: "The repository contains `code/extract_facial.py`, but the required output file\
-    \ `data/processed/features.csv` is absent, indicating that the extraction script\
-    \ has not been executed (or does not produce the mandated CSV). Without this file,\
-    \ the task\u2019s core requirement\u2014producing a consolidated features CSV\
-    \ from all videos in `data/raw`\u2014is not satisfied."
+  h: 47b5411af885de8b00caebb727cd0cfdf6e3852842ae63f844ec895c401a1ac1
+  r: "The required output file `data/processed/raw_facial_features.csv` does not exist,\
+    \ and the provided `code/extract_facial.py` is truncated (no evidence it iterates\
+    \ over all videos, checks the skip condition, or raises `FileNotFoundError` when\
+    \ no media are found). The task\u2019s core artifact is missing, so the requirement\
+    \ is not satisfied."
 T014:
   c: false
-  h: 5ebf9702f05f8c4ab0aaee1a274a68697f8d13536c02aa913233586ba968f407
-  r: "The provided `code/extract_vocal.py` is incomplete (truncated), contains a typo\
-    \ (`fo_voiced`), lacks any tempo extraction logic, and does not include code that\
-    \ iterates over all files in `data/raw` or writes results to `data/processed/features.csv`\
-    \ (the CSV file is missing). Consequently the task\u2019s output and full functionality\
-    \ are not satisfied."
+  h: 7c45764b70eaf0f1db3ccfa4e1c208c46ad4c1360e58639266dfbaea9f78ac61
+  r: "The required output file `data/processed/raw_vocal_features.csv` does not exist,\
+    \ and the provided `code/extract_vocal.py` is truncated before any actual feature\
+    \ extraction or CSV writing logic, so the task\u2019s functional requirements\
+    \ are not satisfied. The implementation must generate the CSV with pitch, energy,\
+    \ and tempo features for all WAV files in `data/raw/`."
 T015:
   c: false
-  h: d7457ea9d4b9f277cdb9589c331878e670c309b3081b5fda3c872fbca1252302
-  r: The `code/compute_metrics.py` file is incomplete (truncated before the core logic
-    that extracts the lag window and returns the max absolute correlation) and contains
-    no code that reads `data/processed/features.csv` or produces the required metric
-    output. Moreover, the required input file `data/processed/features.csv` is missing
-    entirely. Both the implementation and the necessary data artifact are absent.
+  h: ee26804c5fda9babb10aa0988e3953795c0af4f1ab1b4d252ddc620b3f715e45
+  r: The repository lacks the required input files (`clean_features.csv` and `synthetic_features.csv`)
+    and the expected output file (`metrics.csv`). Moreover, `code/compute_metrics.py`
+    is truncated and does not contain a complete implementation of the metric calculation
+    or the conditional logic described in the task. The necessary artifacts are missing,
+    so the task is not genuinely completed.
 T017:
   c: false
   h: 29a41f5a1cd117fe6e1e3d12fdc455c34a1228a5e42ca6a97281e83a81458995
@@ -44,11 +44,3 @@ T020:
     \ are written to the final report as required. The implementer must supply the\
     \ updated analysis script (or module) and a sample final report containing the\
     \ requested values."
-T023:
-  c: false
-  h: 205147ad04c528b2b7a083b1de58f803b37689a12d6dc081cf9938321650925f
-  r: "The required image `outputs/consistency_trust_scatter.png` is not present, and\
-    \ the code does not contain a `verify_wcag_contrast()` function nor a clear inclusion\
-    \ of the \u201Cassociational only\u201D disclaimer in the plot title. The existing\
-    \ `check_wcag_contrast()` only computes contrast from RGB tuples, not pixel\u2011\
-    level measurements, and the title logic is missing from the shown code."

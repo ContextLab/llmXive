@@ -1,268 +1,262 @@
-"""
-Vocal Prosody Extraction Module.
+"""Vocal prosody extraction using librosa.
 
-Extracts pitch, energy (RMS), and tempo features from audio tracks using librosa.
-Aggregates these features per interaction and appends them to the master features CSV.
+Extracts pitch, energy, and tempo features from audio tracks (.wav)
+and writes them to data/processed/raw_vocal_features.csv.
+
+Skips execution if synthetic feature data exists (T012_gen path).
+Raises FileNotFoundError if no valid audio files are found.
 """
-import os
+from __future__ import annotations
+
+import csv
 import glob
-import numpy as np
-import pandas as pd
-import librosa
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+import json
+import os
+import sys
+from typing import Any, Dict, List, Optional, Tuple
 
-# Import project utilities
-from logging_config import get_logger, log_state_event
-from utils import handle_corrupted_file
-from config import DATA_RAW_DIR, DATA_PROCESSED_DIR
+import librosa
+import numpy as np
+
+# Import the tolerant logger from the shared module
+# This module (code/visualize.py) defines get_logger which is the canonical source
+# for the ReproducibilityLogger used across the project.
+# We import it from visualize to satisfy the cross-module contract.
+try:
+    from visualize import get_logger
+except ImportError:
+    # Fallback if visualize.py is not yet imported in the path, though it should be.
+    # In a real run, logging_config is the source, but visualize defines the tolerant logger.
+    # To avoid circular imports or missing definitions, we define a minimal fallback here
+    # that matches the signature required by the callers in the "Shared-Module Contract".
+    class ReproducibilityLogger:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.name = args[0] if args else kwargs.get("name", "reproducibility")
+            self.entries: list = []
+
+        def log(self, *args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+            return self
+
+        def __getattr__(self, name: str):
+            def _noop(*args: Any, **kwargs: Any) -> None:
+                return None
+            return _noop
+
+    _GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
+
+    def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+        global _GLOBAL_LOGGER
+        if _GLOBAL_LOGGER is None:
+            _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+        return _GLOBAL_LOGGER
 
 logger = get_logger(__name__)
 
-# Constants
-SAMPLING_RATE = 22050
-HOP_LENGTH = 512
-N_FFT = 2048
-TEMPORAL_WINDOW_SEC = 1.0  # Window size for averaging features
+
+def check_skip_condition() -> bool:
+    """Check if synthetic features exist (T012_gen path).
+
+    Returns:
+        True if synthetic features exist (skip extraction), False otherwise.
+    """
+    synthetic_path = "data/processed/synthetic_features.csv"
+    if os.path.exists(synthetic_path):
+        logger.log("SKIP_CONDITION_MET", reason="Synthetic features exist", path=synthetic_path)
+        return True
+    return False
+
+
+def find_audio_files() -> List[str]:
+    """Find all .wav files in data/raw/.
+
+    Returns:
+        List of paths to .wav files.
+
+    Raises:
+        FileNotFoundError: If no .wav files are found.
+    """
+    pattern = "data/raw/*.wav"
+    files = glob.glob(pattern)
+    if not files:
+        logger.log("NO_FILES_FOUND", pattern=pattern, path="data/raw")
+        raise FileNotFoundError(f"No .wav files found in data/raw/ matching '{pattern}'. "
+                                "Ensure T012_media has populated the directory with valid audio files.")
+    logger.log("AUDIO_FILES_FOUND", count=len(files), files=files)
+    return files
+
 
 def extract_pitch_features(y: np.ndarray, sr: int) -> Dict[str, float]:
+    """Extract pitch-related features (F0, variance).
+
+    Args:
+        y: Audio time series.
+        sr: Sample rate.
+
+    Returns:
+        Dictionary with mean_f0, std_f0.
     """
-    Extract pitch-related features (mean, std, range) from the audio signal.
-    Uses librosa's yin algorithm for robust pitch estimation.
+    f0, voiced_flag, voiced_probs = librosa.pyin(
+        y, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'), sr=sr
+    )
+    # Filter out NaNs (unvoiced frames)
+    f0_clean = f0[~np.isnan(f0)]
+    if len(f0_clean) == 0:
+        return {"mean_f0": 0.0, "std_f0": 0.0}
+    return {
+        "mean_f0": float(np.mean(f0_clean)),
+        "std_f0": float(np.std(f0_clean))
+    }
+
+
+def extract_energy_features(y: np.ndarray) -> Dict[str, float]:
+    """Extract energy-related features (RMS, variance).
+
+    Args:
+        y: Audio time series.
+
+    Returns:
+        Dictionary with mean_rms, std_rms.
     """
-    try:
-        # Estimate fundamental frequency
-        f0, voiced_flag, voiced_probs = librosa.pyin(
-            y,
-            fmin=librosa.note_to_hz('C2'),
-            fmax=librosa.note_to_hz('C7'),
-            sr=sr,
-            frame_length=N_FFT,
-            hop_length=HOP_LENGTH
-        )
+    rms = librosa.feature.rms(y=y)[0]
+    return {
+        "mean_rms": float(np.mean(rms)),
+        "std_rms": float(np.std(rms))
+    }
 
-        # Filter out unvoiced frames (NaNs)
-        f0_voiced = f0[~np.isnan(f0)]
-
-        if len(f0_voiced) == 0:
-            return {
-                'pitch_mean': 0.0,
-                'pitch_std': 0.0,
-                'pitch_range': 0.0,
-                'voiced_ratio': 0.0
-            }
-
-        pitch_mean = float(np.mean(f0_voiced))
-        pitch_std = float(np.std(fo_voiced))
-        pitch_range = float(np.max(f0_voiced) - np.min(f0_voiced))
-        voiced_ratio = float(np.sum(~np.isnan(f0)) / len(f0))
-
-        return {
-            'pitch_mean': pitch_mean,
-            'pitch_std': pitch_std,
-            'pitch_range': pitch_range,
-            'voiced_ratio': voiced_ratio
-        }
-    except Exception as e:
-        logger.warning(f"Pitch extraction failed: {e}")
-        return {
-            'pitch_mean': 0.0,
-            'pitch_std': 0.0,
-            'pitch_range': 0.0,
-            'voiced_ratio': 0.0
-        }
-
-def extract_energy_features(y: np.ndarray, sr: int) -> Dict[str, float]:
-    """
-    Extract energy-related features (RMS) from the audio signal.
-    """
-    try:
-        # Calculate RMS energy
-        rms = librosa.feature.rms(y=y, frame_length=N_FFT, hop_length=HOP_LENGTH)[0]
-
-        energy_mean = float(np.mean(rms))
-        energy_std = float(np.std(rms))
-        energy_max = float(np.max(rms))
-
-        # Energy entropy (simplified as variance of log energy)
-        # Avoid log(0)
-        rms_safe = np.maximum(rms, 1e-10)
-        energy_entropy = float(np.std(np.log(rms_safe)))
-
-        return {
-            'energy_mean': energy_mean,
-            'energy_std': energy_std,
-            'energy_max': energy_max,
-            'energy_entropy': energy_entropy
-        }
-    except Exception as e:
-        logger.warning(f"Energy extraction failed: {e}")
-        return {
-            'energy_mean': 0.0,
-            'energy_std': 0.0,
-            'energy_max': 0.0,
-            'energy_entropy': 0.0
-        }
 
 def extract_tempo(y: np.ndarray, sr: int) -> Dict[str, float]:
+    """Extract tempo features.
+
+    Args:
+        y: Audio time series.
+        sr: Sample rate.
+
+    Returns:
+        Dictionary with tempo_bpm, tempo_variance.
     """
-    Extract tempo (BPM) and onset strength features.
+    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+    # tempo is a scalar or array depending on librosa version, ensure float
+    if isinstance(tempo, np.ndarray):
+        tempo_val = float(np.mean(tempo))
+        tempo_std = float(np.std(tempo))
+    else:
+        tempo_val = float(tempo)
+        tempo_std = 0.0
+    return {
+        "tempo_bpm": tempo_val,
+        "tempo_std": tempo_std
+    }
+
+
+def process_audio_file(file_path: str, interaction_id: str) -> Dict[str, Any]:
+    """Process a single audio file and extract all features.
+
+    Args:
+        file_path: Path to the .wav file.
+        interaction_id: ID for the interaction (derived from filename).
+
+    Returns:
+        Dictionary containing all extracted features.
     """
+    logger.log("PROCESSING_AUDIO", file=file_path, interaction_id=interaction_id)
     try:
-        # Estimate tempo
-        tempo, beats = librosa.beat.beat_track(
-            y=y,
-            sr=sr,
-            hop_length=HOP_LENGTH
-        )
-
-        # Calculate onset strength for rhythm analysis
-        onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=HOP_LENGTH)
-        onset_mean = float(np.mean(onset_env))
-        onset_std = float(np.std(onset_env))
-
-        return {
-            'tempo_bpm': float(tempo),
-            'onset_mean': onset_mean,
-            'onset_std': onset_std
-        }
+        y, sr = librosa.load(file_path, sr=None)
     except Exception as e:
-        logger.warning(f"Tempo extraction failed: {e}")
+        logger.log("AUDIO_LOAD_ERROR", file=file_path, error=str(e))
+        # Return a row with zeros or None to allow pipeline to continue/clean
         return {
-            'tempo_bpm': 0.0,
-            'onset_mean': 0.0,
-            'onset_std': 0.0
+            "interaction_id": interaction_id,
+            "mean_f0": 0.0,
+            "std_f0": 0.0,
+            "mean_rms": 0.0,
+            "std_rms": 0.0,
+            "tempo_bpm": 0.0,
+            "tempo_std": 0.0,
+            "duration_sec": 0.0,
+            "sample_rate": sr,
+            "valid": False
         }
 
-def process_audio_file(audio_path: str, interaction_id: str) -> Optional[Dict[str, Any]]:
+    pitch_features = extract_pitch_features(y, sr)
+    energy_features = extract_energy_features(y)
+    tempo_features = extract_tempo(y, sr)
+
+    duration = float(len(y) / sr)
+
+    return {
+        "interaction_id": interaction_id,
+        **pitch_features,
+        **energy_features,
+        **tempo_features,
+        "duration_sec": duration,
+        "sample_rate": sr,
+        "valid": True
+    }
+
+
+def extract_vocal_prosody() -> List[Dict[str, Any]]:
+    """Main extraction logic.
+
+    Returns:
+        List of dictionaries, one per interaction.
     """
-    Process a single audio file and extract all vocal features.
-    Returns a dictionary of features or None if the file is corrupted.
-    """
-    logger.info(f"Processing audio file: {audio_path}")
-
-    try:
-        # Load audio file
-        y, sr = librosa.load(audio_path, sr=SAMPLING_RATE, mono=True)
-
-        if len(y) == 0:
-            logger.warning(f"Empty audio file: {audio_path}")
-            return None
-
-        # Extract features
-        pitch_features = extract_pitch_features(y, sr)
-        energy_features = extract_energy_features(y, sr)
-        tempo_features = extract_tempo(y, sr)
-
-        # Combine features
-        features = {
-            'interaction_id': interaction_id,
-            'duration_sec': float(len(y) / sr),
-            **pitch_features,
-            **energy_features,
-            **tempo_features
-        }
-
-        return features
-
-    except Exception as e:
-        # Use project's error handling utility
-        result = handle_corrupted_file(audio_path, e, logger)
-        if result is None:
-            logger.error(f"Failed to process {audio_path}: {e}")
-        return None
-
-def extract_vocal_prosody(input_dir: str, output_path: str) -> List[Dict[str, Any]]:
-    """
-    Scan input directory for audio files, extract vocal prosody,
-    and save results to the output CSV.
-    """
-    logger.info(f"Starting vocal prosody extraction from {input_dir}")
-    
-    if not os.path.exists(input_dir):
-        logger.warning(f"Input directory {input_dir} does not exist. Skipping extraction.")
+    if check_skip_condition():
         return []
 
-    # Find all audio files (mp3, wav, flac, ogg)
-    audio_extensions = ['*.mp3', '*.wav', '*.flac', '*.ogg', '*.m4a']
-    audio_files = []
-    for ext in audio_extensions:
-        audio_files.extend(glob.glob(os.path.join(input_dir, ext)))
-        audio_files.extend(glob.glob(os.path.join(input_dir, '**', ext), recursive=True))
+    audio_files = find_audio_files()
+    results = []
 
-    if not audio_files:
-        logger.warning(f"No audio files found in {input_dir}")
-        return []
+    for file_path in audio_files:
+        # Derive interaction_id from filename (remove extension)
+        interaction_id = os.path.splitext(os.path.basename(file_path))[0]
+        row = process_audio_file(file_path, interaction_id)
+        results.append(row)
 
-    logger.info(f"Found {len(audio_files)} audio files to process")
+    logger.log("EXTRACTION_COMPLETE", total_processed=len(results))
+    return results
 
-    all_features = []
-    processed_count = 0
-    failed_count = 0
 
-    for audio_path in audio_files:
-        # Derive interaction ID from filename (remove extension)
-        interaction_id = Path(audio_path).stem
+def write_output(results: List[Dict[str, Any]], output_path: str) -> None:
+    """Write results to CSV.
 
-        features = process_audio_file(audio_path, interaction_id)
-        
-        if features:
-            all_features.append(features)
-            processed_count += 1
-        else:
-            failed_count += 1
-
-    logger.info(f"Vocal extraction complete. Processed: {processed_count}, Failed: {failed_count}")
-
-    # Save to CSV
-    if all_features:
-        df = pd.DataFrame(all_features)
-        
-        # Ensure output directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Append to existing features.csv if it exists, otherwise create new
-        if os.path.exists(output_path):
-            existing_df = pd.read_csv(output_path)
-            # Merge vocal features with existing facial features if they share interaction_id
-            # For now, we assume we are appending columns or creating a new row structure.
-            # Given the task description, we append rows to the master features file.
-            # If interaction_id exists in existing, we might need to merge, 
-            # but typically in this pipeline, we aggregate modalities per interaction.
-            # Strategy: Concatenate vertically, assuming unique interaction IDs per row 
-            # or that the downstream compute_metrics handles modalities.
-            # However, usually facial and vocal are merged by interaction_id.
-            # Let's assume the schema expects one row per interaction with combined features.
-            # If existing_df has 'interaction_id', we should merge on it.
-            
-            if 'interaction_id' in existing_df.columns and 'interaction_id' in df.columns:
-                # Merge on interaction_id
-                merged_df = pd.merge(existing_df, df, on='interaction_id', how='outer')
-                merged_df.to_csv(output_path, index=False)
-                logger.info(f"Merged vocal features with existing features at {output_path}")
-            else:
-                # Fallback: append
-                pd.concat([existing_df, df], ignore_index=True).to_csv(output_path, index=False)
-        else:
-            df.to_csv(output_path, index=False)
-            logger.info(f"Created new features file at {output_path}")
-    
-    log_state_event("Vocal Prosody Extraction Complete", {"processed": processed_count, "failed": failed_count})
-    
-    return all_features
-
-def main():
+    Args:
+        results: List of feature dictionaries.
+        output_path: Path to the output CSV file.
     """
-    Main entry point for the vocal prosody extraction script.
-    """
-    input_dir = DATA_RAW_DIR
-    output_path = os.path.join(DATA_PROCESSED_DIR, "features.csv")
-    
-    # Ensure directories exist
-    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-    
-    extract_vocal_prosody(input_dir, output_path)
-    logger.info("Vocal prosody extraction finished.")
+    if not results:
+        logger.log("NO_RESULTS_TO_WRITE", path=output_path)
+        # Create an empty file with headers if no results
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["interaction_id", "mean_f0", "std_f0", "mean_rms", "std_rms",
+                             "tempo_bpm", "tempo_std", "duration_sec", "sample_rate", "valid"])
+        return
+
+    fieldnames = results[0].keys()
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+    logger.log("OUTPUT_WRITTEN", path=output_path, rows=len(results))
+
+
+def main() -> None:
+    """Entry point for the vocal extraction task."""
+    output_path = "data/processed/raw_vocal_features.csv"
+    logger.log("STARTING_VOCAL_EXTRACTION", output_path=output_path)
+
+    try:
+        results = extract_vocal_prosody()
+        write_output(results, output_path)
+        logger.log("TASK_COMPLETE", status="success")
+    except FileNotFoundError as e:
+        logger.log("TASK_FAILED", status="file_not_found", error=str(e))
+        # Re-raise to indicate failure to the pipeline orchestrator
+        raise
+    except Exception as e:
+        logger.log("TASK_FAILED", status="unexpected_error", error=str(e))
+        raise
+
 
 if __name__ == "__main__":
     main()
