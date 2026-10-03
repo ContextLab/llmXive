@@ -1,3 +1,20 @@
+T016:
+  c: true
+  h: 3f0a860350398457ddf7a15c09ed9a94f20326a26582be72fb160e3b42d7ae90
+  r: "The repository contains a non\u2011empty `code/analysis/glm_fitter.py` (15\u202F\
+    KB) that defines a `ConvergenceLogger` writing entries with the required fields\
+    \ to `data/aggregated/convergence_log.json`, imports `statsmodels` for GLM fitting,\
+    \ and includes documentation stating it performs random subject subsampling and\
+    \ computes Cohen\u2019s\u202Fd. The missing `convergence_log.json` is an expected\
+    \ runtime output, not a required source artifact."
+T017:
+  c: false
+  h: 8c9fc5ec1f43fb8493b414947f581a3dbfe910dbe063f298aa767bb6a9723764
+  r: "The required output file `data/aggregated/split_half_results.json` is absent,\
+    \ and the provided `split_half_validator.py` is only partially shown with no clear\
+    \ implementation of the \u226550\u2011iteration bootstrap loop, the \xB120\u202F\
+    % magnitude check, or the p\u202F<\u202F0.05 replication criteria. The artifact\
+    \ therefore does not satisfy the task\u2019s specifications."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,10 +35,11 @@ T041:
     \ were presented, so we cannot confirm that the aggregation logic was extracted\
     \ or that a clean multi\u2011kernel, multi\u2011alpha API was added. The required\
     \ artifacts are missing."
-T049:
+T044a:
   c: false
-  h: 7c9021a7d908018514fde4832a1d6df55b4e8337bf6e8bf2744bf8012246204f
-  r: "The repository contains `code/utils/convergence_monitor.py`, but the required\
-    \ output file `results/paper/convergence_report.md` is absent, indicating the\
-    \ script does not generate the mandated report. Without this file, the task\u2019\
-    s deliverable is not satisfied."
+  h: 8db7c071b7e64b46e8f20a6eda88b31573afdea4f39ab3ced7f1f46c70564071
+  r: "The required output file `data/derived/roi_timeseries.csv` does not exist, so\
+    \ the assertion that it contains >\u202F100 rows cannot be verified, and there\
+    \ is no evidence of a successful run (exit code\u202F0). The implementer must\
+    \ generate this CSV (with >\u202F100 rows) by executing `python code/main.py --config\
+    \ test_config.yaml` on the CI runner and provide the resulting file."

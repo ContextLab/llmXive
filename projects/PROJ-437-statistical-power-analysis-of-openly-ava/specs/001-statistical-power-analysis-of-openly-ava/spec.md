@@ -39,7 +39,8 @@
 
 ### User Story 3 - Preprocessing Sensitivity Analysis (Priority: P3)
 
-**Journey**: The researcher investigates how preprocessing choices affect power. The system re-runs the analysis on the same dataset using two different smoothing kernel sizes (e.g., 4mm vs. 8mm) while keeping the sample size constant, comparing the resulting effect sizes and replication rates.
+**Journey**: The researcher investigates how preprocessing choices affect power. The system re-runs the analysis on the same dataset using two different smoothing kernel sizes (e.g., Variable vs. Fixed
+The research question investigates the impact of parameter configuration on system performance. The method involves comparative analysis of different settings. References: [Insert Reference]) while keeping the sample size constant, comparing the resulting effect sizes and replication rates.
 
 **Why this priority**: This addresses the secondary research question regarding "methodological variations" and "preprocessing pipeline choice." It is lower priority because the primary goal is establishing the sample size threshold first.
 

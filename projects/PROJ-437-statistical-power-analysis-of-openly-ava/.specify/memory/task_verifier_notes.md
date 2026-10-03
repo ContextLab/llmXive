@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T017** — The required output file `data/aggregated/split_half_results.json` is absent, and the provided `split_half_validator.py` is only partially shown with no clear implementation of the ≥50‑iteration bootstrap loop, the ±20 % magnitude check, or the p < 0.05 replication criteria. The artifact therefore does not satisfy the task’s specifications.
+- **T044a** — The required output file `data/derived/roi_timeseries.csv` does not exist, so the assertion that it contains > 100 rows cannot be verified, and there is no evidence of a successful run (exit code 0). The implementer must generate this CSV (with > 100 rows) by executing `python code/main.py --config test_config.yaml` on the CI runner and provide the resulting file.
+- **T049** — The `code/utils/convergence_monitor.py` file exists and contains logic for loading and analyzing the convergence log, but the required output artifact `results/paper/convergence_report.md` is missing, and there is no evidence that the script writes the JSON list of `{iteration_id, reason}` to that file. The task’s core output is therefore not satisfied.
