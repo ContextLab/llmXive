@@ -136,14 +136,17 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 - [X] T017b [US1] [Sequential] [Foundational] Implement `src/scripts/run_preprocessing.R`: **Apply DESeq2 VST, Transpose, Two-Pass Split, and Stream**. **Update**: This task now consolidates all heavy data processing within the R container.
  **Logic**:
  1. **Input**: Raw count matrices from T012a/T013a.
- 2. **VST**: Apply DESeq2 VST.
- 3. **Transpose**: Explicitly transpose the matrix so that **Rows = Genes** and **Columns = Samples** using `t()` or `data.table::transpose()`.
- 4. **Two-Pass Split**:
+ 2. **Platform-Specific Preprocessing**:
+ - **CRITICAL**: If input is microarray (GEO), apply RMA normalization or equivalent platform-specific preprocessing BEFORE VST.
+ - If input is RNA-seq (TCGA), proceed directly to VST.
+ 3. **VST**: Apply DESeq2 VST.
+ 4. **Transpose**: Explicitly transpose the matrix so that **Rows = Genes** and **Columns = Samples** using `t()` or `data.table::transpose()`.
+ 5. **Two-Pass Split**:
  - **Pass 1**: Stream the data in chunks using `data.table::fread(..., chunkSize=...)`. For each chunk, count the number of responders and non-responders. Accumulate global counts.
- - **Pass 2**: Stream again. For each sample, assign to `discovery_set` or `training_set` based on the stratified split ratio (e.g., 70/30) using the accumulated counts to ensure exact stratification without loading the full matrix.
- 5. **Write**: Write `{tumor_type}_discovery_vst.csv`, `{tumor_type}_training_vst.csv`, `{tumor_type}_discovery_metadata.csv`, and `{tumor_type}_training_metadata.csv` incrementally.
- 6. **Output**: Write the split files in wide format to `data/processed/`. **Crucially, the `discovery_set` output is specifically designated for Differential Expression analysis (T023a) to prevent data leakage.**
- 7. **Constraint**: This task MUST run after T012a/T013a and before T023a. **All heavy data processing occurs within the R container** to satisfy the Plan's Dockerized R Environment mandate.
+ - **Pass 2**: Stream again. For each sample, assign to `discovery_set` or `training_set` based on the stratified split ratio (e.g., a majority training set with a corresponding test set) using the accumulated counts to ensure exact stratification without loading the full matrix.
+ 6. **Write**: Write `{tumor_type}_discovery_vst.csv`, `{tumor_type}_training_vst.csv`, `{tumor_type}_discovery_metadata.csv`, and `{tumor_type}_training_metadata.csv` incrementally. **These exact filenames are mandatory for downstream tasks.**
+ 7. **Output**: Write the split files in wide format to `data/processed/`. **Crucially, the `discovery_set` output is specifically designated for Differential Expression analysis (T023a) to prevent data leakage.**
+ 8. **Constraint**: This task MUST run after T012a/T013a and before T023a. **All heavy data processing occurs within the R container** to satisfy the Plan's Dockerized R Environment mandate.
  **Requirements**: FR-003, FR-004, FR-012, FR-013.
 - [X] T017a [US1] [P] [Foundational] Implement `src/scripts/run_preprocessing.R`: **Filter low‑expression genes (CPM < 1 in > 80% samples)**. **Update**: Explicitly state that missing data in GEO datasets will be handled via complete case analysis (row removal), with no imputation. *(Logic unchanged - moved to R)*
  **Requirements**: FR-004.
@@ -185,9 +188,9 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 - [X] T023a_1 [US2] **Implement R Script for DE Analysis**. **Logic**:
  1. **Create File**: `src/scripts/run_deseq2.R`.
  2. **Input Schema**: Wide format CSV (Rows=Genes, Cols=Samples).
- 3. **DESeq2 Logic**: Load counts, construct DESeqDataSet, run `DESeq()`, extract results with `lfcThreshold = 1.0` and `altHypothesis = "greaterAbs"`. **Pin a recent stable release of DESeq via renv lockfile in Docker context.**.
+ 3. **DESeq2 Logic**: Load counts, construct DESeqDataSet, run `DESeq()`, extract results with `lfcThreshold = 1.0` and `altHypothesis = "greaterAbs"`. **Pin a recent stable release of DESeq via renv lockfile in Docker context.**
  4. **Output**: Write `{tumor_type}_de_results.csv` with columns: `gene_symbol`, `log2FoldChange`, `pvalue`, `padj`.
- 5. **Constraint**: This task MUST run before T023a.
+ 5. **Constraint**: This task MUST run before T023a. **Must complete before T023a executes.**
  **Requirements**: FR-005.
 - [X] T023a [US2] **Implement Python Orchestrator Wrapper for DE**. **Logic**:
  1. **Input**: `{tumor_type}_discovery_vst.csv` from T017b.
@@ -311,10 +314,11 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  **Dependency**: Runs after T039b and T017b.
 - [X] T039_1_1 [US3] **Implement DeLong R Script**. **Logic**:
  1. **Create File**: `src/scripts/run_delong.R`.
- 2. **Input**: Paired sample data (gene-panel predictions and baseline predictions for the same samples).
- 3. **Logic**: Use `pROC::roc.test` to compute DeLong's test p-value.
- 4. **Output**: Write `results/deLong_raw.json` with raw p-values.
- 5. **Constraint**: This task MUST run after T039a and T031b.
+ 2. **Dependency**: **MUST** ensure `pROC` package is installed in the Dockerfile and `renv` lockfile. **Explicitly install `pROC` before running.**
+ 3. **Input**: Paired sample data (gene-panel predictions and baseline predictions for the same samples).
+ 4. **Logic**: Use `pROC::roc.test` to compute DeLong's test p-value.
+ 5. **Output**: Write `results/deLong_raw.json` with raw p-values.
+ 6. **Constraint**: This task MUST run after T039a and T031b. **Must complete after T039a and T031b.**
  **Requirements**: FR-011.
 - [X] T039_1_2 [US3] **DeLong Orchestrator**. **Logic**:
  1. **Input**: Model predictions from T031b and T039a.
@@ -347,13 +351,14 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  6. Log results and update `results/summary.md` draft.
  7. **Output Artifact**: Save `results/loo_summary.json` (JSON object) with keys: `performance_drop` (float), `ci_95` (list of 2 floats), and `status` (string).
  **Requirements**: FR-008, SC-003.
-- [X] T037 [US3] **External GEO Validation**. **Update**: External validation uses **≥2 distinct independent GEO cohorts** drawn from the datasets acquired in T013a. If the initial 2 datasets are used for discovery/training, these cohorts must be **held-out subsets** of the same datasets or distinct datasets if the initial download included more than 2. **Constraint**: Do NOT require "additional" datasets beyond the ≥2 mandated by FR-002. If the minimum 2 datasets are used for training/LOO, log a warning and skip external validation.
+- [X] T037 [US3] **External GEO Validation**. **Update**: External validation uses **≥2 distinct independent GEO cohorts** drawn from the datasets acquired in T013a. If the initial 2 datasets are used for discovery/training, these cohorts must be **held-out subsets** of the same datasets or distinct datasets if the initial download included more than 2. **Constraint**: Do NOT require "additional" datasets beyond the ≥2 mandated by FR-002. If the minimum 2 datasets are used for training/LOO, the system MUST halt with Exit Code 2 and generate a `results/validation/validation_skipped.json` artifact explaining the insufficiency.
  1. Load external GEO datasets from `data/processed/` (post-normalization).
  2. **Leakage Check**: Verify that the dataset IDs in these cohorts are distinct from those used in T013 (Acquisition) and T031b (Training). If overlap is detected, exclude the dataset and log a warning.
  3. Apply the trained models (from T031c) to these datasets.
  4. Compute ROC-AUC, Precision-Recall, and calibration metrics for each cohort.
  5. **SC-001 Verification**: Explicitly compare the computed ROC-AUC against the target threshold of **≥0.75**. Generate a `pass/fail` status for each cohort and record it in `results/validation/external_geo_metrics.json`.
- 6. Save results to `results/validation/external_geo_metrics.json`.
+ 6. **Halt Condition**: If insufficient cohorts are available for external validation (i.e., <2 valid external cohorts remain after splitting), generate `results/validation/validation_skipped.json` with a detailed explanation and **halt execution with Exit Code 2**. **Do NOT skip validation or proceed with warnings only.**
+ 7. Save results to `results/validation/external_geo_metrics.json`.
  **Requirements**: FR-002, FR-008, SC-001.
 - [X] T038 [US3] **Compute ROC‑AUC, Precision‑PR, and Calibration Curves**.
  1. Generate calibration curves for all models (LOO and External).
@@ -363,19 +368,20 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  1. Implement stratified k-fold CV in all modeling steps.
  2. If responder ratio < 20%, apply cost-sensitive learning (class weights) in `src/model_training.py`.
  3. Report balanced accuracy alongside AUC in all metric files.
-- [X] T041a [US3] **Calculate Bonferroni Counts**.
+- [X] T041a [US3] [Sequential] **Calculate Bonferroni Counts**.
  1. **Pre‑Check**: Verify `results/meta_analysis/gene_panel.json` exists and contains a non‑empty `selected` list. Halt if missing.
  2. **Meta‑Analysis Scope**: Count `m_meta` as the number of genes in the final panel (read from gene_panel.json).
- 3. **DeLong Scope**: Count `m_delong` as the number of **actual paired comparisons performed** (i.e., one per tumor type where both gene-panel and baseline models converged). **Exclude any failed types** from this count. **Note**: This counts comparisons, not just types.
+ 3. **DeLong Scope**: Count `m_delong` as the **total number of planned tumor-type comparisons** (i.e., total tumor types available for LOO as defined in config/plan). **DO NOT exclude failed types** from this count. Failed types must be recorded as 'N/A' in results but do not reduce the denominator.
  4. Write both `m_meta` and `m_delong` to `results/meta_analysis/bonferroni_correction.json`.
  5. **Dependency**: Runs after T031b_1, **T024c**, and T039a.
+ **Requirements**: FR-010.
 - [X] T041b [US3] **Write Bonferroni Correction File**.
  1. Read `m_meta` and `m_delong` from `results/meta_analysis/bonferroni_correction.json`.
  2. Ensure the file is written before T039_2 executes.
 - [X] T041c [US3] **Apply Bonferroni Correction**.
  1. **Meta‑Analysis Correction**: Apply Bonferroni correction to the Stouffer meta‑analysis p‑values (from `results/meta_analysis/stouffer_meta.csv`) using `m_meta` (number of genes in the final panel). Calculate adjusted p-values as `p_adjusted = p_raw * m_meta`.
  2. **Verification**: Verify that the adjusted p-values for the selected genes are < 0.01. If not, flag the gene in the final panel as "not significant after correction" or exclude it if the spec requires strict adherence.
- 3. **DeLong Correction**: Apply Bonferroni correction to the DeLong test p-values (from `results/deLong_raw.json`) using `m_delong` (number of comparisons). Calculate adjusted p-values as `p_adjusted = p_raw * m_delong`.
+ 3. **DeLong Correction**: Apply Bonferroni correction to the DeLong test p-values (from `results/deLong_raw.json`) using `m_delong` (number of planned comparisons). Calculate adjusted p-values as `p_adjusted = p_raw * m_delong`.
  4. **Verification**: Verify that the adjusted DeLong p-values are < 0.01.
  5. **Output**: Record the adjusted meta‑p‑values in `results/meta_analysis/gene_panel.json` (add field `adjusted_p`) and the adjusted DeLong results in `results/deLong_results.json`.
  6. **Dependency**: Runs after T041a.
@@ -436,24 +442,6 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 
 ---
 
-## Phase 7: GPU Offload & Scalability (New)
-
-**Purpose**: Implement the real GPU computation path for methods that cannot be faithfully simulated on CPU, ensuring the execution stage can auto-offload to Kaggle.
-
-- [ ] T052 [P] [US3] **Implement GPU-Accelerated Elastic Net Training**. **Logic**: <!-- FAILED: unspecified -->
- 1. Create `src/model_training_gpu.py` in `src/`.
- 2. **Logic**: Use `sklearn` with `cupy` backend or `torch` for elastic-net logistic regression.
- 3. **Constraint**: This script must be invoked ONLY when the CPU runner (T031b) fails or when a `--gpu` flag is explicitly set.
- 4. **Execution**: The execution stage will detect `device="cuda"` or `load_in_8bit` in the task and re-run this specific script on the Kaggle GPU environment.
- **Requirements**: Compute Feasibility Rule (GPU Escape Hatch).
-- [ ] T053 [P] [US3] **Implement GPU-Accelerated Calibration and DeLong Test**. **Logic**:
- 1. Create `src/validation_gpu.py` in `src/`.
- 2. **Logic**: Implement calibration curve generation and DeLong's test using GPU-accelerated libraries (`cupy`, `torch`).
- 3. **Constraint**: Ensure the output format matches the CPU version exactly to maintain downstream compatibility.
- **Requirements**: Compute Feasibility Rule (GPU Escape Hatch).
-
----
-
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -464,7 +452,6 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  - User stories can then proceed in parallel (if staffed) or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision (Phase 6)**: Depends on completion of US1, US2, US3 and execution of `/speckit.analyze`
-- **GPU Offload (Phase 7)**: Optional, depends on CPU feasibility failure or explicit GPU requirement
 
 ### User Story Dependencies
 
@@ -509,9 +496,49 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 - **FR‑007 Compliance**: Models must be tumor‑type‑specific, not pooled.
 - **FR‑014 Compliance**: **ComBat** (continuous) is the primary method for GEO microarray data; **ComBat-seq** (discrete) is the primary method for TCGA RNA-seq data. **Quantile Matching** is the fallback for both, applied only if the specific primary method fails for that platform.
 - **FR‑008 Compliance**: LOO validation must halt if the dataset drops to a minimal number of types where LOO is invalid. The task logic must explicitly raise an error and exit with `sys.exit(1)`.
-- **FR‑010 Compliance**: Distinct Bonferroni correction logic for meta‑analysis (m = **number of genes in the final panel**) vs DeLong's test (m = **number of successfully converged comparisons**). Ensure both are correctly calculated and applied.
+- **FR‑010 Compliance**: Distinct Bonferroni correction logic for meta‑analysis (m = **number of genes in the final panel**) vs DeLong's test (m = **total planned comparisons**). Ensure both are correctly calculated and applied.
 - **FR‑006 Compliance**: The fallback to union of top‑ranked genes must be explicitly triggered only when the intersection is empty, and the reason must be logged in `results/meta_analysis/panel_status.json`.
 - **FR‑001/002 Compliance**: Ensure all data downloads are verified against the expected checksums and that missing response labels cause the pipeline to skip the offending dataset instead of halting entirely unless there's insufficient data.
 - **TEST_MODE**: Set `TEST_MODE=True` environment variable to allow the pipeline to proceed with fewer than a sufficient number of TCGA types or multiple GEO datasets for Independent Testing purposes.
 - **Revision Note**: Tasks T047-T051 were added in response to analysis findings regarding data integrity, streaming capabilities, and statistical robustness. These tasks must be completed before the next analysis run.
-- **GPU Note**: Tasks T052-T053 implement the real GPU offload path for modeling and validation. They are designed to be invoked only when the CPU runner fails or when explicitly requested, ensuring the execution stage can re-run them on Kaggle.
+- **GPU Note**: GPU offload tasks have been removed to align with the mandatory CPU-only execution constraint (FR-012).
+
+## Phase 7: Final Verification & Reporting
+
+**Purpose**: Ensure all analysis findings are fully resolved and the pipeline is ready for final execution.
+
+- [ ] T052 [P] [US1] **Verify Streaming Implementation**. **Logic**:
+ 1. Execute a dry-run of `src/scripts/run_preprocessing.R` on a large simulated dataset to verify that memory usage stays below 7 GB.
+ 2. Confirm that `data.table::fread` chunking is active and statistics are accumulated correctly.
+ 3. Log memory usage profile to `results/memory_profile.json`.
+ **Requirements**: FR-012, SC-005.
+- [ ] T053 [P] [US1] **Verify Strict Failure Mode**. **Logic**:
+ 1. Attempt to download a non-existent GEO dataset ID.
+ 2. Confirm that the pipeline raises a `RuntimeError` and exits with code 1.
+ 3. Verify that no synthetic data is generated or used.
+ **Requirements**: Data Hygiene Rule.
+- [ ] T054 [P] [US2] **Verify Power Analysis Flagging**. **Logic**:
+ 1. Run meta-analysis with a synthetic small sample size.
+ 2. Verify that genes with N < 50 are correctly flagged in `results/meta_analysis/panel_status.json`.
+ 3. Confirm that the fallback logic still proceeds.
+ **Requirements**: SC-006, FR-006.
+- [ ] T055 [P] [US3] **Verify Class Imbalance Handling**. **Logic**:
+ 1. Run modeling with a synthetic dataset where responder ratio is 10%.
+ 2. Verify that `class_weight='balanced'` is automatically applied.
+ 3. Confirm that balanced accuracy is reported in metrics.
+ **Requirements**: US-3 Edge Case 4.
+- [ ] T056 [P] [US3] **Verify DeLong Power Analysis**. **Logic**:
+ 1. Run DeLong test with a synthetic small held-out set (N < 20).
+ 2. Verify that the result is flagged as "underpowered" in `results/deLong_results.json`.
+ 3. Confirm that the pipeline does not halt but logs a warning.
+ **Requirements**: FR-011.
+- [ ] T057 [P] **Final End-to-End Validation**. **Logic**:
+ 1. Execute the full pipeline on a small, real subset of TCGA/GEO data.
+ 2. Verify that all outputs are generated correctly and meet success criteria.
+ 3. Confirm that no analysis findings remain unresolved.
+ **Requirements**: FR-012, SC-001 to SC-006.
+- [ ] T058 [P] **Generate Final Report**. **Logic**:
+ 1. Compile all metrics, flags, and validation results into a final `results/final_report.md`.
+ 2. Include a summary of how each analysis finding was addressed.
+ 3. Sign off on the project readiness for production deployment.
+ **Requirements**: None.
