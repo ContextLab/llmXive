@@ -162,7 +162,7 @@
 
 - [X] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
 - [X] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
-- [ ] T013 [P] [US1] **Integration Test**: Create `tests/test_data_pipeline.py::test_lageos1_fetch`. **Requirement**:
+- [X] T013 [P] [US1] **Integration Test**: Create `tests/test_data_pipeline.py::test_lageos1_fetch`. **Requirement**:
  1. **Write** the test to fetch LAGEOS data for the latest available full year (defined as the last calendar year where data for *all* target satellites is >90% complete, with a fallback to the previous year).
  2. **Assertion**: Assert `data/processed/lageos1.csv` exists.
  3. **Dynamic Count**: Calculate `expected_count` by fetching metadata first, then assert `len(df) >= expected_count * 0.95`.
@@ -215,9 +215,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [US2] Unit test for dynamical model components (geopotential, drag, SRP, relativity) in `tests/test_dynamics.py`. **Requirement**: Test the components implemented in T023. **Dependency**: Requires T023a (Specification).
-- [ ] T021 [US2] Unit test for **separate** least-squares solver convergence in `tests/test_estimator.py`. **Requirement**: Verify convergence logic. **Dependency**: Requires Plan.md "Critical Methodological Update" (Separate Fits), T007a.
-- [ ] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py`. **Requirement**: Verify math. **Dependency**: Requires Plan.md "Critical Methodological Update" (Separate Fits), T007a.
+- [X] T020 [US2] Unit test for dynamical model components (geopotential, drag, SRP, relativity) in `tests/test_dynamics.py`. **Requirement**: Test the components implemented in T023. **Dependency**: Requires T023a (Specification).
+- [X] T021 [US2] Unit test for **separate** least-squares solver convergence in `tests/test_estimator.py`. **Requirement**: Verify convergence logic. **Dependency**: Requires Plan.md "Critical Methodological Update" (Separate Fits), T007a.
+- [X] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py`. **Requirement**: Verify math. **Dependency**: Requires Plan.md "Critical Methodological Update" (Separate Fits), T007a.
 
 ### Implementation for User Story 2
 
@@ -316,9 +316,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
-- [ ] T030 [US3] Unit test for Bonferroni/Holm-Bonferroni/Benjamini-Hochberg correction logic in `tests/test_validation.py`
-- [ ] T031 [US3] Integration test: Verify sensitivity sweep across multiple geopotential models in `tests/test_sensitivity.py`
+- [X] T029 [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
+- [X] T030 [US3] Unit test for Bonferroni/Holm-Bonferroni/Benjamini-Hochberg correction logic in `tests/test_validation.py`
+- [X] T031 [US3] Integration test: Verify sensitivity sweep across multiple geopotential models in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
@@ -389,7 +389,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T038 [P] [US4] Implement `code/cli/main.py` entry point with CLI arguments, runtime monitoring, and memory profiling. **Requirement**:
+- [X] T038 [P] [US4] Implement `code/cli/main.py` entry point with CLI arguments, runtime monitoring, and memory profiling. **Requirement**:
  1. Use `psutil.Process().memory_info().rss` to monitor RAM.
  2. **Polling Interval**: Check memory at regular intervals (at a consistent, predefined frequency).
  3. Log a warning if RAM > 6GB AND **exit with code 1** if the limit is exceeded to prevent runner hangs.
@@ -399,8 +399,8 @@
  7. **Logging**: Log timing and memory data to `data/logs/resource_monitor.log` in CSV format with header `timestamp, rss_mb, elapsed_s, memory_limit_exceeded` and comma delimiter.
  **Dependency**: None.
 
-- [ ] T040 [US4] Create `tests/test_feasibility.py` to run pipeline on 1-year subset and assert time < 6h
-- [ ] T041 [US4] Document performance benchmarks and resource usage in `docs/performance.md`
+- [X] T040 [US4] Create `tests/test_feasibility.py` to run pipeline on 1-year subset and assert time < 6h
+- [X] T041 [US4] Document performance benchmarks and resource usage in `docs/performance.md`
 
 **Checkpoint**: Feasibility validated for CI environment
 
@@ -411,8 +411,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T042 [P] Documentation updates in `docs/` (README, API reference)
-- [ ] T043 Code cleanup and refactoring of `code/models/dynamics.py` for readability
-- [ ] T044 Performance optimization: Vectorize `code/data/preprocessing.py` operations using NumPy
+- [X] T043 Code cleanup and refactoring of `code/models/dynamics.py` for readability
+- [X] T044 Performance optimization: Vectorize `code/data/preprocessing.py` operations using NumPy
 - [ ] T045 [P] Add unit tests for edge cases (missing data, empty results) in `tests/unit/`
 - [ ] T046 Run `quickstart.md` validation to ensure reproducibility
 - [ ] T047 Verify all artifacts have content hashes and versioning discipline applied

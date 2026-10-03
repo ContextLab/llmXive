@@ -6,176 +6,238 @@ import logging
 import sys
 import os
 
-# Import from local utils
-from utils.logging import get_logger
+# Configure logging for the module
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-# Constants
-MIN_POINTS_THRESHOLD = 500
-
-def filter_residuals(df: pd.DataFrame, residual_column: str = 'residual', threshold_m: float = 0.02) -> pd.DataFrame:
+def filter_residuals(df: pd.DataFrame, threshold_m: float = 0.02) -> pd.DataFrame:
     """
-    Filter out SLR normal points with residuals greater than the threshold (2cm default).
+    Vectorized filtering of SLR data based on residual magnitude.
+    
+    Removes rows where the residual (range residual) exceeds the threshold.
+    Uses numpy boolean indexing for performance.
     
     Args:
-        df: DataFrame containing SLR observations.
-        residual_column: Name of the column containing residual values (in meters).
+        df: DataFrame containing SLR data with a 'residual' column (meters).
         threshold_m: Maximum allowed residual in meters (default 0.02m = 2cm).
         
     Returns:
         Filtered DataFrame.
     """
-    if residual_column not in df.columns:
-        logger.warning(f"Column '{residual_column}' not found in dataframe. Skipping residual filter.")
+    if df.empty:
+        logger.warning("Empty DataFrame passed to filter_residuals.")
         return df
         
-    initial_count = len(df)
-    filtered_df = df[np.abs(df[residual_column]) <= threshold_m]
-    removed_count = initial_count - len(filtered_df)
+    if 'residual' not in df.columns:
+        raise KeyError("DataFrame must contain a 'residual' column.")
+        
+    # Vectorized boolean mask
+    mask = np.abs(df['residual'].values) <= threshold_m
+    filtered_df = df[mask].copy()
     
+    removed_count = len(df) - len(filtered_df)
     if removed_count > 0:
-        logger.info(f"Filtered {removed_count} points with residuals > {threshold_m*1000:.1f}mm.")
-    
+        logger.info(f"Filtered {removed_count} rows with residuals > {threshold_m}m.")
+        
     return filtered_df
 
-def handle_sparse_satellites(df: pd.DataFrame, satellite_id_col: str = 'satellite_id', min_points: int = MIN_POINTS_THRESHOLD) -> Tuple[pd.DataFrame, List[str]]:
+def handle_sparse_satellites(df: pd.DataFrame, min_days: int = 30) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Identify and exclude satellites with insufficient data points.
+    Identify and exclude satellites with insufficient arc length (< min_days).
     
-    Requirement T018:
-    1. Log a specific "Insufficient Data" warning for satellites with < min_points.
-    2. Explicitly exclude these satellites from the returned DataFrame.
-    3. Return the list of excluded satellite IDs for downstream reporting.
+    Uses vectorized datetime operations to count unique dates per satellite.
     
     Args:
-        df: DataFrame containing SLR observations.
-        satellite_id_col: Name of the column containing satellite identifiers.
-        min_points: Minimum number of points required (default 500).
+        df: DataFrame with 'satellite_id' and 'timestamp' columns.
+        min_days: Minimum number of unique days required (default 30).
         
     Returns:
         Tuple of (Filtered DataFrame with sufficient satellites, List of excluded satellite IDs).
     """
-    if satellite_id_col not in df.columns:
-        raise ValueError(f"Column '{satellite_id_col}' not found in dataframe.")
+    if df.empty:
+        logger.warning("Empty DataFrame passed to handle_sparse_satellites.")
+        return df, []
         
-    satellite_counts = df[satellite_id_col].value_counts()
-    excluded_satellites = []
+    if 'satellite_id' not in df.columns or 'timestamp' not in df.columns:
+        raise KeyError("DataFrame must contain 'satellite_id' and 'timestamp' columns.")
+        
+    # Ensure timestamp is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        
+    # Extract date (vectorized)
+    df['date'] = df['timestamp'].dt.date
     
-    for sat_id, count in satellite_counts.items():
-        if count < min_points:
-            excluded_satellites.append(sat_id)
-            logger.warning(f"Insufficient Data: Satellite '{sat_id}' has {count} points (threshold: {min_points}). Excluding from joint estimation.")
+    # Count unique dates per satellite using groupby (optimized in pandas)
+    # Using size() is faster than count() for this purpose
+    date_counts = df.groupby('satellite_id')['date'].nunique()
     
-    if excluded_satellites:
-        # Explicitly exclude
-        valid_satellites = [s for s in satellite_counts.index if s not in excluded_satellites]
-        filtered_df = df[df[satellite_id_col].isin(valid_satellites)]
-        logger.info(f"Excluded {len(excluded_satellites)} satellites due to insufficient data.")
+    excluded_ids = date_counts[date_counts < min_days].index.tolist()
+    
+    if excluded_ids:
+        logger.warning(f"Excluding {len(excluded_ids)} satellites with < {min_days} days of data: {excluded_ids}")
+        # Filter out excluded satellites
+        mask = ~df['satellite_id'].isin(excluded_ids)
+        filtered_df = df[mask].copy()
     else:
-        filtered_df = df
+        filtered_df = df.copy()
         
-    return filtered_df, excluded_satellites
+    # Drop the temporary 'date' column if it wasn't there originally
+    if 'date' in filtered_df.columns and 'date' not in df.columns:
+        filtered_df.drop(columns=['date'], inplace=True)
+        
+    return filtered_df, excluded_ids
 
-def align_time_series(df: pd.DataFrame, timestamp_col: str = 'timestamp', freq: str = 'H') -> pd.DataFrame:
+def align_time_series(df: pd.DataFrame, time_window_sec: float = 60.0) -> pd.DataFrame:
     """
-    Align time series to a regular frequency (optional resampling).
+    Align multi-satellite time series by binning timestamps into fixed windows.
+    
+    This vectorizes the alignment process by converting timestamps to bin edges
+    and using groupby on the bin labels.
     
     Args:
-        df: DataFrame with time series data.
-        timestamp_col: Name of the timestamp column.
-        freq: Pandas frequency string for resampling (default 'H' for hourly).
+        df: DataFrame with 'timestamp', 'satellite_id', and 'range' (or similar) columns.
+        time_window_sec: Size of the time bin in seconds.
         
     Returns:
-        Resampled DataFrame (if applicable).
+        DataFrame with aligned timestamps (bin centers) and averaged measurements.
     """
-    # Basic alignment logic placeholder for T017 dependency
-    if timestamp_col in df.columns:
-        df[timestamp_col] = pd.to_datetime(df[timestamp_col])
-        df = df.sort_values(timestamp_col)
-    return df
+    if df.empty:
+        logger.warning("Empty DataFrame passed to align_time_series.")
+        return df
+        
+    if 'timestamp' not in df.columns:
+        raise KeyError("DataFrame must contain a 'timestamp' column.")
+        
+    # Convert to numpy timestamps for vectorized arithmetic
+    timestamps = df['timestamp'].values.astype('datetime64[ns]').astype(np.int64)
+    window_ns = int(time_window_sec * 1e9)
+    
+    # Calculate bin edges (floor to window)
+    # We align to the start of the window
+    bin_edges = (timestamps // window_ns) * window_ns
+    
+    df['bin_edge'] = pd.to_datetime(bin_edges)
+    
+    # Group by satellite and bin, then aggregate (mean of numerical columns)
+    # This is significantly faster than iterating rows
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    # Ensure 'range' or similar is in numeric cols, if not, handle explicitly
+    # Assuming 'range' is the primary measurement
+    agg_dict = {col: 'mean' for col in numeric_cols}
+    
+    # Group by satellite and bin
+    grouped = df.groupby(['satellite_id', 'bin_edge'])
+    aligned_df = grouped.agg(agg_dict).reset_index()
+    
+    # Rename bin_edge to timestamp
+    aligned_df.rename(columns={'bin_edge': 'timestamp'}, inplace=True)
+    
+    logger.info(f"Aligned time series: {len(df)} rows -> {len(aligned_df)} bins.")
+    
+    return aligned_df
 
-def merge_multi_satellite_datasets(dfs: List[pd.DataFrame], common_cols: Optional[List[str]] = None) -> pd.DataFrame:
+def merge_multi_satellite_datasets(df_list: List[pd.DataFrame]) -> pd.DataFrame:
     """
-    Merge multiple satellite datasets into a single DataFrame.
+    Merge multiple satellite DataFrames into a single wide-format DataFrame
+    aligned by timestamp and satellite_id.
+    
+    Uses vectorized merge operations.
     
     Args:
-        dfs: List of DataFrames.
-        common_cols: Columns to use for merging if needed.
+        df_list: List of DataFrames, each representing one satellite's data.
         
     Returns:
         Merged DataFrame.
     """
-    if not dfs:
+    if not df_list:
+        logger.warning("Empty list of DataFrames passed to merge_multi_satellite_datasets.")
         return pd.DataFrame()
-    return pd.concat(dfs, ignore_index=True)
-
-def preprocess_slr_data(
-    df: pd.DataFrame, 
-    residual_col: str = 'residual', 
-    sat_id_col: str = 'satellite_id',
-    timestamp_col: str = 'timestamp'
-) -> Tuple[pd.DataFrame, List[str]]:
-    """
-    Orchestrate the full preprocessing pipeline including filtering and exclusion logic.
+        
+    # Filter out empty DataFrames
+    valid_dfs = [df for df in df_list if not df.empty]
     
-    This function implements the core logic for T016 (filtering) and T018 (exclusion).
+    if not valid_dfs:
+        return pd.DataFrame()
+        
+    # Concatenate along rows (axis=0) is usually faster than iterative merging
+    # if the goal is a long-format table. If wide-format is needed, we pivot.
+    # Assuming we want a unified long-format table for downstream analysis
+    combined_df = pd.concat(valid_dfs, ignore_index=True)
+    
+    logger.info(f"Merged {len(valid_dfs)} satellite datasets into {len(combined_df)} rows.")
+    
+    return combined_df
+
+def preprocess_slr_data(input_path: str, output_path: str, 
+                        residual_threshold_m: float = 0.02, 
+                        min_arc_days: int = 30,
+                        time_window_sec: float = 60.0) -> None:
+    """
+    Main entry point for the preprocessing pipeline.
+    Orchestrates filtering, sparse handling, alignment, and merging.
     
     Args:
-        df: Raw SLR data DataFrame.
-        residual_col: Column name for residuals.
-        sat_id_col: Column name for satellite IDs.
-        timestamp_col: Column name for timestamps.
-        
-    Returns:
-        Tuple of (Cleaned DataFrame, List of excluded satellite IDs).
+        input_path: Path to the raw/processed CSV input.
+        output_path: Path to save the cleaned CSV output.
+        residual_threshold_m: Threshold for residual filtering (meters).
+        min_arc_days: Minimum days of arc length.
+        time_window_sec: Time binning window for alignment.
     """
-    logger.info("Starting preprocessing pipeline...")
+    logger.info(f"Starting preprocessing pipeline for {input_path}")
     
-    # 1. Filter residuals > 2cm (T016)
-    df_filtered = filter_residuals(df, residual_column=residual_col, threshold_m=0.02)
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+    # Load data
+    logger.info("Loading data...")
+    df = pd.read_csv(input_path)
     
-    # 2. Handle sparse satellites / Exclusion Logic (T018)
-    df_clean, excluded_list = handle_sparse_satellites(
-        df_filtered, 
-        satellite_id_col=sat_id_col, 
-        min_points=MIN_POINTS_THRESHOLD
-    )
+    # Step 1: Filter residuals
+    logger.info("Filtering residuals...")
+    df = filter_residuals(df, threshold_m=residual_threshold_m)
     
-    # 3. Time alignment (T017)
-    df_aligned = align_time_series(df_clean, timestamp_col=timestamp_col)
+    # Step 2: Handle sparse satellites
+    logger.info("Handling sparse satellites...")
+    df, excluded = handle_sparse_satellites(df, min_days=min_arc_days)
     
-    logger.info(f"Preprocessing complete. Final shape: {df_aligned.shape}, Excluded satellites: {excluded_list}")
-    return df_aligned, excluded_list
+    # Step 3: Align time series
+    logger.info("Aligning time series...")
+    df = align_time_series(df, time_window_sec=time_window_sec)
+    
+    # Step 4: Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Save output
+    logger.info(f"Saving preprocessed data to {output_path}")
+    df.to_csv(output_path, index=False)
+    
+    logger.info("Preprocessing pipeline completed successfully.")
 
 def main():
     """
-    CLI entry point for preprocessing (for testing/debugging).
-    Expects input CSV and outputs cleaned CSV + excluded list JSON.
+    CLI entry point for preprocessing.
+    Expects environment variables or default paths.
     """
-    import argparse
-    import json
+    # Default paths relative to project structure
+    input_file = os.getenv('SLR_INPUT_PATH', 'data/processed/raw_slr_data.csv')
+    output_file = os.getenv('SLR_OUTPUT_PATH', 'data/processed/cleaned_slr_data.csv')
     
-    parser = argparse.ArgumentParser(description="Preprocess SLR data")
-    parser.add_argument('--input', type=str, required=True, help='Input CSV path')
-    parser.add_argument('--output', type=str, required=True, help='Output CSV path')
-    parser.add_argument('--excluded-log', type=str, default='data/processed/excluded_satellites.json', help='JSON log of excluded satellites')
-    args = parser.parse_args()
+    # Initialize logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('data/logs/preprocessing.log')
+        ]
+    )
     
-    logger.info(f"Loading data from {args.input}")
-    df = pd.read_csv(args.input)
-    
-    cleaned_df, excluded = preprocess_slr_data(df)
-    
-    logger.info(f"Saving cleaned data to {args.output}")
-    cleaned_df.to_csv(args.output, index=False)
-    
-    logger.info(f"Saving excluded satellites list to {args.excluded_log}")
-    os.makedirs(os.path.dirname(args.excluded_log), exist_ok=True)
-    with open(args.excluded_log, 'w') as f:
-        json.dump(excluded, f, indent=2)
-        
-    logger.info("Done.")
+    try:
+        preprocess_slr_data(input_file, output_file)
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

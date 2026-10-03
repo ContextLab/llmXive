@@ -75,7 +75,96 @@
   verification_status: pending
   verified_against_url: https://earth-info.nga.mil/index.php?dir=wgs84&action=wgs84
   verified_at: '2026-09-22T09:43:32.833100Z'
-- artifact_hash: 3f5a29348a2ce8eeffa40c571f0dd5ed67b5f00e5c2b330cc9b1309180677ffd
+- artifact_hash: 92ff7f3f252d40106a63f449601a53a8566387e77d210013a9efde71203a99cd
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmark_selection.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.1088/0031-8946/91/12/124001
+  verification_status: mismatch
+  verified_against_url: https://doi.org/10.1088/0031-8946/91/12/124001
+  verified_at: '2026-10-03T21:31:00.852989Z'
+- artifact_hash: 92ff7f3f252d40106a63f449601a53a8566387e77d210013a9efde71203a99cd
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmark_selection.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1088/0031-8946/91/12/124001
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1088/0031-8946/91/12/124001
+  verified_at: '2026-10-03T21:31:00.852989Z'
+- artifact_hash: 4180a01c183bb171246924b14e260a43d73ac49b57829689a7d96669707d0360
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: DOI:10.1103/PhysRevLett.119.231101
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.1103/PhysRevLett.119.231101
+  verification_status: pending
+  verified_against_url: https://link.aps.org/doi/10.1103/PhysRevLett.119.231101
+  verified_at: '2026-10-03T21:31:31.771993Z'
+- artifact_hash: 4180a01c183bb171246924b14e260a43d73ac49b57829689a7d96669707d0360
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: DOI:10.1103/PhysRevD.98.064020
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.1103/PhysRevD.98.064020
+  verification_status: pending
+  verified_against_url: https://link.aps.org/doi/10.1103/PhysRevD.98.064020
+  verified_at: '2026-10-03T21:31:31.771993Z'
+- artifact_hash: 4180a01c183bb171246924b14e260a43d73ac49b57829689a7d96669707d0360
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "<i>MICROSCOPE</i>\n                    Mission: First Results of\
+    \ a Space Test of the Equivalence Principle"
+  kind: doi
+  value: 10.1103/PhysRevLett.119.231101
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1103/physrevlett.119.231101
+  verified_at: '2026-10-03T21:31:31.771993Z'
+- artifact_hash: 4180a01c183bb171246924b14e260a43d73ac49b57829689a7d96669707d0360
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Spin-precessing black hole binaries in dynamical Chern-Simons gravity
+  kind: doi
+  value: 10.1103/PhysRevD.98.064020
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1103/physrevd.98.064020
+  verified_at: '2026-10-03T21:31:31.771993Z'
+- artifact_hash: 72a214bfeabe1a3731496954ed1bd8e04d127f703b22091bfd34319a73a92294
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/implementation_notes.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://cddis.nasa.gov/2023/12/30/123000_
+  verification_status: unreachable
+  verified_against_url: https://cddis.nasa.gov/2023/12/30/123000_
+  verified_at: '2026-10-03T21:41:08.894808Z'
+- artifact_hash: 87353b0cb33abbd513d6d90749d356df2aaaffe22a720764f96b789e1d516137
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/changelog.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/
+  verification_status: verified
+  verified_against_url: https://semver.org/
+  verified_at: '2026-10-03T21:41:24.201992Z'
+- artifact_hash: 07fbb2a926b0f4f0f879ce98d19298ab6b22eaa97fcd92a8f48eeda0262d6a7a
   artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,15 +174,4 @@
   value: https://ui.adsabs.harvard.edu/`
   verification_status: pending
   verified_against_url: https://ui.adsabs.harvard.edu/
-  verified_at: '2026-10-02T04:36:15.945198Z'
-- artifact_hash: 3f5a29348a2ce8eeffa40c571f0dd5ed67b5f00e5c2b330cc9b1309180677ffd
-  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: CDDIS
-  kind: url
-  value: https://cddis.nasa.gov/...`
-  verification_status: pending
-  verified_against_url: https://cddis.nasa.gov/
-  verified_at: '2026-10-02T04:36:15.945198Z'
+  verified_at: '2026-10-03T21:46:20.507556Z'

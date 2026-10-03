@@ -1323,3 +1323,863 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T10:13:05Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: "E\xF6tv\xF6s parameter precision benchmarks after 2010 < 1e-13"
+  claim_id: c_726b2021
+  context: "T048.0a [Research] Search ADS API: Search for peer-reviewed papers defining\
+    \ state-of-the-art benchmarks for E\xF6tv\xF6s parameter precision. Criteria:\
+    \ Papers published after 2010 with precision < 1e-13."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Search for peer-reviewed papers defining state-of-the-art benchmarks\
+    \ for E\xF6tv\xF6s parameter precision published after 2010 with precision < 1e-13."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:06:28Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: SLR residual exclusion threshold 2cm
+  claim_id: c_61c6c66a
+  context: T016 [US1] Implement code/preprocessing.py to filter residuals > 2cm and
+    handle sparse satellites.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SLR_residual_exclusion_threshold_2cm
+  kind: magnitude
+  raw_text: Filter data to exclude residuals greater than 2cm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:07:08Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Satellite insufficient data threshold 30 days arc length
+  claim_id: c_6e40c918
+  context: 'T016 [US1] Implement code/preprocessing.py to filter residuals > 2cm and
+    handle sparse satellites. Requirement: Filter data and identify satellites with
+    < 30 days arc length.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Satellite_insufficient_data_threshold_30_days_arc_length
+  kind: magnitude
+  raw_text: Identify satellites with less than 30 days of arc length as having insufficient
+    data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:07:38Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Minimum data rows for full year 10000
+  claim_id: c_0f370cec
+  context: 'T013 [P] [US1] Integration Test: If data exists but has < 10,000 rows,
+    log a warning ''Insufficient data for year'' but do NOT fail the test unless the
+    count is < 500 (minimum for arc).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Require a minimum of 10,000 rows for a full year of data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:07:59Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Minimum data rows for arc 500
+  claim_id: c_2908c2b2
+  context: 'T013 [P] [US1] Integration Test: If data exists but has < 10,000 rows,
+    log a warning ''Insufficient data for year'' but do NOT fail the test unless the
+    count is < 500 (minimum for arc).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Require a minimum of 500 rows as the minimum for an arc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:08:22Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Data pipeline coverage threshold 95%
+  claim_id: c_a9e26b18
+  context: "Independent Test: Execute ingestion pipeline and verify output CSV contains\
+    \ \u2265 95% of available points with no NaN values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_coverage_threshold_95%25
+  kind: magnitude
+  raw_text: Assert that the data pipeline contains at least 95% of available points.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:08:46Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Latest full year definition data >90% complete
+  claim_id: c_10a5ee75
+  context: 'T013 [P] [US1] Integration Test: Write the test to fetch LAGEOS data for
+    the latest available full year (defined as the last calendar year where data for
+    all target satellites is >90% complete...).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latest_full_year_definition_data_%3E90%25_complete
+  kind: magnitude
+  raw_text: Define the latest available full year as the last calendar year where
+    data for all target satellites is >90% complete.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:09:22Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Output artifact checksum algorithm SHA-256
+  claim_id: c_723c6819
+  context: 'T019 [US1] Write output to data/processed/cleaned_slr_data.csv with checksum
+    verification. Requirement: Use SHA-256 algorithm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SHA-256 algorithm for checksum verification of output artifacts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:09:46Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Separate solver convergence threshold residuals < 1e-5m
+  claim_id: c_bbb541df
+  context: "Independent Test: Verify separate solver convergence (residuals < 1e-5m)\
+    \ and correct calculation of \u03B7 with confidence interval."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Separate_solver_convergence_threshold_residuals_%3C_1e-5m
+  kind: magnitude
+  raw_text: Verify separate solver convergence with residuals less than 1e-5m.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:10:20Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: JointLeastSquaresSolver Levenberg-Marquardt tolerance 1e-8
+  claim_id: c_70d05fc3
+  context: T024 [US2] Implement JointLeastSquaresSolver (Comparison). Use Levenberg-Marquardt
+    algorithm with tol=1e-8 convergence tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Levenberg-Marquardt algorithm with a tolerance of 1e-8 for the JointLeastSquaresSolver.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:10:53Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Z-score variation threshold 20% for unreliable flag
+  claim_id: c_d2a3ddd9
+  context: T035 [US3] Implement logic to flag 'Unreliable' if Z-score variation >
+    20% across models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag the report as 'Unreliable' if Z-score variation exceeds 20% across
+    models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:10:53Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Memory limit threshold 6GB with exit code 1
+  claim_id: c_82e69511
+  context: T038 [P] [US4] Implement code/cli/main.py entry point. Log a warning if
+    RAM > 6GB AND exit with code 1 if the limit is exceeded to prevent runner hangs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a warning and exit with code 1 if RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:11:23Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time threshold 6 hours
+  claim_id: c_9e96a349
+  context: 'Independent Test: Run full pipeline on subset and verify completion time
+    < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completion_time_threshold_6_hours
+  kind: magnitude
+  raw_text: Verify pipeline completion time is less than 6 hours on a subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:11:50Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours exit code 124
+  claim_id: c_30126cd6
+  context: T038 [P] [US4] Implement a global timer for the full pipeline. If total
+    time > 6 hours, log warning and exit with code 124.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 124 if total pipeline execution time exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:12:09Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: LAGEOS-1 1 year dataset is 2.5 GB raw data
+  claim_id: c_5310cecb
+  context: Ingestion (T009) section listing data volume and timing metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LAGEOS-1 (1 Year) consists of ~2.5 GB raw data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:27:57Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: LAGEOS-1 fetch time is 15 minutes
+  claim_id: c_cccae68a
+  context: Ingestion (T009) section listing data volume and timing metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetching the LAGEOS-1 data takes ~15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:28:15Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: LAGEOS-1 parsing time is 5 minutes
+  claim_id: c_e08ef841
+  context: Ingestion (T009) section listing data volume and timing metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parsing the LAGEOS-1 data takes ~5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:28:30Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Filtering 1 million rows takes under 1 minute
+  claim_id: c_5a7f94ce
+  context: Preprocessing (T016-T019) section listing filtering and alignment times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filtering takes < 1 minute for 1M rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:28:55Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Alignment takes under 2 minutes
+  claim_id: c_5b8bd0f6
+  context: Preprocessing (T016-T019) section listing filtering and alignment times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Alignment takes < 2 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:28:55Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Separate Fit takes 10 to 20 minutes per satellite
+  claim_id: c_c21ed34d
+  context: Orbit Determination (T024a) section listing fit times and convergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Separate Fit takes ~10-20 minutes per satellite.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:29:20Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Orbit determination convergence takes under 15 iterations
+  claim_id: c_e6df1ff3
+  context: Orbit Determination (T024a) section listing fit times and convergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convergence typically takes < 15 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:29:20Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Sensitivity Sweep takes 5 minutes for 3 geopotential models
+  claim_id: c_8ec4bd4f
+  context: Analysis & Validation (T026-T037) section listing sensitivity and report
+    times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity Sweep takes ~5 minutes for 3 geopotential models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:29:38Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Report generation takes under 1 minute
+  claim_id: c_ab0b84da
+  context: Analysis & Validation (T026-T037) section listing sensitivity and report
+    times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report Generation takes < 1 minute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:29:38Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Total pipeline runtime is 45 to 60 minutes for 1 year dataset
+  claim_id: c_a36dfde5
+  context: Total Pipeline Runtime section summarizing overall performance.
+  evidence:
+    asserted: '45.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Total Pipeline Runtime is estimated at ~45-60 minutes for a 1-year dataset
+    on standard hardware.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:29:38Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/performance.md
+  attempts: 1
+  canonical: Memory peak is 3.2 GB during estimation phase
+  claim_id: c_81399c11
+  context: Total Pipeline Runtime section summarizing overall performance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory Peak is ~3.2 GB during the estimation phase.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:30:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: "Williams et al. 2016 E\xF6tv\xF6s parameter bound 1.1e-13"
+  claim_id: c_41609b86
+  context: "Candidate Papers (Post-2010) table lists Williams, J. G. et al. 2016 with\
+    \ value $|\eta| < 1.1 \\times 10^{-13}$."
+  evidence:
+    asserted: '2016.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "Williams, J. G. et al. (2016) reported $|\eta| < 1.1 \\times 10^{-13}$."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:30:14Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: "Touboul et al. 2017 MICROSCOPE E\xF6tv\xF6s parameter bound 1.3e-14"
+  claim_id: c_b7e24cd1
+  context: "Candidate Papers (Post-2010) table lists Touboul, P. et al. (MICROSCOPE)\
+    \ 2017 with value $|\eta| < 1.3 \\times 10^{-14}$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Touboul, P. et al. (MICROSCOPE) (2017) reported $|\eta| < 1.3 \\times\
+    \ 10^{-14}$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:30:41Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: "Hees et al. 2018 E\xF6tv\xF6s parameter bound 2.0e-13"
+  claim_id: c_d148e8ab
+  context: "Candidate Papers (Post-2010) table lists Hees, A. et al. 2018 with value\
+    \ $|\eta| < 2.0 \\times 10^{-13}$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hees, A. et al. (2018) reported $|\eta| < 2.0 \\times 10^{-13}$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:31:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: "Lammerzahl et al. 2019 E\xF6tv\xF6s parameter bound 5.0e-14"
+  claim_id: c_620a63d2
+  context: "Candidate Papers (Post-2010) table lists L\xE4mmerzahl, C. et al. 2019\
+    \ with value $|\eta| < 5.0 \\times 10^{-14}$."
+  evidence:
+    asserted: '2019.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "L\xE4mmerzahl, C. et al. (2019) reported $|\eta| < 5.0 \\times 10^{-14}$."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:31:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmark_selection.md
+  attempts: 1
+  canonical: "E\xF6tv\xF6s parameter limit is less than 1.1e-13 at 95% confidence\
+    \ interval"
+  claim_id: c_0c0b225d
+  context: 'Selected Benchmark Paper: Williams, J. G., Turyshev, S. G., & Boggs, D.
+    H. (2016). ''Progress in Lunar Laser Ranging Tests of Relativistic Gravity''.
+    Physical Review D. Specific Value: $|\eta| < 1.1 \times 10^{-13}$ (95% Confidence
+    Interval).'
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    - - ''
+      - 1.1e-13
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/E%C3%B6tv%C3%B6s_parameter_limit_is_less_than_1.1e-13_at_95%25_confidenc
+  kind: magnitude
+  raw_text: 'Specific Value: $|\eta| < 1.1 \times 10^{-13}$ (95% Confidence Interval).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-03T21:31:29Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: Williams et al. 2016 bound on Eotvos parameter 1.1e-13
+  claim_id: c_956aaffa
+  context: Candidate Papers (Post-2010) table listing Williams, J. G. et al. | 2016
+    | $|\eta| < 1.1 \times 10^{-13}$ | []
+  evidence:
+    asserted: '2016.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "Williams, J. G. et al. (2016) reported |\u03B7| < 1.1 \xD7 10\u207B\xB9\
+    \xB3"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:31:44Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: Touboul et al. 2017 MICROSCOPE bound on Eotvos parameter 1.3e-14
+  claim_id: c_a384818e
+  context: Candidate Papers (Post-2010) table listing Touboul, P. et al. (MICROSCOPE)
+    | 2017 | $|\eta| < 1.3 \times 10^{-14}$ | [DOI:10.1103/PhysRevLett.119.231101]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Touboul, P. et al. (MICROSCOPE) (2017) reported |\u03B7| < 1.3 \xD7 10\u207B\
+    \xB9\u2074"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:32:08Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: Hees et al. 2018 bound on Eotvos parameter 2.0e-13
+  claim_id: c_bb4c03f9
+  context: Candidate Papers (Post-2010) table listing Hees, A. et al. | 2018 | $|\eta|
+    < 2.0 \times 10^{-13}$ | [DOI:10.1103/PhysRevD.98.064020]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hees, A. et al. (2018) reported |\u03B7| < 2.0 \xD7 10\u207B\xB9\xB3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:34:02Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/research/benchmarks.md
+  attempts: 1
+  canonical: Lammerzahl et al. 2019 bound on Eotvos parameter 5.0e-14
+  claim_id: c_15846f69
+  context: "Candidate Papers (Post-2010) table listing L\xE4mmerzahl, C. et al. |\
+    \ 2019 | $|\\eta| < 5.0 \\times 10^{-14}$ | []"
+  evidence:
+    asserted: '2019.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "L\xE4mmerzahl, C. et al. (2019) reported |\u03B7| < 5.0 \xD7 10\u207B\
+    \xB9\u2074"
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:34:02Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/README.md
+  attempts: 1
+  canonical: Pipeline estimates Eotvos parameter by analyzing differential accelerations
+    between satellites
+  claim_id: c_fe947b41
+  context: "This project implements a scientific pipeline to test the Weak Equivalence\
+    \ Principle (WEP) using Satellite Laser Ranging (SLR) data from multiple satellites\
+    \ (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette). The pipeline estimates\
+    \ the E\xF6tv\xF6s parameter ($\eta$) by analyzing differential accelerations\
+    \ between satellites with different compositions."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_estimates_Eotvos_parameter_by_analyzing_differentia
+  kind: entity_fact
+  raw_text: "The pipeline estimates the E\xF6tv\xF6s parameter ($\eta$) by analyzing\
+    \ differential accelerations between satellites with different compositions."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:39:56Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/README.md
+  attempts: 1
+  canonical: State-of-the-art benchmarks for Eotvos parameter precision are currently
+    less than 10 to the power of negative 13
+  claim_id: c_459c57d1
+  context: "Scientific Goal: To constrain the E\xF6tv\xF6s parameter $\eta = \frac{|a_1\
+    \ - a_2|}{g}$ to precision levels competitive with state-of-the-art benchmarks\
+    \ (currently $< 10^{-13}$) using ground-based SLR observations."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/State-of-the-art_benchmarks_for_Eotvos_parameter_precision_a
+  kind: magnitude
+  raw_text: "To constrain the E\xF6tv\xF6s parameter $\eta = \frac{|a_1 - a_2|}{g}$\
+    \ to precision levels competitive with state-of-the-art benchmarks (currently\
+    \ $< 10^{-13}$) using ground-based SLR observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:40:15Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/README.md
+  attempts: 1
+  canonical: Preprocessing filters residuals greater than 2 centimeters
+  claim_id: c_779ef0eb
+  context: Preprocessing (`code/data/preprocessing.py`) - Filters residuals > 2cm
+    - Handles sparse satellites - Aligns time series across satellites
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_filters_residuals_greater_than_2_centimeters
+  kind: magnitude
+  raw_text: Filters residuals > 2cm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:40:36Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/README.md
+  attempts: 1
+  canonical: Pipeline exits if RSS exceeds 6 gigabytes due to GitHub Actions free-tier
+    constraint
+  claim_id: c_0ffae6a6
+  context: 'Constraints and Limitations - **Memory**: Pipeline exits if RSS > 6GB
+    (GitHub Actions free-tier constraint) - **Time**: Pipeline exits if runtime >
+    6 hours'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline exits if RSS > 6GB (GitHub Actions free-tier constraint)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:40:37Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/docs/README.md
+  attempts: 1
+  canonical: Pipeline exits if runtime exceeds 6 hours
+  claim_id: c_5a07d691
+  context: 'Constraints and Limitations - **Time**: Pipeline exits if runtime > 6
+    hours - **Data**: Uses real ILRS archive data; no synthetic fallbacks'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline exits if runtime > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:40:37Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Precision threshold for Eotvos parameter papers published after 2010
+    is less than 1e-13
+  claim_id: c_802fcfa1
+  context: 'Search Criteria for ADS API: Papers published after 2010 with precision
+    < 1e-13.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Precision_threshold_for_Eotvos_parameter_papers_published_af
+  kind: magnitude
+  raw_text: Papers published after 2010 with precision < 1e-13.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:42:05Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline must retain at least 95 percent of available
+    points
+  claim_id: c_f7eb52bc
+  context: 'Task T013 Integration Test Requirement: Assert len(df) >= expected_count
+    * 0.95.'
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Assert len(df) >= expected_count * 0.95.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T21:42:05Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Calculation of g uses mean orbital radius rather than instantaneous radius
+  claim_id: c_d2b87f2d
+  context: 'Task T025 Requirement: Calculate g using the mean orbital radius... Do
+    NOT use instantaneous r.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculation_of_g_uses_mean_orbital_radius_rather_than_instan
+  kind: entity_fact
+  raw_text: Calculate g using the mean orbital radius raised to an appropriate power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:42:45Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Joint Least Squares Solver uses Levenberg-Marquardt algorithm with 1e-8
+    tolerance
+  claim_id: c_368f889f
+  context: 'Task T024 Requirement: Use Levenberg-Marquardt algorithm with tol=1e-8
+    convergence tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Levenberg-Marquardt algorithm with tol=1e-8 convergence tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:42:59Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Consistency check verifies joint estimate against separate-fit baseline
+    within 2-sigma threshold
+  claim_id: c_38d3892f
+  context: 'Task T025a Requirement: Explicitly calculate the 2-sigma threshold...
+    Verify the difference is within this -sigma range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the difference is within this -sigma range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:43:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Result flagged as unreliable if Z-score variation exceeds 20 percent
+    across geopotential models
+  claim_id: c_d57cb549
+  context: 'Task T035 Requirement: Implement logic to flag Unreliable if Z-score variation
+    > 20% across models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag Unreliable if Z-score variation > 20% across models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:43:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 if memory usage exceeds 6 GB
+  claim_id: c_3bc1c990
+  context: 'Task T038 Requirement: Log a warning if RAM > 6GB AND exit with code 1
+    if the limit is exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if RAM > 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:43:23Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 124 if execution time exceeds 6 hours
+  claim_id: c_26ab253e
+  context: 'Task T038 Requirement: If total time > 6 hours, log warning and exit with
+    code 124.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total time > 6 hours, log warning and exit with code 124.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:43:23Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Full pipeline on subset must complete in less than 6 hours
+  claim_id: c_fc115e19
+  context: 'User Story 4 Independent Test: Run full pipeline on subset and verify
+    completion time < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_on_subset_must_complete_in_less_than_6_hours
+  kind: magnitude
+  raw_text: Run full pipeline on subset and verify completion time < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T21:43:51Z'

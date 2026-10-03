@@ -13,3 +13,25 @@ T032:
     \ no evidence that the required F\u2011test and BIC model\u2011comparison functionality\
     \ has been implemented. The task\u2019s deliverable is missing, so the requirement\
     \ is not satisfied."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test files or code were presented under `tests/unit/`; the claim that\
+    \ edge\u2011case tests for missing data and empty results exist cannot be verified\
+    \ because the required artifacts are absent. The next implementer must add the\
+    \ actual test files containing the specified edge\u2011case cases."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no evidence of running a `quickstart.md` validation\u2014\
+    no logs, screenshots, or generated reproducibility report are present. Consequently,\
+    \ the required artifact confirming that the quickstart steps were executed and\
+    \ validated is missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the feature specification and user stories; no\
+    \ artifacts (e.g., files, data sets, scripts) were shown, and there is no evidence\
+    \ of content hashes or any version\u2011control metadata applied to those artifacts.\
+    \ To satisfy T047, concrete artifacts with recorded hashes and a documented versioning\
+    \ scheme must be presented."
