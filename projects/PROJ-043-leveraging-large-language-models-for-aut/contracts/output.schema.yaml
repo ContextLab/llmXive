@@ -1,43 +1,42 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Output Schema
+# Output Schema for US1: Raw Metrics
+# Defines the structure of data/processed/raw_metrics.json
 type: object
 properties:
   code:
     type: string
-    description: Original or refactored code
+    description: The source code of the Python function
   hash:
     type: string
-    description: SHA256 hash of the code
-  loc:
-    type: integer
-    description: Lines of code
-  nesting_depth:
-    type: integer
-    description: Maximum nesting depth
-  param_count:
-    type: integer
-    description: Number of parameters
-  pep8_violations:
-    type: integer
-    description: Count of PEP-8 violations
-  pep8_adherence_score:
-    type: number
-    description: Normalized PEP-8 adherence score (0-1)
-  maintainability_index:
-    type: number
-    description: Maintainability index
-  docstring_present:
-    type: boolean
-    description: Whether a docstring is present
-  delta_complexity:
-    type: number
-    description: Change in cyclomatic complexity
-  delta_pylint:
-    type: number
-    description: Change in pylint score
-  delta_maintainability:
-    type: number
-    description: Change in maintainability index
+    description: SHA256 hash of the code for deduplication and caching
+  metrics:
+    type: object
+    properties:
+      loc:
+        type: integer
+        description: Lines of code
+      nesting_depth:
+        type: integer
+        description: Maximum nesting depth
+      param_count:
+        type: integer
+        description: Number of parameters
+      pep8_violations:
+        type: integer
+        description: Count of PEP-8 style violations
+      pep8_adherence_score:
+        type: number
+        description: Normalized PEP-8 adherence score (0.0 to 1.0)
+      docstring_present:
+        type: boolean
+        description: Whether a docstring is present
+    required:
+      - loc
+      - nesting_depth
+      - param_count
+      - pep8_violations
+      - pep8_adherence_score
+      - docstring_present
 required:
   - code
   - hash
+  - metrics

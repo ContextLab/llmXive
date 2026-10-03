@@ -618,3 +618,187 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T04:57:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Create directory tree for PROJ-043 at projects/PROJ-043-leveraging-large-language-models-for-aut
+  claim_id: c_6f45d17d
+  context: 'T001 Initialize project directory structure: Create the full nested directory
+    tree at `projects/PROJ-043-leveraging-large-language-models-for-aut/` including
+    `code/`, `data/`, `tests/`, `paper/`, and `contracts/`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project must create the nested directory tree at `projects/PROJ-043-leveraging-large-language-models-for-aut/`
+    including `code/`, `data/`, `tests/`, `paper/`, and `contracts/`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:22:48Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Pin dependencies to specific versions in requirements.txt
+  claim_id: c_7ad11b58
+  context: 'T002 Initialize Python 3.11 project with pinned dependencies in `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`.
+    **Content**: Must include `datasets==2.18.0`, `transformers==4.38.0`, `radon==6.0.1`,
+    `pylint==3.0.3`, `scikit-learn==1.4.0`, `statsmodels==0.14.1`, `pandas==2.2.0`,
+    `numpy==1.26.4`, `requests==2.31.0`, `pydantic==2.6.1`, `pytest==7.4.4`.'
+  evidence:
+    asserted: '2.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Python project must include dependencies datasets==2.18.0, transformers==4.38.0,
+    radon==6.0.1, pylint==3.0.3, scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0,
+    numpy==1.26.4, requests==2.31.0, pydantic==2.6.1, and pytest==7.4.4.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T12:22:48Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Stop sampling after 400 attempts or 200 valid samples
+  claim_id: c_5ce03530
+  context: T010 [P] [US1] Unit test for dataset sampling logic... asserting that the
+    sampler stops after a configurable maximum number of attempts (400) or a target
+    number of valid samples (200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling logic must stop after a configurable maximum number of attempts
+    (400) or a target number of valid samples (200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:23:13Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Loop up to 400 attempts to find 200 valid samples
+  claim_id: c_db4f00d1
+  context: T012 [US1] Implement `projects/PROJ-043-leveraging-large-language-models-for-aut/code/data/download.py`...
+    Loop **up to 400 attempts**; stop immediately if **200 valid samples** are found.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The download script must loop up to 400 attempts and stop immediately
+    if 200 valid samples are found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:24:17Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Proceed with warning if 100 to 199 valid samples found
+  claim_id: c_59315151
+  context: T012... If between 100 and 199 valid samples are found, **log a warning
+    and proceed** with the available data (as per Spec US-1 Scenario 4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If between 100 and 199 valid samples are found, the system must log a
+    warning and proceed with the available data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:24:34Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Halt with error if fewer than 100 valid samples found
+  claim_id: c_8c718237
+  context: T012... If an insufficient number of valid samples are found (<100), halt
+    with a clear error.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_error_if_fewer_than_100_valid_samples_found
+  kind: magnitude
+  raw_text: The system must halt with a clear error if an insufficient number of valid
+    samples are found (<100).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:25:30Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: PEP-8 Adherence Score normalized to 0-1 range
+  claim_id: c_3a52b1d4
+  context: T013... compute LOC, max nesting depth, parameter count, **PEP-8 Adherence
+    Score** (normalized 0-1)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PEP-8 Adherence Score must be a normalized value between 0 and 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:25:58Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Limit LLM refactoring batch size to 10
+  claim_id: c_794838c7
+  context: "T019... implement batching (\u226410)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Limit_LLM_refactoring_batch_size_to_10
+  kind: magnitude
+  raw_text: The refactoring process must use a batch size of no more than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:26:55Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Drop predictors with VIF > 5
+  claim_id: c_a1f78914
+  context: "T030... **iteratively drop the predictor with the highest VIF and re-fit\
+    \ the model** until all remaining predictors have VIF \u2264 5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_predictors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 must
+    be iteratively dropped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:27:32Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Default BASELINE_TOLERANCE is 0.01
+  claim_id: c_10d62dd7
+  context: 'Notes: **Baseline Constraint**: Use configurable `BASELINE_TOLERANCE`
+    (default 0.01) for identity baseline delta warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline tolerance threshold for identity baseline delta warnings
+    is configurable with a default of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:27:46Z'

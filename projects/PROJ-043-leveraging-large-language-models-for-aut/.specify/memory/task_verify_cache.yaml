@@ -1,28 +1,38 @@
-T002:
+T001:
   c: false
-  h: 824c0ead6f63077a5bb40f6a40a742c866146cc1a8ce29c4b524feb1828ac447
-  r: "The required file `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`\
-    \ does not exist, so the pinned dependency list is not placed at the specified\
-    \ location. A `code/requirements.txt` with the correct versions is present, but\
-    \ it is in the wrong path, and the top\u2011level `requirements.txt` uses version\
-    \ ranges instead of the exact pins. The task therefore remains unfinished."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree was provided\u2014there are no listings,\
+    \ screenshots, or command outputs showing that `projects/PROJ-043-leveraging-large-language-models-for-aut/`\
+    \ contains the `code/`, `data/`, `tests/`, `paper/`, `contracts/` subfolders and\
+    \ the deeper sub\u2011directories (`code/data/`, `code/llm/`, `code/models/`,\
+    \ `code/utils/`, `data/raw/`, `data/processed/`, `data/cache/`, `data/results/`).\
+    \ Without such proof, the verification command cannot be confirmed to succeed.\
+    \ The implementer must supply concrete proof (e.g., `tree` output, `ls` listings,\
+    \ or test command exit status"
+T005:
+  c: false
+  h: c89c235018eb1b6ed0e38b5d22710f0e893b4d795e0e488266d8469ef2a5c96e
+  r: The repository lacks the required `contracts/config.schema.yaml` and `contracts/output.schema.yaml`
+    files, and the provided `validation.py` does not expose a `validate` function
+    as the verification expects (it only defines `validate_config`/`validate_output`
+    and is truncated). Consequently the schema validation logic cannot be exercised
+    as specified.
 T011:
   c: false
-  h: cb69fcb73f4a9c075eb1840700c9f1489438197807e48006453b658557ecd2d3
-  r: "The provided `test_full_pipeline_produces_json` writes to a temporary file (`test_raw_metrics.json`)\
-    \ and never checks for `data/processed/raw_metrics.json`, nor does it verify any\
+  h: 084f1758e87e8cf49723cdfa8be4bc071132316ff955da2d6dd4f371d5654fe6
+  r: "The integration test file exists but is truncated and does not show the final\
+    \ assertions that `data/processed/raw_metrics.json` is created and contains the\
     \ required keys. Moreover, the expected output file `data/processed/raw_metrics.json`\
-    \ is missing from the repository. The task\u2019s requirement is therefore not\
-    \ satisfied."
+    \ is absent from the repository. The task\u2019s core requirement\u2014producing\
+    \ and verifying that JSON file\u2014is therefore not fulfilled."
 T014:
   c: false
-  h: e5fb707194b45f0dead3b6e7976e3b584d20da8fe43f08a1721728e83b1e9abb
-  r: "The repository lacks the required `data/processed/raw_metrics.json` output file\
-    \ and the `contracts/output.schema.yaml` schema file, both needed for validation.\
-    \ Moreover, the provided `processor.py` snippet does not demonstrate the required\
-    \ performance logging (functions per second, time\u2011vs\u2011limit ratio) or\
-    \ explicit schema validation against the missing schema. These missing artifacts\
-    \ prevent the task from being considered fully satisfied."
+  h: 02643298a27885aa6407b600e84f3ea3ea66472db89bea7fccb609baafba0ca7
+  r: "The `processor.py` file is truncated and does not contain the full orchestration\
+    \ logic, schema validation, or SC\u2011003 compliance logging, and the required\
+    \ output files (`data/processed/raw_metrics.json`, `data/results/efficiency_report.json`)\
+    \ and the schema file (`contracts/output.schema.yaml`) are absent. The task\u2019\
+    s core artifacts are missing or incomplete."
 T018:
   c: false
   h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71

@@ -1,76 +1,50 @@
-"""
-Script to initialize the project directory structure for PROJ-043.
-This script creates all required directories and placeholder __init__.py files
-to ensure the project tree is valid and ready for development.
-"""
 import os
 import sys
 
-def create_structure():
-    project_root = "projects/PROJ-043-leveraging-large-language-models-for-aut"
+def create_structure(base_path: str) -> None:
+    """
+    Create the full nested directory tree for the project.
     
-    required_dirs = [
-        # Code subdirectories
-        f"{project_root}/code/data",
-        f"{project_root}/code/llm",
-        f"{project_root}/code/models",
-        f"{project_root}/code/utils",
-        
-        # Data subdirectories
-        f"{project_root}/data/raw",
-        f"{project_root}/data/processed",
-        f"{project_root}/data/cache",
-        f"{project_root}/data/results",
-        
-        # Other top-level directories
-        f"{project_root}/tests",
-        f"{project_root}/paper",
-        f"{project_root}/contracts",
+    Creates:
+    - code/, code/data/, code/llm/, code/models/, code/utils/
+    - data/, data/raw/, data/processed/, data/cache/, data/results/
+    - tests/
+    - paper/
+    - contracts/
+    
+    Args:
+        base_path: The root directory where the project structure will be created.
+    """
+    # Define all required directories relative to base_path
+    directories = [
+        "code",
+        "code/data",
+        "code/llm",
+        "code/models",
+        "code/utils",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/cache",
+        "data/results",
+        "tests",
+        "paper",
+        "contracts",
     ]
-    
-    created_count = 0
-    for directory in required_dirs:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            print(f"Created directory: {directory}")
-            created_count += 1
+
+    for dir_path in directories:
+        full_path = os.path.join(base_path, dir_path)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path, exist_ok=True)
+            print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {directory}")
-    
-    # Create __init__.py files to make them Python packages
-    init_files = []
-    for directory in required_dirs:
-        init_path = os.path.join(directory, "__init__.py")
-        if not os.path.exists(init_path):
-            with open(init_path, "w") as f:
-                f.write("# Auto-generated package marker for PROJ-043\n")
-            init_files.append(init_path)
-            print(f"Created __init__.py: {init_path}")
-    
-    print(f"\nStructure initialization complete. Created {created_count} directories and {len(init_files)} package markers.")
-    
-    # Verification
-    verification_paths = [
-        f"{project_root}/code/data",
-        f"{project_root}/code/llm",
-        f"{project_root}/data/processed",
-        f"{project_root}/tests",
-        f"{project_root}/paper",
-        f"{project_root}/contracts",
-    ]
-    
-    all_exist = True
-    for path in verification_paths:
-        if not os.path.isdir(path):
-            print(f"ERROR: Verification failed - {path} does not exist!")
-            all_exist = False
-        
-    if all_exist:
-        print("Verification passed: All required directories exist.")
-        return 0
-    else:
-        print("Verification failed: Some directories are missing.")
-        return 1
+            print(f"Directory already exists: {full_path}")
 
 if __name__ == "__main__":
-    sys.exit(create_structure())
+    if len(sys.argv) < 2:
+        print("Usage: python create_structure.py <project_root_path>")
+        sys.exit(1)
+    
+    project_root = sys.argv[1]
+    create_structure(project_root)
+    print(f"Project structure created successfully at: {project_root}")

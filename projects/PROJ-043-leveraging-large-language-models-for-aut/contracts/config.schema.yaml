@@ -1,26 +1,36 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Config Schema
 type: object
 properties:
   HF_API_KEY:
-    type: ["string", "null"]
-    description: Hugging Face API Key
+    type: string
+    description: Hugging Face API key for authentication
   RANDOM_SEED:
     type: integer
-    default: 42
+    description: Random seed for reproducibility
   MAX_ATTEMPTS:
     type: integer
+    description: Maximum number of attempts for data fetching
     default: 400
   MIN_VALID_FUNCTIONS:
     type: integer
+    description: Minimum number of valid functions required to proceed
     default: 100
   TARGET_VALID_FUNCTIONS:
     type: integer
+    description: Target number of valid functions to fetch
     default: 200
   BATCH_SIZE:
     type: integer
+    description: Batch size for processing
     default: 10
   BASELINE_TOLERANCE:
     type: number
+    description: Tolerance threshold for baseline delta checks
     default: 0.01
-required: []
+required:
+  - HF_API_KEY
+  - RANDOM_SEED
+  - MAX_ATTEMPTS
+  - MIN_VALID_FUNCTIONS
+  - TARGET_VALID_FUNCTIONS
+  - BATCH_SIZE
+  - BASELINE_TOLERANCE

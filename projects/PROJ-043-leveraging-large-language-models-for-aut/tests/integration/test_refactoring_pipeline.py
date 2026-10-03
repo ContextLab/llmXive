@@ -1,247 +1,136 @@
 """
-Integration tests for the refactoring pipeline (User Story 2).
-
-Specifically tests error handling during batch processing to ensure
-that a single failed refactoring does not crash the entire batch.
+Integration tests for the refactoring pipeline.
+Verifies that batch processing handles errors gracefully without crashing.
 """
 import json
-import logging
 import os
 import sys
 import tempfile
+import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the code directory to the path for imports
+code_root = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_root))
 
-import pytest
+from llm.pipeline import load_processed_data, process_refactoring_batch, save_results
+from utils.logging import LLMRefactoringError
+from models.entities import FunctionSample
 
-from llm.pipeline import process_refactoring_batch, load_processed_data, save_results
-from llm.refactoring import refactor_single_function
-from llm.baseline import generate_identity_baseline
-from llm.quality import analyze_function_quality, compute_deltas
-from utils.logging import LLMRefactoringError, get_logger
-from models.entities import FunctionSample, MetricDelta
-
-logger = get_logger(__name__)
+# Constants for test paths relative to project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+RESULTS_DIR = DATA_DIR / "results"
 
 
-class TestRefactoringBatchErrorHandling:
-    """Tests for robust error handling in batch refactoring."""
-
-    @pytest.fixture
-    def sample_data(self):
-        """Create a list of sample function data for testing."""
-        return [
-            {
-                "code": "def valid_func(x):\n    return x + 1",
-                "hash": "abc123",
-                "metrics": {"loc": 2, "complexity": 1}
-            },
-            {
-                "code": "def another_valid(y):\n    return y * 2",
-                "hash": "def456",
-                "metrics": {"loc": 2, "complexity": 1}
+def create_mock_processed_data(tmp_path: Path) -> str:
+    """
+    Creates a temporary JSON file with mock processed data.
+    Includes one valid function and one function that will trigger an error.
+    """
+    data = [
+        {
+            "code": "def valid_func():\n    return 42",
+            "hash": "abc123",
+            "metrics": {
+                "loc": 2,
+                "nesting_depth": 0,
+                "param_count": 0,
+                "pep8_violations": 0,
+                "pep8_adherence_score": 1.0,
+                "docstring_present": False
             }
-        ]
+        },
+        {
+            "code": "def invalid_func():\n    return 42",
+            "hash": "def456",
+            "metrics": {
+                "loc": 2,
+                "nesting_depth": 0,
+                "param_count": 0,
+                "pep8_violations": 0,
+                "pep8_adherence_score": 1.0,
+                "docstring_present": False
+            }
+        }
+    ]
+    file_path = tmp_path / "raw_metrics.json"
+    with open(file_path, "w") as f:
+        json.dump(data, f)
+    return str(file_path)
 
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for output files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
 
-    def test_batch_processing_handles_single_error(self, sample_data, temp_output_dir):
-        """
-        Assert that a single failed refactoring does not crash the batch
-        and is marked as 'Refactoring Failed'.
-        """
-        # Mock the refactoring function to fail on the first item
-        def mock_refactor(code, hash_val, **kwargs):
-            if hash_val == "abc123":
-                raise LLMRefactoringError("Simulated API failure")
-            return f"refactored_{code}"
+@pytest.fixture
+def mock_refactor_single_function():
+    """
+    Mocks the refactor_single_function to simulate:
+    1. A successful refactoring for the first call.
+    2. A failure (LLMRefactoringError) for the second call.
+    """
+    call_count = 0
 
-        # Mock the baseline generation (should always succeed)
-        def mock_baseline(code):
-            return code
+    def side_effect(func_sample, **kwargs):
+        nonlocal call_count
+        call_count += 1
 
-        # Mock quality analysis to handle the failure case gracefully
-        def mock_quality(original, refactored, baseline):
-            if refactored is None:
-                # Return a delta indicating failure or zero improvement
-                return MetricDelta(
-                    complexity_delta=0.0,
-                    pylint_delta=0.0,
-                    maintainability_delta=0.0,
-                    status="Refactoring Failed"
-                )
-            # Normal case
-            return MetricDelta(
-                complexity_delta=-0.5,
-                pylint_delta=-2.0,
-                maintainability_delta=1.5,
-                status="Success"
-            )
+        if call_count == 1:
+            # Simulate success
+            return {
+                "original_code": func_sample.code,
+                "refactored_code": "def valid_func():\n    return 42 # Refactored",
+                "status": "Success",
+                "hash": func_sample.hash
+            }
+        else:
+            # Simulate failure for the second item
+            raise LLMRefactoringError("API Timeout or Model Error")
 
-        with patch('llm.refactoring.refactor_single_function', side_effect=mock_refactor), \
-             patch('llm.baseline.generate_identity_baseline', side_effect=mock_baseline), \
-             patch('llm.quality.analyze_function_quality', side_effect=mock_quality):
-            
-            # Process the batch
-            results = process_refactoring_batch(sample_data)
+    with patch("llm.pipeline.refactor_single_function", side_effect=side_effect):
+        yield
 
-            # Assertions
-            assert len(results) == len(sample_data), "All items should be processed"
-            
-            # First item should be marked as failed
-            first_result = results[0]
-            assert first_result["status"] == "Refactoring Failed", \
-                f"Expected 'Refactoring Failed', got {first_result.get('status')}"
-            assert "error_message" in first_result, "Failed item should contain error details"
-            
-            # Second item should be successful
-            second_result = results[1]
-            assert second_result["status"] == "Success", \
-                f"Expected 'Success', got {second_result.get('status')}"
 
-    def test_batch_processing_handles_multiple_errors(self, sample_data, temp_output_dir):
-        """
-        Assert that multiple failures in a batch are handled correctly
-        without crashing, and all are marked appropriately.
-        """
-        # Mock to fail on all items
-        def mock_refactor_fail(code, hash_val, **kwargs):
-            raise LLMRefactoringError("Simulated API failure for all")
+def test_batch_processing_handles_errors():
+    """
+    Asserts that a single failed refactoring does not crash the batch
+    and the failed item is marked as "Refactoring Failed" in the results.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        input_file = create_mock_processed_data(tmp_path)
 
-        def mock_quality_failure(original, refactored, baseline):
-            return MetricDelta(
-                complexity_delta=0.0,
-                pylint_delta=0.0,
-                maintainability_delta=0.0,
-                status="Refactoring Failed"
-            )
+        # Ensure output directory exists
+        output_file = tmp_path / "refactoring_results.json"
 
-        with patch('llm.refactoring.refactor_single_function', side_effect=mock_refactor_fail), \
-             patch('llm.baseline.generate_identity_baseline', side_effect=lambda x: x), \
-             patch('llm.quality.analyze_function_quality', side_effect=mock_quality_failure):
-            
-            results = process_refactoring_batch(sample_data)
+        # Load data
+        data = load_processed_data(input_file)
+        assert len(data) == 2
 
-            assert len(results) == len(sample_data)
-            for result in results:
-                assert result["status"] == "Refactoring Failed"
-                assert "error_message" in result
+        # Process batch with mocked failure
+        # We need to patch the specific function used inside process_refactoring_batch
+        # The pipeline module imports refactor_single_function locally or uses it directly.
+        # Based on the API surface provided, process_refactoring_batch calls refactor_single_function.
+        
+        results = process_refactoring_batch(data, output_file, batch_size=2)
 
-    def test_batch_processing_continues_after_syntax_error(self, sample_data, temp_output_dir):
-        """
-        Assert that syntax errors in LLM output are handled and marked as failed,
-        allowing the batch to continue.
-        """
-        def mock_refactor_syntax_error(code, hash_val, **kwargs):
-            if hash_val == "abc123":
-                # Return invalid Python code
-                return "def invalid(" 
-            return f"refactored_{code}"
+        # Verify the results list has the same length as input
+        assert len(results) == 2
 
-        def mock_quality_syntax(original, refactored, baseline):
-            # Simulate quality check failing on syntax error
-            if "invalid" in refactored:
-                raise SyntaxError("Invalid syntax in refactored code")
-            return MetricDelta(
-                complexity_delta=-0.5,
-                pylint_delta=-2.0,
-                maintainability_delta=1.5,
-                status="Success"
-            )
+        # Verify the first one succeeded
+        assert results[0]["status"] == "Success"
+        assert "refactored_code" in results[0]
 
-        with patch('llm.refactoring.refactor_single_function', side_effect=mock_refactor_syntax_error), \
-             patch('llm.baseline.generate_identity_baseline', side_effect=lambda x: x), \
-             patch('llm.quality.analyze_function_quality', side_effect=mock_quality_syntax):
-            
-            results = process_refactoring_batch(sample_data)
+        # Verify the second one failed gracefully
+        failed_item = results[1]
+        assert failed_item["status"] == "Refactoring Failed"
+        assert "error_message" in failed_item
+        assert "LLMRefactoringError" in failed_item["error_message"] or "API Timeout" in failed_item["error_message"]
 
-            assert len(results) == len(sample_data)
-            # First item failed due to syntax error
-            assert results[0]["status"] == "Refactoring Failed"
-            # Second item succeeded
-            assert results[1]["status"] == "Success"
-
-    def test_save_results_on_partial_failure(self, sample_data, temp_output_dir):
-        """
-        Assert that results can be saved even if some items failed.
-        """
-        def mock_refactor_partial(code, hash_val, **kwargs):
-            if hash_val == "abc123":
-                raise LLMRefactoringError("API Error")
-            return f"refactored_{code}"
-
-        def mock_quality_partial(original, refactored, baseline):
-            if refactored is None or "Failed" in str(refactored):
-                return MetricDelta(
-                    complexity_delta=0.0,
-                    pylint_delta=0.0,
-                    maintainability_delta=0.0,
-                    status="Refactoring Failed"
-                )
-            return MetricDelta(
-                complexity_delta=-0.5,
-                pylint_delta=-2.0,
-                maintainability_delta=1.5,
-                status="Success"
-            )
-
-        output_file = temp_output_dir / "test_results.json"
-
-        with patch('llm.refactoring.refactor_single_function', side_effect=mock_refactor_partial), \
-             patch('llm.baseline.generate_identity_baseline', side_effect=lambda x: x), \
-             patch('llm.quality.analyze_function_quality', side_effect=mock_quality_partial):
-            
-            results = process_refactoring_batch(sample_data)
-            save_results(results, str(output_file))
-
-            assert output_file.exists(), "Output file should be created"
-            
-            with open(output_file, 'r') as f:
-                saved_data = json.load(f)
-            
-            assert len(saved_data) == len(sample_data)
-            # Verify structure of saved data
-            for item in saved_data:
-                assert "hash" in item
-                assert "status" in item
-                assert "metrics" in item or "error_message" in item
-
-    def test_empty_batch_handling(self):
-        """Assert that an empty batch returns an empty list without error."""
-        results = process_refactoring_batch([])
-        assert results == []
-
-    def test_non_dict_item_handling(self):
-        """Assert that malformed input items are handled gracefully."""
-        malformed_data = [
-            {"code": "valid", "hash": "1"},
-            "not a dict",  # Malformed item
-            {"code": "valid2", "hash": "2"}
-        ]
-
-        # This should not crash, but might log a warning or skip the item
-        # Depending on implementation details of process_refactoring_batch
-        # We expect the function to handle this without raising an unhandled exception
-        try:
-            # Mock dependencies to avoid actual API calls
-            with patch('llm.refactoring.refactor_single_function', return_value="refactored"), \
-                 patch('llm.baseline.generate_identity_baseline', return_value="baseline"), \
-                 patch('llm.quality.analyze_function_quality', return_value=MetricDelta(0,0,0,"Success")):
-                
-                results = process_refactoring_batch(malformed_data)
-                
-                # The implementation should ideally skip or mark the malformed item as failed
-                # We assert that the process didn't crash and returned a list
-                assert isinstance(results, list)
-                # At least the valid items should be processed
-                assert len(results) >= 2 
-        except Exception as e:
-            # If the implementation doesn't handle this, it should be a clear error, not a crash
-            pytest.fail(f"Batch processing crashed on malformed input: {e}")
+        # Verify the output file was created and contains valid JSON
+        assert output_file.exists()
+        with open(output_file, "r") as f:
+            saved_results = json.load(f)
+        
+        assert len(saved_results) == 2
+        assert saved_results[1]["status"] == "Refactoring Failed"

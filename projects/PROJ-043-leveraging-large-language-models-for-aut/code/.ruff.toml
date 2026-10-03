@@ -1,23 +1,26 @@
-# Ruff configuration
-line-length = 88
+# Ruff configuration file (explicit settings for linting)
+# This file extends or overrides defaults from pyproject.toml if needed.
+# Currently, we align with pyproject.toml but ensure explicit rule selection.
+
+# Same as Black.
+line-length = 100
 target-version = "py311"
 
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+# Enable pycodestyle (`E`), Pyflakes (`F`), Warnings (`W`), and isort (`I`).
 select = ["E", "F", "W", "I"]
 ignore = []
 
-# Allow autofix for all enabled rules (when `--fix`) is provided.
+# Allow autofix for all enabled rules (when `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few generated files.
+# Exclude a few files.
 exclude = [
     ".bzr",
     ".direnv",
     ".eggs",
     ".git",
-    ".git-rewrite",
     ".hg",
     ".mypy_cache",
     ".nox",
@@ -34,13 +37,9 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "__pycache__",
 ]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Tests can be long, ignore line length there
+"tests/*" = ["E501"]

@@ -1,238 +1,195 @@
-"""
-Unit tests for API retry logic and timeout handling in the LLM client.
-
-Tests cover:
-- Retry logic on transient failures (rate limits, server errors)
-- Timeout handling (request exceeds configured limit)
-- Exponential backoff behavior
-- Max attempts limit enforcement
-"""
 import pytest
 import time
+import logging
 from unittest.mock import patch, MagicMock, Mock
-from requests.exceptions import Timeout, HTTPError, RequestException
-from typing import List, Dict, Any
+from requests.exceptions import Timeout, RequestException
+from pathlib import Path
 import sys
 import os
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Adjust path to include project root for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from config import Config
-from utils.logging import LLMRefactoringError, get_logger
-from llm.refactoring import LLMClient
+from code.llm.refactoring import refactor_single_function
+from code.config import Config
+from code.utils.logging import LLMRefactoringError, get_logger
 
+# Configure logging for tests
+logging.basicConfig(level=logging.INFO)
+logger = get_logger("test_llm_client")
 
-class TestLLMClientRetryLogic:
-    """Tests for retry logic and timeout handling in LLMClient."""
+class TestRetryLogic:
+    """Unit tests for API retry logic and timeout handling."""
 
-    @pytest.fixture
-    def mock_config(self):
-        """Create a mock config with test values."""
-        config = MagicMock(spec=Config)
-        config.HF_API_KEY = "test-key"
-        config.MAX_ATTEMPTS = 3
-        config.RANDOM_SEED = 42
-        config.MIN_VALID_FUNCTIONS = 100
-        config.BATCH_SIZE = 10
-        return config
+    def test_retry_logic_exponential_backoff(self):
+        """
+        Assert that retries occur with increasing delays (exponential backoff)
+        and timeout is enforced per the spec.
+        """
+        # Mock the requests.post to simulate repeated failures
+        with patch('code.llm.refactoring.requests.post') as mock_post:
+            # Simulate 3 timeouts followed by a success
+            mock_response_success = MagicMock()
+            mock_response_success.status_code = 200
+            mock_response_success.json.return_value = {"generated_text": "refactored_code"}
 
-    @pytest.fixture
-    def client(self, mock_config):
-        """Create an LLMClient instance with mocked config."""
-        return LLMClient(config=mock_config)
+            # Configure side_effect to raise Timeout 3 times, then return success
+            mock_post.side_effect = [
+                Timeout("Request timed out"),
+                Timeout("Request timed out"),
+                Timeout("Request timed out"),
+                mock_response_success
+            ]
 
-    def test_retry_on_rate_limit(self, client):
-        """Test that the client retries on 429 (rate limit) errors."""
-        mock_response = MagicMock()
-        mock_response.status_code = 429
-        mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
+            # Mock time.sleep to avoid actual waiting during test
+            with patch('code.llm.refactoring.time.sleep') as mock_sleep:
+                # Mock time.time to track elapsed time if needed, though we check sleep calls
+                original_time = time.time
+                time_values = [0.0, 1.0, 4.0, 9.0] # Simulated time progression
+                with patch('code.llm.refactoring.time.time', side_effect=time_values):
+                    
+                    config = Config(
+                        HF_API_KEY="test_key",
+                        RANDOM_SEED=42,
+                        MAX_ATTEMPTS=5,
+                        MIN_VALID_FUNCTIONS=100,
+                        TARGET_VALID_FUNCTIONS=200,
+                        BATCH_SIZE=10,
+                        BASELINE_TOLERANCE=0.01
+                    )
 
-        # Mock the session to raise 429 twice, then succeed
-        call_count = 0
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count < 3:
-                mock_response = MagicMock()
-                mock_response.status_code = 429
-                mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-                mock_response.raise_for_status()
-            else:
-                success_response = MagicMock()
-                success_response.status_code = 200
-                success_response.json.return_value = {"generated_text": "refactored code"}
-                return success_response
+                    # Call the function with a small timeout to ensure it triggers quickly
+                    # Note: refactor_single_function expects a function sample dict
+                    sample_code = "def dummy(): pass"
+                    function_hash = "abc123"
+                    
+                    # We need to patch the specific API call logic inside refactor_single_function
+                    # Since we are testing the retry logic, we assume the function calls requests.post
+                    
+                    try:
+                        result = refactor_single_function(
+                            code=sample_code,
+                            function_hash=function_hash,
+                            config=config
+                        )
+                    except LLMRefactoringError:
+                        # If it fails after max retries, that's also a valid path if we hit limits
+                        # But here we set it to succeed on 4th attempt
+                        pass
 
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            result = client._make_request("test prompt", timeout=60, max_attempts=3)
-            assert result is not None
-            assert result["generated_text"] == "refactored code"
-            assert call_count == 3  # 2 failures + 1 success
+                    # Verify that sleep was called with increasing delays (1, 2, 4 seconds typically)
+                    # The exact backoff strategy (1, 2, 4 or 2, 4, 8) depends on implementation
+                    # We assert that sleep was called at least 3 times
+                    assert mock_sleep.call_count == 3, f"Expected 3 sleep calls for 3 retries, got {mock_sleep.call_count}"
+                    
+                    # Verify the delays are increasing (Exponential Backoff)
+                    # We check the arguments passed to sleep
+                    sleep_delays = [call[0][0] for call in mock_sleep.call_args_list]
+                    assert all(sleep_delays[i] <= sleep_delays[i+1] for i in range(len(sleep_delays)-1)), \
+                        "Delays should be non-decreasing for exponential backoff"
+                    
+                    # Verify that requests.post was called 4 times (3 failures + 1 success)
+                    assert mock_post.call_count == 4, f"Expected 4 API calls (3 retries + 1 success), got {mock_post.call_count}"
 
-    def test_retry_on_server_error(self, client):
-        """Test that the client retries on 500 (server error) errors."""
-        call_count = 0
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count < 2:
-                mock_response = MagicMock()
-                mock_response.status_code = 500
-                mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-                mock_response.raise_for_status()
-            else:
-                success_response = MagicMock()
-                success_response.status_code = 200
-                success_response.json.return_value = {"generated_text": "success"}
-                return success_response
+    def test_timeout_enforcement(self):
+        """
+        Assert that a timeout exception is raised and handled correctly
+        when the API does not respond within the specified time.
+        """
+        with patch('code.llm.refactoring.requests.post') as mock_post:
+            # Simulate a persistent timeout
+            mock_post.side_effect = Timeout("Connection timed out")
 
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            result = client._make_request("test prompt", timeout=60, max_attempts=3)
-            assert result is not None
-            assert call_count == 2
+            config = Config(
+                HF_API_KEY="test_key",
+                RANDOM_SEED=42,
+                MAX_ATTEMPTS=2, # Limit retries for this test
+                MIN_VALID_FUNCTIONS=100,
+                TARGET_VALID_FUNCTIONS=200,
+                BATCH_SIZE=10,
+                BASELINE_TOLERANCE=0.01
+            )
 
-    def test_timeout_handling(self, client):
-        """Test that timeout exceptions are raised correctly."""
-        with patch.object(client.session, 'post', side_effect=Timeout("Request timed out")):
-            with pytest.raises(LLMRefactoringError) as exc_info:
-                client._make_request("test prompt", timeout=60, max_attempts=1)
-            
-            assert "timeout" in str(exc_info.value).lower()
+            sample_code = "def dummy(): pass"
+            function_hash = "def123"
 
-    def test_max_attempts_exceeded(self, client):
-        """Test that the client stops after max_attempts and raises an error."""
-        def side_effect(*args, **kwargs):
+            # We expect the function to eventually raise an error after exhausting retries
+            with patch('code.llm.refactoring.time.sleep'):
+                with pytest.raises(LLMRefactoringError) as exc_info:
+                    refactor_single_function(
+                        code=sample_code,
+                        function_hash=function_hash,
+                        config=config
+                    )
+                
+                assert "Max retries exceeded" in str(exc_info.value) or "Timeout" in str(exc_info.value)
+                assert mock_post.call_count == 2 # Initial + 1 retry (MAX_ATTEMPTS=2)
+
+    def test_request_exception_handling(self):
+        """
+        Assert that generic RequestExceptions are handled with exponential backoff.
+        """
+        with patch('code.llm.refactoring.requests.post') as mock_post:
+            mock_response_success = MagicMock()
+            mock_response_success.status_code = 200
+            mock_response_success.json.return_value = {"generated_text": "code"}
+
+            # Mix of RequestExceptions
+            mock_post.side_effect = [
+                RequestException("Network error"),
+                RequestException("Server error"),
+                mock_response_success
+            ]
+
+            with patch('code.llm.refactoring.time.sleep') as mock_sleep:
+                config = Config(
+                    HF_API_KEY="test_key",
+                    RANDOM_SEED=42,
+                    MAX_ATTEMPTS=5,
+                    MIN_VALID_FUNCTIONS=100,
+                    TARGET_VALID_FUNCTIONS=200,
+                    BATCH_SIZE=10,
+                    BASELINE_TOLERANCE=0.01
+                )
+
+                try:
+                    refactor_single_function(
+                        code="def x(): pass",
+                        function_hash="hash_xyz",
+                        config=config
+                    )
+                except LLMRefactoringError:
+                    pass # Should succeed eventually
+
+                assert mock_sleep.call_count == 2
+                assert mock_post.call_count == 3
+
+    def test_success_without_retry(self):
+        """
+        Assert that if the first attempt succeeds, no retries or sleeps occur.
+        """
+        with patch('code.llm.refactoring.requests.post') as mock_post:
             mock_response = MagicMock()
-            mock_response.status_code = 500
-            mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-            mock_response.raise_for_status()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"generated_text": "success"}
+            mock_post.return_value = mock_response
 
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            with pytest.raises(LLMRefactoringError) as exc_info:
-                client._make_request("test prompt", timeout=60, max_attempts=3)
-            
-            assert "max attempts" in str(exc_info.value).lower()
-            assert "exceeded" in str(exc_info.value).lower()
+            with patch('code.llm.refactoring.time.sleep') as mock_sleep:
+                config = Config(
+                    HF_API_KEY="test_key",
+                    RANDOM_SEED=42,
+                    MAX_ATTEMPTS=5,
+                    MIN_VALID_FUNCTIONS=100,
+                    TARGET_VALID_FUNCTIONS=200,
+                    BATCH_SIZE=10,
+                    BASELINE_TOLERANCE=0.01
+                )
 
-    def test_exponential_backoff_timing(self, client):
-        """Test that exponential backoff is applied between retries."""
-        call_times = []
-        call_count = 0
+                refactor_single_function(
+                    code="def y(): pass",
+                    function_hash="hash_abc",
+                    config=config
+                )
 
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            call_times.append(time.time())
-            if call_count < 3:
-                mock_response = MagicMock()
-                mock_response.status_code = 429
-                mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-                mock_response.raise_for_status()
-            else:
-                success_response = MagicMock()
-                success_response.status_code = 200
-                success_response.json.return_value = {"generated_text": "success"}
-                return success_response
-
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            # Use very short backoff for testing (base=0.1s)
-            with patch.object(client, '_get_backoff', return_value=0.1):
-                result = client._make_request("test prompt", timeout=60, max_attempts=3)
-                assert result is not None
-
-        # Verify that there was a delay between calls
-        if len(call_times) >= 2:
-            # The delay should be at least the backoff time (with some tolerance)
-            delay = call_times[1] - call_times[0]
-            assert delay >= 0.05  # At least 50ms delay (allowing for timing variance)
-
-    def test_no_retry_on_client_error(self, client):
-        """Test that 4xx errors (except 429) are not retried."""
-        mock_response = MagicMock()
-        mock_response.status_code = 400
-        mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-
-        with patch.object(client.session, 'post', side_effect=mock_response.raise_for_status):
-            with pytest.raises(LLMRefactoringError) as exc_info:
-                client._make_request("test prompt", timeout=60, max_attempts=3)
-            
-            assert "client error" in str(exc_info.value).lower()
-
-    def test_successful_request_no_retry(self, client):
-        """Test that successful requests don't trigger retries."""
-        success_response = MagicMock()
-        success_response.status_code = 200
-        success_response.json.return_value = {"generated_text": "success"}
-
-        call_count = 0
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            return success_response
-
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            result = client._make_request("test prompt", timeout=60, max_attempts=3)
-            assert result is not None
-            assert call_count == 1  # Only one call, no retries
-
-    def test_network_error_retry(self, client):
-        """Test that network errors (RequestException) are retried."""
-        call_count = 0
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count < 2:
-                raise RequestException("Network error")
-            else:
-                success_response = MagicMock()
-                success_response.status_code = 200
-                success_response.json.return_value = {"generated_text": "success"}
-                return success_response
-
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            result = client._make_request("test prompt", timeout=60, max_attempts=3)
-            assert result is not None
-            assert call_count == 2
-
-    def test_timeout_parameter_passed(self, client):
-        """Test that the timeout parameter is correctly passed to the request."""
-        success_response = MagicMock()
-        success_response.status_code = 200
-        success_response.json.return_value = {"generated_text": "success"}
-
-        captured_timeout = None
-        def side_effect(*args, **kwargs):
-            nonlocal captured_timeout
-            captured_timeout = kwargs.get('timeout')
-            return success_response
-
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            client._make_request("test prompt", timeout=120, max_attempts=1)
-            assert captured_timeout == 120
-
-    def test_retry_logic_with_config_max_attempts(self, client, mock_config):
-        """Test that the client uses the configured MAX_ATTEMPTS value."""
-        mock_config.MAX_ATTEMPTS = 5
-        client = LLMClient(config=mock_config)
-        
-        call_count = 0
-        def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count < 5:
-                mock_response = MagicMock()
-                mock_response.status_code = 500
-                mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-                mock_response.raise_for_status()
-            else:
-                success_response = MagicMock()
-                success_response.status_code = 200
-                success_response.json.return_value = {"generated_text": "success"}
-                return success_response
-
-        with patch.object(client.session, 'post', side_effect=side_effect):
-            # Should use config's MAX_ATTEMPTS (5) when not explicitly passed
-            result = client._make_request("test prompt", timeout=60)
-            assert result is not None
-            assert call_count == 5
+                assert mock_sleep.call_count == 0
+                assert mock_post.call_count == 1

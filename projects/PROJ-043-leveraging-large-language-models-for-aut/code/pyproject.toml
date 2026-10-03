@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-refactoring-research"
+name = "llm-refactoring-pipeline"
 version = "0.1.0"
-description = "Leveraging Large Language Models for Automated Code Refactoring"
+description = "Automated code refactoring using Large Language Models"
 requires-python = ">=3.11"
 dependencies = [
     "datasets==2.18.0",
@@ -19,22 +19,80 @@ dependencies = [
     "requests==2.31.0",
     "pydantic==2.6.1",
     "pytest==7.4.4",
-    "pyyaml==6.0.1",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | __pycache__
+)/
+'''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.ruff]
+# Same as Black.
+line-length = 100
+target-version = "py311"
+
+# Assume Python 3.11
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), Warnings (`W`), and isort (`I`).
+select = ["E", "F", "W", "I"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "__pycache__",
+]
+
+# Per-file ignores.
+per-file-ignores = {}
+
+# Ignore violations in generated files.
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
 
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]

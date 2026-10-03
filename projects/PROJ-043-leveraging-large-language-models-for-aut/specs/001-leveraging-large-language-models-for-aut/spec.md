@@ -17,10 +17,10 @@ The system MUST download a random sample of Python functions from the BigCode da
 
 **Acceptance Scenarios**:
 
-1. **Given** the BigCode dataset is accessible via HuggingFace, **When** the system executes the sampling script, **Then** the system attempts to retrieve up to 400 distinct Python functions, stopping early if 200 valid functions are found, or continuing until 400 attempts are exhausted.
+1. **Given** the BigCode dataset is accessible via HuggingFace, **When** the system executes the sampling script, **Then** the system attempts to retrieve up to 400 distinct Python functions, stopping early if A set of valid functions are found, or continuing until 400 attempts are exhausted.
 2. **Given** a set of raw Python functions, **When** the static analysis module runs, **Then** every function is annotated with a set of structural metrics: Lines of Code, Max Nesting Depth, Parameter Count, PEP-8 adherence score, and docstring presence.
 3. **Given** a function with invalid Python syntax, **When** the static analysis runs, **Then** the system flags the function as "unparseable" and excludes it from the final analysis set, ensuring the analysis set contains only valid code.
-4. **Given** fewer than 200 valid functions are found after 400 attempts, **When** the pipeline completes, **Then** the system logs a warning and proceeds with the available valid functions (minimum 100 required to proceed), otherwise proceeding with the 200 valid functions.
+4. **Given** fewer than A set of valid functions are found after 400 attempts, **When** the pipeline completes, **Then** the system logs a warning and proceeds with the available valid functions (minimum 100 required to proceed), otherwise proceeding with the 200 valid functions.
 
 ---
 
@@ -30,11 +30,11 @@ The system MUST invoke a Code LLM via API to refactor the original functions and
 
 **Why this priority**: This is the core experimental intervention. It generates the outcome variables (Δ metrics) required to answer the research question. It depends on the data from US-001 but can be tested independently of the final regression modeling.
 
-**Independent Test**: Can be tested by processing a batch of 5 functions, verifying that the API returns a refactored code string for each, that the identity baseline is generated, and that quality metrics (pylint/radon) are successfully calculated for original, refactored, and baseline versions, resulting in non-null delta values.
+**Independent Test**: Can be tested by processing a batch of multiple functions, verifying that the API returns a refactored code string for each, that the identity baseline is generated, and that quality metrics (pylint/radon) are successfully calculated for original, refactored, and baseline versions, resulting in non-null delta values.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid Python function from the analysis set, **When** the system sends the zero-shot prompt to the LLM API, **Then** the system receives a refactored code block within 60 seconds per attempt; if the timeout is exceeded, the system retries up to 3 times before marking the sample as "Refactoring Failed".
+1. **Given** a valid Python function from the analysis set, **When** the system sends the zero-shot prompt to the LLM API, **Then** the system receives a refactored code block within A fixed duration per attempt.; if the timeout is exceeded, the system retries up to 3 times before marking the sample as "Refactoring Failed".
 2. **Given** an original function and its refactored counterpart, **When** the quality analysis runs, **Then** the system calculates the difference in cyclomatic complexity (ΔComplexity) and pylint warning count (ΔPylint) for every pair.
 3. **Given** a refactored function that fails to parse (syntax error), **When** the quality analysis runs, **Then** the system records the improvement metrics as "NaN" or "Error" for that specific function rather than crashing the entire batch.
 4. **Given** an original function, **When** the null baseline generation runs, **Then** the system creates an identity copy of the code and calculates the delta between the original and this identity baseline (which should be zero or near-zero) for every metric.
@@ -88,15 +88,15 @@ The system MUST fit a multiple linear regression model to predict improvement ma
 
 ### Measurable Outcomes
 
-- **SC-001**: The predictive relationship is measured against the hypothesized effect size that structural predictors explain variance in improvement (Mean Adjusted R² ≥ 0.30 from 5-fold cross-validation) (See US-003).
+- **SC-001**: The predictive relationship is measured against the hypothesized effect size that structural predictors explain variance in improvement (Mean Adjusted R² ≥ 0.30 from k-fold cross-validation) (See US-003).
 - **SC-002**: The overall improvement distribution is measured against the null hypothesis that the LLM improvement is no better than an identity transformation using a paired t-test (p < 0.05) (See US-003).
 - **SC-003**: The data acquisition efficiency is measured against the constraint of completing the sampling and analysis of a sufficient number of valid functions within the available runtime limit. (See US-002).
 - **SC-004**: The model validity is measured against the requirement that the global F-test is significant (p < 0.05) and at least one predictor is statistically significant (p < 0.05) in the final model (See US-003).
-- **SC-005**: The robustness of the pipeline is measured against the requirement that ≥ 95% of the 200 retained functions successfully complete the full refactoring and analysis cycle (See US-002).
+- **SC-005**: The robustness of the pipeline is measured against the requirement that ≥ 95% of the retained functions successfully complete the full refactoring and analysis cycle (See US-002).
 
 ## Assumptions
 
-- **Assumption about data availability**: The BigCode dataset on HuggingFace contains at least 400 distinct, valid Python functions suitable for static analysis, ensuring 200 can be retained.
+- **Assumption about data availability**: The BigCode dataset on HuggingFace contains at least 400 distinct, valid Python functions suitable for static analysis, ensuring a substantial number can be retained.
 - **Assumption about API stability**: The HuggingFace Inference API for WizardCoder-Python-13B will remain accessible and responsive (latency < 60s per attempt) throughout the execution of the GitHub Actions job.
 - **Assumption about compute resources**: The GitHub Actions free-tier runner (standard CPU allocation, standard RAM) is sufficient to run the Python static analysis tools. (`radon`, `pylint`) and the local data processing scripts, provided no GPU-intensive operations are performed locally.
 - **Assumption about methodological framing**: Since the study is observational (no random assignment of refactoring strategies), all findings regarding "predictors" will be framed as associational relationships, not causal claims.
