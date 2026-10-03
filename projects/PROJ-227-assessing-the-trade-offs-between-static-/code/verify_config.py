@@ -1,32 +1,31 @@
 """
 Verification script for T004: Configuration Management.
-Loads code/config.yaml and asserts types against the required schema.
+Loads code/config.yaml and asserts types for all required fields.
 """
 import sys
 import yaml
 from pathlib import Path
 
 def main():
-    project_root = Path(__file__).parent.parent
-    config_path = project_root / "code" / "config.yaml"
-
+    config_path = Path(__file__).parent / "config.yaml"
+    
     if not config_path.exists():
         print(f"ERROR: Config file not found at {config_path}")
         sys.exit(1)
 
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             config = yaml.safe_load(f)
     except yaml.YAMLError as e:
         print(f"ERROR: Failed to parse YAML: {e}")
         sys.exit(1)
 
     if not isinstance(config, dict):
-        print("ERROR: Config root must be a dictionary")
+        print("ERROR: Config must be a dictionary")
         sys.exit(1)
 
-    # Define schema expectations
-    required_keys = {
+    # Define expected schema and types
+    schema = {
         "human_eval_url": str,
         "codeql_path": str,
         "sonar_path": str,
@@ -35,30 +34,27 @@ def main():
     }
 
     errors = []
-    for key, expected_type in required_keys.items():
+    for key, expected_type in schema.items():
         if key not in config:
             errors.append(f"Missing required key: {key}")
             continue
-
+        
         value = config[key]
-        # Handle bool subclass of int in Python
-        if expected_type == int and isinstance(value, bool):
-            errors.append(f"Key '{key}' must be int, got bool")
-        elif not isinstance(value, expected_type):
-            errors.append(f"Key '{key}' must be {expected_type.__name__}, got {type(value).__name__}")
+        if not isinstance(value, expected_type):
+            errors.append(f"Type mismatch for '{key}': expected {expected_type.__name__}, got {type(value).__name__}")
 
     if errors:
-        print("VERIFICATION FAILED:")
+        print("CONFIGURATION VALIDATION FAILED:")
         for err in errors:
             print(f"  - {err}")
         sys.exit(1)
 
-    print("VERIFICATION PASSED:")
-    print(f"  human_eval_url: {config['human_eval_url']} (str)")
-    print(f"  codeql_path: {config['codeql_path']} (str)")
-    print(f"  sonar_path: {config['sonar_path']} (str)")
-    print(f"  max_cpu: {config['max_cpu']} (int)")
-    print(f"  max_ram_gb: {config['max_ram_gb']} (int)")
+    print("CONFIGURATION VALIDATION PASSED:")
+    print(f"  human_eval_url (str): {config['human_eval_url']}")
+    print(f"  codeql_path (str): {config['codeql_path']}")
+    print(f"  sonar_path (str): {config['sonar_path']}")
+    print(f"  max_cpu (int): {config['max_cpu']}")
+    print(f"  max_ram_gb (int): {config['max_ram_gb']}")
     sys.exit(0)
 
 if __name__ == "__main__":

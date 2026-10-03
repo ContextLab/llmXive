@@ -1,130 +1,170 @@
+"""
+Logging Infrastructure for the LLM Analysis Trade-offs Pipeline.
+
+Provides a thread-safe JSON Lines logger for resource metrics (CPU, RAM)
+and a background monitor to capture these metrics at regular intervals.
+"""
+
 import json
 import os
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 import psutil
+from filelock import FileLock
+
+# Project root relative to this file's location (code/)
+PROJECT_ROOT = Path(__file__).parent.parent
+LOGS_DIR = PROJECT_ROOT / "data" / "logs"
+LOG_FILE = LOGS_DIR / "pipeline.log"
+LOCK_FILE = LOGS_DIR / ".pipeline.log.lock"
+
+# Default logging interval in seconds
+DEFAULT_INTERVAL = 5.0
+
 
 class ResourceMonitor:
     """
-    Monitors CPU and RAM usage of the current process and logs metrics
-    to a JSON Lines file at regular intervals.
+    Monitors system resource usage (CPU and RAM) and logs it to a JSON Lines file.
+
+    The monitor runs in a background thread and uses file locking to ensure
+    thread-safe writes to the log file.
     """
 
-    def __init__(self, log_path: str, interval_seconds: float = 5.0):
-        self.log_path = Path(log_path)
-        self.interval_seconds = interval_seconds
-        self._stop_event = threading.Event()
-        self._thread = None
-        self._process = psutil.Process(os.getpid())
+    def __init__(self, interval: float = DEFAULT_INTERVAL, log_file: Optional[Path] = None):
+        self.interval = interval
+        self.log_file = log_file or LOG_FILE
+        self.lock_file = LOCK_FILE
+        self.stop_event = threading.Event()
+        self.thread: Optional[threading.Thread] = None
+        self.process = psutil.Process()
 
-        # Ensure the directory for the log file exists
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+    def _ensure_log_directory(self) -> None:
+        """Ensures the log directory exists."""
+        self.log_file.parent.mkdir(parents=True, exist_ok=True)
 
-    def _log_metrics(self):
-        """Collects and logs CPU and RAM metrics in JSON Lines format."""
-        try:
-            cpu_percent = self._process.cpu_percent(interval=None)
-            ram_percent = self._process.memory_percent()
+    def _get_resource_metrics(self) -> dict:
+        """
+        Collects current CPU and RAM metrics.
 
-            log_entry = {
-                "timestamp": datetime.utcnow().isoformat(),
-                "cpu_percent": cpu_percent,
-                "ram_percent": ram_percent
-            }
+        Returns:
+            dict: A dictionary containing timestamp, cpu_percent, ram_percent, and pid.
+        """
+        # cpu_percent(interval=None) returns the CPU usage since the last call.
+        # We use a short interval (0.1) to get a responsive value without blocking too long.
+        cpu = self.process.cpu_percent(interval=0.1)
+        ram_info = self.process.memory_percent()
 
-            with open(self.log_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(log_entry) + "\n")
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "cpu_percent": float(cpu),
+            "ram_percent": float(ram_info),
+            "pid": self.process.pid
+        }
 
-        except Exception as e:
-            # Log errors to stderr to avoid crashing the monitoring thread
-            # but ensure the main pipeline can still proceed if needed.
-            import sys
-            print(f"Error in ResourceMonitor: {e}", file=sys.stderr)
+    def _log_metrics(self) -> None:
+        """Collects metrics and writes them to the log file with locking."""
+        metrics = self._get_resource_metrics()
+        self._ensure_log_directory()
 
-    def _monitor_loop(self):
-        """Background loop that logs metrics at fixed intervals."""
-        # Initial delay to allow process to stabilize before first measurement
-        time.sleep(self.interval_seconds)
-        while not self._stop_event.is_set():
-            self._log_metrics()
-            # Wait for the next interval or stop event
-            self._stop_event.wait(self.interval_seconds)
+        # Use filelock for thread-safe writes
+        with FileLock(str(self.lock_file)):
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(metrics) + "\n")
 
-    def start(self):
-        """Start the background monitoring thread."""
-        if self._thread is not None and self._thread.is_alive():
+    def _run_loop(self) -> None:
+        """Background loop that logs metrics at the specified interval."""
+        while not self.stop_event.is_set():
+            try:
+                self._log_metrics()
+            except Exception as e:
+                # Log errors to stderr to avoid crashing the monitor thread
+                # but keep the main pipeline running if possible.
+                print(f"Error in ResourceMonitor: {e}", file=sys.stderr)
+
+            # Wait for the interval, but check stop_event periodically
+            # to allow for faster shutdown if needed.
+            if self.stop_event.wait(timeout=self.interval):
+                break
+
+    def start(self) -> None:
+        """Starts the background monitoring thread."""
+        if self.thread is not None and self.thread.is_alive():
             return  # Already running
 
-        self._stop_event.clear()
-        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self._thread.start()
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        self.thread.start()
 
-    def stop(self):
-        """Stop the background monitoring thread."""
-        self._stop_event.set()
-        if self._thread is not None:
-            self._thread.join(timeout=2.0)
-            self._thread = None
+    def stop(self) -> None:
+        """Stops the background monitoring thread."""
+        if self.thread is None or not self.thread.is_alive():
+            return
 
-def setup_pipeline_logging(log_path: str, interval_seconds: float = 5.0) -> ResourceMonitor:
+        self.stop_event.set()
+        self.thread.join(timeout=self.interval + 1.0)
+
+
+def setup_pipeline_logging(interval: float = DEFAULT_INTERVAL) -> ResourceMonitor:
     """
     Sets up the pipeline logging infrastructure.
-    
+
     Args:
-        log_path: Path to the JSON Lines log file.
-        interval_seconds: Interval in seconds between metric logs.
-        
+        interval: The interval in seconds between resource metric logs.
+
     Returns:
-        A started ResourceMonitor instance.
+        ResourceMonitor: The started monitor instance.
     """
-    monitor = ResourceMonitor(log_path, interval_seconds)
+    monitor = ResourceMonitor(interval=interval)
     monitor.start()
     return monitor
 
+
 def main():
     """
-    Entry point for testing the logging infrastructure.
-    Runs the monitor for a short duration to verify output.
+    Main entry point for testing the logging infrastructure.
+
+    Runs a monitor for a short duration, stops it, and verifies the log file.
     """
     import sys
-    from pathlib import Path
 
-    # Default log path relative to project root
-    # Adjust path based on where this script is run from
-    base_dir = Path(__file__).resolve().parent.parent
-    log_file = base_dir / "data" / "logs" / "pipeline.log"
+    print("Starting Resource Monitor...")
+    monitor = setup_pipeline_logging(interval=2.0)
 
-    print(f"Starting ResourceMonitor for 15 seconds, logging to: {log_file}")
-    
-    monitor = setup_pipeline_logging(str(log_file), interval_seconds=5.0)
-    
-    try:
-        # Keep the main thread alive for the duration of the test
-        time.sleep(15)
-    except KeyboardInterrupt:
-        print("\nInterrupted by user.")
-    finally:
-        monitor.stop()
-        print("Monitoring stopped.")
-        
-        # Verify file creation and content
-        if log_file.exists():
-            print(f"Verification: Log file exists at {log_file}")
-            with open(log_file, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                print(f"Verification: Found {len(lines)} log entries.")
-                if lines:
-                    try:
-                        sample = json.loads(lines[0])
-                        print(f"Verification: Sample entry keys: {list(sample.keys())}")
-                    except json.JSONDecodeError:
-                        print("Error: First line is not valid JSON.")
-        else:
-            print("Error: Log file was not created.")
-            sys.exit(1)
+    # Run for 10 seconds to generate some logs
+    time.sleep(10)
+
+    print("Stopping Resource Monitor...")
+    monitor.stop()
+
+    # Verify the log file
+    if LOG_FILE.exists():
+        print(f"Log file created at: {LOG_FILE}")
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            print(f"Number of log entries: {len(lines)}")
+            
+            # Validate schema of first entry
+            if lines:
+                try:
+                    entry = json.loads(lines[0])
+                    required_keys = {"timestamp", "cpu_percent", "ram_percent", "pid"}
+                    if required_keys.issubset(entry.keys()):
+                        print("Schema validation: PASSED")
+                        print(f"Sample entry: {entry}")
+                    else:
+                        print("Schema validation: FAILED - Missing keys")
+                except json.JSONDecodeError:
+                    print("Schema validation: FAILED - Invalid JSON")
+    else:
+        print("ERROR: Log file was not created.")
+        sys.exit(1)
+
+    print("Logging infrastructure test completed successfully.")
+
 
 if __name__ == "__main__":
     main()

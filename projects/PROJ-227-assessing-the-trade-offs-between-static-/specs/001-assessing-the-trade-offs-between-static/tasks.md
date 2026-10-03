@@ -46,8 +46,8 @@
 - [ ] T001a [P] Create project directory structure: `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`, `data/processed/`, `state/`, `code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`. **Verify**: `ls -R` shows all directories exist.
 - [ ] T001b [P] Create `.gitignore` in `projects/PROJ-227-assessing-the-trade-offs-between-static-/` to exclude `data/raw/*`, `data/processed/*`, `*.log`, `__pycache__/`, `.venv/`, `state/*.yaml` (except template). **Verify**: `git check-ignore` confirms paths are ignored.
 
-- [ ] T002a [P] Initialize Python 3.11 virtualenv in `projects/PROJ-227-assessing-the-trade-offs-between-static-/`.venv`. **Verify**: `source.venv/bin/activate && python --version` returns 3.11.x. <!-- ATOMIZE: requested -->
-- [ ] T002b [P] Initialize `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt` containing pinned dependencies: `datasets==2.14.0`, `pandas==2.0.3`, `scipy==1.11.0`, `pytest==7.4.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `psutil==5.9.5`, `jsonschema==4.19.0`. **Verify**: `pip install -r requirements.txt` succeeds without errors.
+- [ ] T002a [P] Initialize a Python virtualenv in `projects/PROJ-227-assessing-the-trade-offs-between-static-/`.venv`. **Verify**: `source.venv/bin/activate && python --version` returns 3.11.x. <!-- ATOMIZE: requested -->
+- [ ] T002b [P] Initialize `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt` containing pinned dependencies: `datasets==2.14.0`, `pandas==2.0.3`, `scipy==1.11.0`, `pytest==7.4.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `psutil==5.9.5`, `jsonschema==4.19.0`, `filelock==3.12.0`. **Verify**: `pip install -r requirements.txt` succeeds without errors.
 
 - [X] T003 [P] Configure linting and formatting: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with `[tool.black] line-length = 88`. Verify by running `black --check.` and `flake8.`.
 
@@ -61,9 +61,10 @@
 
 - [ ] T004 [P] Implement configuration management: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml` with schema: `human_eval_url` (string), `codeql_path` (string), `sonar_path` (string), `max_cpu` (int), `max_ram_gb` (int). Verify by loading as dict in Python and asserting types.
 - [ ] T005 [P] Create base data models and schema validators: Create `contracts/dataset.schema.yaml`, `contracts/analysis_log.schema.yaml`, `contracts/analysis_results.schema.yaml`, `contracts/dataset_manifest.schema.yaml`, `contracts/statistical_report.schema.yaml`, `contracts/tool_version.schema.yaml`. Verify by running `python -c "import jsonschema; jsonschema.validate(...)"` on sample data.
-- [ ] T006 [P] Setup logging infrastructure: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/logs/pipeline.log`. **Format**: JSON Lines (one JSON object per line). **Hook**: Implement `psutil` hook to log `cpu_percent` and `ram_percent` at regular intervals. **Verification**: Run script, verify `pipeline.log` exists, contains valid JSON lines, and includes CPU/RAM metrics at 5s intervals.
-- [X] T007 [P] Implement resource constraint wrapper: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/resource_guard.py` using `psutil` (monitoring and process termination). **Logic**: Monitor CPU/RAM. If CPU > 2 cores or RAM > 7GB, log warning and terminate the current analysis process (SIGKILL) after 30s grace period. [UNRESOLVED-CLAIM: c_7c8e5c10 — status=not_enough_info] **Do NOT use cgroups**. **Verify**: Simulate resource exhaustion; verify process is terminated and exit code is 137 or similar.
+- [ ] T006 [P] Setup logging infrastructure: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/logs/pipeline.log`. **Format**: JSON Lines (one JSON object per line). **Schema**: Each line MUST be a JSON object with keys: `timestamp` (ISO8601 string), `cpu_percent` (float), `ram_percent` (float), `pid` (int). **Hook**: Implement `psutil` hook to log `cpu_percent` and `ram_percent` at regular intervals. **Concurrency**: Use `filelock` library to ensure thread-safe writes to `pipeline.log`. **Verification**: Run script, verify `pipeline.log` exists, contains valid JSON lines with the specified schema, includes CPU/RAM metrics at 5s intervals, and handles concurrent writes without corruption.
+- [X] T007 [P] Implement resource constraint wrapper: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/resource_guard.py` using `psutil` (monitoring and process termination). **Logic**: Monitor CPU/RAM. If CPU > 2 cores or RAM > 7GB, log warning and terminate the current analysis process (SIGKILL) after 30s grace period. **Verification**: Simulate resource exhaustion; verify process is terminated and exit code is 137 or similar.
 - [X] T008 [P] Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/hash_artifacts.py` script for versioning (Constitution V). Verify syntax only: `python -m py_compile code/hash_artifacts.py`.
+- [ ] T009 [P] [Constitution VI] **Execute** `code/hash_artifacts.py` to log initial tool versions (CodeQL, SonarQube, pytest) into `state/projects/PROJ-227-assessing-the-trade-offs-between-static-.yaml` under `tool_versions` **BEFORE** any analysis begins. **Verification**: YAML file updated with `tool_versions` block containing version strings and timestamps. **Dependency**: Must run after T008 (syntax check) and before T011 (data download).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,15 +85,21 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch HumanEval (Python) from `openai/human-eval` to `data/raw/humaneval.json`. **Verify**: File exists, contains ≥100 records with keys `prompt` and `test`. Calculate checksum and record in `state/checksums.json`.
-- [X] T012 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch CodeXGLUE and BigCode. **Logic**:
- - Fetch HumanEval-X (JS/Java) from `codeparrot/codeXGLUE-javascript` and `codeparrot/codeXGLUE-java`.
- - Fetch BigCode (TheStack) from `bigcode/the-stack` (subsets: `data/python`, `data/javascript`, `data/java`).
- - Use `trust_remote_code=True`. If primary ID fails, attempt fallback IDs.
- - **Verify**: Calculate checksums.
-- [ ] T013 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch BigCode (TheStack) for static-only analysis if needed (see T012). Mark as `static_only` in manifest. **Verify**: Checksums recorded.
-- [ ] T014 [US1] Implement stratification and manifest generation: Combine all downloaded data into `data/manifest.csv` with columns `id`, `language`, `source`, `stratum`, `static_only` (bool). **Dependency**: MUST wait for COMPLETION of T011, T012, and T013. **Logic**: Count samples per language. **Verify**: If total count < 8615, record actual count and flag `limitation_report: "Sample size < 500"` in manifest; DO NOT abort. If total ≥ 500, proceed normally.
-- [ ] T017 [US1] Implement logic to filter BigCode samples (static-only) from the manifest AFTER T014. Update `data/manifest.csv` to flag `static_only=True` samples. **Dependency**: MUST wait for T014 completion. **Verify**: No `static_only=True` samples are passed to dynamic analysis tasks.
+- [ ] T011a [P] [US1] Implement `code/download.py` function `fetch_humaneval()`: Fetch **HumanEval** from `openai/human-eval` to `data/raw/humaneval.json`. **Logic**: Use `load_dataset` with `split='test'`. **Retry**: Exponential backoff (max 3 retries). **State**: On success, write count to `state/download_counts.json` key `humaneval_count`. **Verify**: File exists, checksum matches.
+- [ ] T011b [P] [US1] Implement `code/download.py` function `fetch_humaneval_x()`: Fetch **HumanEval-X** (JS/Java) from `codeparrot/humaneval-x`. **Logic**: Fetch `split='js'` to `data/raw/humaneval-x-js.json` and `split='java'` to `data/raw/humaneval-x-java.json`. **Retry**: Exponential backoff. **State**: Write counts to `state/download_counts.json` keys `humaneval_x_js_count`, `humaneval_x_java_count`. **Verify**: Files exist, checksums match.
+
+- [ ] T012a [P] [US1] Implement `code/download.py` function `fetch_codexglue()`: Fetch **CodeXGLUE** subsets from `codeparrot/codexglue`. **Logic**: Filter by language for JS/Java. **Retry**: Exponential backoff. **State**: Write counts to `state/download_counts.json` keys `codexglue_js_count`, `codexglue_java_count`. **Verify**: Files exist, checksums match.
+
+- [ ] T013a [P] [US1] Implement `code/download.py` function `fetch_bigcode()`: Fetch **BigCode (TheStack)** subsets from `bigcode/the-stack-dedup-code`. **Logic**: Use `streaming=True` and `itertools.islice` to fetch a representative sample (e.g., first 1000 per language: Python, JS, Java) to `data/raw/the-stack-*.json`. **Retry**: Exponential backoff. **State**: Write counts to `state/download_counts.json` keys `bigcode_py_count`, `bigcode_js_count`, `bigcode_java_count`. **Verify**: Files exist, checksums match.
+
+- [ ] T014 [US1] Implement **Aggregate Validation & Abort**: Create `code/validate_manifest.py` to combine all downloaded data into `data/manifest.csv` and perform the FR-001 check. **Dependency**: MUST wait for COMPLETION of T011a, T011b, T012a, T013a. **Logic**:
+ - Read `state/download_counts.json` to retrieve all individual counts.
+ - Calculate `total_snippets = sum(all_counts)`.
+ - **Aggregate Validation**: If `total_snippets < 500`, **ABORT** with error "Insufficient sample size (<500)".
+ - For BigCode samples, explicitly set `static_only=True` in `manifest.csv`.
+ - For HumanEval/CodeXGLUE samples, set `static_only=False`.
+ - **Stratification Check**: Count snippets with dynamic tests (HumanEval + HumanEval-X + CodeXGLUE) per language. If any language (Python, JS, Java) has < 30 dynamic-capable snippets, **ABORT** and log "Insufficient dynamic samples for stratified analysis".
+ - **Verify**: File exists, contains all expected columns, and passes the n≥30 threshold for all dynamic languages.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,9 +118,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/static_analysis.py` with CodeQL CLI execution wrapper. **Retry**: Max 3 retries, initial delay 2s, multiplier 2.0. [UNRESOLVED-CLAIM: c_86e607bf — status=not_enough_info] **Dependency**: Ensure `contracts/analysis_log.schema.yaml` (T005) exists before validation. **Schema Mapping**: Map CodeQL/SonarQube output to `analysis_log.schema.yaml` (fields: `id`, `language`, `tool`, `severity`, `rule_id`, `message`, `location`). **Output**: `data/processed/static_analysis_log.json` conforming to `analysis_log.schema.yaml`.
-- [ ] T019 [P] [US2] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/static_analysis.py` with SonarQube scanner execution wrapper. **Fallback**: PyLint (Python), ESLint (JS) if primary tools fail. **Schema Mapping**: Map PyLint/ESLint output to `analysis_log.schema.yaml` (e.g., map PyLint severity 'C'/'W'/'E' to 'low'/'medium'/'high'; map ESLint rule ID to `rule_id`). **Dependency**: Ensure `contracts/analysis_log.schema.yaml` (T005) exists before validation. **Output**: Append to `data/processed/static_analysis_log.json`.
-- [ ] T020 [P] [US2] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/dynamic_analysis.py` to execute unit tests via `pytest` (Python), `jest` (JS), and `junit` (Java). **Logic**: Mark snippets as `untestable_dynamic` if no test exists. **Output**: `data/processed/dynamic_analysis_log.json`.
+- [ ] T018 [P] [US2] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/static_analysis.py` with **Unified Static Analysis Pipeline**.
+ 1. **Primary Tools**: CodeQL CLI execution wrapper and SonarQube scanner execution wrapper.
+ 2. **Retry Logic**: Retry up to 3 times on tool crash (non-zero exit code).
+ 3. **Fallback Trigger**: If CodeQL or SonarQube returns non-zero exit code after 3 retries, **immediately** invoke fallback (PyLint for Python, ESLint for JS) for that specific snippet.
+ 4. **Fallback Output**: Write fallback results to `data/processed/static_analysis_fallback_log.json`.
+ 5. **Schema Mapping**: Map CodeQL/SonarQube/PyLint/ESLint output to `analysis_log.schema.yaml` (fields: `id`, `language`, `tool`, `severity`, `rule_id`, `message`, `location`).
+ 6. **Output**: `data/processed/static_analysis_log.json` conforming to `analysis_log.schema.yaml`.
+ 7. **Dependency**: Ensure `contracts/analysis_log.schema.yaml` (T005) exists before validation.
+
+- [ ] T020 [P] [US2] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/dynamic_analysis.py` to execute unit tests via `pytest` (Python), `jest` (JS), and `junit` (Java). **Logic**: Filter out `static_only=True` samples from `data/manifest.csv` before processing. **Output Format**:
+ - If no unit test exists, mark snippet as `untestable_dynamic` (set `is_untestable: true` in `data/processed/dynamic_analysis_log.json` and update `data/manifest.csv` column `is_untestable`).
+ - Exclude `untestable_dynamic` snippets from functional correctness metrics.
+ - **Output**: `data/processed/dynamic_analysis_log.json`.
 - [ ] T021 [US2] Generate `data/processed/analysis_logs.json` with standardized schema (issues found, pass/fail status) by merging static and dynamic logs.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -127,7 +144,11 @@
 **Independent Test**: Process mock logs and verify report contains correlation coefficients and p-values.
 
 **⚠️ PLAN RECONCILIATION NOTE**:
-The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's test. The Plan explicitly rejects these as scientifically invalid. The tasks below implement the Plan's valid approach (Issue Detection Rate, Spearman/Chi-squared) directly.
+The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's test. The Plan explicitly rejects these as scientifically invalid. The tasks below implement the Plan's valid approach (Issue Detection Rate, Spearman/Chi-squared) directly, and T023.5 documents the rejection.
+
+### Documentation for User Story 3 (REQUIRED)
+
+- [ ] T023.5 [DOC] [US3] Document Methodology Deviation: Create `docs/methodology_rejection.md`. **Content**: Explicitly state that FR-004 (Precision/Recall/F1) and FR-005 (McNemar's test) are rejected due to lack of security ground truth. Document the rationale for using "Issue Detection Rate" and "Spearman's Rank Correlation" instead, citing the Plan. Explicitly state that SC-002 (McNemar's p-values) is **Not Applicable** and provide the justification. **Verification**: File exists and contains specific rationale text referencing FR-004, FR-005, and SC-002.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -136,14 +157,15 @@ The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's 
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to calculate **Issue Detection Rate** (static) and **Pass Rate** (dynamic). **Output**: `data/processed/issue_detection_rate.json`.
-- [ ] T025 [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to compute **Spearman's Rank Correlation** between static issue density and dynamic pass/fail. **Output**: `data/processed/correlation_results.json`.
-- [ ] T026 [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to perform **Chi-squared Test of Independence**. **Output**: Append to `data/processed/correlation_results.json`.
+- [ ] T024a [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to calculate **Issue Detection Rate** (static). **Output**: `data/processed/issue_detection_rate.json`.
+- [ ] T024b [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to calculate **Pass Rate** (dynamic). **Output**: `data/processed/pass_rate.json`.
+- [ ] T025 [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to compute **Spearman's Rank Correlation** between static issue density and dynamic pass/fail. **Output**: `data/processed/spearman_results.json` (separate file to avoid race conditions).
+- [ ] T026 [P] [US3] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/aggregation.py` to perform **Chi-squared Test (Wikidata Q70488676, https://www.wikidata.org/wiki/Q70488676) of Independence**. **Output**: `data/processed/chi_squared_results.json` (separate file to avoid race conditions).
 - [ ] T027 [US3] Implement timeout handling for dynamic execution: **Enforce a configurable time limit per snippet**. Use `psutil` to send **SIGKILL** on timeout. **Output**: Log timeout events to `data/logs/timeouts.json`. **Verify**: Process is terminated after a predefined duration.; log entry contains `SIGKILL` and duration.
 - [ ] T028 [US3] Implement stratification logic to run tests per language (if n ≥ 30). **Output**: `data/processed/stratified_test_results.json`.
-- [ ] T029 [US3] Implement sensitivity analysis sweep: **Execute statistical tests for each alpha in a set of representative significance levels. [UNRESOLVED-CLAIM: c_b1789fdc — status=not_enough_info]** as required by FR-007. **Logic**: If n < 30 for a stratum at a given alpha, skip test, log limitation, and report N/A for that stratum. [UNRESOLVED-CLAIM: c_4d7fd92c — status=not_enough_info] **Output**: `data/processed/detection_rate_variation.json` containing comparative data. **Verify**: Report includes rates for exactly these three values (or N/A with reason if data insufficient). [UNRESOLVED-CLAIM: c_060c1603 — status=not_enough_info]
-- [ ] T030 [US3] Implement Bonferroni correction for **multiple independent statistical tests (across languages)** as per Plan. **Output**: `data/processed/corrected_results.json`. **Note**: Explicitly state in report: "Applied to independent tests (across languages) per Plan."
-- [ ] T031 [US3] Generate `data/processed/statistical_report.json` with metrics, p-values, stratified results, and notes on methodology.
+- [ ] T029 [US3] Implement sensitivity analysis sweep: **Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}** as required by FR-007. **Logic**: If n < 30 for a stratum at a given alpha, skip test, log limitation, and report N/A for that stratum. **Output Format**: Write to `data/processed/detection_rate_variation.json` as a JSON array of objects with keys `alpha` (float), `detection_rate` (float), `p_value` (float), `sample_size` (int). **Verify**: Report includes rates for exactly these three values (or N/A with reason if data insufficient).
+- [ ] T030 [US3] Implement Bonferroni correction for **multiple independent statistical tests** as per Plan. **Scope**: Apply correction to the **primary comparison** (Issue Detection Rate vs Pass Rate) AND **across languages** to control Type I error across all reported metrics. **Output**: `data/processed/corrected_results.json`. **Note**: Explicitly state in report: "Applied to primary comparison and cross-language tests per Plan to control Type I error across all reported metrics."
+- [ ] T031 [US3] Generate `data/processed/statistical_report.json` with metrics, p-values, stratified results, and notes on methodology. **Logic**: Merge `spearman_results.json` (T025) and `chi_squared_results.json` (T026) into this report.
 - [ ] T032 [US3] Execute `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/hash_artifacts.py` to update `state/projects/PROJ-227-assessing-the-trade-offs-between-static-.yaml` with final hashes and tool versions. **Verify**: YAML updated with `artifact_hashes` and `tool_versions`.
 - [ ] T033 [US3] Explicitly log and verify tool versions (CodeQL, SonarQube) in `state/projects/PROJ-227-assessing-the-trade-offs-between-static-.yaml` per Constitution Principle VI.
 
@@ -209,8 +231,7 @@ Task: "Unit test for dataset URL validation in tests/unit/test_download.py"
 Task: "Integration test for checksum verification in tests/integration/test_data_integrity.py"
 
 # Launch all download implementations together:
-Task: "Implement code/download.py to fetch HumanEval (Python)"
-Task: "Implement code/download.py to fetch CodeXGLUE (JS/Java) and BigCode (TheStack)"
+Task: "Implement code/download.py to fetch HumanEval (Python), HumanEval-X (JS/Java), and BigCode"
 ```
 
 ---
@@ -255,7 +276,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on free CPU-only CI with limited core counts and memory, without GPU acceleration. No 8-bit/4-bit quantization or heavy model training.
+- **Critical Constraint**: All tasks must run on free CPU-only CI with limited core counts and memory, without GPU acceleration. No low-bit quantization or heavy model training.
 - **Data Integrity**: All datasets must be from real, verified sources (HuggingFace, GitHub). No synthetic data generation.
-- **Statistical Validity**: No Precision/Recall/F1 for static analysis (no security ground truth). Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}} (Wikidata Q1071004, https://www.wikidata.org/wiki/Q1071004)
+- **Statistical Validity**: No Precision/Recall/F for static analysis (no security ground truth). Use Issue Detection Rate. (Wikidata Q1071004, https://www.wikidata.org/wiki/Q1071004)
 - **Plan Reconciliation**: Tasks implement the Plan's scientifically valid approach directly. Spec FR-004/FR-005/FR-008 are noted as contradictory in the Plan, and the Plan's methodology is followed.
+- **Methodology Deviation**: FR-004, FR-005, SC-002 are explicitly rejected and documented in `docs/methodology_rejection.md` (T023.5).

@@ -1,85 +1,161 @@
+"""
+Script to validate JSON Schemas against sample data.
+Used to verify T005 implementation.
+"""
 import sys
 import yaml
 import json
 import jsonschema
 from pathlib import Path
 
-def load_schema(schema_path: str) -> dict:
-    """Load a JSON/YAML schema from a file."""
-    path = Path(schema_path)
-    with open(path, 'r') as f:
-        if path.suffix in ['.yaml', '.yml']:
-            return yaml.safe_load(f)
-        else:
-            return json.load(f)
+# Paths
+PROJECT_ROOT = Path(__file__).parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-def generate_minimal_sample(schema: dict) -> dict:
-    """Generate a minimal valid sample based on the schema properties."""
-    sample = {}
-    required = schema.get('required', [])
-    properties = schema.get('properties', {})
+def load_schema(schema_path: Path) -> dict:
+    """Load a YAML schema file."""
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-    for prop_name, prop_def in properties.items():
-        if prop_name in required:
-            prop_type = prop_def.get('type')
-            if prop_type == 'string':
-                if prop_def.get('format') == 'date-time':
-                    sample[prop_name] = "2023-01-01T00:00:00Z"
-                else:
-                    sample[prop_name] = "sample_string"
-            elif prop_type == 'integer':
-                sample[prop_name] = 0
-            elif prop_type == 'number':
-                sample[prop_name] = 0.0
-            elif prop_type == 'boolean':
-                sample[prop_name] = False
-            elif prop_type == 'array':
-                sample[prop_name] = []
-            elif prop_type == 'object':
-                sample[prop_name] = {}
-            elif prop_type == 'null':
-                sample[prop_name] = None
-            else:
-                sample[prop_name] = None
-    return sample
+def generate_minimal_sample(schema_name: str) -> dict:
+    """Generate minimal valid sample data for each schema."""
+    samples = {
+        "dataset.schema.yaml": {
+            "dataset_id": "test-dataset",
+            "language": "python",
+            "source_url": "https://example.com",
+            "download_timestamp": "2023-01-01T00:00:00Z",
+            "record_count": 1,
+            "checksum": "0" * 64,
+            "samples": [{"task_id": "test-1", "code": "pass"}]
+        },
+        "analysis_log.schema.yaml": {
+            "analysis_id": "test-analysis",
+            "dataset_id": "test-dataset",
+            "language": "python",
+            "tool": "test-tool",
+            "timestamp": "2023-01-01T00:00:00Z",
+            "results": [{"snippet_id": "test-1", "status": "passed"}]
+        },
+        "analysis_results.schema.yaml": {
+            "snippet_id": "test-1",
+            "dataset_id": "test-dataset",
+            "language": "python",
+            "static_analysis": {
+                "tool": "test-tool",
+                "issue_count": 0,
+                "issues": []
+            },
+            "dynamic_analysis": {
+                "status": "passed"
+            }
+        },
+        "dataset_manifest.schema.yaml": {
+            "manifest_version": "1.0",
+            "created_at": "2023-01-01T00:00:00Z",
+            "datasets": [{
+                "dataset_id": "test-dataset",
+                "file_path": "data/raw/test.json",
+                "record_count": 1,
+                "language": "python",
+                "static_only": False,
+                "checksum": "0" * 64
+            }],
+            "summary": {
+                "total_records": 1,
+                "total_datasets": 1,
+                "language_breakdown": {"python": 1, "javascript": 0, "java": 0},
+                "static_only_count": 0,
+                "dynamic_capable_count": 1
+            },
+            "validation_status": {"passed": True, "errors": [], "warnings": []}
+        },
+        "statistical_report.schema.yaml": {
+            "report_id": "test-report",
+            "generated_at": "2023-01-01T00:00:00Z",
+            "methodology": {
+                "primary_metric_static": "issue_detection_rate",
+                "primary_metric_dynamic": "pass_rate",
+                "correlation_method": "spearman",
+                "significance_level": 0.05,
+                "bonferroni_corrected": False,
+                "deviations": []
+            },
+            "metrics": {
+                "issue_detection_rate": {"overall": 0.5, "by_language": {"python": 0.5, "javascript": 0.0, "java": 0.0}},
+                "pass_rate": {"overall": 0.8, "by_language": {"python": 0.8, "javascript": 0.0, "java": 0.0}}
+            },
+            "correlation_results": {
+                "spearman": {"coefficient": 0.0, "p_value": 1.0, "sample_size": 1},
+                "chi_squared": {"statistic": 0.0, "p_value": 1.0, "degrees_of_freedom": 1}
+            },
+            "stratified_results": [],
+            "sensitivity_analysis": [],
+            "limitations": [],
+            "artifacts": {}
+        },
+        "tool_version.schema.yaml": {
+            "recorded_at": "2023-01-01T00:00:00Z",
+            "tools": [{
+                "name": "test-tool",
+                "version": "1.0.0",
+                "path_or_id": "/usr/bin/test",
+                "platform": "linux",
+                "install_method": "system"
+            }],
+            "verification_status": {"all_verified": True, "failed_verifications": []}
+        }
+    }
+    return samples.get(schema_name, {})
 
 def main():
-    """Validate all schemas against sample data."""
-    contracts_dir = Path(__file__).parent.parent / 'contracts'
+    """Validate all schemas against minimal sample data."""
     schema_files = [
-        'dataset.schema.yaml',
-        'analysis_log.schema.yaml',
-        'analysis_results.schema.yaml',
-        'dataset_manifest.schema.yaml',
-        'statistical_report.schema.yaml',
-        'tool_version.schema.yaml'
+        "dataset.schema.yaml",
+        "analysis_log.schema.yaml",
+        "analysis_results.schema.yaml",
+        "dataset_manifest.schema.yaml",
+        "statistical_report.schema.yaml",
+        "tool_version.schema.yaml"
     ]
 
     all_valid = True
 
     for schema_file in schema_files:
-        schema_path = contracts_dir / schema_file
+        schema_path = CONTRACTS_DIR / schema_file
         if not schema_path.exists():
-            print(f"ERROR: Schema file not found: {schema_path}")
+            print(f"ERROR: Schema file missing: {schema_path}")
             all_valid = False
             continue
 
         try:
-            schema = load_schema(str(schema_path))
-            sample = generate_minimal_sample(schema)
+            # Load schema
+            schema = load_schema(schema_path)
+            print(f"✓ Loaded schema: {schema_file}")
+
+            # Generate sample
+            sample = generate_minimal_sample(schema_file)
+
+            # Validate
             jsonschema.validate(instance=sample, schema=schema)
-            print(f"OK: {schema_file} validated successfully.")
+            print(f"✓ Validated sample against: {schema_file}")
+
+        except yaml.YAMLError as e:
+            print(f"ERROR: Invalid YAML in {schema_file}: {e}")
+            all_valid = False
         except jsonschema.ValidationError as e:
             print(f"ERROR: Validation failed for {schema_file}: {e.message}")
             all_valid = False
         except Exception as e:
-            print(f"ERROR: Failed to process {schema_file}: {e}")
+            print(f"ERROR: Unexpected error for {schema_file}: {e}")
             all_valid = False
 
-    if not all_valid:
-        sys.exit(1)
+    if all_valid:
+        print("\n✓ All schemas are valid and successfully validated sample data.")
+        return 0
     else:
-        print("All schemas validated successfully.")
+        print("\n✗ Some schemas failed validation.")
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

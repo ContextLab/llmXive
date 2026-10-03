@@ -2412,3 +2412,849 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T18:52:00Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch 1000 samples per language from BigCode TheStack
+  claim_id: c_ccfa70fc
+  context: 'Implement `code/download.py` function `fetch_bigcode()`: Fetch **BigCode
+    (TheStack)** subsets from `bigcode/the-stack-dedup-code`. **Logic**: Use `streaming=True`
+    and `itertools.islice` to fetch a representative sample (e.g., first 1000 per
+    language: Python, JS, Java) to `data/raw/the-stack-*.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use `streaming=True` and `itertools.islice` to fetch a representative
+    sample (e.g., first 1000 per language: Python, JS, Java) to `data/raw/the-stack-*.json`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:22:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Abort if total snippets are less than 500
+  claim_id: c_405f5337
+  context: '**Aggregate Validation**: If `total_snippets < 500`, **ABORT** with error
+    ''Insufficient sample size (<500)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_total_snippets_are_less_than_500
+  kind: magnitude
+  raw_text: If `total_snippets < 500`, **ABORT** with error 'Insufficient sample size
+    (<500)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:23:14Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Abort if dynamic snippets are less than 30 per language
+  claim_id: c_7badef63
+  context: '**Stratification Check**: Count snippets with dynamic tests (HumanEval
+    + HumanEval-X + CodeXGLUE) per language. If any language (Python, JS, Java) has
+    < 30 dynamic-capable snippets, **ABORT** and log ''Insufficient dynamic samples
+    for stratified analysis''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_dynamic_snippets_are_less_than_30_per_language
+  kind: magnitude
+  raw_text: If any language (Python, JS, Java) has < 30 dynamic-capable snippets,
+    **ABORT** and log 'Insufficient dynamic samples for stratified analysis'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:23:29Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Retry static analysis tools 3 times on crash
+  claim_id: c_ec885fa9
+  context: 'Retry Logic: Retry up to 3 times on tool crash (non-zero exit code).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times on tool crash (non-zero exit code).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:24:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Invoke fallback after 3 failed retries
+  claim_id: c_770cf676
+  context: 'Fallback Trigger: If CodeQL or SonarQube returns non-zero exit code after
+    3 retries, **immediately** invoke fallback (PyLint for Python, ESLint for JS)
+    for that specific snippet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If CodeQL or SonarQube returns non-zero exit code after 3 retries, **immediately**
+    invoke fallback (PyLint for Python, ESLint for JS) for that specific snippet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:24:20Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Execute sensitivity analysis for alpha values 0.01, 0.05, and 0.1
+  claim_id: c_50b095e3
+  context: 'Implement sensitivity analysis sweep: **Execute statistical tests for
+    each alpha in the set {0.01, 0.05, 0.1}** as required by FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:24:49Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Skip statistical test if sample size is less than 30
+  claim_id: c_4bef302c
+  context: 'Logic: If n < 30 for a stratum at a given alpha, skip test, log limitation,
+    and report N/A for that stratum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_statistical_test_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: If n < 30 for a stratum at a given alpha, skip test, log limitation, and
+    report N/A for that stratum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:25:53Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset location openai/human-eval
+  claim_id: c_8f37df9c
+  context: 'Implement code/download.py function fetch_humaneval(): Fetch HumanEval
+    from openai/human-eval to data/raw/humaneval.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_location_openai/human-eval
+  kind: entity_fact
+  raw_text: HumanEval dataset is available at openai/human-eval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:30:10Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval-X dataset location codeparrot/humaneval-x
+  claim_id: c_5aa26367
+  context: 'Implement code/download.py function fetch_humaneval_x(): Fetch HumanEval-X
+    (JS/Java) from codeparrot/humaneval-x.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval-X_dataset_location_codeparrot/humaneval-x
+  kind: entity_fact
+  raw_text: HumanEval-X dataset is available at codeparrot/humaneval-x.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:30:31Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: CodeXGLUE dataset location codeparrot/codexglue
+  claim_id: c_c11cbe49
+  context: 'Implement code/download.py function fetch_codexglue(): Fetch CodeXGLUE
+    subsets from codeparrot/codexglue.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeXGLUE_dataset_location_codeparrot/codexglue
+  kind: entity_fact
+  raw_text: CodeXGLUE dataset is available at codeparrot/codexglue.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:30:54Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: BigCode TheStack dataset location bigcode/the-stack-dedup-code
+  claim_id: c_3d984cdc
+  context: 'Implement code/download.py function fetch_bigcode(): Fetch BigCode (TheStack)
+    subsets from bigcode/the-stack-dedup-code.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigCode_TheStack_dataset_location_bigcode/the-stack-dedup-co
+  kind: entity_fact
+  raw_text: BigCode (TheStack) dataset is available at bigcode/the-stack-dedup-code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:31:17Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval test split usage
+  claim_id: c_e3cf836c
+  context: 'Logic: Use load_dataset with split=''test''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_test_split_usage
+  kind: entity_fact
+  raw_text: HumanEval dataset is split with 'test' split for fetching.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:31:41Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval-X splits js and java
+  claim_id: c_55e53a19
+  context: 'Logic: Fetch split=''js'' to data/raw/humaneval-x-js.json and split=''java''
+    to data/raw/humaneval-x-java.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval-X_splits_js_and_java
+  kind: entity_fact
+  raw_text: HumanEval-X dataset contains 'js' and 'java' splits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:32:04Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Datasets used for Python JS Java code snippets
+  claim_id: c_e10f8b05
+  context: 'Goal: Download and verify code snippets from HumanEval, CodeXGLUE, and
+    BigCode (TheStack) across Python, JS, and Java.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_used_for_Python_JS_Java_code_snippets
+  kind: entity_fact
+  raw_text: HumanEval, CodeXGLUE, and BigCode datasets are used for Python, JS, and
+    Java code snippets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:32:28Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Wikidata Q1071004 cited for static analysis ground truth lack
+  claim_id: c_c711a4d8
+  context: 'Statistical Validity: No Precision/Recall/F for static analysis (no security
+    ground truth). Use Issue Detection Rate. (Wikidata Q1071004, https://www.wikidata.org/wiki/Q1071004)'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q1071004_cited_for_static_analysis_ground_truth_lac
+  kind: entity_fact
+  raw_text: The document cites Wikidata Q1071004 regarding the lack of security ground
+    truth for static analysis.
+  resolved_value: Wikidata Q1071004 cited for static analysis ground truth lack
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T20:32:30Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_8a5fa22e
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... pytest==7.4.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:32:48Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_80bbf39c
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... pandas==2.0.3 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:33:14Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_589deee9
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... scipy==1.11.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scipy version 1.11.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:33:39Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_30f85c3f
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: datasets==2.14.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses datasets version 2.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:33:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_16109f36
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... requests==2.31.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:34:23Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_33c248c9
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... pyyaml==6.0.1 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:34:38Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: psutil version 5.9.5
+  claim_id: c_fd00b8fb
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... psutil==5.9.5 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses psutil version 5.9.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:34:53Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: jsonschema version 4.19.0
+  claim_id: c_0fc2a48e
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... jsonschema==4.19.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses jsonschema version 4.19.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:35:07Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: filelock version 3.12.0
+  claim_id: c_4f1552de
+  context: 'Initialize projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: ... filelock==3.12.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses filelock version 3.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:35:21Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Python version 3.11.x required
+  claim_id: c_b45a6649
+  context: 'Verify: source.venv/bin/activate && python --version returns 3.11.x.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python version 3.11.x.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:35:42Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Max 2 CPU cores resource constraint
+  claim_id: c_7c1687ed
+  context: 'Logic: Monitor CPU/RAM. If CPU > 2 cores or RAM > 7GB, log warning and
+    terminate the current analysis process (SIGKILL) after 30s grace period.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a maximum of 2 CPU cores for resource constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:36:06Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Max 7GB RAM resource constraint
+  claim_id: c_09fd3dba
+  context: 'Logic: Monitor CPU/RAM. If CPU > 2 cores or RAM > 7GB, log warning and
+    terminate the current analysis process (SIGKILL) after 30s grace period.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Max_7GB_RAM_resource_constraint
+  kind: entity_fact
+  raw_text: The project uses a maximum of 7GB RAM for resource constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:36:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 30 second grace period before process termination
+  claim_id: c_8770be7a
+  context: 'Logic: Monitor CPU/RAM. If CPU > 2 cores or RAM > 7GB, log warning and
+    terminate the current analysis process (SIGKILL) after 30s grace period.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis process is terminated after a 30-second grace period if resource
+    limits are exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:36:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Abort if total snippets < 500
+  claim_id: c_33124d3d
+  context: 'Aggregate Validation: If total_snippets < 500, ABORT with error ''Insufficient
+    sample size (<500)''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_total_snippets_%3C_500
+  kind: magnitude
+  raw_text: The project aborts data ingestion if the total number of downloaded snippets
+    is less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:37:34Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Minimum 30 dynamic snippets per language required
+  claim_id: c_903e272e
+  context: 'Stratification Check: Count snippets with dynamic tests (HumanEval + HumanEval-X
+    + CodeXGLUE) per language. If any language (Python, JS, Java) has < 30 dynamic-capable
+    snippets, ABORT and log ''Insufficient dynamic samples for stratified analysis''.'
+  evidence:
+    entailment_evidence: Minimum 30 dynamic snippets per language required
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Minimum_30_dynamic_snippets_per_language_required
+  kind: magnitude
+  raw_text: The project requires at least 30 dynamic-capable snippets per language
+    (Python, JS, Java) for stratified analysis.
+  resolved_value: Minimum 30 dynamic snippets per language required
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T20:37:36Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: First 1000 snippets per language for BigCode sample
+  claim_id: c_8b8b8c2c
+  context: 'Logic: Use streaming=True and itertools.islice to fetch a representative
+    sample (e.g., first 1000 per language: Python, JS, Java) to data/raw/the-stack-*.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project fetches a representative sample of the first 1000 snippets
+    per language for BigCode (TheStack).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:38:01Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Retry up to 3 times with exponential backoff
+  claim_id: c_290bca9c
+  context: 'Retry: Exponential backoff (max 3 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project retries download operations up to 3 times with exponential
+    backoff.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:38:21Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Retry static analysis up to 3 times on crash
+  claim_id: c_92a6cfcc
+  context: 'Retry Logic: Retry up to 3 times on tool crash (non-zero exit code).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project retries static analysis tool execution up to 3 times on tool
+    crash.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:38:43Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Statistical tests for alpha 0.01 0.05 0.1
+  claim_id: c_d7c536a8
+  context: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1} as
+    required by FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project executes statistical tests for alpha values 0.01, 0.05, and
+    0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:39:05Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: CodeQL used as primary static analysis tool
+  claim_id: c_cac63490
+  context: 'Primary Tools: CodeQL CLI execution wrapper and SonarQube scanner execution
+    wrapper.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeQL_used_as_primary_static_analysis_tool
+  kind: entity_fact
+  raw_text: The project uses CodeQL as a primary static analysis tool.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:39:37Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: SonarQube used as primary static analysis tool
+  claim_id: c_b02a2a28
+  context: 'Primary Tools: CodeQL CLI execution wrapper and SonarQube scanner execution
+    wrapper.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SonarQube_used_as_primary_static_analysis_tool
+  kind: entity_fact
+  raw_text: The project uses SonarQube as a primary static analysis tool.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:40:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: PyLint fallback for Python
+  claim_id: c_3ed181e3
+  context: 'Fallback Trigger: If CodeQL or SonarQube returns non-zero exit code after
+    3 retries, immediately invoke fallback (PyLint for Python, ESLint for JS) for
+    that specific snippet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PyLint_fallback_for_Python
+  kind: entity_fact
+  raw_text: The project uses PyLint as a fallback static analysis tool for Python.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:40:25Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: ESLint fallback for JavaScript
+  claim_id: c_449b6234
+  context: 'Fallback Trigger: If CodeQL or SonarQube returns non-zero exit code after
+    3 retries, immediately invoke fallback (PyLint for Python, ESLint for JS) for
+    that specific snippet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ESLint_fallback_for_JavaScript
+  kind: entity_fact
+  raw_text: The project uses ESLint as a fallback static analysis tool for JavaScript.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:40:50Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: pytest used for Python dynamic analysis
+  claim_id: c_bc99e600
+  context: Execute unit tests via pytest (Python), jest (JS), and junit (Java).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pytest_used_for_Python_dynamic_analysis
+  kind: entity_fact
+  raw_text: The project uses pytest for dynamic analysis of Python code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:41:15Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: jest used for JavaScript dynamic analysis
+  claim_id: c_a2b3e5a1
+  context: Execute unit tests via pytest (Python), jest (JS), and junit (Java).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jest_used_for_JavaScript_dynamic_analysis
+  kind: entity_fact
+  raw_text: The project uses jest for dynamic analysis of JavaScript code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:41:42Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: junit used for Java dynamic analysis
+  claim_id: c_3fdf839b
+  context: Execute unit tests via pytest (Python), jest (JS), and junit (Java).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Junit_used_for_Java_dynamic_analysis
+  kind: entity_fact
+  raw_text: The project uses junit for dynamic analysis of Java code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:42:14Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Issue Detection Rate calculated for static analysis
+  claim_id: c_5edcdcb5
+  context: 'Goal: Compute Issue Detection Rate, Pass Rate, and perform statistical
+    correlation (Spearman/Chi-squared) with sensitivity analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Issue_Detection_Rate_calculated_for_static_analysis
+  kind: entity_fact
+  raw_text: The project calculates Issue Detection Rate as a metric for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:42:50Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Pass Rate calculated for dynamic analysis
+  claim_id: c_75b76b63
+  context: 'Goal: Compute Issue Detection Rate, Pass Rate, and perform statistical
+    correlation (Spearman/Chi-squared) with sensitivity analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pass_Rate_calculated_for_dynamic_analysis
+  kind: entity_fact
+  raw_text: The project calculates Pass Rate as a metric for dynamic analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:43:22Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Spearman's Rank Correlation used for static-dynamic correlation
+  claim_id: c_be2e3be7
+  context: Implement ... to compute Spearman's Rank Correlation between static issue
+    density and dynamic pass/fail.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman's_Rank_Correlation_used_for_static-dynamic_correlat
+  kind: entity_fact
+  raw_text: The project uses Spearman's Rank Correlation to analyze correlation between
+    static issue density and dynamic pass/fail.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:43:49Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Chi-squared Test of Independence performed
+  claim_id: c_ed215685
+  context: Implement ... to perform Chi-squared Test of Independence.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Chi-squared test
+      source_id: Q70488676
+      url: https://www.wikidata.org/wiki/Q70488676
+      value: Chi-squared test
+    filled: true
+  kind: entity_fact
+  raw_text: The project performs a Chi-squared Test of Independence for statistical
+    analysis.
+  resolved_value: Chi-squared test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T20:44:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for multiple tests
+  claim_id: c_5191396e
+  context: Implement Bonferroni correction for multiple independent statistical tests
+    as per Plan.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_multiple_tests
+  kind: entity_fact
+  raw_text: The project applies Bonferroni correction for multiple independent statistical
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:44:32Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Precision Recall F1 rejected for static analysis
+  claim_id: c_b53597d5
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision_Recall_F1_rejected_for_static_analysis
+  kind: entity_fact
+  raw_text: The project rejects the use of Precision, Recall, and F1 scores for static
+    analysis due to lack of security ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:45:07Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: McNemar's test rejected
+  claim_id: c_104499da
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_rejected
+  kind: entity_fact
+  raw_text: The project rejects the use of McNemar's test for statistical analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:45:32Z'

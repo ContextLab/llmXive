@@ -1,25 +1,44 @@
-# Data directories (raw and processed)
+# Data artifacts (raw and processed)
 data/raw/*
 data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 
 # Logs
 *.log
+data/logs/*.log
 
 # Python cache
 __pycache__/
+*.py[cod]
+$py.class
 
 # Virtual environment
 .venv/
+venv/
+ENV/
 
-# State files (keep template, ignore others)
+# State files (keep template)
 state/*.yaml
+!state/.gitkeep
+!state/template.yaml
 
-# OS specific
-.DS_Store
-Thumbs.db
-
-# Editor specific
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -76,7 +76,7 @@
   verification_status: verified
   verified_against_url: https://www.sonarsource.com/products/sonarqube/downloads/
   verified_at: '2026-07-06T02:00:00.434976Z'
-- artifact_hash: 995dec073cfc1d1bd4f333208c5702f061a9605d1b8bdf6bef260162df502c63
+- artifact_hash: d3d66bff77db39225c7104b0f672e09e72ddf9fb374fbddf14db4b2a10de150b
   artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,4 +86,4 @@
   value: https://www.wikidata.org/wiki/Q1071004
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q1071004
-  verified_at: '2026-09-29T18:52:01.235968Z'
+  verified_at: '2026-10-03T20:28:36.240910Z'

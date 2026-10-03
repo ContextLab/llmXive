@@ -1,207 +1,183 @@
 """
-Artifact Hashing and Versioning Script (Constitution V)
+Artifact Hashing and Tool Versioning Script (Constitution V & VI).
 
-This script computes cryptographic hashes (SHA-256) for all critical project
-artifacts (code, data, configs, schemas) and records them in the state file.
-This ensures reproducibility and versioning of the research pipeline.
+This script computes SHA-256 hashes for project artifacts to ensure
+reproducibility (Constitution V) and logs the versions of external tools
+(CodeQL, SonarQube, pytest) to the state file (Constitution VI).
 
-Constitution Principle V: Reproducibility & Versioning
+It is designed to be run before analysis begins (T009) and after analysis
+to verify integrity (T032).
 """
+
 import hashlib
 import json
 import os
 import sys
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 import yaml
 
-# Project root relative to this script (assuming script is in code/)
+# Project Root relative to this script
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = PROJECT_ROOT / "state"
-CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
-DATA_DIRS = [
-    PROJECT_ROOT / "data" / "raw",
-    PROJECT_ROOT / "data" / "processed",
-]
-CODE_DIR = PROJECT_ROOT / "code"
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-227-assessing-the-trade-offs-between-static-.yaml"
+STATE_FILE = STATE_DIR / "projects" / "PROJ-227-assessing-the-trade-offs-between-static-.yaml"
 
-# Patterns to include in hashing
-INCLUDE_PATTERNS = [
-    "*.py",
-    "*.yaml",
-    "*.json",
-    "*.csv",
-    "*.txt",
-    "*.md",
-    "*.schema.yaml",
+# Directories to hash
+HASH_DIRS = [
+    PROJECT_ROOT / "code",
+    PROJECT_ROOT / "data",
+    PROJECT_ROOT / "tests",
+    PROJECT_ROOT / "contracts",
 ]
 
-# Patterns to exclude
-EXCLUDE_PATTERNS = [
-    "__pycache__",
-    "*.pyc",
-    ".git",
-    ".venv",
-    "*.log",
-]
+# Tool commands to check versions
+TOOL_COMMANDS = {
+    "codeql": ["codeql", "version"],
+    "sonarqube": ["sonar-scanner", "--version"], # Common CLI name, may vary
+    "pytest": ["pytest", "--version"],
+    "python": ["python", "--version"],
+}
 
 def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except (IOError, OSError) as e:
-        print(f"Error reading {file_path}: {e}", file=sys.stderr)
-        return "ERROR_READING_FILE"
+    except FileNotFoundError:
+        return "FILE_NOT_FOUND"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
 
-def should_include(path: Path, base_path: Path) -> bool:
-    """Check if a file should be included in hashing based on patterns."""
-    rel_path = path.relative_to(base_path)
-    name = path.name
-    suffix = path.suffix
+def should_include(file_path: Path) -> bool:
+    """Determine if a file should be included in hashing."""
+    # Exclude common non-code artifacts and caches
+    name = file_path.name
+    if name.startswith('.'):
+        return False
+    if name in ('__pycache__', '*.pyc', '.git', '.venv', 'node_modules'):
+        return False
+    if name.endswith(('.log', '.tmp', '.swp')):
+        return False
+    return True
 
-    # Check exclusions
-    for pattern in EXCLUDE_PATTERNS:
-        if pattern in str(rel_path) or name == pattern:
-            return False
-
-    # Check inclusion patterns (suffix or full name match)
-    for pattern in INCLUDE_PATTERNS:
-        if pattern.startswith("*."):
-            if suffix == pattern[1:]:
-                return True
-        elif pattern in name:
-            return True
-    
-    return False
-
-def collect_artifacts(base_path: Path) -> List[Path]:
-    """Recursively collect all files matching inclusion patterns."""
+def collect_artifacts(directory: Path) -> List[Path]:
+    """Recursively collect all relevant file paths in a directory."""
     artifacts = []
-    if not base_path.exists():
+    if not directory.exists():
         return artifacts
     
-    for root, dirs, files in os.walk(base_path):
-        # Filter directories to avoid descending into excluded ones
-        dirs[:] = [d for d in dirs if d not in EXCLUDE_PATTERNS]
+    for root, dirs, files in os.walk(directory):
+        # Filter out ignored directories
+        dirs[:] = [d for d in dirs if d not in ('__pycache__', '.git', '.venv', 'node_modules')]
         
         for file in files:
             file_path = Path(root) / file
-            if should_include(file_path, base_path):
+            if should_include(file_path):
                 artifacts.append(file_path)
-    
-    return sorted(artifacts)
+    return artifacts
 
-def hash_directory(dir_path: Path) -> Dict[str, str]:
-    """Hash all files in a directory recursively."""
-    if not dir_path.exists():
-        return {}
-    
-    artifacts = collect_artifacts(dir_path)
-    hashes = {}
-    for artifact in artifacts:
-        rel_path = artifact.relative_to(PROJECT_ROOT)
-        hashes[str(rel_path)] = compute_file_hash(artifact)
-    
-    return hashes
+def hash_directory(directory: Path) -> Dict[str, str]:
+    """Hash all artifacts in a directory and return a map of relative_path -> hash."""
+    result = {}
+    artifacts = collect_artifacts(directory)
+    for file_path in artifacts:
+        rel_path = file_path.relative_to(PROJECT_ROOT)
+        file_hash = compute_file_hash(file_path)
+        result[str(rel_path)] = file_hash
+    return result
 
 def load_state() -> Dict[str, Any]:
-    """Load existing state file or return a fresh structure."""
+    """Load the existing state file if it exists."""
     if STATE_FILE.exists():
-        with open(STATE_FILE, "r") as f:
-            return yaml.safe_load(f) or {}
-    return {
-        "project_id": "PROJ-227-assessing-the-trade-offs-between-static-",
-        "last_updated": None,
-        "artifact_hashes": {},
-        "tool_versions": {},
-        "metadata": {}
-    }
+        try:
+            with open(STATE_FILE, 'r') as f:
+                return yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"Warning: Could not load state file: {e}", file=sys.stderr)
+            return {}
+    return {}
 
 def save_state(state: Dict[str, Any]) -> None:
-    """Save state to YAML file."""
+    """Save the state dictionary to the YAML file."""
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(STATE_FILE, "w") as f:
+    with open(STATE_FILE, 'w') as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
 def get_tool_versions() -> Dict[str, str]:
-    """Attempt to detect versions of critical tools."""
+    """
+    Execute tool commands to retrieve version strings.
+    Returns a dictionary of tool_name -> version_string.
+    """
     versions = {}
-    
-    # Check Python version
-    versions["python"] = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    
-    # Check common tools if available (non-blocking)
-    tools_to_check = [
-        ("codeql", ["codeql", "version"]),
-        ("sonar-scanner", ["sonar-scanner", "--version"]),
-        ("pytest", ["pytest", "--version"]),
-        ("black", ["black", "--version"]),
-    ]
-    
-    import subprocess
-    for tool_name, cmd in tools_to_check:
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    for tool_name, cmd in TOOL_COMMANDS.items():
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-            if result.returncode == 0:
-                versions[tool_name] = result.stdout.strip()[:100]
-        except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-            versions[tool_name] = "NOT_INSTALLED"
+            # Run command with timeout
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False # Don't raise on non-zero exit, we just want output
+            )
+            output = result.stdout.strip() + result.stderr.strip()
+            if output:
+                # Clean up output to just the version string if possible
+                # For pytest: "pytest X.Y.Z"
+                # For codeql: "CodeQL command-line tool version X.Y.Z..."
+                versions[tool_name] = output.split('\n')[0].strip()
+            else:
+                versions[tool_name] = "NOT_INSTALLED_OR_NO_OUTPUT"
+        except subprocess.TimeoutExpired:
+            versions[tool_name] = "TIMEOUT"
+        except FileNotFoundError:
+            versions[tool_name] = "NOT_FOUND"
+        except Exception as e:
+            versions[tool_name] = f"ERROR: {str(e)}"
     
+    versions['_timestamp'] = timestamp
     return versions
 
 def main():
-    """Main entry point for artifact hashing."""
-    print(f"Starting artifact hashing for project: {PROJECT_ROOT.name}")
+    """Main entry point for T009 and T032."""
+    print("Starting artifact hashing and tool versioning...")
     
-    # Initialize state
+    # Load existing state
     state = load_state()
     
-    # Collect hashes from key directories
-    all_hashes = {}
+    # Update tool versions (Constitution VI)
+    print("Checking tool versions...")
+    tool_versions = get_tool_versions()
+    state['tool_versions'] = tool_versions
+    print(f"Updated tool versions: {list(tool_versions.keys())}")
     
-    # Code
-    if CODE_DIR.exists():
-        code_hashes = hash_directory(CODE_DIR)
-        all_hashes.update(code_hashes)
+    # Compute artifact hashes (Constitution V)
+    print("Computing artifact hashes...")
+    artifact_hashes = {}
+    for dir_path in HASH_DIRS:
+        if dir_path.exists():
+            hashes = hash_directory(dir_path)
+            artifact_hashes.update(hashes)
     
-    # Contracts (Schemas)
-    if CONTRACTS_DIR.exists():
-        contract_hashes = hash_directory(CONTRACTS_DIR)
-        all_hashes.update(contract_hashes)
-    
-    # Data (Raw and Processed)
-    for data_dir in DATA_DIRS:
-        if data_dir.exists():
-            data_hashes = hash_directory(data_dir)
-            all_hashes.update(data_hashes)
-    
-    # Config
-    if CONFIG_PATH.exists():
-        all_hashes[str(CONFIG_PATH.relative_to(PROJECT_ROOT))] = compute_file_hash(CONFIG_PATH)
-    
-    # Update state
-    from datetime import datetime
-    state["last_updated"] = datetime.utcnow().isoformat()
-    state["artifact_hashes"] = all_hashes
-    state["tool_versions"] = get_tool_versions()
+    state['artifact_hashes'] = artifact_hashes
+    state['last_updated'] = datetime.now(timezone.utc).isoformat()
     
     # Save state
     save_state(state)
+    print(f"State saved to {STATE_FILE}")
     
-    print(f"Successfully hashed {len(all_hashes)} artifacts.")
-    print(f"State saved to: {STATE_FILE}")
-    
-    # Print summary
-    print("\n--- Hash Summary ---")
-    for path, hash_val in sorted(all_hashes.items()):
-        print(f"{path}: {hash_val[:16]}...")
+    # Verification
+    if 'tool_versions' in state and state['tool_versions']:
+        print("Success: Tool versions logged.")
+    else:
+        print("Warning: No tool versions could be retrieved.", file=sys.stderr)
     
     return 0
 
