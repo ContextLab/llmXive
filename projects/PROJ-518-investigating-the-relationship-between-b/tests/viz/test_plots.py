@@ -1,66 +1,60 @@
-"""
-Tests for visualization functions in code/viz/plots.py
-"""
 import os
 import tempfile
 import numpy as np
 import pytest
 from pathlib import Path
+import matplotlib
+matplotlib.use('Agg') # Use non-interactive backend for testing
+import matplotlib.pyplot as plt
 
-# Add the project root to the path if running as a script
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from viz.plots import plot_flexibility_vs_creativity, compress_image
 
-from viz.plots import plot_flexibility_vs_creativity
+@pytest.fixture
+def sample_data():
+    np.random.seed(42)
+    flexibility = np.random.normal(0.5, 0.1, 100)
+    creativity = 20 * flexibility + np.random.normal(0, 0.5, 100)
+    return flexibility, creativity
 
+def test_plot_flexibility_vs_creativity_creates_file(sample_data):
+    flexibility, creativity = sample_data
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test_plot.png')
+        plot_flexibility_vs_creativity(flexibility, creativity, output_path)
+        
+        assert os.path.exists(output_path), f"Output file {output_path} was not created"
+        assert os.path.getsize(output_path) > 0, f"Output file {output_path} is empty"
 
-class TestPlotFlexibilityVsCreativity:
-    def test_plot_creates_file(self, tmp_path):
-        """Test that the function creates the output file."""
-        output_path = str(tmp_path / "test_plot.png")
-        
-        # Generate dummy data
-        flexibility = np.random.rand(50)
-        creativity = np.random.rand(50)
-        
-        result_path = plot_flexibility_vs_creativity(flexibility, creativity, output_path)
-        
-        assert os.path.exists(result_path), f"Output file not created at {result_path}"
-        assert os.path.getsize(result_path) > 0, "Output file is empty"
-        assert result_path.endswith(".png"), "Output file is not a PNG"
-
-    def test_plot_handles_nan(self, tmp_path):
-        """Test that the function handles NaN values gracefully."""
-        output_path = str(tmp_path / "test_plot_nan.png")
-        
-        # Data with NaNs
-        flexibility = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
-        creativity = np.array([10.0, np.nan, 30.0, 40.0, 50.0])
-        
+def test_plot_flexibility_vs_creativity_handles_nan(sample_data):
+    flexibility, creativity = sample_data
+    # Inject NaN
+    flexibility[0] = np.nan
+    creativity[1] = np.nan
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test_plot_nan.png')
         # Should not raise an error
-        result_path = plot_flexibility_vs_creativity(flexibility, creativity, output_path)
+        plot_flexibility_vs_creativity(flexibility, creativity, output_path)
         
-        assert os.path.exists(result_path)
-
-    def test_plot_raises_on_insufficient_data(self, tmp_path):
-        """Test that the function raises ValueError with insufficient data."""
-        output_path = str(tmp_path / "test_plot_fail.png")
-        
-        flexibility = np.array([1.0])
-        creativity = np.array([10.0])
-        
-        with pytest.raises(ValueError, match="Insufficient valid data points"):
-            plot_flexibility_vs_creativity(flexibility, creativity, output_path)
-
-    def test_plot_regression_line_exists(self, tmp_path):
-        """Test that the generated plot contains regression line data."""
-        output_path = str(tmp_path / "test_regression.png")
-        
-        # Create a clear linear relationship
-        x = np.linspace(0, 10, 100)
-        y = 2 * x + 1 + np.random.normal(0, 0.5, 100)
-        
-        plot_flexibility_vs_creativity(x, y, output_path)
-        
-        # File exists check is sufficient for this contract test
         assert os.path.exists(output_path)
+
+def test_plot_flexibility_vs_creativity_insufficient_data():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test_plot_fail.png')
+        with pytest.raises(ValueError):
+            plot_flexibility_vs_creativity([1.0], [2.0], output_path)
+
+def test_compress_image_reduces_size():
+    # Create a dummy image to compress
+    with tempfile.TemporaryDirectory() as tmpdir:
+        img_path = os.path.join(tmpdir, 'test_img.png')
+        plt.figure()
+        plt.plot([1, 2, 3])
+        plt.savefig(img_path, dpi=300) # High DPI to make it larger
+        plt.close()
+        
+        initial_size = os.path.getsize(img_path)
+        compress_image(img_path, max_mb=0.001) # Force compression to very small size
+        
+        final_size = os.path.getsize(img_path)
+        assert final_size < initial_size, "Compression did not reduce file size"

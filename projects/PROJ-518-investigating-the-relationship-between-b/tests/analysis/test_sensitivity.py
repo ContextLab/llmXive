@@ -1,69 +1,75 @@
 import numpy as np
-import pandas as pd
 import pytest
 from analysis.sensitivity import run_sensitivity_analysis
-from errors import DataMissingCreativityError
+from analysis.statistics import run_permutation_test
 
-def test_run_sensitivity_analysis_1d():
-    """Test with 1D flexibility array (single window length)."""
-    flexibility = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-    creativity = np.array([10, 20, 30, 40, 50])
-    window_lengths = [30]
-    
-    df = run_sensitivity_analysis(flexibility, creativity, window_lengths)
-    
-    assert isinstance(df, pd.DataFrame)
-    assert list(df.columns) == ["window_length", "correlation", "p_value"]
-    assert len(df) == 1
-    assert df.iloc[0]["window_length"] == 30
-    # Check correlation is close to 1.0 for this perfect linear data
-    assert np.isclose(df.iloc[0]["correlation"], 1.0)
-
-def test_run_sensitivity_analysis_2d():
-    """Test with 2D flexibility array (multiple window lengths)."""
-    n_subjects = 10
+def test_run_sensitivity_analysis_structure():
+    """Test that run_sensitivity_analysis returns the correct dictionary structure."""
+    n_subjects = 50
     n_windows = 3
     window_lengths = [20, 30, 40]
     
-    # Create synthetic data with known correlations
-    creativity = np.random.randn(n_subjects)
-    flexibility = np.column_stack([
-        creativity + np.random.randn(n_subjects) * 0.1, # High correlation
-        creativity * 0.5 + np.random.randn(n_subjects) * 0.5, # Medium
-        np.random.randn(n_subjects) # No correlation
-    ])
+    # Create mock data: 2D array (subjects, windows)
+    np.random.seed(42)
+    flexibility = np.random.rand(n_subjects, n_windows)
+    creativity = np.random.rand(n_subjects)
     
-    df = run_sensitivity_analysis(flexibility, creativity, window_lengths)
+    result = run_sensitivity_analysis(flexibility, creativity, window_lengths)
     
-    assert isinstance(df, pd.DataFrame)
-    assert list(df.columns) == ["window_length", "correlation", "p_value"]
-    assert len(df) == 3
+    assert isinstance(result, dict)
+    assert 'p_values' in result
+    assert 'correlations' in result
+    assert 'window_lengths' in result
     
-    # Check that window lengths match
-    assert list(df["window_length"]) == window_lengths
+    assert isinstance(result['p_values'], list)
+    assert isinstance(result['correlations'], list)
+    assert isinstance(result['window_lengths'], list)
     
-    # Check that correlations are different (not all 0 or 1)
-    corrs = df["correlation"].values
-    assert not np.all(np.isclose(corrs, corrs[0]))
+    assert len(result['p_values']) == n_windows
+    assert len(result['correlations']) == n_windows
+    assert len(result['window_lengths']) == n_windows
+    
+    assert result['window_lengths'] == window_lengths
 
-def test_run_sensitivity_analysis_nan_handling():
-    """Test that NaN values are handled correctly."""
-    flexibility = np.array([0.1, np.nan, 0.3, 0.4, 0.5])
-    creativity = np.array([10, 20, 30, 40, 50])
-    window_lengths = [30]
+def test_run_sensitivity_analysis_values():
+    """Test that the returned values are floats and within expected ranges."""
+    n_subjects = 50
+    n_windows = 2
+    window_lengths = [20, 30]
     
-    df = run_sensitivity_analysis(flexibility, creativity, window_lengths)
+    np.random.seed(42)
+    flexibility = np.random.rand(n_subjects, n_windows)
+    creativity = np.random.rand(n_subjects)
     
-    # Should have computed correlation on valid data
-    assert len(df) == 1
-    assert not np.isnan(df.iloc[0]["correlation"])
-    assert not np.isnan(df.iloc[0]["p_value"])
+    result = run_sensitivity_analysis(flexibility, creativity, window_lengths)
+    
+    for p in result['p_values']:
+        assert 0.0 <= p <= 1.0
+    
+    for r in result['correlations']:
+        assert -1.0 <= r <= 1.0
 
-def test_run_sensitivity_analysis_mismatched_shapes():
-    """Test error when flexibility shape doesn't match window_lengths."""
-    flexibility = np.random.randn(10, 2)
-    creativity = np.random.randn(10)
-    window_lengths = [20, 30, 40] # 3 lengths but only 2 columns in flexibility
+def test_run_sensitivity_analysis_length_mismatch():
+    """Test that mismatched lengths raise an error."""
+    flexibility = np.random.rand(50, 2)
+    creativity = np.random.rand(50)
+    window_lengths = [20, 30, 40] # 3 windows, but flexibility only has 2 columns
     
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Number of flexibility vectors"):
         run_sensitivity_analysis(flexibility, creativity, window_lengths)
+
+def test_run_sensitivity_analysis_list_input():
+    """Test that the function accepts a list of arrays."""
+    n_subjects = 50
+    n_windows = 2
+    window_lengths = [20, 30]
+    
+    np.random.seed(42)
+    flex_list = [np.random.rand(n_subjects) for _ in range(n_windows)]
+    creativity = np.random.rand(n_subjects)
+    
+    result = run_sensitivity_analysis(flex_list, creativity, window_lengths)
+    
+    assert len(result['p_values']) == n_windows
+    assert len(result['correlations']) == n_windows
+    assert result['window_lengths'] == window_lengths

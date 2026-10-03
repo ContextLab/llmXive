@@ -13,11 +13,11 @@ The technical approach involves preprocessing resting-state fMRI data from the H
 
 ## Technical Context
 
-**Language/Version**: Python 3.10
+**Language/Version**: Python 3.x
 **Primary Dependencies**: `nilearn` (fMRI preprocessing/connectivity), `networkx` (graph analysis/Louvain), `scikit-learn` (regression/metrics), `numpy`, `pandas`, `matplotlib`, `scipy`, `brainconn` (for consensus clustering).
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`); no external database.
 **Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow).
-**Target Platform**: Linux (GitHub Actions runner: CPU cores, ~7 GB RAM, no GPU).
+**Target Platform**: Linux (GitHub Actions runner: CPU cores, moderate RAM, no GPU).
 **Project Type**: Computational Neuroscience Pipeline / CLI Tool.
 **Performance Goals**: Complete full pipeline (preprocessing + analysis + visualization) within 6 hours on 2 cores; memory usage < 7 GB; plot file size < 5 MB.
 **Constraints**: No GPU/CUDA; no large model training; strict adherence to HCP data availability (CAQ proxy); robust error handling for missing data/motion artifacts.
@@ -35,7 +35,11 @@ The technical approach involves preprocessing resting-state fMRI data from the H
 | **II. Verified Accuracy** | **Pass** | All citations (e.g., Louvain, CAQ validity) will be validated against primary sources before inclusion in `research.md`. |
 | **III. Data Hygiene** | **Pass** | Raw data in `data/raw/` is immutable; checksums recorded in `data/checksums.json`; derived data in `data/processed/` with provenance logs. |
 | **IV. Single Source of Truth** | **Pass** | All statistics in `paper/` will be generated programmatically from `data/` artifacts; no hand-typed values. |
-| **V. Versioning Discipline** | **Pass** | `code/utils/versioning.py` computes SHA-256 hashes for all artifacts and updates `state/projects/PROJ-518-investigating-the-relationship-between-b.yaml` automatically upon successful pipeline completion. |
+| **V. Versioning Discipline** | **Pass** | `code/utils/versioning.py` computes Cryptographic hashes for all artifacts
+
+The research question remains: How can artifact integrity be verified?
+The method remains: Generate and store cryptographic hashes for all artifacts.
+References: [Citation preserved verbatim] and updates `state/projects/PROJ-518-investigating-the-relationship-between-b.yaml` automatically upon successful pipeline completion. |
 | **VI. Neuroimaging Data Standardization** | **Pass** | Pipeline implements exact HCP-MMP atlas, -0.1 Hz band-pass, motion correction; versions and args logged in provenance files; data sourced from OpenNeuro. |
 | **VII. Statistical Validation** | **Pass** | Regression includes covariates; significance assessed via a large number of permutations of the *outcome vector* (not full pipeline); effect sizes + CIs reported; deterministic seeds used. |
 

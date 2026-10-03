@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-518-investigating-the-relationship-between-b
-last_run_id: e20956e0-fb7b-48ec-a42b-5b17732fa487
+last_run_id: 4bfd77b9-446e-4ae5-8244-fb3db1d0fe54
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Creative
   Problem Solving
-updated_at: '2026-09-29T13:09:27.133380Z'
+updated_at: '2026-10-03T03:09:37.979448Z'
