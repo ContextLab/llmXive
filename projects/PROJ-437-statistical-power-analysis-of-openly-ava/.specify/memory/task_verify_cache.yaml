@@ -18,13 +18,6 @@ T041:
     \ were presented, so we cannot confirm that the aggregation logic was extracted\
     \ or that a clean multi\u2011kernel, multi\u2011alpha API was added. The required\
     \ artifacts are missing."
-T044:
-  c: false
-  h: 1c13015bc57a8d2ee42078b0d847742a5a3ade1a0a69982313b4028c38feac95
-  r: "The repository lacks the required `test_config.yaml` file and provides no evidence\
-    \ that `python code/main.py --config test_config.yaml` was executed, returned\
-    \ exit code\u202F0, or produced the expected output file. Without these artifacts,\
-    \ the task\u2019s validation requirement is not satisfied."
 T049:
   c: false
   h: 7c9021a7d908018514fde4832a1d6df55b4e8337bf6e8bf2744bf8012246204f

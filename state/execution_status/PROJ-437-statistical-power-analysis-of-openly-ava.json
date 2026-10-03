@@ -12,9 +12,12 @@
   ],
   "fix_rounds": 1,
   "model_tier": 0,
-  "total_attempts": 1,
-  "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-09-29T17:21:44Z"
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-437-statistical-power-analysis-of-ope",
+    "submitted_at": "2026-10-03T15:16:48Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-10-03T15:16:51Z"
 }
