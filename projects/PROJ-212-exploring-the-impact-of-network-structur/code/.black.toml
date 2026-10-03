@@ -1,6 +1,5 @@
-# Black configuration file
-# This file is a duplicate of settings in pyproject.toml for IDE compatibility.
-
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
+# Black configuration
+# Settings are primarily in pyproject.toml for unified config.
+# This file exists to ensure black finds config in root if pyproject is ignored.
+line-length = 100
+target-version = ['py39']

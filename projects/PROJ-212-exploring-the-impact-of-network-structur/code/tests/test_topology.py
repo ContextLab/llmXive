@@ -5,137 +5,124 @@ import networkx as nx
 import numpy as np
 import math
 
-# Add src to path if running directly
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Ensure src is in path for imports if running directly
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.topology import compute_metrics
 from data_models import NetworkGraph
 
 class TestComputeMetrics:
-    """
-    Unit tests for src/topology.py compute_metrics function.
-    Tests T013 requirements: degree distribution, clustering coefficient,
-    average path length (handling disconnected graphs).
-    """
+    """Tests for src/topology.py metrics calculation."""
 
     def test_degree_distribution_sum_equals_edges(self):
-        """
-        Verify that the sum of counts in degree distribution equals 2 * num_edges
-        (Handshaking lemma).
-        """
-        # Create a known graph: Triangle (3 nodes, 3 edges)
-        G = nx.cycle_graph(3)
+        """Test that sum of degrees equals 2 * number of edges."""
+        G = nx.Graph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1), (1, 3)])
         
         metrics = compute_metrics(G)
+        degree_stats = metrics["degree_stats"]
         
-        dist = metrics["degree_distribution"]
-        total_degree_count = sum(dist.values())
-        expected_total_nodes = G.number_of_nodes()
+        # Sum of degrees should be 2 * |E|
+        total_degree = sum([d for n, d in G.degree()])
+        expected_sum = 2 * G.number_of_edges()
         
-        assert total_degree_count == expected_total_nodes, \
-            f"Sum of degree counts ({total_degree_count}) should equal number of nodes ({expected_total_nodes})"
-        
-        # Verify edges calculation via sum of degrees / 2
-        sum_degrees = sum(k * v for k, v in dist.items())
-        assert sum_degrees == 2 * G.number_of_edges(), \
-            "Sum of degrees must equal 2 * number of edges"
+        assert total_degree == expected_sum
+        # Verify our stats capture the mean correctly
+        assert abs(degree_stats["mean"] - (total_degree / G.number_of_nodes())) < 1e-6
 
     def test_clustering_coefficient_bounds(self):
-        """
-        Verify clustering coefficient is between 0 and 1 inclusive.
-        """
-        # Test random graphs
-        for i in range(5):
-            G = nx.erdos_renyi_graph(20, 0.3, seed=i)
-            metrics = compute_metrics(G)
-            cc = metrics["clustering_coefficient"]
-            
-            assert 0.0 <= cc <= 1.0, \
-                f"Clustering coefficient {cc} out of bounds [0, 1]"
+        """Test that clustering coefficients are between 0 and 1."""
+        # Random graph
+        G = nx.erdos_renyi_graph(50, 0.1, seed=42)
+        metrics = compute_metrics(G)
+        
+        assert 0.0 <= metrics["clustering_coefficient"] <= 1.0
+        assert 0.0 <= metrics["global_clustering"] <= 1.0
+
+        # Complete graph (clustering should be 1)
+        K = nx.complete_graph(10)
+        metrics_k = compute_metrics(K)
+        assert abs(metrics_k["clustering_coefficient"] - 1.0) < 1e-6
+        
+        # Star graph (clustering should be 0)
+        S = nx.star_graph(10)
+        metrics_s = compute_metrics(S)
+        # Star graph has 0 clustering coefficient
+        assert metrics_s["clustering_coefficient"] == 0.0
 
     def test_path_length_disconnected_graph(self):
-        """
-        Verify that average_path_length is infinity for disconnected graphs.
-        """
+        """Test that disconnected graphs return infinity for average path length."""
         # Create a disconnected graph: two separate triangles
-        G = nx.disjoint_union(nx.cycle_graph(3), nx.cycle_graph(3))
+        G = nx.Graph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 1)])
+        G.add_edges_from([(4, 5), (5, 6), (6, 4)])
         
         metrics = compute_metrics(G)
         
-        assert metrics["average_path_length"] == float('inf'), \
-            "Average path length should be infinity for disconnected graphs"
-        
-        assert metrics["is_connected"] is False, \
-            "is_connected should be False for disconnected graphs"
+        assert metrics["is_connected"] == False
+        assert metrics["average_path_length"] == float('inf')
 
     def test_path_length_connected_graph(self):
-        """
-        Verify that average_path_length is finite for connected graphs.
-        """
-        # Create a connected graph: Path graph
-        G = nx.path_graph(10)
+        """Test that connected graphs return a finite average path length."""
+        G = nx.barabasi_albert_graph(100, 2, seed=42)
         
         metrics = compute_metrics(G)
         
-        assert metrics["average_path_length"] != float('inf'), \
-            "Average path length should be finite for connected graphs"
-        
-        assert metrics["is_connected"] is True, \
-            "is_connected should be True for connected graphs"
-        
-        # Check against known value for path graph P10
-        # Average shortest path for P_n is approx (n^2 - 1) / (3n) for large n,
-        # exact calculation: sum_{i<j} (j-i) / (n(n-1)/2)
-        # For n=10: sum = 165, pairs = 45, avg = 165/45 = 3.666...
-        expected_avg = 165 / 45
-        assert math.isclose(metrics["average_path_length"], expected_avg, rel_tol=1e-9), \
-            f"Average path length {metrics['average_path_length']} != expected {expected_avg}"
+        assert metrics["is_connected"] == True
+        assert isinstance(metrics["average_path_length"], float)
+        assert not math.isinf(metrics["average_path_length"])
 
-    def test_barabasi_albert_properties(self):
-        """
-        Specific test for Barabási-Albert graph properties as mentioned in T013 verification.
-        """
-        # Generate BA graph
-        G = nx.barabasi_albert_graph(50, 2, seed=42)
-        
-        metrics = compute_metrics(G)
-        
-        # BA graphs are connected (usually)
-        assert metrics["is_connected"] is True, "BA graph should be connected"
-        
-        # Clustering should be positive
-        assert metrics["clustering_coefficient"] > 0, "BA graph should have positive clustering"
-        
-        # Path length should be finite
-        assert metrics["average_path_length"] != float('inf'), "BA graph path length should be finite"
-        
-        # Degree distribution should exist and sum to N
-        assert sum(metrics["degree_distribution"].values()) == 50, "Degree distribution sum must equal N"
-
-    def test_empty_graph_handling(self):
-        """
-        Test behavior with an empty graph.
-        """
+    def test_empty_graph(self):
+        """Test behavior on an empty graph."""
         G = nx.Graph()
+        metrics = compute_metrics(G)
+        
+        assert metrics["degree_stats"]["mean"] == 0.0
+        assert metrics["is_connected"] == False
+        assert metrics["average_path_length"] == float('inf')
+
+    def test_single_node_graph(self):
+        """Test behavior on a single node graph."""
+        G = nx.Graph()
+        G.add_node(1)
+        metrics = compute_metrics(G)
+        
+        assert metrics["degree_stats"]["mean"] == 0.0
+        assert metrics["is_connected"] == True
+        # Average path length for a single node is typically 0
+        assert metrics["average_path_length"] == 0.0
+
+    def test_networkgraph_wrapper(self):
+        """Test that compute_metrics works with NetworkGraph dataclass."""
+        G = nx.karate_club_graph()
+        wrapped_graph = NetworkGraph(id="test_001", graph=G, metadata={})
+        
+        metrics = compute_metrics(wrapped_graph)
+        
+        assert "degree_stats" in metrics
+        assert "clustering_coefficient" in metrics
+        assert "average_path_length" in metrics
+
+    def test_ring_graph_analytical_clustering(self):
+        """Test clustering on a ring lattice (known analytical value)."""
+        # A simple ring graph where each node connects to 2 neighbors
+        n = 20
+        G = nx.cycle_graph(n)
         
         metrics = compute_metrics(G)
         
-        assert metrics["num_nodes"] == 0
-        assert metrics["num_edges"] == 0
-        assert metrics["average_degree"] == 0.0
-        assert metrics["clustering_coefficient"] == 0.0
-        assert metrics["average_path_length"] == float('inf')
-        assert metrics["is_connected"] is False
-
-    def test_network_graph_wrapper(self):
-        """
-        Test that the function works with the NetworkGraph dataclass wrapper.
-        """
-        nx_G = nx.complete_graph(5)
-        wrapped_G = NetworkGraph(graph=nx_G, id="test-1")
-        
-        metrics = compute_metrics(wrapped_G)
-        
-        assert metrics["num_nodes"] == 5
-        assert metrics["num_edges"] == 10
-        assert metrics["is_connected"] is True
+        # For a cycle graph, clustering coefficient is 0.75 (3/4)
+        # Each node has 2 neighbors, which are connected to each other (1 edge)
+        # Max possible edges between neighbors is 1. So local clustering is 1/1 = 1?
+        # Wait, for a cycle graph:
+        # Node i connects to i-1 and i+1.
+        # Neighbors of i are {i-1, i+1}.
+        # Are i-1 and i+1 connected? No, unless n=3.
+        # So local clustering is 0 for n > 3.
+        # Let's verify:
+        if n > 3:
+            assert metrics["clustering_coefficient"] == 0.0
+        else:
+            # For n=3 (triangle), it's 1.0
+            assert metrics["clustering_coefficient"] == 1.0

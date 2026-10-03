@@ -1,3 +1,13 @@
-# This file is a duplicate of the configuration in pyproject.toml
-# for environments that prefer a standalone ruff configuration file.
-extend = "pyproject.toml"
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is provided for environments that prefer a separate config file.
+# If pyproject.toml exists, ruff will prefer that by default unless configured otherwise.
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008", "C901"]
+
+[lint.isort]
+known-first-party = ["data_models", "loader", "simulation", "topology", "stats", "utils", "validators", "config", "main", "viz", "verify_snap"]

@@ -1,40 +1,53 @@
+"""
+Configuration loading utilities.
+"""
 import yaml
 import os
 from pathlib import Path
 
 def load_config(config_path: str = "config.yaml") -> dict:
     """
-    Loads the configuration from a YAML file.
+    Load configuration from a YAML file.
+    
+    Args:
+        config_path: Path to the config file.
+        
+    Returns:
+        Configuration dictionary.
     """
-    if not os.path.exists(config_path):
+    path = Path(config_path)
+    if not path.exists():
         # Return default config if file doesn't exist
         return {
-            "random_seed": 42,
-            "thresholds": {
-                "r": 0.8,
-                "t": 100
-            },
-            "simulation": {
-                "n_oscillators": 200,
-                "k_range": [0, 5],
-                "tolerance": 0.001,
-                "dt": 0.01
+            "seeds": {"random": 42},
+            "thresholds": {"r": 0.8, "t": 100, "min_files": 10},
+            "paths": {
+                "raw_data": "data/raw",
+                "processed": "data/processed",
+                "results": "results",
+                "state": "state",
+                "logs": "logs"
             }
         }
-    
-    with open(config_path, 'r') as f:
+        
+    with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-def get_paths() -> dict:
+def get_paths(config: dict) -> dict:
     """
-    Returns a dictionary of paths relative to the project root.
+    Get path objects from configuration.
+    
+    Args:
+        config: Configuration dictionary.
+        
+    Returns:
+        Dictionary of Path objects.
     """
-    base = Path(__file__).parent
+    path_config = config.get('paths', {})
     return {
-        "project_root": base,
-        "data_raw": base / "data" / "raw",
-        "data_processed": base / "data" / "processed",
-        "results_dir": base / "results",
-        "state_dir": base / "state",
-        "figures_dir": base / "figures"
+        'raw_data': Path(path_config.get('raw_data', 'data/raw')),
+        'processed': Path(path_config.get('processed', 'data/processed')),
+        'results': Path(path_config.get('results', 'results')),
+        'state': Path(path_config.get('state', 'state')),
+        'logs': Path(path_config.get('logs', 'logs'))
     }

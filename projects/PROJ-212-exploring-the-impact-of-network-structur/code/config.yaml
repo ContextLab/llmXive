@@ -1,35 +1,13 @@
-# Configuration for PROJ-212
-# Seeding, thresholds, and paths
-
+# Configuration for network synchronization impact study
 seeds:
-  random_seed: 42
-  numpy_seed: 42
-
+  random: 42
 thresholds:
-  r_threshold: 0.8
-  t_threshold: 100
+  r: 0.8
+  t: 100
   min_files: 10
-  vif_threshold: 5.0
-  cv_std_threshold: 0.1
-
 paths:
   raw_data: data/raw
-  processed_data: data/processed
+  processed: data/processed
   results: results
   state: state
-  figures: figures
-
-simulation:
-  n_nodes: 200
-  k_min: 0.0
-  k_max: 5.0
-  k_step: 0.1
-  t_max: 1000
-
-regression:
-  min_samples: 10
-  polynomial_degree: 2
-
-logging:
-  level: INFO
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  logs: logs

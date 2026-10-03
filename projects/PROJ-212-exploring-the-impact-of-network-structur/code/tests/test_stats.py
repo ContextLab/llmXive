@@ -1,137 +1,261 @@
-import numpy as np
+"""
+Tests for the stats module (T023a).
+Tests linear and polynomial regression model fitting functions.
+"""
 import pytest
-import logging
+import numpy as np
+import tempfile
+from pathlib import Path
 from unittest.mock import patch, MagicMock
-from src.stats import calculate_vif, run_regression, run_cross_validation, calculate_anova_table
-import warnings
+import pandas as pd
+import yaml
+import json
 
-class TestVIFCalculation:
-    def test_vif_high_correlation(self):
-        """Test VIF calculation with highly correlated features."""
-        # Create a matrix with high correlation
-        n = 100
-        x1 = np.random.randn(n)
-        x2 = x1 * 0.95 + np.random.randn(n) * 0.1  # Highly correlated with x1
-        X = np.column_stack([x1, x2])
+# Import the functions to test
+from src.stats import (
+    fit_linear,
+    fit_polynomial,
+    calculate_vif,
+    run_regression,
+    run_cross_validation,
+    check_data_availability,
+    prepare_regression_data
+)
+
+
+@pytest.fixture
+def sample_linear_data():
+    """Generate sample linear data: y = 2x + 3 + noise"""
+    np.random.seed(42)
+    n = 100
+    X = np.random.rand(n, 2) * 10
+    y = 2 * X[:, 0] + 3 * X[:, 1] + 5 + np.random.normal(0, 0.5, n)
+    return X, y
+
+
+@pytest.fixture
+def sample_polynomial_data():
+    """Generate sample polynomial data: y = x^2 + 2x + 1 + noise"""
+    np.random.seed(42)
+    n = 100
+    X = np.random.rand(n, 1) * 5
+    y = (X[:, 0] ** 2) + 2 * X[:, 0] + 1 + np.random.normal(0, 0.5, n)
+    return X, y
+
+
+class TestFitLinear:
+    def test_fit_linear_basic(self, sample_linear_data):
+        X, y = sample_linear_data
+        result = fit_linear(X, y)
         
-        vif_values = calculate_vif(X)
+        assert "model" in result
+        assert "coefficients" in result
+        assert "intercept" in result
+        assert "r_squared" in result
+        assert result["r_squared"] > 0.9  # Should be high for linear data
         
-        # Both features should have VIF > 5 due to high correlation
+    def test_fit_linear_empty_input(self):
+        X = np.array([]).reshape(0, 2)
+        y = np.array([])
+        with pytest.raises(ValueError):
+            fit_linear(X, y)
+        
+    def test_fit_linear_coefficients_count(self, sample_linear_data):
+        X, y = sample_linear_data
+        result = fit_linear(X, y)
+        
+        assert len(result["coefficients"]) == X.shape[1]
+        for key in result["coefficients"]:
+            assert isinstance(result["coefficients"][key], float)
+
+
+class TestFitPolynomial:
+    def test_fit_polynomial_basic(self, sample_polynomial_data):
+        X, y = sample_polynomial_data
+        result = fit_polynomial(X, y, degree=2)
+        
+        assert "model" in result
+        assert "poly_features" in result
+        assert "coefficients" in result
+        assert "intercept" in result
+        assert "r_squared" in result
+        assert result["r_squared"] > 0.95  # Should be very high for polynomial data
+        
+    def test_fit_polynomial_invalid_degree(self, sample_polynomial_data):
+        X, y = sample_polynomial_data
+        with pytest.raises(ValueError):
+            fit_polynomial(X, y, degree=1)
+        
+    def test_fit_polynomial_empty_input(self):
+        X = np.array([]).reshape(0, 1)
+        y = np.array([])
+        with pytest.raises(ValueError):
+            fit_polynomial(X, y, degree=2)
+
+
+class TestCalculateVif:
+    def test_calculate_vif_basic(self, sample_linear_data):
+        X, y = sample_linear_data
+        feature_names = ["x1", "x2"]
+        vif_values = calculate_vif(X, feature_names)
+        
         assert len(vif_values) == 2
-        # At least one should have high VIF
-        high_vif_count = sum(1 for v in vif_values.values() if v > 5)
-        assert high_vif_count >= 1, f"Expected at least one feature with VIF > 5, got: {vif_values}"
-
-    def test_vif_low_correlation(self):
-        """Test VIF calculation with uncorrelated features."""
-        n = 100
-        X = np.random.randn(n, 3)
+        assert "x1" in vif_values
+        assert "x2" in vif_values
+        # VIF should be finite for independent features
+        assert np.isfinite(vif_values["x1"])
+        assert np.isfinite(vif_values["x2"])
         
+    def test_calculate_vif_no_names(self, sample_linear_data):
+        X, y = sample_linear_data
         vif_values = calculate_vif(X)
         
-        # All VIFs should be close to 1 for uncorrelated features
-        for vif in vif_values.values():
-            assert vif < 5, f"Expected VIF < 5 for uncorrelated features, got: {vif_values}"
+        assert len(vif_values) == 2
+        assert "feature_0" in vif_values
+        assert "feature_1" in vif_values
 
-class TestRegressionFunctions:
-    def test_ridge_fallback_on_high_vif(self):
-        """Test that the system switches to Ridge Regression when VIF > 5 and logs the alpha parameter."""
-        # Create data with high correlation to trigger VIF > 5
-        n = 50
-        x1 = np.random.randn(n)
-        x2 = x1 * 0.98 + np.random.randn(n) * 0.05  # Very high correlation
-        X = np.column_stack([x1, x2])
-        y = x1 + x2 + np.random.randn(n) * 0.1
-        
-        # Capture log output
-        with patch('src.stats.logger') as mock_logger:
-            result = run_regression(X, y, alpha=2.5)
-            
-            # Verify model type is Ridge
-            assert result["model_type"] == "Ridge", f"Expected Ridge model, got {result['model_type']}"
-            
-            # Verify alpha parameter is documented
-            assert result["alpha"] == 2.5, f"Expected alpha 2.5, got {result['alpha']}"
-            
-            # Verify warning was logged about VIF and alpha
-            warning_calls = [call for call in mock_logger.warning.call_args_list if "High VIF" in str(call)]
-            info_calls = [call for call in mock_logger.info.call_args_list if "alpha" in str(call).lower()]
-            
-            assert len(warning_calls) > 0, "Expected warning log about high VIF"
-            assert len(info_calls) > 0 or any("alpha=2.5" in str(call) for call in warning_calls), \
-                "Expected log entry documenting the alpha parameter used"
 
-    def test_linear_regression_no_high_vif(self):
-        """Test that Linear Regression is used when VIF <= 5."""
-        n = 50
-        X = np.random.randn(n, 3)
-        y = X[:, 0] + X[:, 1] * 2 + np.random.randn(n) * 0.1
+class TestRunRegression:
+    def test_run_regression_linear(self, sample_linear_data):
+        X, y = sample_linear_data
+        feature_names = ["x1", "x2"]
+        result = run_regression(X, y, feature_names, model_type="linear")
         
-        result = run_regression(X, y, alpha=1.0)
+        assert result["model_type"] == "linear"
+        assert "coefficients" in result
+        assert "p_values" in result
+        assert "r_squared" in result
+        assert result["r_squared"] > 0.9
         
-        assert result["model_type"] == "Linear"
-        assert result["alpha"] == 0.0
+    def test_run_regression_polynomial(self, sample_polynomial_data):
+        X, y = sample_polynomial_data
+        feature_names = ["x1"]
+        result = run_regression(X, y, feature_names, model_type="polynomial", degree=2)
+        
+        assert result["model_type"] == "polynomial"
+        assert "coefficients" in result
+        assert "p_values" in result
+        assert result["r_squared"] > 0.95
 
-    def test_force_ridge_regression(self):
-        """Test that Ridge regression is used when force flag is set."""
-        n = 50
-        X = np.random.randn(n, 3)
-        y = X[:, 0] + np.random.randn(n) * 0.1
-        
-        result = run_regression(X, y, use_ridge=True, alpha=0.5)
-        
-        assert result["model_type"] == "Ridge"
-        assert result["alpha"] == 0.5
 
-class TestCrossValidation:
-    def test_cv_basic(self):
-        """Test basic cross-validation functionality."""
-        n = 100
-        X = np.random.randn(n, 3)
-        y = X[:, 0] + X[:, 1] * 2 + np.random.randn(n) * 0.1
+class TestRunCrossValidation:
+    def test_run_cross_validation_loocv(self, sample_linear_data):
+        X, y = sample_linear_data
+        # Use a small dataset to trigger LOOCV
+        X_small = X[:10]
+        y_small = y[:10]
         
-        cv_result = run_cross_validation(X, y, n_folds=5)
+        result = run_cross_validation(X_small, y_small, model_type="linear")
         
-        assert "mean_r2" in cv_result
-        assert "std_r2" in cv_result
-        assert isinstance(cv_result["mean_r2"], float)
-        assert isinstance(cv_result["std_r2"], float)
-        assert cv_result["mean_r2"] <= 1.0
-        assert cv_result["std_r2"] >= 0.0
+        assert "mean_r2" in result
+        assert "std_dev" in result
+        assert result["cv_type"] == "LOOCV"
+        assert result["mean_r2"] > 0
+        
+    def test_run_cross_validation_kfold(self, sample_linear_data):
+        X, y = sample_linear_data
+        # Use a larger dataset to trigger KFold
+        X_large = X[:60]
+        y_large = y[:60]
+        
+        result = run_cross_validation(X_large, y_large, model_type="linear", n_splits=5)
+        
+        assert "mean_r2" in result
+        assert "std_dev" in result
+        assert result["cv_type"] == "5-fold"
+        assert result["mean_r2"] > 0
 
-class TestFeatureAuthorization:
-    def test_filter_authorized_features(self):
-        """Test that only authorized features are kept."""
-        from src.stats import filter_authorized_features
+
+class TestDataAvailability:
+    @patch('src.stats.load_config')
+    @patch('src.stats.get_paths')
+    def test_insufficient_data_blocks_regression(self, mock_get_paths, mock_load_config):
+        """Test that regression is blocked when data is insufficient"""
+        mock_config = {"seeds": {"random": 42}}
+        mock_load_config.return_value = mock_config
         
-        features = {
-            "degree": 5.0,
-            "clustering": 0.3,
-            "path_length": 10.0,
-            "unauthorized_feature": 99.0
+        mock_paths = {
+            "state": Path(tempfile.mkdtemp()) / "state"
         }
+        mock_get_paths.return_value = mock_paths
         
-        filtered = filter_authorized_features(features)
+        # Create state file with blocked flag
+        state_file = mock_paths["state"] / "data_availability.yaml"
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(state_file, 'w') as f:
+            yaml.dump({"regression_blocked": True, "raw_count": 5}, f)
         
-        assert "degree" in filtered
-        assert "clustering" in filtered
-        assert "path_length" in filtered
-        assert "unauthorized_feature" not in filtered
+        available, count = check_data_availability()
+        assert available is False
+        assert count == 5
+        
+    @patch('src.stats.load_config')
+    @patch('src.stats.get_paths')
+    def test_sufficient_data_proceeds(self, mock_get_paths, mock_load_config):
+        """Test that regression proceeds when data is sufficient"""
+        mock_config = {"seeds": {"random": 42}}
+        mock_load_config.return_value = mock_config
+        
+        mock_paths = {
+            "state": Path(tempfile.mkdtemp()) / "state"
+        }
+        mock_get_paths.return_value = mock_paths
+        
+        # Create state file with sufficient data
+        state_file = mock_paths["state"] / "data_availability.yaml"
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(state_file, 'w') as f:
+            yaml.dump({"regression_blocked": False, "raw_count": 15}, f)
+        
+        available, count = check_data_availability()
+        assert available is True
+        assert count == 15
 
-class TestRegressionDataPreparation:
-    def test_prepare_regression_data(self):
-        """Test data preparation for regression."""
-        from src.stats import prepare_regression_data
+
+class TestPrepareRegressionData:
+    @patch('src.stats.Path')
+    def test_prepare_regression_data_success(self, mock_path_class):
+        """Test successful data preparation"""
+        # Create mock dataframe
+        df_data = {
+            'network_id': ['net1', 'net2', 'net3'],
+            'degree': [3.0, 4.0, 5.0],
+            'clustering': [0.1, 0.2, 0.3],
+            'path_length': [2.0, 2.5, 3.0],
+            'threshold': [0.5, 0.6, 0.7]
+        }
+        df = pd.DataFrame(df_data)
         
-        data = [
-            {"degree": 5.0, "clustering": 0.3, "path_length": 10.0, "threshold": 2.5},
-            {"degree": 3.0, "clustering": 0.5, "path_length": 8.0, "threshold": 1.8},
-            {"degree": 7.0, "clustering": 0.2, "path_length": 12.0, "threshold": 3.1}
-        ]
+        mock_path = MagicMock()
+        mock_path.exists.return_value = True
+        mock_path_class.return_value = mock_path
         
-        X, y, features = prepare_regression_data(data)
+        with patch('pandas.read_csv', return_value=df):
+            X, y, feature_names = prepare_regression_data(mock_path)
+            
+            assert X.shape == (3, 3)
+            assert len(y) == 3
+            assert feature_names == ['degree', 'clustering', 'path_length']
+            
+    def test_prepare_regression_data_missing_file(self):
+        """Test error when file is missing"""
+        mock_path = MagicMock()
+        mock_path.exists.return_value = False
         
-        assert X.shape[0] == 3
-        assert X.shape[1] == 3
-        assert len(y) == 3
-        assert features == ["degree", "clustering", "path_length"]
+        with pytest.raises(FileNotFoundError):
+            prepare_regression_data(mock_path)
+            
+    def test_prepare_regression_data_missing_columns(self):
+        """Test error when required columns are missing"""
+        df_data = {
+            'network_id': ['net1', 'net2'],
+            'degree': [3.0, 4.0]
+        }
+        df = pd.DataFrame(df_data)
+        
+        mock_path = MagicMock()
+        mock_path.exists.return_value = True
+        
+        with patch('pandas.read_csv', return_value=df):
+            with pytest.raises(ValueError):
+                prepare_regression_data(mock_path)

@@ -1,3 +1,13 @@
+"""
+Utility functions for logging, error handling, and result checksumming.
+
+This module provides core infrastructure utilities used across the pipeline:
+- setup_logging: Configure logging to file and console
+- compute_checksum: Generate SHA-256 checksums for result files
+- log_error: Standardized error logging
+- safe_exit: Graceful shutdown with status code
+- timing_decorator: Measure execution time of functions
+"""
 import hashlib
 import json
 import logging
@@ -6,56 +16,135 @@ import os
 import time
 from pathlib import Path
 from typing import Any, Dict, Union, Optional
+from functools import wraps
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
-def setup_logging(config: Dict[str, Any]) -> None:
+def setup_logging(log_file: Optional[Union[str, Path]] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Sets up logging based on configuration.
-    """
-    log_level = config.get('logging', {}).get('level', 'INFO')
-    numeric_level = getattr(logging, log_level.upper(), None)
-    if not isinstance(numeric_level, int):
-        numeric_level = logging.INFO
-    
-    logging.getLogger().setLevel(numeric_level)
-    logger.info(f"Logging set to {log_level}")
+    Configure logging to write to both file and console.
 
-def compute_checksum(file_path: Path) -> str:
-    """
-    Computes the SHA256 checksum of a file.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    Args:
+        log_file: Path to the log file. If None, logs only to console.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
 
-def log_error(error: Exception, log_path: Path) -> None:
+    Returns:
+        The root logger instance configured with the specified handlers.
     """
-    Logs an error to a file.
-    """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'a') as f:
-        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - ERROR - {str(error)}\n")
-    logger.error(f"Error logged to {log_path}")
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
 
-def safe_exit(code: int = 0) -> None:
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    # File handler if specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+    return root_logger
+
+
+def compute_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> str:
     """
-    Safely exits the program.
+    Compute the cryptographic checksum of a file.
+
+    Args:
+        file_path: Path to the file to checksum.
+        algorithm: Hash algorithm to use (default: 'sha256').
+
+    Returns:
+        Hexadecimal string of the checksum.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the algorithm is not supported.
     """
-    logger.info(f"Exiting with code {code}")
-    sys.exit(code)
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        hash_func = hashlib.new(algorithm)
+    except ValueError as e:
+        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from e
+
+    with open(file_path, 'rb') as f:
+        # Read in chunks for large files
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_func.update(chunk)
+
+    return hash_func.hexdigest()
+
+
+def log_error(logger: logging.Logger, error: Exception, context: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log an error with optional context information.
+
+    Args:
+        logger: The logger instance to use.
+        error: The exception that occurred.
+        context: Optional dictionary of contextual data (e.g., input parameters, state).
+    """
+    error_msg = f"Error: {type(error).__name__}: {str(error)}"
+    if context:
+        context_str = json.dumps(context, default=str)
+        error_msg += f" | Context: {context_str}"
+    logger.error(error_msg, exc_info=True)
+
+
+def safe_exit(logger: Optional[logging.Logger] = None, status: int = 0, message: Optional[str] = None) -> None:
+    """
+    Perform a graceful exit, optionally logging a status message.
+
+    Args:
+        logger: Optional logger to record the exit.
+        status: Exit code (0 for success, non-zero for failure).
+        message: Optional message to log before exiting.
+    """
+    if logger:
+        if status == 0:
+            logger.info(message or "Pipeline completed successfully.")
+        else:
+            logger.error(message or f"Pipeline exited with status code {status}.")
+    sys.exit(status)
+
 
 def timing_decorator(func):
     """
-    Decorator to time function execution.
+    Decorator to measure and log the execution time of a function.
+
+    Args:
+        func: The function to wrap.
+
+    Returns:
+        The wrapped function.
     """
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        logger.info(f"{func.__name__} took {end - start:.4f} seconds")
-        return result
+        start_time = time.time()
+        try:
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            end_time = time.time()
+            elapsed = end_time - start_time
+            # Log to the module logger if available, otherwise to root
+            logger = logging.getLogger(func.__module__)
+            if not logger.handlers:
+                logger = logging.getLogger()
+            logger.info(f"{func.__name__} completed in {elapsed:.4f} seconds")
     return wrapper

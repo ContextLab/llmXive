@@ -1,4 +1,6 @@
-# Ruff configuration file (alternative to pyproject.toml if preferred)
-# This file mirrors the settings in pyproject.toml for environments that
-# prefer a dedicated config file.
+# Ruff configuration for linting
+# This file extends settings from pyproject.toml if needed, 
+# but primarily pyproject.toml is the source of truth for this project.
+# Keeping this file for explicit ruff discoverability in some IDEs.
+
 extend = "pyproject.toml"
