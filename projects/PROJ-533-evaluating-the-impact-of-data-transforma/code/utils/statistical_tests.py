@@ -3,17 +3,21 @@ Statistical test wrappers for the data transformation sensitivity pipeline.
 
 This module provides standardized interfaces for common statistical tests:
 - t_test: Independent samples t-test
-- anova_one_way: One-way ANOVA
-- shapiro_test: Shapiro-Wilk normality test
-- friedman_test: Friedman test for repeated measures
+- anova: One-way ANOVA
+- shapiro_wilk: Shapiro-Wilk normality test
+- glmm: Generalized Linear Mixed Model
 
-All functions accept numpy arrays and return p-values (and statistics where applicable).
+All functions accept numpy arrays or pandas DataFrames and return results
+suitable for aggregation and reporting.
 """
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from typing import Union, List, Tuple, Optional
+from typing import Union, List, Tuple, Optional, Dict, Any
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from statsmodels.regression.mixed_linear_model import MixedLM
 
 
 def t_test(group1: np.ndarray, group2: np.ndarray) -> float:
@@ -34,7 +38,7 @@ def t_test(group1: np.ndarray, group2: np.ndarray) -> float:
     return float(p_value)
 
 
-def anova_one_way(groups: Union[List[np.ndarray], np.ndarray]) -> float:
+def anova(groups: Union[List[np.ndarray], np.ndarray]) -> float:
     """
     Perform a one-way ANOVA.
 
@@ -56,7 +60,7 @@ def anova_one_way(groups: Union[List[np.ndarray], np.ndarray]) -> float:
     if len(group_list) < 2:
         raise ValueError("At least two groups are required for ANOVA.")
 
-    # Filter out any empty groups if they exist (though unlikely in valid input)
+    # Filter out any empty groups if they exist
     valid_groups = [g for g in group_list if len(g) > 0]
 
     if len(valid_groups) < 2:
@@ -66,7 +70,7 @@ def anova_one_way(groups: Union[List[np.ndarray], np.ndarray]) -> float:
     return float(p_value)
 
 
-def shapiro_test(data: np.ndarray) -> Tuple[float, float]:
+def shapiro_wilk(data: np.ndarray) -> Tuple[float, float]:
     """
     Perform the Shapiro-Wilk test for normality.
 
@@ -76,31 +80,76 @@ def shapiro_test(data: np.ndarray) -> Tuple[float, float]:
     Returns:
         Tuple[float, float]: A tuple containing (statistic, p_value).
     """
-    if len(data) < 3 or len(data) > 5000:
-        # scipy.stats.shapiro has limits, though 5000 is the hard limit in older versions.
-        # We'll let scipy handle the specific error if out of bounds, but warn if too small.
-        if len(data) < 3:
-            raise ValueError("Shapiro-Wilk test requires at least 3 samples.")
+    if len(data) < 3:
+        raise ValueError("Shapiro-Wilk test requires at least 3 samples.")
+    
+    # scipy.stats.shapiro has a limit of 5000 samples in older versions.
+    # If data is larger, we sample 5000 points for the test to ensure compatibility
+    # while maintaining the statistical validity of the normality check.
+    if len(data) > 5000:
+        data = np.random.choice(data, size=5000, replace=False)
 
     statistic, p_value = stats.shapiro(data)
     return float(statistic), float(p_value)
 
 
-def friedman_test(data_matrix: np.ndarray) -> Tuple[float, float]:
+def glmm(data: pd.DataFrame, 
+         dependent_var: str, 
+         independent_var: str, 
+         grouping_var: str) -> Dict[str, Any]:
     """
-    Perform the Friedman test (non-parametric repeated measures ANOVA).
+    Perform a Generalized Linear Mixed Model (GLMM) analysis.
+    
+    This function fits a linear mixed-effects model where the dependent variable
+    is modeled as a function of the independent variable with random intercepts
+    for the grouping variable.
 
     Args:
-        data_matrix: A 2D numpy array where rows represent subjects and columns represent conditions.
+        data: DataFrame containing the data.
+        dependent_var: Name of the dependent variable column.
+        independent_var: Name of the independent variable column.
+        grouping_var: Name of the grouping variable column (random effect).
 
     Returns:
-        Tuple[float, float]: A tuple containing (statistic, p_value).
+        Dict[str, Any]: A dictionary containing:
+            - 'p_value': p-value for the independent variable
+            - 'coefficient': coefficient estimate for the independent variable
+            - 'std_err': standard error of the coefficient
+            - 'model_summary': string representation of the model summary
     """
-    if data_matrix.ndim != 2:
-        raise ValueError("Input must be a 2D array (subjects x conditions).")
+    if dependent_var not in data.columns or independent_var not in data.columns or grouping_var not in data.columns:
+        raise ValueError("Specified columns not found in data.")
 
-    if data_matrix.shape[0] < 2 or data_matrix.shape[1] < 2:
-        raise ValueError("Need at least 2 subjects and 2 conditions for Friedman test.")
+    # Ensure grouping variable is categorical
+    data = data.copy()
+    data[grouping_var] = data[grouping_var].astype('category')
 
-    statistic, p_value = stats.friedmanchisquare(*data_matrix.T)
-    return float(statistic), float(p_value)
+    # Formula for mixed model: dependent ~ independent + (1|grouping)
+    formula = f"{dependent_var} ~ {independent_var}"
+    
+    try:
+        # Fit the mixed linear model
+        model = smf.mixedlm(formula, data, groups=data[grouping_var])
+        result = model.fit()
+        
+        # Extract p-value for the independent variable
+        # The summary table contains p-values
+        p_value = result.pvalues[independent_var]
+        coefficient = result.params[independent_var]
+        std_err = result.bse[independent_var]
+        
+        return {
+            'p_value': float(p_value),
+            'coefficient': float(coefficient),
+            'std_err': float(std_err),
+            'model_summary': str(result.summary())
+        }
+    except Exception as e:
+        # If fitting fails (e.g., convergence issues), return error info
+        return {
+            'p_value': None,
+            'coefficient': None,
+            'std_err': None,
+            'model_summary': f"Model fitting failed: {str(e)}",
+            'error': str(e)
+        }

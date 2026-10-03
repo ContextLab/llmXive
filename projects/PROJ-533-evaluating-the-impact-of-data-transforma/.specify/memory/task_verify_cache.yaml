@@ -1,10 +1,44 @@
-T004:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/checkpointing.py` file or its contents are presented; therefore the\
-    \ required functions (`save_state`, `load_state`, `delete_checkpoint`) with cross\u2011\
-    platform locking and atomic writes are not verified to exist. The task\u2019s\
-    \ deliverable is missing."
+  r: No artifact showing that a `code/` directory was created or that its existence
+    was verified with `test -d code` is provided; the claim cannot be confirmed from
+    the available evidence. The implementer must supply proof (e.g., command output,
+    screenshot, or a script that creates the directory and checks it).
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/` directory was actually created or that
+    its existence was verified with `test -d data`; the implementer supplied no script,
+    command output, or filesystem snapshot showing the required directory.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `results/` directory was actually created or
+    that its existence was verified with `test -d results`; the implementer did not
+    supply a script, command output, or filesystem snapshot showing the directory.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or of the verification command (`test -d
+    tests`) is present; the implementer did not provide any artifact showing the directory
+    was created or its existence confirmed.
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` file was presented in the evidence, and there is no proof that a
+    file with the required `max-line-length=100` and the specified ignored codes exists
+    in the repository. The implementer must provide the actual `.flake8` file containing
+    the correct configuration.
+T009:
+  c: false
+  h: 5ccbf72bbc67b923e40fc6f58293c319c7d424a3bf8e381f827309f2b3f06eec
+  r: "The provided `code/utils/logging_config.py` is present but the shown content\
+    \ is truncated and does not include a complete logger configuration (e.g., creating\
+    \ a logger that writes to `results/pipeline.log`) nor a full implementation of\
+    \ the atomic\u2011write logic (temp file creation, rename, and proper lock release).\
+    \ Additionally, the required `results/pipeline.log` file is missing. The artifact\
+    \ therefore does not demonstrably satisfy the task\u2019s specifications."
 T012a:
   c: true
   h: bb253b7df505af45bd78dc3e324293c1e19fd4ae9a53d277a093ff0d2d6665a0
@@ -13,21 +47,15 @@ T012a:
     \ and filter scripts and checks for the existence and row count of `data/datasets.csv`.\
     \ The missing `datasets.csv` is expected until the test is executed; the required\
     \ test implementation is present."
-T014:
+T013b:
   c: false
-  h: d77f8306cb24457341318713a2072c594f5dd6b9baff46870caca5f2759cbc24
-  r: "The `download_datasets.py` script defines a `compute_sha256` function and a\
-    \ `CHECKSUMS_CSV` path, but there is no evidence in the provided code that it\
-    \ actually computes checksums for downloaded files and writes them to `data/checksums.csv`.\
-    \ Moreover, the `data/checksums.csv` file is missing entirely. The task\u2019\
-    s requirement to append checksum computation and persist the results is therefore\
-    \ not fulfilled."
-T014b:
-  c: false
-  h: d52eae63806b75e56dca68af20609204aa2110e3e28f282182f02c9d3aaa1417
-  r: "The required file `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml`\
-    \ is missing, so no artifact_hashes map could be updated with the checksums from\
-    \ T014. Without the file, the task\u2019s core requirement is not satisfied."
+  h: d7c6c8d9a5fe116c0f414e178805d74853fd7db0456834a0f2d4964b10b9b832
+  r: "The `code/download_datasets.py` file is present but the implementation is incomplete\
+    \ (the source\u2011verification function is only partially shown and there is\
+    \ no evidence of code that writes verified dataset entries to `data/datasets.csv`).\
+    \ Moreover, the required `data/datasets.csv` file does not exist. The task\u2019\
+    s core requirements\u2014full URL validation and logging of verified datasets\u2014\
+    are therefore not met."
 T015:
   c: false
   h: 3f8ef9497387835bcad3f73fe6292c133fb1448bdd6868e18a9e1853dcb7ee54
@@ -37,15 +65,23 @@ T015:
     \ contain only headers with no actual entries. Consequently, the required imputation,\
     \ >10\u202F% missing\u2011value exclusion logic, and logging outputs are missing."
 T015a:
+  c: true
+  h: eaebfaefe3adcd4d29405f9a68e485baf1c0f72aa4ddfb39c6dc6073722f9a36
+  r: Both `data/imputation_log.csv` and `data/exclusions.csv` are present and each
+    contains the exact header rows specified (`dataset_id,variable,imputation_method,rate`
+    and `dataset_id,reason,details` respectively), fulfilling the schema definition
+    requirement.
+T015a#1:
   c: false
-  h: 7bbd301d356573b12063ff7906aa01c4239b27f374260f8c07ced144c99e2ef5
-  r: The `data/imputation_log.csv` file correctly contains the required headers, but
-    `data/exclusions.csv` includes an extra `variable` column and omits the exact
-    required schema (`dataset_id, reason, details`). The exclusions file must be updated
-    to match the specified headers exactly.
+  h: eaebfaefe3adcd4d29405f9a68e485baf1c0f72aa4ddfb39c6dc6073722f9a36
+  r: The only artifacts are empty CSV files containing just header rows; they lack
+    any type specifications, constraints, or accompanying schema documentation that
+    the task requires. A proper schema definition (e.g., column data types, allowed
+    values, description) is missing.
 T016a:
-  c: false
-  h: 23158b0a8d48277b2cfc7e133e5eeb9469fa5c03c973bd1f4fc7e9bf111ed38b
-  r: The required `data/filter_results.csv` file is missing entirely, so no schema
-    or headers are present to verify. Without the file, the task of defining the schema
-    cannot be considered done.
+  c: true
+  h: caa04e317311398842b41cee3ea2f13b4cc4e8a811dfa855cb517cc075973c7c
+  r: "The artifact `data/filter_results.csv` exists and contains the exact required\
+    \ header line `dataset_id,shapiro_p,sample_size,included`, matching the specified\
+    \ schema (comma\u2011delimited with mixed\u2011type columns). No further data\
+    \ rows are required to define the schema."

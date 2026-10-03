@@ -2,6 +2,3 @@
 max-line-length = 100
 ignore = E501, W503, W504
 exclude = .git,__pycache__,build,dist
-per-file-ignores =
-    # Allow long lines in test files if necessary
-    tests/*:E501

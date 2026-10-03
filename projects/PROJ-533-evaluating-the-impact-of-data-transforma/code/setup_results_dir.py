@@ -1,35 +1,43 @@
 """
-Setup script to create the results/ directory.
-Implements T001c: Create `results/` directory using `mkdir -p results` and verify existence.
+Setup script to create the 'results' directory and verify its existence.
+This task corresponds to T001c in the project plan.
 """
 import os
 import sys
 from pathlib import Path
 
+
 def main():
-    """Create the results directory and verify its existence."""
-    project_root = Path(__file__).parent.parent
+    """
+    Creates the 'results' directory at the project root and verifies it exists.
+    Exits with code 0 on success, 1 on failure.
+    """
+    project_root = Path(__file__).resolve().parent.parent
     results_dir = project_root / "results"
 
     try:
-        # Create directory if it doesn't exist (equivalent to mkdir -p)
+        # Create the directory if it doesn't exist, including parents if needed
         results_dir.mkdir(parents=True, exist_ok=True)
         
         # Verify existence
+        if not results_dir.exists():
+            print("ERROR: Failed to create 'results' directory.", file=sys.stderr)
+            sys.exit(1)
+        
         if not results_dir.is_dir():
-            raise RuntimeError(f"Failed to create results directory: {results_dir}")
-        
-        # Verify we can write to it (basic permission check)
-        test_file = results_dir / ".write_test"
-        test_file.touch()
-        test_file.unlink()
-        
-        print(f"Successfully created and verified results directory at: {results_dir}")
-        return 0
-        
-    except Exception as e:
-        print(f"Error creating results directory: {e}", file=sys.stderr)
-        return 1
+            print("ERROR: 'results' path exists but is not a directory.", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"Successfully created and verified directory: {results_dir}")
+        sys.exit(0)
+
+    except PermissionError:
+        print(f"ERROR: Permission denied creating directory: {results_dir}", file=sys.stderr)
+        sys.exit(1)
+    except OSError as e:
+        print(f"ERROR: OS error creating directory: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
