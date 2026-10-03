@@ -1,42 +1,47 @@
-T006:
+T001:
   c: false
-  h: 034516cfd9fdf26b08564119df28de43555c4c8c25365184e3fd793eb3984d1a
-  r: The `code/validation.py` file is present but the required output `data/results/pipeline_log.json`
-    does not exist on disk, and the module contains an unfinished `get_tracker` function
-    (typo `global _track`). Thus the logging mechanism is not fully initialized as
-    specified.
-T013:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `tree -L 2` output was provided; the required root
+    project directories and subfolders are missing from the evidence, so the verification
+    cannot be performed. The implementer must create the specified folders and supply
+    the `tree` command output showing the correct hierarchy.
+T002:
   c: false
-  h: 73a23cf7ff542db4614de095c9bbe826f3bd242bfd010a98bc1ffaa47a05d008
-  r: "The repository lacks the required `data/raw/medmis_subset.csv` file, and `state/artifact_hashes.yaml`\
-    \ contains only a placeholder hash. The provided `code/ingestion.py` does not\
-    \ implement CSV saving, SHA\u2011256 checksum calculation, or a real regex fallback\
-    \ that aborts on failure; it merely returns `True` with a comment. These missing\
-    \ pieces mean the task\u2019s core requirements are not satisfied."
-T015:
+  h: 81d9dcc83d6e9cbea4fd2a6a7e458cddb2e8e915d2ca15a10a1e78ba51a779eb
+  r: The `requirements.txt` file exists and lists the required packages, but the required
+    local module `code/agents/reference_validator.py` is missing, so the project initialization
+    does not fully meet the specification. The implementer must add the `reference_validator.py`
+    file at the specified path.
+T003:
   c: false
-  h: 42a186cd52dcd9c34fea8207ce4c15622023708416fa8ee9e1695851797e5448
-  r: "The required output file `data/processed/features.csv` does not exist, so the\
-    \ task\u2019s primary artifact is missing. Without this CSV containing the new\
-    \ columns (`is_ratio_undefined`, `ratio_safe_value`), the implementation cannot\
-    \ be considered complete."
-T017a:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `.flake8` files, or corresponding CI scripts) are present
+    in the provided evidence, so the requirement to configure ruff/flake8 and Black
+    is not satisfied.
+T006a:
   c: false
-  h: 5253b54f7be01f10810e33676a217aab9637b10d81a89223129626ad42d3b72e
-  r: "The repository lacks the required input file `data/raw/medmis_subset.csv` and\
-    \ the output file `data/raw/human_pilot_raw.csv`. Moreover, `code/annotation.py`\
-    \ contains only data\u2011loading and correlation utilities; it does not implement\
-    \ any Prolific (or equivalent) recruitment interface nor collect authority\u2011\
-    density scores as specified. The task\u2019s core manual\u2011recruitment functionality\
-    \ and output are absent."
-T017c:
+  h: 00674801b7a41c4dd556f2f032a8d745291cf26db08c50656b1e35550577c0d4
+  r: 'The repository contains `code/validation.py` with a RuntimeTracker that would
+    create `data/results/pipeline_log.json` when invoked, but the required log file
+    does not exist on disk. The task explicitly demands that `data/results/pipeline_log.json`
+    be generated (even if empty) as an output artifact, which is missing. The implementer
+    must create the file (e.g., by initializing it with `{ "stages": [], "total_elapsed_seconds":
+    0.0 }`) and ensure it is updated during pipeline execution.'
+T008:
   c: false
-  h: 059ccff522cd1c2df228d8b3d133f9f23cb11eb7f30331220a84975e8262e1c6
-  r: "The repository contains a `code/annotation.py` file, but it is truncated and\
-    \ does not show a complete implementation that computes the Pearson/Spearman correlation\
-    \ and writes the result to `data/results/annotation_correlation_value.json`. Moreover,\
-    \ the required JSON output file is missing. The task\u2019s required artifact\
-    \ is therefore not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for an error\u2011handling framework\
+    \ (e.g., retry logic for dataset download or timeout handling for inference) was\
+    \ provided. The required artifact is missing, so the task is not satisfied."
+T017b:
+  c: false
+  h: 31580bfbdf693f1d3cb5f660186bbf2861eef67e5384a38f6a030c01f9b1cd65
+  r: "The repository contains `code/annotation.py`, but the file is truncated and\
+    \ does not show any implementation that removes raters with <80\u202F% agreement\
+    \ or writes `data/interim/human_pilot_cleaned.csv`. Moreover, the required output\
+    \ file `data/interim/human_pilot_cleaned.csv` is absent. The task\u2019s core\
+    \ deliverable is therefore missing."
 T017d:
   c: false
   h: 504650a0d1111bf9e0608401f401a3d573d0f33b9bacca305862eee6cec7aa42
@@ -59,3 +64,14 @@ T027:
     \ so there is no evidence that two expert raters were recruited or that any labels\
     \ were produced. The task\u2019s deliverable is missing, making the requirement\
     \ unmet."
+T044:
+  c: false
+  h: 39d7a6e7b69d41726816b4163d03ba81ab63ae26823180aa403abb6621fc6803
+  r: "The provided `code/main.py` exists, but the displayed excerpt stops mid\u2011\
+    function and never shows the logic that (a) runs the full sequence of stages,\
+    \ (b) invokes the compute\u2011time guard from Constitution Principle\u202FVII,\
+    \ or (c) is referenced as the entry point in `quickstart.md`. Additionally, the\
+    \ required `data/results/pipeline_log.json` file is absent (the script can create\
+    \ it, but the task expects the artifact to be present after execution). The implementer\
+    \ must supply the complete script showing all stage calls, enforce the time\u2011\
+    limit checks, and ensure `quickstart.md` points to this script."

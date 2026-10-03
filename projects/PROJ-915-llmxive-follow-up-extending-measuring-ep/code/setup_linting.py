@@ -1,107 +1,128 @@
 """
-Setup script for linting (ruff) and formatting (black) tools.
-Generates configuration files: pyproject.toml and ruff.toml.
+Setup Linting and Formatting Configuration for llmXive Project.
+
+This module creates the necessary configuration files for Ruff (linting)
+and Black (formatting) to ensure consistent code style across the project.
 """
 import os
-import subprocess
 import sys
+import subprocess
 from pathlib import Path
 
-def ensure_project_root():
+
+def ensure_project_root() -> Path:
     """Ensure we are running from the project root."""
-    project_root = Path(__file__).resolve().parent.parent
-    if not (project_root / "code").exists():
-        print(f"Error: 'code' directory not found at {project_root}")
-        sys.exit(1)
+    current = Path.cwd()
+    # Look for the specific project directory
+    project_root = current / "projects" / "PROJ-915-llmxive-follow-up-extending-measuring-ep"
+    
+    if not project_root.exists():
+        # If not in the specific project dir, check if we are in it directly
+        if (current / "code").exists() and (current / "data").exists():
+            project_root = current
+        else:
+            # Fallback: assume current directory is the root
+            project_root = current
+            
     return project_root
 
-def write_pyproject_toml(project_root: Path):
-    """Write Black configuration to pyproject.toml."""
+
+def write_pyproject_toml(root: Path) -> None:
+    """Create or update pyproject.toml with Black configuration."""
+    pyproject_path = root / "pyproject.toml"
+    
     config_content = """[tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
+include = 'code/.*\\.py'
+extend-exclude = '''
 /(
-    \\.git
-  | \\.mypy_cache
-  | \\.venv
-  | venv
-  | build
-  | dist
+  # directories
+  \\(venv|build|dist|\\.eggs\\)
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
 """
-    file_path = project_root / "pyproject.toml"
-    if file_path.exists():
-        print(f"Warning: {file_path} already exists. Skipping overwrite.")
+    
+    if pyproject_path.exists():
+        # Read existing content and append/merge if necessary
+        existing = pyproject_path.read_text()
+        if "[tool.black]" not in existing:
+            pyproject_path.write_text(existing + "\n" + config_content)
+        else:
+            # Update existing black config if needed (simplified: just ensure it's there)
+            pass
     else:
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(config_content)
-        print(f"Created {file_path}")
+        pyproject_path.write_text(config_content)
 
-def write_ruff_toml(project_root: Path):
-    """Write Ruff configuration to ruff.toml."""
-    config_content = """[lint]
+
+def write_ruff_toml(root: Path) -> None:
+    """Create .ruff.toml with linting rules."""
+    ruff_path = root / ".ruff.toml"
+    
+    config_content = """# Ruff configuration for llmXive
+target-version = "py311"
+line-length = 88
+
+[lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Allow unused imports in init files
+"tests/*" = ["S101"] # allow assert in tests
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["code", "agents"]
 """
-    file_path = project_root / "ruff.toml"
-    if file_path.exists():
-        print(f"Warning: {file_path} already exists. Skipping overwrite.")
-    else:
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(config_content)
-        print(f"Created {file_path}")
+    
+    ruff_path.write_text(config_content)
 
-def main():
-    """Main entry point for linting setup."""
-    print("Setting up linting and formatting tools...")
-    project_root = ensure_project_root()
 
-    write_pyproject_toml(project_root)
-    write_ruff_toml(project_root)
-
-    # Check if tools are installed
-    print("\nChecking tool availability...")
-    tools = ["black", "ruff"]
+def install_tools(root: Path) -> None:
+    """Install linting and formatting tools if not present."""
+    tools = ["ruff", "black"]
+    
     for tool in tools:
         try:
-            subprocess.run(
-                [sys.executable, "-m", tool, "--version"],
-                check=True,
-                capture_output=True,
-            )
-            print(f"  ✓ {tool} is installed")
+            subprocess.run([sys.executable, "-m", "pip", "install", tool], check=True, capture_output=True)
         except subprocess.CalledProcessError:
-            print(f"  ✗ {tool} is NOT installed. Run: pip install {tool}")
-            # Do not exit, just warn. The user can install manually or via requirements.txt.
+            print(f"Warning: Failed to install {tool}. Please install manually.")
 
-    print("\nLinting and formatting configuration complete.")
+
+def main() -> None:
+    """Main entry point for setting up linting and formatting."""
+    root = ensure_project_root()
+    print(f"Setting up linting and formatting in: {root}")
+    
+    # Install tools
+    install_tools(root)
+    
+    # Write configuration files
+    write_pyproject_toml(root)
+    write_ruff_toml(root)
+    
+    print("Linting (Ruff) and Formatting (Black) configuration created successfully.")
+    print(f"  - {root / 'pyproject.toml'}")
+    print(f"  - {root / '.ruff.toml'}")
+    print("\nTo run linting:   ruff check code/")
+    print("To run formatting: black code/")
+
 
 if __name__ == "__main__":
     main()

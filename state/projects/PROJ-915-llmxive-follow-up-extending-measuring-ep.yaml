@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-915-llmxive-follow-up-extending-measuring-ep
-last_run_id: 73b2b669-9890-4f56-8bbc-3f45d43a5e73
+last_run_id: a590d078-6077-48fa-9549-1e38a1d83f3e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep
 title: 'llmXive follow-up: extending "Measuring Epistemic Resilience of LLMs Under
   Misleading Medical Contex"'
-updated_at: '2026-10-01T13:02:17.223760Z'
+updated_at: '2026-10-03T01:05:05.017688Z'

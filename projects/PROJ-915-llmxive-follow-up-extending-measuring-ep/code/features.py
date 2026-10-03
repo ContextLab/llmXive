@@ -1,219 +1,159 @@
 """
-code/features.py
-Implements linguistic feature extraction for MedMisBench prompts.
-Handles undefined ratios (zero total sentences) by flagging and providing safe values.
+Feature Extraction Module: Extracts linguistic features from prompts.
+Implements T014, T015.
 """
-
 import os
 import re
 import csv
 import logging
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple
 
-# Ensure imports match the provided API surface
-# Note: The API surface lists 'extract_features' but the file content is omitted.
-# We will implement the full feature extraction logic here to satisfy T014 and T015.
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Logging setup
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+from config import get_config
+from ingestion_utils import ensure_dir
+
 logger = logging.getLogger(__name__)
 
-# Constants
-MODAL_VERBS = {
-    'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would',
-    'ought to', 'need', 'dare', 'used to'
-}
-IMPERATIVE_MARKERS = re.compile(r'\b(?:Please|Do|Don\'t|Never|Always|Let\'s|Make|Take|Give|Stop|Start|Be|Have|Get|Put|Turn|Keep|Hold|Find|Show|Tell|Ask|Answer|Explain|Describe|Discuss|Consider|Imagine|Think|Remember|Forget|Remember|Avoid|Prevent|Ensure|Ensure|Check|Verify|Confirm|Deny|Reject|Accept|Choose|Select|Pick|Decide|Determine|Establish|Define|Identify|Recognize|Recognise|Distinguish|Differentiate|Compare|Contrast|Relate|Connect|Link|Join|Separate|Divide|Split|Break|Build|Create|Construct|Design|Develop|Form|Shape|Modify|Alter|Change|Transform|Convert|Translate|Interpret|Understand|Comprehend|Grasp|Realize|Realise|Perceive|Sense|Feel|Experience|Live|Exist|Occur|Happen|Take place|Go on|Continue|Persist|Endure|Survive|Thrive|Flourish| prosper|Succeed|Fail|Flop|Crash|Collapse|Crumble|Disintegrate|Dissolve|Disappear|Vanish|Erase|Delete|Remove|Eliminate|Abolish|Destroy|Demolish|Wreck|Ruin|Spoil|Corrupt|Taint|Contaminate|Pollute|Poison|Infect|Infest|Invade|Intrude|Pierce|Penetrate|Enter|Access|Reach|Attain|Achieve|Accomplish|Complete|Finish|Conclude|Terminate|End|Stop|Cease|Desist|Quit|Retire|Resign|Withdraw|Retreat|Flee|Escape|Avoid|Shy away from|Shrink from|Back away from|Draw back|Retract|Retrace|Retire|Recede|Recede|Regress|Relapse|Slip|Slide|Slip up|Slip down|Fall|Drop|Plummet|D plummet|Crash|Stumble|Trip|Slip|Staggle|Wobble|Tremble|Shiver|Quiver|Shake|Shake up|Shatter|Break|Crack|Split|Rend|Tear|Rive|Slash|Hew|Chop|Mash|Mangle|Mutilate|Injure|Hurt|Harm|Damage|Maim|Disable|Debilitate|Enfeeble|Weaken|Impair|Blemish|Flaw|Defect|Fault|Error|Blunder|Mistake|Blunder|Misunderstand|Misinterpret|Misread|Mishear|Missee|Misfeel|Misperceive|Miscomprehend|Misgrasp|Misrealize|Misrealise|Misperceive|Misfeel|Mishear|Missee|Misread|Misinterpret|Misunderstand|Blunder|Mistake|Error|Fault|Defect|Flaw|Blemish|Impair|Debilitate|Enfeeble|Disable|Maim|Harm|Hurt|Injure|Mutilate|Mangle|Mash|Chop|Hew|Slash|Rive|Tear|Split|Crack|Break|Shatter|Shake up|Shake|Shiver|Quiver|Tremble|Wobble|Staggle|Trip|Stumble|Crash|Plummet|Drop|Fall|Recede|Retrace|Retract|Back away from|Shrink from|Shy away from|Avoid|Flee|Escape|Retreat|Withdraw|Resign|Quit|Ce|Desist|Stop|End|Terminate|Conclude|Finish|Complete|Accomplish|Achieve|Attain|Reach|Access|Enter|Penetrate|Pierce|Invade|Infest|Infect|Poison|Pollute|Contaminate|Taint|Corrupt|Spoil|Ruin|Wreck|Demolish|Destroy|Abolish|Eliminate|Remove|Delete|Erase|Vanish|Disappear|Dissolve|Disintegrate|Crumble|Collapse|Crash|Flop|Fail|Succeed|Flourish|Thrive|Endure|Persist|Continue|Go on|Happen|Occur|Exist|Live|Experience|Feel|Sense|Perceive|Realise|Realize|Grasp|Comprehend|Understand|Interpret|Translate|Design|Develop|Create|Build|Split|Divide|Separate|Join|Link|Connect|Relate|Contrast|Compare|Distinguish|Differentiate|Recognise|Recognize|Identify|Define|Establish|Determine|Decide|Choose|Select|Pick|Accept|Reject|Deny|Confirm|Verify|Check|Ensure|Ensure|Prevent|Avoid|Forget|Remember|Think|Imagine|Consider|Discuss|Describe|Explain|Answer|Ask|Tell|Show|Find|Put|Get|Have|Be|Start|Stop|Keep|Hold|Turn|Make|Let\'s|Always|Never|Don\'t|Do|Please')
-# Note: The imperative regex above is a heuristic approximation.
-# A more robust approach would use NLP parsing, but for this script we rely on sentence type classification.
-
-# Declarative markers (typically end with a period and are statements)
-# We rely on sentence counting logic to differentiate.
-
 def count_sentences(text: str) -> int:
-    """Count the number of sentences in the text."""
-    if not text or not isinstance(text, str):
+    """Count sentences in text."""
+    if not text:
         return 0
-    # Split by common sentence terminators
+    # Simple regex for sentence boundaries
     sentences = re.split(r'[.!?]+', text)
-    # Filter out empty strings
-    sentences = [s.strip() for s in sentences if s.strip()]
-    return len(sentences)
+    return len([s for s in sentences if s.strip()])
 
 def count_modal_verbs(text: str) -> int:
-    """Count the frequency of modal verbs in the text."""
-    if not text or not isinstance(text, str):
+    """Count modal verbs (can, could, may, might, shall, should, will, would, must)."""
+    if not text:
         return 0
-    words = re.findall(r'\b\w+\b', text.lower())
-    count = sum(1 for word in words if word in MODAL_VERBS)
-    return count
+    modals = r'\b(can|could|may|might|shall|should|will|would|must)\b'
+    matches = re.findall(modals, text, re.IGNORECASE)
+    return len(matches)
 
 def count_imperative_sentences(text: str) -> int:
-    """Count imperative sentences based on heuristic markers."""
-    if not text or not isinstance(text, str):
+    """Count imperative sentences (starting with a verb)."""
+    if not text:
         return 0
     sentences = re.split(r'[.!?]+', text)
     count = 0
-    for sentence in sentences:
-        sentence = sentence.strip()
-        if not sentence:
+    for s in sentences:
+        s = s.strip()
+        if not s:
             continue
-        # Heuristic: Starts with a verb or specific imperative marker
-        words = sentence.split()
-        if not words:
-            continue
-        first_word = words[0].lower().rstrip('.')
-        # Check if first word is in a list of common imperative starters
-        # or if it matches the regex pattern for imperative structures
-        if IMPERATIVE_MARKERS.match(sentence):
-            count += 1
-        elif first_word in ['do', 'please', 'let', 'make', 'take', 'give', 'stop', 'start', 'be', 'have', 'get', 'put', 'turn', 'keep', 'hold', 'find', 'show', 'tell', 'ask', 'answer', 'explain', 'describe', 'discuss', 'consider', 'imagine', 'think', 'remember', 'forget', 'avoid', 'ensure', 'check', 'verify', 'confirm', 'deny', 'reject', 'accept', 'choose', 'select', 'pick', 'decide', 'determine', 'establish', 'define', 'identify', 'recognize', 'recognise', 'distinguish', 'differentiate', 'compare', 'contrast', 'relate', 'connect', 'link', 'join', 'separate', 'divide', 'split', 'break', 'build', 'create', 'construct', 'design', 'develop', 'form', 'shape', 'modify', 'alter', 'change', 'transform', 'convert', 'translate', 'interpret', 'understand', 'comprehend', 'grasp', 'realize', 'realise', 'perceive', 'sense', 'feel', 'experience', 'live', 'exist', 'occur', 'happen', 'take place', 'go on', 'continue', 'persist', 'endure', 'survive', 'thrive', 'flourish', 'prosper', 'succeed', 'fail', 'flop', 'crash', 'collapse', 'crumble', 'disintegrate', 'dissolve', 'disappear', 'vanish', 'erase', 'delete', 'remove', 'eliminate', 'abolish', 'destroy', 'demolish', 'wreck', 'ruin', 'spoil', 'corrupt', 'taint', 'contaminate', 'pollute', 'poison', 'infect', 'infest', 'invade', 'intrude', 'pierce', 'penetrate', 'enter', 'access', 'reach', 'attain', 'achieve', 'accomplish', 'complete', 'finish', 'conclude', 'terminate', 'end', 'stop', 'cease', 'desist', 'quit', 'retire', 'resign', 'withdraw', 'retreat', 'flee', 'escape', 'shy away from', 'shrink from', 'back away from', 'draw back', 'retract', 'retrace', 'recede', 'regress', 'relapse', 'slip', 'slide', 'slip up', 'slip down', 'fall', 'drop', 'plummet', 'd plummet', 'stumble', 'trip', 'staggle', 'wobble', 'tremble', 'shiver', 'quiver', 'shake', 'shake up', 'shatter', 'rend', 'tear', 'rive', 'slash', 'hew', 'chop', 'mash', 'mangle', 'mutilate', 'injure', 'hurt', 'harm', 'damage', 'maim', 'disable', 'debilitate', 'enfeeble', 'weaken', 'impair', 'blemish', 'flaw', 'defect', 'fault', 'error', 'blunder', 'mistake', 'misunderstand', 'misinterpret', 'misread', 'mishear', 'missee', 'misfeel', 'misperceive', 'miscomprehend', 'misgrasp', 'misrealize', 'misrealise']:
-            count += 1
+        # Imperative often starts with a verb (simple heuristic)
+        # Check if first word is a verb-like token (starts with lowercase, common verbs)
+        words = s.split()
+        if words:
+            first = words[0].lower()
+            # Heuristic: imperative often starts with base verb
+            common_verbs = {'get', 'take', 'do', 'make', 'see', 'know', 'think', 'look', 'give', 'use', 'find', 'tell', 'ask', 'work', 'seem', 'feel', 'try', 'leave', 'call', 'keep', 'let', 'begin', 'seem', 'help', 'talk', 'turn', 'start', 'show', 'hear', 'play', 'run', 'move', 'live', 'believe', 'hold', 'bring', 'happen', 'write', 'provide', 'sit', 'stand', 'lose', 'pay', 'meet', 'include', 'continue', 'set', 'learn', 'change', 'lead', 'understand', 'watch', 'follow', 'stop', 'create', 'speak', 'read', 'allow', 'add', 'spend', 'grow', 'open', 'walk', 'win', 'offer', 'remember', 'love', 'consider', 'appear', 'buy', 'wait', 'serve', 'die', 'send', 'expect', 'build', 'stay', 'fall', 'cut', 'reach', 'kill', 'remain', 'suggest', 'raise', 'pass', 'sell', 'require', 'report', 'decide', 'pull'}
+            if first in common_verbs or (len(words) > 1 and words[1].endswith('ing')):
+                count += 1
     return count
 
 def count_declarative_sentences(text: str) -> int:
-    """Count declarative sentences (statements)."""
-    if not text or not isinstance(text, str):
-        return 0
-    sentences = re.split(r'[.!?]+', text)
-    count = 0
-    for sentence in sentences:
-        sentence = sentence.strip()
-        if not sentence:
-            continue
-        # Heuristic: Not imperative, not interrogative (starts with question word or auxiliary)
-        words = sentence.split()
-        if not words:
-            continue
-        first_word = words[0].lower()
-        # Exclude interrogatives
-        interrogatives = ['what', 'why', 'how', 'who', 'when', 'where', 'which', 'whose', 'whom', 'is', 'are', 'was', 'were', 'be', 'do', 'does', 'did', 'have', 'has', 'had', 'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would', 'ought', 'need', 'dare', 'used', 'let', 'let\'s', 'please', 'do', 'don\'t', 'never', 'always', 'make', 'take', 'give', 'stop', 'start', 'be', 'have', 'get', 'put', 'turn', 'keep', 'hold', 'find', 'show', 'tell', 'ask', 'answer', 'explain', 'describe', 'discuss', 'consider', 'imagine', 'think', 'remember', 'forget', 'avoid', 'ensure', 'check', 'verify', 'confirm', 'deny', 'reject', 'accept', 'choose', 'select', 'pick', 'decide', 'determine', 'establish', 'define', 'identify', 'recognize', 'recognise', 'distinguish', 'differentiate', 'compare', 'contrast', 'relate', 'connect', 'link', 'join', 'separate', 'divide', 'split', 'break', 'build', 'create', 'construct', 'design', 'develop', 'form', 'shape', 'modify', 'alter', 'change', 'transform', 'convert', 'translate', 'interpret', 'understand', 'comprehend', 'grasp', 'realize', 'realise', 'perceive', 'sense', 'feel', 'experience', 'live', 'exist', 'occur', 'happen', 'take place', 'go on', 'continue', 'persist', 'endure', 'survive', 'thrive', 'flourish', 'prosper', 'succeed', 'fail', 'flop', 'crash', 'collapse', 'crumble', 'disintegrate', 'dissolve', 'disappear', 'vanish', 'erase', 'delete', 'remove', 'eliminate', 'abolish', 'destroy', 'demolish', 'wreck', 'ruin', 'spoil', 'corrupt', 'taint', 'contaminate', 'pollute', 'poison', 'infect', 'infest', 'invade', 'intrude', 'pierce', 'penetrate', 'enter', 'access', 'reach', 'attain', 'achieve', 'accomplish', 'complete', 'finish', 'conclude', 'terminate', 'end', 'stop', 'cease', 'desist', 'quit', 'retire', 'resign', 'withdraw', 'retreat', 'flee', 'escape', 'shy away from', 'shrink from', 'back away from', 'draw back', 'retract', 'retrace', 'recede', 'regress', 'relapse', 'slip', 'slide', 'slip up', 'slip down', 'fall', 'drop', 'plummet', 'd plummet', 'stumble', 'trip', 'staggle', 'wobble', 'tremble', 'shiver', 'quiver', 'shake', 'shake up', 'shatter', 'rend', 'tear', 'rive', 'slash', 'hew', 'chop', 'mash', 'mangle', 'mutilate', 'injure', 'hurt', 'harm', 'damage', 'maim', 'disable', 'debilitate', 'enfeeble', 'weaken', 'impair', 'blemish', 'flaw', 'defect', 'fault', 'error', 'blunder', 'mistake', 'misunderstand', 'misinterpret', 'misread', 'mishear', 'missee', 'misfeel', 'misperceive', 'miscomprehend', 'misgrasp', 'misrealize', 'misrealise']
-        if first_word not in interrogatives and first_word not in IMPERATIVE_MARKERS.group(0).lower():
-            count += 1
-    return count
+    """Count declarative sentences."""
+    total = count_sentences(text)
+    imperative = count_imperative_sentences(text)
+    # Simplistic: Declarative = Total - Imperative (ignoring interrogative for now)
+    return max(0, total - imperative)
 
 def count_citations(text: str) -> int:
-    """Count citation density (e., [1], (Author, Year), etc.)."""
-    if not text or not isinstance(text, str):
+    """Count citation-like patterns (e.g., [1], (Author, Year))."""
+    if not text:
         return 0
-    # Pattern for [number] or (Author, Year) or similar
-    citations = re.findall(r'\[\d+\]|\(\w+,\s*\d{4}\)|\(\d{4}\)', text)
-    return len(citations)
+    patterns = [
+        r'\[\d+\]',  # [1]
+        r'\(\s*[A-Z][a-z]+,\s*\d{4}\s*\)', # (Author, 2020)
+        r'\d{4}', # Years (heuristic, might be noisy)
+    ]
+    count = 0
+    for p in patterns:
+        count += len(re.findall(p, text))
+    return count
 
-def extract_features(row: Dict[str, Any]) -> Dict[str, Any]:
-    """Extract linguistic features for a single prompt."""
-    prompt_text = row.get('prompt', '') or row.get('text', '') or ''
-    prompt_id = row.get('id', row.get('prompt_id', ''))
-
+def extract_features(prompt_text: str) -> Dict[str, Any]:
+    """Extract all features for a single prompt."""
     total_sentences = count_sentences(prompt_text)
     modal_count = count_modal_verbs(prompt_text)
     imperative_count = count_imperative_sentences(prompt_text)
     declarative_count = count_declarative_sentences(prompt_text)
     citation_count = count_citations(prompt_text)
 
-    # Calculate Modal Frequency (count per sentence)
     modal_freq = modal_count / total_sentences if total_sentences > 0 else 0.0
-
-    # Calculate Imperative Ratio (Imperative / Total Sentences)
-    # T015: Handle undefined ratio when total_sentences is 0
-    imperative_ratio = imperative_count / total_sentences if total_sentences > 0 else 0.0
-
-    # Citation Density (Citations per sentence)
     citation_density = citation_count / total_sentences if total_sentences > 0 else 0.0
 
     return {
-        'prompt_id': prompt_id,
         'modal_freq': modal_freq,
-        'imperative_ratio': imperative_ratio,
+        'imperative_count': imperative_count,
+        'declarative_count': declarative_count,
         'citation_density': citation_density,
-        'is_ratio_undefined': total_sentences == 0,
-        'ratio_safe_value': 0.0 if total_sentences == 0 else imperative_ratio
+        'total_sentences': total_sentences
     }
 
-def flag_undefined_imperative_ratio(features_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def flag_undefined_imperative_ratio(features: Dict[str, Any]) -> Tuple[bool, float]:
     """
-    Flag rows where the imperative ratio is undefined (zero total sentences).
-    Adds 'is_ratio_undefined' and 'ratio_safe_value' columns.
+    Detect if imperative ratio is undefined (zero total sentences).
+    Returns (is_undefined, safe_value).
     """
-    for row in features_list:
-        # The logic is already applied in extract_features, but this function
-        # ensures the flags are present and correct for downstream modeling.
-        total_sentences = count_sentences(row.get('prompt', '') or row.get('text', ''))
-        row['is_ratio_undefined'] = total_sentences == 0
-        row['ratio_safe_value'] = 0.0 if row['is_ratio_undefined'] else row.get('imperative_ratio', 0.0)
-    return features_list
+    total = features.get('total_sentences', 0)
+    if total == 0:
+        return True, 0.0
+    return False, features.get('imperative_count', 0) / total
 
-def run_feature_extraction(input_path: str, output_path: str) -> None:
+def run_feature_extraction_pipeline():
     """
-    Run the full feature extraction pipeline.
-    Reads from input_path, extracts features, flags undefined ratios, and saves to output_path.
+    Main pipeline to load ingestion data, extract features, and save.
     """
-    logger.info(f"Starting feature extraction from {input_path}")
+    config = get_config()
+    input_path = Path(config.data_raw_dir) / "medmis_subset.csv"
+    output_path = Path(config.data_processed_dir) / "features.csv"
 
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. Run ingestion first.")
 
-    features = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            feat = extract_features(row)
-            features.append(feat)
+    ensure_dir(output_path.parent)
 
-    # Apply T015 logic: Flag undefined ratios
-    features = flag_undefined_imperative_ratio(features)
+    with open(input_path, 'r', encoding='utf-8') as f_in:
+        reader = csv.DictReader(f_in)
+        rows = list(reader)
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        logger.info(f"Created directory: {output_dir}")
+    output_rows = []
+    for row in rows:
+        prompt = row.get('prompt', '')
+        features = extract_features(prompt)
+        
+        is_undef, safe_val = flag_undefined_imperative_ratio(features)
+        
+        output_row = {
+            'prompt_id': row.get('id', row.get('prompt_id', '')),
+            'prompt_text': prompt,
+            'modal_freq': features['modal_freq'],
+            'imperative_ratio': safe_val,
+            'citation_density': features['citation_density'],
+            'is_ratio_undefined': is_undef,
+            'ratio_safe_value': safe_val
+        }
+        output_rows.append(output_row)
 
-    # Write output
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['prompt_id', 'modal_freq', 'imperative_ratio', 'citation_density', 'is_ratio_undefined', 'ratio_safe_value'])
+    fieldnames = ['prompt_id', 'prompt_text', 'modal_freq', 'imperative_ratio', 'citation_density', 'is_ratio_undefined', 'ratio_safe_value']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f_out:
+        writer = csv.DictWriter(f_out, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(features)
+        writer.writerows(output_rows)
 
     logger.info(f"Feature extraction complete. Saved to {output_path}")
-    logger.info(f"Total rows processed: {len(features)}")
-    undefined_count = sum(1 for r in features if r['is_ratio_undefined'])
-    if undefined_count > 0:
-        logger.warning(f"Found {undefined_count} rows with undefined imperative ratio (zero sentences). Flagged as 'is_ratio_undefined'.")
+    return output_rows
 
-def run_feature_extraction_pipeline() -> None:
-    """Main entry point for the feature extraction pipeline."""
-    config = {
-        'input_file': 'data/raw/medmis_subset.csv',
-        'output_file': 'data/processed/features.csv'
-    }
+def main():
+    run_feature_extraction_pipeline()
 
-    # Check for input file
-    if not os.path.exists(config['input_file']):
-        # Try to find it in the project root if running from code/
-        base_root = Path(__file__).resolve().parent.parent
-        input_path = base_root / config['input_file']
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found at expected path: {config['input_file']} or {input_path}")
-        config['input_file'] = str(input_path)
-
-    run_feature_extraction(config['input_file'], config['output_file'])
-
-def main() -> None:
-    """CLI entry point."""
-    try:
-        run_feature_extraction_pipeline()
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

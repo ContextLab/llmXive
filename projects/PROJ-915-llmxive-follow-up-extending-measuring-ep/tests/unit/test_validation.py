@@ -1,151 +1,137 @@
 """
-Unit tests for the validation infrastructure (T006).
+Unit tests for the validation and logging infrastructure (T006a).
 """
-import os
 import json
+import os
 import time
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import tempfile
+import shutil
 
-# Ensure we can import from code/
+# Import from the project
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from code.validation import RuntimeTracker, update_pipeline_log, validate_data_integrity
 
-from code.validation import (
-    RuntimeTracker, 
-    get_tracker, 
-    start_pipeline_timer, 
-    stop_pipeline_timer, 
-    check_pipeline_limit, 
-    enforce_pipeline_limit,
-    LOG_FILE
-)
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-class TestRuntimeTracker:
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup a temporary directory for log files to avoid polluting the real one."""
-        # We will mock the LOG_FILE path or use a temporary directory for testing
-        self.test_log_dir = tmp_path / "test_results"
-        self.test_log_dir.mkdir(parents=True, exist_ok=True)
-        self.test_log_file = self.test_log_dir / "pipeline_log.json"
-        
-        # Patch the LOG_FILE constant in the module
-        with patch('code.validation.LOG_FILE', str(self.test_log_file)):
-            # Reset the global tracker to force re-initialization with new path
-            import code.validation
-            code.validation._tracker = None
-            yield
-        
-        # Cleanup
-        if self.test_log_file.exists():
-            self.test_log_file.unlink()
+@pytest.fixture
+def tracker_with_temp_log(temp_log_dir):
+    """Create a RuntimeTracker pointing to a temp log file."""
+    log_path = Path(temp_log_dir) / "pipeline_log.json"
+    tracker = RuntimeTracker(log_path=log_path)
+    return tracker, log_path
 
-    def test_initialization_creates_file(self):
-        """Test that the log file is created/initialized."""
-        tracker = RuntimeTracker()
-        assert self.test_log_file.exists()
+def test_tracker_initialization(tracker_with_temp_log):
+    """Test that the tracker initializes the log file correctly."""
+    tracker, log_path = tracker_with_temp_log
+    assert not log_path.exists()
+    
+    tracker._ensure_log_exists()
+    assert log_path.exists()
+    
+    with open(log_path, 'r') as f:
+        data = json.load(f)
+    
+    assert "stages" in data
+    assert data["stages"] == []
+    assert data["total_elapsed_seconds"] == 0.0
 
-    def test_start_and_stop(self):
-        """Test basic start and stop functionality."""
-        tracker = RuntimeTracker()
-        tracker.start()
-        time.sleep(0.1)
-        elapsed = tracker.stop("test_stage")
-        
-        assert elapsed >= 0.1
-        assert self.test_log_file.exists()
+def test_start_and_stop(tracker_with_temp_log):
+    """Test starting and stopping the timer."""
+    tracker, log_path = tracker_with_temp_log
+    tracker._ensure_log_exists() # Ensure file exists first
 
-        # Verify log content
-        with open(self.test_log_file, 'r') as f:
-            lines = f.readlines()
-            assert len(lines) == 1
-            entry = json.loads(lines[0])
-            assert entry['stage'] == 'test_stage'
-            assert 'cumulative_seconds' in entry
-            assert entry['status'] == 'completed'
+    tracker.start()
+    time.sleep(0.1) # Sleep to ensure some time passes
+    duration = tracker.stop("test_stage")
 
-    def test_check_limit_within(self):
-        """Test check_limit returns True when within limit."""
-        tracker = RuntimeTracker()
-        tracker.start()
-        assert tracker.check_limit() is True
-        tracker.stop()
+    assert duration >= 0.1
+    
+    with open(log_path, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data["stages"]) == 1
+    assert data["stages"][0]["name"] == "test_stage"
+    assert data["stages"][0]["duration_seconds"] >= 0.1
+    assert data["total_elapsed_seconds"] >= 0.1
 
-    def test_check_limit_exceeded(self):
-        """Test check_limit returns False when limit exceeded."""
-        tracker = RuntimeTracker()
-        tracker.start()
-        # Mock time.time to simulate a long duration
-        original_time = time.time
-        time.time = lambda: original_time() + 4000  # 4000s > 3600s limit
-        
-        assert tracker.check_limit() is False
-        
-        # Restore time
-        time.time = original_time
-        tracker.stop()
+def test_multiple_stages(tracker_with_temp_log):
+    """Test tracking multiple stages."""
+    tracker, log_path = tracker_with_temp_log
+    tracker._ensure_log_exists()
 
-    def test_enforce_pipeline_limit_raises(self):
-        """Test that enforce_pipeline_limit raises an error when exceeded."""
-        tracker = RuntimeTracker()
-        tracker.start()
-        
-        # Mock time to exceed limit
-        original_time = time.time
-        time.time = lambda: original_time() + 4000
-        
-        with pytest.raises(RuntimeError, match="Pipeline execution time limit exceeded"):
-            enforce_pipeline_limit()
-        
-        time.time = original_time
-        tracker.stop()
+    tracker.start()
+    time.sleep(0.05)
+    tracker.stop("stage_1")
 
-    def test_parallel_safety_locking(self):
-        """Test that file locking is attempted (mocked)."""
-        tracker = RuntimeTracker()
-        tracker.start()
-        
-        # We can't easily test real locking in a unit test without multiple processes,
-        # but we can verify the code path exists by checking the source or mocking fcntl.
-        # For now, we just ensure the stop method completes without error.
-        tracker.stop("parallel_test")
-        assert self.test_log_file.exists()
+    tracker.start()
+    time.sleep(0.05)
+    tracker.stop("stage_2")
 
-class TestGlobalFunctions:
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        self.test_log_dir = tmp_path / "test_results"
-        self.test_log_dir.mkdir(parents=True, exist_ok=True)
-        self.test_log_file = self.test_log_dir / "pipeline_log.json"
-        
-        with patch('code.validation.LOG_FILE', str(self.test_log_file)):
-            import code.validation
-            code.validation._tracker = None
-            yield
-        
-        if self.test_log_file.exists():
-            self.test_log_file.unlink()
+    with open(log_path, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data["stages"]) == 2
+    assert data["stages"][0]["name"] == "stage_1"
+    assert data["stages"][1]["name"] == "stage_2"
+    assert data["total_elapsed_seconds"] >= 0.1
 
-    def test_start_stop_pipeline_timer(self):
-        """Test global start/stop functions."""
-        start_pipeline_timer()
-        time.sleep(0.05)
-        stop_pipeline_timer("global_test")
-        
-        with open(self.test_log_file, 'r') as f:
-            content = f.read()
-            assert "global_test" in content
+def test_check_limit(tracker_with_temp_log):
+    """Test the time limit check."""
+    tracker, log_path = tracker_with_temp_log
+    tracker._ensure_log_exists()
+    
+    # Set a very low limit for testing
+    original_limit = tracker.MAX_RUNTIME_SECONDS if hasattr(tracker, 'MAX_RUNTIME_SECONDS') else 6*3600
+    # We can't easily change the class constant in the instance, so we test logic directly
+    # The check_limit method uses the class constant or a property. 
+    # Since the class uses a module constant, we test the behavior by manually accumulating.
+    
+    # Simulate accumulated time > 6 hours (21600 seconds)
+    tracker.elapsed_accumulated = 21601.0
+    assert tracker.check_limit() is True
 
-    def test_check_pipeline_limit(self):
-        """Test global check limit function."""
-        start_pipeline_timer()
-        assert check_pipeline_limit() is True
-        stop_pipeline_timer()
+    tracker.elapsed_accumulated = 100.0
+    assert tracker.check_limit() is False
 
-    def test_get_tracker_singleton(self):
-        """Test that get_tracker returns the same instance."""
-        t1 = get_tracker()
-        t2 = get_tracker()
-        assert t1 is t2
+def test_update_pipeline_log(tracker_with_temp_log):
+    """Test the update_pipeline_log helper."""
+    tracker, log_path = tracker_with_temp_log
+    tracker._ensure_log_exists()
+
+    update_pipeline_log("manual_stage", status="completed")
+
+    with open(log_path, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data["stages"]) == 1
+    assert data["stages"][0]["name"] == "manual_stage"
+    assert data["stages"][0]["status"] == "completed"
+
+def test_validate_data_integrity(tracker_with_temp_log):
+    """Test the data integrity validator."""
+    tracker, log_path = tracker_with_temp_log
+    
+    # Test non-existent file
+    assert not validate_data_integrity(Path("/non/existent/file.txt"))
+    
+    # Test empty file
+    empty_file = tracker.log_path.parent / "empty.txt"
+    empty_file.touch()
+    assert not validate_data_integrity(empty_file)
+    
+    # Test non-empty file
+    non_empty_file = tracker.log_path.parent / "non_empty.txt"
+    non_empty_file.write_text("content")
+    assert validate_data_integrity(non_empty_file)
+
+    # Cleanup
+    empty_file.unlink()
+    non_empty_file.unlink()

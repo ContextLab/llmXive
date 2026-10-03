@@ -1,8 +1,6 @@
 """
-Validation infrastructure (T006).
-Implements the logging mechanism and file handles required for runtime tracking
-against the execution time limit (Constitution Principle VII).
-Parallel-safe initialization and logging to data/results/pipeline_log.json.
+Logging and runtime tracking infrastructure for the llmXive pipeline.
+Implements Constitution Principle VII: Compute-time guard.
 """
 import json
 import os
@@ -10,133 +8,179 @@ import time
 import fcntl
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional, Dict, Any, List
 
-# Ensure the output directory exists
-RESULTS_DIR = Path("data/results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = RESULTS_DIR / "pipeline_log.json"
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent
+LOG_FILE_PATH = PROJECT_ROOT / "data" / "results" / "pipeline_log.json"
 
 # Configuration
-MAX_RUNTIME_SECONDS = 3600  # Default 1 hour limit, configurable via env if needed
+MAX_RUNTIME_SECONDS = 6 * 3600  # 6 hours
 
 class RuntimeTracker:
     """
-    Tracks cumulative pipeline runtime.
-    Uses file locking for parallel safety when appending to the log.
+    Tracks cumulative runtime of the pipeline and enforces the time limit.
+    Writes state to data/results/pipeline_log.json.
     """
-    def __init__(self):
+    def __init__(self, log_path: Optional[Path] = None):
+        self.log_path = log_path or LOG_FILE_PATH
         self.start_time: Optional[float] = None
-        self.log_path = str(LOG_FILE)
-        # Initialize the log file if it doesn't exist
-        self._ensure_log_initialized()
+        self.elapsed_accumulated: float = 0.0
+        self.stage_history: List[Dict[str, Any]] = []
+        self._lock_file = None
 
-    def _ensure_log_initialized(self):
-        """
-        Ensures the log file exists. If it's empty or missing, initializes it.
-        This satisfies the requirement to "initialize the logging mechanism".
-        """
-        if not os.path.exists(self.log_path):
-            with open(self.log_path, 'w') as f:
-                # Initialize as an empty JSON lines file or a JSON array start
-                # Using JSON Lines format for streaming appends
-                f.write("") 
+    def _ensure_log_exists(self) -> None:
+        """Ensure the log file and its directory exist."""
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        if not self.log_path.exists():
+            with open(self.log_path, 'w', encoding='utf-8') as f:
+                json.dump({"stages": [], "total_elapsed_seconds": 0.0}, f, indent=2)
 
-    def start(self):
-        """Start the timer."""
-        self.start_time = time.time()
+    def _load_log(self) -> Dict[str, Any]:
+        """Load the current log state."""
+        self._ensure_log_exists()
+        with open(self.log_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
 
-    def stop(self, stage_name: str = "pipeline"):
-        """
-        Stop the timer and log the cumulative runtime.
-        Uses file locking (fcntl) to ensure parallel safety.
-        """
-        if self.start_time is None:
-            raise RuntimeError("Timer was not started. Call start() first.")
-        
-        elapsed = time.time() - self.start_time
-        log_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'stage': stage_name,
-            'cumulative_seconds': round(elapsed, 2),
-            'status': 'completed'
-        }
-        
-        # Parallel-safe append using file locking
-        with open(self.log_path, 'a') as f:
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+    def _save_log(self, data: Dict[str, Any]) -> None:
+        """Save log state with file locking for safety."""
+        self._ensure_log_exists()
+        with open(self.log_path, 'r+', encoding='utf-8') as f:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EXCL)
             try:
-                f.write(json.dumps(log_entry) + '\n')
+                f.seek(0)
+                f.truncate(0)
+                f.write(json.dumps(data, indent=2))
             finally:
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-        
+
+    def start(self) -> None:
+        """Start the timer for a stage."""
+        if self.start_time is not None:
+            raise RuntimeError("Timer already started. Call stop() first.")
+        self.start_time = time.time()
+
+    def stop(self, stage_name: str) -> float:
+        """
+        Stop the timer, record duration, and update the cumulative log.
+        Returns the duration of the current stage.
+        """
+        if self.start_time is None:
+            raise RuntimeError("Timer not started.")
+
+        end_time = time.time()
+        duration = end_time - self.start_time
+        self.elapsed_accumulated += duration
+
+        # Update log
+        current_log = self._load_log()
+        current_log["stages"].append({
+            "name": stage_name,
+            "timestamp": datetime.now().isoformat(),
+            "duration_seconds": duration,
+            "cumulative_seconds": self.elapsed_accumulated
+        })
+        current_log["total_elapsed_seconds"] = self.elapsed_accumulated
+
+        self._save_log(current_log)
+
+        # Reset state
         self.start_time = None
-        return elapsed
+        return duration
 
     def check_limit(self) -> bool:
         """
-        Checks if the current cumulative runtime exceeds the limit.
-        Returns True if within limit, False if exceeded.
+        Check if cumulative runtime exceeds the limit.
+        Returns True if limit is exceeded (should abort), False otherwise.
         """
-        if self.start_time is None:
-            return True
-        
-        elapsed = time.time() - self.start_time
-        return elapsed <= MAX_RUNTIME_SECONDS
+        return self.elapsed_accumulated > MAX_RUNTIME_SECONDS
 
-# Global singleton instance
-_tracker: Optional[RuntimeTracker] = None
+# Global instance for shared access
+_global_tracker: Optional[RuntimeTracker] = None
 
 def get_tracker() -> RuntimeTracker:
-    global _tracker
-    if _tracker is None:
-        _tracker = RuntimeTracker()
-    return _tracker
+    """Get or create the global runtime tracker."""
+    global _global_tracker
+    if _global_tracker is None:
+        _global_tracker = RuntimeTracker()
+    return _global_tracker
 
-def start_pipeline_timer():
+def start_pipeline_timer() -> None:
     """Start the global pipeline timer."""
     tracker = get_tracker()
     tracker.start()
 
-def stop_pipeline_timer(stage_name: str = "pipeline"):
-    """Stop the global pipeline timer and log the result."""
+def stop_pipeline_timer(stage_name: str) -> float:
+    """Stop the global pipeline timer and record stage duration."""
     tracker = get_tracker()
-    tracker.stop(stage_name)
+    return tracker.stop(stage_name)
 
 def check_pipeline_limit() -> bool:
-    """Check if the pipeline is within the time limit."""
+    """Check if the global pipeline has exceeded the time limit."""
     tracker = get_tracker()
     return tracker.check_limit()
 
-def enforce_pipeline_limit():
+def enforce_pipeline_limit() -> None:
     """
-    Enforce the time limit. If exceeded, raises a RuntimeError.
-    This is the active enforcement mechanism.
+    Enforce the time limit. Raises TimeoutError if exceeded.
     """
-    tracker = get_tracker()
-    if not tracker.check_limit():
-        raise RuntimeError(
+    if check_pipeline_limit():
+        tracker = get_tracker()
+        raise TimeoutError(
             f"Pipeline execution time limit exceeded. "
-            f"Current runtime: {time.time() - tracker.start_time:.2f}s > {MAX_RUNTIME_SECONDS}s"
+            f"Accumulated time: {tracker.elapsed_accumulated:.2f}s > {MAX_RUNTIME_SECONDS}s"
         )
 
+def update_pipeline_log(stage_name: str, status: str = "completed", error: Optional[str] = None) -> None:
+    """
+    Update the pipeline log with a new entry for a stage.
+    This is a convenience wrapper for manual logging if not using the timer.
+    """
+    tracker = get_tracker()
+    tracker._ensure_log_exists()
+    log_data = tracker._load_log()
+    
+    entry = {
+        "name": stage_name,
+        "timestamp": datetime.now().isoformat(),
+        "status": status,
+        "duration_seconds": tracker.elapsed_accumulated, # Approximate if not timed
+        "cumulative_seconds": tracker.elapsed_accumulated
+    }
+    if error:
+        entry["error"] = error
+
+    log_data["stages"].append(entry)
+    tracker._save_log(log_data)
+
 class PipelineTimerContext:
-    """Context manager for timing a specific block."""
-    def __init__(self, stage_name: str = "block"):
+    """Context manager for timing a pipeline stage."""
+    def __init__(self, stage_name: str):
         self.stage_name = stage_name
-        self.tracker = get_tracker()
+        self.duration: Optional[float] = None
 
     def __enter__(self):
-        self.tracker.start()
+        tracker = get_tracker()
+        tracker.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.tracker.stop(self.stage_name)
+        tracker = get_tracker()
+        if exc_type is None:
+            self.duration = tracker.stop(self.stage_name)
+        else:
+            # Record failure but don't stop timer accumulation if we want to track total time even on error
+            # Or stop timer? Usually we stop tracking this specific stage.
+            tracker.start_time = None # Reset without saving duration
         return False
 
-def validate_data_integrity():
+def validate_data_integrity(file_path: Path) -> bool:
     """
-    Placeholder for data integrity checks.
-    To be implemented in later tasks if needed.
+    Simple validation to ensure a file exists and is not empty.
+    Returns True if valid, False otherwise.
     """
-    pass
+    if not file_path.exists():
+        return False
+    if file_path.stat().st_size == 0:
+        return False
+    return True

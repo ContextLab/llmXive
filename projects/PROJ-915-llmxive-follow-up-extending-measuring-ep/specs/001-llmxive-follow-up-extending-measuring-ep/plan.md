@@ -14,7 +14,7 @@ This project extends the original study by focusing on linguistic authority fram
 **Storage**: `data/raw`, `data/processed`, `data/interim`, `data/results`.  
 **Testing**: `pytest` + coverage.  
 **Target Platform**: GitHub Actions Free Tier (2 vCPU, ~7 GB RAM, ≤6 h total runtime).  
-**Model**: 1.1B parameter `TinyLlama-1.1B-Chat` quantized to 4-bit via `llama-cpp-python` (CPU‑only). *Rationale: Fits within 7GB RAM while retaining reasoning capacity for medical context. If CPU inference fails, the dataset size is reduced rather than switching to external GPU resources to ensure reproducibility.*  
+**Model**: 1.1B parameter `TinyLlama-1.1B-Chat` quantized to a low-bit precision via `llama-cpp-python` (CPU‑only). *Rationale: Fits within 7GB RAM while retaining reasoning capacity for medical context. If CPU inference fails, the dataset size is reduced rather than switching to external GPU resources to ensure reproducibility.*  
 **Performance Goals**: Inference ≤ 30 s per prompt; total pipeline ≤ 6 hours (Constitution Principle VII).  
 **Constraints**: No GPU fallback; all steps must be reproducible on a fresh runner.  
 

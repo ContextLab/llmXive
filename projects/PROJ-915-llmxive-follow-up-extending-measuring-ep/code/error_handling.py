@@ -1,8 +1,6 @@
 """
-Error Handling Framework for llmXive Pipeline.
-
-Provides custom exceptions, retry logic, and timeout enforcement mechanisms
-for dataset downloads and model inference operations.
+Error Handling Framework.
+Provides retry logic, timeout handling, and custom exceptions.
 """
 import time
 import logging
@@ -10,242 +8,169 @@ import signal
 import sys
 import os
 import hashlib
-from typing import Callable, Optional, Any, TypeVar, Dict
-from functools import wraps
-
-# Configure logger
-logger = logging.getLogger(__name__)
-
-# --- Custom Exceptions ---
-
-class InferenceTimeoutError(Exception):
-    """Raised when model inference exceeds the allowed time limit."""
-    pass
-
-class DatasetDownloadError(Exception):
-    """Raised when dataset download fails after all retries."""
-    pass
-
-class RetryExhaustedError(Exception):
-    """Raised when a retryable operation fails after exhausting all attempts."""
-    pass
-
-# --- Retry Logic ---
+import threading
+from pathlib import Path
+from typing import Callable, Optional, Any, TypeVar, Type
 
 T = TypeVar('T')
 
+# Custom Exceptions
+class InferenceTimeoutError(Exception):
+    """Raised when inference exceeds the time limit."""
+    pass
+
+class DatasetDownloadError(Exception):
+    """Raised when dataset download fails after retries."""
+    pass
+
+class RetryExhaustedError(Exception):
+    """Raised when retry attempts are exhausted."""
+    pass
+
+class DataRetrievalError(Exception):
+    """Raised when data retrieval (e.g., PubMed) fails critically."""
+    pass
+
+class ValidationGateFailedError(Exception):
+    """Raised when a validation gate (e.g., human pilot) fails."""
+    pass
+
+class DependencyError(Exception):
+    """Raised when a required dependency is missing."""
+    pass
+
+class DataAmbiguityError(Exception):
+    """Raised when data is ambiguous or insufficient for analysis."""
+    pass
+
+# Retry Logic
 def retry_with_backoff(
     func: Callable[..., T],
     max_retries: int = 3,
     base_delay: float = 1.0,
     backoff_factor: float = 2.0,
-    exceptions_to_catch: tuple = (Exception,)
+    exceptions: tuple = (Exception,)
 ) -> Callable[..., T]:
     """
     Decorator to retry a function with exponential backoff.
-
-    Args:
-        func: The function to wrap.
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds.
-        backoff_factor: Multiplier for delay after each failure.
-        exceptions_to_catch: Tuple of exception types to catch and retry.
-
-    Returns:
-        Wrapped function with retry logic.
     """
-    @wraps(func)
     def wrapper(*args, **kwargs) -> T:
-        delay = base_delay
         last_exception = None
-
-        for attempt in range(max_retries + 1):
+        for attempt in range(max_retries):
             try:
                 return func(*args, **kwargs)
-            except exceptions_to_catch as e:
+            except exceptions as e:
                 last_exception = e
-                if attempt == max_retries:
-                    logger.error(f"Retry exhausted for {func.__name__} after {max_retries} attempts.")
-                    raise RetryExhaustedError(f"Operation '{func.__name__}' failed after {max_retries} retries.") from e
-                
-                logger.warning(
-                    f"Attempt {attempt + 1} failed for {func.__name__}: {e}. "
-                    f"Retrying in {delay:.2f}s..."
-                )
-                time.sleep(delay)
-                delay *= backoff_factor
-        
-        # Should not reach here, but just in case
-        raise last_exception
-
+                if attempt < max_retries - 1:
+                    delay = base_delay * (backoff_factor ** attempt)
+                    logging.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay}s...")
+                    time.sleep(delay)
+                else:
+                    logging.error(f"All {max_retries} attempts failed.")
+                    raise RetryExhaustedError(f"Function {func.__name__} failed after {max_retries} attempts.") from e
+        raise last_exception # Should not reach here
     return wrapper
 
-# --- Timeout Context & Enforcement ---
-
-class timeout_context:
+# Timeout Logic
+def timeout_context(timeout_seconds: float):
     """
-    Context manager to enforce a time limit on a block of code using signals.
-    Note: Works on Unix-like systems. On Windows, this uses a threading approach.
+    Context manager to enforce a timeout on a block of code.
+    Note: This works reliably on Unix. On Windows, it uses a thread-based fallback.
     """
-    def __init__(self, seconds: int, error_message: str = "Operation timed out"):
-        self.seconds = seconds
-        self.error_message = error_message
-        self.old_handler = None
+    if os.name == 'nt':
+        return WindowsTimeoutContext(timeout_seconds)
+    else:
+        return UnixTimeoutContext(timeout_seconds)
 
-    def _timeout_handler(self, signum, frame):
-        raise TimeoutError(self.error_message)
+class UnixTimeoutContext:
+    def __init__(self, timeout_seconds: float):
+        self.timeout = timeout_seconds
 
     def __enter__(self):
-        if os.name == 'nt':
-            # Windows does not support signal.alarm
-            # Fallback to a simple threading timer if strictly needed, 
-            # but for this framework we raise NotImplementedError for Windows signal usage
-            # or assume a Unix environment for the primary pipeline as per typical HPC/Colab runners.
-            if sys.platform != 'win32':
-                self.old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
-                signal.alarm(self.seconds)
-            else:
-                # On Windows, we rely on a different mechanism or skip strict signal timeout
-                # For the purpose of this framework, we raise a specific error if used on Windows
-                # to ensure the implementer knows the limitation.
-                logger.warning("signal.alarm not supported on Windows. Timeout enforcement may be skipped.")
-        else:
-            self.old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
-            signal.alarm(self.seconds)
-        return self
+        # Save the old handler
+        self.old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
+        signal.alarm(int(self.timeout))
 
-    def __exit__(self, type, value, traceback):
-        if os.name != 'nt' and sys.platform != 'win32':
-            signal.alarm(0)  # Cancel the alarm
-            if self.old_handler is not None:
-                signal.signal(signal.SIGALRM, self.old_handler)
-        # If a TimeoutError was raised, propagate it as InferenceTimeoutError
-        if type is TimeoutError:
-            raise InferenceTimeoutError(self.error_message)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, self.old_handler)
+        if exc_type is signal.SIGALRM:
+            raise InferenceTimeoutError(f"Operation timed out after {self.timeout} seconds.")
 
-def enforce_inference_timeout(seconds: int):
+    @staticmethod
+    def _timeout_handler(signum, frame):
+        raise InferenceTimeoutError("Timeout signal received.")
+
+class WindowsTimeoutContext:
+    """Fallback for Windows using threading."""
+    def __init__(self, timeout_seconds: float):
+        self.timeout = timeout_seconds
+        self.timer = None
+        self.timed_out = False
+
+    def _on_timeout(self):
+        self.timed_out = True
+
+    def __enter__(self):
+        self.timer = threading.Timer(self.timeout, self._on_timeout)
+        self.timer.start()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.timer:
+            self.timer.cancel()
+        if self.timed_out:
+            raise InferenceTimeoutError(f"Operation timed out after {self.timeout} seconds.")
+
+def enforce_inference_timeout(func: Callable, timeout_seconds: float):
     """
     Decorator to enforce a timeout on an inference function.
     """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> T:
-            try:
-                with timeout_context(seconds, f"Inference for {func.__name__} timed out after {seconds}s"):
-                    return func(*args, **kwargs)
-            except TimeoutError:
-                raise InferenceTimeoutError(f"Inference for {func.__name__} timed out after {seconds}s")
-        return wrapper
-    return decorator
-
-def run_inference_with_timeout(func: Callable, timeout_seconds: int, *args, **kwargs) -> Any:
-    """
-    Wrapper to run an inference function with a strict timeout.
-    """
-    try:
-        with timeout_context(timeout_seconds, "Inference operation timed out"):
+    def wrapper(*args, **kwargs):
+        with timeout_context(timeout_seconds):
             return func(*args, **kwargs)
-    except TimeoutError:
-        raise InferenceTimeoutError("Inference operation timed out")
+    return wrapper
 
-# --- Signal Handler Factory ---
+def run_inference_with_timeout(func: Callable, timeout_seconds: float, *args, **kwargs):
+    """
+    Run an inference function with a timeout.
+    """
+    with timeout_context(timeout_seconds):
+        return func(*args, **kwargs)
 
-def signal_handler_factory(signal_number, frame):
-    """
-    Factory to create a signal handler that raises a TimeoutError.
-    """
+def signal_handler_factory(sig_num):
+    """Factory for signal handlers."""
     def handler(signum, frame):
-        raise TimeoutError(f"Signal {signum} received: Operation timed out")
+        raise InferenceTimeoutError(f"Timeout signal {sig_num} received.")
     return handler
 
-def configure_signal_handler(timeout_seconds: int):
-    """
-    Configure the global signal handler for timeouts.
-    """
+def configure_signal_handler():
+    """Configure signal handlers for timeout."""
     if os.name != 'nt':
-        signal.signal(signal.SIGALRM, signal_handler_factory(signal.SIGALRM, None))
-        signal.alarm(timeout_seconds)
-    else:
-        logger.warning("Signal handling for timeouts not configured on Windows.")
+        signal.signal(signal.SIGALRM, signal_handler_factory(signal.SIGALRM))
 
-# --- Download Helpers ---
-
-def download_progress_hook(block_num, block_size, total_size):
-    """
-    Callback for urlretrieve to show progress.
-    """
-    if total_size > 0:
-        percent = min(100, (block_num * block_size * 100) // total_size)
-        sys.stdout.write(f"\rDownloading: {percent}%")
-        sys.stdout.flush()
-    else:
-        sys.stdout.write(f"\rDownloaded: {block_num * block_size} bytes")
-        sys.stdout.flush()
-
+# Hashing utilities
 def compute_sha256(file_path: str) -> str:
-    """
-    Compute SHA-256 hash of a file.
-    """
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def safe_download_with_retry(
-    url: str,
-    dest_path: str,
-    max_retries: int = 3,
-    timeout: int = 30
-) -> str:
+def safe_download_with_retry(url: str, dest_path: str, max_retries: int = 3) -> bool:
     """
-    Download a file from a URL with retry logic and error handling.
-    
-    Args:
-        url: Source URL.
-        dest_path: Destination file path.
-        max_retries: Number of retry attempts.
-        timeout: Timeout for the download request.
-    
-    Returns:
-        Path to the downloaded file.
-    
-    Raises:
-        DatasetDownloadError: If download fails after retries.
+    Safe download with retry logic.
+    Simplified implementation for demonstration.
     """
-    from urllib.request import urlretrieve
-    from urllib.error import URLError, HTTPError
-
-    for attempt in range(max_retries):
+    @retry_with_backoff(max_retries=max_retries, exceptions=(DatasetDownloadError,))
+    def _download():
         try:
-            logger.info(f"Downloading {url} to {dest_path} (Attempt {attempt + 1}/{max_retries})")
-            urlretrieve(url, dest_path, reporthook=download_progress_hook)
-            logger.info(f"\nDownload successful: {dest_path}")
-            return dest_path
-        except (URLError, HTTPError, TimeoutError) as e:
-            logger.warning(f"Download attempt {attempt + 1} failed: {e}")
-            if attempt == max_retries - 1:
-                raise DatasetDownloadError(f"Failed to download {url} after {max_retries} attempts: {e}")
-            time.sleep(2 ** attempt) # Exponential backoff
+            # Placeholder for actual download logic
+            # In real code, use requests or urllib
+            import urllib.request
+            urllib.request.urlretrieve(url, dest_path)
+            return True
         except Exception as e:
-            logger.error(f"Unexpected error during download: {e}")
-            raise DatasetDownloadError(f"Unexpected error downloading {url}: {e}")
-    
-    raise DatasetDownloadError(f"Download of {url} failed.")
+            raise DatasetDownloadError(f"Download failed: {e}")
 
-def configure_retry_policy(max_retries: int = 3, base_delay: float = 1.0):
-    """
-    Configure global retry policy settings.
-    (In a more complex system, this might set global constants or config objects)
-    """
-    logger.info(f"Retry policy configured: max_retries={max_retries}, base_delay={base_delay}s")
-    return {"max_retries": max_retries, "base_delay": base_delay}
-
-def update_hash_state(file_path: str, state_dict: Dict) -> None:
-    """
-    Update a state dictionary with the SHA-256 hash of a file.
-    """
-    if os.path.exists(file_path):
-        state_dict[os.path.basename(file_path)] = compute_sha256(file_path)
-    else:
-        logger.warning(f"File {file_path} not found, skipping hash update.")
+    return _download()

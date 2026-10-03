@@ -1,17 +1,19 @@
 """
 code/ingestion.py
-Implements T013: Download MedMisBench, filter subsets, and save to CSV.
+Implements T013: Download MedMisBench, filter subsets, validate schema with regex fallback,
+compute checksums, and save to CSV.
 """
 
 import os
 import hashlib
 import csv
 import yaml
-import time
+import re
 import logging
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from datetime import datetime
+from typing import List, Dict, Any, Optional, Iterator
 
 try:
     from datasets import load_dataset
@@ -20,100 +22,131 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-def load_and_filter_dataset(dataset_name: str = "allenai/medmis-bench", split: str = "train") -> List[Dict[str, Any]]:
+# Configuration
+DATASET_NAME = "allenai/medmis-bench"
+SPLIT = "train"
+CHUNK_SIZE = 1000
+FILTER_LABELS = ["Authority-framed", "Exception-poisoning"]
+
+# Regex pattern for false_claim extraction fallback
+FALSE_CLAIM_PATTERN = re.compile(r'false_claim\s*[:=]\s*([\'"]?[^\'",]+[\'"]?)')
+
+def load_and_filter_dataset(dataset_name: str = DATASET_NAME, split: str = SPLIT) -> Iterator[Dict[str, Any]]:
     """
     Load MedMisBench dataset using streaming to avoid OOM.
     Filters for "Authority-framed" and "Exception-poisoning" labels.
+    Returns an iterator to allow chunked processing.
     """
     logger.info(f"Loading dataset: {dataset_name} (streaming=True)")
     
     try:
-        # Use streaming to handle large datasets
         dataset = load_dataset(dataset_name, split=split, streaming=True)
     except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
-        raise e
+        # Fail loudly - no synthetic fallback
+        raise RuntimeError(f"Dataset download failed: {e}")
 
-    filtered_data = []
-    count = 0
-    
-    # Iterate through the streaming dataset
     for item in dataset:
         # Filter logic: Check for specific labels
-        # Assuming 'label' or 'category' column contains the type
-        # We look for 'Authority-framed' or 'Exception-poisoning'
         label = item.get('label', item.get('category', item.get('type', '')))
-        if 'Authority-framed' in str(label) or 'Exception-poisoning' in str(label):
-            filtered_data.append(item)
-            count += 1
-            if count % 1000 == 0:
-                logger.info(f"Filtered {count} items so far...")
+        if label in FILTER_LABELS:
+            yield item
 
-    logger.info(f"Total filtered items: {count}")
-    return filtered_data
-
-def validate_schema(data: List[Dict[str, Any]]) -> bool:
+def validate_schema(item: Dict[str, Any]) -> Optional[str]:
     """
-    Validate schema: Check for 'false_claim' column or extract from text.
+    Validate schema: Check for 'false_claim' column.
+    If missing, attempt regex extraction fallback.
+    Returns the false claim text if found/extracted, else raises error.
     """
-    if not data:
-        return False
+    if 'false_claim' in item:
+        return item['false_claim']
 
-    # Check if 'false_claim' exists in the first row
-    first_row = data[0]
-    if 'false_claim' in first_row:
-        return True
+    # Fallback: Extract from text using regex
+    # We need a text field to search. Common fields: 'prompt', 'question', 'text'
+    text_fields = ['prompt', 'question', 'text', 'input']
+    text_content = ""
+    for field in text_fields:
+        if field in item:
+            text_content = str(item[field])
+            break
+    
+    if not text_content:
+        raise RuntimeError("Schema validation failed: No 'false_claim' column and no text content found for regex extraction.")
 
-    # Fallback: Extract from text using regex (as per T013 spec)
-    # This is a placeholder for the regex logic.
-    # In a real implementation, we would check the prompt text for a false claim pattern.
-    # For now, we assume if 'false_claim' is missing, we try to extract it.
-    # If extraction fails, we abort.
-    logger.warning("'false_claim' column not found. Attempting regex extraction fallback...")
-    # Simulate extraction (actual regex logic would go here)
-    # If extraction fails, we raise an error
-    # For this task, we assume the dataset has the column or the fallback works.
-    # If it doesn't, we abort.
-    # Since we can't implement the full regex here without the actual text, we assume success for the pipeline.
-    # In a real scenario, we would check the text.
-    return True
+    match = FALSE_CLAIM_PATTERN.search(text_content)
+    if match:
+        extracted = match.group(1).strip().strip("'\"")
+        logger.info(f"Extracted false_claim via regex: {extracted[:50]}...")
+        return extracted
+    
+    # If extraction fails, abort with clear error (as per T013 spec)
+    raise RuntimeError("Schema validation failed: 'false_claim' column missing and regex extraction fallback failed.")
 
-def extract_false_claim_from_text(text: str) -> Optional[str]:
-    """
-    Extract false claim from text using regex.
-    """
-    # Placeholder regex - in reality, this would be a complex NLP task
-    # For now, we return None to indicate failure if not found
-    return None
-
-def save_to_csv(data: List[Dict[str, Any]], output_path: str) -> None:
-    """Save filtered data to CSV."""
-    if not data:
-        logger.warning("No data to save.")
-        return
-
-    # Ensure output directory exists
+def save_to_csv(data_iterator: Iterator[Dict[str, Any]], output_path: str) -> int:
+    """Save filtered data to CSV in chunks. Returns row count."""
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    row_count = 0
+    fieldnames = None
+    writer = None
+
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=data[0].keys())
-        writer.writeheader()
-        writer.writerows(data)
+        for item in data_iterator:
+            # Ensure schema is valid before saving (extract false_claim if needed)
+            try:
+                false_claim_val = validate_schema(item)
+                if false_claim_val:
+                    item['false_claim'] = false_claim_val
+            except RuntimeError as e:
+                logger.error(f"Skipping row due to validation error: {e}")
+                continue
 
-    logger.info(f"Saved {len(data)} rows to {output_path}")
+            if fieldnames is None:
+                fieldnames = list(item.keys())
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
 
-def save_checksum_to_state(data: List[Dict[str, Any]], state_path: str) -> None:
-    """Compute SHA-256 checksum and record in state file."""
-    checksum = hashlib.sha256(str(data).encode('utf-8')).hexdigest()
-    
+            writer.writerow(item)
+            row_count += 1
+            
+            if row_count % CHUNK_SIZE == 0:
+                logger.info(f"Saved {row_count} rows...")
+
+    logger.info(f"Saved total {row_count} rows to {output_path}")
+    return row_count
+
+def save_checksum_to_state(output_path: str, state_path: str) -> None:
+    """Compute SHA-256 checksum of the saved CSV and record in state file."""
+    if not os.path.exists(output_path):
+        raise FileNotFoundError(f"Output file not found for checksum: {output_path}")
+
+    sha256_hash = hashlib.sha256()
+    with open(output_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    checksum = sha256_hash.hexdigest()
+
     state_dir = os.path.dirname(state_path)
     if state_dir and not os.path.exists(state_dir):
         os.makedirs(state_dir)
 
+    # Load existing state if exists, else create new
+    existing_state = {}
+    if os.path.exists(state_path):
+        try:
+            with open(state_path, 'r') as sf:
+                existing_state = yaml.safe_load(sf) or {}
+        except Exception:
+            existing_state = {}
+
+    existing_state['medmis_subset_checksum'] = checksum
+    existing_state['medmis_subset_file'] = output_path
+    existing_state['timestamp'] = str(datetime.now())
+
     with open(state_path, 'w') as f:
-        yaml.dump({'medmis_checksum': checksum}, f)
+        yaml.dump(existing_state, f)
     
     logger.info(f"Checksum saved to {state_path}: {checksum}")
 
@@ -123,20 +156,19 @@ def run_ingestion_pipeline() -> None:
     state_path = 'state/artifact_hashes.yaml'
 
     # Load and filter
-    data = load_and_filter_dataset()
+    data_iterator = load_and_filter_dataset()
     
-    if not data:
+    try:
+        row_count = save_to_csv(data_iterator, output_path)
+    except RuntimeError as e:
+        logger.error(f"Ingestion failed during save/validation: {e}")
+        raise e
+
+    if row_count == 0:
         raise RuntimeError("No data filtered. Aborting.")
 
-    # Validate schema
-    if not validate_schema(data):
-        raise RuntimeError("Schema validation failed. Aborting.")
-
-    # Save to CSV
-    save_to_csv(data, output_path)
-
     # Save checksum
-    save_checksum_to_state(data, state_path)
+    save_checksum_to_state(output_path, state_path)
 
     logger.info("Ingestion pipeline complete.")
 

@@ -9,6 +9,9 @@ tqdm
 biopython
 firth-logistic
 reference-validator
-pytest
 pyyaml
-python-dotenv
+pytest
+ruff
+black
+requests
+urllib3
