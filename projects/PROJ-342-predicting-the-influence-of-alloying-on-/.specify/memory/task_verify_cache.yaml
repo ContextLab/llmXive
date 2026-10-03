@@ -1,10 +1,12 @@
-T014:
+T012:
   c: false
-  h: 91e233e68b51f81c7c1089a021401a3560db90add090864c26b14a658718cbf4
-  r: "The required `data/processed/cleaned_mg.csv` file is missing, and `data/ingestion_stats.json`\
-    \ does not contain the specified keys (`source_doi`, `raw_count`, `cleaned_count`)\
-    \ \u2013 it only has `original_count`, `kept_count`, `dropped_count`, and `retention_rate`.\
-    \ The task\u2019s output and verification criteria are therefore not satisfied."
+  h: 9b1ab0514a8c48f28b1b3b86abaec37a904bba6ffe37fc019b0a317563b263be
+  r: "The `ingest.py` file is truncated and does not show the required fallback\u2011\
+    DOI handling, checksum verification, chunked reading, or the DataInsufficient\
+    \ warnings/errors. Moreover, `data/ingestion_stats.json` lacks the required `source_doi`\
+    \ key, and the raw CSV files are absent (the script is expected to create/fetch\
+    \ them). These missing/unfinished elements mean the task\u2019s specifications\
+    \ are not fully satisfied."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,51 +22,36 @@ T025:
     \ resource\u2011monitoring checks for runtime\u202F<\u202F6\u202Fh and RAM\u202F\
     <\u202F7\u202FGB. The required artifact (e.g., a monitoring script, CI guard,\
     \ or runtime/RAM validation step) is missing, so the task is not satisfied."
-T026:
+T034:
   c: false
-  h: c8d6dee3e845b3c3ef64c08501ca5dcbef166e3bc22d4e15b9dc4bd76308d095
-  r: "The repository contains a partially\u2011implemented `code/descriptors.py` that\
-    \ is truncated and never writes any output file. The required `data/processed/descriptors.csv`\
-    \ is missing entirely, so the file cannot be checked for existence, size, or required\
-    \ columns. The task\u2019s core deliverable \u2013 a CSV with the three descriptor\
-    \ columns \u2013 is not present."
-T033a:
-  c: false
-  h: 676cf3f2570cb4ef06d0547f5be0ac11c1409f0de7a2ffa3e38789478efab306
-  r: The repository lacks the required input file `data/processed/descriptors.csv`
-    and the output file `data/processed/correlation_matrix.csv`. Moreover, `code/analyze.py`
-    does not define the specified `calculate_correlations(df)` function nor does it
-    save any correlation matrix to the expected CSV location. These missing artifacts
-    and functionality mean the task requirements are not met.
-T033b:
-  c: false
-  h: ebbde078b5e71eb22b283843c564fdb28e05e9f1d6b9bbefb0cc2c909293aa8d
-  r: "The required file `data/processed/correlation_matrix.csv` does not exist, and\
-    \ `code/analyze.py` contains no logic that asserts the CSV is non\u2011empty or\
-    \ checks for expected columns. Both the artifact and the verification code are\
-    \ missing."
-T035a:
-  c: false
-  h: bd12f709b9bbc4ef8c316f9c046bb0f326b5ac9d1d1306f55260b011e891b38a
-  r: "The repository lacks the required input `data/processed/descriptors.csv` and\
-    \ the output `data/processed/vif_diagnostic_log.json`. Moreover, the provided\
-    \ `code/analyze.py` snippet does not show a `calculate_vif(df)` implementation\
-    \ that excludes \u201Cweighted mean radius\u201D, flags VIF\u202F>\u202F5, and\
-    \ writes the diagnostic log, and the file is truncated before such logic could\
-    \ appear. These essential artifacts are missing or incomplete."
-T035b:
-  c: false
-  h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
-  r: The required artifact `data/processed/vif_diagnostic_log.json` does not exist,
-    so the existence check fails and the content cannot be verified for the `flagged_features`
-    key. The implementer must create the file with the appropriate JSON structure
-    containing that key.
+  h: 250b0a7a1d50bc5237f4a9d7c21d149ed80611570735798bbbe42b198163cdf3
+  r: "The provided `code/analyze.py` is truncated and does not contain a full implementation\
+    \ of the Benjamini\u2011Hochberg correction nor any code that writes `fdr_corrected_pvalues.json`.\
+    \ Additionally, the required input file `data/processed/correlation_matrix.csv`\
+    \ and the expected output JSON are absent from the repository."
 T036a:
   c: false
   h: 13cb5efa68dc81a40d3e5b12785a981ac8c2a3cd179ea8f219eb47fb305069a2
   r: "The provided `code/analyze.py` does not contain a `bootstrap_feature_importance`\
     \ function (or any bootstrapping logic) and the required input model file `artifacts/models/best_model.pkl`\
     \ is absent, so the task\u2019s core requirement is not met."
+T037a:
+  c: false
+  h: 93ca0a08023ad70a14f9d1025f76db4e6ccf82313786fb9c8500efebd1470a72
+  r: "The repository lacks the required input artifacts (`artifacts/models/best_model.pkl`\
+    \ and `data/processed/cleaned_mg.csv` are missing) and the `code/analyze.py` file\
+    \ does not contain the `sweep_max_depth` implementation (the shown portion only\
+    \ defines logging and helper loaders). Consequently the sensitivity\u2011analysis\
+    \ JSON output cannot be produced as specified."
+T059:
+  c: false
+  h: 16bbaac8b2728062888d16d00aa94dbfbc6b85cfa302711fe5adc38b46211cbe
+  r: "The repository contains a partial `code/train.py` that defines a `generate_stratification_status_file`\
+    \ function, but it never reads `logs/train.log` for `STRATIFICATION_WARNING`,\
+    \ does not produce the required fields (`family_name`, `sample_count`, `action_taken`),\
+    \ and does not write to `data/processed/stratification_status.json`. The JSON\
+    \ file is missing entirely. The task\u2019s edge\u2011case handling and output\
+    \ file are therefore not implemented."
 T083:
   c: false
   h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
