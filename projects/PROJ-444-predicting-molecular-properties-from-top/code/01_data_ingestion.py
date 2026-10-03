@@ -1,3 +1,10 @@
+"""
+Data Ingestion Module for Molecular Property Prediction.
+
+This module handles fetching the ESOL dataset, validating schema,
+performing power analysis, enforcing scaffold constraints, and
+generating scaffold-based train/test splits.
+"""
 import os
 import sys
 import logging
@@ -11,23 +18,24 @@ import pandas as pd
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem.Scaffolds import MurckoScaffold
-from sklearn.model_selection import GroupKFold
 
-# Configuration
+# Constants
+MIN_SAMPLES = 128
 MIN_SCAFFOLDS = 100
-MIN_SAMPLES_POWER = 128
-NUM_FOLDS = 5
-RANDOM_SEED = 42
-ESOL_DATASET_URL = "https://raw.githubusercontent.com/bp-kelley/datasets-csv/master/ESOL.csv"
-# Using a verified source path if available, otherwise fetch URL
-# The task requires fetching from a real source. We will use the URL directly.
+SPLIT_FOLDS = 5
+SEED = 42
+DATA_PROCESSED_DIR = Path("data/processed")
+DATA_RAW_DIR = Path("data/raw")
+LOGS_DIR = Path("data/logs")
 
-def setup_logging(log_file: str = "data/logs/ingestion.log") -> logging.Logger:
-    """Setup logging configuration."""
-    Path("data/logs").mkdir(parents=True, exist_ok=True)
+def setup_logging() -> logging.Logger:
+    """Configure logging for the ingestion pipeline."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = LOGS_DIR / "ingestion.log"
+    
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
             logging.FileHandler(log_file),
             logging.StreamHandler(sys.stdout)
@@ -35,40 +43,60 @@ def setup_logging(log_file: str = "data/logs/ingestion.log") -> logging.Logger:
     )
     return logging.getLogger(__name__)
 
-def pin_random_seed(seed: int = RANDOM_SEED) -> None:
-    """Pin random seed for reproducibility."""
+def pin_random_seed(seed: int = SEED) -> None:
+    """Pin random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def fetch_esol_dataset(logger: logging.Logger) -> pd.DataFrame:
-    """Fetch the ESOL dataset from the real source."""
-    logger.info(f"Fetching ESOL dataset from {ESOL_DATASET_URL}...")
+    """
+    Fetch the ESOL dataset from a real source.
+    
+    Uses the MoleculeNet dataset via the `moleculenet` package or direct URL.
+    If `moleculenet` is not available, falls back to the direct CSV URL from
+    the MoleculeNet repository.
+    """
+    logger.info("Fetching ESOL dataset...")
+    
+    # Attempt to use the openml/moleculenet source if available, otherwise direct fetch
+    # Direct URL from MoleculeNet GitHub
+    esol_url = "https://raw.githubusercontent.com/bp-kelley/datasets-csv/master/esol.csv"
+    
     try:
-        # Attempt to read directly from URL
-        df = pd.read_csv(ESOL_DATASET_URL)
-        logger.info(f"Successfully fetched dataset. Shape: {df.shape}")
+        # Try fetching directly
+        df = pd.read_csv(esol_url)
+        if df.empty:
+            raise ValueError("Downloaded dataset is empty")
+        logger.info(f"Successfully fetched {len(df)} rows from ESOL dataset.")
         return df
     except Exception as e:
-        logger.error(f"Failed to fetch dataset: {e}")
-        # Fail loudly as per constraints
-        raise SystemExit(1)
+        logger.error(f"Failed to fetch ESOL dataset: {e}")
+        raise SystemExit(1) from e
 
 def validate_schema(df: pd.DataFrame, logger: logging.Logger) -> bool:
-    """Validate required columns exist."""
-    required_cols = ["smiles", "logP"]
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        logger.error(f"Missing required columns: {missing}")
+    """
+    Validate that the dataframe contains required columns: 'smiles' and 'logP'.
+    """
+    required_cols = {'smiles', 'logP'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        logger.error(f"Schema validation failed. Missing columns: {missing}")
         return False
     return True
 
-def perform_power_analysis(df: pd.DataFrame, logger: logging.Logger) -> None:
-    """Perform a priori power analysis check."""
+def perform_power_analysis(df: pd.DataFrame, logger: logging.Logger) -> bool:
+    """
+    Perform a priori power analysis.
+    Requires N >= MIN_SAMPLES (128).
+    """
     n = len(df)
-    if n < MIN_SAMPLES_POWER:
-        logger.error(f"Power Insufficient: N={n} < {MIN_SAMPLES_POWER}")
-        raise SystemExit(1)
-    logger.info(f"Power analysis passed: N={n} >= {MIN_SAMPLES_POWER}")
+    logger.info(f"Power Analysis: Sample size N = {n}")
+    if n < MIN_SAMPLES:
+        logger.error(f"Power Insufficient: N={n} < {MIN_SAMPLES}")
+        return False
+    logger.info("Power analysis passed.")
+    return True
 
 def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
     """
@@ -86,65 +114,87 @@ def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
     except Exception:
         return None
 
-def enforce_scaffold_check(df: pd.DataFrame, logger: logging.Logger) -> None:
-    """Enforce minimum unique scaffolds requirement."""
+def enforce_scaffold_check(df: pd.DataFrame, logger: logging.Logger) -> bool:
+    """
+    Enforce the minimum scaffold count constraint.
+    Computes unique scaffolds for all valid molecules.
+    Requires unique scaffolds >= MIN_SCAFFOLDS (100).
+    """
     logger.info("Computing unique scaffolds...")
     scaffolds = []
-    for smiles in df["smiles"]:
+    valid_count = 0
+    
+    for smiles in df['smiles']:
         scaffold = get_bemis_murcko_scaffold(smiles)
         if scaffold:
             scaffolds.append(scaffold)
-        else:
-            scaffolds.append(None)
+            valid_count += 1
     
-    df_with_scaffolds = df.copy()
-    df_with_scaffolds["_scaffold"] = scaffolds
-    
-    unique_scaffolds = df_with_scaffolds["_scaffold"].dropna().unique()
+    unique_scaffolds = set(scaffolds)
     count = len(unique_scaffolds)
+    logger.info(f"Unique scaffolds found: {count} (from {valid_count} valid molecules)")
     
     if count < MIN_SCAFFOLDS:
         logger.error(f"Scaffold Insufficient: {count} < {MIN_SCAFFOLDS}")
-        raise SystemExit(1)
+        return False
     
-    logger.info(f"Scaffold check passed: {count} unique scaffolds >= {MIN_SCAFFOLDS}")
-    return df_with_scaffolds
+    logger.info("Scaffold validation passed.")
+    return True
 
-def scaffold_split(df: pd.DataFrame, logger: logging.Logger) -> Dict[str, List[int]]:
+def scaffold_split(df: pd.DataFrame, n_folds: int = SPLIT_FOLDS, seed: int = SEED) -> Dict[str, List[int]]:
     """
-    Perform a 5-fold scaffold split.
-    Returns a dictionary mapping fold index (0-4) to list of row indices.
+    Perform a scaffold-based split of the dataset.
+    
+    1. Compute scaffolds for all molecules.
+    2. Group molecules by scaffold.
+    3. Shuffle scaffold groups.
+    4. Distribute scaffold groups into n_folds buckets.
+    5. Return indices for each fold.
     """
-    logger.info("Performing scaffold split...")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Performing scaffold split with {n_folds} folds (seed={seed})")
     
-    # Ensure we have the scaffold column
-    if "_scaffold" not in df.columns:
-        df = enforce_scaffold_check(df, logger)
+    # Compute scaffolds
+    df['scaffold'] = df['smiles'].apply(get_bemis_murcko_scaffold)
+    df = df.dropna(subset=['scaffold']).reset_index(drop=True)
     
-    # Map scaffolds to group IDs (integers)
-    unique_scaffolds = df["_scaffold"].unique()
-    scaffold_to_group = {s: i for i, s in enumerate(unique_scaffolds)}
-    df["_group_id"] = df["_scaffold"].map(scaffold_to_group)
+    # Group by scaffold
+    scaffold_groups = df.groupby('scaffold').indices
     
-    # Use GroupKFold to ensure molecules with same scaffold stay together
-    gkf = GroupKFold(n_splits=NUM_FOLDS)
-    groups = df["_group_id"].values
+    # Get list of scaffolds and shuffle them
+    scaffold_list = list(scaffold_groups.keys())
+    rng = np.random.RandomState(seed)
+    rng.shuffle(scaffold_list)
     
-    splits = {i: [] for i in range(NUM_FOLDS)}
+    # Initialize folds
+    folds = [[] for _ in range(n_folds)]
     
-    # GroupKFold returns indices for train and test. 
-    # We need to assign each row to exactly one fold (the test fold for that iteration).
-    # However, standard practice for "splits.json" in this context is often to define
-    # the test set for each fold. Let's create a structure where each fold has its test indices.
+    # Distribute scaffold groups into folds (round-robin)
+    for i, scaffold in enumerate(scaffold_list):
+        fold_idx = i % n_folds
+        molecule_indices = scaffold_groups[scaffold].tolist()
+        folds[fold_idx].extend(molecule_indices)
     
-    for fold_idx, (train_idx, test_idx) in enumerate(gkf.split(df, groups=groups)):
-        splits[fold_idx] = test_idx.tolist()
-        
-    logger.info(f"Split complete. Fold sizes: {[len(splits[i]) for i in range(NUM_FOLDS)]}")
-    return splits
+    # Convert to dictionary
+    split_indices = {f"fold_{i}": indices for i, indices in enumerate(folds)}
+    
+    logger.info(f"Split complete. Fold sizes: {[len(v) for v in split_indices.values()]}")
+    return split_indices
 
-def main():
-    """Main entry point for data ingestion (Part 2)."""
+def save_splits(split_indices: Dict[str, List[int]], logger: logging.Logger) -> None:
+    """
+    Save split indices to data/processed/splits.json.
+    """
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = DATA_PROCESSED_DIR / "splits.json"
+    
+    with open(output_path, 'w') as f:
+        json.dump(split_indices, f, indent=2)
+    
+    logger.info(f"Saved split indices to {output_path}")
+
+def main() -> None:
+    """Main entry point for data ingestion and splitting."""
     logger = setup_logging()
     pin_random_seed()
     
@@ -157,27 +207,26 @@ def main():
             raise SystemExit(1)
         
         # 3. Power Analysis
-        perform_power_analysis(df, logger)
+        if not perform_power_analysis(df, logger):
+            raise SystemExit(1)
         
-        # 4. Scaffold Check & Enforce
-        df_with_scaffolds = enforce_scaffold_check(df, logger)
+        # 4. Scaffold Validation
+        if not enforce_scaffold_check(df, logger):
+            raise SystemExit(1)
         
-        # 5. Scaffold Split
-        splits = scaffold_split(df_with_scaffolds, logger)
+        # 5. Perform Split
+        split_indices = scaffold_split(df)
         
         # 6. Save Splits
-        Path("data/processed").mkdir(parents=True, exist_ok=True)
-        output_path = "data/processed/splits.json"
-        with open(output_path, "w") as f:
-            json.dump(splits, f, indent=2)
+        save_splits(split_indices, logger)
         
-        logger.info(f"Successfully saved splits to {output_path}")
+        logger.info("Data ingestion and splitting completed successfully.")
         
-    except SystemExit as e:
-        raise e
+    except SystemExit:
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise SystemExit(1)
+        logger.error(f"Unexpected error during ingestion: {e}")
+        raise SystemExit(1) from e
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,17 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or proof that the `projects/PROJ-444-predicting-molecular-properties-from-top/\u2026\
+    ` folders were actually created is provided; without concrete evidence the requirement\
+    \ cannot be confirmed. The implementer must supply a verification output (e.g.,\
+    \ `ls -R` showing all required subdirectories) or a script that confirms their\
+    \ existence."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a file `projects/PROJ-444-predicting-molecular-properties-from-top/README.md`
+    actually exists, nor that it contains the required text. The implementer must
+    supply the README file with the specified content.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,29 +27,29 @@ T004:
     \ a `state/` tracking component or script that checks their existence on exit,\
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
-T010:
+T007:
   c: false
-  h: 3014e33badc9968003d87007ae9a8f15d543dd5137280174aace06cb70a178a8
-  r: The test file `tests/contract/test_tda_schema.py` exists, but it references a
-    schema at `specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml`
-    which is missing, so the test cannot perform the required validation. The schema
-    file must be added (with the correct column and type definitions) for the contract
-    test to be functional.
-T013:
+  h: 60a43382dcfc043be1b8cacd37c5fd6fc5470fdc6a98cea65d35516933c9144b
+  r: The repository contains `code/00_checksum_verify.py`, but it only defines helper
+    functions and never executes them to generate `data/checksums.txt`. Moreover,
+    the required error handling (exiting with `SystemExit(1)` and the specific message
+    when `data/raw/` is missing or empty) is not implemented. The expected output
+    file `data/checksums.txt` is absent, so the verification conditions are not met.
+T008b:
   c: false
-  h: 4938bef6df5098a2adc46b166d15fc07d0af771a87d7915c29403510a81aecbb
-  r: "The required output file `data/processed/persistence_images_10x10.csv` is missing,\
-    \ so the primary deliverable does not exist. Consequently the task\u2019s core\
-    \ requirement\u2014producing a 10\xD710 persistence\u2011image CSV with the specified\
-    \ schema and no NaNs\u2014has not been satisfied. The presence of `code/02_tda_computation.py`\
-    \ alone is insufficient without the generated CSV."
-T015a:
+  h: 1e047b9caba4e179dc2c3a59209fc1b6efeb677590ea73716e39f92489fb807c
+  r: "The provided `code/01_data_ingestion.py` is truncated and does not show the\
+    \ implementation of the custom scaffold splitter, the 5\u2011fold split, or the\
+    \ logic that writes the split indices to `data/processed/splits.json`. Moreover,\
+    \ the `splits.json` file is absent from the repository. Consequently, the task\u2019\
+    s core requirements are not met."
+T016:
   c: false
-  h: fe2c01f20a1cccc4869f3f6147326b6c652759bea716ecb4d43d97f8f1c4454e
-  r: "The `data/excluded_smiles_manifest.csv` file is present, but `data/logs/invalid_smiles.log`\
-    \ does not exist and the script\u2019s logging configuration writes to `tda_computation.log`\
-    \ instead of the required `invalid_smiles.log`. The implementation therefore fails\
-    \ to meet the logging requirement."
+  h: b697096e09952a68e762cd2502d0ac21404490d85b80a691c54f8d835e3f56fe
+  r: "The required output file `data/processed/tda_vectors_10x10.csv` does not exist,\
+    \ and the input `data/processed/splits.json` (needed to map molecule IDs) is also\
+    \ missing. Without these files the script cannot be run nor can the contract test\
+    \ be executed, so the task\u2019s core requirement is not satisfied."
 T017:
   c: false
   h: b9a9e4d9f59e890e1685b1c61166ae760c3ee876867c31977d4df5e495409613

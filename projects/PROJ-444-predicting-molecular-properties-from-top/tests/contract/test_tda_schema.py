@@ -22,7 +22,7 @@ def test_tda_schema_compliance():
     4. No NaN values in topological columns.
     """
     file_path = Path("data/processed/tda_features.csv")
-    schema_path = Path("specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml")
+    schema_path = Path("specs/001-predict-molecular-properties-tda/contracts/feature_matrix.schema.yaml")
     
     # 1. File existence
     assert file_path.exists(), f"File {file_path} does not exist."

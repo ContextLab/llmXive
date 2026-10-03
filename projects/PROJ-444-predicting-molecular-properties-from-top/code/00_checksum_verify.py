@@ -2,7 +2,7 @@ import hashlib
 import os
 import sys
 from pathlib import Path
-from typing import Optional, List
+from typing import List
 
 try:
     from setup_data_structure import ensure_directory
@@ -10,9 +10,10 @@ except ImportError:
     sys.path.insert(0, str(Path(__file__).parent))
     from setup_data_structure import ensure_directory
 
+
 def compute_sha256(file_path: str) -> str:
     """Compute SHA256 hash of a file in chunks to handle large files.
-    
+
     Reads the file in binary mode to ensure content-based hashing,
     ignoring file metadata like modification timestamps.
     """
@@ -22,16 +23,17 @@ def compute_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+
 def get_raw_data_files(data_dir: str) -> List[str]:
     """Get list of all non-placeholder files in data/raw directory.
-    
+
     Returns full paths to all files in data/raw/ excluding .gitkeep files.
     If the directory does not exist, returns an empty list.
     """
     raw_dir = Path(data_dir) / "raw"
     if not raw_dir.exists():
         return []
-    
+
     files = []
     for root, _, filenames in os.walk(raw_dir):
         for filename in filenames:
@@ -40,9 +42,10 @@ def get_raw_data_files(data_dir: str) -> List[str]:
                 files.append(os.path.join(root, filename))
     return files
 
+
 def write_checksums(checksums: dict, output_path: str) -> None:
     """Write checksums to a text file in standard checksum format.
-    
+
     Format: <sha256_hash>  <file_path>
     Uses two spaces between hash and path to match standard tools like sha256sum.
     """
@@ -52,21 +55,22 @@ def write_checksums(checksums: dict, output_path: str) -> None:
             # Standard checksum format: <hash>  <filename>
             f.write(f"{checksum}  {file_path}\n")
 
+
 def verify_checksums(checksum_file: str, data_dir: str) -> bool:
     """Verify file checksums against recorded values.
-    
+
     Compares the content hash of files in data/raw/ against the recorded
     hashes in checksum_file. Returns True if all files match, False otherwise.
     """
     if not os.path.exists(checksum_file):
         print(f"Checksum file not found: {checksum_file}")
         return False
-    
+
     raw_files = get_raw_data_files(data_dir)
     if not raw_files:
         print("No raw data files found to verify.")
         return True
-    
+
     # Read recorded checksums
     recorded = {}
     with open(checksum_file, 'r', encoding='utf-8') as f:
@@ -74,13 +78,13 @@ def verify_checksums(checksum_file: str, data_dir: str) -> bool:
             parts = line.strip().split("  ", 1)
             if len(parts) == 2:
                 recorded[parts[1]] = parts[0]
-    
+
     all_valid = True
     for file_path in raw_files:
         if file_path not in recorded:
             print(f"Warning: No checksum recorded for {file_path}")
             continue
-        
+
         current_hash = compute_sha256(file_path)
         if current_hash != recorded[file_path]:
             print(f"FAILED: {file_path}")
@@ -89,15 +93,16 @@ def verify_checksums(checksum_file: str, data_dir: str) -> bool:
             all_valid = False
         else:
             print(f"OK: {file_path}")
-    
+
     return all_valid
+
 
 def main():
     """Main entry point for checksum verification.
-    
+
     If run without arguments: computes SHA256 hashes for all files in data/raw/
     and writes them to data/checksums.txt.
-    
+
     If run with 'verify' argument: compares current file hashes against
     recorded values in data/checksums.txt.
     """
@@ -107,10 +112,10 @@ def main():
         project_root = Path.cwd().parent
     else:
         project_root = Path.cwd()
-        
+
     data_dir = project_root / "data"
     checksum_file = project_root / "data" / "checksums.txt"
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == "verify":
         if verify_checksums(str(checksum_file), str(data_dir)):
             print("All checksums verified successfully.")
@@ -118,21 +123,22 @@ def main():
         else:
             print("Checksum verification failed.")
             sys.exit(1)
-    
+
     # Compute checksums for all raw files
     raw_files = get_raw_data_files(str(data_dir))
     if not raw_files:
         print("Data Hygiene Failed: No raw data found to checksum.")
         sys.exit(1)
-    
+
     checksums = {}
     for file_path in raw_files:
         print(f"Computing hash for {file_path}...")
         checksums[file_path] = compute_sha256(file_path)
-    
+
     write_checksums(checksums, str(checksum_file))
     print(f"Checksums written to {checksum_file}")
     print(f"Total files processed: {len(checksums)}")
+
 
 if __name__ == "__main__":
     main()

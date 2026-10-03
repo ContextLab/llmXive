@@ -11,5 +11,5 @@ requests
 pytest
 memory-profiler
 statsmodels
-networkx
 scipy
+networkx

@@ -1,93 +1,96 @@
 """
 Project Structure Initialization Script.
-Implements T001: Create project structure per implementation plan.
+
+This script creates the required directory structure for the
+PROJ-444-predicting-molecular-properties-from-top project.
 """
 import os
 import sys
 from pathlib import Path
 from typing import List
 
-PROJECT_ROOT = Path(__file__).parent.parent
-PROJECT_NAME = "PROJ-444-predicting-molecular-properties-from-top"
-BASE_PATH = PROJECT_ROOT / "projects" / PROJECT_NAME
-
-REQUIRED_DIRS = [
-    "code",
-    "data/raw",
-    "data/processed",
-    "data/logs",
-    "tests",
-    "reports",
-    "state"
-]
-
-README_CONTENT = "Project: Predicting Molecular Properties from TDA"
-
-def ensure_directory(dir_path: Path) -> bool:
-    """Create a directory if it does not exist."""
-    try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return True
-    except OSError as e:
-        print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-        return False
-
-def initialize_readme(base_path: Path) -> bool:
-    """Create the README.md file with the specified content."""
-    readme_path = base_path / "README.md"
-    try:
-        readme_path.write_text(README_CONTENT, encoding="utf-8")
-        return True
-    except OSError as e:
-        print(f"Error creating README.md: {e}", file=sys.stderr)
-        return False
-
-def main():
-    """Main entry point for project structure initialization."""
-    print(f"Initializing project structure at: {BASE_PATH}")
+def ensure_directory(path: Path) -> bool:
+    """
+    Ensure a directory exists. Create it if it doesn't.
     
-    # Create base project directory
-    if not ensure_directory(BASE_PATH):
-        sys.exit(1)
+    Args:
+        path: The directory path to ensure exists.
+        
+    Returns:
+        True if the directory exists (was created or already present), False otherwise.
+    """
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        return True
+    except OSError as e:
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+        return False
 
-    # Create required subdirectories
-    success = True
-    for dir_name in REQUIRED_DIRS:
-        dir_path = BASE_PATH / dir_name
+def initialize_readme(project_root: Path, content: str) -> bool:
+    """
+    Initialize a README.md file with the given content.
+    
+    Args:
+        project_root: The root directory of the project.
+        content: The text content to write to the README.
+        
+    Returns:
+        True if the file was written successfully, False otherwise.
+    """
+    readme_path = project_root / "README.md"
+    try:
+        readme_path.write_text(content, encoding="utf-8")
+        return True
+    except OSError as e:
+        print(f"Error writing README.md: {e}", file=sys.stderr)
+        return False
+
+def main() -> int:
+    """
+    Main entry point for the project structure setup.
+    
+    Creates the directory structure and README for PROJ-444.
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
+    project_root = Path("projects/PROJ-444-predicting-molecular-properties-from-top")
+    
+    # Define required directories
+    required_dirs: List[Path] = [
+        project_root,
+        project_root / "code",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "logs",
+        project_root / "tests",
+        project_root / "reports",
+        project_root / "state",
+    ]
+    
+    print(f"Setting up project structure at: {project_root}")
+    
+    all_success = True
+    for dir_path in required_dirs:
         if not ensure_directory(dir_path):
-            success = False
-            print(f"Failed to create: {dir_path}")
-
-    if not success:
-        print("Project structure initialization failed.", file=sys.stderr)
-        sys.exit(1)
-
-    # Create README.md
-    if not initialize_readme(BASE_PATH):
-        sys.exit(1)
-
-    # Verification
-    missing_dirs = []
-    for dir_name in REQUIRED_DIRS:
-        if not (BASE_PATH / dir_name).exists():
-            missing_dirs.append(dir_name)
-
-    if missing_dirs:
-        print(f"Verification failed: Missing directories {missing_dirs}", file=sys.stderr)
-        sys.exit(1)
-
-    if not (BASE_PATH / "README.md").exists():
-        print("Verification failed: README.md missing", file=sys.stderr)
-        sys.exit(1)
-
-    readme_text = (BASE_PATH / "README.md").read_text(encoding="utf-8")
-    if not readme_text.strip():
-        print("Verification failed: README.md is empty", file=sys.stderr)
-        sys.exit(1)
-
-    print("Project structure created successfully.")
-    print(f"  - Directories: {', '.join(REQUIRED_DIRS)}")
-    print(f"  - README.md: '{README_CONTENT}'")
+            all_success = False
+        else:
+            print(f"  Created/Verified: {dir_path}")
+    
+    # Initialize README
+    readme_content = "Project: Predicting Molecular Properties from TDA"
+    if not initialize_readme(project_root, readme_content):
+        all_success = False
+    else:
+        print(f"  Created: {project_root / 'README.md'}")
+    
+    if all_success:
+        print("Project structure setup complete.")
+        return 0
+    else:
+        print("Project structure setup failed.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
