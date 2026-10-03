@@ -797,26 +797,6 @@
   updated_at: '2026-09-26T07:43:56Z'
 - artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
   attempts: 1
-  canonical: default join radius 10km based on WorldClim resolution
-  claim_id: c_f5679375
-  context: Create base configuration loader for environment variables and paths, including
-    a configurable join_radius_km parameter with a default value of 10km (based on
-    WorldClim resolution) to ensure reproducibility without manual intervention.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Default_join_radius_10km_based_on_WorldClim_resolution
-  kind: entity_fact
-  raw_text: default value of 10km for join_radius_km parameter based on WorldClim
-    resolution
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-26T07:45:14Z'
-- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
-  attempts: 1
   canonical: WorldClim v2.1
   claim_id: c_3dd60044
   context: Load real avian acoustic data and climate data (WorldClim v2.1), align
@@ -1087,3 +1067,436 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T07:50:09Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Data sources: Xeno-Canto API and WorldClim v2.1'
+  claim_id: c_78012776
+  context: Create `code/data_sources.yaml` defining Xeno-Canto API and WorldClim v2.1
+    URLs, sample paths, and version pinning logic.
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project uses Xeno-Canto API and WorldClim v2.1 as data sources.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T09:19:18Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'WorldClim v2.1 URL: https://www.worldclim.org/data/worldclim21.html'
+  claim_id: c_88d2f62d
+  context: Create `code/data_sources.yaml` defining Xeno-Canto API and WorldClim v2.1
+    (https://www.worldclim.org/data/worldclim21.html) URLs, sample paths, and version
+    pinning logic.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: WorldClim v2.1 data is accessed via https://www.worldclim.org/data/worldclim21.html.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:19:55Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Default join_radius_km: 10km'
+  claim_id: c_2e1ad5c6
+  context: Create base configuration loader for environment variables and paths, including
+    a configurable `join_radius_km` parameter with a default value of 10km (based
+    on WorldClim resolution) to ensure reproducibility without manual intervention.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_join_radius_km:_10km
+  kind: entity_fact
+  raw_text: The project uses a configurable join_radius_km parameter with a default
+    value of 10km.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:20:20Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Target CRS for reprojection: EPSG:4326'
+  claim_id: c_b47886b7
+  context: Implement coordinate reprojection logic (WGS84/NAD83) using `pyproj.Transformer`
+    to reproject input CRS to EPSG:4326.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Coordinate reprojection uses EPSG:4326 (WGS84/NAD83).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:20:43Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Default multicollinearity threshold: 0.8'
+  claim_id: c_75bbc2cb
+  context: Implement multicollinearity threshold check (default 0.8) and flagging
+    in `code/eda.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multicollinearity threshold check uses a default value of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:21:00Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'VIF flag threshold: > 5'
+  claim_id: c_0f67e6ac
+  context: Implement Variance Inflation Factor (VIF) calculation for all predictors
+    in `code/eda.py` AND verify VIF output to generate flag report for any predictor
+    with VIF > 5, saving flags to the EDA report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Inflation Factor (VIF) flags are generated for predictors with
+    VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:21:00Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Correlation matrix value range: [-1.0, 1.0]'
+  claim_id: c_058cad35
+  context: Ensure correlation matrix values are strictly within [-1.0, 1.0] and include
+    a validation step to assert this.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation matrix values are strictly within the range [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:22:32Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis p-value thresholds: 0.01, 0.05, 0.10'
+  claim_id: c_84aca49a
+  context: 'Implement sensitivity analysis: sweep p-value thresholds across {0.01,
+    0.05, 0.10}, track significant predictors, calculate Jaccard index...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps p-value thresholds across {0.01, 0.05, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:23:11Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 'FDR method: Benjamini-Hochberg (fdr_bh)'
+  claim_id: c_0b826e7c
+  context: Implement Benjamini-Hochberg procedure using `statsmodels.stats.multitest.multipletests`
+    with `method='fdr_bh'` in `code/modeling.py` to adjust p-values...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_method:_Benjamini-Hochberg_(fdr_bh)
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg procedure is implemented using `statsmodels.stats.multitest.multipletests`
+    with `method='fdr_bh'`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:23:41Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 2
+  canonical: default join radius 10km based on WorldClim resolution
+  claim_id: c_f5679375
+  context: Create base configuration loader for environment variables and paths, including
+    a configurable join_radius_km parameter with a default value of 10km (based on
+    WorldClim resolution) to ensure reproducibility without manual intervention.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_join_radius_10km_based_on_WorldClim_resolution
+  kind: entity_fact
+  raw_text: default value of 10km for join_radius_km parameter based on WorldClim
+    resolution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:25:03Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: WorldClim v2.1 data source used
+  claim_id: c_1d7384a1
+  context: Create data_sources.yaml defining Xeno-Canto API and WorldClim v2.1 URLs,
+    sample paths, and version pinning logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project utilizes WorldClim v2.1 for climate data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:25:29Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Xeno-Canto API data source used
+  claim_id: c_8b0fd995
+  context: Create data_sources.yaml defining Xeno-Canto API and WorldClim v2.1 URLs,
+    sample paths, and version pinning logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Xeno-Canto_API_data_source_used
+  kind: entity_fact
+  raw_text: The project uses the Xeno-Canto API for avian acoustic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:25:58Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Coordinate reprojection to EPSG:4326
+  claim_id: c_2f25f412
+  context: Implement schema validation utilities for SongRecord, ClimateSnapshot,
+    and AnalysisDataset, AND implement coordinate reprojection logic (WGS84/NAD83)
+    using pyproj.Transformer to reproject input CRS to EPSG:4326.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project reprojects input coordinate reference systems to EPSG:4326
+    (WGS84).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:26:24Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Xeno-Canto API address resolution failure
+  claim_id: c_3dda8cb4
+  context: Create code/data_sources.yaml defining Xeno-Canto API ( No address associated
+    with hostname)) and WorldClim v2.1 URLs
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Xeno-Canto_API_address_resolution_failure
+  kind: entity_fact
+  raw_text: Xeno-Canto API ( No address associated with hostname))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:34:03Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: default join radius 10km based on WorldClim resolution
+  claim_id: c_e2276af4
+  context: T005 [P] Create base configuration loader for environment variables and
+    paths, including a configurable join_radius_km parameter with a default value
+    of 10km (based on WorldClim resolution) to ensure reproducibility without manual
+    intervention.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_join_radius_10km_based_on_WorldClim_resolution
+  kind: entity_fact
+  raw_text: The project defines a configurable join_radius_km parameter with a default
+    value of 10km, based on WorldClim resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:37:29Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: targeting WorldClim v2.1 for climate data
+  claim_id: c_4389efd7
+  context: T009 [P] Create code/data_sources.yaml defining Xeno-Canto API and WorldClim
+    v2.1 (https://www.worldclim.org/data/worldclim21.html) URLs, sample paths, and
+    version pinning logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets WorldClim v2.1 for climate data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:38:01Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: targeting Xeno-Canto API for avian acoustic data
+  claim_id: c_374dc539
+  context: T009 [P] Create code/data_sources.yaml defining Xeno-Canto API and WorldClim
+    v2.1 URLs, sample paths, and version pinning logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Targeting_Xeno-Canto_API_for_avian_acoustic_data
+  kind: entity_fact
+  raw_text: The project targets the Xeno-Canto API for avian acoustic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:38:46Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: schema includes species_id lat lon song_metric_1 song_metric_2
+  claim_id: c_6851ec96
+  context: 'T007 [P] Create schema definition files contracts/song_record.schema.yaml
+    (fields: species_id, lat, lon, song_metric_1, song_metric_2)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_includes_species_id_lat_lon_song_metric_1_song_metric
+  kind: entity_fact
+  raw_text: The analysis dataset schema includes fields for species_id, lat, lon,
+    song_metric_1, and song_metric_2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:39:09Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: schema includes lat lon temperature precipitation elevation
+  claim_id: c_f54ee157
+  context: 'T007 [P] Create schema definition files contracts/climate_snapshot.schema.yaml
+    (fields: lat, lon, temperature, precipitation, elevation)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_includes_lat_lon_temperature_precipitation_elevation
+  kind: entity_fact
+  raw_text: The analysis dataset schema includes fields for lat, lon, temperature,
+    precipitation, and elevation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:39:26Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: coordinate reprojection to EPSG:4326
+  claim_id: c_a5d96c36
+  context: T008 [P] Implement schema validation utilities... AND implement coordinate
+    reprojection logic (WGS84/NAD83) using pyproj.Transformer to reproject input CRS
+    to EPSG:4326.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system performs coordinate reprojection to EPSG:4326 (WGS84).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:39:59Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: default multicollinearity threshold 0.8
+  claim_id: c_576599fc
+  context: T023 [US2] Implement multicollinearity threshold check (default 0.8) and
+    flagging in code/eda.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a default multicollinearity threshold of 0.8 for flagging.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:40:18Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: flag predictors with VIF greater than 5
+  claim_id: c_ce453798
+  context: T024 [US2] Implement Variance Inflation Factor (VIF) calculation... AND
+    verify VIF output to generate flag report for any predictor with VIF > 5...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: The system flags predictors with a Variance Inflation Factor (VIF) greater
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:41:20Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: sweep p-value thresholds 0.01 0.05 0.10
+  claim_id: c_a37475b0
+  context: 'T031b [US3] Implement sensitivity analysis: sweep p-value thresholds across
+    {0.01, 0.05, 0.10}, track significant predictors...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps p-value thresholds across 0.01, 0.05,
+    and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:41:20Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg procedure method fdr_bh
+  claim_id: c_81071a7f
+  context: T031c [US3] Implement Benjamini-Hochberg procedure using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh' in code/modeling.py...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_procedure_method_fdr_bh
+  kind: entity_fact
+  raw_text: The system applies the Benjamini-Hochberg procedure with method='fdr_bh'
+    for FDR control.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:41:55Z'

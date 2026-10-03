@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisDataset
-description: Unified schema merging SongRecord and ClimateSnapshot for analysis.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisDataset Schema"
+description: "Schema for the merged analysis dataset containing song metrics and environmental predictors."
 type: object
 required:
   - species_id
@@ -14,30 +14,30 @@ required:
 properties:
   species_id:
     type: string
-    description: Unique identifier for the bird species.
+    description: "Unique identifier for the bird species."
   lat:
     type: number
-    description: Latitude in decimal degrees (WGS84).
+    description: "Latitude of the recording location in decimal degrees (WGS84)."
     minimum: -90
     maximum: 90
   lon:
     type: number
-    description: Longitude in decimal degrees (WGS84).
+    description: "Longitude of the recording location in decimal degrees (WGS84)."
     minimum: -180
     maximum: 180
   song_metric_1:
     type: number
-    description: Primary song metric.
+    description: "Primary acoustic metric."
   song_metric_2:
     type: number
-    description: Secondary song metric.
+    description: "Secondary acoustic metric."
   temperature:
     type: number
-    description: Mean annual temperature (°C).
+    description: "Mean annual temperature (°C)."
   precipitation:
     type: number
-    description: Annual precipitation (mm).
+    description: "Mean annual precipitation (mm)."
   elevation:
     type: number
-    description: Elevation above sea level (meters).
+    description: "Elevation (m)."
 additionalProperties: true

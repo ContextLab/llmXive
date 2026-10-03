@@ -1,91 +1,74 @@
 import os
 import sys
+import csv
+import yaml
 from pathlib import Path
 import pytest
 
-# Add the code directory to the path for imports
-code_dir = Path(__file__).parent.parent / "projects" / "PROJ-334-predicting-avian-song-variation-with-cli" / "code"
-sys.path.insert(0, str(code_dir))
+# Ensure code is in path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from setup_dirs import main
+from setup_dirs import ensure_directory, initialize_checksums_file, initialize_state_file
 
-def test_directory_structure_creation(tmp_path, capsys):
-    """
-    Test that the main function creates the required directory structure.
-    We run the logic manually against a temp path to verify behavior without
-    polluting the actual project tree during testing.
-    """
-    # Change to the temp directory to simulate project root
-    original_cwd = os.getcwd()
-    os.chdir(str(tmp_path))
-    
-    try:
-        # Construct the expected path relative to tmp_path
-        project_root = Path("projects") / "PROJ-334-predicting-avian-song-variation-with-cli"
+class TestSetupDirs:
+    @pytest.fixture
+    def temp_project_root(self, tmp_path):
+        """Create a temporary project root structure for testing."""
+        root = tmp_path / "projects" / "PROJ-334-test"
+        root.mkdir(parents=True, exist_ok=True)
+        return root
+
+    def test_ensure_directory_creates_new(self, temp_project_root):
+        """Test that ensure_directory creates a new directory."""
+        new_dir = temp_project_root / "new_subdir"
+        assert not new_dir.exists()
+        ensure_directory(str(new_dir))
+        assert new_dir.exists()
+        assert new_dir.is_dir()
+
+    def test_ensure_directory_exists(self, temp_project_root):
+        """Test that ensure_directory does nothing if directory exists."""
+        existing_dir = temp_project_root / "existing"
+        existing_dir.mkdir(parents=True, exist_ok=True)
+        ensure_directory(str(existing_dir))
+        # Should not raise an error
+
+    def test_initialize_checksums_file_creates(self, temp_project_root):
+        """Test that initialize_checksums_file creates the file with header."""
+        checksums_path = temp_project_root / "data" / "checksums.txt"
+        initialize_checksums_file(str(checksums_path))
         
-        # Run the logic that main() performs
-        dirs_to_create = [
-            project_root / "data",
-            project_root / "code",
-            project_root / "tests",
-            project_root / "data" / "raw",
-            project_root / "data" / "processed",
-            project_root / "data" / "logs",
-            project_root / "state",
-            project_root / "state" / "projects",
-            project_root / "contracts",
-            project_root / "figures",
-        ]
+        assert checksums_path.exists()
+        with open(checksums_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            assert header == ['filename', 'sha256_hash']
 
-        for dir_path in dirs_to_create:
-            dir_path.mkdir(parents=True, exist_ok=True)
+    def test_initialize_checksums_file_exists(self, temp_project_root):
+        """Test that initialize_checksums_file does nothing if file exists."""
+        checksums_path = temp_project_root / "data" / "checksums.txt"
+        checksums_path.parent.mkdir(parents=True, exist_ok=True)
+        checksums_path.touch()
+        initialize_checksums_file(str(checksums_path))
+        # Should not raise an error
 
-        # Verify required directories exist
-        required_dirs = [
-            project_root / "data",
-            project_root / "code",
-            project_root / "tests"
-        ]
+    def test_initialize_state_file_creates(self, temp_project_root):
+        """Test that initialize_state_file creates the YAML file with correct structure."""
+        state_path = temp_project_root / "state" / "projects" / "PROJ-334-test.yaml"
+        initialize_state_file(str(state_path))
+        
+        assert state_path.exists()
+        with open(state_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            assert 'artifact_hashes' in data
+            assert data['artifact_hashes'] == {}
+            assert 'updated_at' in data
+            assert data['updated_at'] == '1970-01-01T00:00:00Z'
 
-        for d in required_dirs:
-            assert d.exists(), f"Directory {d} was not created"
-            assert d.is_dir(), f"{d} exists but is not a directory"
-
-        # Verify subdirectories
-        assert (project_root / "data" / "raw").exists()
-        assert (project_root / "data" / "processed").exists()
-        assert (project_root / "state" / "projects").exists()
-
-    finally:
-        os.chdir(original_cwd)
-
-def test_main_return_code_when_dirs_exist(tmp_path, capsys):
-    """
-    Test that main returns 0 when directories are successfully created/verified.
-    """
-    original_cwd = os.getcwd()
-    os.chdir(str(tmp_path))
-    
-    try:
-        # Pre-create the structure
-        project_root = Path("projects") / "PROJ-334-predicting-avian-song-variation-with-cli"
-        (project_root / "data").mkdir(parents=True)
-        (project_root / "code").mkdir()
-        (project_root / "tests").mkdir()
-
-        # Now run the logic (it should find them and return 0)
-        # We replicate the logic here to avoid path issues with the actual import
-        required_dirs = [
-            project_root / "data",
-            project_root / "code",
-            project_root / "tests"
-        ]
-
-        all_exist = True
-        for d in required_dirs:
-            if not d.exists() or not d.is_dir():
-                all_exist = False
-
-        assert all_exist is True
-    finally:
-        os.chdir(original_cwd)
+    def test_initialize_state_file_exists(self, temp_project_root):
+        """Test that initialize_state_file does nothing if file exists."""
+        state_path = temp_project_root / "state" / "projects" / "PROJ-334-test.yaml"
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.touch()
+        initialize_state_file(str(state_path))
+        # Should not raise an error

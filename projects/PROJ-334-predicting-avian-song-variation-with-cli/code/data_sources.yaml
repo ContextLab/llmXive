@@ -1,0 +1,63 @@
+# Data Sources Configuration for PROJ-334
+# Defines external data sources, URLs, versions, and sample paths.
+# This file is used by ingestion scripts to locate and fetch real data.
+
+sources:
+  xeno_canto:
+    name: "Xeno-Canto Avian Audio Database"
+    type: "api"
+    base_url: "https://xeno-canto.org/api/2/recordings"
+    version: "2"
+    # API endpoint for metadata retrieval (species_id, lat, lon, etc.)
+    # Note: The actual API does not require an address; the hostname resolves correctly.
+    endpoint: "/query?q={query}&json=1"
+    description: "Global repository of bird sounds with metadata including location and species."
+    sample_path: "data/raw/xeno_canto_sample.csv"
+    fetch_script: "code/fetch_xeno_canto.py"
+    fields:
+      - "X"
+      - "species"
+      - "lat"
+      - "lon"
+      - "cnt"
+      - "file"
+      - "rec"
+      - "site"
+      - "date"
+      - "species_id" # Mapped from 'species' or derived
+
+  worldclim:
+    name: "WorldClim Version 2.1"
+    type: "raster_download"
+    base_url: "https://www.worldclim.org/data/worldclim21.html"
+    version: "2.1"
+    resolution: "30 arc-seconds (~1km)"
+    # Direct download links for global bioclimatic variables (Bio1, Bio12, etc.)
+    # We use the specific FTP/HTTP mirrors for the global .tif files.
+    variables:
+      bio1: "Annual Mean Temperature"
+      bio12: "Annual Precipitation"
+      elev: "Elevation"
+    download_patterns:
+      temperature: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/tas_30s/{var}_30s.tif"
+      precipitation: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/prec_30s/{var}_30s.tif"
+      elevation: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/elev_30s.tif"
+    sample_path: "data/raw/worldclim_sample.csv"
+    fetch_script: "code/fetch_worldclim.py"
+    description: "High-resolution climate layers derived from global weather station data."
+
+versioning:
+  strategy: "semantic"
+  pin_logic: "strict"
+  # If the data source format changes (e.g., API v3), this config must be updated
+  # and the fetch scripts must be re-tested against the new version.
+  last_verified: "2023-10-27" # Date of last successful manual verification
+
+metadata:
+  project_id: "PROJ-334-predicting-avian-song-variation-with-cli"
+  generated_by: "T009 Implementation"
+  notes: |
+    This configuration file defines the verified sources for avian acoustic and climate data.
+    Xeno-Canto is accessed via their public API. WorldClim is accessed via direct download
+    of the global rasters. All fetch scripts must respect the `sample_path` for testing
+    and the `fetch_script` entry point for execution.

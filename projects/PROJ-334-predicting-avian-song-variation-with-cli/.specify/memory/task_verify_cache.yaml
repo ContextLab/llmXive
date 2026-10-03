@@ -1,7 +1,59 @@
-T001a:
+T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the directories `projects/PROJ-334-predicting-avian-song-variation-with-cli/data`,\
-    \ `.../code`, and `.../tests` actually exist; the claim is unsubstantiated. The\
-    \ implementer must provide a file\u2011system listing, screenshot, or command\
-    \ output confirming the directories were created."
+  r: No project scaffold, dependency list file (e.g., `requirements.txt`, `pyproject.toml`,
+    or `environment.yml`), or any code initializing a Python package is present. The
+    implementer only supplied a feature specification, not the actual Python project
+    with the listed dependencies.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no linting or formatting configuration files (e.g.,\
+    \ pyproject.toml with black settings, .ruff.toml, or a pre\u2011commit hook) nor\
+    \ any evidence that ruff and black have been set up in the repository. Without\
+    \ these artifacts, the requirement to configure linting and formatting is not\
+    \ satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration loader code or file was provided, and there is no evidence\
+    \ of a `join_radius_km` setting with a default of 10\u202Fkm. The required artifact\
+    \ (a loader handling environment variables, paths, and the default radius) is\
+    \ missing, so the task is not satisfied."
+T009:
+  c: true
+  h: fdbcf3f5490bf2f8a4c136e5e8fc11fe42ed8d471a21bfa7faa211eada72fa74
+  r: "The `code/data_sources.yaml` file exists, is non\u2011empty, and defines both\
+    \ the Xeno\u2011Canto API and WorldClim\u202Fv2.1 with verified URLs, sample paths,\
+    \ and version\u2011pinning logic, with no placeholder or unresolved references."
+T011:
+  c: false
+  h: 02ea00e33e8f891697de6cbe9412411d7528cf1526225adbd817f8289b22b2d5
+  r: "The required `data/raw/xeno_canto_sample.csv` is absent, `data/checksums.txt`\
+    \ contains only a header with no SHA256 entry, and the state file\u2019s `artifact_hashes`\
+    \ remains empty\u2014indicating that the script never fetched data, recorded a\
+    \ checksum, or updated the state. The implementation of `fetch_xeno_canto.py`\
+    \ itself is also missing."
+T012:
+  c: false
+  h: 0744d9b6fbae96e4c3ccb99a07fb47cd7593c7465ea38b82dd33eecfa17d98e4
+  r: "The required `data/raw/worldclim_sample.csv` is missing, `data/checksums.txt`\
+    \ contains only a header with no recorded SHA256 hash, and the state file\u2019\
+    s `artifact_hashes` remain empty\u2014indicating that the fetch script was never\
+    \ run or implemented. The task\u2019s core artifact (`fetch_worldclim.py` behavior)\
+    \ is therefore not present or functional."
+T013:
+  c: false
+  h: c6350cd13c920cc5c5786993ebb19b480c7b7811639ebc85e11058d18d962d07
+  r: The repository lacks the required `contracts/*.schema.yaml` file, so validation
+    cannot be performed, and the provided `code/ingestion.py` (truncated view) shows
+    only checksum handling and partial CSV loading without any schema validation,
+    CRS inference, or preparation for reprojection as specified. These core requirements
+    are missing.
+T017:
+  c: false
+  h: 86abe9b1d1029a29f1283053d311824a08f4edec7829dec09f3318bc6352b80b
+  r: The required `data/processed/analysis_dataset.csv` file is missing, and `data/checksums.txt`
+    contains only the header without an entry for the new dataset (and no evidence
+    of the state file being updated). These essential artifacts are absent, so the
+    task is not satisfied.

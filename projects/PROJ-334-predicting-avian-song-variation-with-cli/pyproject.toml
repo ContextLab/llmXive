@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-334-predicting-avian-song-variation-with-cli"
+name = "llmXive-avian-song"
 version = "0.1.0"
-description = "Predicting Avian Song Variation with Climatic and Geographic Factors"
-readme = "README.md"
+description = "Predicting avian song variation with climatic and geographic factors"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -23,14 +22,6 @@ dependencies = [
     "pyproj",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest",
-    "pytest-cov",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
@@ -38,40 +29,23 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
+# Same as .ruff.toml but kept here for IDE integration if needed
 line-length = 88
 target-version = "py39"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
 
-[tool.ruff.isort]
-known-first-party = ["config", "data_setup", "fetch_worldclim", "fetch_xeno_canto", "ingestion", "linting_config", "logging_config", "main", "schema_validator", "setup_dirs", "state_manager", "utils"]
-force-sort-within-sections = true
-lines-after-imports = 2
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
-"tests/*" = ["S101"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

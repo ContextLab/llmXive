@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SongRecord
-description: Schema for avian song recording metadata from Xeno-Canto.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SongRecord Schema"
+description: "Schema for raw avian acoustic recording metadata from Xeno-Canto."
 type: object
 required:
   - species_id
@@ -11,21 +11,21 @@ required:
 properties:
   species_id:
     type: string
-    description: Unique identifier for the bird species (e.g., XC species code or taxon ID).
+    description: "Unique identifier for the bird species (e.g., XC species code)."
   lat:
     type: number
-    description: Latitude in decimal degrees (WGS84).
+    description: "Latitude of the recording location in decimal degrees (WGS84)."
     minimum: -90
     maximum: 90
   lon:
     type: number
-    description: Longitude in decimal degrees (WGS84).
+    description: "Longitude of the recording location in decimal degrees (WGS84)."
     minimum: -180
     maximum: 180
   song_metric_1:
     type: number
-    description: Primary song metric (e.g., frequency peak, duration, or entropy).
+    description: "Primary acoustic metric (e.g., dominant frequency in kHz)."
   song_metric_2:
     type: number
-    description: Secondary song metric (e.g., amplitude, trill rate, or complexity score).
+    description: "Secondary acoustic metric (e.g., song duration in seconds)."
 additionalProperties: true

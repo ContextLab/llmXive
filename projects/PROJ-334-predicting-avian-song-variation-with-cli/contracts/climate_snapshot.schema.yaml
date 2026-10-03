@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ClimateSnapshot
-description: Schema for climate variables at a specific location from WorldClim.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ClimateSnapshot Schema"
+description: "Schema for climate variables extracted from WorldClim v2.1 at specific coordinates."
 type: object
 required:
   - lat
@@ -11,21 +11,21 @@ required:
 properties:
   lat:
     type: number
-    description: Latitude in decimal degrees (WGS84).
+    description: "Latitude of the sampling point in decimal degrees (WGS84)."
     minimum: -90
     maximum: 90
   lon:
     type: number
-    description: Longitude in decimal degrees (WGS84).
+    description: "Longitude of the sampling point in decimal degrees (WGS84)."
     minimum: -180
     maximum: 180
   temperature:
     type: number
-    description: Mean annual temperature (°C).
+    description: "Mean annual temperature (°C) from WorldClim."
   precipitation:
     type: number
-    description: Annual precipitation (mm).
+    description: "Mean annual precipitation (mm) from WorldClim."
   elevation:
     type: number
-    description: Elevation above sea level (meters).
+    description: "Elevation (m) from WorldClim."
 additionalProperties: true

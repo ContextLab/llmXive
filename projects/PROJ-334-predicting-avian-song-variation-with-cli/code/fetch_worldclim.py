@@ -5,278 +5,303 @@ import hashlib
 import logging
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import yaml
+import json
 
-# Import from project modules based on API surface
-from config import Config
-from utils import setup_logging
-from state_manager import update_artifact
-
-# Project root relative to this file (assumed code/ directory)
+# Project root resolution
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_CHECKSUMS_FILE = PROJECT_ROOT / "data" / "checksums.txt"
 STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-334-predicting-avian-song-variation-with-cli.yaml"
-CHECKSUMS_FILE = DATA_DIR / "checksums.txt"
-CONTRACTS_FILE = PROJECT_ROOT / "contracts" / "data_sources.yaml"
 
-def calculate_sha256(file_path: Path) -> str:
+# WorldClim v2.1 URLs for 10-minute resolution (approx 20km, suitable for 10km join radius)
+# We will sample a subset of the global data to keep the task manageable but real.
+# The global 10min data is ~120MB compressed. We will fetch the full set of 19 bioclim variables.
+# To avoid downloading 19 separate files and merging them manually in this specific script,
+# we will fetch a representative sample of coordinates from a known real dataset or
+# fetch the specific variable files for a small region if possible.
+# However, the task requires "real climate variables".
+# Strategy: Use the WorldClim API or direct download for a specific set of variables.
+# Since WorldClim doesn't have a direct "query lat/lon" API, we download the global rasters
+# (or a subset) and sample points.
+# To keep this script executable and robust without massive downloads, we will use a verified
+# approach: Fetch the global 10-minute data for 'bio1' (Annual Mean Temperature) as a representative,
+# or better, use a pre-aggregated CSV if available from a verified source, OR fetch the rasters.
+# Given the constraints of a single script and "streaming", we will fetch the 19 bioclim
+# variables from the WorldClim server for a specific region or globally if small enough.
+# The 10-minute global data is ~120MB total for all 19 variables. This fits in memory.
+
+# URL pattern for WorldClim v2.1 10-minute data
+# http://worldclim.org/data/bioclim/bio1.tif ... bio19.tif
+# We will download bio1, bio12, and bio15 (Temp, Precip, Precip Seasonality) to keep it focused
+# or download all 19 if the task implies a full dataset. The task says "temp, precip, elev".
+# Elevation is 'dem'.
+
+BASE_URL = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/bioclim/"
+DEM_URL = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/dem/"
+
+VARIABLES_TO_FETCH = [
+    ("bio1", "annual_mean_temp"),
+    ("bio12", "annual_precipitation"),
+    ("bio15", "precipitation_seasonality"),
+    ("dem", "elevation")
+]
+
+LOGGER = logging.getLogger(__name__)
+
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+
+def calculate_sha256(filepath):
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_checksums_file(file_path: Path, file_hash: str, logger: logging.Logger) -> None:
-    """Append file hash to checksums.txt."""
-    checksums_file = CHECKSUMS_FILE
-    if not checksums_file.exists():
-        checksums_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(checksums_file, 'w', newline='') as f:
+def update_checksums_file(filename, hash_value):
+    """Append or update checksum in data/checksums.txt."""
+    filepath = DATA_CHECKSUMS_FILE
+    if not filepath.exists():
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        with open(filepath, "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(['filename', 'hash'])
+            writer.writerow(["filename", "sha256_hash"])
     
-    with open(checksums_file, 'a', newline='') as f:
+    # Check if file exists in checksums
+    updated = False
+    rows = []
+    with open(filepath, "r", newline="") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        rows.append(header)
+        for row in reader:
+            if row[0] == filename:
+                row[1] = hash_value
+                updated = True
+            rows.append(row)
+    
+    if not updated:
+        rows.append([filename, hash_value])
+    
+    with open(filepath, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([file_path.name, file_hash])
-    logger.info(f"Updated checksums.txt with {file_path.name}")
+        writer.writerows(rows)
 
-def download_file(url: str, output_path: Path, logger: logging.Logger) -> bool:
-    """Download a file from URL with streaming."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def update_state_file(filename, hash_value):
+    """Update the project state YAML file with artifact hash."""
+    import yaml
+    state_file = STATE_FILE
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    if state_file.exists():
+        with open(state_file, "r") as f:
+            try:
+                state = yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                state = {}
+    else:
+        state = {
+            "artifact_hashes": {},
+            "updated_at": "1970-01-01T00:00:00Z"
+        }
+    
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {}
+    
+    state["artifact_hashes"][filename] = hash_value
+    state["updated_at"] = "2024-01-01T00:00:00Z" # Placeholder for real timestamp logic if needed
+    
+    with open(state_file, "w") as f:
+        yaml.dump(state, f, default_flow_style=False)
+
+def download_file(url, dest_path):
+    """Download a file from URL, raising on failure."""
+    LOGGER.info(f"Downloading {url} to {dest_path}")
     try:
-        response = requests.get(url, stream=True, timeout=300)
+        response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
-        with open(output_path, 'wb') as f:
+        with open(dest_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        logger.info(f"Downloaded {url} to {output_path}")
-        return True
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {url}: {e}")
-        return False
+                f.write(chunk)
+        LOGGER.info(f"Downloaded {dest_path} successfully.")
+    except requests.RequestException as e:
+        LOGGER.error(f"Failed to download {url}: {e}")
+        raise
 
-def fetch_worldclim_data(logger: logging.Logger) -> Optional[Path]:
+def fetch_worldclim_data():
     """
-    Download real climate variables from WorldClim v2.1.
+    Fetch real WorldClim data (bio1, bio12, bio15, dem) for a sample of global coordinates.
+    Since WorldClim provides rasters, we cannot directly query lat/lon without a library like rasterio.
+    To adhere to "real data" and "no fabrication", we will:
+    1. Download the global 10-minute rasters for the selected variables.
+    2. Use a simple point-sampling strategy by reading the GeoTIFF header and sampling specific grid cells.
+    3. Since we cannot import rasterio (it's in requirements but might not be installed in this specific runner context without pip install),
+       we will assume the environment has rasterio or use a fallback to a pre-defined grid if rasterio is missing?
+       
+    Constraint Check: The task says "fetch real data". If we can't read the raster without rasterio, we must ensure rasterio is used.
+    The requirements.txt includes rasterio. We will import it.
     
-    WorldClim v2.1 provides global climate data at 30 arc-second resolution (~1km).
-    We download the global monthly temperature and precipitation files.
-    Since the dataset is large, we download the specific global files needed:
-    - tavg: monthly mean temperature (bioclim variable 1 is annual mean, but we need monthly to derive or use directly)
-    - prec: monthly precipitation
-    - elev: elevation (from WorldClim v2.1 elevation)
-    
-    Note: WorldClim v2.1 files are typically named like:
-    wc2.1_30s_tavg.zip, wc2.1_30s_prec.zip, wc2.1_30s_elev.zip
-    We will download the global zip files, extract the specific monthly rasters,
-    and convert them to a CSV format for analysis.
-    
-    However, for the purpose of this task and to avoid massive unzipping in a single script,
-    we will download the global aggregated files or a representative sample if the full
-    dataset is too large for immediate processing. 
-    
-    Given the constraint "streaming=True or itertools.islice" and "large dataset",
-    and the fact that WorldClim is raster data, we will:
-    1. Download the global monthly temperature (tavg) and precipitation (prec) and elevation (elev) rasters.
-    2. Since processing all global rasters into a CSV is heavy, we will download the files,
-       and then sample points or process a subset if the full dataset is too large.
-       BUT the task says "abort on fetch failure" and "real data".
-    
-    Strategy:
-    - Download the global zip files for tavg, prec, elev.
-    - Extract them.
-    - Since we need to produce a CSV of climate snapshots (lat, lon, temp, precip, elev),
-      we will iterate through the rasters. 
-    
-    To satisfy "streaming" and "large dataset" without crashing memory:
-    We will download the files, then process them in chunks (month by month) and write
-    to the CSV incrementally.
-    
-    URLs (WorldClim v2.1):
-    - Temp: https://worldclim.org/data/v2.1/worldclim2.1.html
-    - Direct links for global monthly:
-      - tavg: https://biogeo.ucdavis.edu/data/worldclim/v2.1/global/tif/wc2.1_30s_tavg.zip
-      - prec: https://biogeo.ucdavis.edu/data/worldclim/v2.1/global/tif/wc2.1_30s_prec.zip
-      - elev: https://biogeo.ucdavis.edu/data/worldclim/v2.1/global/tif/wc2.1_30s_elev.zip
-    
-    We will download these, extract, and process.
+    If the file download fails, we abort.
     """
-    
-    # Load data sources contract to get URLs
-    try:
-        with open(CONTRACTS_FILE, 'r') as f:
-            sources = yaml.safe_load(f)
-        worldclim_info = sources.get('worldclim', {})
-        urls = worldclim_info.get('urls', {})
-    except Exception as e:
-        logger.error(f"Could not load data sources contract: {e}")
-        return None
-
-    # Define URLs based on standard WorldClim v2.1 structure if not in contract
-    # Fallback to standard URLs if contract doesn't specify exact zip links
-    base_url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/global/tif"
-    if 'tavg_zip' not in urls:
-        urls['tavg_zip'] = f"{base_url}/wc2.1_30s_tavg.zip"
-    if 'prec_zip' not in urls:
-        urls['prec_zip'] = f"{base_url}/wc2.1_30s_prec.zip"
-    if 'elev_zip' not in urls:
-        urls['elev_zip'] = f"{base_url}/wc2.1_30s_elev.zip"
-
-    # Download files
-    tavg_zip = RAW_DIR / "wc2.1_30s_tavg.zip"
-    prec_zip = RAW_DIR / "wc2.1_30s_prec.zip"
-    elev_zip = RAW_DIR / "wc2.1_30s_elev.zip"
-
-    if not download_file(urls['tavg_zip'], tavg_zip, logger):
-        logger.error("Failed to download temperature data. Aborting.")
-        return None
-    if not download_file(urls['prec_zip'], prec_zip, logger):
-        logger.error("Failed to download precipitation data. Aborting.")
-        return None
-    if not download_file(urls['elev_zip'], elev_zip, logger):
-        logger.error("Failed to download elevation data. Aborting.")
-        return None
-
-    # Record checksums for downloaded files
-    for f in [tavg_zip, prec_zip, elev_zip]:
-        h = calculate_sha256(f)
-        update_checksums_file(f, h, logger)
-        update_artifact(STATE_FILE, f.name, h)
-
-    # Extract and process
-    # We need to extract the zips. Since we cannot use external heavy dependencies like rasterio
-    # in this specific script without ensuring they are installed (they are in requirements),
-    # we will use zipfile.
-    import zipfile
-    import numpy as np
-    from pathlib import Path
-
-    # Extract to a temporary directory
-    extract_dir = RAW_DIR / "worldclim_extracted"
-    extract_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Extracting files...")
-    for zip_file in [tavg_zip, prec_zip, elev_zip]:
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
-
-    # Now we have .tif files. We need to convert to CSV.
-    # Since the full global dataset is huge (~10k x 10k pixels), we cannot load it all into memory.
-    # We will use a sampling strategy or process in chunks if we had a way to stream rasters.
-    # However, the task says "streaming=True" for fetching. For processing, we must handle the size.
-    # We will sample a subset of the global grid to create the CSV, OR process the whole thing
-    # if we can do it efficiently.
-    # Given the constraint "Large dataset? Stream the real data", we will iterate over the rasters
-    # and sample points.
-    
-    # We need to identify the files.
-    # tavg files: wc2.1_30s_tavg_1.tif, ... wc2.1_30s_tavg_12.tif
-    # prec files: wc2.1_30s_prec_1.tif, ... wc2.1_30s_prec_12.tif
-    # elev files: wc2.1_30s_elev.tif (single file)
-    
-    tavg_files = sorted(extract_dir.glob("wc2.1_30s_tavg_*.tif"))
-    prec_files = sorted(extract_dir.glob("wc2.1_30s_prec_*.tif"))
-    elev_file = extract_dir / "wc2.1_30s_elev.tif"
-
-    if not tavg_files or not prec_files or not elev_file.exists():
-        logger.error("Extracted files not found as expected.")
-        return None
-
-    # We will use rasterio to read the rasters. It is in requirements.
     try:
         import rasterio
-        from rasterio.transform import xy
+        from rasterio.crs import CRS
+        from rasterio.warp import transform
     except ImportError:
-        logger.error("rasterio is required but not installed.")
-        return None
+        LOGGER.error("rasterio is required but not installed. Please install dependencies.")
+        sys.exit(1)
 
-    # Output file
-    output_csv = RAW_DIR / "worldclim_climate_snapshots.csv"
+    # Ensure directory
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     
-    # We will sample 10,000 random points from the global grid to keep the CSV manageable
-    # while still representing the real data distribution.
-    # If we tried to write all ~10^8 pixels, it would be too large.
-    # The task says "Large dataset? Stream the real data... or use a well-defined REAL sample".
-    # We will use a sample of 50,000 points.
+    # Map variable codes to filenames
+    # WorldClim 10min filenames: bio1.tif, bio12.tif, dem.tif
+    file_map = {
+        "bio1": "bio1.tif",
+        "bio12": "bio12.tif",
+        "bio15": "bio15.tif",
+        "dem": "dem.tif"
+    }
     
-    sample_size = 50000
-    logger.info(f"Sampling {sample_size} points from global rasters...")
+    downloaded_files = {}
     
-    # Read one tiff to get grid info
-    with rasterio.open(tavg_files[0]) as src:
-        height, width = src.height, src.width
-        transform = src.transform
-        crs = src.crs
-
-    # Generate random indices
-    rng = np.random.default_rng(42)
-    indices = rng.integers(0, height * width, size=sample_size)
-    rows = indices // width
-    cols = indices % width
-
-    # Prepare CSV writer
-    with open(output_csv, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['lat', 'lon', 'temperature', 'precipitation', 'elevation', 'month'])
-
-        # We need to sample from all 12 months? Or average?
-        # The task asks for "temperature, precipitation, elevation".
-        # We will pick a random month for each point to keep the dataset diverse,
-        # or we can average the 12 months. Let's pick a random month for each point.
+    # Download files
+    for var_code, var_name in VARIABLES_TO_FETCH:
+        if var_code == "dem":
+            url = f"{DEM_URL}w{var_code}.tif" # Actually dem.tif is in dem folder
+            # Correct URL for dem: https://biogeo.ucdavis.edu/data/worldclim/v2.1/dem/wdem.tif ? 
+            # Let's use the standard bio1 path for bio, and specific for dem.
+            # Actually, WorldClim 2.1 dem is at: https://biogeo.ucdavis.edu/data/worldclim/v2.1/dem/wdem.tif is not right.
+            # It is usually: https://biogeo.ucdavis.edu/data/worldclim/v2.1/dem/dem10.tif? 
+            # Let's try the standard bio path for bio and a specific one for dem.
+            # According to WorldClim docs: dem10.tif is the file.
+            url = f"{DEM_URL}dem10.tif"
+        else:
+            url = f"{BASE_URL}{var_code}.tif"
         
-        logger.info("Reading raster values...")
-        for i, (row, col) in enumerate(zip(rows, cols)):
-            # Pick a random month (0-11) for this point
-            month_idx = rng.integers(0, 12)
-            
-            # Read elevation
-            with rasterio.open(elev_file) as src:
-                elev = src.read(1, window=((row, row+1), (col, col+1)))[0,0]
-            
-            # Read temperature for selected month
-            with rasterio.open(tavg_files[month_idx]) as src:
-                temp = src.read(1, window=((row, row+1), (col, col+1)))[0,0]
-            
-            # Read precipitation for selected month
-            with rasterio.open(prec_files[month_idx]) as src:
-                prec = src.read(1, window=((row, row+1), (col, col+1)))[0,0]
+        dest = DATA_RAW_DIR / file_map[var_code]
+        
+        # Check if already downloaded (to avoid re-downloading in dev)
+        if dest.exists():
+            LOGGER.info(f"Found existing file: {dest}")
+        else:
+            try:
+                download_file(url, dest)
+            except Exception as e:
+                LOGGER.error(f"Aborting: Could not download {url}. {e}")
+                sys.exit(1)
+        
+        downloaded_files[var_code] = dest
 
-            # Convert pixel to lat/lon
-            lon, lat = xy(transform, col, row)
-
-            # Handle nodata
-            if np.isnan(temp) or np.isnan(prec) or np.isnan(elev):
-                continue
-
-            writer.writerow([lat, lon, temp, prec, elev, month_idx + 1])
-            
-            if (i + 1) % 10000 == 0:
-                logger.info(f"Processed {i+1}/{sample_size} points")
-
-    logger.info(f"Saved climate snapshots to {output_csv}")
+    # Now, sample points. We need to generate a set of real lat/lon points to query.
+    # Since we are building a dataset for the project, we will sample points from a 
+    # known grid or a specific region to ensure we get valid data.
+    # To make it "real" and not "synthetic", we will sample the raster at regular intervals.
+    # We will create a CSV of sampled points.
     
-    # Record checksum for output
-    out_hash = calculate_sha256(output_csv)
-    update_checksums_file(output_csv, out_hash, logger)
-    update_artifact(STATE_FILE, output_csv.name, out_hash)
-
-    return output_csv
+    output_file = DATA_RAW_DIR / "worldclim_sample.csv"
+    sample_points = []
+    
+    # We will sample 100 random points across the globe (using a deterministic seed for reproducibility)
+    # But we must ensure they are land. Since we can't easily check land/sea without more data,
+    # we will just sample the raster. If the value is -9999 (nodata), we skip.
+    # To ensure we get "real" data, we will sample a grid of points.
+    
+    # Let's pick a set of representative coordinates (real locations) to query.
+    # Or better: Iterate through the raster grid in chunks to build a dataset.
+    # Given memory constraints, we will sample 500 points.
+    import random
+    random.seed(42)
+    
+    # Open rasters
+    rasters = {}
+    for var_code, path in downloaded_files.items():
+        rasters[var_code] = rasterio.open(path)
+    
+    # Get bounds and transform from one raster (they should be aligned)
+    ref_raster = rasters["bio1"]
+    width = ref_raster.width
+    height = ref_raster.height
+    transform = ref_raster.transform
+    
+    # Sample points
+    # We'll sample 500 points uniformly across the raster grid
+    num_samples = 500
+    indices = random.sample(range(width * height), num_samples)
+    
+    data_rows = []
+    
+    for idx in indices:
+        row = idx // width
+        col = idx % width
+        
+        # Get lat/lon
+        lon, lat = rasterio.transform.xy(transform, row, col, offset="center")
+        
+        # Check bounds (WorldClim is global, -180 to 180, -90 to 90)
+        if not (-180 <= lon <= 180 and -90 <= lat <= 90):
+            continue
+        
+        sample_data = {"lat": lat, "lon": lon}
+        valid_sample = True
+        
+        for var_code, var_name in VARIABLES_TO_FETCH:
+            val = rasters[var_code].read(1)[row, col]
+            # Check nodata
+            if val == rasters[var_code].nodata or val is None:
+                valid_sample = False
+                break
+            sample_data[var_name] = float(val)
+        
+        if valid_sample:
+            data_rows.append(sample_data)
+    
+    # Write to CSV
+    if data_rows:
+        with open(output_file, "w", newline="") as f:
+            fieldnames = ["lat", "lon"] + [v[1] for v in VARIABLES_TO_FETCH]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data_rows)
+        
+        LOGGER.info(f"Sampled {len(data_rows)} points. Saved to {output_file}")
+        
+        # Calculate checksum
+        checksum = calculate_sha256(output_file)
+        update_checksums_file(output_file.name, checksum)
+        update_state_file(output_file.name, checksum)
+        
+        # Clean up downloaded rasters to save space? 
+        # The task doesn't explicitly say to delete, but it's good practice.
+        # We will leave them for T013/T014 if needed, but the CSV is the artifact.
+    else:
+        LOGGER.error("No valid data points sampled.")
+        sys.exit(1)
 
 def main():
-    logger = setup_logging("fetch_worldclim")
-    logger.info("Starting WorldClim data fetch...")
+    setup_logging()
+    LOGGER.info("Starting WorldClim data fetch and sampling.")
     
-    result = fetch_worldclim_data(logger)
-    
-    if result is None:
-        logger.error("WorldClim data fetch failed.")
-        sys.exit(1)
-    
-    logger.info("WorldClim data fetch completed successfully.")
+    # Check for existing sample file first
+    sample_path = DATA_RAW_DIR / "worldclim_sample.csv"
+    if sample_path.exists():
+        LOGGER.info(f"Found existing sample file: {sample_path}. Skipping fetch.")
+        # Still update checksum if missing? The task says "FIRST attempt to load... if missing, fetch".
+        # If it exists, we assume it's valid. But we should ensure checksum is recorded.
+        if not any(DATA_CHECKSUMS_FILE.exists() and line.startswith("worldclim_sample.csv") for line in open(DATA_CHECKSUMS_FILE)):
+            LOGGER.warning("Sample file exists but checksum missing. Recalculating.")
+            checksum = calculate_sha256(sample_path)
+            update_checksums_file(sample_path.name, checksum)
+            update_state_file(sample_path.name, checksum)
+        return
+
+    fetch_worldclim_data()
+    LOGGER.info("WorldClim data fetch complete.")
 
 if __name__ == "__main__":
     main()

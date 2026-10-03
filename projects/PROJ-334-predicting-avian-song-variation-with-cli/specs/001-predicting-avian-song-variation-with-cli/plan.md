@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to investigate the associational relationship between avian song metrics (frequency, duration) and environmental predictors (temperature, precipitation, elevation, latitude, longitude). The system ingests real-world avian acoustic data (Xeno-Canto) and climatic data (WorldClim v2), aligns them via geographic coordinates, performs exploratory data analysis (EDA) with multicollinearity diagnostics, fits multiple linear regression models (Model A: Climate Only; Model B: Climate + Geo), and conducts a sensitivity analysis across p-value thresholds. The entire pipeline is designed to run within GitHub Actions free-tier constraints (CPU-only, ≤7GB RAM, ≤6h runtime).
+This project implements a computational pipeline to investigate the associational relationship between avian song metrics (frequency, duration) and environmental predictors (temperature, precipitation, elevation, latitude, longitude). The system ingests real-world avian acoustic data (Xeno-Canto) and climatic data (WorldClim), aligns them via geographic coordinates, performs exploratory data analysis (EDA) with multicollinearity diagnostics, fits multiple linear regression models (Model A: Climate Only; Model B: Climate + Geo), and conducts a sensitivity analysis across p-value thresholds. The entire pipeline is designed to run within GitHub Actions free-tier constraints (CPU-only, ≤7GB RAM, ≤6h runtime).
 
 ## Technical Context
 
