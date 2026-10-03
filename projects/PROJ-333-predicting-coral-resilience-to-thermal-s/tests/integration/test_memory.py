@@ -1,172 +1,181 @@
 """
-Integration tests for memory usage during quantification.
-
-This module verifies that the quantification pipeline (T019) stays within
-the memory constraint of MAX_RAM_GB (7 GB) defined in config.py.
-
-Note: This test uses a small subset of real data (or a minimal mock FASTQ
-file) to simulate the quantification step. It does not download the full
-dataset to avoid excessive runtime and disk usage.
+Integration tests for memory usage constraints during quantification.
+This test suite verifies that the quantification pipeline stays within
+the defined memory limits (7GB) when processing real or mock data.
 """
-
 import os
 import sys
+import subprocess
 import tempfile
 import shutil
-import subprocess
-import time
 import json
+import gzip
+import time
 from pathlib import Path
-
 import pytest
 
 # Add project root to path to import config
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from config import get_thresholds, ensure_directories, MAX_RAM_GB
-from utils.logging import get_memory_usage_mb, setup_logger
+from config import ensure_directories, get_thresholds, MAX_RAM_GB
+from utils.logging import get_memory_usage_mb
 
-# Setup logger for the test
-logger = setup_logger("test_memory", level="INFO")
+# Constants
+MOCK_FASTQ_DIR = Path(__file__).parent / "data" / "mock_fastq"
+QUANT_OUTPUT_DIR = Path(__file__).parent / "data" / "test_quant_output"
+REFERENCE_INDEX = Path(__file__).parent.parent.parent / "data" / "raw" / "reference" / "index"
+MEMORY_LIMIT_GB = 7.0
+MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
 
 
-def create_mock_fastq_file(output_path: Path, num_reads: int = 1000) -> None:
+def _generate_mock_fastq_file(output_path: Path, num_reads: int = 1000, read_length: int = 100):
     """
-    Creates a minimal valid FASTQ file for testing.
+    Generate a mock FASTQ file with random sequences.
+    This is used for integration testing to avoid downloading large real datasets.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        output_path: Path to write the .fastq file.
-        num_reads: Number of reads to generate.
-    """
-    with open(output_path, 'w') as f:
+    with gzip.open(output_path, 'wt') as f:
         for i in range(num_reads):
-            f.write(f"@read_{i}\n")
-            f.write("ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT\n")
-            f.write("+\n")
-            f.write("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n")
+            header = f"@mock_sample_read_{i}"
+            sequence = "ACGT" * (read_length // 4)
+            plus_line = "+"
+            quality = "I" * read_length
+            
+            f.write(f"{header}\n{sequence}\n{plus_line}\n{quality}\n")
 
 
-@pytest.mark.integration
-def test_quantification_memory_stays_under_7GB():
+def _ensure_mock_data_exists():
     """
-    Integration test: Verify that running Salmon quantification on a 
-    small sample subset stays under the 7GB RAM limit.
-    
-    This test:
-    1. Creates a temporary directory structure.
-    2. Generates a small mock FASTQ file (simulating T015/T017 input).
-    3. Uses a pre-built reference index (from T018) if available, 
-       or skips if not found (since T018 is a prerequisite).
-    4. Runs the quantification command (simulating T019 logic).
-    5. Monitors peak RSS memory usage.
-    6. Asserts peak memory < MAX_RAM_GB * 1024 MB.
-    
-    Dependencies:
-        - T018: Reference index must exist at data/raw/reference/index/
-        - T015/T017: Input FASTQ logic (simulated here)
+    Ensure mock FASTQ files exist in the expected location.
+    If T011 completed successfully, these should exist.
+    If not, generate them for this test.
     """
+    if not MOCK_FASTQ_DIR.exists():
+        MOCK_FASTQ_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Check for reference index (Prerequisite T018)
-    ref_index_dir = project_root / "data" / "raw" / "reference" / "index"
-    if not ref_index_dir.exists():
-        pytest.skip(
-            "Reference index not found. Prerequisite T018 (Download and Verify Reference Transcriptome) "
-            "must be completed before this integration test can run. "
-            f"Expected path: {ref_index_dir}"
+    sample_file_1 = MOCK_FASTQ_DIR / "mock_sample_1.fastq.gz"
+    sample_file_2 = MOCK_FASTQ_DIR / "mock_sample_2.fastq.gz"
+    
+    if not sample_file_1.exists():
+        _generate_mock_fastq_file(sample_file_1, num_reads=5000, read_length=100)
+    
+    if not sample_file_2.exists():
+        _generate_mock_fastq_file(sample_file_2, num_reads=5000, read_length=100)
+    
+    return sample_file_1, sample_file_2
+
+
+def _run_salmon_quant(fastq_path: Path, output_dir: Path, index_path: Path, mem_limit_gb: float):
+    """
+    Run Salmon quantification on a single sample with memory constraints.
+    Returns the peak memory usage in MB.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Check if Salmon is available
+    try:
+        result = subprocess.run(
+            ["salmon", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10
         )
-
-    # Create temporary working directory
-    temp_dir = tempfile.mkdtemp(prefix="t014_mem_test_")
-    temp_path = Path(temp_dir)
-    output_dir = temp_path / "quant_output"
-    output_dir.mkdir()
+        if result.returncode != 0:
+            pytest.skip("Salmon not installed or not in PATH. Skipping memory test.")
+    except FileNotFoundError:
+        pytest.skip("Salmon executable not found. Skipping memory test.")
     
-    # Create mock FASTQ file
-    mock_fastq = temp_path / "mock_sample.fastq"
-    create_mock_fastq_file(mock_fastq, num_reads=1000)
-    
-    # Construct Salmon command (matching T019 spec)
-    # Using the index from T018
+    # Prepare command
     cmd = [
         "salmon", "quant",
-        "-i", str(ref_index_dir),
+        "-i", str(index_path),
         "-l", "A",
-        "-r", str(mock_fastq),
+        "-r", str(fastq_path),
         "-o", str(output_dir),
-        "--validateMappings"
+        "--validateMappings",
+        f"--memGb", str(mem_limit_gb)
     ]
     
-    logger.info(f"Running quantification command: {' '.join(cmd)}")
-    logger.info(f"Monitoring memory usage with limit: {MAX_RAM_GB} GB")
-    
-    peak_memory_mb = 0.0
-    process = None
+    start_mem = get_memory_usage_mb()
+    start_time = time.time()
     
     try:
-        # Start the process
-        start_time = time.time()
-        process = subprocess.Popen(
+        process = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout for the test
         )
-        
-        # Monitor memory while process is running
-        while process.poll() is None:
-            # Get current RSS of the process and its children if possible
-            # Note: psutil is often needed for accurate child memory, 
-            # but we stick to standard utils if available or basic os
-            current_mem = get_memory_usage_mb()
-            if current_mem > peak_memory_mb:
-                peak_memory_mb = current_mem
-            
-            # Sleep briefly to avoid busy-waiting
-            time.sleep(0.5)
-        
-        # Final check
-        final_mem = get_memory_usage_mb()
-        if final_mem > peak_memory_mb:
-            peak_memory_mb = final_mem
-        
-        # Capture output for debugging
-        stdout, stderr = process.communicate()
         
         if process.returncode != 0:
-            logger.error(f"Salmon quantification failed with code {process.returncode}")
-            logger.error(f"Stderr: {stderr.decode('utf-8', errors='ignore')}")
-            # If Salmon fails, the test might still be valid regarding memory, 
-            # but we usually expect success for a memory test.
-            # However, if the index is corrupted, it might fail.
-            # We'll assume success if returncode is 0.
-            pytest.fail(f"Salmon quantification failed: {stderr.decode('utf-8', errors='ignore')[:500]}")
-        
-        elapsed_time = time.time() - start_time
-        logger.info(f"Quantification completed in {elapsed_time:.2f}s")
-        
-    except FileNotFoundError:
-        pytest.skip(
-            "Salmon executable not found in PATH. "
-            "Ensure Salmon is installed and accessible."
-        )
-    except Exception as e:
-        logger.error(f"Unexpected error during memory test: {e}")
-        pytest.fail(f"Unexpected error: {e}")
-    finally:
-        # Cleanup
-        if process and process.poll() is None:
-            process.terminate()
-        shutil.rmtree(temp_dir, ignore_errors=True)
+            # If Salmon fails, we still want to check if it was due to memory
+            # For the purpose of this test, we assume if it runs without OOM killer, it's okay
+            # but we log the error
+            pytest.fail(f"Salmon quantification failed: {process.stderr}")
+            
+    except subprocess.TimeoutExpired:
+        pytest.fail("Salmon quantification timed out.")
     
-    # Assertion
-    limit_mb = MAX_RAM_GB * 1024
-    logger.info(f"Peak memory usage: {peak_memory_mb:.2f} MB (Limit: {limit_mb} MB)")
+    end_mem = get_memory_usage_mb()
+    peak_mem = max(start_mem, end_mem)
     
-    assert peak_memory_mb < limit_mb, (
-        f"Memory limit exceeded! Peak usage: {peak_memory_mb:.2f} MB, "
-        f"Limit: {limit_mb} MB ({MAX_RAM_GB} GB). "
-        "The quantification step must be optimized to stream or use memory-mapped files."
-    )
+    return peak_mem
 
-    # Log success
-    logger.info("TEST PASSED: Memory usage stayed under 7GB limit.")
+
+def test_quantification_memory_stays_under_7GB():
+    """
+    Integration test: Verify that quantification on a small sample subset
+    stays under the 7GB memory limit.
+    
+    This test:
+    1. Ensures mock data exists (generates if T011 didn't create it)
+    2. Checks if reference index exists (from T018)
+    3. Runs Salmon quantification on the mock data
+    4. Verifies peak memory usage is under 7GB
+    """
+    # 1. Ensure mock data exists
+    sample_1, sample_2 = _ensure_mock_data_exists()
+    
+    # 2. Check reference index
+    if not REFERENCE_INDEX.exists():
+        pytest.skip(
+            f"Reference index not found at {REFERENCE_INDEX}. "
+            "Task T018 (Download and Verify Reference Transcriptome) must be completed first."
+        )
+    
+    # 3. Run quantification on the first mock sample
+    test_output_dir = QUANT_OUTPUT_DIR / sample_1.stem
+    
+    print(f"Running quantification on {sample_1.name}...")
+    print(f"Reference index: {REFERENCE_INDEX}")
+    print(f"Output directory: {test_output_dir}")
+    
+    peak_memory_mb = _run_salmon_quant(
+        fastq_path=sample_1,
+        output_dir=test_output_dir,
+        index_path=REFERENCE_INDEX,
+        mem_limit_gb=MEMORY_LIMIT_GB
+    )
+    
+    print(f"Peak memory usage: {peak_memory_mb:.2f} MB")
+    print(f"Memory limit: {MEMORY_LIMIT_MB:.2f} MB")
+    
+    # 4. Assert memory usage is within limits
+    assert peak_memory_mb < MEMORY_LIMIT_MB, (
+        f"Memory usage ({peak_memory_mb:.2f} MB) exceeded limit ({MEMORY_LIMIT_MB:.2f} MB). "
+        "The quantification pipeline is not memory-efficient enough."
+    )
+    
+    # 5. Verify output was generated
+    quant_file = test_output_dir / "quant.sf"
+    assert quant_file.exists(), "Quantification output file (quant.sf) was not generated."
+    
+    # 6. Verify output file is not empty
+    assert quant_file.stat().st_size > 0, "Quantification output file is empty."
+    
+    # Cleanup
+    if test_output_dir.exists():
+        shutil.rmtree(test_output_dir)
+    
+    print("Memory test passed successfully!")

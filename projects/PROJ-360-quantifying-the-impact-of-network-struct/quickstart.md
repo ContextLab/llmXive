@@ -1,61 +1,89 @@
 # Quickstart Guide
 
+This guide outlines the steps to run the full analysis pipeline for the project.
+
 ## Prerequisites
 
 - Python 3.11+
-- Materials Project API key (set as `MP_API_KEY` environment variable)
-
-## Setup
-
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-2. Set your API key:
- ```bash
- export MP_API_KEY="your_api_key_here"
- ```
+- Dependencies installed via `pip install -r requirements.txt`
+- `MP_API_KEY` environment variable set (for data download)
 
 ## Run the Pipeline
 
-Execute the full pipeline:
+Execute the following commands in order. Each command produces specific artifacts required by the next.
 
+### 1. Setup Directories
 ```bash
-# Step 1: Download CIF files (T007, T008)
-python code/download.py --limit 50 --output data/raw/cif/
-
-# Step 2: Construct networks (T009, T010, T011, T012)
-python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/
-
-# Step 3: Compute metrics (T013, T014, T015, T015b)
-python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv
-
-# Step 4: Analyze correlations (T016, T017, T018)
-python code/analyze.py --input data/processed/metrics.csv --output results/
-
-# Step 5: Generate report (T025)
-python code/report.py --output results/final_report.md
+python code/setup_directories.py
 ```
 
-## Validate Results
+### 2. Download CIF Files (Requires MP_API_KEY)
+```bash
+python code/download.py --limit 50 --output data/raw/cif/
+```
 
-Check that all artifacts were created:
+### 3. Save CIFs and Checksums
+```bash
+python code/save_cifs_and_checksums.py
+```
 
+### 4. Construct Networks
+```bash
+python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/
+```
+
+### 5. Save Networks and Checksums
+```bash
+python code/save_networks.py
+```
+
+### 6. Validate Graphs
+```bash
+python code/validate_graphs.py
+```
+
+### 7. Compute Metrics
+```bash
+python code/compute_metrics.py
+```
+
+### 8. Analyze (Correlations, VIF, Filter)
+```bash
+python code/analyze.py
+```
+
+### 9. Train Model
+```bash
+python code/train_model.py
+```
+
+### 10. Stratified Cross-Validation (T023)
+```bash
+python code/stratified_cv.py
+```
+
+### 11. Generate Final Report
+```bash
+python code/report.py
+```
+
+### 12. Validate Artifacts
 ```bash
 python code/validate_artifacts.py
 ```
 
-Expected outputs:
-- `data/raw/cif/` - Contains ≥50 CIF files
-- `data/processed/networks/` - Contains ≥50 graph pickle files
-- `data/processed/metrics.csv` - Network metrics and thermal conductivity
-- `results/correlations.json` - Correlation analysis results
-- `results/model_performance.json` - Model performance metrics
-- `results/final_report.md` - Final research report
+## Expected Outputs
+
+- `data/raw/cif/*.cif`: Downloaded CIF files
+- `data/processed/networks/*.pkl`: Constructed network graphs
+- `data/processed/metrics.csv`: Computed metrics
+- `data/processed/filtered_features.csv`: Features after VIF filtering
+- `models/thermal_predictor.pkl`: Trained linear regression model
+- `results/model_performance.json`: Cross-validation results
+- `results/final_report.md`: Final analysis report
 
 ## Troubleshooting
 
-- If you get rate limit errors, wait a few minutes and retry.
-- Ensure your API key is valid and has access to thermal conductivity data.
-- Check logs in `logs/` directory for detailed error messages.
+- **MP_API_KEY not set**: Ensure the environment variable is exported before running `download.py`.
+- **Missing dependencies**: Run `pip install -r requirements.txt`.
+- **CUDA errors**: This pipeline is CPU-only. If you encounter CUDA errors, ensure no GPU-specific code is inadvertently executed.

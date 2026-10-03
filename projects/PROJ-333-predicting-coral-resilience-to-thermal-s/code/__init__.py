@@ -1,2 +1,4 @@
-# llmXive Project: Predicting Coral Resilience
-# Python package for genomic data ingestion and analysis
+"""
+llmXive Project: Predicting Coral Resilience to Thermal Stress
+Code package initialization.
+"""

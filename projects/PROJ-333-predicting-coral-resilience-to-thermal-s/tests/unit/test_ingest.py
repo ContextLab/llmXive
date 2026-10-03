@@ -1,188 +1,131 @@
-"""
-Unit tests for the ingest module.
-"""
 import pytest
-import json
 import os
+import json
+import csv
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-import hashlib
+from unittest.mock import patch, MagicMock
 
-# Import the module under test
-# Adjust import path based on project structure
-from code.ingest import (
-    _create_session_with_retries,
-    _fetch_sra_run_info,
-    _get_fastq_urls,
-    _download_file_with_progress,
-    _calculate_sha256,
-    run_ingestion,
-    save_download_log,
-    DownloadStatus,
-    IngestionError
+# Import the module to test
+from ingest import (
+    map_treatment_condition,
+    parse_and_filter_phenotypes,
+    load_phenotype_metadata,
+    IngestionError,
+    TreatmentType
 )
-from code.utils.errors import NCBITimeoutError, NCBIConnectionError
+from utils.errors import ChecksumMismatchError
 
+@pytest.fixture
+def temp_metadata_dir():
+    """Create a temporary directory with mock metadata and checksum files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create data directories
+        data_raw = Path(tmpdir) / "data" / "raw"
+        data_processed = Path(tmpdir) / "data" / "processed"
+        data_raw.mkdir(parents=True, exist_ok=True)
+        data_processed.mkdir(parents=True, exist_ok=True)
 
-class TestCreateSessionWithRetries:
-    def test_session_created(self):
-        session = _create_session_with_retries()
-        assert session is not None
-        assert hasattr(session, 'mount')
+        # Create mock metadata CSV
+        metadata_file = data_raw / "phenotype_metadata.csv"
+        with open(metadata_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['sample_id', 'treatment', 'condition'])
+            writer.writerow(['SRR_001', 'heat', 'thermal'])
+            writer.writerow(['SRR_002', 'control', 'ambient'])
+            writer.writerow(['SRR_003', '', 'unknown'])  # Missing treatment
+            writer.writerow(['SRR_004', 'invalid_val', 'bad']) # Invalid treatment
+            writer.writerow(['SRR_005', 'Heat', 'high_temp']) # Valid variation
         
-    def test_retries_configured(self):
-        session = _create_session_with_retries()
-        # Verify adapters are mounted
-        assert "https://" in session.adapters
-        assert "http://" in session.adapters
+        # Create mock checksums JSON
+        checksum_file = data_raw / "checksums.json"
+        checksums = {
+            "SRR_001": {"sha256": "abc", "verified": True},
+            "SRR_002": {"sha256": "def", "verified": True},
+            "SRR_003": {"sha256": "ghi", "verified": True},
+            "SRR_004": {"sha256": "jkl", "verified": True},
+            "SRR_005": {"sha256": "mno", "verified": True},
+            "SRR_006": {"sha256": "pqr", "verified": True} # Not in metadata
+        }
+        with open(checksum_file, 'w') as f:
+            json.dump(checksums, f)
 
+        yield tmpdir
 
-class TestGetFastqUrls:
-    def test_single_url(self):
-        run_info = {"fastq_ftp": "ftp://example.com/file.fastq.gz"}
-        urls = _get_fastq_urls(run_info)
-        assert urls == ["ftp://example.com/file.fastq.gz"]
+def test_map_treatment_condition_valid():
+    """Test mapping of valid treatment strings."""
+    assert map_treatment_condition("heat") == TreatmentType.HEAT
+    assert map_treatment_condition("HEAT") == TreatmentType.HEAT
+    assert map_treatment_condition("Heat") == TreatmentType.HEAT
+    assert map_treatment_condition("thermal_stress") == TreatmentType.HEAT
+    
+    assert map_treatment_condition("control") == TreatmentType.CONTROL
+    assert map_treatment_condition("CTRL") == TreatmentType.CONTROL
+    assert map_treatment_condition("ambient") == TreatmentType.CONTROL
+    assert map_treatment_condition("baseline") == TreatmentType.CONTROL
+
+def test_map_treatment_condition_invalid():
+    """Test mapping of invalid or missing treatment strings."""
+    assert map_treatment_condition("") is None
+    assert map_treatment_condition(None) is None
+    assert map_treatment_condition("unknown") is None
+    assert map_treatment_condition("invalid_val") is None
+
+def test_parse_and_filter_phenotypes(temp_metadata_dir):
+    """Test that parse_and_filter_phenotypes correctly filters samples."""
+    import ingest
+    import config
+    import utils.logging
+    
+    # Mock the config and logging to avoid side effects
+    with patch.object(ingest, 'METADATA_FILE', str(Path(temp_metadata_dir) / "data" / "raw" / "phenotype_metadata.csv")), \
+         patch.object(ingest, 'CHECKSUM_FILE', str(Path(temp_metadata_dir) / "data" / "raw" / "checksums.json")), \
+         patch.object(ingest, 'FILTERED_METADATA_FILE', str(Path(temp_metadata_dir) / "data" / "processed" / "filtered.csv")), \
+         patch.object(ingest, 'EXCLUSION_LOG_FILE', str(Path(temp_metadata_dir) / "data" / "processed" / "exclusion.json")), \
+         patch.object(config, 'ensure_directories'), \
+         patch.object(utils.logging, 'setup_logger') as mock_logger:
         
-    def test_multiple_urls(self):
-        run_info = {"fastq_ftp": "ftp://example.com/file1.fastq.gz;ftp://example.com/file2.fastq.gz"}
-        urls = _get_fastq_urls(run_info)
-        assert len(urls) == 2
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
         
-    def test_no_urls(self):
-        run_info = {}
-        urls = _get_fastq_urls(run_info)
-        assert urls == []
+        valid_records, stats = parse_and_filter_phenotypes(mock_logger_instance, 10, 3)
         
-    def test_mixed_valid_invalid(self):
-        run_info = {"fastq_ftp": "ftp://example.com/file1.fastq.gz;http://example.com/file2.fastq.gz"}
-        urls = _get_fastq_urls(run_info)
-        assert len(urls) == 2  # Both are valid FTP/HTTP URLs
-
-
-class TestCalculateChecksum:
-    def test_valid_file(self):
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = Path(tmp.name)
-            
-        try:
-            checksum = _calculate_sha256(tmp_path)
-            expected = hashlib.sha256(b"test data").hexdigest()
-            assert checksum == expected
-        finally:
-            os.unlink(tmp_path)
-            
-    def test_empty_file(self):
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-            
-        try:
-            checksum = _calculate_sha256(tmp_path)
-            expected = hashlib.sha256(b"").hexdigest()
-            assert checksum == expected
-        finally:
-            os.unlink(tmp_path)
-
-
-class TestDownloadFileWithProgress:
-    def test_successful_download(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.fastq.gz"
-            url = "https://example.com/test.fastq.gz"
-            
-            # Mock the session.get response
-            mock_response = MagicMock()
-            mock_response.iter_content.return_value = [b"fake data"]
-            mock_response.headers = {"content-length": "9"}
-            mock_response.raise_for_status = MagicMock()
-            
-            with patch('code.ingest.requests.Session') as MockSession:
-                mock_session_instance = MagicMock()
-                MockSession.return_value = mock_session_instance
-                mock_session_instance.get.return_value = mock_response
-                
-                success, error_msg = _download_file_with_progress(url, output_path, mock_session_instance)
-                
-                assert success is True
-                assert error_msg == ""
-                assert output_path.exists()
-                
-    def test_timeout_error(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.fastq.gz"
-            url = "https://example.com/test.fastq.gz"
-            
-            with patch('code.ingest.requests.Session') as MockSession:
-                mock_session_instance = MagicMock()
-                MockSession.return_value = mock_session_instance
-                mock_session_instance.get.side_effect = Exception("Timeout")
-                
-                success, error_msg = _download_file_with_progress(url, output_path, mock_session_instance)
-                
-                assert success is False
-                assert "timeout" in error_msg.lower() or "failed" in error_msg.lower()
-
-
-class TestSaveDownloadLog:
-    def test_save_log(self):
-        status_log = [
-            DownloadStatus(sample_id="S1", file_path="/path/to/file.fastq.gz", status="success"),
-            DownloadStatus(sample_id="S2", file_path=None, status="failed", error_message="Timeout")
-        ]
+        # Verify logging calls
+        assert mock_logger_instance.warning.call_count >= 2 # At least for missing and invalid
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "download_log.json"
-            save_download_log(status_log, log_path)
-            
-            assert log_path.exists()
-            with open(log_path, 'r') as f:
-                data = json.load(f)
-                
-            assert len(data) == 2
-            assert data[0]["status"] == "success"
-            assert data[1]["status"] == "failed"
+        # Check results
+        # SRR_001 (heat) -> Valid
+        # SRR_002 (control) -> Valid
+        # SRR_003 (missing) -> Excluded
+        # SRR_004 (invalid) -> Excluded
+        # SRR_005 (Heat) -> Valid
+        
+        assert len(valid_records) == 3
+        sample_ids = {r.sample_id for r in valid_records}
+        assert "SRR_001" in sample_ids
+        assert "SRR_002" in sample_ids
+        assert "SRR_005" in sample_ids
+        
+        assert "SRR_003" not in sample_ids
+        assert "SRR_004" not in sample_ids
+        
+        assert stats["total_excluded"] == 2
+        assert stats["missing_treatment_count"] == 1
+        assert stats["invalid_treatment_count"] == 1
 
-
-class TestRunIngestion:
-    @patch('code.ingest._fetch_sra_run_info')
-    @patch('code.ingest._get_fastq_urls')
-    @patch('code.ingest._download_file_with_progress')
-    def test_run_ingestion_success(self, mock_download, mock_get_urls, mock_fetch):
-        # Mock run info
-        mock_fetch.return_value = [
-            {"run_id": "SRR123", "fastq_ftp": "ftp://example.com/file.fastq.gz"}
-        ]
-        mock_get_urls.return_value = ["ftp://example.com/file.fastq.gz"]
-        mock_download.return_value = (True, "")
+def test_parse_and_filter_phenotypes_missing_metadata(temp_metadata_dir):
+    """Test behavior when metadata file is missing."""
+    import ingest
+    import config
+    import utils.logging
+    
+    with patch.object(ingest, 'METADATA_FILE', "/nonexistent/path.csv"), \
+         patch.object(ingest, 'CHECKSUM_FILE', str(Path(temp_metadata_dir) / "data" / "raw" / "checksums.json")), \
+         patch.object(config, 'ensure_directories'), \
+         patch.object(utils.logging, 'setup_logger') as mock_logger:
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            status_log = run_ingestion(output_dir)
-            
-            assert len(status_log) > 0
-            assert any(s.status == "success" for s in status_log)
-            
-    @patch('code.ingest._fetch_sra_run_info')
-    def test_run_ingestion_no_runs(self, mock_fetch):
-        mock_fetch.return_value = []
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            status_log = run_ingestion(output_dir)
-            
-            assert len(status_log) == 0
-            
-    @patch('code.ingest._fetch_sra_run_info')
-    def test_run_ingestion_no_urls(self, mock_fetch):
-        mock_fetch.return_value = [
-            {"run_id": "SRR123", "fastq_ftp": None}
-        ]
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            status_log = run_ingestion(output_dir)
-            
-            assert len(status_log) == 1
-            assert status_log[0].status == "skipped"
-            assert "No FASTQ URLs found" in status_log[0].error_message
+        with pytest.raises(IngestionError, match="Phenotype metadata file not found"):
+            parse_and_filter_phenotypes(mock_logger_instance, 10, 3)

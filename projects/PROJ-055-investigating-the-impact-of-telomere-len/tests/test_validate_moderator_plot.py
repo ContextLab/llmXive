@@ -1,137 +1,129 @@
-import pytest
+import os
+import sys
+import unittest
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 import tempfile
-import os
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+import shutil
 
-# Import functions to test
-import sys
-sys.path.insert(0, 'code')
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from validate_moderator_plot import (
     validate_plot_exists,
     validate_plot_content,
-    validate_species_grouping
+    validate_species_grouping,
+    load_processed_data,
+    load_moderator_results
 )
 
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
-    data = pd.DataFrame({
-        'species': ['Species_A', 'Species_B', 'Species_C', 'Species_D', 'Species_E', 'Species_F'],
-        'telomere_length_kb': [2.5, 3.1, 2.8, 3.5, 2.9, 3.2],
-        'lifespan': [10.5, 12.3, 11.2, 15.1, 11.8, 13.4],
-        'migration_status': ['Migratory', 'Migratory', 'Resident', 'Resident', 'Migratory', 'Resident']
-    })
-    return data
-
-@pytest.fixture
-def sample_results():
-    """Create sample moderator results."""
-    results = pd.DataFrame({
-        'model_name': ['moderator_model'],
-        'interaction_coefficient': [0.45],
-        'interaction_se': [0.12],
-        'interaction_pvalue': [0.001],
-        'aic': [125.6],
-        'df': [10]
-    })
-    return results
-
-@pytest.fixture
-def temp_plot_path():
-    """Create a temporary plot file for testing."""
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
-        # Create a simple plot
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.scatter([1, 2, 3], [1, 2, 3], label='Test')
-        ax.set_title('Test Plot')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        plt.savefig(f.name)
-        plt.close(fig)
-        yield Path(f.name)
-        os.unlink(f.name)
-
-def test_validate_plot_exists_with_valid_file(temp_plot_path):
-    """Test that validate_plot_exists returns True for a valid file."""
-    assert validate_plot_exists(temp_plot_path) is True
-
-def test_validate_plot_exists_with_nonexistent_file():
-    """Test that validate_plot_exists returns False for a nonexistent file."""
-    path = Path('/nonexistent/path/plot.png')
-    assert validate_plot_exists(path) is False
-
-def test_validate_plot_exists_with_empty_file():
-    """Test that validate_plot_exists returns False for an empty file."""
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
-        empty_path = Path(f.name)
-    # File is created but empty
-    assert validate_plot_exists(empty_path) is False
-    os.unlink(empty_path)
-
-def test_validate_plot_content_with_valid_inputs(sample_data, sample_results, temp_plot_path):
-    """Test that validate_plot_content returns True for valid inputs."""
-    is_valid, errors = validate_plot_content(temp_plot_path, sample_data, sample_results)
-    assert is_valid is True
-    assert len(errors) == 0
-
-def test_validate_plot_content_with_missing_results(sample_data, temp_plot_path):
-    """Test that validate_plot_content handles missing results gracefully."""
-    is_valid, errors = validate_plot_content(temp_plot_path, sample_data, None)
-    # Should have warnings but not necessarily fail
-    assert len(errors) >= 0  # May have warnings but not critical errors
-
-def test_validate_species_grouping_with_valid_data(sample_data, temp_plot_path):
-    """Test that validate_species_grouping returns True for valid data."""
-    is_valid, errors = validate_species_grouping(sample_data, temp_plot_path)
-    assert is_valid is True
-    assert len(errors) == 0
-
-def test_validate_species_grouping_with_insufficient_groups():
-    """Test that validate_species_grouping fails with insufficient groups."""
-    data = pd.DataFrame({
-        'species': ['Species_A', 'Species_B'],
-        'migration_status': ['Migratory', 'Migratory']  # Only one group
-    })
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
-        plot_path = Path(f.name)
+class TestValidateModeratorPlot(unittest.TestCase):
     
-    is_valid, errors = validate_species_grouping(data, plot_path)
-    assert is_valid is False
-    assert any('No valid migration groups found' in error for error in errors)
-    os.unlink(plot_path)
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.mock_data_path = Path(self.temp_dir) / "data" / "processed"
+        self.mock_data_path.mkdir(parents=True)
+        self.mock_results_path = Path(self.temp_dir) / "results"
+        self.mock_results_path.mkdir(parents=True)
+        
+        # Create mock data
+        self.mock_data = pd.DataFrame({
+            'species': ['A', 'B', 'C', 'D', 'E', 'F'],
+            'telomere_length_kb': [1.0, 2.0, 1.5, 2.5, 1.2, 2.2],
+            'lifespan': [5, 10, 7, 12, 6, 11],
+            'migration_status': ['Resident', 'Migratory', 'Resident', 'Migratory', 'Resident', 'Migratory']
+        })
+        
+        self.mock_data.to_csv(self.mock_data_path / "merged_data.csv", index=False)
+        
+        # Create mock results
+        pd.DataFrame({
+            'interaction_coeff': [0.5],
+            'interaction_p_value': [0.01]
+        }).to_csv(self.mock_results_path / "moderator_analysis.csv", index=False)
 
-def test_validate_species_grouping_with_small_sample():
-    """Test that validate_species_grouping warns about small samples."""
-    data = pd.DataFrame({
-        'species': ['Species_A', 'Species_B', 'Species_C', 'Species_D', 'Species_E'],
-        'migration_status': ['Migratory', 'Migratory', 'Resident', 'Resident', 'Resident']
-    })
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
-        plot_path = Path(f.name)
-    
-    # This should pass but might have warnings
-    is_valid, errors = validate_species_grouping(data, plot_path)
-    # Should be valid since we have 5 points total
-    assert is_valid is True
-    os.unlink(plot_path)
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
 
-def test_validate_plot_content_with_invalid_image():
-    """Test that validate_plot_content handles invalid image files."""
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
-        # Write invalid data
-        f.write(b'not a valid image')
-        invalid_path = Path(f.name)
-    
-    data = pd.DataFrame({
-        'species': ['Species_A'],
-        'migration_status': ['Migratory']
-    })
-    
-    is_valid, errors = validate_plot_content(invalid_path, data, None)
-    assert is_valid is False
-    assert any('Failed to read plot image' in error for error in errors)
-    os.unlink(invalid_path)
+    @patch('validate_moderator_plot.get_config')
+    def test_load_processed_data(self, mock_get_config):
+        mock_get_config.return_value = {
+            'paths': {'merged_data': str(self.mock_data_path / "merged_data.csv")}
+        }
+        data = load_processed_data()
+        self.assertEqual(len(data), 6)
+        self.assertIn('migration_status', data.columns)
+
+    @patch('validate_moderator_plot.get_config')
+    def test_load_moderator_results(self, mock_get_config):
+        mock_get_config.return_value = {
+            'paths': {'moderator_results': str(self.mock_results_path / "moderator_analysis.csv")}
+        }
+        results = load_moderator_results()
+        self.assertIn('interaction_coeff', results.columns)
+
+    def test_validate_plot_exists_missing(self):
+        self.assertFalse(validate_plot_exists("/nonexistent/path.png"))
+
+    def test_validate_plot_exists_empty_file(self):
+        path = Path(self.temp_dir) / "empty.png"
+        path.touch()
+        self.assertFalse(validate_plot_exists(str(path)))
+
+    def test_validate_plot_exists_valid(self):
+        # Create a minimal valid PNG (1x1 red pixel)
+        # PNG header + IHDR + IDAT + IEND
+        png_data = bytes([
+            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+            0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+            0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE, 0x00, 0x00, 0x00,
+            0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
+            0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xDD, 0x8D, 0xB4, 0x00, 0x00, 0x00,
+            0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+        ])
+        path = Path(self.temp_dir) / "valid.png"
+        path.write_bytes(png_data)
+        self.assertTrue(validate_plot_exists(str(path)))
+
+    def test_validate_plot_content_blank_image(self):
+        # Create a blank white image (all 255)
+        path = Path(self.temp_dir) / "blank.png"
+        # Minimal valid PNG that is 1x1 white
+        png_data = bytes([
+            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+            0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+            0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE, 0x00, 0x00, 0x00,
+            0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0xF8, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+            0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+        ])
+        path.write_bytes(png_data)
+        # This might pass the variance check depending on exact bytes, 
+        # but for a 1x1 image, variance is 0.
+        ok, errors = validate_plot_content(str(path), self.mock_data)
+        # 1x1 image has 0 variance, so it should fail
+        self.assertFalse(ok)
+        self.assertTrue(any("low variance" in e for e in errors))
+
+    def test_validate_species_grouping_missing_column(self):
+        bad_data = self.mock_data.drop(columns=['migration_status'])
+        ok, errors = validate_species_grouping(bad_data, "fake.png")
+        self.assertFalse(ok)
+        self.assertTrue(any("missing 'migration_status'" in e for e in errors))
+
+    def test_validate_species_grouping_missing_groups(self):
+        bad_data = self.mock_data.copy()
+        bad_data['migration_status'] = 'Unknown'
+        ok, errors = validate_species_grouping(bad_data, "fake.png")
+        self.assertFalse(ok)
+        self.assertTrue(any("missing required migration groups" in e for e in errors))
+
+    def test_validate_species_grouping_success(self):
+        ok, errors = validate_species_grouping(self.mock_data, "fake.png")
+        self.assertTrue(ok)
+        self.assertEqual(len(errors), 0)
+
+if __name__ == '__main__':
+    unittest.main()

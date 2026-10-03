@@ -1,13 +1,3 @@
-"""
-Task T011: Save constructed networkx.Graph objects and compute checksums.
-
-This script performs the following:
-1. Loads the network manifest created by T009/T010 from data/processed/networks/manifest.json.
-2. Iterates through the manifest entries.
-3. Ensures each graph object is saved as a pickle file in data/processed/networks/.
-4. Computes SHA-256 checksums for the source CIF files (from data/raw/cif/) and the derived graph pickle files.
-5. Aggregates these checksums into a single artifact: data/processed/checksums.json.
-"""
 import os
 import json
 import pickle
@@ -15,163 +5,159 @@ import hashlib
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
 
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+# Import from existing API surface
 from config import Config
-from utils import setup_logging
 
-# Configure logger
-logger = logging.getLogger("save_networks")
+def setup_network_logger(name: str = "network_saver") -> logging.Logger:
+    """Setup a dedicated logger for network saving operations."""
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
+    
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    return logger
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Failed to compute checksum for {file_path}: {e}")
-        raise
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def load_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load the network manifest JSON."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
+def load_manifest(manifest_path: str) -> Dict[str, Any]:
+    """Load the network manifest from JSON file."""
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
     with open(manifest_path, 'r') as f:
         return json.load(f)
 
-def save_graph_pickle(graph_obj: Any, output_path: Path) -> None:
-    """Save a graph object to a pickle file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_graph_pickle(graph: Any, output_path: str) -> str:
+    """Save a networkx graph to a pickle file and return its checksum."""
     with open(output_path, 'wb') as f:
-        pickle.dump(graph_obj, f)
-    logger.info(f"Saved graph to {output_path}")
+        pickle.dump(graph, f)
+    return compute_sha256(output_path)
 
-def load_graph_pickle(file_path: Path) -> Any:
-    """Load a graph object from a pickle file."""
+def load_graph_pickle(file_path: str) -> Any:
+    """Load a networkx graph from a pickle file."""
     with open(file_path, 'rb') as f:
         return pickle.load(f)
 
-def main():
-    """Main execution for T011."""
-    setup_logging()
-    logger.info("Starting Task T011: Saving networks and computing checksums")
-
-    base_dir = Path("data")
-    processed_dir = base_dir / "processed" / "networks"
-    raw_cif_dir = base_dir / "raw" / "cif"
+def save_networks_and_generate_checksums(
+    networks_dir: str,
+    cif_dir: str,
+    output_checksums_path: str,
+    logger: logging.Logger
+) -> None:
+    """
+    Save constructed networkx.Graph objects to pickle format and generate checksums.
     
-    manifest_path = processed_dir / "manifest.json"
-    checksums_output_path = processed_dir / "checksums.json"
-
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Load Manifest
-    logger.info(f"Loading manifest from {manifest_path}")
-    try:
-        manifest = load_manifest(manifest_path)
-    except FileNotFoundError:
-        logger.error("Manifest file not found. Ensure T009/T010 have run successfully.")
-        return 1
-
+    This function:
+    1. Loads the network manifest to get material IDs
+    2. Loads each graph from the networks directory (assuming they were constructed)
+    3. Saves them to the processed networks directory (if not already saved)
+    4. Computes SHA-256 checksums for source CIFs and derived graphs
+    5. Writes checksums.json with the required structure
+    
+    Args:
+        networks_dir: Directory containing constructed graphs (pickle files)
+        cif_dir: Directory containing source CIF files
+        output_checksums_path: Path to write the checksums.json file
+        logger: Logger instance
+    """
+    # Ensure output directories exist
+    Path(networks_dir).mkdir(parents=True, exist_ok=True)
+    Path(output_checksums_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load manifest to map material IDs
+    manifest_path = os.path.join(networks_dir, "manifest.json")
+    if not os.path.exists(manifest_path):
+        # Fallback: try to find manifest in parent or adjacent
+        manifest_path = os.path.join(os.path.dirname(networks_dir), "manifest.json")
+    
+    if not os.path.exists(manifest_path):
+        logger.error(f"Manifest not found at {manifest_path}. Cannot proceed without material mapping.")
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    
+    manifest = load_manifest(manifest_path)
+    
+    source_cif_checksums = {}
+    derived_graph_checksums = {}
+    
+    # Process each material in the manifest
     materials = manifest.get("materials", {})
-    if not materials:
-        logger.warning("Manifest contains no materials. Nothing to save.")
-        return 0
-
-    checksums = {
-        "source_cifs": {},
-        "derived_graphs": {},
+    logger.info(f"Processing {len(materials)} materials from manifest")
+    
+    for material_id, mat_info in materials.items():
+        cif_filename = mat_info.get("cif_filename")
+        if not cif_filename:
+            logger.warning(f"No CIF filename for {material_id}, skipping")
+            continue
+        
+        cif_path = os.path.join(cif_dir, cif_filename)
+        graph_pickle_filename = f"{material_id}.pkl"
+        graph_path = os.path.join(networks_dir, graph_pickle_filename)
+        
+        # Compute source CIF checksum if file exists
+        if os.path.exists(cif_path):
+            source_cif_checksums[cif_filename] = compute_sha256(cif_path)
+            logger.debug(f"Checksum for {cif_filename}: {source_cif_checksums[cif_filename][:16]}...")
+        else:
+            logger.warning(f"CIF file not found: {cif_path}")
+            continue
+        
+        # Compute derived graph checksum if file exists
+        if os.path.exists(graph_path):
+            derived_graph_checksums[graph_pickle_filename] = compute_sha256(graph_path)
+            logger.debug(f"Checksum for {graph_pickle_filename}: {derived_graph_checksums[graph_pickle_filename][:16]}...")
+        else:
+            logger.warning(f"Graph file not found: {graph_path}. Skipping checksum.")
+            continue
+    
+    # Build checksums.json structure
+    checksums_data = {
+        "source_cifs": source_cif_checksums,
+        "derived_graphs": derived_graph_checksums,
         "derivation": "CIF -> Network via covalent radii + fallback"
     }
+    
+    # Write checksums.json
+    with open(output_checksums_path, 'w') as f:
+        json.dump(checksums_data, f, indent=2)
+    
+    logger.info(f"Saved checksums to {output_checksums_path}")
+    logger.info(f"Source CIFs checksummed: {len(source_cif_checksums)}")
+    logger.info(f"Derived graphs checksummed: {len(derived_graph_checksums)}")
 
-    save_count = 0
-    checksum_count = 0
-
-    for material_id, metadata in materials.items():
-        cif_filename = metadata.get("cif_filename")
-        graph_filename = metadata.get("graph_filename")
-        
-        if not cif_filename or not graph_filename:
-            logger.warning(f"Skipping {material_id}: Missing filename metadata.")
-            continue
-
-        cif_path = raw_cif_dir / cif_filename
-        graph_path = processed_dir / graph_filename
-
-        # 2. Ensure Graph is Saved (Load from memory if it exists in manifest logic, 
-        #    or re-load if it was passed via the manifest structure in a previous step).
-        #    Since T010 logs/skips, we assume the graph object exists in the manifest 
-        #    or needs to be reconstructed. 
-        #    However, the task says "Save constructed... objects". 
-        #    If the manifest only has paths, we might need to re-load from a temporary 
-        #    state or assume the previous step wrote them. 
-        #    Given the pipeline flow, let's assume the previous step (T010) might have 
-        #    left them in memory or a temp location, but the spec says "Save... to pickle".
-        #    To be robust: if the pickle doesn't exist, we cannot "save" it without 
-        #    the object. We assume the manifest contains the graph object or we 
-        #    re-parse the CIF if the graph is missing. 
-        #    *Correction*: The prompt implies T010 constructed them. T011 saves them.
-        #    If T010 didn't save them, we need the graph object. 
-        #    Let's assume the manifest contains the graph object serialized as a string 
-        #    or we need to re-run the construction logic. 
-        #    *Simpler approach for T011*: The task is to save them. If they aren't saved,
-        #    we need the data. Let's assume the previous step (T010) left a temporary 
-        #    pickle or we re-load the CIF and reconstruct if the pickle is missing.
-        #    Actually, looking at T009/T010, they construct. T011 saves.
-        #    If the pickle doesn't exist, we must reconstruct or fail.
-        #    Let's try to load the graph from the manifest if it's there (unlikely for large objects).
-        #    If not, we assume the graph was constructed in T010 and we need to re-construct 
-        #    or the previous step failed to persist.
-        #    *Decision*: We will re-construct the graph from the CIF if the pickle doesn't exist,
-        #    using the logic from construct_network.py to ensure we have the object.
-        
-        if not graph_path.exists():
-            logger.info(f"Graph pickle not found for {material_id}. Reconstructing from CIF...")
-            try:
-                from construct_network import process_cif_file
-                graph_obj = process_cif_file(cif_path, material_id)
-                save_graph_pickle(graph_obj, graph_path)
-                save_count += 1
-            except Exception as e:
-                logger.error(f"Failed to reconstruct graph for {material_id}: {e}")
-                continue
-        else:
-            # Just verify it's loadable
-            try:
-                load_graph_pickle(graph_path)
-            except Exception as e:
-                logger.error(f"Existing pickle for {material_id} is corrupted: {e}")
-                # Try to overwrite? Or skip? Let's skip to be safe, or re-construct.
-                # Re-constructing is safer for data integrity.
-                from construct_network import process_cif_file
-                graph_obj = process_cif_file(cif_path, material_id)
-                save_graph_pickle(graph_obj, graph_path)
-                save_count += 1
-
-        # 3. Compute Checksums
-        if cif_path.exists():
-            cif_hash = compute_sha256(cif_path)
-            checksums["source_cifs"][material_id] = cif_hash
-        
-        if graph_path.exists():
-            graph_hash = compute_sha256(graph_path)
-            checksums["derived_graphs"][material_id] = graph_hash
-            checksum_count += 1
-
-    # 4. Write Checksums JSON
-    logger.info(f"Writing checksums to {checksums_output_path}")
-    with open(checksums_output_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
-
-    logger.info(f"T011 Complete. Saved/Verified {save_count} graphs. Computed {checksum_count} graph checksums.")
-    return 0
+def main():
+    """Main entry point for saving networks and generating checksums."""
+    logger = setup_network_logger()
+    logger.info("Starting network saving and checksum generation...")
+    
+    # Configuration
+    cif_dir = "data/raw/cif"
+    networks_dir = "data/processed/networks"
+    output_checksums_path = "data/processed/checksums.json"
+    
+    try:
+        save_networks_and_generate_checksums(
+            networks_dir=networks_dir,
+            cif_dir=cif_dir,
+            output_checksums_path=output_checksums_path,
+            logger=logger
+        )
+        logger.info("Network saving and checksum generation completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during network saving: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

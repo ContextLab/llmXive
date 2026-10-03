@@ -1,1 +1,3 @@
-"""Integration tests package for the coral resilience pipeline."""
+"""
+Integration tests for the coral resilience pipeline.
+"""

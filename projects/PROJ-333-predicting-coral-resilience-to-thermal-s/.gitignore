@@ -2,11 +2,27 @@
 data/raw/*.fastq.gz
 data/processed/*.rds
 
-# Python cache and compiled files
-__pycache__
+# Python cache and bytecode
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # IDE and editor files
 .idea/
@@ -14,30 +30,22 @@ __pycache__
 *.swp
 *.swo
 *~
-
-# Virtual environments
-venv/
-.venv/
-env/
+.DS_Store
 
 # Logs and temporary files
 *.log
-.DS_Store
-Thumbs.db
-
-# Jupyter notebooks
-.ipynb_checkpoints/
-
-# Test coverage
+.pytest_cache/
 .coverage
 htmlcov/
-.tox/
 
-# Build artifacts
-build/
-dist/
-*.egg-info/
+# Environment files
+.env
+.env.local
 
-# Results and plots (optional, keep large outputs)
-results/*.png
-results/*.pdf
+# Results and plots (generated artifacts)
+results/plots/*.png
+results/plots/*.pdf
+results/plots/*.svg
+data/processed/*.png
+data/processed/*.pdf
+data/processed/*.svg

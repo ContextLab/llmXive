@@ -25,15 +25,51 @@ T015:
     of the required assertion or logging of missing metadata. The `results/power_analysis.log`
     does not record any count of skipped materials for missing thermal conductivity
     data. The task therefore remains unfinished.
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No correlation output files (e.g., `results/correlations.json` or similar) are\
+    \ present, nor any code or logs showing Pearson and Spearman calculations and\
+    \ temporary\u2011file handling. Without concrete artifacts, the requirement is\
+    \ not satisfied."
+T016c:
+  c: false
+  h: 698d7ce940adf91297d9b490d25fccce6d1a8985a7e1706cd6126b42b19d1dae
+  r: '`data/processed/checksums.json` does not contain any entry for the checksum
+    of `results/correlations.json`; it only has unrelated keys. Consequently the required
+    update was not performed. The missing checksum entry must be added (e.g., a hash
+    value keyed by `"results/correlations.json"`).'
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or result file implementing the Bonferroni correction (e.g.,\
+    \ a function that divides \u03B1 by 3 and applies it to the three correlation\
+    \ tests) was provided, nor any output (such as updated p\u2011values or a report)\
+    \ demonstrating that the correction was applied. The required artifact is missing,\
+    \ so the task is not satisfied."
+T018a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, log file, or documentation was presented showing that the system records
+    the sample size and emits a warning when the number of samples is below 50, as
+    required by task T018a. The necessary artifact is missing.
+T018b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, log file, or output showing the verification of \u226550 remaining\
+    \ materials after filtering is provided; the claim lacks any concrete artifact\
+    \ (e.g., a printed count, a log entry, or a data file) to demonstrate that the\
+    \ requirement was met. The implementer must supply evidence\u2014such as a log\
+    \ message or a report file\u2014confirming the final material count."
 T020a:
   c: false
-  h: 3e55f991541f6dac0064382cd734283e0637a791d28c042aeae7b319d6748497
-  r: "The required input file `data/processed/metrics.csv` is absent, so the function\
-    \ cannot be exercised on the specified data. Moreover, the `calculate_vif` function\
-    \ in `code/analyze.py` is truncated in the provided view, and it is unclear whether\
-    \ it correctly selects only the three network\u2011metric columns, uses `variance_inflation_factor`,\
-    \ and logs/skips singular features as required. Both the missing CSV and the incomplete\
-    \ function implementation need to be provided."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the calculated Variance Inflation Factor (VIF) values\
+    \ for the candidate features is present. The task required VIF for all network\
+    \ metrics **and** physical descriptors, but no CSV/JSON/figure or code output\
+    \ showing these calculations was provided. The implementer must supply a non\u2011\
+    empty file (e.g., `data/processed/vif.csv`) listing each feature with its VIF\
+    \ score."
 T020b:
   c: false
   h: 6923e46852618fcbf911450abe8318028fe0b901e668c0b3c7d9f246c4122ccf
@@ -41,11 +77,3 @@ T020b:
     provided excerpt of `code/analyze.py` does not show a `log_vif_results(vif_dict)`
     implementation (or any evidence that it writes VIF values in the specified format).
     Without the function and its output file, the task is not fulfilled.
-T022:
-  c: false
-  h: 88449c0e507e23ec0e830845184d6dd58afb64e064c497cd0bcaf5ca56b4faa9
-  r: "The repository lacks the required `data/processed/filtered_features.csv` and\
-    \ the resulting `models/thermal_predictor.pkl`. Moreover, the provided `code/analyze.py`\
-    \ excerpt does not contain an implementation of the `train_model(features_df,\
-    \ target_series)` function (or it is incomplete/truncated). Hence the task\u2019\
-    s core requirement is not met."

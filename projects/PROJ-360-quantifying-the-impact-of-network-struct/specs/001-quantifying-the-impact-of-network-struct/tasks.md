@@ -74,7 +74,7 @@
 - [ ] T008 [US1] **Sequential**: Save downloaded CIF files to `data/raw/cif/` and compute their SHA-256 checksums. **Dependencies**: [T007]. <!-- FAILED: unspecified -->
 - [X] T009 [US1] **Sequential**: Implement `code/construct_network.py` to parse CIF files using `pymatgen`, detect bonds via covalent radius summation with a tolerance threshold, and create `networkx.Graph` objects. **Fallback**: If no bonds found, attempt distance cutoffs of increasing magnitude sequentially. **Dependencies**: [T008].
 - [X] T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive distance cutoffs) for disconnected graphs; log and skip materials with no edges after fallbacks. **Dependencies**: [T009].
-- [ ] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format). **Checksum Generation**: Compute SHA-256 checksums for the source CIF files and the derived graph objects. Write these checksums to a new artifact `data/processed/checksums.json` with the structure: `{ "source_cifs": {...}, "derived_graphs": {...}, "derivation": "CIF -> Network via covalent radii + fallback" }`. **Dependencies**: [T010].
+- [X] T011 [US1] Save constructed `networkx.Graph` objects to `data/processed/networks/` (pickle format). **Checksum Generation**: Compute SHA-256 checksums for the source CIF files and the derived graph objects. Write these checksums to a new artifact `data/processed/checksums.json` with the structure: `{ "source_cifs": {...}, "derived_graphs": {...}, "derivation": "CIF -> Network via covalent radii + fallback" }`. **Dependencies**: [T010].
 - [X] T012 [US1] Implement validation in `code/validate_graphs.py` to ensure every graph has ≥2 nodes and ≥1 edge, or is explicitly skipped with a log entry. **Dependencies**: [T011].
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -94,9 +94,9 @@
 - [X] T014b [US2] Append the computed physical descriptors from T014a to `data/processed/metrics.csv`. **Dependencies**: [T013, T014a].
 - [X] T014c [US2] Compute checksums for both `data/processed/metrics.csv` and write them into the `checksums.json` file.
 - [X] T015 [US2] Implement extraction of thermal conductivity scalar from CIF metadata (via pymatgen) and append column `thermal_conductivity_scalar` to `data/processed/metrics.csv`. **Dependencies**: [T014b].
-- [ ] T016a [US2] Compute Pearson and Spearman correlations between each network metric and thermal conductivity, storing results in temporary files before writing final data.
+- [ ] T016a [US2] Compute Pearson and Spearman correlations between each network metric and thermal conductivity, storing results in temporary files before writing final data. <!-- FAILED: unspecified -->
 - [ ] T016b [US2] Save the correlation results to `results/correlations.json`. **Dependencies**: [T015, T016a].
-- [ ] T016c [US2] Update `data/processed/checksums.json` with the checksum for `results/correlations.json`. **Dependencies**: [T016b].
+- [ ] T016c [US2] Update `data/processed/checksums.json` with the checksum for `results/correlations.json`. **Dependencies**: [T016b]. <!-- FAILED: unspecified -->
 - [ ] T017 [US2] Implement Bonferroni correction for the correlation tests to control family-wise error rate. Calculate alpha dynamically as `0.05 / 3` (fixed denominator for the 3 planned metric-conductivity pairs), regardless of missing data or dropped features, to strictly control Type I error as per Spec FR-005 and SC-004.
 - [ ] T018a [US2] Log sample size and a warning if n < 50. **Dependencies**: [T017].
 - [ ] T018b [US2] Verify that at least 50 materials remain after filtering in previous steps and log the final count. **Dependencies**: [T012, T015].
@@ -114,12 +114,12 @@
 ### Implementation for User Story 3
 
 - [ ] T020a [US3] Calculate VIF for all candidate features (network metrics AND physical descriptors).
-- [ ] T020b [US3] Write the filtered feature set to `data/processed/filtered_features.csv`. **Dependencies**: [T020a].
-- [ ] T020c [US3] Log VIF values and update checksums for filtered features. **Dependencies**: [T020b].
+- [ ] T020b [US3] Write the filtered feature set to `data/processed/filtered_features.csv`. **Dependencies**: [T020a]. <!-- FAILED: unspecified -->
+- [~] T020c [US3] Log VIF values and update checksums for filtered features. **Dependencies**: [T020b].
 - [ ] T022 [US3] Train a linear regression model using the features from `data/processed/filtered_features.csv` and save it to `models/thermal_predictor.pkl`. **Dependencies**: [T020b].
-- [ ] T023 [US3] Perform stratified k-fold cross-validation (k=5) on CPU-only hardware. **Implementation**: Bin the continuous thermal conductivity target into quantiles to enable stratification. Compute R² and RMSE for each fold.
-- [ ] T024 [US3] Aggregate the CV results (mean ± std dev) and save them to `results/model_performance.json`. **Dependencies**: [T023].
-- [ ] T025a [US3] Read performance data from `results/model_performance.json`.
-- [ ] T025b [US3] Generate the final report content. **Implementation**: Unconditionally insert the mandatory "Limitations" text: "This study is observational. Correlations do not imply causality. The thermal conductivity tensor was reduced to a scalar by averaging principal components, which may obscure anisotropic effects." Append the R² interpretation if performance data is available. **Dependencies**: [T024, T025a].
-- [ ] T025c [US3] Write the generated report to `results/final_report.md`. **Dependencies**: [T025b].
+- [~] T023 [US3] Perform stratified k-fold cross-validation (k=5) on CPU-only hardware. **Implementation**: Bin the continuous thermal conductivity target into quantiles to enable stratification. Compute R² and RMSE for each fold.
+- [X] T024 [US3] Aggregate the CV results (mean ± std dev) and save them to `results/model_performance.json`. **Dependencies**: [T023].
+- [X] T025a [US3] Read performance data from `results/model_performance.json`.
+- [~] T025b [US3] Generate the final report content. **Implementation**: Unconditionally insert the mandatory "Limitations" text: "This study is observational. Correlations do not imply causality. The thermal conductivity tensor was reduced to a scalar by averaging principal components, which may obscure anisotropic effects." Append the R² interpretation if performance data is available. **Dependencies**: [T024, T025a]. <!-- FAILED: unspecified -->
+- [X] T025c [US3] Write the generated report to `results/final_report.md`. **Dependencies**: [T025b].
 

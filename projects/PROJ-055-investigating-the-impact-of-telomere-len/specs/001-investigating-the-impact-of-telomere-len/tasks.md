@@ -135,8 +135,8 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [X] T033 [US3] Create `code/R/03_fit_moderator.R` to define and fit the extended PGLS model (`lifespan ~ telomere_length * migration_status`) using `phylolm` with interaction term logic, ensuring consistency with the base model engine.
-- [~] T034 [US3] Update `code/04_model_pglS.py` (or create `code/06_moderator.py`) to call the moderator R script, read `results/model_summary.csv` from US2 to calculate AIC difference vs base model, extract the interaction coefficient and p-value. **Depends on T025**.
-- [~] T035 [US3] Update `code/05_visualize.py` to generate a grouped scatter plot with separate regression lines for "Migratory" and "Resident" species, saved as `results/moderator_plot.png`. This task fulfills the FR-007 requirement for the moderator scatter plot. **Depends on T034**.
+- [ ] T034 [US3] Update `code/04_model_pglS.py` (or create `code/06_moderator.py`) to call the moderator R script, read `results/model_summary.csv` from US2 to calculate AIC difference vs base model, extract the interaction coefficient and p-value. **Depends on T025**.
+- [ ] T035 [US3] Update `code/05_visualize.py` to generate a grouped scatter plot with separate regression lines for "Migratory" and "Resident" species, saved as `results/moderator_plot.png`. This task fulfills the FR-007 requirement for the moderator scatter plot. **Depends on T034**.
 - [ ] T036 [US3] Add validation to ensure `results/moderator_plot.png` correctly visualizes the interaction effect and species grouping.
 
 **Checkpoint**: All user stories should now be independently functional

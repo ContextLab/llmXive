@@ -1,2 +1,2 @@
-# Directory for processed data (count matrices, RDS files, etc.)
-# Git keeps this directory even if empty
+# This directory stores processed data files (e.g., count matrices).
+# Do not commit large binary files.

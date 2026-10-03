@@ -1,46 +1,86 @@
-# Spec Amendment Record: BioProject ID Update
+# Formal Specification Amendments
+## Project: Predicting Coral Resilience to Thermal Stress (PROJ-333)
 
-## Amendment Details
+This document records formal changes to the project specification, specifically regarding data source identifiers and configuration parameters.
 
-- **Amendment ID**: AMEND-001
-- **Date**: 2023-10-27
-- **Author**: Automated Science Pipeline
-- **Status**: Active
-- **Target Specification**: `specs/001-coral-resilience-prediction/spec.md` (Frozen)
+---
 
-## Change Description
+## Amendment ID: AMEND-001
 
-**Original Value**: BioProject ID `PRJNA292777`
-**New Value**: BioProject ID `PRJNA321023`
+**Date:** 2023-10-27
+**Status:** Approved
+**Author:** Automated Pipeline System (T004b)
+**References:** Plan.md, T004c, T015
 
-**Rationale**: The original accession number `PRJNA292777` has been superseded by the current accession number `PRJNA321023` in the NCBI BioProject database. This update ensures that the pipeline downloads the correct, up-to-date genomic data for *Acropora millepora* thermal stress studies.
+### 1. Description of Change
 
-## Decision Process
+**Original Value:** BioProject ID `PRJNA292777` (as initially referenced in early planning documents).
+**New Value:** BioProject ID `PRJNA321023`.
 
-- **Literature Review**: A review of current literature for *Acropora millepora* expression variance indicated that `PRJNA321023` is the active repository for the relevant thermal stress datasets.
-- **Database Verification**: Verified via NCBI BioProject search that `PRJNA292777` is no longer the primary or active accession for the intended dataset, while `PRJNA321023` contains the required RNA-seq samples under heat and control conditions.
-- **Impact Analysis**: The change affects all downstream data ingestion tasks (T015, T016, T017) and ensures the integrity of the input data for User Story 1.
+**Rationale:**
+Upon review of the NCBI BioProject database and current literature regarding *Acropora millepora* thermal stress response, the accession `PRJNA292777` was found to be superseded or associated with a different experimental design. The current, active, and relevant dataset for this study's objectives (thermal resilience genomic analysis) is `PRJNA321023`.
 
-## Impact on Success Criteria
+Per `Plan.md` requirements, the BioProject ID must be the current accession number to ensure data integrity and reproducibility. This amendment formally updates the specification to reflect this change.
 
-- **SC-001 (Data Integrity)**: Ensures that the input data corresponds to the verified, current biological study, preventing analysis on obsolete or incorrect samples.
-- **SC-002 (Statistical Rigor)**: By using the correct dataset, the statistical power of the differential expression analysis is maximized as the sample size and conditions match the original study design.
-- **SC-003 (Biological Plausibility)**: The updated dataset is expected to contain the necessary heat-shock and oxidative stress response markers, facilitating successful pathway enrichment.
-- **Risk**: A lower threshold for sample inclusion (if any) might increase false positives if the new dataset contains noisier samples, but the primary risk of analyzing the wrong organism or condition is eliminated.
+### 2. Decision Process
 
-## Implementation Notes
+1. **Literature Review:** Reviewed recent publications citing *Acropora millepora* transcriptomic data under thermal stress.
+2. **NCBI Verification:** Queried NCBI BioProject for `PRJNA292777` and `PRJNA321023`.
+3. **Validation:** Confirmed that `PRJNA321023` contains the specific RNA-seq samples (Heat vs. Control) required for the differential expression analysis defined in User Story 2.
+4. **Conclusion:** The switch to `PRJNA321023` is necessary to align with the actual data available for the project scope.
 
-- **Configuration**: The `code/config.py` file has been updated to reflect `BIOPROJECT_ID = "PRJNA321023"` (see T004c).
-- **Code Comments**: `code/config.py` includes a comment referencing this amendment: `# BioProject ID updated via T004b (Spec Amendment). Original PRJNA superseded.`
-- **Frozen Spec**: This document serves as the formal record of change; `spec.md` remains frozen to preserve the original requirements context.
+### 3. Impact on Success Criteria
 
-## Final Value Determination Date
+* **SC-001 (Data Availability):** Ensures that the pipeline attempts to download from a valid, existing source.
+* **SC-002 (Statistical Rigor):** Guarantees that the analysis is performed on the correct biological samples, preventing false negatives/positives due to mismatched metadata.
+* **SC-003 (Biological Plausibility):** Ensures the resulting gene expression data is relevant to the specific thermal stress conditions defined in the hypothesis.
 
-- **Date**: 2023-10-27
-- **Verification**: Confirmed via NCBI BioProject API/FTP at the time of pipeline initialization.
-- **Next Review**: To be reviewed if the pipeline is re-run against a future BioProject update.
+**Note:** This change does not alter the statistical methods or the definition of success, but rather ensures the input data matches the experimental design.
 
-## Approval
+### 4. Implementation Details
 
-- **Approved By**: Automated Pipeline Logic (T004b)
-- **Effective Date**: 2023-10-27
+* **Configuration Update:** The value `BIOPROJECT_ID` in `code/config.py` has been updated to `"PRJNA321023"` (Task T004c).
+* **Code References:** All downstream tasks (T015, T018, etc.) will now reference this new ID.
+* **Documentation:** This amendment record serves as the audit trail for the change.
+
+### 5. Final Value Determination Date
+
+The final value for the BioProject ID was determined and locked on **2023-10-27**. This value will remain constant for the duration of the current analysis pipeline (Phase 1-3) unless a formal new amendment is processed.
+
+---
+
+## Amendment ID: AMEND-002
+
+**Date:** 2023-10-27
+**Status:** Approved
+**Author:** Automated Pipeline System (T004b)
+**References:** T004, T009b
+
+### 1. Description of Change
+
+**Parameter:** `MIN_COUNT_THRESHOLD`
+**Original Value:** Undefined / Placeholder
+**New Value:** `10` (Provisional)
+
+**Rationale:**
+To satisfy Constitution Check VII (Uniform Filtering) and enable the execution of the initial pipeline run, a provisional numeric value is required. Empirical determination of the optimal threshold is deferred to the research phase (T009b).
+
+### 2. Decision Process
+
+* **Constraint:** The pipeline requires a numeric threshold to filter low-count genes before DGE analysis.
+* **Strategy:** Adopt a standard, conservative provisional value (10 counts) to prevent the pipeline from failing due to missing configuration, while explicitly marking it as temporary.
+* **Future Action:** The final threshold will be determined by analyzing the distribution of counts and variance in the real data (Task T009b) and updating `config.py` accordingly before the final production run (T020).
+
+### 3. Impact on Success Criteria
+
+* **SC-002:** Using a provisional value may introduce noise if the threshold is too low, or lose signal if too high. However, the "Fail Loudly" mechanism in downstream validation (T028b) will detect if the resulting statistical power is compromised, triggering a re-evaluation of this threshold.
+* **Reproducibility:** The specific provisional value is documented here to ensure the initial run is reproducible.
+
+### 4. Implementation Details
+
+* **Configuration Update:** `MIN_COUNT_THRESHOLD = 10` is set in `code/config.py` with a comment referencing this amendment.
+* **Documentation:** This record documents the provisional nature of the value.
+
+---
+
+*End of Amendments Document*

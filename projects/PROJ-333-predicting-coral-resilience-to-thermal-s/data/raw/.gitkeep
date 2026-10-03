@@ -1,2 +1,2 @@
-# Directory for raw data downloads (FASTQ, VCF, etc.)
-# Git keeps this directory even if empty
+# This directory stores raw data files (e.g., FASTQ).
+# Do not commit large binary files.

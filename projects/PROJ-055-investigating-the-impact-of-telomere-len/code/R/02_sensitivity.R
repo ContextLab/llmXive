@@ -1,186 +1,156 @@
 #!/usr/bin/env Rscript
 
-# T026: Sensitivity Analysis (LOOCV or Jackknife)
-# Performs Leave-One-Out Cross-Validation (LOOCV) if species count >= 10,
-# otherwise performs a Jackknife (leave-one-out) sensitivity analysis.
-# Output: results/sensitivity_log.csv
+# 02_sensitivity.R
+# Performs LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10)
+# Outputs: results/sensitivity_log.csv
 
-# Load required libraries
-if (!require("phylolm", quietly = TRUE)) stop("Package 'phylolm' is required but not installed.")
-if (!require("ape", quietly = TRUE)) stop("Package 'ape' is required but not installed.")
-if (!require("dplyr", quietly = TRUE)) stop("Package 'dplyr' is required but not installed.")
+library(phylolm)
+library(ape)
+library(dplyr)
+library(readr)
 
+# --- Configuration ---
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 3) {
-  stop("Usage: Rscript 02_sensitivity.R <merged_data.csv> <tree_file.newick> <output_csv>")
+  stop("Usage: Rscript 02_sensitivity.R <merged_data_path> <tree_path> <output_path>")
 }
 
-data_path <- args[1]
+merged_data_path <- args[1]
 tree_path <- args[2]
 output_path <- args[3]
 
-message("Loading data from: ", data_path)
-message("Loading tree from: ", tree_path)
-message("Output will be saved to: ", output_path)
+# Ensure output directory exists
+output_dir <- dirname(output_path)
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir, recursive = TRUE)
+}
 
-# Load Data
-df <- read.csv(data_path, stringsAsFactors = FALSE)
+# --- Load Data ---
+message("Loading merged data from ", merged_data_path)
+data <- read_csv(merged_data_path, show_col_types = FALSE)
 
-# Ensure required columns exist
+# Check for required columns
 required_cols <- c("species", "telomere_length_kb", "lifespan", "migration_status", "body_mass_g")
-if (!all(required_cols %in% names(df))) {
-  stop("Input data missing required columns: ", paste(setdiff(required_cols, names(df)), collapse = ", "))
+if (!all(required_cols %in% names(data))) {
+  stop("Missing required columns in merged data. Found: ", paste(names(data), collapse = ", "))
 }
 
-# Load Tree
-tree <- read.tree(tree_path)
-
-# Check for species overlap
-tree_species <- tree$tip.label
-data_species <- unique(df$species)
-
-# Map data species to tree tip labels (handling potential naming mismatches if necessary, 
-# but assuming strict matching per previous pipeline steps)
-common_species <- intersect(data_species, tree_species)
-
-if (length(common_species) < 3) {
-  stop("Not enough species overlap between data and tree for modeling (need >= 3). Found: ", length(common_species))
-}
-
-# Filter data to common species
-df_filtered <- df[df$species %in% common_species, ]
-
-# Aggregate by species if there are multiple records per species (as per US2 logic)
-# We take the mean of telomere and lifespan for each species
-df_agg <- df_filtered %>%
+# Aggregate by species means (as per T027B requirement mentioned in tasks.md)
+# The model requires one row per species for the PGLS
+species_data <- data %>%
   group_by(species) %>%
   summarise(
-    telomere_length_kb = mean(telomere_length_kb, na.rm = TRUE),
-    lifespan = mean(lifespan, na.rm = TRUE),
-    migration_status = first(migration_status), # Keep status as is
-    body_mass_g = mean(body_mass_g, na.rm = TRUE)
-  ) %>%
-  ungroup()
+    telomere_mean = mean(telomere_length_kb, na.rm = TRUE),
+    lifespan_mean = mean(lifespan, na.rm = TRUE),
+    migration_status = first(migration_status),
+    body_mass_mean = mean(body_mass_g, na.rm = TRUE),
+    .groups = 'drop'
+  )
 
-# Re-check overlap after aggregation
-df_agg <- df_agg[df_agg$species %in% tree_species, ]
+# Remove rows with NA in key variables
+species_data <- species_data %>%
+  filter(!is.na(telomere_mean) & !is.na(lifespan_mean))
 
-n_species <- nrow(df_agg)
-message("Total species for analysis: ", n_species)
+n_species <- nrow(species_data)
+message("Processing ", n_species, " unique species for sensitivity analysis.")
 
-# Determine Method
-if (n_species >= 10) {
-  method_justification <- "LOOCV (species count >= 10)"
-  method <- "LOOCV"
-} else {
-  method_justification <- "Jackknife (species count < 10)"
-  method <- "Jackknife"
+message("Loading phylogenetic tree from ", tree_path)
+tree <- read.tree(tree_path)
+
+# Ensure tree tip labels match data species names
+# We subset the tree to only include species present in our data
+common_species <- intersect(tree$tip.label, species_data$species)
+if (length(common_species) == 0) {
+  stop("No common species found between tree and data.")
 }
-message("Selected method: ", method, " (Justification: ", method_justification, ")")
 
-# Prepare results container
-results_list <- list()
+tree_subset <- drop.tip(tree, setdiff(tree$tip.label, common_species))
+species_data_subset <- species_data[species_data$species %in% common_species, ]
 
-# Function to fit model on a subset
-fit_model <- function(sub_df, sub_tree) {
-  # Ensure rownames match tree tip labels for phylolm
-  rownames(sub_df) <- sub_df$species
-  # Sort data to match tree order if necessary, though phylolm handles matching usually
-  # We subset the tree to match the data
-  if (!all(sub_df$species %in% sub_tree$tip.label)) {
-    stop("Species mismatch in subset")
-  }
-  sub_tree <- drop.tip(sub_tree, setdiff(sub_tree$tip.label, sub_df$species))
+# Reorder data to match tree tip labels
+species_data_subset <- species_data_subset[match(tree_subset$tip.label, species_data_subset$species), ]
+
+# Verify alignment
+if (!all(species_data_subset$species == tree_subset$tip.label)) {
+  stop("Species order mismatch after subsetting.")
+}
+
+# --- Sensitivity Analysis Logic ---
+# Determine method: LOOCV if >= 10 species, otherwise Jackknife (leave-one-out is effectively jackknife here, 
+# but we will label it appropriately based on the task description's distinction)
+# Task says: "LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10)"
+# We will implement leave-one-out for both, but label the justification string.
+
+method_justification <- ifelse(n_species >= 10, "LOOCV", "Jackknife")
+message("Using method: ", method_justification, " (N = ", n_species, ")")
+
+results <- list()
+
+# Prepare results dataframe
+res_df <- data.frame(
+  species_id = character(),
+  coefficient = numeric(),
+  se = numeric(),
+  p_value = numeric(),
+  method_justification = character(),
+  stringsAsFactors = FALSE
+)
+
+# Iterate: Leave one species out
+for (i in 1:n_species) {
+  # Remove species i
+  current_species <- species_data_subset$species[i]
+  subset_data <- species_data_subset[-i, ]
+  subset_tree <- drop.tip(tree_subset, current_species)
   
+  # Re-order subset data to match subset tree
+  subset_data <- subset_data[match(subset_tree$tip.label, subset_data$species), ]
+  
+  # Fit PGLS model: lifespan ~ telomere_length
+  # Using phylolm with default Brownian motion or iterative lambda if needed
+  # The base model used phylolm, so we stick to it.
   tryCatch({
-    # Fit PGLS: lifespan ~ telomere_length
-    fit <- phylolm(lifespan ~ telomere_length_kb, data = sub_df, phy = sub_tree, model = "lambda")
-    return(fit)
+    model <- phylolm(lifespan_mean ~ telomere_mean, 
+                     data = subset_data, 
+                     phy = subset_tree, 
+                     model = "lambda") # Estimate lambda iteratively as per T023 logic
+      
+    # Extract stats
+    coef_val <- coef(model)["telomere_mean"]
+    se_val <- sqrt(vcov(model)["telomere_mean", "telomere_mean"])
+    p_val <- summary(model)$coefficients["telomere_mean", "Pr(>|t|)"]
+    
+    res_df <- rbind(res_df, data.frame(
+      species_id = current_species,
+      coefficient = coef_val,
+      se = se_val,
+      p_value = p_val,
+      method_justification = method_justification,
+      stringsAsFactors = FALSE
+    ))
+    
+    message("  Processed: ", current_species, " (N=", nrow(subset_data), ")")
+    
   }, error = function(e) {
-    message("Model fitting failed for subset: ", e$message)
-    return(NULL)
+    message("  Warning: Failed to fit model for exclusion of ", current_species, ": ", e$message)
+    # Record NA for failed iterations to maintain log integrity
+    res_df <- rbind(res_df, data.frame(
+      species_id = current_species,
+      coefficient = NA_real_,
+      se = NA_real_,
+      p_value = NA_real_,
+      method_justification = method_justification,
+      stringsAsFactors = FALSE
+    ))
   })
 }
 
-# Loop through each species to leave out
-species_ids <- df_agg$species
+# --- Save Output ---
+message("Saving sensitivity log to ", output_path)
+write_csv(res_df, output_path)
 
-for (i in seq_along(species_ids)) {
-  leave_out <- species_ids[i]
-  keep_idx <- which(species_ids != leave_out)
-  
-  if (length(keep_idx) < 3) {
-    # Not enough data to fit model
-    results_list[[i]] <- data.frame(
-      species_id = leave_out,
-      coefficient = NA,
-      se = NA,
-      p_value = NA,
-      method_justification = method_justification,
-      status = "Skipped (insufficient data)"
-    )
-    next
-  }
-  
-  sub_data <- df_agg[keep_idx, ]
-  sub_tree <- tree
-  
-  # Ensure tree tips match sub_data species
-  tips_to_drop <- setdiff(sub_tree$tip.label, sub_data$species)
-  if (length(tips_to_drop) > 0) {
-    sub_tree <- drop.tip(sub_tree, tips_to_drop)
-  }
-  
-  fit <- fit_model(sub_data, sub_tree)
-  
-  if (is.null(fit)) {
-    results_list[[i]] <- data.frame(
-      species_id = leave_out,
-      coefficient = NA,
-      se = NA,
-      p_value = NA,
-      method_justification = method_justification,
-      status = "Fit Error"
-    )
-    next
-  }
-  
-  # Extract stats
-  coefs <- coef(summary(fit))
-  # The coefficient for telomere_length_kb is usually the second row
-  if (nrow(coefs) >= 2) {
-    coef_val <- coefs["telomere_length_kb", "Estimate"]
-    se_val <- coefs["telomere_length_kb", "Std. Error"]
-    p_val <- coefs["telomere_length_kb", "Pr(>|t|)"]
-  } else {
-    coef_val <- NA
-    se_val <- NA
-    p_val <- NA
-  }
-  
-  results_list[[i]] <- data.frame(
-    species_id = leave_out,
-    coefficient = coef_val,
-    se = se_val,
-    p_value = p_val,
-    method_justification = method_justification,
-    status = "OK"
-  )
-}
+message("Sensitivity analysis complete. ", nrow(res_df), " records written.")
+message("Method justification used: ", method_justification)
 
-# Combine results
-final_df <- do.call(rbind, results_list)
-
-# Ensure output directory exists
-out_dir <- dirname(output_path)
-if (!dir.exists(out_dir)) {
-  dir.create(out_dir, recursive = TRUE)
-}
-
-# Save results
-write.csv(final_df, output_path, row.names = FALSE)
-message("Sensitivity analysis complete. Results saved to: ", output_path)
-
-# Optional: Print summary
-valid_results <- sum(final_df$status == "OK")
-message("Successfully fitted models for ", valid_results, " out of ", n_species, " iterations.")
+# Exit cleanly
+quit(save = "no", status = 0)

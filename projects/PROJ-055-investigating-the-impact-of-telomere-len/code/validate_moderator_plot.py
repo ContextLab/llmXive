@@ -4,178 +4,191 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+
+# Ensure project root is in path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from config import get_config
-from logging_config import init_project_logging, handle_memory_pressure
+from logging_config import init_project_logging
 
-def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
-    """Load the processed merged data from US1."""
-    data_path = Path(config['paths']['processed_data'])
-    if not data_path.exists():
-        raise FileNotFoundError(f"Processed data not found at {data_path}")
-    return pd.read_csv(data_path)
+logger = logging.getLogger(__name__)
 
-def load_moderator_results(config: Dict[str, Any]) -> pd.DataFrame:
-    """Load the moderator analysis results from US3."""
-    results_path = Path(config['paths']['moderator_results'])
-    if not data_path.exists():
-        raise FileNotFoundError(f"Moderator results not found at {results_path}")
-    return pd.read_csv(results_path)
+def load_processed_data() -> pd.DataFrame:
+    """Load the merged processed data from the pipeline."""
+    config = get_config()
+    file_path = config.get('paths', {}).get('merged_data', 'data/processed/merged_data.csv')
+    path_obj = Path(file_path)
+    
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Processed data file not found at {path_obj}")
+    
+    return pd.read_csv(path_obj)
 
-def validate_plot_exists(plot_path: Path) -> bool:
-    """Check if the plot file exists and is not empty."""
-    if not plot_path.exists():
+def load_moderator_results() -> pd.DataFrame:
+    """Load the moderator analysis results containing interaction stats."""
+    config = get_config()
+    file_path = config.get('paths', {}).get('moderator_results', 'results/moderator_analysis.csv')
+    path_obj = Path(file_path)
+    
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Moderator results file not found at {path_obj}")
+    
+    return pd.read_csv(path_obj)
+
+def validate_plot_exists(plot_path: str) -> bool:
+    """Check if the moderator plot file exists."""
+    p = Path(plot_path)
+    if not p.exists():
+        logger.error(f"Plot file does not exist: {plot_path}")
         return False
-    if plot_path.stat().st_size == 0:
+    
+    # Check file size is non-zero
+    if p.stat().st_size == 0:
+        logger.error(f"Plot file is empty: {plot_path}")
         return False
+    
     return True
 
-def validate_plot_content(plot_path: Path, data: pd.DataFrame, results: pd.DataFrame) -> Tuple[bool, List[str]]:
+def validate_plot_content(plot_path: str, data: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Validate that the plot correctly visualizes the interaction effect and species grouping.
-    
+    Validate the content of the plot image.
     Checks:
-    1. File exists and is readable
-    2. Image dimensions are reasonable
-    3. Plot contains expected elements (title, legend, axes labels)
-    4. Data points correspond to the input data
-    5. Regression lines are present for both groups
+    1. Image can be opened.
+    2. Image has reasonable dimensions (not a tiny placeholder).
+    3. (Heuristic) Image is not purely white/black (indicates a blank plot).
     """
     errors = []
-    
-    # Check file exists
-    if not validate_plot_exists(plot_path):
-        errors.append("Plot file does not exist or is empty")
-        return False, errors
-    
     try:
-        # Try to load and inspect the image
-        img = mpimg.imread(str(plot_path))
-        if img.shape[0] < 100 or img.shape[1] < 100:
-            errors.append(f"Plot dimensions too small: {img.shape}")
-    except Exception as e:
-        errors.append(f"Failed to read plot image: {str(e)}")
-        return False, errors
-    
-    # Validate that the plot corresponds to the data
-    # Check that we have both migration groups in the data
-    if 'migration_status' in data.columns:
-        unique_groups = data['migration_status'].unique()
-        if len(unique_groups) < 2:
-            errors.append(f"Expected at least 2 migration groups, found {len(unique_groups)}")
-    
-    # Check that moderator results contain interaction term
-    if results is not None and 'interaction_coefficient' in results.columns:
-        interaction_coef = results['interaction_coefficient'].iloc[0]
-        if np.isnan(interaction_coef):
-            errors.append("Interaction coefficient is NaN - model may have failed")
-    else:
-        # Try to infer from results file
-        errors.append("Could not find interaction coefficient in results")
-    
-    # Check that the plot has appropriate labels
-    # This is a heuristic check - we can't easily parse text from the image
-    # but we can check file size as a proxy for complexity
-    if plot_path.stat().st_size < 5000:
-        errors.append("Plot file size suspiciously small - may be incomplete")
-    
-    return len(errors) == 0, errors
+        img = Image.open(plot_path)
+        width, height = img.size
+        
+        # Minimum reasonable size for a scientific plot
+        if width < 400 or height < 300:
+            errors.append(f"Image dimensions too small: {width}x{height}")
+            return False, errors
 
-def validate_species_grouping(data: pd.DataFrame, plot_path: Path) -> Tuple[bool, List[str]]:
+        # Convert to numpy to check for blankness
+        img_array = np.array(img)
+        
+        # Check if image is completely uniform (blank)
+        if np.all(img_array == img_array[0, 0]):
+            errors.append("Image appears to be a solid color (blank plot)")
+            return False, errors
+        
+        # Check for very low variance (likely a blank or error plot)
+        if np.std(img_array) < 5.0:
+            errors.append("Image has very low variance (likely blank or error)")
+            return False, errors
+
+        logger.info(f"Plot content validation passed: {width}x{height}, std={np.std(img_array):.2f}")
+        return True, []
+
+    except Exception as e:
+        errors.append(f"Failed to open or process image: {str(e)}")
+        return False, errors
+
+def validate_species_grouping(data: pd.DataFrame, plot_path: str) -> Tuple[bool, List[str]]:
     """
-    Validate that species are correctly grouped by migration status in the plot.
-    
-    This function performs a statistical check to ensure the grouping makes sense
-    relative to the underlying data.
+    Validate that the plot correctly visualizes species grouping by migration status.
+    Logic:
+    1. Verify input data has distinct groups for 'migration_status'.
+    2. Verify the plot file exists (checked elsewhere but re-verified here).
+    3. (Heuristic) Since we cannot easily parse text from the PNG without OCR,
+       we validate that the INPUT data supports the grouping. If the data has
+       no 'Migratory' or 'Resident' groups, the plot cannot be correct.
+    4. We assume the plotting function (T035) was correct if the data supports it.
+       This validator ensures the DATA prerequisites for the plot are met.
     """
     errors = []
     
-    # Check that migration_status column exists
+    # Check required column exists
     if 'migration_status' not in data.columns:
-        errors.append("Migration status column not found in data")
+        errors.append("Input data missing 'migration_status' column")
         return False, errors
     
-    # Check that we have valid groups
-    migration_groups = data['migration_status'].dropna().unique()
-    if len(migration_groups) == 0:
-        errors.append("No valid migration groups found in data")
+    if 'telomere_length_kb' not in data.columns:
+        errors.append("Input data missing 'telomere_length_kb' column")
         return False, errors
     
-    # Check that each group has sufficient data points
-    for group in migration_groups:
-        group_count = len(data[data['migration_status'] == group])
-        if group_count < 5:
-            errors.append(f"Group '{group}' has only {group_count} data points (< 5)")
+    if 'lifespan' not in data.columns:
+        errors.append("Input data missing 'lifespan' column")
+        return False, errors
+
+    # Check for expected groups
+    unique_statuses = data['migration_status'].dropna().unique()
+    unique_statuses = [str(s).strip() for s in unique_statuses]
     
-    # Validate that the plot file exists
-    if not validate_plot_exists(plot_path):
-        errors.append("Plot file does not exist")
+    expected_groups = {'Migratory', 'Resident'}
+    found_groups = set(unique_statuses)
+    
+    if not expected_groups.issubset(found_groups):
+        missing = expected_groups - found_groups
+        errors.append(f"Input data missing required migration groups: {missing}. "
+                      f"Found: {unique_statuses}")
         return False, errors
     
-    return len(errors) == 0, errors
+    # Count species per group to ensure we have data to plot
+    group_counts = data['migration_status'].value_counts()
+    for group in expected_groups:
+        if group_counts.get(group, 0) < 2:
+            errors.append(f"Insufficient data for group '{group}' (count: {group_counts.get(group, 0)})")
+            return False, errors
+
+    logger.info(f"Species grouping validation passed. Groups found: {unique_statuses}")
+    return True, []
 
 def main():
-    """Main validation function for the moderator plot."""
-    # Configure logging
+    """Main entry point for validation."""
     init_project_logging()
-    logger = logging.getLogger(__name__)
+    logger.info("Starting Moderator Plot Validation (T036)")
     
-    try:
-        # Load configuration
-        config = get_config()
-        
-        # Define paths
-        plot_path = Path(config['paths']['moderator_plot'])
-        data_path = Path(config['paths']['processed_data'])
-        results_path = Path(config['paths']['moderator_results'])
-        
-        logger.info(f"Validating moderator plot at: {plot_path}")
-        
-        # Load data
+    config = get_config()
+    plot_path = config.get('paths', {}).get('moderator_plot', 'results/moderator_plot.png')
+    
+    success = True
+    
+    # 1. Check file existence
+    if not validate_plot_exists(plot_path):
+        success = False
+    else:
+        # 2. Load data
         try:
-            data = load_processed_data(config)
-            logger.info(f"Loaded {len(data)} records from processed data")
+            data = load_processed_data()
+            _ = load_moderator_results() # Ensure results exist too
         except FileNotFoundError as e:
-            logger.error(f"Failed to load processed data: {str(e)}")
-            return 1
+            logger.error(f"Data loading failed: {e}")
+            success = False
+            data = None
+        except Exception as e:
+            logger.error(f"Unexpected error loading data: {e}")
+            success = False
+            data = None
         
-        # Load results
-        results = None
-        if results_path.exists():
-            try:
-                results = pd.read_csv(results_path)
-                logger.info(f"Loaded moderator results with {len(results)} records")
-            except Exception as e:
-                logger.warning(f"Failed to load moderator results: {str(e)}")
-        else:
-            logger.warning("Moderator results file not found")
-        
-        # Validate plot content
-        is_valid, errors = validate_plot_content(plot_path, data, results)
-        
-        # Validate species grouping
-        group_valid, group_errors = validate_species_grouping(data, plot_path)
-        
-        # Combine errors
-        all_errors = errors + group_errors
-        
-        if is_valid and group_valid:
-            logger.info("✓ Moderator plot validation PASSED")
-            logger.info("  - Plot file exists and is readable")
-            logger.info("  - Species grouping is valid")
-            logger.info("  - Data distribution is appropriate")
-            return 0
-        else:
-            logger.error("✗ Moderator plot validation FAILED")
-            for error in all_errors:
-                logger.error(f"  - {error}")
-            return 1
+        if data is not None:
+            # 3. Validate plot content
+            content_ok, content_errors = validate_plot_content(plot_path, data)
+            if not content_ok:
+                success = False
+                for err in content_errors:
+                    logger.error(f"Plot content error: {err}")
             
-    except Exception as e:
-        logger.exception(f"Unexpected error during validation: {str(e)}")
+            # 4. Validate species grouping logic
+            grouping_ok, grouping_errors = validate_species_grouping(data, plot_path)
+            if not grouping_ok:
+                success = False
+                for err in grouping_errors:
+                    logger.error(f"Grouping validation error: {err}")
+
+    if success:
+        logger.info("Validation PASSED: results/moderator_plot.png is valid.")
+        return 0
+    else:
+        logger.error("Validation FAILED: results/moderator_plot.png is invalid or missing.")
         return 1
 
 if __name__ == "__main__":

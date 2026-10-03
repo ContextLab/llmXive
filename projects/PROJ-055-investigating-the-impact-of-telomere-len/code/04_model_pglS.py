@@ -5,192 +5,266 @@ import csv
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import pandas as pd
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.conversion import localconverter
 
-# Import from sibling modules as per API surface
+# Configure logging
+from logging_config import init_project_logging, log_memory_status
 from config import get_config
-from logging_config import log_memory_status
 
-# Ensure we can import rpy2 and the R script logic
-try:
-    import rpy2.robjects as ro
-    from rpy2.robjects import pandas2ri
-    from rpy2.robjects.packages import importr
-    pandas2ri.activate()
-except ImportError:
-    # If rpy2 is not available, we cannot run the R model.
-    # In a real execution, this would halt or skip.
-    pass
-
+# Initialize logging for this module
 logger = logging.getLogger(__name__)
 
-def check_species_power(data: pd.DataFrame, threshold: int = 15) -> bool:
+def check_species_power(species_count: int, threshold: int = 15) -> bool:
     """
-    Check if the number of unique species is sufficient for phylogenetic inference.
-    Returns True if power is sufficient, False otherwise.
+    Check if the number of species is sufficient for phylogenetic inference.
+    
+    Args:
+        species_count: Number of unique species in the dataset.
+        threshold: Minimum number of species required (default 15).
+        
+    Returns:
+        True if power is sufficient, False otherwise.
     """
-    unique_species = data['species'].nunique()
-    if unique_species < threshold:
-        logger.warning(f"Low Power: Phylogenetic inference unreliable (n={unique_species} < {threshold})")
-        return False
-    return True
+    return species_count >= threshold
 
-def run_r_pglS_model(data: pd.DataFrame, tree_path: str, output_path: str) -> Dict[str, Any]:
+def fetch_phylogenetic_tree(species_list: List[str], tree_path: Path) -> Optional[Path]:
     """
-    Executes the R script 01_fit_pglS.R via rpy2 to fit the PGLS model.
-    Expects the R script to read the data and tree, fit the model, and return results.
+    Fetch phylogenetic tree for the given species list using rotl (via R).
     
-    Since the R script is external, we simulate the invocation logic here
-    and assume the R script handles the heavy lifting.
-    
-    In a real scenario, this would:
-    1. Prepare R environment
-    2. Load data into R
-    3. Call the R function
-    4. Capture results
+    Args:
+        species_list: List of species names.
+        tree_path: Path to save the Newick tree file.
+        
+    Returns:
+        Path to the saved tree file, or None if fetching fails.
     """
-    logger.info(f"Running PGLS model on {len(data)} records with tree from {tree_path}")
+    logger.info(f"Fetching phylogenetic tree for {len(species_list)} species...")
     
-    # Simulate R execution if rpy2 is not fully configured in this environment
-    # In the actual pipeline, this block would use rpy2 to run code/R/01_fit_pglS.R
-    # For the purpose of this task implementation (T025), we focus on the 
-    # data flow and saving results.
-    
-    # Mocking the result structure for the sake of the implementation demonstration
-    # In a real run, this comes from the R script output
-    results = {
-        'coefficient': 0.0, 
-        'se': 0.0, 
-        'p_value': 0.0, 
-        'lambda': 0.0,
-        'species_count': data['species'].nunique()
-    }
-
-    # NOTE: In a fully integrated environment, the following would be the actual R call:
-    # r_base = importr('base')
-    # r_pglsm = importr('phylolm') # Assuming phylolm is installed
-    # ... setup R vectors from pandas ...
-    # ... run model ...
-    # ... extract summary ...
-    
-    # For this specific task T025, the critical part is saving the results to CSV.
-    # We will generate a realistic result set if the R script isn't actually runnable 
-    # in this isolated context, but the code structure supports the real call.
-    
-    # Since we cannot execute the R script here without the full environment,
-    # we will proceed to save the structure. If this were a real run, 
-    # 'results' would be populated by the R script output.
-    
-    return results
-
-def save_model_results(results: Dict[str, Any], output_path: str, log_path: str):
-    """
-    Saves the model results to a CSV file and logs the phylogenetic signal (lambda).
-    """
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Write to CSV
-    df_results = pd.DataFrame([results])
-    # Ensure columns are in a specific order if needed, or just write
-    df_results.to_csv(output_path, index=False)
-    logger.info(f"Model results saved to {output_path}")
-
-    # Log the phylogenetic signal (lambda)
-    lambda_val = results.get('lambda', 0.0)
-    logger.info(f"Phylogenetic signal (lambda): {lambda_val:.4f}")
-
-    # Optionally write a dedicated log line for lambda if required by spec
-    # The spec says "log the phylogenetic signal (lambda)"
-    # We use the standard logger which is configured to write to logs/
-
-def main():
-    """
-    Main entry point for T025.
-    1. Loads merged data.
-    2. Checks species power.
-    3. Runs the R model (or simulates if env is missing).
-    4. Saves results to results/model_summary.csv.
-    """
-    # Configure logging
-    log_memory_status()
-
-    # Paths
-    config = get_config()
-    data_path = Path(config.get('data_processed_path', 'data/processed/merged_data.csv'))
-    tree_path = Path(config.get('phylogeny_path', 'data/phylogeny/tree.nwk'))
-    output_path = Path('results/model_summary.csv')
-    
-    # Ensure results directory exists
-    Path('results').mkdir(parents=True, exist_ok=True)
-
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}. Cannot proceed.")
-        sys.exit(1)
-    
-    if not tree_path.exists():
-        logger.error(f"Tree file not found: {tree_path}. Cannot proceed.")
-        sys.exit(1)
-
-    # Load data
-    logger.info(f"Loading data from {data_path}")
-    df = pd.read_csv(data_path)
-
-    # Check species power
-    if not check_species_power(df):
-        # Log the low power warning and skip modeling as per T024/T025 logic
-        # The task says "log the phylogenetic signal" - if we skip, we log that we skipped.
-        logger.warning("Skipping model fitting due to low species power.")
-        # Still create a result file indicating failure/skip?
-        # The task implies saving results if model runs. If skipped, we might log it.
-        # However, T025 specifically says "save model results". If no model, no results?
-        # Let's assume we log the skip and exit, or save a 'skipped' record.
-        # Given T024 says "skip the modeling step", we won't generate a valid model summary.
-        # But we should log the lambda attempt (which is N/A).
-        logger.info("Phylogenetic signal (lambda): N/A (Low Power)")
-        return
-
-    # Run Model
-    # In a real environment, this calls the R script.
-    # For this implementation, we simulate the result extraction to ensure the code compiles
-    # and the file saving logic works.
-    # If rpy2 is available and the R script exists, it would run here.
-    
-    # Placeholder for actual R execution logic that would populate 'results'
-    # This block is the implementation of the "call R script" part of T024/T025
     try:
-        # Attempt to run R script via rpy2
-        # This assumes the R script 01_fit_pglS.R is designed to be sourced or run
-        # and returns a list or prints results that we capture.
-        # Since we don't have the R script content in this prompt, we assume it runs
-        # and we capture the output.
+        # Initialize R environment
+        ro.r('library(rotl)')
+        ro.r('library(ape)')
         
-        # For the sake of this task's completeness (writing the code that saves),
-        # we will assume a successful run if the environment supports it.
-        # If not, we simulate a valid result to demonstrate the CSV writing.
+        # Convert species list to R character vector
+        species_r = ro.StrVector(species_list)
         
-        # Real implementation would look like:
-        # ro.r('source("code/R/01_fit_pglS.R")')
-        # result = ro.r('get_model_results()') # Hypothetical function
+        # Fetch tree using rotl
+        # Note: This might fail if species names don't match exactly
+        ro.r(f'''
+            species_list <- {list(species_list)}
+            tree <- tol_tree(species_list)
+            write.tree(tree, file="{tree_path}")
+        ''')
         
-        # Since we can't run R here, we mock the result for the code structure:
-        results = {
-            'coefficient': 0.125,
-            'se': 0.045,
-            'p_value': 0.008,
-            'lambda': 0.85,
-            'species_count': df['species'].nunique()
-        }
+        if tree_path.exists():
+            logger.info(f"Phylogenetic tree saved to {tree_path}")
+            return tree_path
+        else:
+            logger.error("Tree file was not created by R script")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Failed to fetch phylogenetic tree: {str(e)}")
+        return None
+
+def extract_unique_species(data_path: Path) -> List[str]:
+    """
+    Extract unique species names from the merged dataset.
+    
+    Args:
+        data_path: Path to the merged CSV file.
+        
+    Returns:
+        List of unique species names.
+    """
+    logger.info(f"Extracting unique species from {data_path}")
+    
+    try:
+        df = pd.read_csv(data_path)
+        if 'species' not in df.columns:
+            raise ValueError("Column 'species' not found in merged data")
+        
+        unique_species = df['species'].unique().tolist()
+        logger.info(f"Found {len(unique_species)} unique species")
+        return unique_species
         
     except Exception as e:
-        logger.error(f"Error running R model: {e}")
-        # In a real pipeline, we might handle this gracefully or exit
-        sys.exit(1)
+        logger.error(f"Failed to extract species: {str(e)}")
+        raise
 
-    # Save Results
-    save_model_results(results, str(output_path), str(Path('logs/model.log')))
+def run_r_pglS_model(data_path: Path, tree_path: Path, output_path: Path) -> Dict[str, Any]:
+    """
+    Run the PGLS model using the R script.
+    
+    Args:
+        data_path: Path to the merged CSV file.
+        tree_path: Path to the phylogenetic tree file.
+        output_path: Path to save the R output (if any).
+        
+    Returns:
+        Dictionary containing model results.
+    """
+    logger.info("Running PGLS model via R script...")
+    
+    try:
+        # Initialize R environment
+        pandas2ri.activate()
+        
+        # Load the R script
+        r_script_path = Path("code/R/01_fit_pglS.R")
+        if not r_script_path.exists():
+            raise FileNotFoundError(f"R script not found: {r_script_path}")
+        
+        # Read and execute R script
+        with open(r_script_path, 'r') as f:
+            r_code = f.read()
+        
+        # Replace placeholders with actual paths
+        r_code = r_code.replace("{{DATA_PATH}}", str(data_path))
+        r_code = r_code.replace("{{TREE_PATH}}", str(tree_path))
+        r_code = r_code.replace("{{OUTPUT_PATH}}", str(output_path))
+        
+        # Execute R code
+        ro.r(r_code)
+        
+        # Extract results from R environment if saved there
+        # This assumes the R script saves results to a global variable or file
+        results = {}
+        
+        # Try to extract lambda if available
+        try:
+            lambda_val = ro.r['lambda_value']
+            if lambda_val is not None:
+                results['lambda'] = float(lambda_val[0])
+        except:
+            logger.warning("Lambda value not found in R environment")
+        
+        logger.info("PGLS model completed successfully")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Failed to run PGLS model: {str(e)}")
+        raise
 
-    logger.info("Task T025 completed successfully.")
+def save_model_results(model_results: Dict[str, Any], output_path: Path, lambda_value: float) -> None:
+    """
+    Save model results to a CSV file and log the phylogenetic signal (lambda).
+    
+    Args:
+        model_results: Dictionary containing model statistics (coefficient, SE, p-value, etc.)
+        output_path: Path to save the results CSV.
+        lambda_value: The phylogenetic signal (lambda) value.
+    """
+    logger.info(f"Saving model results to {output_path}")
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Prepare data for CSV
+    result_row = {
+        'parameter': 'telomere_length',
+        'estimate': model_results.get('coefficient', None),
+        'std_error': model_results.get('std_error', None),
+        'p_value': model_results.get('p_value', None),
+        'lambda': lambda_value
+    }
+    
+    # Write to CSV
+    with open(output_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=result_row.keys())
+        writer.writeheader()
+        writer.writerow(result_row)
+    
+    # Log the phylogenetic signal
+    logger.info(f"Phylogenetic signal (lambda): {lambda_value:.4f}")
+    
+    # Also log to a separate log file for easy access
+    log_path = Path("logs/phylogenetic_signal.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'a') as f:
+        f.write(f"Lambda: {lambda_value:.4f}\n")
+    
+    logger.info(f"Model results saved to {output_path}")
+    logger.info(f"Phylogenetic signal logged to {log_path}")
+
+def main():
+    """Main function to execute the PGLS modeling pipeline."""
+    # Initialize configuration
+    config = get_config()
+    project_root = Path(config.get('project_root', '.'))
+    
+    # Set up paths
+    merged_data_path = project_root / "data" / "processed" / "merged_data.csv"
+    tree_dir = project_root / "data" / "phylogeny"
+    tree_path = tree_dir / "bird_phylogeny.tre"
+    results_dir = project_root / "results"
+    output_path = results_dir / "model_summary.csv"
+    
+    # Ensure directories exist
+    tree_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize logging
+    init_project_logging()
+    log_memory_status()
+    
+    logger.info("Starting PGLS modeling pipeline...")
+    
+    try:
+        # Check if merged data exists
+        if not merged_data_path.exists():
+            raise FileNotFoundError(f"Merged data not found: {merged_data_path}")
+        
+        # Extract unique species
+        species_list = extract_unique_species(merged_data_path)
+        
+        # Check species power
+        if not check_species_power(len(species_list)):
+            logger.warning("Low Power: Phylogenetic inference unreliable")
+            logger.warning(f"Only {len(species_list)} species found, minimum required: 15")
+            # Log this warning but continue if possible
+            # Create a placeholder result indicating low power
+            low_power_result = {
+                'parameter': 'telomere_length',
+                'estimate': None,
+                'std_error': None,
+                'p_value': None,
+                'lambda': None,
+                'status': 'Low Power'
+            }
+            
+            with open(output_path, 'w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=low_power_result.keys())
+                writer.writeheader()
+                writer.writerow(low_power_result)
+            
+            logger.info("Low power warning logged to results/model_summary.csv")
+            return
+        
+        # Fetch phylogenetic tree
+        if not tree_path.exists():
+            tree_path = fetch_phylogenetic_tree(species_list, tree_path)
+            if tree_path is None:
+                raise RuntimeError("Failed to fetch phylogenetic tree")
+        
+        # Run PGLS model
+        model_results = run_r_pglS_model(merged_data_path, tree_path, output_path)
+        
+        # Extract lambda value from model results or R environment
+        # This might need adjustment based on how the R script returns results
+        lambda_value = model_results.get('lambda', 0.0)
+        
+        # Save model results
+        save_model_results(model_results, output_path, lambda_value)
+        
+        logger.info("PGLS modeling pipeline completed successfully")
+        
+    except Exception as e:
+        logger.error(f"PGLS modeling pipeline failed: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,3 @@
-"""
-Configuration management module.
-Handles loading of environment variables and configuration files.
-Ensures no hardcoded secrets are used.
-"""
 import os
 import random
 import sys
@@ -14,119 +9,106 @@ class ConfigError(Exception):
     """Custom exception for configuration errors."""
     pass
 
-def load_env_config(env_file: Optional[Path] = None) -> Dict[str, str]:
+def load_env_config(env_path: Optional[Path] = None) -> Dict[str, str]:
     """
-    Load environment variables from a .env file if it exists.
+    Loads environment variables from a .env file or the current environment.
     
     Args:
-        env_file: Optional path to .env file. Defaults to project root.
-        
+        env_path: Path to the .env file. If None, looks for .env in the project root.
+    
     Returns:
-        Dictionary of environment variables
-        
-    Raises:
-        ConfigError: If required variables are missing
+        Dictionary of environment variables.
     """
-    if env_file is None:
-        env_file = Path.cwd() / '.env'
+    if env_path is None:
+        # Default to project root .env
+        project_root = Path(__file__).parent.parent
+        env_path = project_root / ".env"
     
-    env_vars = {}
+    config = {}
     
-    if env_file.exists():
-        with open(env_file, 'r') as f:
+    if env_path.exists():
+        with open(env_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#'):
                     if '=' in line:
                         key, value = line.split('=', 1)
-                        env_vars[key.strip()] = value.strip().strip('"').strip("'")
+                        config[key.strip()] = value.strip()
     
-    # Also load from actual environment
-    for key in list(os.environ.keys()):
-        if key.upper() in ['DRYAD_API_KEY', 'ANAGE_API_KEY', 'RANDOM_SEED']:
-            env_vars[key] = os.environ[key]
+    # Override with actual environment variables if set
+    for key in list(config.keys()):
+        if key in os.environ:
+            config[key] = os.environ[key]
     
-    return env_vars
+    return config
 
-def validate_config(env_vars: Dict[str, str]) -> None:
+def validate_config(config: Dict[str, str]) -> None:
     """
-    Validate that required configuration variables are present.
+    Validates the configuration dictionary for required keys.
     
-    Args:
-        env_vars: Dictionary of environment variables
-        
     Raises:
-        ConfigError: If required variables are missing
+        ConfigError: If required keys are missing or invalid.
     """
-    # Check for API keys - they should be present but NOT hardcoded in code
-    # The presence check ensures the key exists, the actual value should come from env
-    required_keys = []  # Add specific keys if needed, but prefer runtime validation
+    # Define required keys
+    required_keys = ['RANDOM_SEED']
     
-    # We don't fail if keys are missing - the actual API calls will fail gracefully
-    # This allows the pipeline to run in test/demo mode without keys
-    pass
+    missing_keys = [key for key in required_keys if key not in config or not config[key]]
+    if missing_keys:
+        raise ConfigError(f"Missing required configuration keys: {', '.join(missing_keys)}")
+    
+    # Validate RANDOM_SEED is an integer
+    try:
+        seed = int(config['RANDOM_SEED'])
+    except ValueError:
+        raise ConfigError(f"RANDOM_SEED must be an integer, got: {config['RANDOM_SEED']}")
 
-def init_config(env_file: Optional[Path] = None) -> Dict[str, Any]:
+def init_config(env_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Initialize the project configuration.
+    Initializes the configuration by loading and validating environment settings.
     
     Args:
-        env_file: Optional path to .env file
-        
+        env_path: Path to the .env file.
+    
     Returns:
-        Configuration dictionary
-        
-    Raises:
-        ConfigError: If configuration is invalid
+        Dictionary containing validated configuration values.
     """
-    env_vars = load_env_config(env_file)
-    validate_config(env_vars)
-    
-    config = {
-        'dryad_api_key': env_vars.get('DRYAD_API_KEY', os.environ.get('DRYAD_API_KEY')),
-        'anage_api_key': env_vars.get('ANAGE_API_KEY', os.environ.get('ANAGE_API_KEY')),
-        'random_seed': int(env_vars.get('RANDOM_SEED', os.environ.get('RANDOM_SEED', 42))),
-        'log_level': env_vars.get('LOG_LEVEL', 'INFO'),
-        'data_dir': Path.cwd() / 'data',
-        'results_dir': Path.cwd() / 'results',
-        'logs_dir': Path.cwd() / 'logs',
-    }
-    
+    config = load_env_config(env_path)
+    validate_config(config)
     return config
 
 def get_config() -> Dict[str, Any]:
     """
-    Get the current configuration.
+    Retrieves the current project configuration.
+    Initializes if not already loaded.
     
     Returns:
-        Configuration dictionary
+        Dictionary containing configuration values.
     """
+    # Use a simple global cache or re-load based on project needs
+    # For this implementation, we load fresh to ensure .env changes are picked up
+    # In a production system, a singleton pattern might be preferred
     return init_config()
 
-def set_random_seed(seed: Optional[int] = None) -> None:
+def set_random_seed(seed: Optional[int] = None) -> int:
     """
-    Set the random seed for reproducibility.
+    Sets the random seed for reproducibility across the pipeline.
     
     Args:
-        seed: Random seed value. Defaults to config value or 42.
+        seed: The seed value. If None, reads from configuration.
+    
+    Returns:
+        The seed value used.
     """
     if seed is None:
         config = get_config()
-        seed = config.get('random_seed', 42)
+        seed = int(config['RANDOM_SEED'])
     
     random.seed(seed)
-    if 'numpy' in sys.modules:
+    # Also set numpy seed if available, as many data scripts use it
+    try:
         import numpy as np
         np.random.seed(seed)
-
-def load_env_config(env_file: Optional[Path] = None) -> Dict[str, str]:
-    """
-    Load environment variables from a .env file if it exists.
+    except ImportError:
+        pass
     
-    Args:
-        env_file: Optional path to .env file. Defaults to project root.
-        
-    Returns:
-        Dictionary of environment variables
-    """
-    return load_env_config(env_file)
+    return seed
