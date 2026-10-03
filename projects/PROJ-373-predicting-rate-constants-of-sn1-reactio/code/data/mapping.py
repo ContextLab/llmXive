@@ -46,13 +46,16 @@ def clean_and_log_exclusions(df: pd.DataFrame, exclusion_log_path: str):
     
     # Check for missing rate_constant or smiles
     for idx, row in df.iterrows():
-        if pd.isna(row.get('rate_constant')):
+        rate_val = row.get('rate_constant')
+        smiles_val = row.get('smiles')
+        
+        if pd.isna(rate_val):
             exclusions.append({
                 'row_index': idx,
                 'reason': 'Missing rate constant',
-                'original_smiles': row.get('smiles', '')
+                'original_smiles': str(smiles_val) if smiles_val is not None else ''
             })
-        elif pd.isna(row.get('smiles')) or row.get('smiles') == '':
+        elif pd.isna(smiles_val) or str(smiles_val).strip() == '':
             exclusions.append({
                 'row_index': idx,
                 'reason': 'Missing SMILES',
@@ -60,21 +63,27 @@ def clean_and_log_exclusions(df: pd.DataFrame, exclusion_log_path: str):
             })
     
     # Remove excluded rows
-    mask = df['rate_constant'].notna() & df['smiles'].notna() & (df['smiles'] != '')
-    cleaned_df = df[mask]
+    mask = df['rate_constant'].notna() & df['smiles'].notna() & (df['smiles'].astype(str).str.strip() != '')
+    cleaned_df = df[mask].reset_index(drop=True)
     
     # Log exclusions
     if exclusions:
         exclusion_df = pd.DataFrame(exclusions)
-        exclusion_df.to_csv(exclusion_log_path, mode='a', header=not os.path.exists(exclusion_log_path), index=False)
-        logger.info(f"Logged {len(exclusions)} exclusions")
+        # Ensure header is written only if file is new, otherwise append
+        file_exists = os.path.exists(exclusion_log_path)
+        exclusion_df.to_csv(exclusion_log_path, mode='a', header=not file_exists, index=False)
+        logger.info(f"Logged {len(exclusions)} exclusions to {exclusion_log_path}")
     
     return cleaned_df
 
 def save_intermediate_dataset(df: pd.DataFrame, output_path: str):
     """Save intermediate dataset to CSV."""
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     df.to_csv(output_path, index=False)
-    logger.info(f"Intermediate dataset saved to {output_path}")
+    logger.info(f"Intermediate dataset saved to {output_path} ({len(df)} rows)")
 
 def main():
     parser = argparse.ArgumentParser(description="Map and clean raw data")
@@ -84,6 +93,11 @@ def main():
     args = parser.parse_args()
 
     ensure_dirs()
+    
+    # Guard Clause: Check if exclusion log exists
+    if not os.path.exists(args.exclusion_log):
+        logger.error(f"Exclusion log not found: {args.exclusion_log}. T011d must run first.")
+        sys.exit(1)
     
     try:
         # Load raw data
@@ -101,6 +115,9 @@ def main():
         # Save intermediate dataset
         save_intermediate_dataset(cleaned_df, args.output)
         
+    except FileNotFoundError as e:
+        logger.error(f"Input file error: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Mapping failed: {e}")
         sys.exit(1)

@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "data/processed/cleaned_intermediate.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/sn1_raw.parquet",
+    "required": []
+  }
+]

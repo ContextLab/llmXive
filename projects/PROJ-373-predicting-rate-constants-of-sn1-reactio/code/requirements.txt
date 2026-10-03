@@ -12,3 +12,4 @@ torch  # auto-added: imported by run-book but missing from venv
 torch_geometric  # auto-added: imported by run-book but missing from venv
 ucimlrepo  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+huggingface_hub  # auto-added: imported by run-book but missing from venv

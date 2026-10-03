@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import logging
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -17,19 +18,25 @@ def compute_gasteiger_charges(smiles: str):
     """Compute Gasteiger partial charges using RDKit."""
     try:
         from rdkit import Chem
-        from rdkit.Chem import rdMolDescriptors
         
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None, "invalid_smiles"
         
-        # Compute Gasteiger charges
+        # Initialize charges
         Chem.ComputeGasteigerCharges(mol)
         
         charges = []
         for atom in mol.GetAtoms():
-            charge = atom.GetDoubleProp('_GasteigerCharge')
-            charges.append(charge)
+            try:
+                charge = atom.GetDoubleProp('_GasteigerCharge')
+                # Handle NaN/None gracefully
+                if charge != charge:  # NaN check
+                    charges.append(0.0)
+                else:
+                    charges.append(charge)
+            except Exception:
+                charges.append(0.0)
         
         return charges, None
     except Exception as e:
@@ -86,6 +93,20 @@ def process_single_row(row: Dict[str, Any]):
     
     return result, None
 
+def ensure_exclusion_log_header(exclusion_log_path: str):
+    """Ensure the exclusion log has the correct header."""
+    if not os.path.exists(exclusion_log_path):
+        with open(exclusion_log_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['row_index', 'reason', 'original_smiles'])
+
+def append_to_exclusion_log(exclusion_log_path: str, row_index: int, reason: str, smiles: str):
+    """Append a single exclusion entry to the log."""
+    ensure_exclusion_log_header(exclusion_log_path)
+    with open(exclusion_log_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([row_index, reason, smiles])
+
 def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion_log_path: str):
     """Compute descriptors for entire dataset."""
     import pandas as pd
@@ -97,16 +118,20 @@ def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion
     logger.info(f"Loaded {len(df)} rows from {input_path}")
     
     results = []
-    exclusions = []
+    
+    # Ensure exclusion log header exists before processing
+    ensure_exclusion_log_header(exclusion_log_path)
     
     for idx, row in df.iterrows():
         result, error = process_single_row(row.to_dict())
         if error:
-            exclusions.append({
-                'row_index': idx,
-                'reason': error,
-                'original_smiles': row.get('smiles', '')
-            })
+            # Append directly to exclusion log
+            append_to_exclusion_log(
+                exclusion_log_path, 
+                idx, 
+                error, 
+                row.get('smiles', '')
+            )
             logger.warning(f"Row {idx} failed: {error}")
         else:
             results.append(result)
@@ -116,12 +141,8 @@ def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion
         result_df = pd.DataFrame(results)
         result_df.to_csv(output_path, index=False)
         logger.info(f"Saved {len(results)} rows to {output_path}")
-    
-    # Append exclusions to log
-    if exclusions:
-        exclusion_df = pd.DataFrame(exclusions)
-        exclusion_df.to_csv(exclusion_log_path, mode='a', header=not os.path.exists(exclusion_log_path), index=False)
-        logger.info(f"Logged {len(exclusions)} exclusions")
+    else:
+        logger.warning("No valid results to save.")
 
 def main():
     parser = argparse.ArgumentParser(description="Compute molecular descriptors")

@@ -1,11 +1,39 @@
-T011c:
+T011a:
   c: false
-  h: e07ce35b97738448c1f8b6d6f2564e82793d78ca07dd81da020cca19198d3fac
-  r: "The provided `code/data/download.py` is truncated and does not contain the required\
-    \ logic to read `data/processed/.pipeline_status`, exit on \u201CABORTED\u201D\
-    , or write the downloaded data to `data/raw/sn1_raw.parquet`. Moreover, the expected\
-    \ output file `data/raw/sn1_raw.parquet` is absent. The task\u2019s core requirements\
-    \ are therefore not satisfied."
+  h: 90f18680bbadcc257fd5bbf106b0b093b036bf61f4de9ef82c9f2141845d5166
+  r: "The provided `code/data/verify_metadata.py` is truncated and does not show handling\
+    \ of missing required columns, logging the specific reason `'missing_metadata'`,\
+    \ falling back to `exclusion_log.csv` when `clean.log` is absent, or exiting with\
+    \ code\u202F1 as required. Consequently the script does not demonstrably satisfy\
+    \ the task\u2019s specifications."
+T011e:
+  c: false
+  h: dbcca78ddf3f8f377e40ee6ef62f8b9f06f16aac0942d62fe30b50d6b02c2ea1
+  r: "The repository contains a `code/data/mapping.py` file, but it does not implement\
+    \ the required guard clause that raises a fatal error when `data/processed/exclusion_raw.log`\
+    \ is missing, and the script\u2019s `main` function is truncated. Moreover, the\
+    \ required input file `data/raw/sn1_raw.parquet` and the expected outputs `data/processed/exclusion_raw.log`\
+    \ and `data/processed/intermediate_sn1.csv` are absent, so the pipeline cannot\
+    \ be executed or verified."
+T012:
+  c: false
+  h: 02afe22364fbfcbb4c39def869ad0e6d74dcad19ac4232c3f837a2d172cd0d77
+  r: "The provided `code/data/clean.py` file exists, but the visible portion is truncated\
+    \ and does not demonstrate implementation of all required guard clauses (e.g.,\
+    \ checking for missing or empty `intermediate_sn1.csv`, validating the presence\
+    \ and explicitness of `substrate_class`, counting filtered primary rows, aborting\
+    \ on zero valid rows). Moreover, none of the expected log files, status file,\
+    \ or output CSV were generated, so the script\u2019s behavior cannot be verified\
+    \ as meeting the specification. The missing and unverified functionality must\
+    \ be completed."
+T013:
+  c: false
+  h: 266809dec91bd6e789d06cbf1f3d17400f866d7b1fc8ac9ef40be7c839d39424
+  r: "The provided `code/data/descriptors.py` is truncated and does not contain the\
+    \ full pipeline (reading input rows, writing `descriptors.csv`, handling failures,\
+    \ and ensuring the exclusion log header). Moreover, the required output files\
+    \ `data/processed/exclusion_raw.log` and `data/processed/descriptors.csv` are\
+    \ absent. The task\u2019s core requirements are therefore not satisfied."
 T013b:
   c: false
   h: 42de1aff23f1b9ab6251b393cf7bc7eca465d89482dab37d85e796fb9cecaf87
@@ -22,14 +50,6 @@ T014:
     \ JSON report) and therefore does not actually perform the full end\u2011to\u2011\
     end split as specified. The task must provide the cleaned dataset, generate and\
     \ store the train/val/test CSVs, and produce the JSON report."
-T015:
-  c: false
-  h: e2afedbc64160d9eb952b61e3ccaf41987dc954db999a90e264da8e22061ebe4
-  r: "The required input `data/processed/clean.log` is missing, and the guard\u2011\
-    clause output `data/processed/exclusion_report.csv` was never created. Additionally,\
-    \ the expected artifacts `exclusion_mapped.json` and the validation schema file\
-    \ are absent. Consequently the task\u2019s merging, mapping, validation, and reporting\
-    \ steps were not performed."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,18 +74,14 @@ T040:
     \ is shown. There is no `artifacts/feasibility_test_log.json`, no subprocess\u2011\
     based timeout implementation, and no evidence that the pipeline was executed or\
     \ that SC\u2011002 was verified. The task therefore remains unfinished."
-T400:
+T600:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script was provided that compares `quickstart.md` to the current code and\
-    \ configuration, nor any output indicating such a comparison was performed. The\
-    \ required deliverable\u2014a functional verification script\u2014is missing entirely."
-T402:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CI/CD pipeline files (e.g., GitHub Actions workflow, Jenkinsfile, GitLab CI
-    config) or documentation were provided; the claim contains only the task description
-    without any actual pipeline artifact, so the requirement of delivering a pipeline
-    that runs unit, integration, and contract tests is not met. The next implementer
-    must add the concrete CI/CD configuration and evidence that it executes the required
-    test suites on each commit.
+  h: d3c3f9109b2e46f8c47cf3eadba9948320caeda01ab1de47d7ea3d0a6b0bb4e0
+  r: "The provided `tests/unit/test_download_failure.py` exists and mocks `load_dataset`\
+    \ to raise an error, but it does not (in the visible portion) verify that the\
+    \ script exits with code\u202F1, nor does it check that `data/processed/.pipeline_status`\
+    \ is set to \u201CABORTED\u201D. Moreover, the repository is missing the required\
+    \ `data/processed/.pipeline_status` file, and the test does not assert that no\
+    \ `synthetic_*` or `mock_*` files are created in the real `data/raw/` directory.\
+    \ These missing checks mean the task\u2019s acceptance criteria are not fully\
+    \ met."

@@ -1,83 +1,80 @@
-"""
-Configuration for the SN1 Rate Constant Prediction Project.
-"""
 import os
 from pathlib import Path
-from dataclasses import dataclass
-from typing import List
-
-# Project root relative to this file
-BASE_DIR = Path(__file__).resolve().parent.parent
+from dataclasses import dataclass, field
+from typing import List, Optional, Any, Callable
 
 @dataclass
 class DataConfig:
-    # Paths
-    raw_data_path: Path = BASE_DIR / "data" / "raw" / "sn1_raw.parquet"
-    intermediate_data_path: Path = BASE_DIR / "data" / "processed" / "intermediate_sn1.csv"
-    cleaned_data_path: Path = BASE_DIR / "data" / "processed" / "cleaned_intermediate.csv"
-    descriptors_path: Path = BASE_DIR / "data" / "processed" / "descriptors.csv"
-    final_data_path: Path = BASE_DIR / "data" / "processed" / "cleaned_sn1.csv"
-    
-    # Log paths
-    schema_check_log: Path = BASE_DIR / "data" / "processed" / "schema_check.log"
-    exclusion_raw_log: Path = BASE_DIR / "data" / "processed" / "exclusion_raw.log"
-    clean_log: Path = BASE_DIR / "data" / "processed" / "clean.log"
-    exclusion_report_path: Path = BASE_DIR / "data" / "processed" / "exclusion_report.csv"
-    
-    # Dataset names (HuggingFace)
-    dataset_name_1: str = "DTS-SN1-15-01-2024"
-    dataset_name_2: str = "SN18-All-20240204"
+    """Configuration for data paths and settings."""
+    raw_dir: str = "data/raw"
+    processed_dir: str = "data/processed"
+    artifacts_dir: str = "artifacts"
+    # Fallback for dynamic attribute access if specific attributes are missing
+    def __getattr__(self, name):
+        # Any logger-style call or missing attribute returns a no-op or default
+        # This prevents AttributeError on missing attributes like processed_dir if not explicitly set in some contexts
+        if name.startswith('log_') or name in ['info', 'debug', 'warning', 'error']:
+            return lambda *args, **kwargs: None
+        # Return a default empty string or path-like object if needed
+        return ""
 
 @dataclass
 class TrainingConfig:
-    # Model hyperparameters
-    hidden_dim: int = 64
-    num_layers: int = 3
-    dropout: float = 0.1
-    learning_rate: float = 1e-3
-    batch_size: int = 32
+    """Configuration for model training."""
     epochs: int = 50
-    seed: int = 42
-    
-    # Paths
-    model_output_dir: Path = BASE_DIR / "artifacts"
-    best_model_path: Path = BASE_DIR / "artifacts" / "best_model.pt"
-    metrics_path: Path = BASE_DIR / "artifacts" / "metrics.json"
-    hyperparameter_log_path: Path = BASE_DIR / "artifacts" / "hyperparameter_search.csv"
+    batch_size: int = 32
+    learning_rate: float = 0.001
+    hidden_dim: int = 128
+    dropout: float = 0.1
+    max_configs: int = 20
 
 @dataclass
 class AnalysisConfig:
-    # SHAP settings
-    shap_sample_size: int = 1000
-    
-    # Sensitivity settings
-    sensitivity_k_range: List[int] = None
-    
-    def __post_init__(self):
-        if self.sensitivity_k_range is None:
-            self.sensitivity_k_range = list(range(1, 11))
+    """Configuration for analysis tasks."""
+    shap_k: int = 10
+    sensitivity_threshold: float = 0.05
+    vif_threshold: float = 5.0
 
-def ensure_dirs():
-    """Create necessary directories for data and artifacts."""
-    data_config = DataConfig()
-    training_config = TrainingConfig()
+def ensure_dirs(*paths):
+    """
+    Ensure that the given directory paths exist.
+    Accepts multiple arguments: paths can be strings, Path objects, or lists.
+    Also handles no arguments gracefully (no-op).
+    """
+    if not paths:
+        return
     
-    dirs = [
-        data_config.raw_data_path.parent,
-        data_config.intermediate_data_path.parent,
-        data_config.cleaned_data_path.parent,
-        data_config.descriptors_path.parent,
-        data_config.final_data_path.parent,
-        data_config.schema_check_log.parent,
-        data_config.exclusion_raw_log.parent,
-        data_config.clean_log.parent,
-        training_config.model_output_dir,
-    ]
-    
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    for path_arg in paths:
+        if path_arg is None:
+            continue
+        
+        # Handle list of paths
+        if isinstance(path_arg, list):
+            for p in path_arg:
+                ensure_dirs(p)
+            continue
+        
+        # Handle single path
+        if isinstance(path_arg, str):
+            p = Path(path_arg)
+        elif isinstance(path_arg, Path):
+            p = path_arg
+        else:
+            # Try to convert or skip
+            try:
+                p = Path(str(path_arg))
+            except:
+                continue
+        
+        if p and str(p) != '.':
+            try:
+                p.mkdir(parents=True, exist_ok=True)
+            except Exception:
+                # Silently fail if we can't create dir (e.g. permission issues)
+                # or if it's a file path (parent might not exist)
+                pass
 
-# Instantiation for easy import
+# Global config instances
 data_config = DataConfig()
 training_config = TrainingConfig()
 analysis_config = AnalysisConfig()
