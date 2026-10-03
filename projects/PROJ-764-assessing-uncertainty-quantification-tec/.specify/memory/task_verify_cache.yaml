@@ -1,48 +1,33 @@
-T001a:
+T006a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`,
-    `docs/`) is provided; the implementer did not supply a directory listing or any
-    files showing that the project structure exists. The task remains undone.
-T005a:
+  h: 5ebf4772e2fff47fe49cc025c3513684be0c85ac42a3017805929c3370137b00
+  r: The `preprocess.py` script defines the needed functions but never calls them,
+    does not read or enforce `split_type`, and never specifies the target column (`formation_energy`).
+    Moreover, the generated CSV files contain only placeholder text rather than real
+    data with a `target_bin` column. The required split and binning outputs are therefore
+    missing.
+T006b:
   c: false
-  h: d7efa1d1d85da27707da729b19d90c8ecb8cee32498d118f6da6610d9982cc72
-  r: "The repository contains `code/data/download.py` with the required logic, but\
-    \ the required output file `data/raw/oqmd.parquet` is absent, and `data/checksums.json`\
-    \ contains a placeholder hash instead of the real SHA\u2011256 of the parquet\
-    \ file. Both the materialized dataset and a valid checksum are missing, so the\
-    \ task is not genuinely completed."
-T005b:
-  c: false
-  h: c8285695f5b3f3785b359b04a2bca92307d8bfcd164558b4dde4b7b95e91f1c9
-  r: The provided `code/data/download.py` defines a validator but does not write missing
-    columns to `data/validation_report.json` nor update a config flag, and the required
-    `data/validation_report.json` file is absent. Consequently the fallback logic
-    and flag setting are not implemented.
-T005d:
-  c: false
-  h: c8285695f5b3f3785b359b04a2bca92307d8bfcd164558b4dde4b7b95e91f1c9
-  r: "The repository lacks the required `data/validation_report.json` file, and the\
-    \ provided `code/data/download.py` does not contain any logic that writes counts\
-    \ of rows with structural descriptors or a list of missing columns to that JSON\
-    \ file. Consequently, the task\u2019s validation\u2011update requirement is not\
-    \ fulfilled."
+  h: 033339218a1fc9aa1c5006c1fa390254b7fbb540335aad6857621825d2ff92ba
+  r: "The required PCA\u2011transformed feature CSVs (`features_train_20pca.csv`,\
+    \ `features_val_20pca.csv`, `features_test_20pca.csv`) and the serialized transformer\
+    \ (`pca_transformer.pkl`) are absent, and the provided `validation_report.json`\
+    \ does not follow the required schema (`excluded_count` and `missing_columns`).\
+    \ These core artifacts must be generated for the task to be considered complete."
 T014:
   c: false
-  h: 6ea6b03db91dcdb0f611c631a2573a25497f97deccfbc65c1fea4f6b702d8791
-  r: "The provided `mc_dropout.py` stops mid\u2011definition of `run_mc_dropout_inference`\
-    \ (truncated) and does not contain code that performs 30 stochastic forward passes\
-    \ on the test set or writes a CSV file. Moreover, the required output file `results/uq_predictions_mc_dropout.csv`\
-    \ is absent. The task\u2019s core requirements are therefore unmet."
+  h: ba497b473855fa5684648eac94d5ee934b7a58e0613e60f428ba89710f95055b
+  r: "The required output files `results/uq_predictions_mc_dropout.csv` and `results/models/mc_dropout/mc_dropout_seed_42.pt`\
+    \ are absent, and the provided `mc_dropout.py` is incomplete (truncated, lacks\
+    \ training/inference loops, does not save the CSV or model state, and even misses\
+    \ an import for `yaml`). Consequently the task\u2019s specifications are not met."
 T015a:
   c: true
-  h: 6ff5e728f73e1546dec932eaf2add206e35169e4b7d60f1994fc42859f71fae4
-  r: "The file `code/models/sparse_gp.py` defines `verify_dependencies()` which checks\
-    \ for `data/processed/features_test_20pca.csv` and `data/processed/pca_transformer.pkl`\
-    \ (along with a training file) and raises a `FileNotFoundError` with logging if\
-    \ any are absent, satisfying the \u201Cfail loudly\u201D requirement and contains\
-    \ no PCA re\u2011fitting logic. The required artifacts exist (the script) and\
-    \ implement the specified verification behavior."
+  h: ed6bbcf168d3dc7a84c4d0ee32a0edd990e7b9095db15891aa23646ec8a555df
+  r: "The `code/models/sparse_gp.py` file exists and its `load_processed_data` function\
+    \ explicitly checks for `features_test_20pca.csv` and `pca_transformer.pkl`, raising\
+    \ a `FileNotFoundError` if either is missing, and contains no PCA re\u2011fitting\
+    \ logic."
 T015b:
   c: false
   h: f4cccf6cb56690c0a9a0a740d1a2f522c14ffb74de7acc50d6506b87225876fe

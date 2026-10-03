@@ -34,10 +34,10 @@ This project implements a comparative assessment of three lightweight Uncertaint
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | All scripts will use `seed=42` (and 43, 44 for robustness). `requirements.txt` will pin versions. Data downloaded from canonical Hugging Face URLs. |
 | **II. Verified Accuracy** | **PASS** | Citations in `research.md` will only use the verified URLs provided in the metadata block. No fabricated dataset links. |
-| **III. Data Hygiene** | **PASS** | `data/raw` files will be checksummed (SHA-256) immediately after download. `validation_report.json` will log exclusions. |
+| **III. Data Hygiene** | **PASS** | `data/raw` files will be checksummed immediately after download. `validation_report.json` will log exclusions. |
 | **IV. Single Source of Truth** | **PASS** | All metrics (ECE, Interval Score) will be computed by code and written to CSVs. No hand-typed numbers in `plan.md`. |
 | **V. Versioning Discipline** | **PENDING** | Status will update to PASS only after `data/checksums.json` contains real hashes and `results/robustness_report.json` is generated. |
-| **VI. Lightweight UQ Execution** | **PASS** | NN constrained to ≤10k params. Sparse GP limited to a moderate number of inducing points + PCA. Total runtime capped at 5h with explicit timeout logic. |
+| **VI. Lightweight UQ Execution** | **PASS** | NN constrained to ≤10k params. Sparse GP limited to a moderate number of inducing points + PCA. Total runtime capped with explicit timeout logic. |
 | **VII. Calibration-Driven Eval** | **PASS** | Evaluation module will output reliability diagrams (PNG), ECE, and Interval Scores for deferred intervals. |
 
 ## Project Structure

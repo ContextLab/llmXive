@@ -1,14 +1,35 @@
-status: none
-intent: download OQMD subset dataset from Hugging Face with compositional and structural
-  features python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "from datasets import load_dataset, concatenate_datasets\n\n# Load\
+  \ the dataset using a config that contains the full records\nds_dict = load_dataset(\"\
+  jablonkagroup/oqmd\", \"raw_data\")\n\n# Combine all splits into a single Dataset\n\
+  if isinstance(ds_dict, dict):\n    ds = concatenate_datasets(list(ds_dict.values()))\n\
+  else:\n    ds = ds_dict\n\n# Count and print total records\nprint(f\"RECORDS={len(ds)}\"\
+  )\n\n# Print field names from the first record (if any)\nif len(ds) > 0:\n    print(\"\
+  FIELDS=\" + \",\".join(ds[0].keys()))"
+record_count: 561881
+sample_fields:
+- name
+- formula
+- spacegroup
+- nelements
+- nsites
+- energy_per_atom
+- formation_energy_per_atom
+- band_gap
+- volume_per_atom
+- magnetization_per_atom
+- atomic_volume_per_atom
+- volume_deviation
+- split
+- __index_level_0__
+field_coverage: 0.6
 required_fields:
 - material_id
-- composition
-- atomic_features
-- structural_features
+- formula
 - formation_energy_per_atom
 - bulk_modulus
 - band_gap
-cache_key: 4d2fa1d8cec95a0acf166082576c08bb786e633204907321715fdfd84b304cb5
-searched_at: '2026-09-27T14:11:11.479125+00:00'
-retry_count: 1
+intent: Open Quantum Materials Database OQMD HuggingFace dataset python package dataset
+cache_key: a0c0b48fb5ba1eede4498689879cc378772a14b7ab44203f5d13e3b90f5068f9

@@ -10,7 +10,7 @@ code_root = Path(__file__).resolve().parent.parent
 if str(code_root) not in sys.path:
     sys.path.insert(0, str(code_root))
 
-from data.preprocess import load_config, apply_quantile_binning, stratified_split
+from data.preprocess import load_config, apply_quantile_binning, stratified_split, perform_pca_and_exclusion
 
 def test_load_config():
     """Test that config loads correctly from the expected path."""
@@ -111,3 +111,90 @@ def test_stratified_split_missing_target():
     
     with pytest.raises(KeyError, match="formation_energy"):
         stratified_split(df, config)
+
+def test_pca_and_exclusion():
+    """Test PCA transformation and missing data exclusion logic."""
+    # Create a synthetic dataset with some missing values
+    n_samples = 200
+    n_features = 10
+    
+    np.random.seed(42)
+    data = np.random.randn(n_samples, n_features)
+    # Introduce some missing values
+    data[0:5, 0] = np.nan
+    data[10:15, 1] = np.nan
+    
+    df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
+    df["formation_energy"] = np.random.randn(n_samples)
+    
+    # Define target column
+    target_col = "formation_energy"
+    
+    # Perform PCA and exclusion
+    pca_result, excluded_count, missing_columns = perform_pca_and_exclusion(
+        df, target_col, n_components=5
+    )
+    
+    # Verify exclusion count matches introduced missing rows
+    assert excluded_count == 10  # 5 + 5 rows with missing values
+    
+    # Verify remaining data has no missing values
+    assert not pca_result.isnull().any().any()
+    
+    # Verify PCA reduced dimensions
+    expected_features = n_features - 1  # -1 for target column
+    assert pca_result.shape[1] == expected_features - 5 + 5  # Original - target + 5 PCs
+    
+    # Verify target_bin is preserved if it existed
+    # (In this test it doesn't, but the function should handle it)
+    
+    # Verify missing columns are reported correctly
+    assert "feature_0" in missing_columns
+    assert "feature_1" in missing_columns
+    assert len(missing_columns) == 2
+
+def test_pca_and_exclusion_all_missing():
+    """Test behavior when all rows have missing values."""
+    # Create a dataset where all rows have at least one missing value
+    n_samples = 50
+    n_features = 5
+    
+    df = pd.DataFrame(np.random.randn(n_samples, n_features), 
+                     columns=[f"feature_{i}" for i in range(n_features)])
+    df["formation_energy"] = np.random.randn(n_samples)
+    
+    # Make every row have a missing value
+    for i in range(n_samples):
+        df.iloc[i, i % n_features] = np.nan
+    
+    target_col = "formation_energy"
+    
+    # This should exclude all rows
+    pca_result, excluded_count, missing_columns = perform_pca_and_exclusion(
+        df, target_col, n_components=2
+    )
+    
+    assert excluded_count == n_samples
+    assert len(pca_result) == 0  # No rows remaining
+
+def test_pca_and_exclusion_no_missing():
+    """Test PCA when there are no missing values."""
+    n_samples = 100
+    n_features = 8
+    
+    np.random.seed(42)
+    df = pd.DataFrame(
+        np.random.randn(n_samples, n_features),
+        columns=[f"feature_{i}" for i in range(n_features)]
+    )
+    df["formation_energy"] = np.random.randn(n_samples)
+    
+    target_col = "formation_energy"
+    
+    pca_result, excluded_count, missing_columns = perform_pca_and_exclusion(
+        df, target_col, n_components=3
+    )
+    
+    assert excluded_count == 0
+    assert len(missing_columns) == 0
+    assert len(pca_result) == n_samples

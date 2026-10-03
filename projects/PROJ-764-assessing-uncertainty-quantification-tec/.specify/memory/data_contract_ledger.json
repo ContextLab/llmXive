@@ -1,0 +1,18 @@
+[
+  {
+    "data_file": "data/processed/features_train_20pca.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/oqmd.parquet",
+    "required": []
+  },
+  {
+    "data_file": "results/uq_predictions.csv",
+    "required": []
+  },
+  {
+    "data_file": "results/uq_predictions_decomposed.csv",
+    "required": []
+  }
+]

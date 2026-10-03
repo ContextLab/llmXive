@@ -472,3 +472,257 @@
   source_type: external
   status: verified
   updated_at: '2026-09-06T10:12:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: System downloads and parses OQMD dataset for compositional and structural
+    features
+  claim_id: c_5542482f
+  context: 'Task T001a: Update spec.md to replace ''Materials Project'' with ''OQMD''
+    in FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_downloads_and_parses_OQMD_dataset_for_compositional_a
+  kind: entity_fact
+  raw_text: The system MUST download and parse the OQMD dataset to extract compositional
+    features and available structural descriptors (e.g., atomic radius mean, packing
+    fraction if present).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:08Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: SHA-256 hash of OQMD parquet file recorded in checksums.json
+  claim_id: c_843bd10c
+  context: 'Task T005: Data Download & Validation checksum requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate SHA-256 hash of data/raw/oqmd.parquet and record it in data/checksums.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:24Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Stratified split of formation energy target using 10 quantile bins
+  claim_id: c_ca45773d
+  context: 'Task T006a: Split & Binning implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a stratified random split (train/validation/test) based on the target
+    variable (formation_energy) using 10 quantile bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:47Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 principal components on training set
+  claim_id: c_6d47f4f8
+  context: 'Task T006b: PCA & Exclusion implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit PCA on training set only to reduce features to 20 principal components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:21:13Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Deep ensemble trains 5 independent model copies
+  claim_id: c_5cf616f2
+  context: 'Task T013: Deep Ensemble Training logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train exactly 5 independently initialized copies of the baseline model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:21:39Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout inference uses 30 stochastic forward passes
+  claim_id: c_1c4f41bf
+  context: 'Task T014: MC Dropout Inference implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes per sample on the test set with model.train()
+    enabled
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:22:13Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Sparse GP fitted with 500 inducing points and RBF kernel
+  claim_id: c_e6781b0d
+  context: 'Task T015b: Sparse GP Fitting implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit Sparse GP with 500 inducing points and RBF kernel using GPyTorch (CPU
+    mode)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:22:32Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: "Uncertainty bounds calculated via Gaussian assumption (mean \xB1 z*std)"
+  claim_id: c_218f2455
+  context: 'Task T016a: Model training and UQ inference logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_bounds_calculated_via_Gaussian_assumption_(mean
+  kind: entity_fact
+  raw_text: "Calculate bounds from variance using Gaussian assumption (mean \xB1 z*std)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:23:01Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Seed orchestrator iterates over seeds 42, 43, and 44
+  claim_id: c_263f180b
+  context: 'Task T025a: Seed Orchestrator logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds [42, 43, 44]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:23:38Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Epistemic variance defined as variance of ensemble predictions per sample
+  claim_id: c_c2e76485
+  context: 'Task T022: Decomposition of aleatoric and epistemic uncertainty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Epistemic_variance_defined_as_variance_of_ensemble_predictio
+  kind: entity_fact
+  raw_text: Epistemic variance equals variance of predictions across ensemble members
+    for a single sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:24:28Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Aleatoric variance defined as mean of predicted variances
+  claim_id: c_9dd2475e
+  context: 'Task T022: Decomposition of aleatoric and epistemic uncertainty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aleatoric_variance_defined_as_mean_of_predicted_variances
+  kind: entity_fact
+  raw_text: Aleatoric variance equals mean of predicted variances
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:24:59Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Epistemic variance validation requires non-negative values and correlation
+    > 0.9
+  claim_id: c_bfb718d1
+  context: 'Task T022c: Verification of UQ decomposition logic.'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Validate that epistemic variance is non-negative and consistent with model
+    variance (correlation > 0.9)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T15:25:00Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: CV calculation for ECE scores across 3 seeds
+  claim_id: c_efe6bcca
+  context: 'Task T025b: Coefficient of Variation calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the Coefficient of Variation (CV) calculation logic for ECE
+    scores across exactly 3 seeds (42, 43, 44)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness gate passes if CV <= 0.1 and 3 seeds succeed
+  claim_id: c_d72b7a20
+  context: 'Task T025b: Robustness gate logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pass if CV \u2264 0.1 AND cv is not null AND exactly 3 seeds succeeded"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Fallback precision check requires 5% gain over random baseline if p-value
+    >= 0.05
+  claim_id: c_c65a25bb
+  context: 'Task T029b: McNemar''s test fallback logic.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_precision_check_requires_5%25_gain_over_random_baseli
+  kind: magnitude
+  raw_text: If McNemar's test is inconclusive (p-value >= 0.05), check if UQ method
+    precision is at least 5% higher than random baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:36Z'

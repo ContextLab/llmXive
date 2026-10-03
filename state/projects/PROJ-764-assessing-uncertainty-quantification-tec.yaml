@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-764-assessing-uncertainty-quantification-tec
-last_run_id: f7be3ac8-8e72-4d3c-8f7c-94f042d5c638
+last_run_id: 3a3bf707-6d2c-4ac8-97f2-6d7b0e5df5dc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec
 title: "Assessing Uncertainty Quantification Techniques for Machine\u2011Learning\
   \ Predicted Material Properties"
-updated_at: '2026-09-30T04:38:48.996602Z'
+updated_at: '2026-10-03T15:38:40.864068Z'

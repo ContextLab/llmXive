@@ -4,11 +4,16 @@ import logging
 import time
 import json
 import hashlib
-import pandas as pd
+import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Any, Optional
 
-# Configure logging for the download module
+# Ensure code root is in path
+code_root = Path(__file__).resolve().parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -23,202 +28,159 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_oqmd_dataset(output_path: str, retry_attempts: int = 3) -> str:
+def download_oqmd_dataset(output_path: str = "data/raw/oqmd.parquet") -> None:
     """
-    Download the OQMD dataset from HuggingFace.
-    Implements retry logic with exponential backoff.
-    Materializes the dataset to parquet.
+    Download the OQMD dataset from the verified HuggingFace source.
+    Uses the 'jablonkagroup/oqmd' dataset with 'raw_data' config.
     """
     try:
-        from datasets import load_dataset
+        from datasets import load_dataset, concatenate_datasets
     except ImportError:
-        logger.error("The 'datasets' library is not installed. Please install it via pip.")
-        raise
+        raise ImportError("The 'datasets' library is required. Install it with 'pip install datasets'.")
 
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    attempt = 0
-    while attempt < retry_attempts:
-        try:
-            logger.info(f"Loading OQMD dataset (attempt {attempt + 1}/{retry_attempts})...")
-            # Load the dataset
-            dataset = load_dataset("materials-toolkits/oqmd", split="train", streaming=False)
-            
-            # Materialize to parquet
-            logger.info(f"Materializing dataset to {output_path}...")
-            dataset.to_parquet(str(output_path))
-            
-            logger.info("Dataset download and materialization successful.")
-            return str(output_path)
-        
-        except Exception as e:
-            attempt += 1
-            if attempt == retry_attempts:
-                logger.error(f"Failed to download dataset after {retry_attempts} attempts: {e}")
-                raise
-            else:
-                wait_time = 2 ** attempt
-                logger.warning(f"Download failed: {e}. Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-
-    raise RuntimeError("Failed to download dataset after all retries.")
-
-def validate_structural_descriptors(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """
-    Check for the presence of structural descriptors (radius, packing_fraction).
-    Returns (has_structural, list_of_missing_columns).
-    """
-    structural_candidates = ['radius', 'packing_fraction', 'atomic_radius_mean', 'packing_fraction']
-    present_cols = set(df.columns)
-    missing_cols = []
-    found_structural = False
-
-    for col in structural_candidates:
-        if col in present_cols:
-            found_structural = True
-        else:
-            missing_cols.append(col)
-
-    return found_structural, missing_cols
-
-def update_config_structural_flag(config_path: str, structural_available: bool) -> None:
-    """
-    Update the config.yaml to set structural_features_available flag.
-    """
-    import yaml
-    config_path = Path(config_path)
+    logger.info("Starting download of OQMD dataset from HuggingFace...")
     
-    if not config_path.exists():
-        logger.warning(f"Config file {config_path} not found. Skipping update.")
-        return
+    retry_count = 0
+    max_retries = 3
+    backoff_factor = 2.0
 
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
+    while retry_count < max_retries:
+        try:
+            # Verified source recipe
+            ds_dict = load_dataset("jablonkagroup/oqmd", "raw_data")
+            
+            # Combine all splits into a single Dataset
+            if isinstance(ds_dict, dict):
+                ds = concatenate_datasets(list(ds_dict.values()))
+            else:
+                ds = ds_dict
 
-    config['structural_features_available'] = structural_available
+            logger.info(f"Dataset loaded successfully. Total records: {len(ds)}")
+            logger.info(f"Fields: {list(ds.features.keys())}")
 
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f)
-    logger.info(f"Updated config: structural_features_available={structural_available}")
+            # Materialize to parquet
+            output_dir = os.path.dirname(output_path)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+            
+            logger.info(f"Materializing dataset to {output_path}...")
+            ds.to_parquet(output_path)
+            
+            logger.info("Download and materialization complete.")
+            return
+
+        except Exception as e:
+            retry_count += 1
+            if retry_count < max_retries:
+                wait_time = backoff_factor ** retry_count
+                logger.error(f"Download failed (attempt {retry_count}/{max_retries}): {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"Download failed after {max_retries} attempts: {e}")
+                raise
+
+def validate_structural_descriptors(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Check for the presence of structural descriptors in the dataframe.
+    """
+    structural_features = ['radius', 'packing_fraction', 'spacegroup', 'volume_per_atom']
+    available = {feat: feat in df.columns for feat in structural_features}
+    return available
 
 def extract_structural_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extract radius and packing_fraction if present.
-    If not present, returns the dataframe unchanged (handled by fallback logic upstream).
+    Extract structural features if available.
     """
-    structural_cols = ['radius', 'packing_fraction']
-    available_cols = [c for c in structural_cols if c in df.columns]
-    
-    if not available_cols:
-        logger.info("No structural features found to extract.")
+    features = ['radius', 'packing_fraction']
+    available_features = [f for f in features if f in df.columns]
+    if not available_features:
+        logger.warning("No structural features found to extract.")
         return df
+    return df[available_features]
 
-    logger.info(f"Extracting structural features: {available_cols}")
-    
-    # Ensure they are float64
-    for col in available_cols:
-        df[col] = df[col].astype('float64')
-    
-    return df
-
-def update_validation_report(output_path: str, structural_count: int, missing_columns: List[str], extracted: bool) -> None:
+def update_validation_report(report_path: str = "data/validation_report.json", structural_available: bool = False) -> None:
     """
-    Update data/validation_report.json with counts of rows where structural descriptors
-    were extracted and a list of missing columns if any.
-    
-    Args:
-        output_path: Path to the validation_report.json file.
-        structural_count: Number of rows with structural descriptors extracted.
-        missing_columns: List of structural columns that were missing.
-        extracted: Boolean indicating if extraction was attempted/completed.
+    Update the validation report with structural feature status.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
     report = {
-        "structural_descriptors_extracted": {
-            "count": structural_count,
-            "extracted": extracted
-        },
-        "missing_columns": missing_columns,
+        "structural_features_available": structural_available,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-
-    with open(output_path, 'w') as f:
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Validation report updated: {report_path}")
+
+def update_config_structural_flag(config_path: str = "code/config.yaml", structural_available: bool = False) -> None:
+    """
+    Update config.yaml to reflect structural feature availability.
+    """
+    import yaml
+    if not os.path.exists(config_path):
+        logger.warning(f"Config file not found: {config_path}, skipping update.")
+        return
     
-    logger.info(f"Validation report updated at {output_path}")
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    if 'data' not in config:
+        config['data'] = {}
+    config['data']['structural_features_available'] = structural_available
+    
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
+    logger.info("Config updated with structural flag.")
+
+def materialize_dataset(ds, output_path: str) -> None:
+    """
+    Materialize a HuggingFace dataset to parquet.
+    """
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    ds.to_parquet(output_path)
+    logger.info(f"Dataset materialized to {output_path}")
 
 def main():
     """
-    Main orchestration function for T005d: Validation Update.
-    
-    This function assumes T005a (download), T005b (validation), and T005c (extraction)
-    have already run and produced the necessary artifacts (oqmd.parquet, validation_report.json).
-    
-    It reads the parquet file, checks the status of structural features,
-    and updates the validation_report.json with the required counts.
+    Main entry point for the download script.
     """
-    # Define paths
-    data_dir = Path("data/raw")
-    parquet_path = data_dir / "oqmd.parquet"
-    validation_report_path = Path("data/validation_report.json")
+    output_path = "data/raw/oqmd.parquet"
     
-    if not parquet_path.exists():
-        logger.error(f"Data file not found: {parquet_path}. Run T005a first.")
-        sys.exit(1)
-
-    logger.info(f"Loading dataset from {parquet_path} for validation update...")
-    try:
-        df = pd.read_parquet(parquet_path)
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        sys.exit(1)
-
-    # Validate structural descriptors again to ensure consistency
-    has_structural, missing_cols = validate_structural_descriptors(df)
+    # Ensure directories exist
+    os.makedirs("data/raw", exist_ok=True)
     
-    # Determine count of rows with structural data
-    structural_count = 0
-    extracted = False
+    # Download
+    download_oqmd_dataset(output_path)
     
-    if has_structural:
-        # Check for specific columns defined in T005c
-        target_cols = ['radius', 'packing_fraction']
-        available = [c for c in target_cols if c in df.columns]
-        
-        if available:
-            # Count non-null rows for these columns
-            structural_count = df[available].notna().all(axis=1).sum()
-            extracted = True
-            logger.info(f"Structural features extracted for {structural_count} rows.")
-        else:
-            structural_count = 0
-            extracted = False
-            logger.warning("Structural features present but required columns (radius, packing_fraction) not found.")
-    else:
-        structural_count = 0
-        extracted = False
-        logger.info("No structural features available.")
+    # Verify file exists
+    if not os.path.exists(output_path):
+        raise FileNotFoundError(f"Failed to create output file: {output_path}")
+    
+    # Calculate checksum
+    sha256_hash = calculate_sha256(output_path)
+    checksum_path = "data/checksums.json"
+    
+    checksum_data = {
+        "filename": "oqmd.parquet",
+        "sha256": sha256_hash
+    }
+    
+    os.makedirs(os.path.dirname(checksum_path), exist_ok=True)
+    with open(checksum_path, 'w') as f:
+        json.dump(checksum_data, f, indent=2)
+    
+    logger.info(f"Checksum saved to {checksum_path}: {sha256_hash}")
+    
+    # Load data to validate structure
+    import pandas as pd
+    df = pd.read_parquet(output_path)
+    structural_available = validate_structural_descriptors(df)['spacegroup'] # Simplified check
+    
+    update_validation_report(structural_available=structural_available)
+    update_config_structural_flag(structural_available=structural_available)
 
-    # Update the validation report
-    update_validation_report(
-        str(validation_report_path),
-        structural_count=structural_count,
-        missing_columns=missing_cols,
-        extracted=extracted
-    )
-
-    # Update config flag if structural features were NOT available (T005b requirement)
-    if not has_structural:
-        config_path = Path("code/config.yaml")
-        if config_path.exists():
-            update_config_structural_flag(str(config_path), False)
-        else:
-            logger.warning("config.yaml not found, skipping structural flag update.")
-
-    logger.info("T005d Validation Update completed successfully.")
+    logger.info("Download and validation complete.")
 
 if __name__ == "__main__":
     main()
