@@ -1,3 +1,12 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, creation scripts, or test outputs were provided to demonstrate
+    that the required folders (`data/raw`, `data/processed`, `data/outputs`, `code/ingestion`,
+    etc.) actually exist, nor any evidence that a `test -d` check was run. The implementer
+    must supply concrete proof (e.g., a shell script that creates the directories
+    and its successful execution log, or a test report showing all `test -d` checks
+    passed).
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,28 +21,26 @@ T008b:
     \ and there is no evidence that the Reference-Validator Agent was run on T008a\u2019\
     s draft or that verified citations/URLs were extracted. The required artifact\
     \ is missing, so the task is not satisfied."
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that a `code/utils/` directory exists nor that
+    it contains an `__init__.py` file; without such artifact the scaffolding requirement
+    cannot be confirmed.
 T009c:
   c: true
-  h: bcb19e6fe5a3814a58860c6283a34cd46dac9768d8e486fc6041fd9e8fcc3fe6
-  r: "The repository contains a non\u2011empty `data/config/sources.yaml` (1086\u202F\
-    bytes) populated with verified and provisional URLs, API endpoints, and related\
-    \ metadata as required. No placeholder or missing content is evident."
+  h: 1db8e70f0973ee5171d3e45ad99e6ae4fb9b2325cca0f9213616629b8fc0a93f
+  r: "The `data/config/sources.yaml` file is present (1085\u202Fbytes) and populated\
+    \ with verified/provisional URLs and API endpoint details as required. The file\
+    \ is non\u2011empty and matches the expected format for the task."
 T012a:
-  c: true
-  h: 680adcb59390d233402636f60c79d6dd6e7e83936bdbd776653d7f6609dbbc8c
-  r: "The repository contains `code/ingestion/api_fetcher.py` (a full 17\u202FKB module)\
-    \ that loads and validates `data/config/sources.yaml`, raises a `ConfigurationError`\
-    \ if it is absent, and implements fetching logic for Materials Project, NIST/UCI,\
-    \ and OpenAlloy with authentication handling and rate\u2011limiting. The required\
-    \ `data/config/sources.yaml` file is present and correctly populated."
-T012g:
   c: false
-  h: ecb58c3f9ec15e2d979a30d7509be2db05117cea76156fc1bc816b493ace5865
-  r: "The repository contains `code/ingestion/aggregator.py`, but the implementation\
-    \ is truncated and does not show any logic that actually writes the required raw\
-    \ files (`raw_mp.json`, `raw_lit.csv`, `raw_openalloy.json`, `raw_slr.csv`). Moreover,\
-    \ the required `data/checksums.txt` file is absent, so SHA256 checksums are not\
-    \ being recorded. The task\u2019s core outputs are therefore missing."
+  h: 17d8e19e31b602d0b2173213ce128c1013fadee391bb64d4fd792669977eb320
+  r: "The provided `api_fetcher.py` is truncated (e.g., ends with `if not source or\
+    \ no`) and does not show complete implementations for authentication, rate\u2011\
+    limiting, endpoint handling, or raising `DataFetchError` as required. Consequently\
+    \ the file does not yet fulfill the task specifications. The missing or incomplete\
+    \ code must be completed and verified."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a

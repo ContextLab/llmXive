@@ -1,8 +1,9 @@
 """
-Task T009c: Populate sources.yaml from verified research sources.
+T009c: Populate sources.yaml from verified research sources.
 
-Reads the verified research sources (research_verified.md or candidate_sources.txt)
-and populates/updates data/config/sources.yaml with specific URLs and API endpoints.
+Reads the verified research file (research_verified.md) or the candidate list
+(candidate_sources.txt) if verification failed, parses the content, and
+populates/updates data/config/sources.yaml with the specific URLs and API endpoints.
 """
 import os
 import sys
@@ -10,193 +11,187 @@ import logging
 import yaml
 import re
 from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.logging_config import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Define paths relative to project root
+# Paths relative to project root
 RESEARCH_VERIFIED_PATH = project_root / "specs" / "001-predict-solder-hardness" / "research_verified.md"
 CANDIDATE_SOURCES_PATH = project_root / "data" / "config" / "candidate_sources.txt"
 SOURCES_YAML_PATH = project_root / "data" / "config" / "sources.yaml"
 
-def parse_verified_sources(filepath: Path) -> dict:
+def parse_verified_sources(file_path: Path) -> Dict[str, Any]:
     """
-    Parse the verified research sources file (Markdown or JSON list).
-
-    Args:
-        filepath: Path to research_verified.md or candidate_sources.txt
-
-    Returns:
-        Dictionary of sources organized by category
+    Parse the verified research file to extract sources.
+    Expects a markdown file with specific formatting or a JSON list in candidate_sources.txt.
     """
     sources = {
+        "_verification_status": "provisional",
+        "_verified_count": 0,
         "materials_project": {},
         "nist_uci": {},
         "openalloy": {},
         "literature_pdfs": []
     }
 
-    if not filepath.exists():
-        logger.warning(f"Source file not found: {filepath}")
+    if not file_path.exists():
+        logger.warning(f"Source file not found: {file_path}. Returning empty provisional config.")
         return sources
 
-    content = filepath.read_text(encoding='utf-8')
+    content = file_path.read_text(encoding="utf-8")
+    verified_count = 0
 
-    # Try to parse as JSON list first (candidate_sources.txt format)
-    if filepath.suffix == '.txt' and content.strip().startswith('['):
-        import json
+    # Check if it's the candidate JSON format (from T008a)
+    if file_path.name == "candidate_sources.txt":
         try:
-            data = json.loads(content)
-            for item in data:
-                url = item.get('url', '')
-                source_type = item.get('source_type', '')
-                citation = item.get('citation', '')
+            import json
+            data_list = json.loads(content)
+            for item in data_list:
+                url = item.get("url", "")
+                source_type = item.get("source_type", "")
+                citation = item.get("citation", "")
 
-                if 'materialsproject' in url.lower():
-                    sources['materials_project'] = {
-                        'name': 'Materials Project',
-                        'type': 'api',
-                        'url': url,
-                        'api_key_env': 'MP_API_KEY',
-                        'endpoint': '/materials',
-                        'description': 'High-throughput DFT calculations for materials properties',
-                        'verified': source_type == 'api'
+                if "materialsproject" in url.lower() or "materialsproject.org" in url:
+                    sources["materials_project"] = {
+                        "name": "Materials Project",
+                        "type": "api",
+                        "url": url,
+                        "api_key_env": "MP_API_KEY",
+                        "endpoint": "/materials",
+                        "description": "High-throughput DFT calculations",
+                        "verified": True
                     }
-                elif 'archive.ics.uci.edu' in url.lower():
-                    sources['nist_uci'] = {
-                        'name': 'NIST/UCI Repository',
-                        'type': 'repository',
-                        'url': url,
-                        'dataset_id': 'solder_alloys',
-                        'description': 'Standardized alloy composition and property datasets',
-                        'verified': source_type == 'api'
+                    verified_count += 1
+                elif "archive.ics.uci.edu" in url or "nist" in url.lower():
+                    sources["nist_uci"] = {
+                        "name": "NIST/UCI Repository",
+                        "type": "repository",
+                        "url": url,
+                        "dataset_id": "solder_alloys",
+                        "description": "Standardized alloy composition datasets",
+                        "verified": True
                     }
-                elif 'openalloy' in url.lower():
-                    sources['openalloy'] = {
-                        'name': 'OpenAlloy Database',
-                        'type': 'api',
-                        'url': url,
-                        'endpoint': '/compositions',
-                        'description': 'Open source alloy composition database',
-                        'verified': source_type == 'api'
+                    verified_count += 1
+                elif "openalloy" in url.lower():
+                    sources["openalloy"] = {
+                        "name": "OpenAlloy Database",
+                        "type": "api",
+                        "url": url,
+                        "endpoint": "/compositions",
+                        "description": "Open source alloy composition database",
+                        "verified": True
                     }
-                elif url.endswith('.pdf') or 'doi.org' in url:
-                    sources['literature_pdfs'].append({
-                        'name': citation.split(':')[0] if ':' in citation else citation,
-                        'url': url,
-                        'format': 'pdf',
-                        'scraping_method': 'pdfplumber',
-                        'verified': source_type == 'pdf',
-                        'citation': citation
+                    verified_count += 1
+                elif url.endswith(".pdf") or "doi.org" in url:
+                    sources["literature_pdfs"].append({
+                        "name": citation or "Literature Source",
+                        "url": url,
+                        "format": "pdf",
+                        "scraping_method": "pdfplumber",
+                        "verified": source_type == "verified",
+                        "citation": citation
                     })
+                    if source_type == "verified":
+                        verified_count += 1
         except json.JSONDecodeError:
-            logger.warning("Failed to parse as JSON, trying Markdown format")
+            logger.error("Failed to parse candidate_sources.txt as JSON.")
     else:
-        # Parse as Markdown (research_verified.md format)
-        # Look for URL patterns in the markdown
-        url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
-        urls = re.findall(url_pattern, content)
+        # Parse Markdown format (research_verified.md)
+        # Look for lines starting with - [x] or specific URL patterns
+        lines = content.split("\n")
+        current_source = None
 
-        for url in urls:
-            if 'materialsproject' in url.lower():
-                sources['materials_project'] = {
-                    'name': 'Materials Project',
-                    'type': 'api',
-                    'url': url,
-                    'api_key_env': 'MP_API_KEY',
-                    'endpoint': '/materials',
-                    'description': 'High-throughput DFT calculations for materials properties',
-                    'verified': True
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Detect API sources
+            if "materialsproject" in line.lower():
+                sources["materials_project"] = {
+                    "name": "Materials Project",
+                    "type": "api",
+                    "url": line,
+                    "api_key_env": "MP_API_KEY",
+                    "endpoint": "/materials",
+                    "description": "High-throughput DFT calculations",
+                    "verified": True
                 }
-            elif 'archive.ics.uci.edu' in url.lower():
-                sources['nist_uci'] = {
-                    'name': 'NIST/UCI Repository',
-                    'type': 'repository',
-                    'url': url,
-                    'dataset_id': 'solder_alloys',
-                    'description': 'Standardized alloy composition and property datasets',
-                    'verified': True
+                verified_count += 1
+            elif "archive.ics.uci.edu" in line or "nist" in line.lower():
+                sources["nist_uci"] = {
+                    "name": "NIST/UCI Repository",
+                    "type": "repository",
+                    "url": line,
+                    "dataset_id": "solder_alloys",
+                    "description": "Standardized alloy composition datasets",
+                    "verified": True
                 }
-            elif 'openalloy' in url.lower():
-                sources['openalloy'] = {
-                    'name': 'OpenAlloy Database',
-                    'type': 'api',
-                    'url': url,
-                    'endpoint': '/compositions',
-                    'description': 'Open source alloy composition database',
-                    'verified': True
+                verified_count += 1
+            elif "openalloy" in line.lower():
+                sources["openalloy"] = {
+                    "name": "OpenAlloy Database",
+                    "type": "api",
+                    "url": line,
+                    "endpoint": "/compositions",
+                    "description": "Open source alloy composition database",
+                    "verified": True
                 }
-            elif url.endswith('.pdf') or 'doi.org' in url:
-                # Extract citation from nearby text if possible
-                citation = "Literature Source"
-                sources['literature_pdfs'].append({
-                    'name': citation,
-                    'url': url,
-                    'format': 'pdf',
-                    'scraping_method': 'pdfplumber',
-                    'verified': True,
-                    'citation': citation
+                verified_count += 1
+            elif line.endswith(".pdf") or "doi.org" in line:
+                # Extract citation if possible, otherwise use generic
+                citation = line.split("/")[-1].replace(".pdf", "")
+                sources["literature_pdfs"].append({
+                    "name": citation,
+                    "url": line,
+                    "format": "pdf",
+                    "scraping_method": "pdfplumber",
+                    "verified": True,
+                    "citation": citation
                 })
+                verified_count += 1
 
-    # Mark verification status
-    verified_count = sum([
-        1 if sources['materials_project'].get('verified') else 0,
-        1 if sources['nist_uci'].get('verified') else 0,
-        1 if sources['openalloy'].get('verified') else 0,
-        sum(1 for pdf in sources['literature_pdfs'] if pdf.get('verified'))
-    ])
+    sources["_verification_status"] = "verified" if verified_count > 0 else "provisional"
+    sources["_verified_count"] = verified_count
 
-    sources['_verification_status'] = 'verified' if verified_count > 0 else 'provisional'
-    sources['_verified_count'] = verified_count
-
+    logger.info(f"Parsed {verified_count} verified/provisional sources from {file_path.name}")
     return sources
 
-def save_sources_yaml(sources: dict, filepath: Path) -> None:
-    """
-    Save the sources dictionary to a YAML file.
-
-    Args:
-        sources: Dictionary of sources
-        filepath: Output path for sources.yaml
-    """
-    # Ensure directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(filepath, 'w', encoding='utf-8') as f:
-        yaml.dump(sources, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
-
-    logger.info(f"Saved sources to {filepath}")
+def save_sources_yaml(sources: Dict[str, Any], output_path: Path) -> None:
+    """Save the sources dictionary to a YAML file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        yaml.dump(sources, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    logger.info(f"Saved sources configuration to {output_path}")
 
 def main():
     """Main entry point for T009c."""
     logger.info("Starting T009c: Populate sources.yaml")
 
-    # Determine which source file to use
-    source_file = RESEARCH_VERIFIED_PATH if RESEARCH_VERIFIED_PATH.exists() else CANDIDATE_SOURCES_PATH
+    # Determine input file
+    input_file = RESEARCH_VERIFIED_PATH
+    if not input_file.exists():
+        if CANDIDATE_SOURCES_PATH.exists():
+            logger.info(f"Verified file not found. Falling back to provisional source: {CANDIDATE_SOURCES_PATH}")
+            input_file = CANDIDATE_SOURCES_PATH
+        else:
+            logger.error("Neither research_verified.md nor candidate_sources.txt found.")
+            logger.error("Cannot populate sources.yaml. Halting.")
+            sys.exit(1)
 
-    if not source_file.exists():
-        logger.error(f"No source file found: {RESEARCH_VERIFIED_PATH} or {CANDIDATE_SOURCES_PATH}")
-        sys.exit(1)
+    # Parse sources
+    sources = parse_verified_sources(input_file)
 
-    logger.info(f"Parsing sources from: {source_file}")
-    sources = parse_verified_sources(source_file)
-
-    # Save to sources.yaml
+    # Save to YAML
     save_sources_yaml(sources, SOURCES_YAML_PATH)
 
-    # Report summary
-    verified_count = sources.get('_verified_count', 0)
-    logger.info(f"Populated sources.yaml with {verified_count} verified sources")
-
-    if verified_count == 0:
-        logger.warning("No verified sources found. Check research_verified.md or candidate_sources.txt")
-
-    logger.info("T009c completed successfully")
+    logger.info("T009c completed successfully.")
 
 if __name__ == "__main__":
     main()

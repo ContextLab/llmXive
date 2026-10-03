@@ -3,10 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-solder-hardness"
+name = "llmXive-proj-328"
 version = "0.1.0"
 description = "Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -21,44 +20,34 @@ dependencies = [
     "pdfplumber",
     "mendeleev",
 ]
-dynamic = ["optional-dependencies"]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "flake8",
-    "black",
-    "mypy",
-]
 
 [tool.setuptools.packages.find]
 where = ["code"]
-include = ["*"]
+include = ["code.*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
   | \.venv
-  | __pycache__
-  | data
+  | _build
+  | buck-out
   | build
   | dist
 )/
 '''
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "code/tests"]
+testpaths = ["tests"]
 python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
 addopts = "-v --tb=short"
 
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-exclude = ["data/", ".venv/"]
+[tool.isort]
+profile = "black"
+line_length = 88

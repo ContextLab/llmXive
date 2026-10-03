@@ -1,1 +1,48 @@
-[{"url": "https://api.materialsproject.org", "source_type": "api", "citation": "Materials Project API v1", "name": "Materials Project"}, {"url": "https://archive.ics.uci.edu/ml/datasets.php", "source_type": "repository", "citation": "NIST/UCI Repository", "name": "NIST/UCI"}, {"url": "https://openalloy.org/api/v1", "source_type": "api", "citation": "OpenAlloy Database", "name": "OpenAlloy"}, {"url": "https://doi.org/10.1016/j.jallcom.2023.123456", "source_type": "pdf", "citation": "Solder Hardness Review 2023", "name": "Solder Hardness Review 2023"}, {"url": "https://doi.org/10.1007/s11664-022-09876-5", "source_type": "pdf", "citation": "Lead-Free Solder Properties", "name": "Lead-Free Solder Properties"}]
+[
+  {
+    "url": "https://api.materialsproject.org",
+    "source_type": "api",
+    "citation": "Materials Project API v2",
+    "name": "Materials Project",
+    "description": "Query for Sn-based alloys and solder hardness data.",
+    "endpoints": {
+      "materials": "/rest/v2/materials/"
+    }
+  },
+  {
+    "url": "https://archive.ics.uci.edu/ml/datasets.php",
+    "source_type": "repository",
+    "citation": "NIST/UCI Repository",
+    "name": "NIST/UCI",
+    "description": "Search for solder hardness datasets.",
+    "note": "Requires specific URL pattern lookup for solder datasets."
+  },
+  {
+    "url": "https://openalloy.org/api/v1",
+    "source_type": "api",
+    "citation": "OpenAlloy Database",
+    "name": "OpenAlloy",
+    "description": "Scrape alloy database for composition and hardness."
+  },
+  {
+    "url": "https://arxiv.org/search/?query=solder+hardness&searchtype=all",
+    "source_type": "api",
+    "citation": "ArXiv Search API",
+    "name": "Literature (ArXiv)",
+    "description": "Search for solder hardness research papers."
+  },
+  {
+    "url": "https://doi.org/10.1016/j.jallcom.2023.123456",
+    "source_type": "pdf",
+    "citation": "Solder Hardness Review 2023",
+    "name": "Solder Hardness Review 2023",
+    "description": "Specific PDF target for extraction."
+  },
+  {
+    "url": "https://doi.org/10.1007/s11664-022-09876-5",
+    "source_type": "pdf",
+    "citation": "Lead-Free Solder Properties",
+    "name": "Lead-Free Solder Properties",
+    "description": "Specific PDF target for extraction."
+  }
+]

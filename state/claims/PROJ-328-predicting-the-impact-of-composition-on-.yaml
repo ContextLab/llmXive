@@ -858,3 +858,879 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T10:25:41Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Aggregate 100 unique solder alloy compositions with Vickers hardness
+  claim_id: c_ba763a95
+  context: "Phase 3: User Story 1 - Aggregate and validate solder hardness dataset\
+    \ (Priority: P1) \U0001F3AF MVP. Goal: Aggregate \u2265100 unique solder alloy\
+    \ compositions with Vickers hardness from open sources into a unified dataset\
+    \ with validation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project aims to aggregate \u2265100 unique solder alloy compositions\
+    \ with Vickers hardness from open sources into a unified dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:27:01Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Warning emitted if dataset size between 50 and 100
+  claim_id: c_c1021724
+  context: "Independent Test: Execute ingestion pipeline on GitHub Actions free-tier\
+    \ runner and verify output dataset contains \u2265100 unique compositions with\
+    \ non-null hardness values and complete elemental breakdowns. If 50 \u2264 N <\
+    \ 100, verify warning is emitted."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 50 \u2264 N < 100, a warning is emitted regarding power limitation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:27:54Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Search string for literature review: solder alloy AND Vickers hardness
+    AND composition'
+  claim_id: c_fd42d8c5
+  context: 'T012d-Protocol [P] [US1] Define Systematic Literature Review Protocol.
+    CRITICAL: Specific Search Strings: ''solder alloy'' AND ''Vickers hardness'' AND
+    ''composition''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Search_string_for_literature_review:_solder_alloy_AND_Vicker
+  kind: entity_fact
+  raw_text: 'The systematic literature review protocol uses the search string: ''solder
+    alloy'' AND ''Vickers hardness'' AND ''composition''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:28:46Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Inclusion criteria: room temp, <5 elements, HV units'
+  claim_id: c_188523ee
+  context: 'T012d-Protocol [P] [US1] Define Systematic Literature Review Protocol.
+    CRITICAL: Inclusion Criteria: Room temp, <5 elements, HV units.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inclusion_criteria:_room_temp,_%3C5_elements,_HV_units
+  kind: magnitude
+  raw_text: The inclusion criteria for the literature review specify room temperature,
+    fewer than 5 elements, and HV units.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:29:09Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Exclude records if elemental composition sum < 95%
+  claim_id: c_8b3d1340
+  context: "T012d-Protocol [P] [US1] Define Systematic Literature Review Protocol.\
+    \ CRITICAL: Validation Logic: Ensure elements sum to \u226595%... T013 [US1] Implement\
+    \ data cleaning... If sum < COMPOSITION_SUM_THRESHOLD, EXCLUDE the record... Read\
+    \ COMPOSITION_SUM_THRESHOLD from code/config.py."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_records_if_elemental_composition_sum_%3C_95%25
+  kind: magnitude
+  raw_text: Records are excluded if the sum of elemental percentages is less than
+    95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:29:30Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Exclude alloys with >5 elements
+  claim_id: c_3476d0dd
+  context: 'T013 [US1] Implement data cleaning and filtering logic in code/ingestion/cleaner.py
+    to: Exclude alloys with >5 elements (read threshold from code/config.py MAX_ELEMENTS).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_alloys_with_%3E5_elements
+  kind: magnitude
+  raw_text: Alloys with more than 5 elements are excluded from the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:29:55Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Model training pipeline enforces CPU-only execution
+  claim_id: c_9ff6751f
+  context: 'T024b [US2] Configure CPU-Only Execution: Create code/models/config_cpu.py
+    to explicitly set all XGBoost and Linear Regression parameters to enforce CPU-only
+    execution... T025 [US2] Implement XGBoost training... CRITICAL: This script MUST
+    import and use the configuration from code/models/config_cpu.py to enforce CPU-only
+    execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_training_pipeline_enforces_CPU-only_execution
+  kind: entity_fact
+  raw_text: The model training pipeline is configured to enforce CPU-only execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:30:21Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: XGBoost grid search limited to 10 combinations
+  claim_id: c_604c1e64
+  context: "T025 [US2] Implement XGBoost training with grid search (\u226410 combinations)\
+    \ in code/models/xgboost_trainer.py. CRITICAL: Ensure total combinations \u2264\
+    \ 10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The grid search for XGBoost training is limited to 10 combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:30:37Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis sweeps R\xB2 threshold"
+  claim_id: c_b3b1c0c3
+  context: "T029a [US2] Configure Sensitivity Thresholds... This satisfies FR-009's\
+    \ requirement to 'sweep the R\xB2 performance threshold over a range of values'...\
+    \ T029c [US2] Compute Sensitivity Metrics... Load thresholds from data/config/sensitivity_thresholds.yaml\
+    \ (fixed 0.0-1.0)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_R%C2%B2_threshold
+  kind: entity_fact
+  raw_text: "The sensitivity analysis sweeps the R\xB2 performance threshold over\
+    \ a range of values."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:31:09Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold range minimum width 0.5 with 5 points
+  claim_id: c_a581fa13
+  context: 'T029c [US2] Compute Sensitivity Metrics... CRITICAL: Validation: Ensure
+    the generated threshold range has a minimum width of 0.5 and at least 5 points.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_threshold_range_minimum_width_0.5_with
+  kind: magnitude
+  raw_text: The sensitivity analysis threshold range has a minimum width of 0.5 and
+    at least 5 points.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:32:07Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime <6 hours, RAM <7GB, disk <14GB
+  claim_id: c_0cd22c8b
+  context: 'T042b [US2] Verify Compute Feasibility: Implement code/evaluation/verify_runtime.py
+    to run the full pipeline on a subset of data and verify that total runtime is
+    <6 hours, peak RAM <7GB, and disk usage <14GB.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_%3C6_hours,_RAM_%3C7GB,_disk_%3C14GB
+  kind: magnitude
+  raw_text: The project pipeline must run in less than 6 hours with peak RAM under
+    7GB and disk usage under 14GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:32:33Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Chunked CSV loader processes 1000 rows per chunk
+  claim_id: c_68bd081a
+  context: 'T059-Stream [US1] Implement Chunked CSV Loader... CRITICAL: Chunk Size:
+    1000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunked CSV loader processes data in chunks of 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:32:58Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Switch to streaming mode if dataset size >50MB
+  claim_id: c_ee33a741
+  context: 'T059-Stream [US1] Implement Chunked CSV Loader... CRITICAL: Threshold:
+    > 50MB. CRITICAL: Memory Check: Use psutil to check memory usage before loading
+    a chunk; if > 50MB, switch to streaming mode.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Switch_to_streaming_mode_if_dataset_size_%3E50MB
+  kind: entity_fact
+  raw_text: The chunked CSV loader switches to streaming mode if dataset size exceeds
+    50MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:33:17Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: aggregate at least 100 unique solder alloy compositions with Vickers
+    hardness
+  claim_id: c_1db44d6a
+  context: "Phase 3: User Story 1 - Aggregate and validate solder hardness dataset\
+    \ (Priority: P1) Goal: Aggregate \u2265100 unique solder alloy compositions with\
+    \ Vickers hardness from open sources into a unified dataset with validation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregate_at_least_100_unique_solder_alloy_compositions_with
+  kind: magnitude
+  raw_text: "The goal is to aggregate \u2265100 unique solder alloy compositions with\
+    \ Vickers hardness from open sources into a unified dataset with validation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:39:05Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Materials Project API endpoint URL and header
+  claim_id: c_54a15e2e
+  context: '1. Materials Project: Endpoint https://materialsproject.org/rest/v2/materials/,
+    Header X-Api-Key: <TOKEN>. Query for solder or Sn based alloys.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_endpoint_URL_and_header
+  kind: entity_fact
+  raw_text: 'The Materials Project API endpoint is https://materialsproject.org/rest/v2/materials/
+    with the header X-Api-Key: <TOKEN>.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:39:29Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: literature review search string
+  claim_id: c_3c10cdb6
+  context: 'CRITICAL: Specific Search Strings: ''solder alloy'' AND ''Vickers hardness''
+    AND ''composition''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Literature_review_search_string
+  kind: entity_fact
+  raw_text: The search string for the systematic literature review is 'solder alloy'
+    AND 'Vickers hardness' AND 'composition'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:40:25Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: literature review inclusion criteria
+  claim_id: c_6193ec5e
+  context: 'CRITICAL: Inclusion Criteria: Room temp, <5 elements, HV units.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Literature_review_inclusion_criteria
+  kind: magnitude
+  raw_text: Inclusion criteria for the literature review are room temperature, less
+    than 5 elements, and HV units.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:40:45Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: composition sum threshold 95 percent
+  claim_id: c_e5fb12e6
+  context: "CRITICAL: Validation Logic: Ensure elements sum to \u226595%, hardness_hv\
+    \ > 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The composition sum threshold for validation logic is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:40:45Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: maximum number of elements in alloy is 5
+  claim_id: c_88512dbb
+  context: 'CRITICAL: Read MAX_ELEMENTS from code/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of elements allowed in an alloy is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:41:04Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: room temperature threshold 25 degrees Celsius
+  claim_id: c_e8f85b35
+  context: 'Create code/config.py with configuration constants: ROOM_TEMP_THRESHOLD_C
+    (25.0)'
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The room temperature threshold for measurement filtering is 25.0\xB0\
+    C."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T11:41:04Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: room temperature tolerance 5 degrees Celsius
+  claim_id: c_4e8d26ef
+  context: 'Create code/config.py with configuration constants: ROOM_TEMP_TOLERANCE_C
+    (5.0)'
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The room temperature tolerance for measurement filtering is 5.0\xB0C."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T11:41:04Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: minimum number of samples for power is 50
+  claim_id: c_c77ff3e0
+  context: 'Create code/config.py with configuration constants: MIN_N_FOR_POWER (50)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of samples required for power is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:41:28Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: target number of samples is 100
+  claim_id: c_7bf39ad9
+  context: 'Create code/config.py with configuration constants: TARGET_N (100)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target number of samples for the dataset is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:41:52Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: VIF threshold for collinearity is 5
+  claim_id: c_cd441be4
+  context: "Implement VIF calculation in code/features/collinearity.py to flag predictors\
+    \ with VIF \u2265 5"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for flagging collinear predictors is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:42:10Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis R2 threshold range 0.0 to 1.0
+  claim_id: c_f005870a
+  context: Load thresholds from data/config/sensitivity_thresholds.yaml (fixed 0.0-1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps R\xB2 performance thresholds over a fixed\
+    \ range from 0.0 to 1.0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:42:41Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis threshold range minimum width 0.5 and 5 points
+  claim_id: c_bd859c8d
+  context: 'Validation: Ensure the generated threshold range has a minimum width of
+    0.5 and at least 5 points.'
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_threshold_range_minimum_width_0.5_and_5
+  kind: magnitude
+  raw_text: The sensitivity analysis generated threshold range must have a minimum
+    width of 0.5 and at least 5 points.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-03T11:43:45Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: CSV loader chunk size 1000 rows
+  claim_id: c_3555d3c9
+  context: 'CRITICAL: Chunk Size: 1000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunk size for the CSV loader is 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:44:07Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: memory threshold for streaming mode 50MB
+  claim_id: c_b0292b27
+  context: 'CRITICAL: Threshold: > 50MB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_threshold_for_streaming_mode_50MB
+  kind: entity_fact
+  raw_text: The memory threshold for switching to streaming mode is 50MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:44:28Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: pipeline runtime verification target less than 6 hours
+  claim_id: c_cddae35a
+  context: verify that total runtime is <6 hours
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_verification_target_less_than_6_hours
+  kind: magnitude
+  raw_text: The full pipeline runtime verification target is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:44:48Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: peak RAM verification target less than 7GB
+  claim_id: c_a450cc24
+  context: peak RAM <7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_verification_target_less_than_7GB
+  kind: magnitude
+  raw_text: The peak RAM verification target is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:45:15Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: disk usage verification target less than 14GB
+  claim_id: c_066516ea
+  context: disk usage <14GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_usage_verification_target_less_than_14GB
+  kind: magnitude
+  raw_text: The disk usage verification target is less than 14GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:45:38Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: aggregate at least 100 unique solder alloy compositions with Vickers
+    hardness
+  claim_id: c_e49467cf
+  context: "Goal: Aggregate \u2265100 unique solder alloy compositions with Vickers\
+    \ hardness from open sources into a unified dataset with validation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregate_at_least_100_unique_solder_alloy_compositions_with
+  kind: magnitude
+  raw_text: "Aggregation of \u2265100 unique solder alloy compositions with Vickers\
+    \ hardness from open sources into a unified dataset with validation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:48:09Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: emit warning if sample size is between 50 and 100
+  claim_id: c_3c0371e0
+  context: "If 50 \u2264 N < 100, verify warning is emitted."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 50 \u2264 N < 100, verify warning is emitted."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:48:54Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: composition sum threshold is 95 percent
+  claim_id: c_49b5e3fd
+  context: "Validation Logic: Ensure elements sum to \u226595%, hardness_hv > 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Threshold for composition sum validation is \u226595%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:48:55Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: maximum elements per alloy is 5
+  claim_id: c_81961955
+  context: 'Inclusion Criteria: Room temp, <5 elements, HV units.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum number of elements allowed per alloy is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:48:55Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: room temperature tolerance is 5.0 degrees Celsius
+  claim_id: c_eefd554a
+  context: 'Create code/config.py with configuration constants: ... ROOM_TEMP_TOLERANCE_C
+    (5.0)...'
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Threshold for room temperature measurement tolerance is 5.0\xB0C."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T11:48:55Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: target sample size is 100
+  claim_id: c_9048f263
+  context: 'Create code/config.py with configuration constants: ... TARGET_N (100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target number of samples for the dataset is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:48:55Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: minimum sample size for power is 50
+  claim_id: c_58131009
+  context: 'Create code/config.py with configuration constants: ... MIN_N_FOR_POWER
+    (50)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum number of samples required for power analysis is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:49:33Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: room temperature threshold is 25.0 degrees Celsius
+  claim_id: c_22344b15
+  context: 'Create code/config.py with configuration constants: ... ROOM_TEMP_THRESHOLD_C
+    (25.0)...'
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Room temperature threshold for measurement is 25.0\xB0C."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T11:49:33Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: VIF threshold for collinearity is 5
+  claim_id: c_14740dda
+  context: "Implement VIF calculation in code/features/collinearity.py to flag predictors\
+    \ with VIF \u2265 5..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "VIF threshold for flagging collinear predictors is \u2265 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:49:33Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 2
+  canonical: XGBoost grid search limited to 10 combinations
+  claim_id: c_a614675c
+  context: "Implement XGBoost training with grid search (\u226410 combinations) in\
+    \ code/models/xgboost_trainer.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The grid search for XGBoost training is limited to 10 combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:49:34Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis R2 threshold sweep range is 0.0 to 1.0
+  claim_id: c_74f82b62
+  context: Load thresholds from data/config/sensitivity_thresholds.yaml (fixed 0.0-1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis threshold sweep range is fixed from 0.0 to 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:49:54Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: sensitivity threshold range minimum width 0.5 with at least 5 points
+  claim_id: c_975fdb01
+  context: Ensure the generated threshold range has a minimum width of 0.5 and at
+    least 5 points.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_threshold_range_minimum_width_0.5_with_at_least
+  kind: magnitude
+  raw_text: Sensitivity analysis threshold range must have a minimum width of 0.5
+    and at least 5 points.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:50:51Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: CSV loader chunk size is 1000 rows
+  claim_id: c_ecc09cdb
+  context: 'Chunk Size: 1000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Chunk size for CSV loader is 1000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:50:51Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: memory threshold for streaming mode is 50MB
+  claim_id: c_4dd03b3f
+  context: 'Threshold: > 50MB. ... if > 50MB, switch to streaming mode.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_threshold_for_streaming_mode_is_50MB
+  kind: entity_fact
+  raw_text: Memory threshold for switching to streaming mode is 50MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:50:53Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: runtime verification target is less than 6 hours
+  claim_id: c_8a8e1704
+  context: verify that total runtime is <6 hours...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_verification_target_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Runtime verification target is <6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:51:14Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: peak RAM usage target is less than 7GB
+  claim_id: c_041bb97b
+  context: '...peak RAM <7GB...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_target_is_less_than_7GB
+  kind: magnitude
+  raw_text: Peak RAM usage verification target is <7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:51:37Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: disk usage target is less than 14GB
+  claim_id: c_842851b0
+  context: '...disk usage <14GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_usage_target_is_less_than_14GB
+  kind: magnitude
+  raw_text: Disk usage verification target is <14GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:51:59Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: citation title overlap threshold is 0.7
+  claim_id: c_38fdfdf3
+  context: Reference Constitution Principle II defaults (CITATION_TITLE_OVERLAP_THRESHOLD=0.7)
+    for validation logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Citation title overlap threshold for validation logic is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T11:52:39Z'

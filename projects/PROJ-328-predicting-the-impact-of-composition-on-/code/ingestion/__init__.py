@@ -1,1 +1,3 @@
-"""Ingestion module initialization."""
+"""
+Ingestion package initialization.
+"""

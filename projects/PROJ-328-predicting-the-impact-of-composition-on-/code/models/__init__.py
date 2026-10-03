@@ -1,1 +1,3 @@
-"""Models module initialization."""
+"""
+Models package initialization.
+"""

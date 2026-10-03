@@ -1,7 +1,6 @@
 """
-Pipeline Runner for T058 Audit.
-This script orchestrates the execution of the ingestion and feature engineering pipeline
-to ensure all artifacts are generated before the audit runs.
+Pipeline runner to orchestrate the ingestion and cleaning tasks.
+Ensures T013 (cleaner) is executed and produces required outputs.
 """
 import os
 import sys
@@ -9,72 +8,50 @@ import logging
 from pathlib import Path
 
 # Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from ingestion.cleaner import main as run_cleaner
 from ingestion.validator import main as run_validator
-from features.transformer import main as run_transformer
-from features.descriptor_engine import main as run_descriptor_engine
-from ingestion.verify_task_ordering import main as run_audit
 
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 def run_pipeline():
-    """Execute the pipeline steps in order."""
-    logger.info("Starting Pipeline Execution for T058 Audit...")
+    """
+    Execute the full ingestion and cleaning pipeline.
     
-    # Step 1: Cleaner (T013) - Produces solder_hardness_cleaned.csv
-    logger.info("Running Cleaner (T013)...")
+    Steps:
+    1. Run cleaner (T013) to produce solder_hardness_cleaned.csv and .ingestion_status.json
+    2. Run validator (T014) to validate the cleaned data
+    """
+    logger.info("Starting ingestion pipeline")
+    
     try:
+        # Step 1: Run cleaner (T013)
+        logger.info("Executing T013: Data Cleaning")
         run_cleaner()
-        logger.info("Cleaner completed successfully.")
-    except Exception as e:
-        logger.error(f"Cleaner failed: {e}")
-        return False
-
-    # Step 2: Validator (T014) - Produces .ingestion_status.json
-    logger.info("Running Validator (T014)...")
-    try:
+        
+        # Step 2: Run validator (T014)
+        logger.info("Executing T014: Data Validation")
         run_validator()
-        logger.info("Validator completed successfully.")
+        
+        logger.info("Ingestion pipeline completed successfully")
+        return True
+        
     except Exception as e:
-        logger.error(f"Validator failed: {e}")
+        logger.error(f"Pipeline execution failed: {e}")
         return False
-
-    # Step 3: Transformer (T023b) - Produces clr_features.csv
-    logger.info("Running Transformer (T023b)...")
-    try:
-        run_transformer()
-        logger.info("Transformer completed successfully.")
-    except Exception as e:
-        logger.error(f"Transformer failed: {e}")
-        return False
-
-    # Step 4: Descriptor Engine (T023c) - Produces descriptors.csv
-    logger.info("Running Descriptor Engine (T023c)...")
-    try:
-        run_descriptor_engine()
-        logger.info("Descriptor Engine completed successfully.")
-    except Exception as e:
-        logger.error(f"Descriptor Engine failed: {e}")
-        return False
-
-    # Step 5: Audit (T058)
-    logger.info("Running Audit (T058)...")
-    try:
-        run_audit()
-        logger.info("Audit completed successfully.")
-    except Exception as e:
-        logger.error(f"Audit failed: {e}")
-        return False
-
-    return True
 
 def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    """Main entry point."""
     success = run_pipeline()
-    return 0 if success else 1
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

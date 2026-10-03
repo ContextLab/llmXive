@@ -222,53 +222,20 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1007/s11664-022-09876-5
   verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
+- artifact_hash: 8fbe786c92ce864955c6bc8b9586cd191acfd84cb3e49f17d0265140196bfc5d
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://materialsproject.org/rest/v2/materials/...`
+  value: https://materialsproject.org/rest/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/
-  verified_at: '2026-09-30T01:46:12.319514Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
+  verified_at: '2026-10-03T12:03:51.762461Z'
+- artifact_hash: 8fbe786c92ce864955c6bc8b9586cd191acfd84cb3e49f17d0265140196bfc5d
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions
-  verified_at: '2026-09-30T01:46:12.319514Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: NIST Chemistry WebBook
-  kind: url
-  value: https://doi.org/10.18434/T4D303`
-  verification_status: pending
-  verified_against_url: https://webbook.nist.gov/chemistry/
-  verified_at: '2026-09-30T01:46:12.319514Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://openalloy.org/api/v1/alloys?composition=Sn...`
-  verification_status: unreachable
-  verified_against_url: https://openalloy.org/api/v1/alloys?composition=Sn
-  verified_at: '2026-09-30T01:46:12.319514Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: Search | arXiv e-print repository
@@ -276,15 +243,4 @@
   value: https://arxiv.org/search/?query=solder+hardness&searchtype=all`
   verification_status: pending
   verified_against_url: https://arxiv.org/search/?query=solder+hardness&searchtype=all
-  verified_at: '2026-09-30T01:46:12.319514Z'
-- artifact_hash: cf6e51fa701aafd641e14f4d68337737428e6598ea8e2d2f8bfb53671c133fc2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.18434/T4D303
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.18434/T4D303
-  verified_at: '2026-09-30T01:46:12.319514Z'
+  verified_at: '2026-10-03T12:03:51.762461Z'

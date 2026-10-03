@@ -1,1 +1,3 @@
-"""Evaluation module initialization."""
+"""
+Evaluation package initialization.
+"""

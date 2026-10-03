@@ -1,4 +1,11 @@
-"""Configuration constants for the pipeline."""
+"""Configuration constants for the pipeline.
+
+This module defines all core configuration constants used across the
+solder hardness prediction pipeline. It serves as the single source of truth
+for thresholds, limits, and operational parameters.
+
+CRITICAL: Do NOT include SENSITIVITY_EXTEND_STEP in this file.
+"""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -17,34 +24,57 @@ CODE_DIR = PROJECT_ROOT / "code"
 MODELS_DIR = PROJECT_ROOT / "models"
 
 class Config:
-    """Configuration container."""
-    # Task T006 Constants
+    """Configuration container for all pipeline constants."""
+    
+    # --- T006 Constants (Task Requirement) ---
+    # Maximum number of elements allowed in an alloy composition
     MAX_ELEMENTS: int = 5
+    
+    # Target room temperature for measurements (Celsius)
     ROOM_TEMP_THRESHOLD_C: float = 25.0
+    
+    # Tolerance for room temperature measurements (Celsius)
     ROOM_TEMP_TOLERANCE_C: float = 5.0
+    
+    # Minimum sum of elemental percentages required for valid composition
     COMPOSITION_SUM_THRESHOLD: float = 95.0
+    
+    # Minimum number of samples required for statistical power
     MIN_N_FOR_POWER: int = 50
+    
+    # Target number of samples for the dataset
     TARGET_N: int = 100
     
-    # Fixed sensitivity thresholds: [low, medium, high]
-    # Explicitly defined as a fixed list, not dynamically generated
-    SENSITIVITY_THRESHOLDS: List[float] = [0.3, 0.6, 0.8]
+    # --- Other Constants (Existing/Required by Pipeline) ---
     
-    # Deprecated step (kept for API compatibility if referenced elsewhere)
-    SENSITIVITY_EXTEND_STEP: float = 0.0
+    # Fixed sensitivity thresholds for R2 analysis [low, medium, high]
+    SENSITIVITY_THRESHOLDS: List[float] = [0.3, 0.6, 0.8]
     
     # Rounding step for sensitivity analysis
     SENSITIVITY_ROUND_STEP: float = 0.05
-
-    # Additional existing constants
+    
+    # VIF threshold for collinearity detection
     VIF_THRESHOLD: float = 5.0
-    # Note: R2_SENSITIVITY_THRESHOLDS is kept for backward compatibility if used by other scripts,
-    # but SENSITIVITY_THRESHOLDS is the canonical list per T006 spec.
+    
+    # Deprecated step (kept for API compatibility, set to 0.0 as per T006)
+    SENSITIVITY_EXTEND_STEP: float = 0.0
+    
+    # R2 sensitivity thresholds (legacy, kept for compatibility)
     R2_SENSITIVITY_THRESHOLDS: List[float] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    
+    # Minimum samples for warning
     MIN_SAMPLES_WARNING: int = 50
+    
+    # Minimum samples for target
     MIN_SAMPLES_TARGET: int = 100
+    
+    # Number of CV folds
     CV_FOLDS: int = 5
+    
+    # Number of bootstrap iterations
     BOOTSTRAP_ITERATIONS: int = 100
+    
+    # Logging configuration
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 

@@ -4,12 +4,13 @@ Addresses the closure problem (sum-to-one constraint) by mapping to Euclidean sp
 """
 import numpy as np
 import logging
+import json
+import pandas as pd
 from typing import Tuple, Optional, Dict, Any
-from compositional import clr, ilr, alr
+from pathlib import Path
+from compositional import clr
 from utils.logging_config import get_logger
 from seed import set_seed
-from pathlib import Path
-import json
 
 logger = get_logger(__name__)
 
@@ -38,7 +39,6 @@ class CLRTransformer:
         Returns:
             self
         """
-        # CLR transform is stateless; no fitting required
         return self
 
     def transform(self, X: np.ndarray) -> np.ndarray:
@@ -47,7 +47,6 @@ class CLRTransformer:
 
         Args:
             X: Compositional data array of shape (n_samples, n_components).
-               Values should sum to ~1.0 (or 100.0).
 
         Returns:
             Transformed data array of shape (n_samples, n_components).
@@ -58,14 +57,12 @@ class CLRTransformer:
         # Ensure we don't have zeros which would cause log(0)
         X_safe = np.clip(X, self.pseudo_count, None)
 
-        # Normalize to ensure sum is 1 if not already (robustness)
+        # Normalize to ensure sum is 1 if not already
         sums = X_safe.sum(axis=1, keepdims=True)
-        # Avoid division by zero
         sums = np.where(sums == 0, 1, sums)
         X_normalized = X_safe / sums
 
         # Apply CLR using the compositional library
-        # clr function expects shape (n_samples, n_components)
         try:
             X_clr = clr(X_normalized)
         except Exception as e:
@@ -77,75 +74,83 @@ class CLRTransformer:
     def fit_transform(self, X: np.ndarray) -> np.ndarray:
         """
         Fit and transform the data.
-
-        Args:
-            X: Compositional data array.
-
-        Returns:
-            Transformed data array.
         """
         self.fit(X)
         return self.transform(X)
 
 def main():
     """
-    Main entry point for testing the CLRTransformer.
-    This script writes a verification report to data/processed/transformer_test_report.json
-    to prove the function works on real data structures.
+    Main entry point.
+    Reads cleaned solder data, applies CLR transform, and writes output.
     """
-    logger.info("Starting CLRTransformer test and verification")
+    logger.info("Starting CLR Transformation Pipeline")
     set_seed(42)
 
-    # Example usage with realistic solder composition data (Sn, Ag, Cu)
-    # These sum to 1.0 (100%)
-    test_data = np.array([
-        [0.965, 0.030, 0.005],  # SAC305 variant
-        [0.950, 0.040, 0.010],  # SAC405
-        [0.990, 0.005, 0.005],  # Sn-rich
-        [0.850, 0.100, 0.050],  # High Ag/Cu
-        [0.500, 0.300, 0.200],  # Extreme case
-        [0.1, 0.8, 0.1],
-        [0.33, 0.33, 0.34]
-    ])
+    # Paths
+    input_path = Path("data/processed/solder_hardness_cleaned.csv")
+    output_path = Path("data/processed/clr_features.csv")
+    report_path = Path("data/processed/transformer_report.json")
 
+    # Verify input exists
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_path}. "
+            "Run T013 (cleaner) first to generate solder_hardness_cleaned.csv."
+        )
+
+    # Load data
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} records from {input_path}")
+
+    # Identify composition columns (exclude target and metadata)
+    exclude_cols = ['hardness_hv', 'alloy_family', 'source_citation', 'alloy_id']
+    # Also exclude non-elemental columns if any (e.g. measurement_temp_c)
+    composition_cols = [c for c in df.columns if c not in exclude_cols and not c.startswith('meta_')]
+
+    if not composition_cols:
+        raise ValueError("No composition columns found in input data.")
+
+    logger.info(f"Identified composition columns: {composition_cols}")
+
+    # Extract composition matrix
+    X = df[composition_cols].values.astype(float)
+
+    # Handle potential NaNs in composition (replace with 0, then add pseudo_count in transform)
+    # But cleaner should have handled this. Let's be safe.
+    X = np.nan_to_num(X, nan=0.0)
+
+    # Transform
     transformer = CLRTransformer()
-    transformed = transformer.fit_transform(test_data)
+    X_clr = transformer.fit_transform(X)
 
-    logger.info(f"Original data shape: {test_data.shape}")
-    logger.info(f"Transformed data shape: {transformed.shape}")
-    
-    # Verify sum of transformed values is close to 0 (property of CLR)
-    sums = transformed.sum(axis=1)
-    logger.info(f"Sum of transformed rows (should be ~0): {sums}")
+    # Create output DataFrame
+    # Keep only the transformed values, named as clr_<col>
+    clr_cols = [f"clr_{c}" for c in composition_cols]
+    df_clr = pd.DataFrame(X_clr, columns=clr_cols)
 
-    # Verify no NaN or Inf values
-    has_nan = np.isnan(transformed).any()
-    has_inf = np.isinf(transformed).any()
-    
-    if has_nan or has_inf:
-        logger.error("Transformation produced NaN or Inf values!")
-        raise ValueError("Transformation failed: produced invalid values")
+    # Add an index or ID to link back if needed (assuming row order is preserved)
+    # We'll just save the features as requested
+    df_clr.to_csv(output_path, index=False)
 
-    # Write verification report to disk as required by task execution constraints
-    # ensuring the script produces a real output file.
-    output_path = "data/processed/transformer_test_report.json"
+    logger.info(f"CLR features written to {output_path} with shape {X_clr.shape}")
+
+    # Write a simple verification report
     report = {
         "status": "success",
-        "input_shape": list(test_data.shape),
-        "output_shape": list(transformed.shape),
-        "row_sums": sums.tolist(),
-        "has_nan": bool(has_nan),
-        "has_inf": bool(has_inf),
-        "test_samples": test_data.tolist(),
-        "transformed_samples": transformed.tolist()
+        "input_file": str(input_path),
+        "output_file": str(output_path),
+        "input_shape": list(X.shape),
+        "output_shape": list(X_clr.shape),
+        "composition_columns": composition_cols,
+        "output_columns": clr_cols,
+        "row_sums_check": float(np.abs(X_clr.sum(axis=1)).mean()) # Should be ~0
     }
 
-    Path("data/processed").mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
-    
-    logger.info(f"Verification report written to {output_path}")
-    logger.info("CLRTransformer test completed successfully")
+
+    logger.info(f"Verification report written to {report_path}")
+    logger.info("CLR Transformation Pipeline completed successfully")
 
 if __name__ == "__main__":
     main()
