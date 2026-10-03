@@ -1,269 +1,324 @@
-"""
-Analysis module for Gut Microbiome and Cognitive Performance correlation study.
-Implements Spearman correlation, multivariate regression, and Lasso regression.
-"""
 import os
 import sys
+import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any, List
-import pickle
-
-from config import INPUT_PATHS, RANDOM_SEED, SAMPLE_LIMIT, DQS_REQUIRED, ensure_directories
-from logging_config import get_logger, log_provenance, log_warning, log_imputation_strategy, log_data_filtering, log_pipeline_start, log_pipeline_end
-from diversity import calculate_shannon_index
-from transformation import apply_clr
-from scipy import stats
-import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from sklearn.linear_model import Lasso, LassoCV
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import shapiro
+from sklearn.linear_model import LassoCV
+from scipy import stats
+from config import INPUT_PATHS, RANDOM_SEED, SAMPLE_LIMIT, DQS_REQUIRED
+from logging_config import get_logger, log_operation, log_pipeline_start, log_pipeline_end, log_provenance, log_warning
+import logging
 
-logger = get_logger(__name__)
+# Setup logging for this module
+logger = get_logger("analysis")
 
-# Global variables to store intermediate results for T029b
-_lasso_coefficients = None
-_lasso_non_zero_count = 0
-_lasso_metrics = {}
+def load_processed_data():
+    """Load the cleaned dataset from data/processed/cleaned_data.csv."""
+    path = Path("data/processed/cleaned_data.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Processed data not found at {path}. Run data ingestion first.")
+    return pd.read_csv(path)
 
-def load_processed_data() -> pd.DataFrame:
-    """Loads the cleaned data from data/processed/cleaned_data.csv"""
-    path = "data/processed/cleaned_data.csv"
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Cleaned data not found at {path}. Run ingestion pipeline first.")
-    df = pd.read_csv(path)
-    return df
+def check_zero_variance(df):
+    """Check for columns with zero variance (constant values)."""
+    zero_var_cols = []
+    for col in df.select_dtypes(include=[np.number]).columns:
+        if df[col].nunique() == 1:
+            zero_var_cols.append(col)
+    return zero_var_cols
 
-def check_zero_variance(df: pd.DataFrame, column: str) -> bool:
-    """Checks if a column has zero variance."""
-    if column not in df.columns:
-        raise ValueError(f"Column {column} not found in dataframe")
-    var = df[column].var()
-    return var < 1e-9
+def log_zero_variance_warning(cols):
+    """Log a warning for columns with zero variance."""
+    if cols:
+        log_warning(f"Columns with zero variance detected: {cols}")
 
-def log_zero_variance_warning(column: str) -> None:
-    """Logs a warning for zero variance."""
-    log_warning(f"Zero variance in {column}; skipping correlation.")
-    # Save to analysis_warnings.log as per T025c
-    warning_path = "data/processed/analysis_warnings.log"
-    with open(warning_path, 'a') as f:
-        f.write(f"Warning: Zero variance in {column}; skipping correlation.\n")
-
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
-    """Calculates VIF for all predictors and logs warnings."""
-    vif_data = {}
-    X = df[predictors].dropna()
-    if X.empty:
-        return vif_data
+@log_operation
+def calculate_vif(df, exclude_cols=None):
+    """
+    Calculate Variance Inflation Factor (VIF) for numeric columns.
     
-    # Add constant for intercept
-    X_const = sm.add_constant(X)
+    Args:
+        df: DataFrame containing numeric predictors.
+        exclude_cols: List of column names to exclude from VIF calculation.
+        
+    Returns:
+        dict: Mapping of column name to VIF value.
+    """
+    if exclude_cols is None:
+        exclude_cols = []
+        
+    # Select only numeric columns not in exclude list
+    numeric_df = df.select_dtypes(include=[np.number])
+    features = [c for c in numeric_df.columns if c not in exclude_cols]
     
-    for col in X.columns:
+    if len(features) == 0:
+        return {}
+        
+    # Drop rows with NaN in selected features
+    valid_df = numeric_df[features].dropna()
+    
+    if valid_df.shape[0] < 2:
+        log_warning("Not enough valid rows to calculate VIF.")
+        return {}
+        
+    vif_results = {}
+    for i, feature in enumerate(features):
+        # Calculate VIF for this feature
+        X = valid_df[features].values
         try:
-            vif = variance_inflation_factor(X_const.values, X_const.columns.get_loc(col))
-            vif_data[col] = vif
-            if vif > 5:
-                log_warning(f"High multicollinearity detected: {col} has VIF {vif:.2f}")
+            vif_val = variance_inflation_factor(X, i)
+            vif_results[feature] = float(vif_val)
         except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_data[col] = np.nan
+            log_warning(f"Could not calculate VIF for {feature}: {e}")
+            vif_results[feature] = float('nan')
+            
+    return vif_results
+
+@log_operation
+def save_vif_results(vif_dict, output_path="data/processed/vif_results.json"):
+    """Save VIF results to a JSON file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(vif_dict, f, indent=2)
+    log_provenance(f"VIF results saved to {output_path}")
+
+@log_operation
+def compute_spearman_correlation(df, x_col, y_col):
+    """
+    Compute Spearman rank correlation between two columns.
     
-    return vif_data
+    Args:
+        df: DataFrame.
+        x_col: Name of the first column.
+        y_col: Name of the second column.
+        
+    Returns:
+        tuple: (r_value, p_value, n_obs)
+    """
+    # Drop NaNs for the specific columns
+    valid_data = df[[x_col, y_col]].dropna()
+    if len(valid_data) < 2:
+        raise ValueError("Not enough valid data points to compute correlation.")
+        
+    r, p = stats.spearmanr(valid_data[x_col], valid_data[y_col])
+    return float(r), float(p), len(valid_data)
 
-def save_vif_results(vif_data: Dict[str, float], path: str = "data/processed/vif_results.json") -> None:
-    """Saves VIF results to JSON."""
-    ensure_directories()
-    import json
-    with open(path, 'w') as f:
-        json.dump(vif_data, f, indent=2)
-    log_provenance(f"VIF results saved to {path}")
-
-def compute_spearman_correlation(df: pd.DataFrame, x_col: str, y_col: str) -> Tuple[float, float, int]:
-    """Computes Spearman correlation between two columns."""
-    # Check for integer/raw counts validation for Shannon if applicable
-    if x_col == "shannon_index":
-        # T020b: Verify input is raw counts (integers) if this were taxa, but Shannon is float.
-        # However, we must ensure we are not using CLR-transformed Shannon if that were a mistake.
-        # The spec says Shannon is calculated on raw counts, so the resulting column is float.
-        pass
-    
-    if df[x_col].var() < 1e-9 or df[y_col].var() < 1e-9:
-        raise ValueError("Zero variance in one of the columns")
-
-    r_value, p_value = stats.spearmanr(df[x_col], df[y_col])
-    n_obs = len(df)
-    return r_value, p_value, n_obs
-
-def save_correlation_results(r_value: float, p_value: float, n_obs: int, path: str = "data/processed/correlation_results.csv") -> None:
-    """Saves correlation results to CSV."""
-    ensure_directories()
-    df = pd.DataFrame({
-        "r_value": [r_value],
-        "p_value": [p_value],
+@log_operation
+def save_correlation_results(r, p, n_obs, output_path="data/processed/correlation_results.csv"):
+    """Save correlation results to a CSV file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    result_df = pd.DataFrame({
+        "r_value": [r],
+        "p_value": [p],
         "n_obs": [n_obs]
     })
-    df.to_csv(path, index=False)
-    log_provenance(f"Correlation results saved to {path}")
+    result_df.to_csv(output_path, index=False)
+    log_provenance(f"Correlation results saved to {output_path}")
 
-def run_multivariate_regression(df: pd.DataFrame) -> sm.OLSResults:
-    """Runs multivariate linear regression (Primary Path)."""
-    # Formula: fluid_intelligence ~ shannon_index + age + C(sex) + bmi + dqs
-    # Handle missing DQS
-    predictors = ["shannon_index", "age", "bmi"]
-    if "sex" in df.columns:
-        predictors.append("sex")
+@log_operation
+def run_multivariate_regression(df, target_col, feature_cols):
+    """
+    Run multivariate linear regression using statsmodels.
     
-    if DQS_REQUIRED and "dqs" not in df.columns:
-        raise ValueError("DQS is required but missing from data")
-    elif "dqs" in df.columns:
-        predictors.append("dqs")
-    elif not DQS_REQUIRED:
-        log_warning("DQS column missing but not required; proceeding without DQS.")
-
-    formula = f"fluid_intelligence ~ {' + '.join(predictors)}"
-    # Handle categorical variables
-    if "sex" in df.columns:
-        formula = formula.replace("sex", "C(sex)")
-
-    model = sm.formula.ols(formula=formula, data=df)
-    results = model.fit()
+    Args:
+        df: DataFrame.
+        target_col: Name of the target column.
+        feature_cols: List of feature column names.
+        
+    Returns:
+        dict: Regression results (coefficients, std_err, p_values).
+    """
+    import statsmodels.api as sm
+    
+    X = df[feature_cols].dropna(axis=0, how='any')
+    y = df.loc[X.index, target_col]
+    
+    if len(X) < 2:
+        raise ValueError("Not enough data points for regression.")
+        
+    X = sm.add_constant(X)
+    model = sm.OLS(y, X).fit()
+    
+    results = {
+        "coefficients": {},
+        "std_err": {},
+        "p_values": {}
+    }
+    
+    for i, col in enumerate(X.columns):
+        results["coefficients"][col] = float(model.params[i])
+        results["std_err"][col] = float(model.bse[i])
+        results["p_values"][col] = float(model.pvalues[i])
+        
     return results
 
-def save_regression_results(results: sm.OLSResults, path: str = "data/processed/regression_results.csv") -> None:
-    """Saves regression results to CSV."""
-    ensure_directories()
-    df = pd.DataFrame({
-        "coefficient": results.params,
-        "std_err": results.bse,
-        "p_value": results.pvalues
-    })
-    df.to_csv(path)
-    log_provenance(f"Regression results saved to {path}")
+@log_operation
+def save_regression_results(results, output_path="data/processed/regression_results.csv"):
+    """Save regression results to a CSV file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    rows = []
+    for feature in results["coefficients"].keys():
+        rows.append({
+            "feature": feature,
+            "coefficient": results["coefficients"][feature],
+            "std_err": results["std_err"][feature],
+            "p_value": results["p_values"][feature]
+        })
+        
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
+    log_provenance(f"Regression results saved to {output_path}")
 
-def perform_residual_normality_validation(results: sm.OLSResults, path: str = "data/processed/regression_diagnostics.json") -> bool:
-    """Performs Shapiro-Wilk test on residuals."""
-    residuals = results.resid
-    stat, p_value = shapiro(residuals)
-    
-    is_normal = p_value > 0.05
-    report = {
-        "test": "Shapiro-Wilk",
-        "statistic": float(stat),
-        "p_value": float(p_value),
-        "is_normal": is_normal
-    }
-    
-    ensure_directories()
-    import json
-    with open(path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    if not is_normal:
-        log_warning("Residuals are not normally distributed (Shapiro-Wilk p <= 0.05)")
-    
-    return is_normal
-
-def run_lasso_regression(df: pd.DataFrame) -> None:
+@log_operation
+def run_lasso_regression(df, target_col, feature_cols, alpha=0.1):
     """
-    Runs Lasso regression (Secondary Path) on CLR-transformed taxa.
-    Stores results in global variables for T029b to save.
+    Run Lasso regression.
+    
+    Args:
+        df: DataFrame.
+        target_col: Name of the target column.
+        feature_cols: List of feature column names.
+        alpha: Regularization strength.
+        
+    Returns:
+        dict: Lasso results (coefficients, non-zero count, cv_score).
     """
-    global _lasso_coefficients, _lasso_non_zero_count, _lasso_metrics
-
-    # Identify taxa columns (assume they end with '_abundance' or are not in known non-taxon list)
-    # For this implementation, we assume the dataframe contains CLR-transformed taxa columns.
-    # In a real scenario, these would be identified dynamically.
-    # We will select columns that are numeric and not the target or standard covariates.
-    exclude_cols = ['fluid_intelligence', 'shannon_index', 'age', 'sex', 'bmi', 'dqs', 'participant_id']
-    taxa_cols = [col for col in df.select_dtypes(include=[np.number]).columns if col not in exclude_cols]
+    X = df[feature_cols].dropna(axis=0, how='any')
+    y = df.loc[X.index, target_col]
     
-    if not taxa_cols:
-        log_warning("No taxa columns found for Lasso regression. Skipping.")
-        return
-
-    X = df[taxa_cols].fillna(0) # Handle any remaining NaNs
-    y = df['fluid_intelligence']
-
-    # Standardize features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    # Use LassoCV for alpha selection
-    lasso_cv = LassoCV(cv=5, random_state=RANDOM_SEED, max_iter=10000)
-    lasso_cv.fit(X_scaled, y)
-
-    # Get coefficients
-    coefs = lasso_cv.coef_
+    if len(X) < 2:
+        raise ValueError("Not enough data points for Lasso.")
+        
+    lasso = LassoCV(cv=5, random_state=RANDOM_SEED)
+    lasso.fit(X, y)
     
-    # Create a DataFrame for coefficients
-    coef_dict = {col: coef for col, coef in zip(taxa_cols, coefs)}
-    _lasso_coefficients = pd.Series(coef_dict)
-    _lasso_non_zero_count = int(np.sum(coefs != 0))
-
-    # Calculate metrics
-    y_pred = lasso_cv.predict(X_scaled)
-    r2 = r2_score(y, y_pred)
-    mse = mean_squared_error(y, y_pred)
+    coeffs = dict(zip(feature_cols, lasso.coef_))
+    non_zero = sum(1 for c in coeffs.values() if c != 0)
     
-    _lasso_metrics = {
-        "r2": float(r2),
-        "mse": float(mse),
-        "alpha": float(lasso_cv.alpha_)
+    return {
+        "coefficients": coeffs,
+        "non_zero_features": non_zero,
+        "cv_score": float(lasso.score(X, y)),
+        "alpha": float(lasso.alpha_)
     }
 
-    # Save temp file for T029b to read
-    temp_path = Path("data/processed/.lasso_temp_results.pkl")
-    temp_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(temp_path, 'wb') as f:
-        pickle.dump({
-            'coefficients': _lasso_coefficients,
-            'non_zero_count': _lasso_non_zero_count,
-            'metrics': _lasso_metrics
-        }, f)
+@log_operation
+def save_lasso_results(lasso_results, output_path="data/processed/lasso_results.csv"):
+    """Save Lasso results to a CSV file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    log_provenance(f"Lasso regression completed. Non-zero features: {_lasso_non_zero_count}")
+    rows = []
+    for feature, coef in lasso_results["coefficients"].items():
+        rows.append({
+            "feature": feature,
+            "coefficient": coef,
+            "is_selected": 1 if coef != 0 else 0
+        })
+        
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
+    
+    # Also save summary metrics
+    summary = {
+        "non_zero_features": lasso_results["non_zero_features"],
+        "cv_score": lasso_results["cv_score"],
+        "alpha": lasso_results["alpha"]
+    }
+    summary_path = output_path.replace(".csv", "_summary.json")
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+        
+    log_provenance(f"Lasso results saved to {output_path}")
 
-def run_analysis_pipeline() -> None:
-    """Runs the full analysis pipeline."""
+@log_operation
+def perform_residual_normality_validation(residuals):
+    """
+    Perform Shapiro-Wilk test for residual normality.
+    
+    Args:
+        residuals: Array-like of residuals.
+        
+    Returns:
+        dict: Validation results (shapiro_statistic, shapiro_p_value).
+    """
+    stat, p = stats.shapiro(residuals)
+    return {
+        "shapiro_statistic": float(stat),
+        "shapiro_p_value": float(p)
+    }
+
+def run_analysis_pipeline():
+    """
+    Main pipeline to run correlation, regression, and VIF diagnostics.
+    This function orchestrates the analysis steps and saves all required outputs.
+    """
     log_pipeline_start("Analysis Pipeline")
     
-    df = load_processed_data()
-    
-    # Check zero variance
-    if check_zero_variance(df, 'fluid_intelligence'):
-        log_zero_variance_warning('fluid_intelligence')
-        log_pipeline_end("Analysis Pipeline (Skipped due to zero variance)")
-        return
-
-    # Correlation
-    r, p, n = compute_spearman_correlation(df, 'shannon_index', 'fluid_intelligence')
-    save_correlation_results(r, p, n)
-
-    # Regression
-    reg_results = run_multivariate_regression(df)
-    save_regression_results(reg_results)
-    
-    # VIF
-    predictors = [col for col in reg_results.params.index if col != 'Intercept']
-    vif_data = calculate_vif(df, predictors)
-    save_vif_results(vif_data)
-
-    # Residual Validation
-    perform_residual_normality_validation(reg_results)
-
-    # Lasso (Secondary Path)
-    run_lasso_regression(df)
-
-    log_pipeline_end("Analysis Pipeline")
-
-def main() -> None:
-    run_analysis_pipeline()
+    try:
+        # 1. Load cleaned data
+        df = load_processed_data()
+        
+        # 2. Check for zero variance
+        zero_var_cols = check_zero_variance(df)
+        log_zero_variance_warning(zero_var_cols)
+        
+        # 3. Compute Spearman correlation (Shannon vs Fluid Intelligence)
+        # Assuming columns 'shannon_index' and 'fluid_intelligence_score' exist
+        if 'shannon_index' in df.columns and 'fluid_intelligence_score' in df.columns:
+            r, p, n = compute_spearman_correlation(df, 'shannon_index', 'fluid_intelligence_score')
+            save_correlation_results(r, p, n)
+        else:
+            log_warning("Required columns for correlation analysis not found.")
+        
+        # 4. Prepare features for regression
+        # Exclude target and ID columns
+        exclude_from_features = ['participant_id', 'fluid_intelligence_score', 'shannon_index']
+        if not DQS_REQUIRED and 'dietary_quality_score' in df.columns:
+            exclude_from_features.append('dietary_quality_score')
+            
+        feature_cols = [c for c in df.select_dtypes(include=[np.number]).columns 
+                        if c not in exclude_from_features]
+        
+        if not feature_cols:
+            log_warning("No features available for regression.")
+            feature_cols = []
+        
+        # 5. Run Multivariate Regression
+        if feature_cols and 'fluid_intelligence_score' in df.columns:
+            try:
+                reg_results = run_multivariate_regression(df, 'fluid_intelligence_score', feature_cols)
+                save_regression_results(reg_results)
+            except Exception as e:
+                log_warning(f"Regression failed: {e}")
+        
+        # 6. Run Lasso Regression
+        if feature_cols and 'fluid_intelligence_score' in df.columns:
+            try:
+                lasso_results = run_lasso_regression(df, 'fluid_intelligence_score', feature_cols)
+                save_lasso_results(lasso_results)
+            except Exception as e:
+                log_warning(f"Lasso failed: {e}")
+        
+        # 7. Calculate VIF (Multicollinearity Diagnostics) - T024b
+        # We use the same feature set as regression
+        if feature_cols:
+            vif_dict = calculate_vif(df, exclude_cols=exclude_from_features)
+            save_vif_results(vif_dict)
+        else:
+            log_warning("Skipping VIF calculation: no features available.")
+            save_vif_results({})
+            
+        log_pipeline_end("Analysis Pipeline completed successfully.")
+        
+    except Exception as e:
+        log_pipeline_end("Analysis Pipeline failed.", error=str(e))
+        raise
 
 def main():
+    """Entry point for the analysis script."""
     run_analysis_pipeline()
 
 if __name__ == "__main__":

@@ -1,55 +1,41 @@
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No filtering script, code snippet, or resulting dataset was provided, and there
-    is no evidence that the dependency T014b was checked. Without an artifact showing
-    participants with null alpha diversity, fluid intelligence, or DQS are excluded,
-    the task requirement is not satisfied.
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log file implementing the required imputation (median for\
-    \ Age, BMI, DQS; mode for Sex) is present, nor any evidence that the strategy\
-    \ was logged to `provenance.log`. Without these artifacts, the task\u2019s core\
-    \ requirement is not satisfied."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test artifacts were provided that demonstrate added error\
-    \ handling for missing input files or for the case of an empty dataset (zero participants).\
-    \ Without concrete files showing try/except blocks, file\u2011existence checks,\
-    \ or logic that gracefully handles a dataset with no rows, the requirement cannot\
-    \ be verified as met. The implementer must supply the updated preprocessing script\
-    \ (or relevant module) and evidence (e.g., unit tests or example runs) showing\
-    \ the new error handling in action."
 T020b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, test, or documentation was provided showing a verification step that
     checks column types and raises the required `ValueError`. The required artifact
     implementing this logic is missing.
-T022:
+T022a:
   c: false
-  h: b07c6198e3e49325fecfb0faf5ec292ec3d04cbaaa5ca1186986926f5139fb20
-  r: "The repository lacks `data/processed/correlation_results.csv`, and the provided\
-    \ `code/analysis.py` snippet does not contain any implementation of the required\
-    \ Spearman rank correlation (no function checking raw counts, raising `ValueError`,\
-    \ or writing the `r_value`, `p_value`, `n_obs` columns). The task\u2019s core\
-    \ functionality and output file are missing."
-T023:
+  h: 10f4c94a9e0268c302f3b6d5cbe146969d09551f0e28201c354d107a094435af
+  r: "The repository contains `code/analysis.py`, but the shown portion ends before\
+    \ any implementation that computes a Spearman correlation and writes `data/processed/correlation_results.csv`.\
+    \ Moreover, the required file `data/processed/correlation_results.csv` is missing\
+    \ entirely, so the task\u2019s output artifact does not exist. The implementer\
+    \ must add the correlation logic (using the raw Shannon Index) and ensure the\
+    \ CSV with columns `r_value`, `p_value`, `n_obs` is created."
+T022b:
   c: false
-  h: 7936018b42afb012c031cf3e07c04f5da396d85506daad1aaad6eae5f4042136
-  r: "The provided `code/analysis.py` contains no multivariate regression logic, no\
-    \ handling of the DQS column, and does not write `data/processed/regression_results.csv`.\
-    \ Moreover, the required `regression_results.csv` file is absent from the repository.\
-    \ The task\u2019s core requirements are therefore unmet."
-T024:
+  h: 10f4c94a9e0268c302f3b6d5cbe146969d09551f0e28201c354d107a094435af
+  r: "The required file `data/processed/correlation_results.csv` does not exist, and\
+    \ the provided `code/analysis.py` snippet is truncated before any code that computes\
+    \ the Spearman correlation and writes the required columns (`r_value`, `p_value`,\
+    \ `n_obs`). The task\u2019s core output is missing."
+T024a:
   c: false
-  h: 44db0b5b419c35653c6a297dff66f65bcd88b5bf6ccee7d6d828b509e681d9a2
-  r: The repository contains a `calculate_vif` implementation and a `save_vif_results`
-    function that would write `data/processed/vif_results.json`, but the JSON file
-    is not present on disk, and the provided code snippet does not show the function
-    being invoked to generate it. Hence the required output artifact is missing.
+  h: e98046fe043a1428e50a2e2db5e10dd598329ef5dababe975af0afb667f4f89c
+  r: "The repository contains the VIF calculation functions in `code/analysis.py`,\
+    \ but the required output file `data/processed/vif_results.json` is missing, so\
+    \ the task\u2019s core deliverable (saving VIF values to that JSON and ensuring\
+    \ it contains all predictor keys with positive values) has not been fulfilled.\
+    \ The next implementer must generate the VIF results and write them to the specified\
+    \ JSON file."
+T024b:
+  c: false
+  h: e98046fe043a1428e50a2e2db5e10dd598329ef5dababe975af0afb667f4f89c
+  r: The repository contains `code/analysis.py` with VIF calculation and a `save_vif_results`
+    function, but the required output file `data/processed/vif_results.json` is missing,
+    so the VIF values are not actually saved nor can they be verified. The task is
+    therefore not completed.
 T052:
   c: false
   h: 1f16545d81d59cbc65c846ea3a30929f36f5a572cabaccfcf2154afd921017a7

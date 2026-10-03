@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "log_pipeline_start",
+    "owner": null
+  }
+]

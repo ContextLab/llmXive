@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-077-investigating-the-correlation-between-gu",
-  "stage": "tasked",
-  "class": "permanent",
-  "fingerprint": "template_rejection",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-14T18:38:23.863529+00:00",
-  "last_seen": "2026-08-09T18:51:59.313184+00:00",
+  "stage": "planned",
+  "class": "emitter_context",
+  "fingerprint": "tasker_zero_tasks",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-03T17:04:23.554929+00:00",
+  "last_seen": "2026-10-03T17:04:23.554929+00:00",
   "retry_after": null,
-  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md.\n  Rules fired: unfilled_bracket_density=31 bracket markers; sample=['[User Story 1]', '[User Story 1]', '[User Story 1]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
-  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md. Rules fired: unfilled_bracket_density=31 bracket markers; sample=['[User Story 1]', '[User Story 1]', '[User Story 1]'] Missing context: High density of [bracketed] placeholders \u2014 likely never fill",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "last_error": "Tasker produced only 3 task IDs (need >= 5; total chars: 37006). Re-running on next cycle.",
+  "evidence": "Tasker produced only 3 task IDs (need >= 5; total chars: 37006). Re-running on next cycle.",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
 }

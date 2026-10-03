@@ -1,4 +1,6 @@
-SpeciesA,SpeciesB,SpeciesC
-10,0,0
-5,5,0
-0,0,10
+participant_id,taxa_Bacteroides,taxa_Firmicutes,taxa_Proteobacteria
+1,100,200,50
+2,150,250,75
+3,120,220,60
+4,180,280,90
+5,140,240,70

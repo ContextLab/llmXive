@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T015a** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_data.csv
+- **T015b** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_data.csv
+- **T022a** — The repository contains `code/analysis.py`, but the shown portion ends before any implementation that computes a Spearman correlation and writes `data/processed/correlation_results.csv`. Moreover, the required file `data/processed/correlation_results.csv` is missing entirely, so the task’s output artifact does not exist. The implementer must add the correlation logic (using the raw Shannon Index) and ensure the CSV with columns `r_value`, `p_value`, `n_obs` is created.
+- **T022b** — The required file `data/processed/correlation_results.csv` does not exist, and the provided `code/analysis.py` snippet is truncated before any code that computes the Spearman correlation and writes the required columns (`r_value`, `p_value`, `n_obs`). The task’s core output is missing.
+- **T024a** — The repository contains the VIF calculation functions in `code/analysis.py`, but the required output file `data/processed/vif_results.json` is missing, so the task’s core deliverable (saving VIF values to that JSON and ensuring it contains all predictor keys with positive values) has not been fulfilled. The next implementer must generate the VIF results and write them to the specified JSON file.
+- **T024b** — The repository contains `code/analysis.py` with VIF calculation and a `save_vif_results` function, but the required output file `data/processed/vif_results.json` is missing, so the VIF values are not actually saved nor can they be verified. The task is therefore not completed.

@@ -19,15 +19,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py", line 8, in <module>
-    from data_ingestion import run_ingestion_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/data_ingestion.py", line 3, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py", line 45, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py", line 18, in main
+    log_pipeline_start("Gut Microbiome and Cognitive Performance Analysis")
+TypeError: log_pipeline_start() takes 0 positional arguments but 1 was given
 - python -c "import pandas as pd; df = pd.read_csv('data/processed/cleaned_data.csv'); print(df.shape); print(df.isnull().sum())" -> rc=1
-    Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-ModuleNotFoundError: No module named 'pandas'
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1907, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/cleaned_data.csv'
 
 ## Declared deliverables still missing
 
@@ -38,6 +49,104 @@ ModuleNotFoundError: No module named 'pandas'
 - data/processed/regression_diagnostics.json
 - data/processed/regression_results.csv
 - data/processed/vif_results.json
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `log_pipeline_start` — defined in `code/logging_config.py`; called 5 way(s):
+
+- code/diversity.py: log_pipeline_start("diversity_pipeline")
+- code/main.py: log_pipeline_start("Gut Microbiome and Cognitive Performance Analysis")
+- code/verify_data_source.py: log_pipeline_start("verify_data_source")
+- code/save_regression_results.py: log_pipeline_start("save_regression_results")
+- code/analysis.py: log_pipeline_start("Analysis Pipeline")
+
+Make `log_pipeline_start` in `code/logging_config.py` accept ALL of the above.
+
+## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+
+`code/logging_config.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/logging_config.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+
+```python
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
+
+
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+```
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -73,3 +182,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/vif_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/vif_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `data/processed/cleaned_data.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/diversity.py`, `code/data_ingestion.py`, `code/analysis.py`, `code/save_cleaned_data.py`, `code/residual_validation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/diversity.py`, `code/data_ingestion.py`, `code/analysis.py`, `code/residual_validation.py`.

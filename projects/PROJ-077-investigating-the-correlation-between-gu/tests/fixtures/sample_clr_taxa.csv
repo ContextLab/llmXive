@@ -1,3 +1,6 @@
-TaxaA,TaxaB,TaxaC
-10,10,10
-20,20,20
+participant_id,taxa_Bacteroides,taxa_Firmicutes,taxa_Proteobacteria
+1,-0.405,0.405,0.0
+2,-0.405,0.405,0.0
+3,-0.405,0.405,0.0
+4,-0.405,0.405,0.0
+5,-0.405,0.405,0.0

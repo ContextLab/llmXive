@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T08:49:37.748390Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-077-investigating-the-correlation-between-gu
-last_run_id: fbdc75f2-8920-41be-a217-080c9e0b0872
+last_run_id: f3404946-2bd7-43f8-9bfa-1dfab2b4b9ac
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Diversity and Cognitive
   Performance Using UK Biobank Data
-updated_at: '2026-10-02T04:04:30.841035Z'
+updated_at: '2026-10-03T17:01:56.513346Z'

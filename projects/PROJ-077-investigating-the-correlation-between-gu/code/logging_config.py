@@ -1,70 +1,97 @@
-"""
-Logging Configuration Module.
-Sets up logging infrastructure for the pipeline to record provenance and warnings.
-"""
-import logging
-import os
-import sys
-from pathlib import Path
-from config import ensure_directories
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-# Singleton logger instance
-_logger = None
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
-def get_logger(name: str = "llmXive_pipeline") -> logging.Logger:
-    """Returns the configured logger instance."""
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        # Prevent adding handlers if already configured (e.g., in tests)
-        if not _logger.handlers:
-            _logger.setLevel(logging.INFO)
-            
-            # Console handler
-            ch = logging.StreamHandler(sys.stdout)
-            ch.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            ch.setFormatter(formatter)
-            _logger.addHandler(ch)
-            
-            # File handler (provenance.log)
-            ensure_directories()
-            log_file = Path("data/processed/provenance.log")
-            # Ensure the directory exists before creating the file handler
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            fh.setFormatter(formatter)
-            _logger.addHandler(fh)
-    
-    return _logger
 
-def log_provenance(message: str):
-    """Logs a provenance message for data lineage tracking."""
-    logger = get_logger()
-    logger.info(f"[PROVENANCE] {message}")
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-def log_warning(message: str):
-    """Logs a warning message (e.g., zero variance detection, missing data)."""
-    logger = get_logger()
-    logger.warning(f"[WARNING] {message}")
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
-def log_imputation_strategy(message: str):
-    """Logs the imputation strategy used for missing values."""
-    logger = get_logger()
-    logger.info(f"[IMPUTATION] {message}")
 
-def log_data_filtering(message: str):
-    """Logs details about data filtering steps (e.g., null removal)."""
-    logger = get_logger()
-    logger.info(f"[FILTERING] {message}")
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
 
-def log_pipeline_start():
-    """Logs the start of the pipeline execution."""
-    logger = get_logger()
-    logger.info("Pipeline started.")
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
 
-def log_pipeline_end():
-    """Logs the successful completion of the pipeline execution."""
-    logger = get_logger()
-    logger.info("Pipeline finished.")
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+
+
+def log_pipeline_start(operation_name: str = "Pipeline") -> None:
+    """Log the start of a pipeline."""
+    get_logger().log("pipeline_start", operation=operation_name, status="started")
+
+
+def log_pipeline_end(operation_name: str = "Pipeline", error: str = None) -> None:
+    """Log the end of a pipeline."""
+    status = "completed" if error is None else "failed"
+    params = {"operation": operation_name, "status": status}
+    if error:
+        params["error"] = error
+    get_logger().log("pipeline_end", **params)
+
+
+def log_provenance(message: str) -> None:
+    """Log a provenance message."""
+    get_logger().log("provenance", message=message)
+
+
+def log_warning(message: str) -> None:
+    """Log a warning message."""
+    get_logger().log("warning", message=message)

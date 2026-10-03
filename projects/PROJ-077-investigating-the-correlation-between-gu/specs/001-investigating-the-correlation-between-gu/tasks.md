@@ -137,7 +137,7 @@ ALLOW_LOCAL_DATA = True
 
 - [X] T052a-2 [P] Initialize State Checksum Registry: Calculate MD5/SHA256 checksums for files in `data/raw/` and record them in `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`. **Dependency**: T052a-1. **Verification**: Run the script with data files and verify checksums are recorded in the YAML.
 
-- [X] T052-1 [P] Add data provenance check: In `projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py` (or a dedicated script), calculate checksums for input files in `data/raw/`. **Dependency**: T052a (registry created). **Execution order**: T052 MUST run AFTER T052a. **Logic**: If files exist, calculate checksums. **Verification**: Run the script with data files and verify checksums are calculated.
+- [ ] T052-1 [P] Add data provenance check: In `projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py` (or a dedicated script), calculate checksums for input files in `data/raw/`. **Dependency**: T052a (registry created). **Execution order**: T052 MUST run AFTER T052a. **Logic**: If files exist, calculate checksums. **Verification**: Run the script with data files and verify checksums are calculated.
 
 - [X] T052-2 [P] Add data provenance check: Compare calculated checksums with those recorded in `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`. **Dependency**: T052-1. **Execution order**: T052 MUST run AFTER T052a. **Logic**: If mismatch, raise `ValueError`. If registry empty and data expected, raise `FileNotFoundError`. If registry empty and data not expected (fresh run), proceed.
 **Verification**: Run the script with mismatched checksums and verify `ValueError` is raised.
@@ -213,9 +213,9 @@ logging.basicConfig(
 - [X] T008a-2 [P] Create test fixture: Verify `tests/fixtures/sample_imputation.csv` contains expected columns and NaN values.
 **Verification**: Verify file exists and contains expected columns and NaN values.
 
-- [X] T011a-1 [P] [User Story 1] Load raw microbiome data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
+- [ ] T011a-1 [P] [User Story 1] Load raw microbiome data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
 
-- [X] T011a-2 [P] [User Story 1] Load raw cognitive data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
+- [ ] T011a-2 [P] [User Story 1] Load raw cognitive data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
 
 - [X] T011b-1 [P] [User Story 1] Merge DataFrames by participant ID with fallback logic. **Dependency**: T011a. **Logic**: Merge strategy: `how='inner'`. **Verification**: Run on valid data and verify merged DataFrame has correct rows.
 
@@ -237,17 +237,17 @@ logging.basicConfig(
 - [X] T013b [P] [User Story 1] Implement imputation logic: In `code/data_ingestion.py`, apply Median for Age, BMI, DQS; Mode for Sex. **CRITICAL**: This task implements the corrected logic from the Plan's 'Spec Conflict Resolution' table (replacing Spec's erroneous 'median for sex' with 'Mode for Sex'). See Plan.md: Spec Conflict Resolution, FR-007 correction. **Dependency**: T012.
 **Verification**: Run on data with NaNs and verify imputation values match Median/Mode.
 
-- [ ] T009a [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
+- [X] T009a [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
 
-- [ ] T009b [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
+- [X] T009b [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
 
-- [ ] T010a [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
+- [X] T010a [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
 
-- [ ] T010b [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
+- [X] T010b [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
 
-- [X] T015a [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row.
+- [ ] T015a [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row.
 
-- [X] T015b [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row.
+- [ ] T015b [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row. <!-- FAILED: unspecified -->
 
 - [X] T016a [P] [User Story 1] Add error handling: Implement checks for missing files and empty datasets. **Verification**: Run on missing files and verify appropriate error is raised.
 
@@ -275,13 +275,13 @@ logging.basicConfig(
 - [X] T019a-2 [P] [User Story 2] Create test fixture: Generate `tests/fixtures/mock_correlation.csv`.
 **Verification**: Verify file exists and contains mock correlation data.
 
-- [X] T019b-1 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
+- [ ] T019b-1 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
 **Verification**: Run `pytest tests/integration/test_analysis.py::test_spearman_correlation_pvalue_calc` and verify it fails as expected.
 
-- [X] T019b-2 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
+- [ ] T019b-2 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
 **Verification**: Run `pytest tests/integration/test_analysis.py::test_spearman_correlation_pvalue_calc` and verify it fails as expected.
 
-- [X] T020a [P] [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: T011a. **Verification**: Run on raw counts and verify Shannon index is calculated correctly.
+- [X] T020a [P] [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: T011a. **Verification**: Run on raw counts and verify Shannon index is calculated correctly. <!-- FAILED: unspecified -->
 
 - [X] T020b [P] [User Story 2] Verify Input Integrity: Implement a validation function in `code/diversity.py` to raise ValueError if input is non-numeric or malformed. The input can be integer counts or float relative abundances; both are valid per Spec. **Dependency**: T020. **Verification**: Run `pytest tests/unit/test_diversity.py` and verify the test passes.
 
@@ -289,41 +289,41 @@ logging.basicConfig(
 
 - [X] T021b [P] [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path). **Dependency**: T011a. **Verification**: Run on taxa matrix and verify CLR output matches expected values.
 
-- [X] T022a [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
+- [ ] T022a [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
 
-- [X] T022b [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
+- [ ] T022b [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
 
 - [X] T023a-1 [P] [User Story 2] Prepare feature matrix for regression: Handle missing DQS gracefully if `DQS_REQUIRED` is False (exclude column), else raise error. **Dependency**: T015. **Verification**: Run on cleaned data and verify feature matrix is prepared correctly.
 
 - [X] T023a-2 [P] [User Story 2] Prepare feature matrix for regression: Handle missing DQS gracefully if `DQS_REQUIRED` is False (exclude column), else raise error. **Dependency**: T015. **Verification**: Run on cleaned data and verify feature matrix is prepared correctly.
 
-- [X] T023b-1 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
+- [ ] T023b-1 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
 
-- [X] T023b-2 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
+- [ ] T023b-2 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
 
-- [X] T023c-1 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T023c-1 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
 
-- [X] T023c-2 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T023c-2 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
 
-- [X] T024a [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
+- [ ] T024a [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
 
-- [X] T024b [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
+- [ ] T024b [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
 
-- [X] T025b-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+- [ ] T025b-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
 
-- [X] T025b-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+- [ ] T025b-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
 
-- [X] T025c-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+- [ ] T025c-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
 
-- [X] T025c-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+- [ ] T025c-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
 
-- [X] T026a [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T026a [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
 
-- [X] T026b [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T026b [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
 
-- [X] T027a [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T027a [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
 
-- [X] T027b [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+- [ ] T027b [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
 
 - [X] T041a [P] [User Story 2] Implement Lasso regression. **Dependency**: T021, T015. **Logic**: Use CLR-transformed taxa.
 **Verification**: Run on CLR data and verify Lasso coefficients are calculated.
@@ -331,18 +331,18 @@ logging.basicConfig(
 - [X] T041b [P] [User Story 2] Implement Lasso regression. **Dependency**: T021, T015. **Logic**: Use CLR-transformed taxa.
 **Verification**: Run on CLR data and verify Lasso coefficients are calculated.
 
-- [X] T042a [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
+- [ ] T042a [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
 
-- [X] T042b [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
+- [ ] T042b [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
 
 ## Phase 5: User Story 3 - Statistical Correction and Visualization (Priority: P3)
 
 **Goal**: Apply FDR correction to p-values and generate publication-quality plots.
 
-- [X] T043a [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
+- [ ] T043a [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
 **Verification**: Run on mock p-values and verify q-values are calculated correctly.
 
-- [X] T043b [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
+- [ ] T043b [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
 **Verification**: Run on mock p-values and verify q-values are calculated correctly.
 
 - [X] T044a [P] [User Story 3] Create test fixture: Generate `tests/fixtures/mock_plot_data.csv`.
@@ -351,9 +351,9 @@ logging.basicConfig(
 - [X] T044b [P] [User Story 3] Create test fixture: Generate `tests/fixtures/mock_plot_data.csv`.
 **Verification**: Verify file exists and contains expected plot data.
 
-- [X] T045a [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
+- [ ] T045a [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
 
-- [X] T045b [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
+- [ ] T045b [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
 
 - [X] T046a [P] [User Story 3] Save corrected q-values: Write the adjusted p-values to `data/processed/corrected_results.csv`. **Verification**: Verify CSV has column `q_value` and row count matches input.
 
@@ -389,9 +389,9 @@ logging.basicConfig(
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-- [X] T053a [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
+- [ ] T053a [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
 
-- [X] T053b [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
+- [ ] T053b [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
 
 - [X] T054a [P] Write `README.md` with instructions to run the pipeline and expected outputs. **Verification**: Verify `README.md` contains sections: "Installation", "Running the Pipeline", "Expected Outputs" with at least one sentence each.
 
@@ -405,6 +405,6 @@ logging.basicConfig(
 
 - [X] T056b [P] Verify all output files match the schema defined in `contracts/`. **Verification**: Run `python code/validate_schemas.py` and verify it exits with code 0.
 
-- [X] T057a [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.
+- [ ] T057a [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.
 
-- [X] T057b [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.
+- [ ] T057b [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.

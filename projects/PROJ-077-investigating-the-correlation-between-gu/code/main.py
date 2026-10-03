@@ -4,41 +4,36 @@ from pathlib import Path
 from config import ensure_directories, RANDOM_SEED, SAMPLE_LIMIT
 from config_validation import validate_configuration
 from logging_config import get_logger, log_pipeline_start, log_pipeline_end, log_provenance
-
 from data_ingestion import run_ingestion_pipeline
-from save_cleaned_data import save_cleaned_dataset
-
-logger = get_logger(__name__)
+from diversity import run_diversity_pipeline
+from transformation import run_transformation_pipeline
+from analysis import run_analysis_pipeline
 
 def main():
-    """
-    Main entry point for the entire pipeline.
-    Orchestrates data ingestion, cleaning, and saving.
-    """
+    """Orchestrate the full pipeline."""
     log_pipeline_start("Gut Microbiome and Cognitive Performance Analysis")
-    logger.info("Starting main pipeline")
     
-    # Validate configuration
-    validate_configuration()
-    
-    # Ensure directories exist
-    ensure_directories(["data/raw", "data/processed", "code", "tests", "logs"])
-    
-    # Run data ingestion pipeline
     try:
-        cleaned_df = run_ingestion_pipeline()
-        logger.info(f"Ingestion completed: {len(cleaned_df)} rows")
-    
-        # Save cleaned dataset
-        output_path = save_cleaned_dataset(cleaned_df)
-        logger.info(f"Cleaned data saved to: {output_path}")
-    
-        log_provenance("Pipeline execution completed successfully")
-        log_pipeline_end("Success")
-    
+        # 1. Setup
+        ensure_directories()
+        validate_configuration()
+        
+        # 2. Data Ingestion (T011-T015)
+        run_ingestion_pipeline()
+        
+        # 3. Diversity Analysis (T020)
+        run_diversity_pipeline()
+        
+        # 4. Transformation (T021)
+        run_transformation_pipeline()
+        
+        # 5. Analysis (T022, T023, T024)
+        run_analysis_pipeline()
+        
+        log_pipeline_end("Pipeline completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        log_pipeline_end("Failure")
+        log_pipeline_end("Pipeline failed.", error=str(e))
         raise
 
 if __name__ == "__main__":

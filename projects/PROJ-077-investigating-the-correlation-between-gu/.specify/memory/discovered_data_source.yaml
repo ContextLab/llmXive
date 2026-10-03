@@ -1,15 +1,15 @@
 status: none
-intent: download UK Biobank gut microbiome OTU table and fluid intelligence scores
-  python package dataset
+intent: UK Biobank microbiome sequencing data fluid intelligence scores python package
+  dataset
 required_fields:
 - participant_id
-- otu_id
-- taxon_abundance
+- microbiome_otu_id
+- microbiome_count
 - fluid_intelligence_score
-- bmi
 - age
 - sex
-- dietary_quality_score
-cache_key: cfcc2e1e1c2c7cd781f9393a8202e07d4b634880563064c882afa5edcb7f1c72
-searched_at: '2026-10-02T03:25:05.027725+00:00'
+- BMI
+- diet_quality_score
+cache_key: 58011d94b3022e555ef38180affe33b9986e86fcb5e8cb07c89c6b14a5bc1c34
+searched_at: '2026-10-03T16:28:28.181353+00:00'
 retry_count: 1
