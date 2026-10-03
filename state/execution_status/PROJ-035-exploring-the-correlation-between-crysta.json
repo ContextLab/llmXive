@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-035-exploring-the-correlation-between-crysta",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python src/main.py --seed 42; 6 declared deliverable(s) absent: data/cleaned/merged_perovskite.csv; data/cleaned/provenance_report.json; data/descriptors.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/descriptors/compute_descriptors.py: self-declared fabricated metric \u2014 \u201c\u2026ceholder implementation using dummy values if ionic radii not available\u2026\u201d; 1 command(s) failed: python code/src/main.py --seed 42 (rc=1); 7 declared deliverable(s) absent: data/cleaned/merged_perovskite.csv; data/cleaned/normalized_thermal.csv; data/cleaned/provenance_report.json",
   "artifacts": [],
   "failures": [
-    "python src/main.py --seed 42 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/src/main.py': [Errno 2] No such file or directory"
+    "python code/src/main.py --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/code/src/main.py\", line 15, in <module>\n    from src.ingest.fetch_thermal import main as fetch_thermal_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta/src/ingest/fetch_thermal.py\", line 29, in <module>\n    from src.config.env import load_api_key, setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-035-exploring-the-correlation-between-crysta"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-24T01:46:29Z"
+  "updated_at": "2026-10-03T01:16:31Z"
 }

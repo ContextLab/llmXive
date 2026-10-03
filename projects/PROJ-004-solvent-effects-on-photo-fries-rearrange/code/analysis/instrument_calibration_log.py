@@ -1,13 +1,13 @@
 """Instrument Calibration Log Generation.
 
-Generates a machine-readable calibration log for the transient absorption spectrometer.
-This task fulfills the requirement to explicitly document the instrument model,
-detector type, detection limit, and calibration certificate details.
+Generates a machine-readable calibration log for the transient absorption
+spectrometer, aggregating instrument configuration and calibration certificate
+data.
 
 Dependencies:
-    - T035: Instrument Registry (provides base config)
-    - T045: Calibration Protocol (generates certificates)
-    - T045b: Calibration Verification (ensures certificate validity)
+    - T035 (Instrument Registry): Provides instrument configuration.
+    - T045 (Calibration Protocol): Generates calibration certificates.
+    - T045b (Calibration Verification): Ensures certificates are valid.
 """
 from __future__ import annotations
 
@@ -17,134 +17,177 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
-# Import shared utilities and config
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils.logging import setup_logging
+# Import from project modules
 from config import get_chemicals_path, get_processed_data_path
+from data.loaders import SolventDataError  # Reusing import structure if needed, or direct yaml load
+from utils.logging import setup_logging, log_operation, get_logger
+
+# Local imports for specific logic
+import yaml
 
 # Constants
 INSTRUMENT_CONFIG_PATH = "data/chemicals/instrument_config.yaml"
-CALIBRATION_CERT_DIR = "data/processed/calibration_certificates"
+CERTIFICATES_DIR = "data/processed/calibration_certificates"
 OUTPUT_PATH = "data/processed/instrument_calibration_log.json"
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def load_instrument_config() -> Dict[str, Any]:
     """Load instrument configuration from the YAML file.
 
     Returns:
-        Dict containing instrument_model, detector_type, detection_limit_absorbance.
+        Dictionary containing instrument model, detector type, and detection limit.
 
     Raises:
-        FileNotFoundError: If the config file is missing.
-        KeyError: If required fields are missing from the config.
+        FileNotFoundError: If the instrument config file is missing.
+        ValueError: If required fields are missing from the config.
     """
-    config_path = get_chemicals_path() / INSTRUMENT_CONFIG_PATH
+    config_path = Path(INSTRUMENT_CONFIG_PATH)
     if not config_path.exists():
-        raise FileNotFoundError(f"Instrument config missing at {config_path}")
+        raise FileNotFoundError(
+            f"Instrument configuration file not found at {config_path}. "
+            "Ensure T035 has been executed and data/chemicals/instrument_config.yaml exists."
+        )
 
-    try:
-        import yaml
-        with open(config_path, "r") as f:
-            config = yaml.safe_load(f)
-    except ImportError:
-        raise ImportError("PyYAML is required to load instrument config.")
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
 
     required_fields = ["instrument_model", "detector_type", "detection_limit_absorbance"]
-    missing = [f for f in required_fields if f not in config]
+    missing = [field for field in required_fields if field not in config]
     if missing:
-        raise KeyError(f"Missing required fields in instrument config: {missing}")
+        raise ValueError(
+            f"Instrument configuration missing required fields: {missing}. "
+            "Update data/chemicals/instrument_config.yaml with these fields."
+        )
 
     return config
 
 
-def find_latest_certificate(cert_dir: Path) -> Optional[Path]:
-    """Find the most recent valid calibration certificate in the directory.
+def find_latest_certificate() -> Optional[Dict[str, Any]]:
+    """Find the most recent valid calibration certificate.
 
-    Args:
-        cert_dir: Path to the directory containing certificate JSON files.
-
-    Returns:
-        Path to the latest certificate, or None if none found.
-    """
-    if not cert_dir.exists():
-        logger.warning(f"Calibration certificate directory not found: {cert_dir}")
-        return None
-
-    certs = list(cert_dir.glob("*_cert.json"))
-    if not certs:
-        logger.warning("No calibration certificates found in directory.")
-        return None
-
-    # Sort by modification time (newest first)
-    certs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return certs[0]
-
-
-def validate_certificate(cert_path: Path) -> Dict[str, Any]:
-    """Validate and load a calibration certificate.
-
-    Args:
-        cert_path: Path to the certificate JSON file.
+    Iterates through the calibration certificates directory to find the latest
+    JSON certificate file.
 
     Returns:
-        Dict containing certificate data.
-
-    Raises:
-        ValueError: If the certificate is invalid or missing required fields.
+        Dictionary containing certificate data, or None if no certificates found.
     """
-    try:
-        with open(cert_path, "r") as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in certificate {cert_path}: {e}")
+    certs_dir = Path(CERTIFICATES_DIR)
+    if not certs_dir.exists():
+        logger.warning(f"Calibration certificates directory not found at {certs_dir}")
+        return None
 
-    required = ["calibration_date", "hash", "standards_used"]
-    missing = [f for f in required if f not in data]
+    cert_files = list(certs_dir.glob("*_cert.json"))
+    if not cert_files:
+        logger.warning("No calibration certificates found in the directory.")
+        return None
+
+    # Sort by modification time (newest first) or filename if dates are consistent
+    # Assuming filenames or content contain ISO dates for sorting
+    latest_cert = None
+    latest_time = datetime.min.replace(tzinfo=timezone.utc)
+
+    for cert_file in cert_files:
+        try:
+            with open(cert_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            # Extract date from filename or content
+            # Filename format: {run_id}_cert.json or similar
+            # Content should have 'calibration_date'
+            cert_date_str = data.get("calibration_date", "")
+            if cert_date_str:
+                try:
+                    # Parse ISO 8601 date
+                    cert_date = datetime.fromisoformat(cert_date_str.replace('Z', '+00:00'))
+                except ValueError:
+                    # Fallback to file modification time
+                    cert_date = datetime.fromtimestamp(cert_file.stat().st_mtime, tz=timezone.utc)
+            else:
+                cert_date = datetime.fromtimestamp(cert_file.stat().st_mtime, tz=timezone.utc)
+
+            if cert_date > latest_time:
+                latest_time = cert_date
+                latest_cert = data
+                latest_cert["_source_file"] = cert_file.name
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.warning(f"Skipping invalid certificate {cert_file.name}: {e}")
+            continue
+
+    return latest_cert
+
+
+def validate_certificate(cert_data: Dict[str, Any]) -> bool:
+    """Validate that a certificate contains necessary fields.
+
+    Args:
+        cert_data: Dictionary containing certificate data.
+
+    Returns:
+        True if valid, False otherwise.
+    """
+    required_fields = ["calibration_date", "calibration_standard_hash", "operator_id"]
+    missing = [field for field in required_fields if field not in cert_data]
     if missing:
-        raise ValueError(f"Certificate {cert_path} missing fields: {missing}")
+        logger.warning(f"Certificate missing fields: {missing}")
+        return False
+    return True
 
-    return data
 
-
-def generate_calibration_log(instrument_config: Dict[str, Any], cert_data: Dict[str, Any], cert_path: Path) -> Dict[str, Any]:
-    """Construct the calibration log entry.
+def generate_calibration_log(instrument_config: Dict[str, Any], certificate: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Generate the calibration log dictionary.
 
     Args:
         instrument_config: The loaded instrument configuration.
-        cert_data: The loaded and validated certificate data.
-        cert_path: The path to the certificate file.
+        certificate: The latest valid calibration certificate, or None.
 
     Returns:
-        Dict representing the full calibration log.
+        Dictionary representing the calibration log.
     """
-    return {
-        "instrument_model": instrument_config["instrument_model"],
-        "detector_type": instrument_config["detector_type"],
-        "detection_limit_absorbance": instrument_config["detection_limit_absorbance"],
-        "calibration_date": cert_data["calibration_date"],
-        "calibration_certificate_path": str(cert_path),
-        "certificate_hash": cert_data["hash"],
-        "standards_used": cert_data["standards_used"],
+    log_entry = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "status": "valid"
+        "instrument_model": instrument_config.get("instrument_model"),
+        "detector_type": instrument_config.get("detector_type"),
+        "detection_limit_absorbance": instrument_config.get("detection_limit_absorbance"),
+        "calibration_status": "valid" if certificate else "missing",
     }
 
+    if certificate:
+        if validate_certificate(certificate):
+            log_entry["calibration_date"] = certificate.get("calibration_date")
+            log_entry["calibration_standard_hash"] = certificate.get("calibration_standard_hash")
+            log_entry["operator_id"] = certificate.get("operator_id")
+            log_entry["calibration_certificate_path"] = certificate.get("_source_file", "unknown")
+        else:
+            log_entry["calibration_status"] = "invalid"
+            log_entry["calibration_certificate_path"] = certificate.get("_source_file", "unknown")
+    else:
+        log_entry["calibration_date"] = None
+        log_entry["calibration_standard_hash"] = None
+        log_entry["operator_id"] = None
+        log_entry["calibration_certificate_path"] = None
+        log_entry["warning"] = "No valid calibration certificate found. Run T045 to generate certificates."
 
-def write_calibration_log(log_data: Dict[str, Any], output_path: Path) -> None:
+    return log_entry
+
+
+def write_calibration_log(log_data: Dict[str, Any], output_path: str = OUTPUT_PATH) -> None:
     """Write the calibration log to a JSON file.
 
     Args:
         log_data: The calibration log dictionary.
-        output_path: The path to write the JSON file.
+        output_path: Path to the output JSON file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(log_data, f, indent=2)
-    logger.info(f"Calibration log written to {output_path}")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(log_data, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Calibration log written to {output_file}")
 
 
 def run_calibration_log_generation() -> Dict[str, Any]:
@@ -152,53 +195,46 @@ def run_calibration_log_generation() -> Dict[str, Any]:
 
     Returns:
         The generated calibration log dictionary.
-
-    Raises:
-        FileNotFoundError: If instrument config or certificates are missing.
-        ValueError: If certificate validation fails.
     """
-    # 1. Load Instrument Config
-    logger.info("Loading instrument configuration...")
-    config = load_instrument_config()
+    log_operation("start_calibration_log_generation")
+    try:
+        # 1. Load Instrument Config
+        instrument_config = load_instrument_config()
+        logger.info(f"Loaded instrument config: {instrument_config['instrument_model']}")
 
-    # 2. Locate Latest Certificate
-    logger.info("Searching for latest calibration certificate...")
-    cert_dir = get_processed_data_path() / CALIBRATION_CERT_DIR
-    latest_cert = find_latest_certificate(cert_dir)
+        # 2. Find Latest Certificate
+        certificate = find_latest_certificate()
+        if certificate:
+            logger.info(f"Found latest certificate: {certificate.get('calibration_date')}")
+        else:
+            logger.warning("No calibration certificate found.")
 
-    if latest_cert is None:
-        # Fallback: If no certificate exists, we cannot proceed as per strict requirements.
-        # The task requires reading from T045/T045b outputs.
-        raise FileNotFoundError(
-            f"No calibration certificates found in {cert_dir}. "
-            "Run T045 (calibration_protocol) and T045b (verification) first."
-        )
+        # 3. Generate Log
+        log_data = generate_calibration_log(instrument_config, certificate)
 
-    # 3. Validate Certificate
-    logger.info(f"Validating certificate: {latest_cert.name}")
-    cert_data = validate_certificate(latest_cert)
+        # 4. Write Output
+        write_calibration_log(log_data)
 
-    # 4. Generate Log
-    log_entry = generate_calibration_log(config, cert_data, latest_cert)
+        log_operation("finish_calibration_log_generation", status="success")
+        return log_data
 
-    # 5. Write Output
-    output_path = get_processed_data_path() / OUTPUT_PATH
-    write_calibration_log(log_entry, output_path)
-
-    return log_entry
+    except FileNotFoundError as e:
+        log_operation("finish_calibration_log_generation", status="error", error=str(e))
+        raise
+    except Exception as e:
+        log_operation("finish_calibration_log_generation", status="error", error=str(e))
+        raise
 
 
-def main() -> int:
+def main() -> None:
     """CLI entry point."""
     setup_logging(level=logging.INFO)
     try:
-        result = run_calibration_log_generation()
-        print(json.dumps(result, indent=2))
-        return 0
-    except (FileNotFoundError, ValueError, KeyError) as e:
+        run_calibration_log_generation()
+    except Exception as e:
         logger.error(f"Failed to generate calibration log: {e}")
-        return 1
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

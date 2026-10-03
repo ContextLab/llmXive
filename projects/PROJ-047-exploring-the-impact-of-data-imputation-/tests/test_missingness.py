@@ -50,6 +50,43 @@ class TestTuneAlpha:
         with pytest.raises(ValueError):
             tune_alpha(0.5, 1.5)
 
+    def test_tune_alpha_extreme_beta_values(self):
+        """
+        Test that tune_alpha correctly converges to the target missingness rate
+        for extreme beta values (0.0 and 1.0), ensuring the sweep covers the full
+        range of MNAR intensity.
+        """
+        target_rate = 0.3
+        rng = np.random.RandomState(42)
+        y_sample = rng.normal(loc=0.0, scale=1.0, size=100000)
+        from scipy.special import expit
+
+        # Test Beta = 0.0 (Pure MAR/Random mechanism if alpha is tuned correctly)
+        # When beta=0, logits = alpha. We need expit(alpha) = target_rate.
+        # alpha = logit(target_rate)
+        beta_zero = 0.0
+        alpha_zero = tune_alpha(beta_zero, target_rate)
+        logits_zero = alpha_zero + beta_zero * y_sample
+        probs_zero = expit(logits_zero)
+        rate_zero = np.mean(probs_zero)
+        
+        assert abs(rate_zero - target_rate) < 0.01, \
+            f"Failed for beta=0.0: expected {target_rate}, got {rate_zero:.4f}"
+
+        # Test Beta = 1.0 (Strong MNAR mechanism)
+        beta_one = 1.0
+        alpha_one = tune_alpha(beta_one, target_rate)
+        logits_one = alpha_one + beta_one * y_sample
+        probs_one = expit(logits_one)
+        rate_one = np.mean(probs_one)
+        
+        assert abs(rate_one - target_rate) < 0.01, \
+            f"Failed for beta=1.0: expected {target_rate}, got {rate_one:.4f}"
+
+        # Verify that the alpha values are different for different betas
+        # (since the relationship between alpha and target rate changes with beta)
+        assert alpha_zero != alpha_one, "Alpha should differ for different beta values to maintain same rate"
+
 class TestInjectMNAR:
     def test_inject_mnar_creates_nan(self):
         """Test that inject_mnar introduces NaN values into Y."""

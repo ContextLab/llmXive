@@ -50,17 +50,15 @@ T035:
     \ missing. This matches the task\u2019s constraints."
 T060:
   c: false
-  h: 21f4ea046a573df3529e7a1cd79f6f8224d807e02d7d54c374be66e0bf6bc4bb
-  r: "The repository contains the implementation script `code/analysis/instrument_calibration_log.py`,\
-    \ but the required output file `data/processed/instrument_calibration_log.json`\
-    \ is absent. Without the generated JSON log, the task\u2019s primary deliverable\
-    \ is not satisfied. The next implementer must ensure the script runs and creates\
-    \ the specified JSON file with the instrument calibration details."
+  h: 248db98afa2d124950f2f7cedcb33d481cde16c97a97be75c2e2173679cff967
+  r: "The required output `data/processed/instrument_calibration_log.json` does not\
+    \ exist, and the provided `instrument_calibration_log.py` is incomplete (truncated)\
+    \ with no evidence that it successfully creates the JSON log. The task\u2019s\
+    \ core deliverable is therefore missing."
 T062:
   c: false
-  h: 1a94a158b90aa0527c63fdaa5b5058e931e2fee57383d4f283abf86bb3bc1790
-  r: The `baseline_verification.py` script is present but appears truncated and does
-    not show the generation of the required `data/processed/baseline_verification_report.json`.
-    Moreover, the JSON report file is missing from the repository. The task is not
-    fully satisfied until the script fully implements the analysis and writes the
-    report file.
+  h: 10511ac6070361fc97040df372cad1bf606ddf92f8ccf877c1a78b52ba418d0c
+  r: "The provided `baseline_verification.py` is truncated, contains a clear bug (`return\
+    \ pre` instead of the expected tuple) and lacks the core comparison logic and\
+    \ JSON report generation. Moreover, the required output file `data/processed/baseline_verification_report.json`\
+    \ does not exist. The task\u2019s deliverables are therefore not satisfied."

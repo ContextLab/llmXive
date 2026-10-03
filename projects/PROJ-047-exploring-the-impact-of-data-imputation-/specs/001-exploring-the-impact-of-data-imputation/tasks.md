@@ -140,13 +140,13 @@
 
 **Purpose**: Address specific reviewer concerns regarding data integrity, statistical robustness, and execution feasibility.
 
-- [ ] T048 [P] [US3] **Explicit MNAR Mechanism Documentation**: Update `code/simulation/missingness.py` and `docs/paper/notes.md` to explicitly document that the "ground truth" refers to the generative parameter and that ATE is not identifiable from observed data. Add a warning log in `main.py` (T029a) that prints this disclaimer before every run.
+- [X] T048 [P] [US3] **Explicit MNAR Mechanism Documentation**: Update `code/simulation/missingness.py` and `docs/paper/notes.md` to explicitly document that the "ground truth" refers to the generative parameter and that ATE is not identifiable from observed data. Add a warning log in `main.py` (T029a) that prints this disclaimer before every run.
 - [ ] T049 [P] [US3] **Robust SE/CI Verification**: Extend `tests/test_se_combination.py` to verify that `apply_bootstrap_ci` and `apply_rubins_rules` produce standard errors within expected bounds for a known synthetic distribution (e.g., normal data with known variance).
 - [ ] T050 [P] [US3] **Convergence Failure Handling**: Enhance `code/analysis/pipeline.py` (T024) to explicitly log the convergence failure reason (e.g., "MICE failed to converge after 10 iterations") and ensure this log is captured in `data/results/run_errors.log` with a unique run ID.
 - [ ] T051 [P] [US3] **Power Analysis Validation**: Update `code/analysis/power.py` to output a detailed report in `data/results/power_analysis.json` that includes the calculated effect size, sample size, and the specific power value, ensuring the "flag if power < 80%" logic is clearly visible in the output.
-- [ ] T052 [P] [US3] **Runtime Optimization**: Profile `code/main.py` (T029a) to identify bottlenecks in the 200-run loop. If runtime exceeds 3.5 hours, implement `joblib.Parallel` with `n_jobs=2` for independent beta-level loops to ensure SC-003 compliance (completion within 4 hours).
-- [ ] T053 [P] [US3] **Schema Rigor**: Add a strict Pydantic model in `code/analysis/schemas.py` for `simulation_summary.csv` and `statistical_test_results.json`. Update T029d and T028 to use these models for validation, raising a `ValidationError` if any field is missing or of the wrong type.
-- [ ] T054 [P] [US3] **MNAR Parameter Sweep Verification**: Add a unit test in `tests/test_missingness.py` to verify that `tune_alpha` correctly converges to the target missingness rate for extreme $\beta$ values (0.0, 1.0), ensuring the sweep covers the full range of MNAR intensity.
+- [X] T052 [P] [US3] **Runtime Optimization**: Profile `code/main.py` (T029a) to identify bottlenecks in the 200-run loop. If runtime exceeds 3.5 hours, implement `joblib.Parallel` with `n_jobs=2` for independent beta-level loops to ensure SC-003 compliance (completion within 4 hours).
+- [X] T053 [P] [US3] **Schema Rigor**: Add a strict Pydantic model in `code/analysis/schemas.py` for `simulation_summary.csv` and `statistical_test_results.json`. Update T029d and T028 to use these models for validation, raising a `ValidationError` if any field is missing or of the wrong type.
+- [X] T054 [P] [US3] **MNAR Parameter Sweep Verification**: Add a unit test in `tests/test_missingness.py` to verify that `tune_alpha` correctly converges to the target missingness rate for extreme $\beta$ values (0.0, 1.0), ensuring the sweep covers the full range of MNAR intensity.
 
 ---
 

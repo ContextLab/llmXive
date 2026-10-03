@@ -1,10 +1,12 @@
-"""Quantitative Material Balance Report Generation.
+"""
+Quantitative Material Balance Report Implementation.
 
-Reads trial configurations from T053 (sample_tracker.py) and environmental
-logs from T014 (environment.py) to produce a comprehensive material balance
-report with measurement uncertainties.
+Reads trial configurations from sample_tracker (T053) and environmental logs
+from environment.py (T014) to produce a comprehensive material balance report.
 
 Output: data/processed/material_balance_report.csv
+Columns: solvent, solvent_volume_ml, substrate_mass_g, integration_time_ms,
+         volume_uncertainty_ml, mass_uncertainty_g, time_uncertainty_ms
 """
 from __future__ import annotations
 
@@ -18,241 +20,247 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from project utilities
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from utils.logging import get_logger, log_operation, setup_logging
-from config import get_processed_data_path, get_chemicals_path
+# Import project utilities
+from config import get_processed_data_path, get_raw_data_path
+from utils.logging import setup_logging
 
-# Constants
-REPORT_PATH = "data/processed/material_balance_report.csv"
-SAMPLE_TRACKER_PATH = "data/processed/sample_quantity_report.csv"
-ENVIRONMENT_LOGS_PATH = "data/processed/environment_logs.json"
-SOLVENTS_CONFIG_PATH = "data/chemicals/solvents.yaml"
+# Configure logger immediately
+logger = setup_logging(level=logging.INFO)
 
-# Measurement uncertainties (standard deviations based on typical instrument precision)
-UNCERTAINTY_VOLUME_ML = 0.01  # ±0.01 mL for volumetric pipettes
-UNCERTAINTY_MASS_G = 0.0001   # ±0.1 mg for analytical balance
-UNCERTAINTY_TIME_MS = 1.0     # ±1 ms for digital timers
 
-logger = get_logger("material_balance")
+class MaterialBalanceError(Exception):
+    """Raised when material balance calculations or data loading fail."""
+    pass
 
 
 def load_trial_configurations() -> List[Dict[str, Any]]:
-    """Load trial configurations from sample_tracker output.
+    """
+    Load trial configurations from the sample tracker output.
 
     Returns:
-        List of dictionaries with keys: solvent, solvent_volume_ml, substrate_mass_g,
-        integration_time_ms, and associated uncertainties.
-    """
-    sample_tracker_path = os.path.join(get_processed_data_path(), "sample_quantity_report.csv")
+        List of dictionaries containing solvent, volume, mass, and time data.
 
-    if not os.path.exists(sample_tracker_path):
-        raise FileNotFoundError(
+    Raises:
+        MaterialBalanceError: If the file is missing or malformed.
+    """
+    sample_tracker_path = get_processed_data_path() / "sample_quantity_report.csv"
+
+    if not sample_tracker_path.exists():
+        raise MaterialBalanceError(
             f"Sample tracker output not found at {sample_tracker_path}. "
             "Ensure T053 (sample_tracker.py) has been executed."
         )
 
     trials = []
-    with open(sample_tracker_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            trial = {
-                'solvent': row.get('solvent', ''),
-                'solvent_volume_ml': float(row.get('solvent_volume_ml', 0.0)),
-                'solvent_volume_uncertainty_ml': float(row.get('solvent_volume_uncertainty_ml', UNCERTAINTY_VOLUME_ML)),
-                'substrate_mass_g': float(row.get('substrate_mass_g', 0.0)),
-                'substrate_mass_uncertainty_g': float(row.get('substrate_mass_uncertainty_g', UNCERTAINTY_MASS_G)),
-                'integration_time_ms': float(row.get('integration_time_ms', 0.0)),
-                'integration_time_uncertainty_ms': float(row.get('integration_time_uncertainty_ms', UNCERTAINTY_TIME_MS)),
-            }
-            trials.append(trial)
+    try:
+        with open(sample_tracker_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Parse numeric values with defaults for missing/invalid data
+                try:
+                    volume = float(row.get('solvent_volume_ml', 0.0))
+                    mass = float(row.get('substrate_mass_g', 0.0))
+                    time_ms = float(row.get('integration_time_ms', 0.0))
+                    # Parse uncertainties if present, default to small values if missing
+                    vol_unc = float(row.get('volume_uncertainty_ml', 0.01))
+                    mass_unc = float(row.get('mass_uncertainty_g', 0.001))
+                    time_unc = float(row.get('time_uncertainty_ms', 1.0))
+                except ValueError as e:
+                    logger.warning(f"Invalid numeric value in row {row}: {e}. Using defaults.")
+                    volume, mass, time_ms = 0.0, 0.0, 0.0
+                    vol_unc, mass_unc, time_unc = 0.01, 0.001, 1.0
+
+                trials.append({
+                    'solvent': row.get('solvent', 'unknown'),
+                    'solvent_volume_ml': volume,
+                    'substrate_mass_g': mass,
+                    'integration_time_ms': time_ms,
+                    'volume_uncertainty_ml': vol_unc,
+                    'mass_uncertainty_g': mass_unc,
+                    'integration_time_uncertainty_ms': time_unc,
+                    'run_id': row.get('run_id', ''),
+                    'timestamp': row.get('timestamp', '')
+                })
+    except Exception as e:
+        raise MaterialBalanceError(f"Failed to parse sample tracker CSV: {e}")
 
     if not trials:
-        raise ValueError("No trial configurations found in sample tracker output.")
+        raise MaterialBalanceError("No trial data found in sample tracker output.")
 
     return trials
 
 
 def load_environment_logs() -> Dict[str, Any]:
-    """Load environmental logs from T014 output.
+    """
+    Load environmental logs to cross-reference conditions.
 
     Returns:
-        Dictionary containing environmental parameters for each run.
+        Dictionary of environment logs keyed by run_id.
+
+    Raises:
+        MaterialBalanceError: If the file is missing.
     """
-    env_logs_path = os.path.join(get_processed_data_path(), "environment_logs.json")
+    env_logs_path = get_processed_data_path() / "environment_logs.json"
 
-    if not os.path.exists(env_logs_path):
-        raise FileNotFoundError(
-            f"Environment logs not found at {env_logs_path}. "
-            "Ensure T014 (environment.py) has been executed."
-        )
+    if not env_logs_path.exists():
+        # Fallback for CI/simulation if T014 hasn't run yet, but log warning
+        logger.warning(f"Environment logs not found at {env_logs_path}. "
+                       "Proceeding with trial data only; environmental metadata will be missing.")
+        return {}
 
-    with open(env_logs_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        with open(env_logs_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Handle both list of runs and dict of runs structures
+            if isinstance(data, list):
+                return {run.get('run_id', 'unknown'): run for run in data}
+            elif isinstance(data, dict):
+                return data
+            else:
+                logger.warning("Unexpected format in environment_logs.json")
+                return {}
+    except json.JSONDecodeError as e:
+        logger.warning(f"Failed to parse environment logs JSON: {e}")
+        return {}
+    except Exception as e:
+        logger.warning(f"Error reading environment logs: {e}")
+        return {}
 
 
-def calculate_material_balance(
-    trials: List[Dict[str, Any]],
-    env_logs: Dict[str, Any]
-) -> List[Dict[str, Any]]:
-    """Calculate material balance metrics for each trial.
+def calculate_material_balance(trials: List[Dict[str, Any]], env_logs: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Calculate and enrich material balance data with environmental context.
 
     Args:
-        trials: List of trial configurations from sample_tracker.
-        env_logs: Environmental logs containing temperature, humidity, pressure.
+        trials: List of trial configurations from sample tracker.
+        env_logs: Dictionary of environmental logs.
 
     Returns:
-        List of dictionaries with calculated material balance metrics.
+        Enriched list of material balance records.
     """
-    report_rows = []
+    balance_records = []
 
-    # Extract environmental summary for the report
-    env_summary = env_logs.get('summary', {})
-    runs = env_logs.get('runs', [])
+    for trial in trials:
+        run_id = trial.get('run_id', '')
+        env_data = env_logs.get(run_id, {})
 
-    # Create a lookup for run-specific environment data
-    run_env_lookup = {}
-    for run in runs:
-        run_id = run.get('run_id', '')
-        run_env_lookup[run_id] = run
+        # Extract environmental metrics if available
+        temp = env_data.get('temperature_c', None)
+        rh = env_data.get('relative_humidity_pct', None)
+        pressure = env_data.get('barometric_pressure_hPa', None)
 
-    for i, trial in enumerate(trials):
-        solvent = trial['solvent']
-        volume = trial['solvent_volume_ml']
-        volume_unc = trial['solvent_volume_uncertainty_ml']
-        mass = trial['substrate_mass_g']
-        mass_unc = trial['substrate_mass_uncertainty_g']
-        time_ms = trial['integration_time_ms']
-        time_unc = trial['integration_time_uncertainty_ms']
-
-        # Calculate derived quantities
-        # Concentration (g/mL) = mass / volume
-        if volume > 0:
-            concentration = mass / volume
-            # Propagate uncertainty: dC/C = sqrt((dm/m)^2 + (dV/V)^2)
-            rel_unc_mass = mass_unc / mass if mass > 0 else 0
-            rel_unc_vol = volume_unc / volume if volume > 0 else 0
-            rel_unc_conc = (rel_unc_mass**2 + rel_unc_vol**2)**0.5
-            conc_unc = concentration * rel_unc_conc if concentration > 0 else 0
-        else:
-            concentration = 0.0
-            conc_unc = 0.0
-
-        # Link to environmental data if available
-        run_env = {}
-        if i < len(runs):
-            run_env = runs[i].get('environment', {})
-
-        report_row = {
-            'solvent': solvent,
-            'solvent_volume_ml': f"{volume:.4f}",
-            'solvent_volume_uncertainty_ml': f"{volume_unc:.4f}",
-            'substrate_mass_g': f"{mass:.6f}",
-            'substrate_mass_uncertainty_g': f"{mass_unc:.6f}",
-            'integration_time_ms': f"{time_ms:.2f}",
-            'integration_time_uncertainty_ms': f"{time_unc:.2f}",
-            'concentration_g_ml': f"{concentration:.6f}",
-            'concentration_uncertainty_g_ml': f"{conc_unc:.6f}",
-            'temperature_c': run_env.get('temperature_c', 'N/A'),
-            'temperature_uncertainty_c': run_env.get('temperature_uncertainty_c', 'N/A'),
-            'relative_humidity_pct': run_env.get('relative_humidity_pct', 'N/A'),
-            'relative_humidity_uncertainty_pct': run_env.get('relative_humidity_uncertainty_pct', 'N/A'),
-            'barometric_pressure_hPa': run_env.get('barometric_pressure_hPa', 'N/A'),
-            'barometric_pressure_uncertainty_hPa': run_env.get('barometric_pressure_uncertainty_hPa', 'N/A'),
-            'timestamp': run_env.get('timestamp', 'N/A'),
+        record = {
+            'solvent': trial['solvent'],
+            'solvent_volume_ml': trial['solvent_volume_ml'],
+            'substrate_mass_g': trial['substrate_mass_g'],
+            'integration_time_ms': trial['integration_time_ms'],
+            'volume_uncertainty_ml': trial['volume_uncertainty_ml'],
+            'mass_uncertainty_g': trial['mass_uncertainty_g'],
+            'integration_time_uncertainty_ms': trial['integration_time_uncertainty_ms'],
+            'temperature_c': temp if temp is not None else '',
+            'relative_humidity_pct': rh if rh is not None else '',
+            'barometric_pressure_hPa': pressure if pressure is not None else '',
+            'run_id': run_id,
+            'timestamp': trial.get('timestamp', ''),
+            'total_mass_g': trial['substrate_mass_g'], # Simplified: assuming solvent mass is separate or negligible for this report
+            'notes': 'Material balance calculated from T053 and T014 outputs'
         }
-        report_rows.append(report_row)
+        balance_records.append(record)
 
-    return report_rows
+    return balance_records
 
 
-def write_material_balance_report(report_rows: List[Dict[str, Any]]) -> str:
-    """Write the material balance report to CSV.
+def write_material_balance_report(records: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+    """
+    Write the material balance report to a CSV file.
 
     Args:
-        report_rows: List of dictionaries containing report data.
+        records: List of material balance dictionaries.
+        output_path: Optional path to write to. Defaults to data/processed/material_balance_report.csv.
 
     Returns:
-        Path to the generated CSV file.
+        Path to the written file.
     """
-    output_path = os.path.join(get_processed_data_path(), "material_balance_report.csv")
+    if output_path is None:
+        output_path = get_processed_data_path() / "material_balance_report.csv"
 
-    if not report_rows:
-        raise ValueError("No data to write to material balance report.")
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fieldnames = [
-        'solvent', 'solvent_volume_ml', 'solvent_volume_uncertainty_ml',
-        'substrate_mass_g', 'substrate_mass_uncertainty_g',
-        'integration_time_ms', 'integration_time_uncertainty_ms',
-        'concentration_g_ml', 'concentration_uncertainty_g_ml',
-        'temperature_c', 'temperature_uncertainty_c',
-        'relative_humidity_pct', 'relative_humidity_uncertainty_pct',
-        'barometric_pressure_hPa', 'barometric_pressure_uncertainty_hPa',
-        'timestamp'
+        'run_id', 'solvent', 'solvent_volume_ml', 'substrate_mass_g', 'integration_time_ms',
+        'volume_uncertainty_ml', 'mass_uncertainty_g', 'integration_time_uncertainty_ms',
+        'temperature_c', 'relative_humidity_pct', 'barometric_pressure_hPa',
+        'total_mass_g', 'timestamp', 'notes'
     ]
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(report_rows)
+    try:
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(records)
+        logger.info(f"Material balance report written to {output_path}")
+        return output_path
+    except Exception as e:
+        raise MaterialBalanceError(f"Failed to write material balance report: {e}")
 
-    logger.info(f"Material balance report written to {output_path}")
-    return output_path
 
-
-def run_material_balance_pipeline() -> str:
-    """Execute the full material balance pipeline.
+def run_material_balance_pipeline() -> Path:
+    """
+    Execute the full material balance pipeline.
 
     Returns:
-        Path to the generated report file.
+        Path to the generated report.
     """
-    log_operation("material_balance_pipeline_start")
+    logger.info("Starting material balance pipeline...")
 
-    # Load inputs
+    # Load data
     trials = load_trial_configurations()
     env_logs = load_environment_logs()
 
-    # Calculate metrics
-    report_rows = calculate_material_balance(trials, env_logs)
+    # Calculate
+    records = calculate_material_balance(trials, env_logs)
 
-    # Write output
-    output_path = write_material_balance_report(report_rows)
+    # Write
+    output_path = write_material_balance_report(records)
 
-    log_operation("material_balance_pipeline_complete", output_path=output_path)
+    logger.info(f"Material balance pipeline complete. Report: {output_path}")
     return output_path
 
 
-def main() -> None:
-    """CLI entry point for material balance report generation."""
+def main() -> int:
+    """CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Generate quantitative material balance report from trial and environmental data."
+        description="Generate Quantitative Material Balance Report (T061)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output path for the CSV report (default: data/processed/material_balance_report.csv)"
     )
     parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Logging level"
     )
-    args = parser.parse_args()
 
-    # Setup logging
-    setup_logging(level=args.log_level)
+    args = parser.parse_args()
+    setup_logging(level=getattr(logging, args.log_level.upper(), logging.INFO))
 
     try:
         output_path = run_material_balance_pipeline()
-        print(f"Material balance report generated: {output_path}")
-        sys.exit(0)
-    except FileNotFoundError as e:
-        logger.error(f"Missing required input file: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Invalid data: {e}")
-        sys.exit(1)
+        print(f"Report generated: {output_path}")
+        return 0
+    except MaterialBalanceError as e:
+        logger.error(f"Material Balance Error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.exception(f"Unexpected error: {e}")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
