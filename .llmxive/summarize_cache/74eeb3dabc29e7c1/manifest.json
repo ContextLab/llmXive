@@ -4,7 +4,7 @@
   "goal": "extract every plan element (phases, contracts, entities, quickstart steps) the tasks must cover",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-10-01T15:59:31.320568+00:00",
+  "created_at": "2026-10-03T01:54:18.800061+00:00",
   "entries": [
     {
       "element_id": "e000",

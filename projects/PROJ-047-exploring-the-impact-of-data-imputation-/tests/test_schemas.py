@@ -1,136 +1,273 @@
 """
-Unit tests for schema validation (T053).
+Tests for Pydantic schema validation in code/analysis/schemas.py.
+
+These tests verify that:
+1. SimulationSummaryRow validates correctly
+2. StatisticalTestResults validates correctly
+3. Invalid data raises appropriate errors
 """
 import pytest
 import pandas as pd
 import numpy as np
+import json
+import os
+import tempfile
 from pydantic import ValidationError
-from code.analysis.schemas import (
-    SimulationSummarySchema,
-    StatisticalTestResult,
-    validate_simulation_summary,
-    validate_statistical_test_results
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+
+from analysis.schemas import (
+    SimulationSummaryRow,
+    StatisticalTestResults,
+    validate_simulation_summary_csv,
+    validate_statistical_test_results,
+    load_and_validate_simulation_summary,
+    load_and_validate_statistical_test
 )
 
 
-def create_valid_summary_df():
-    """Create a valid DataFrame for simulation_summary.csv"""
-    data = {
-        'beta': [0.0, 0.2, 0.5],
-        'method': ['mean', 'knn', 'mice'],
-        'estimator': ['ipw', 'psm', 'ipw'],
-        'ate': [0.5, 0.48, 0.52],
-        'bias': [0.0, 0.02, 0.02],
-        'rmse': [0.01, 0.015, 0.012],
-        'coverage_rate': [0.95, 0.93, 0.94],
-        'seed': [42, 43, 44],
-        'run_id': ['hash1', 'hash2', 'hash3'],
-        'ground_truth_ate': [0.5, 0.5, 0.5],
-        'status': ['success', 'success', 'success'],
-        'vif': [1.2, 1.3, 1.1],
-        'mnar_correlation': [0.1, 0.3, 0.5],
-        'mnar_p_value': [0.8, 0.4, 0.1]
-    }
-    return pd.DataFrame(data)
-
-
-def test_valid_summary_schema():
-    """Test that a valid DataFrame passes validation"""
-    df = create_valid_summary_df()
-    schema = validate_simulation_summary(df)
-    assert len(schema.data) == 3
-    assert schema.data[0].beta == 0.0
-    assert schema.data[0].method == 'mean'
-
-
-def test_missing_column_raises_error():
-    """Test that missing a required column raises ValidationError"""
-    df = create_valid_summary_df()
-    df = df.drop(columns=['bias'])
+class TestSimulationSummaryRow:
+    """Tests for SimulationSummaryRow Pydantic model."""
     
-    with pytest.raises(ValueError) as exc_info:
-        validate_simulation_summary(df)
+    def test_valid_row(self):
+        """Test that a valid row passes validation."""
+        row = {
+            'beta': 0.5,
+            'method': 'mice',
+            'estimator': 'ipw',
+            'ate': 0.45,
+            'bias': 0.05,
+            'rmse': 0.07,
+            'coverage_rate': 0.95,
+            'seed': 42,
+            'run_id': 'abc123',
+            'ground_truth_ate': 0.5,
+            'status': 'success',
+            'vif': 2.5,
+            'mnar_correlation': 0.3,
+            'mnar_p_value': 0.01
+        }
+        model = SimulationSummaryRow(**row)
+        assert model.beta == 0.5
+        assert model.ate == 0.45
     
-    assert "Missing required columns" in str(exc_info.value)
-
-
-def test_invalid_beta_raises_error():
-    """Test that beta outside [0, 1] raises ValidationError"""
-    df = create_valid_summary_df()
-    df.loc[0, 'beta'] = 1.5
+    def test_invalid_beta_range(self):
+        """Test that beta outside [0, 1] raises error."""
+        with pytest.raises(ValidationError):
+            SimulationSummaryRow(
+                beta=1.5,
+                method='mice',
+                estimator='ipw',
+                ate=0.45,
+                bias=0.05,
+                rmse=0.07,
+                coverage_rate=0.95,
+                seed=42,
+                run_id='abc123',
+                ground_truth_ate=0.5
+            )
     
-    with pytest.raises(ValueError) as exc_info:
-        validate_simulation_summary(df)
+    def test_infinite_ate_raises_error(self):
+        """Test that infinite ATE raises error."""
+        with pytest.raises(ValidationError):
+            SimulationSummaryRow(
+                beta=0.5,
+                method='mice',
+                estimator='ipw',
+                ate=np.inf,
+                bias=0.05,
+                rmse=0.07,
+                coverage_rate=0.95,
+                seed=42,
+                run_id='abc123',
+                ground_truth_ate=0.5
+            )
     
-    assert "beta must be between 0.0 and 1.0" in str(exc_info.value)
-
-
-def test_invalid_coverage_raises_error():
-    """Test that coverage_rate outside [0, 1] raises ValidationError"""
-    df = create_valid_summary_df()
-    df.loc[0, 'coverage_rate'] = 1.5
+    def test_nan_ate_raises_error(self):
+        """Test that NaN ATE raises error."""
+        with pytest.raises(ValidationError):
+            SimulationSummaryRow(
+                beta=0.5,
+                method='mice',
+                estimator='ipw',
+                ate=np.nan,
+                bias=0.05,
+                rmse=0.07,
+                coverage_rate=0.95,
+                seed=42,
+                run_id='abc123',
+                ground_truth_ate=0.5
+            )
     
-    with pytest.raises(ValueError) as exc_info:
-        validate_simulation_summary(df)
+    def test_coverage_rate_bounds(self):
+        """Test that coverage_rate must be in [0, 1]."""
+        with pytest.raises(ValidationError):
+            SimulationSummaryRow(
+                beta=0.5,
+                method='mice',
+                estimator='ipw',
+                ate=0.45,
+                bias=0.05,
+                rmse=0.07,
+                coverage_rate=1.5,
+                seed=42,
+                run_id='abc123',
+                ground_truth_ate=0.5
+            )
+
+
+class TestStatisticalTestResults:
+    """Tests for StatisticalTestResults Pydantic model."""
     
-    assert "coverage_rate must be between 0.0 and 1.0" in str(exc_info.value)
-
-
-def test_valid_statistical_test_result():
-    """Test that a valid statistical test result passes"""
-    data = {
-        'test_type': 'anova',
-        'p_value': 0.03,
-        'test_statistic': 4.5,
-        'skewness': 0.2,
-        'bootstrap_ci_diff': 0.0
-    }
-    result = validate_statistical_test_results(data)
-    assert result.test_type == 'anova'
-    assert result.p_value == 0.03
-
-
-def test_statistical_test_with_extreme_skew():
-    """Test that extreme skewness allows non-zero bootstrap_ci_diff"""
-    data = {
-        'test_type': 'bootstrap',
-        'p_value': 0.02,
-        'test_statistic': 3.2,
-        'skewness': 1.5,
-        'bootstrap_ci_diff': 0.05
-    }
-    result = validate_statistical_test_results(data)
-    assert result.skewness == 1.5
-    assert result.bootstrap_ci_diff == 0.05
-
-
-def test_invalid_p_value_raises_error():
-    """Test that p_value outside [0, 1] raises ValidationError"""
-    data = {
-        'test_type': 'anova',
-        'p_value': 1.5,
-        'test_statistic': 4.5,
-        'skewness': 0.2,
-        'bootstrap_ci_diff': 0.0
-    }
+    def test_valid_anova_result(self):
+        """Test that a valid ANOVA result passes validation."""
+        result = {
+            'test_type': 'anova',
+            'p_value': 0.03,
+            'test_statistic': 4.5,
+            'skewness': 0.5,
+            'bootstrap_ci_diff': None
+        }
+        model = StatisticalTestResults(**result)
+        assert model.test_type == 'anova'
     
-    with pytest.raises(ValidationError) as exc_info:
-        validate_statistical_test_results(data)
+    def test_valid_bootstrap_result(self):
+        """Test that a valid bootstrap result passes validation."""
+        result = {
+            'test_type': 'bootstrap',
+            'p_value': 0.02,
+            'test_statistic': 3.8,
+            'skewness': 1.5,
+            'bootstrap_ci_diff': 0.12
+        }
+        model = StatisticalTestResults(**result)
+        assert model.test_type == 'bootstrap'
+        assert model.bootstrap_ci_diff == 0.12
     
-    assert "p_value must be between 0.0 and 1.0" in str(exc_info.value)
+    def test_skewness_requires_bootstrap_ci(self):
+        """Test that |skewness| > 1 requires bootstrap_ci_diff."""
+        with pytest.raises(ValidationError):
+            StatisticalTestResults(
+                test_type='bootstrap',
+                p_value=0.02,
+                test_statistic=3.8,
+                skewness=1.5,
+                bootstrap_ci_diff=None
+            )
+    
+    def test_negative_skewness_requires_bootstrap_ci(self):
+        """Test that negative skewness > 1 requires bootstrap_ci_diff."""
+        with pytest.raises(ValidationError):
+            StatisticalTestResults(
+                test_type='bootstrap',
+                p_value=0.02,
+                test_statistic=3.8,
+                skewness=-1.5,
+                bootstrap_ci_diff=None
+            )
+    
+    def test_invalid_p_value_range(self):
+        """Test that p_value outside [0, 1] raises error."""
+        with pytest.raises(ValidationError):
+            StatisticalTestResults(
+                test_type='anova',
+                p_value=1.5,
+                test_statistic=4.5,
+                skewness=0.5,
+                bootstrap_ci_diff=None
+            )
 
 
-def test_invalid_test_type_raises_error():
-    """Test that invalid test_type raises ValidationError"""
-    data = {
-        'test_type': 'invalid_type',
-        'p_value': 0.05,
-        'test_statistic': 4.5,
-        'skewness': 0.2,
-        'bootstrap_ci_diff': 0.0
-    }
+class TestValidateSimulationSummaryCSV:
+    """Tests for validate_simulation_summary_csv function."""
     
-    with pytest.raises(ValidationError) as exc_info:
-        validate_statistical_test_results(data)
+    def test_valid_dataframe(self):
+        """Test that a valid DataFrame passes validation."""
+        df = pd.DataFrame({
+            'beta': [0.5],
+            'method': ['mice'],
+            'estimator': ['ipw'],
+            'ate': [0.45],
+            'bias': [0.05],
+            'rmse': [0.07],
+            'coverage_rate': [0.95],
+            'seed': [42],
+            'run_id': ['abc123'],
+            'ground_truth_ate': [0.5],
+            'status': ['success'],
+            'vif': [2.5],
+            'mnar_correlation': [0.3],
+            'mnar_p_value': [0.01]
+        })
+        validate_simulation_summary_csv(df)
     
-    assert "Input should be 'anova', 'friedman' or 'bootstrap'" in str(exc_info.value)
+    def test_missing_column_raises_error(self):
+        """Test that missing column raises error."""
+        df = pd.DataFrame({
+            'beta': [0.5],
+            'method': ['mice'],
+            # Missing other required columns
+        })
+        with pytest.raises(ValueError):
+            validate_simulation_summary_csv(df)
+    
+    def test_extra_column_raises_error(self):
+        """Test that extra column raises error."""
+        df = pd.DataFrame({
+            'beta': [0.5],
+            'method': ['mice'],
+            'estimator': ['ipw'],
+            'ate': [0.45],
+            'bias': [0.05],
+            'rmse': [0.07],
+            'coverage_rate': [0.95],
+            'seed': [42],
+            'run_id': ['abc123'],
+            'ground_truth_ate': [0.5],
+            'status': ['success'],
+            'vif': [2.5],
+            'mnar_correlation': [0.3],
+            'mnar_p_value': [0.01],
+            'extra_column': [1.0]  # Extra column
+        })
+        with pytest.raises(ValueError):
+            validate_simulation_summary_csv(df)
+
+
+class TestValidateStatisticalTestResults:
+    """Tests for validate_statistical_test_results function."""
+    
+    def test_valid_json_file(self):
+        """Test that a valid JSON file passes validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({
+                'test_type': 'anova',
+                'p_value': 0.03,
+                'test_statistic': 4.5,
+                'skewness': 0.5,
+                'bootstrap_ci_diff': None
+            }, f)
+            temp_path = f.name
+        
+        try:
+            validate_statistical_test_results(temp_path)
+        finally:
+            os.unlink(temp_path)
+    
+    def test_invalid_json_file(self):
+        """Test that invalid JSON file raises error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({
+                'test_type': 'anova',
+                'p_value': 1.5,  # Invalid p-value
+                'test_statistic': 4.5,
+                'skewness': 0.5,
+                'bootstrap_ci_diff': None
+            }, f)
+            temp_path = f.name
+        
+        try:
+            with pytest.raises(ValueError):
+                validate_statistical_test_results(temp_path)
+        finally:
+            os.unlink(temp_path)

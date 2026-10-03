@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-047-exploring-the-impact-of-data-imputation-
-last_run_id: 98b21c61-c1c9-4b0b-9e91-64cfd192dffa
+last_run_id: a049626f-0376-40d3-8be0-c2f6090c71ce
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-047-exploring-the-impact-of-data-imputation-/specs/001-exploring-the-impact-of-data-imputation
 title: Exploring the Impact of Data Imputation Methods on Causal Inference
-updated_at: '2026-10-03T00:53:22.722776Z'
+updated_at: '2026-10-03T01:59:27.788203Z'

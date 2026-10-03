@@ -1,3 +1,11 @@
+T014:
+  c: false
+  h: b202950a4558ef0b70ac04ee98e08228b40406f6cf62939867480a36a31cb8ee
+  r: "The `verify_us1.py` file is truncated (ends with \u201Cdef mai\u201D) and does\
+    \ not contain a callable entry point or integration with T029a, and the required\
+    \ output file `data/results/us1_verification.json` is absent. Consequently the\
+    \ verification logic cannot be executed nor produce the mandated JSON results\
+    \ for all runs."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,24 +14,40 @@ T024:
     \ imputation runs or infinite estimates are detected and flagged. The implementer\
     \ must supply the updated `pipeline.py` with the appropriate checks and error\
     \ messages."
-T029b:
+T028:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data file was presented that calls `regenerate_ground_truth(seed,\
-    \ beta)` nor stores the resulting `tau_true`, `alpha`, and `beta` in per\u2011\
-    run data. Without such an artifact, the requirement is not satisfied."
-T050:
+  h: 2c2d695188750fe969166a726abe04f6cb3ead077a259b478dd8b71651fc9e94
+  r: "The `run_statistical_test` function is only partially implemented (truncated,\
+    \ no skewness calculation, no bootstrap CI, and no JSON output), and the required\
+    \ input file `data/results/simulation_summary.csv` and output file `data/results/statistical_test_results.json`\
+    \ are missing. The task\u2019s full decision\u2011tree logic and file I/O are\
+    \ not satisfied."
+T029c:
   c: false
-  h: c93a8cf94e1c3d2ee2c7a4b1124f84086453c73bdce5e60f8b1f16e152bf6ea9
-  r: "The provided `pipeline.py` only adds a warning to the results dictionary; it\
-    \ does not write any log entry to `data/results/run_errors.log`, and that log\
-    \ file is absent from the repository. Consequently, the task\u2019s requirement\
-    \ to explicitly log the convergence failure reason with a unique run ID is not\
-    \ satisfied."
-T051:
+  h: 6e9f0be381deb0b8ab0345abef45aa24d7e231e23b8b9ddddc8d760474565c5f
+  r: "The `aggregate_results` function is cut off mid\u2011implementation (e.g., the\
+    \ line ends with `mnar_p_valu`), never calls `regenerate_ground_truth`, does not\
+    \ handle failed rows as required, and does not write the DataFrame to `data/results/simulation_summary.csv`.\
+    \ Moreover, the expected CSV file is absent. The task therefore remains unfinished."
+T029d:
   c: false
-  h: b002020aa8eebccccecbbbbea4b94644cf2ef470bfcb742422bb54428c596425
-  r: "The required output file `data/results/power_analysis.json` does not exist,\
-    \ and the shown portion of `code/analysis/power.py` contains no logic that writes\
-    \ a JSON report with effect size, sample size, power value, or a \u201Cflag if\
-    \ power < 80%\u201D. The task\u2019s core output is therefore missing."
+  h: 77ba1a4f68d56e6975c9b2e193539245bfb028e69eb85dae780a7c90a02c23de
+  r: "The `validate_schema` function merely forwards to `validate_simulation_summary_csv`,\
+    \ whose implementation is not shown, so we cannot confirm it checks for the exact\
+    \ required column list. Moreover, the required CSV file `data/results/simulation_summary.csv`\
+    \ is missing, so the validation cannot be exercised. The task\u2019s core requirement\
+    \ is therefore not demonstrably satisfied."
+T030:
+  c: false
+  h: 5c24e47ac101ca1d00a2d7bac99714c6e9f7c03dcea7122fe58286aa4f0b64a7
+  r: "The repository contains the `sensitivity.py` implementation, but the required\
+    \ output file `data/results/sensitivity_analysis_dataset.csv` is missing, so the\
+    \ aggregation step was never executed and the intermediate CSV was not generated.\
+    \ The task\u2019s primary deliverable is absent."
+T047:
+  c: false
+  h: 22956a92e362d5689ea00133fbefe994e04e2da904beb959a843c3a2f251dd0c
+  r: "The provided `code/visualization.py` exists but does not show any explicit schema\
+    \ validation step required by T029d, and it uses sub\u2011commands rather than\
+    \ the `--plot` flag format specified. Moreover, the required input file `data/results/simulation_summary.csv`\
+    \ is absent, so the script cannot be exercised as intended."

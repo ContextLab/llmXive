@@ -1,110 +1,133 @@
+"""
+Power analysis module (T032, T036, T051).
+"""
+import os
+import json
 import pandas as pd
 import numpy as np
-import json
-import os
 from typing import Dict, Any, List, Optional
 from statsmodels.stats.power import tt_ind_solve_power
 from scipy import stats
-import logging
 
-logger = logging.getLogger(__name__)
 
-def load_simulation_summary(input_path: str) -> pd.DataFrame:
-    """Load the simulation summary CSV."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"File not found: {input_path}")
-    return pd.read_csv(input_path)
+def calculate_power(effect_size: float, nobs1: float, nobs2: float, alpha: float = 0.05) -> float:
+    """
+    Calculate statistical power for a t-test.
+    """
+    power = tt_ind_solve_power(
+        effect_size=effect_size,
+        nobs1=nobs1,
+        ratio=nobs2/nobs1,
+        alpha=alpha,
+        alternative='two-sided'
+    )
+    return float(power)
 
-def calculate_effect_size(group1: pd.Series, group2: pd.Series) -> float:
-    """Calculate Cohen's d between two groups."""
-    mean1, mean2 = group1.mean(), group2.mean()
-    std1, std2 = group1.std(), group2.std()
-    n1, n2 = len(group1), len(group2)
+
+def analyze_bias_power(bias_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Perform power analysis on the bias data.
+    Compares best vs worst method.
+    """
+    methods = bias_df['method'].unique()
+    if len(methods) < 2:
+        return {"power": 0.0, "effect_size": 0.0, "flag": "insufficient_data"}
     
-    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    # Calculate mean and std for best and worst
+    # Assume lower bias is better
+    method_stats = {}
+    for m in methods:
+        subset = bias_df[bias_df['method'] == m]['bias'].dropna()
+        if len(subset) > 1:
+            method_stats[m] = {
+                'mean': subset.mean(),
+                'std': subset.std(),
+                'n': len(subset)
+            }
+    
+    if len(method_stats) < 2:
+        return {"power": 0.0, "effect_size": 0.0, "flag": "insufficient_data"}
+    
+    sorted_methods = sorted(method_stats.keys(), key=lambda m: method_stats[m]['mean'])
+    best = sorted_methods[0]
+    worst = sorted_methods[-1]
+    
+    m1, s1, n1 = method_stats[best]['mean'], method_stats[best]['std'], method_stats[best]['n']
+    m2, s2, n2 = method_stats[worst]['mean'], method_stats[worst]['std'], method_stats[worst]['n']
+    
+    # Cohen's d
+    pooled_std = np.sqrt(((n1-1)*s1**2 + (n2-1)*s2**2) / (n1+n2-2))
     if pooled_std == 0:
-        return 0.0
-    return abs(mean1 - mean2) / pooled_std
-
-def calculate_power(effect_size: float, n1: int, n2: int, alpha: float = 0.05) -> float:
-    """Calculate statistical power for a two-sample t-test."""
-    power = tt_ind_solve_power(effect_size=effect_size, nobs1=n1, alpha=alpha, ratio=n2/n1)
-    return power
-
-def analyze_bias_power(df_summary: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Analyze statistical power for bias comparison between methods.
-    Compare the best and worst performing methods at each beta level.
-    """
-    # Identify bias columns
-    bias_cols = [c for c in df_summary.columns if 'bias' in c.lower() and 'mean' not in c.lower()]
-    if len(bias_cols) < 2:
-        return {'error': 'Not enough bias columns to compare'}
+        effect_size = 0.0
+    else:
+        effect_size = abs(m2 - m1) / pooled_std
     
-    # Group by beta
-    results = []
-    for beta in df_summary['beta'].unique():
-        subset = df_summary[df_summary['beta'] == beta]
-        
-        # Calculate mean bias per method
-        method_betas = {}
-        for col in bias_cols:
-            method = col.split('_')[0] # Heuristic
-            if method not in method_betas:
-                method_betas[method] = []
-            # Take the mean of the bias column for this beta
-            # Note: This is a simplification. Ideally, we have one row per run.
-            # Here we assume the subset has multiple rows (runs)
-            method_betas[method].append(subset[col].mean())
-        
-        # Compare best and worst
-        if len(method_betas) >= 2:
-            methods = list(method_betas.keys())
-            best_method = min(methods, key=lambda m: np.mean(method_betas[m]))
-            worst_method = max(methods, key=lambda m: np.mean(method_betas[m]))
-            
-            group1 = subset[[c for c in bias_cols if best_method in c]].mean(axis=1)
-            group2 = subset[[c for c in bias_cols if worst_method in c]].mean(axis=1)
-            
-            if len(group1) > 1 and len(group2) > 1:
-                effect_size = calculate_effect_size(group1, group2)
-                power = calculate_power(effect_size, len(group1), len(group2))
-                
-                results.append({
-                    'beta': beta,
-                    'method1': best_method,
-                    'method2': worst_method,
-                    'effect_size': float(effect_size),
-                    'power': float(power),
-                    'flag': 'low_power' if power < 0.8 else 'sufficient_power'
-                })
+    # Calculate power
+    power = calculate_power(effect_size, n1, n2)
+    
+    flag = "normal" if power >= 0.8 else "underpowered"
     
     return {
-        'analysis_date': str(pd.Timestamp.now()),
-        'results': results,
-        'target_power': 0.8,
-        'effect_size_assumption': 0.5
+        "best_method": best,
+        "worst_method": worst,
+        "effect_size": float(effect_size),
+        "power": float(power),
+        "n_best": n1,
+        "n_worst": n2,
+        "flag": flag
     }
 
-def generate_power_report(df_summary: pd.DataFrame) -> Dict[str, Any]:
-    """Generate a comprehensive power report."""
-    report = analyze_bias_power(df_summary)
-    return report
+
+def interpret_effect_size(effect_size: float) -> str:
+    """
+    Interpret Cohen's d.
+    """
+    if effect_size < 0.2:
+        return "negligible"
+    elif effect_size < 0.5:
+        return "small"
+    elif effect_size < 0.8:
+        return "medium"
+    else:
+        return "large"
+
+
+def save_power_analysis(results: Dict[str, Any], filepath: str):
+    """
+    Save power analysis results to JSON.
+    """
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w') as f:
+        json.dump(results, f, indent=2)
+
 
 def main():
+    """
+    CLI entry point for power analysis.
+    """
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', default='data/results/simulation_summary.csv')
-    parser.add_argument('--output', default='data/results/power_analysis.json')
+    
+    parser = argparse.ArgumentParser(description="Perform power analysis on simulation results")
+    parser.add_argument("--input", required=True, help="Path to simulation_summary.csv")
+    parser.add_argument("--output", default="data/results/power_analysis.json", help="Output JSON path")
     args = parser.parse_args()
     
-    df = load_simulation_summary(args.input)
-    report = generate_power_report(df)
+    if not os.path.exists(args.input):
+        print(f"Error: Input file not found: {args.input}")
+        return 1
     
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Power report saved to {args.output}")
+    try:
+        df = pd.read_csv(args.input)
+        results = analyze_bias_power(df)
+        results['effect_size_interpretation'] = interpret_effect_size(results['effect_size'])
+        save_power_analysis(results, args.output)
+        print(f"Power analysis saved to {args.output}")
+        print(f"Flag: {results['flag']}")
+        return 0
+    except Exception as e:
+        print(f"Error running power analysis: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

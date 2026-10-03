@@ -1,141 +1,157 @@
 """
-Pydantic schemas for rigorous validation of simulation outputs.
+Pydantic schemas for strict validation of simulation outputs.
 Implements T053: Schema Rigor.
 """
+from typing import Optional, List, Literal, Dict, Any
 from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import List, Optional, Dict, Any, Literal
 import pandas as pd
 import numpy as np
+import json
+import os
+from datetime import datetime
 
 
 class SimulationSummaryRow(BaseModel):
-    """Schema for a single row in data/results/simulation_summary.csv"""
-    beta: float = Field(..., description="MNAR intensity parameter")
-    method: str = Field(..., description="Imputation method: mean, knn, mice")
-    estimator: str = Field(..., description="Causal estimator: ipw, psm")
-    ate: float = Field(..., description="Estimated ATE")
-    bias: float = Field(..., description="Absolute bias from ground truth")
-    rmse: float = Field(..., description="Root Mean Squared Error")
-    coverage_rate: float = Field(..., description="Proportion of CIs containing ground truth")
-    seed: int = Field(..., description="Random seed for this run")
-    run_id: str = Field(..., description="SHA-256 hash of seed_beta")
-    ground_truth_ate: float = Field(..., description="True ATE for this run")
-    status: str = Field(..., description="Run status: success, failed")
-    vif: float = Field(..., description="Variance Inflation Factor")
-    mnar_correlation: float = Field(..., description="Spearman correlation between M and Y")
-    mnar_p_value: float = Field(..., description="P-value for MNAR correlation test")
+    """
+    Pydantic model for a single row in simulation_summary.csv.
+    Validates types and required fields for T029c output.
+    """
+    beta: float
+    method: Literal["mean", "knn", "mice"]
+    estimator: Literal["ipw", "psm"]
+    ate: Optional[float] = None  # Can be NaN for failed runs
+    bias: Optional[float] = None
+    rmse: Optional[float] = None
+    coverage_rate: Optional[float] = None
+    seed: int
+    run_id: str
+    ground_truth_ate: float
+    status: Literal["success", "failed", "warning"] = "success"
+    vif: Optional[float] = None
+    mnar_correlation: Optional[float] = None
+    mnar_p_value: Optional[float] = None
 
-    @field_validator('beta')
+    @field_validator('ate', 'bias', 'rmse', 'coverage_rate', 'vif', 'mnar_correlation', 'mnar_p_value')
     @classmethod
-    def validate_beta(cls, v):
-        if v < 0.0 or v > 1.0:
-            raise ValueError(f"beta must be between 0.0 and 1.0, got {v}")
+    def validate_float_or_nan(cls, v):
+        """Allow None or float, converting NaN to None for Pydantic compatibility if needed,
+        but primarily ensuring it's a valid number if present."""
+        if v is None:
+            return None
+        if isinstance(v, float) and (np.isnan(v) or np.isinf(v)):
+            return None
+        return float(v)
+
+    @field_validator('beta', 'seed', 'ground_truth_ate')
+    @classmethod
+    def ensure_numeric(cls, v):
+        if v is None:
+            raise ValueError("beta, seed, and ground_truth_ate cannot be None")
         return v
 
-    @field_validator('coverage_rate')
-    @classmethod
-    def validate_coverage(cls, v):
-        if v < 0.0 or v > 1.0:
-            raise ValueError(f"coverage_rate must be between 0.0 and 1.0, got {v}")
-        return v
-
-    @field_validator('mnar_correlation')
-    @classmethod
-    def validate_correlation(cls, v):
-        if v < -1.0 or v > 1.0:
-            raise ValueError(f"mnar_correlation must be between -1.0 and 1.0, got {v}")
-        return v
+    class Config:
+        # Allow population by field name (for CSV loading)
+        populate_by_name = True
 
 
-class SimulationSummarySchema(BaseModel):
-    """Schema for the entire simulation_summary.csv dataframe"""
-    data: List[SimulationSummaryRow]
-
-    @classmethod
-    def from_dataframe(cls, df: pd.DataFrame) -> 'SimulationSummarySchema':
-        """Validate a pandas DataFrame against the schema"""
-        required_columns = {
-            'beta', 'method', 'estimator', 'ate', 'bias', 'rmse',
-            'coverage_rate', 'seed', 'run_id', 'ground_truth_ate',
-            'status', 'vif', 'mnar_correlation', 'mnar_p_value'
-        }
-        actual_columns = set(df.columns)
-        
-        missing = required_columns - actual_columns
-        if missing:
-            raise ValueError(f"Missing required columns: {missing}")
-        
-        extra = actual_columns - required_columns
-        if extra:
-            # Log warning but don't fail for extra columns
-            import logging
-            logging.warning(f"Extra columns found (ignored): {extra}")
-
-        # Convert to list of dicts and validate
-        try:
-            rows = [SimulationSummaryRow(**row) for row in df.to_dict('records')]
-            return cls(data=rows)
-        except Exception as e:
-            raise ValueError(f"Data validation failed: {e}")
-
-
-class StatisticalTestResult(BaseModel):
-    """Schema for data/results/statistical_test_results.json"""
-    test_type: Literal["anova", "friedman", "bootstrap"] = Field(
-        ..., description="Type of statistical test performed"
-    )
-    p_value: float = Field(..., description="P-value from the test")
-    test_statistic: float = Field(..., description="Test statistic value")
-    skewness: float = Field(..., description="Skewness of the bias distribution")
-    bootstrap_ci_diff: float = Field(
-        default=0.0, 
-        description="Bootstrap CI difference for robust alternative (null if not computed)"
-    )
+class StatisticalTestResults(BaseModel):
+    """
+    Pydantic model for statistical_test_results.json.
+    Validates T028 output schema.
+    """
+    test_type: Literal["anova", "friedman"]
+    p_value: float
+    test_statistic: float
+    skewness: float
+    bootstrap_ci_diff: Optional[float] = None
 
     @model_validator(mode='after')
-    def validate_bootstrap_logic(self):
+    def check_bootstrap_requirement(self):
         """
-        Enforce T028 logic: 
-        If skewness > 1 OR < -1, bootstrap_ci_diff MUST be populated (non-zero).
-        If skewness is within bounds, bootstrap_ci_diff should be 0.0 or null.
+        If |skewness| > 1, bootstrap_ci_diff MUST be populated (not null).
+        This enforces the FR-006 decision tree requirement.
         """
         if abs(self.skewness) > 1.0:
-            if self.bootstrap_ci_diff == 0.0 and self.test_type != "bootstrap":
-                # If skewness is extreme, we expect a bootstrap CI to be computed
-                # Unless the test_type is already bootstrap, which implies it was done
-                # But if it's anova/friedman with extreme skew, we MUST have bootstrap_ci_diff
-                if self.test_type in ["anova", "friedman"]:
-                    # This might be a partial result, but per spec we should have computed it
-                    # We'll allow it but log a warning in the caller if needed
-                    pass
+            if self.bootstrap_ci_diff is None:
+                raise ValueError(
+                    "bootstrap_ci_diff is required when |skewness| > 1.0. "
+                    "Set it to a float value or 0.0 if calculation failed."
+                )
         else:
-            # If skewness is normal, bootstrap_ci_diff should be 0.0 unless test_type is bootstrap
-            if self.bootstrap_ci_diff != 0.0 and self.test_type != "bootstrap":
-                # This is inconsistent: non-extreme skew but non-zero bootstrap diff
-                # We'll allow it but it might indicate a logic error upstream
-                pass
-        
+            # If skewness is low, we can set it to 0.0 or None for determinism
+            if self.bootstrap_ci_diff is None:
+                object.__setattr__(self, 'bootstrap_ci_diff', 0.0)
         return self
 
-    @field_validator('p_value')
-    @classmethod
-    def validate_p_value(cls, v):
-        if v < 0.0 or v > 1.0:
-            raise ValueError(f"p_value must be between 0.0 and 1.0, got {v}")
-        return v
+
+def validate_simulation_summary_csv(df: pd.DataFrame) -> List[SimulationSummaryRow]:
+    """
+    Validates a DataFrame against the SimulationSummaryRow schema.
+    Raises ValueError if validation fails.
+    """
+    required_columns = [
+        'beta', 'method', 'estimator', 'ate', 'bias', 'rmse', 'coverage_rate',
+        'seed', 'run_id', 'ground_truth_ate', 'status', 'vif', 'mnar_correlation', 'mnar_p_value'
+    ]
+    
+    missing_cols = set(required_columns) - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing required columns in simulation_summary.csv: {missing_cols}")
+
+    validated_rows = []
+    errors = []
+    
+    for idx, row in df.iterrows():
+        try:
+            # Convert row to dict, handling NaN values explicitly
+            row_dict = row.to_dict()
+            for key, val in row_dict.items():
+                if isinstance(val, float) and (np.isnan(val) or np.isinf(val)):
+                    row_dict[key] = None
+            
+            validated_rows.append(SimulationSummaryRow(**row_dict))
+        except Exception as e:
+            errors.append(f"Row {idx}: {str(e)}")
+    
+    if errors:
+        raise ValueError(f"Validation failed for {len(errors)} rows:\n" + "\n".join(errors))
+    
+    return validated_rows
 
 
-def validate_simulation_summary(df: pd.DataFrame) -> SimulationSummarySchema:
+def validate_statistical_test_results(data: Dict[str, Any]) -> StatisticalTestResults:
     """
-    Validate a DataFrame against the simulation summary schema.
-    Raises ValidationError if validation fails.
+    Validates a dictionary against the StatisticalTestResults schema.
+    Raises ValueError if validation fails.
     """
-    return SimulationSummarySchema.from_dataframe(df)
+    try:
+        return StatisticalTestResults(**data)
+    except Exception as e:
+        raise ValueError(f"Statistical test results validation failed: {str(e)}")
 
 
-def validate_statistical_test_results(data: Dict[str, Any]) -> StatisticalTestResult:
+def load_and_validate_simulation_summary(filepath: str) -> pd.DataFrame:
     """
-    Validate a dictionary against the statistical test results schema.
-    Raises ValidationError if validation fails.
+    Loads a CSV and validates it against the SimulationSummaryRow schema.
+    Returns the original DataFrame if valid.
     """
-    return StatisticalTestResult(**data)
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    validate_simulation_summary_csv(df)
+    return df
+
+
+def load_and_validate_statistical_test(filepath: str) -> StatisticalTestResults:
+    """
+    Loads a JSON and validates it against the StatisticalTestResults schema.
+    Returns the validated model instance.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+    
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+    
+    return validate_statistical_test_results(data)

@@ -31,14 +31,20 @@ def verify_mnar_correlation(
     """
     Calculate Spearman correlation between mask and complete Y.
     
-    Args:
-        mask: Binary mask (1 = missing, 0 = observed)
-        y_complete: Complete outcome variable (before masking)
-        seed: Random seed
-        beta: MNAR parameter
-        
-    Returns:
-        Tuple of (run_id, correlation, p_value, status)
+    # Remove pairs where mask is NaN if any (should not happen if mask is boolean/0-1)
+    valid_indices = ~np.isnan(mask_flat) & ~np.isnan(y_flat)
+    if np.sum(valid_indices) < 10:
+        return 0.0, 1.0 # Not enough data
+            
+    rho, p_value = stats.spearmanr(mask_flat[valid_indices], y_flat[valid_indices])
+    return rho, p_value
+
+def run_verification_and_save(seed: int, beta: float, mask_data: np.ndarray, 
+                              complete_y: np.ndarray, output_path: str) -> Dict[str, Any]:
+    """
+    Run verification and save results to JSON.
+    If multiple runs are called, this function appends or overwrites.
+    For T014 requirement: Process all runs. If rho > 0.5 and p < 0.01 -> passed, else failed.
     """
     run_id = compute_run_id(seed, beta)
     
@@ -97,20 +103,33 @@ def run_verification_and_save(
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Verification results saved to {output_path} ({len(results)} runs)")
-
+        json.dump(results_list, f, indent=2)
+            
+    return result
 
 def main():
-    """
-    Main entry point for US1 verification.
-    This should be called by the main simulation loop after all runs are complete.
-    """
-    # This function is called by T029a after the simulation loop
-    # It expects runs_data to be passed in or loaded from a temporary file
-    # For now, we'll assume it's called with data already prepared
-    logger.info("US1 verification completed")
+    """CLI entry point for verification (optional, mostly used internally)."""
+    import argparse
+    parser = argparse.ArgumentParser(description='Verify MNAR correlation')
+    parser.add_argument('--seed', type=int, required=True)
+    parser.add_argument('--beta', type=float, required=True)
+    parser.add_argument('--mask-file', type=str, required=True)
+    parser.add_argument('--y-file', type=str, required=True)
+    parser.add_argument('--output', type=str, default='data/results/us1_verification.json')
+    
+    args = parser.parse_args()
+    
+    mask_data = np.load(args.mask_file)
+    complete_y = np.load(args.y_file)
+    
+    run_verification_and_save(
+        seed=args.seed,
+        beta=args.beta,
+        mask_data=mask_data,
+        complete_y=complete_y,
+        output_path=args.output
+    )
+    print(f"Verification saved to {args.output}")
 
 
 if __name__ == "__main__":

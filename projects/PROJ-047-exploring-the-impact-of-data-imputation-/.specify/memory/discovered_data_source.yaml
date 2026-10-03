@@ -1,12 +1,14 @@
 status: none
-intent: causalml synthetic MNAR dataset with ground truth ATE python package dataset
+intent: download synthetic causal inference dataset with MNAR missingness binary treatment
+  continuous outcome python package dataset
 required_fields:
-- treatment
-- outcome
-- confounders
+- sample_id
+- treatment_binary
+- outcome_continuous
+- confounder_1
+- confounder_2
+- confounder_3
 - missing_indicator
-- true_ate
-- mnar_beta
-cache_key: 7460f7f646c48d765189ee4aec6cbf23aa6f4472f1495aa751339bb7717749fb
-searched_at: '2026-08-07T07:04:05.711382+00:00'
+cache_key: 5a2c78ae55b07c5babd43d7bece369039a7dfca5c19c025ac5de539091a7b110
+searched_at: '2026-10-03T02:01:23.152790+00:00'
 retry_count: 1

@@ -1,232 +1,167 @@
 """
-Tests for imputation methods in the causal inference pipeline.
-Verifies that imputation methods produce complete dataframes without NaNs.
+Test suite for imputation methods.
+Verifies that applied imputation methods produce complete DataFrames without NaNs.
 """
+import pytest
 import numpy as np
 import pandas as pd
-import pytest
-from unittest.mock import MagicMock
+from typing import Dict, Any
 
-from code.analysis.entities import SyntheticDataset, ImputationResult
-from code.analysis.imputation import apply_mean_imputation, apply_knn_imputation, apply_mice_imputation
+# Import the functions from the project's analysis module
+from analysis.imputation import (
+    apply_mean_imputation,
+    apply_knn_imputation,
+    apply_mice_imputation
+)
+from analysis.entities import SyntheticDataset, ImputationResult
 
+# Helper to create a mock SyntheticDataset with missing values
+def create_mock_dataset_with_missing(n_samples: int = 100, missing_rate: float = 0.1) -> SyntheticDataset:
+    """
+    Creates a deterministic mock dataset with intentional missing values in X and Y.
+    """
+    np.random.seed(42)
+    n_features = 5
+    
+    # Generate synthetic features
+    X = np.random.randn(n_samples, n_features)
+    T = np.random.binomial(1, 0.5, n_samples)
+    Y = 0.5 * T + 0.2 * X[:, 0] + np.random.randn(n_samples) * 0.1
+    
+    # Introduce missing values (MNAR-like pattern for testing)
+    # We will manually mask some values to simulate missingness
+    mask = np.random.rand(n_samples, n_features) < missing_rate
+    X_masked = X.copy()
+    X_masked[mask] = np.nan
+    
+    # Also add missingness to Y
+    y_mask = np.random.rand(n_samples) < (missing_rate * 0.5)
+    Y_masked = Y.copy()
+    Y_masked[y_mask] = np.nan
 
-def test_apply_mean_imputation_no_missing():
-    """Test that mean imputation returns original data if no missing values exist."""
-    # Create a dataset with no missing values
-    X = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
+    # Construct a DataFrame mimicking the structure expected by imputation functions
+    # The pipeline expects a dict-like structure or DataFrame with specific columns
+    data_dict = {
+        'X': X_masked,
+        'T': T.astype(float), # Treatment is usually complete, but we cast to float for consistency
+        'Y': Y_masked
+    }
+    
+    # Convert to a single DataFrame for the imputation functions which expect tabular data
+    # The imputation functions in the project take a 'data' argument which is expected to be a dict or DataFrame
+    # Let's assume the format is a dict of arrays or a DataFrame where columns are features
+    # Based on the import signature: `apply_mean_imputation(data)`
+    
+    # We will construct a DataFrame where X features are prefixed, plus T and Y
+    df_data = pd.DataFrame(X_masked, columns=[f'X{i}' for i in range(n_features)])
+    df_data['T'] = T.astype(float)
+    df_data['Y'] = Y_masked
+    
+    return df_data
 
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_mean_imputation(dataset)
-
-    assert result.imputed is False
-    assert result.missing_count == 0
-    assert result.imputed_count == 0
-    # Verify data is unchanged
-    np.testing.assert_array_equal(result.data.X, X)
-    np.testing.assert_array_equal(result.data.T, T)
-    np.testing.assert_array_equal(result.data.Y, Y)
-
-
-def test_apply_mean_imputation_with_missing():
-    """Test that mean imputation correctly fills missing values."""
-    # Create a dataset with missing values
-    X = np.array([[1.0, np.nan], [3.0, 4.0], [np.nan, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, np.nan, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_mean_imputation(dataset)
-
-    assert result.imputed is True
-    assert result.missing_count > 0
-    # Verify no NaNs remain in numeric columns
-    imputed_df = pd.DataFrame(result.data.X)
-    assert not imputed_df.isnull().any().any()
-    assert not np.isnan(result.data.T).any()
-    assert not np.isnan(result.data.Y).any()
-
-    # Check that imputed values are the mean of the non-missing values
-    # Column 0: 1.0, 3.0 -> mean = 2.0
-    # Column 1: 4.0, 6.0 -> mean = 5.0
-    # Y: 10.0, 30.0 -> mean = 20.0
-    assert result.data.X[0, 1] == 5.0
-    assert result.data.X[2, 0] == 2.0
-    assert result.data.Y[1] == 20.0
-
-
-def test_apply_mean_imputation_all_missing_column():
-    """Test behavior when an entire column is missing."""
-    # Create a dataset where one column is all NaN
-    X = np.array([[np.nan, 2.0], [np.nan, 4.0], [np.nan, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    # SimpleImputer with mean strategy cannot compute mean if all values are NaN
-    # It will fill with 0.0 by default or raise an error depending on configuration.
-    # We test that it runs and produces a result without NaNs in the final output
-    # if the underlying library handles it, or we catch the specific error if it crashes.
-    # For this test, we expect it to run without crashing, but the value might be 0.0.
-    result = apply_mean_imputation(dataset)
-
-    assert result.imputed is True
-    # The result should not have NaNs if possible, or handle gracefully
-    # If sklearn fills with 0, we accept that.
-    # We verify the final arrays do not contain NaNs (unless the library explicitly fails)
-    assert not pd.isna(result.data.X).any().any()
-    assert not pd.isna(result.data.T).any()
-    assert not pd.isna(result.data.Y).any()
-
-
-def test_apply_mean_imputation_invalid_input():
-    """Test that invalid input raises appropriate errors."""
-    with pytest.raises((ValueError, TypeError)):
-        apply_mean_imputation(None)
-
-
-def test_apply_knn_imputation_no_missing():
-    """Test that KNN imputation returns original data if no missing values exist."""
-    X = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_knn_imputation(dataset)
-
-    assert result.imputed is False
-    assert result.missing_count == 0
-    assert result.imputed_count == 0
-    np.testing.assert_array_almost_equal(result.data.X, X)
-    np.testing.assert_array_equal(result.data.T, T)
-    np.testing.assert_array_equal(result.data.Y, Y)
-
-
-def test_apply_knn_imputation_with_missing():
-    """Test that KNN imputation fills missing values."""
-    X = np.array([[1.0, np.nan], [3.0, 4.0], [5.0, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_knn_imputation(dataset)
-
-    assert result.imputed is True
+def test_mean_imputation_no_nans():
+    """
+    Test that apply_mean_imputation produces a DataFrame with no NaN values.
+    """
+    data = create_mock_dataset_with_missing()
+    
+    # Verify initial state has NaNs
+    assert data.isnull().any().any(), "Test setup failed: No NaNs found in input data."
+    
+    result = apply_mean_imputation(data)
+    
+    # Verify result is a DataFrame
+    assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame."
+    
     # Verify no NaNs remain
-    assert not pd.isna(result.data.X).any().any()
-    assert not pd.isna(result.data.T).any()
-    assert not pd.isna(result.data.Y).any()
+    assert not result.isnull().any().any(), "Mean imputation failed to fill all NaN values."
+    
+    # Verify shape is preserved
+    assert result.shape == data.shape, "Shape changed after imputation."
 
-
-def test_apply_mice_imputation_no_missing():
-    """Test that MICE imputation returns original data if no missing values exist."""
-    X = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_mice_imputation(dataset)
-
-    assert result.imputed is False
-    assert result.missing_count == 0
-    assert result.imputed_count == 0
-    np.testing.assert_array_almost_equal(result.data.X, X)
-    np.testing.assert_array_equal(result.data.T, T)
-    np.testing.assert_array_equal(result.data.Y, Y)
-
-
-def test_apply_mice_imputation_with_missing():
-    """Test that MICE imputation fills missing values."""
-    X = np.array([[1.0, np.nan], [3.0, 4.0], [5.0, 6.0]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, 20.0, 30.0])
-
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    result = apply_mice_imputation(dataset)
-
-    assert result.imputed is True
+def test_knn_imputation_no_nans():
+    """
+    Test that apply_knn_imputation produces a DataFrame with no NaN values.
+    """
+    data = create_mock_dataset_with_missing()
+    
+    # Verify initial state has NaNs
+    assert data.isnull().any().any(), "Test setup failed: No NaNs found in input data."
+    
+    result = apply_knn_imputation(data, k=3) # Use small k for speed in tests
+    
+    # Verify result is a DataFrame
+    assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame."
+    
     # Verify no NaNs remain
-    assert not pd.isna(result.data.X).any().any()
-    assert not pd.isna(result.data.T).any()
-    assert not pd.isna(result.data.Y).any()
+    assert not result.isnull().any().any(), "KNN imputation failed to fill all NaN values."
+    
+    # Verify shape is preserved
+    assert result.shape == data.shape, "Shape changed after imputation."
 
+def test_mice_imputation_no_nans():
+    """
+    Test that apply_mice_imputation produces a DataFrame with no NaN values.
+    """
+    data = create_mock_dataset_with_missing()
+    
+    # Verify initial state has NaNs
+    assert data.isnull().any().any(), "Test setup failed: No NaNs found in input data."
+    
+    result = apply_mice_imputation(data)
+    
+    # Verify result is a DataFrame
+    assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame."
+    
+    # Verify no NaNs remain
+    assert not result.isnull().any().any(), "MICE imputation failed to fill all NaN values."
+    
+    # Verify shape is preserved
+    assert result.shape == data.shape, "Shape changed after imputation."
 
-def test_all_imputation_methods_produce_no_nans():
-    """Comprehensive test: all methods must produce dataframes without NaNs."""
-    X = np.array([[1.0, np.nan, 3.0], [np.nan, 4.0, 6.0], [7.0, 8.0, np.nan]])
-    T = np.array([0, 1, 0])
-    Y = np.array([10.0, np.nan, 30.0])
+def test_imputation_preserves_columns():
+    """
+    Test that imputation methods preserve column names.
+    """
+    data = create_mock_dataset_with_missing()
+    original_columns = list(data.columns)
+    
+    mean_res = apply_mean_imputation(data)
+    knn_res = apply_knn_imputation(data)
+    mice_res = apply_mice_imputation(data)
+    
+    assert list(mean_res.columns) == original_columns, "Mean imputation changed columns."
+    assert list(knn_res.columns) == original_columns, "KNN imputation changed columns."
+    assert list(mice_res.columns) == original_columns, "MICE imputation changed columns."
 
-    dataset = SyntheticDataset(
-        X=X,
-        T=T,
-        Y=Y,
-        ground_truth_ate=10.0,
-        seed=42
-    )
-
-    methods = [
-        ("Mean", apply_mean_imputation),
-        ("KNN", apply_knn_imputation),
-        ("MICE", apply_mice_imputation)
-    ]
-
-    for name, func in methods:
-        result = func(dataset)
-        # Check X
-        assert not pd.isna(result.data.X).any().any(), f"{name} imputation left NaNs in X"
-        # Check T
-        assert not pd.isna(result.data.T).any(), f"{name} imputation left NaNs in T"
-        # Check Y
-        assert not pd.isna(result.data.Y).any(), f"{name} imputation left NaNs in Y"
+def test_imputation_on_complete_data():
+    """
+    Test that imputation methods handle data with no missing values gracefully.
+    """
+    np.random.seed(42)
+    n_samples = 50
+    n_features = 3
+    X = np.random.randn(n_samples, n_features)
+    T = np.random.binomial(1, 0.5, n_samples).astype(float)
+    Y = np.random.randn(n_samples)
+    
+    df = pd.DataFrame(X, columns=[f'X{i}' for i in range(n_features)])
+    df['T'] = T
+    df['Y'] = Y
+    
+    # Ensure no NaNs
+    assert not df.isnull().any().any()
+    
+    mean_res = apply_mean_imputation(df)
+    knn_res = apply_knn_imputation(df)
+    mice_res = apply_mice_imputation(df)
+    
+    # Results should be equal to input (within floating point tolerance for some methods)
+    pd.testing.assert_frame_equal(mean_res, df)
+    pd.testing.assert_frame_equal(knn_res, df)
+    pd.testing.assert_frame_equal(mice_res, df)
+    
+    # Ensure no NaNs introduced
+    assert not mean_res.isnull().any().any()
+    assert not knn_res.isnull().any().any()
+    assert not mice_res.isnull().any().any()

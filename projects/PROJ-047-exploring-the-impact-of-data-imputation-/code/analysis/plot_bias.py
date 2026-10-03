@@ -4,102 +4,99 @@ import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
-# Ensure the docs/paper directory exists
-os.makedirs('docs/paper', exist_ok=True)
+from typing import List, Optional, Dict, Any
+from scipy import stats
 
 def load_and_prepare_data(input_path: str) -> pd.DataFrame:
-    """Load simulation summary and prepare data for plotting."""
+    """Load simulation summary and prepare for bias plotting."""
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
     df = pd.read_csv(input_path)
     
-    # Filter out failed runs if any
+    # Filter out failed runs
     if 'status' in df.columns:
         df = df[df['status'] != 'failed']
     
-    # Calculate absolute bias if not present
-    if 'bias' in df.columns:
-        df['abs_bias'] = df['bias'].abs()
-    else:
-        raise ValueError("Input data must contain 'bias' column")
+    # Ensure numeric types
+    numeric_cols = ['beta', 'bias', 'rmse', 'ate']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
     return df
 
 def aggregate_bias_by_beta(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate absolute bias by beta level."""
-    agg_df = df.groupby('beta').agg({
-        'abs_bias': 'mean',
-        'abs_bias': 'std'  # For error bars
-    }).reset_index()
-    agg_df.columns = ['beta', 'mean_abs_bias', 'std_abs_bias']
+    """Aggregate bias by beta level."""
+    if 'method' in df.columns and 'estimator' in df.columns:
+        # Group by beta, method, and estimator
+        agg_df = df.groupby(['beta', 'method', 'estimator'])['bias'].mean().reset_index()
+    else:
+        # Group only by beta
+        agg_df = df.groupby('beta')['bias'].mean().reset_index()
+    
     return agg_df
 
-def plot_bias_vs_beta(agg_df: pd.DataFrame, output_path: str) -> None:
-    """Generate and save the bias vs beta plot."""
+def plot_bias_vs_beta(agg_df: pd.DataFrame, output_path: str):
+    """Plot bias vs beta with error bars."""
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    
     plt.figure(figsize=(10, 6))
     
-    # Plot mean bias with error bars
-    plt.errorbar(
-        agg_df['beta'],
-        agg_df['mean_abs_bias'],
-        yerr=agg_df['std_abs_bias'],
-        fmt='o-',
-        capsize=5,
-        label='Mean Absolute Bias',
-        color='blue',
-        linewidth=2,
-        markersize=8
-    )
+    if 'method' in agg_df.columns and 'estimator' in agg_df.columns:
+        # Plot by method and estimator
+        methods = agg_df['method'].unique()
+        colors = plt.cm.Set3(np.linspace(0, 1, len(methods)))
+        
+        for i, method in enumerate(methods):
+            method_df = agg_df[agg_df['method'] == method]
+            plt.errorbar(
+                method_df['beta'], 
+                method_df['bias'],
+                yerr=method_df.groupby('beta')['bias'].std(),
+                label=method,
+                marker='o',
+                color=colors[i],
+                capsize=5
+            )
+    else:
+        # Simple plot
+        plt.errorbar(
+            agg_df['beta'], 
+            agg_df['bias'],
+            yerr=agg_df.groupby('beta')['bias'].std(),
+            label='Mean Bias',
+            marker='o',
+            capsize=5
+        )
     
-    # Add trend line
-    z = np.polyfit(agg_df['beta'], agg_df['mean_abs_bias'], 1)
-    p = np.poly1d(z)
-    plt.plot(
-        agg_df['beta'],
-        p(agg_df['beta']),
-        "--",
-        color='red',
-        alpha=0.7,
-        label=f'Trend (slope={z[0]:.3f})'
-    )
-    
-    plt.xlabel('Beta (MNAR Parameter)', fontsize=12)
-    plt.ylabel('Mean Absolute Bias', fontsize=12)
-    plt.title('Bias vs Beta: Impact of MNAR Mechanism Strength', fontsize=14, fontweight='bold')
-    plt.grid(True, alpha=0.3)
+    plt.xlabel('Beta (MNAR Intensity)')
+    plt.ylabel('Absolute Bias')
+    plt.title('Absolute Bias vs MNAR Intensity (Beta)')
     plt.legend()
+    plt.grid(True, alpha=0.3)
     
-    # Save the plot
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
-    
-    print(f"Plot saved to: {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate bias vs beta plot from simulation results')
-    parser.add_argument('--input', type=str, default='data/results/simulation_summary.csv',
-                      help='Path to input CSV file')
-    parser.add_argument('--output', type=str, default='docs/paper/bias_vs_beta.png',
-                      help='Path for output PNG file')
+    parser = argparse.ArgumentParser(description='Plot bias vs beta')
+    parser.add_argument('--input', type=str, required=True, help='Path to simulation_summary.csv')
+    parser.add_argument('--output', type=str, required=True, help='Path to output PNG')
     
     args = parser.parse_args()
     
-    try:
-        # Load and prepare data
-        df = load_and_prepare_data(args.input)
-        
-        # Aggregate by beta
-        agg_df = aggregate_bias_by_beta(df)
-        
-        # Generate and save plot
-        plot_bias_vs_beta(agg_df, args.output)
-        
-    except Exception as e:
-        print(f"Error generating plot: {e}", file=sys.stderr)
-        sys.exit(1)
+    # Load data
+    df = load_and_prepare_data(args.input)
+    
+    # Aggregate
+    agg_df = aggregate_bias_by_beta(df)
+    
+    # Plot
+    plot_bias_vs_beta(agg_df, args.output)
+    
+    print(f"Bias plot saved to {args.output}")
 
 if __name__ == '__main__':
     main()

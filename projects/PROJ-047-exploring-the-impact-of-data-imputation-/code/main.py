@@ -6,46 +6,15 @@ import logging
 import time
 from typing import Optional, List, Dict, Any
 import numpy as np
-import pandas as pd
 from joblib import Parallel, delayed
 
-# Local imports
-from simulation.config import get_run_seed, get_experiment_rng, get_simulation_grid
-from simulation.scm_generator import generate_scm, regenerate_ground_truth, check_collinearity
-from simulation.missingness import inject_mnar, tune_alpha
-from simulation.verify_us1 import run_verification_and_save
-from analysis.pipeline import run_imputation_and_estimation
-from analysis.aggregation import aggregate_results, save_summary_dataframe, calculate_coverage_rate
-from analysis.metrics import run_statistical_test, save_statistical_test_results
-from analysis.power import generate_power_report
-from analysis.oracle import run_oracle_benchmark, save_oracle_results
-from analysis.validation import validate_schema
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/results/run_errors.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run the full causal inference simulation pipeline.")
-    parser.add_argument("--beta-sweep", type=str, default="0.0,0.2,0.5,0.8,1.0",
-                        help="Comma-separated list of beta values to sweep.")
-    parser.add_argument("--runs", type=int, default=200,
-                        help="Number of replications per beta value.")
-    parser.add_argument("--config", type=str, default=None,
-                        help="Path to a custom config file (optional).")
-    parser.add_argument("--output", type=str, default="data/results",
-                        help="Directory to store output results.")
-    parser.add_argument("--parallel", type=bool, default=True,
-                        help="Enable parallel execution for beta levels.")
-    parser.add_argument("--n-jobs", type=int, default=2,
-                        help="Number of parallel jobs for beta levels.")
+    parser = argparse.ArgumentParser(description="Causal Inference Simulation Pipeline")
+    parser.add_argument("--config", type=str, help="Path to configuration file")
+    parser.add_argument("--output", type=str, help="Path to output directory")
+    parser.add_argument("--runs", type=int, default=200, help="Number of runs per beta")
+    parser.add_argument("--beta-sweep", type=str, default="0.0,0.2,0.5,0.8,1.0", help="Comma-separated beta values")
+    parser.add_argument("--n-jobs", type=int, default=2, help="Number of parallel jobs for beta-level loops")
     return parser.parse_args()
 
 def compute_run_seed(seed: int, beta: float) -> int:
@@ -166,19 +135,54 @@ def run_single_beta_iteration(beta: float, runs: int, base_seed: int, output_dir
     logger.info(f"Completed {len(results)} runs for beta={beta}")
     return results
 
+def run_beta_batch(beta: float, n_runs: int, base_seed: int, n: int):
+    """Run a batch of simulations for a single beta value."""
+    results = []
+    for i in range(n_runs):
+        run_seed = compute_run_seed(base_seed, i)
+        result = run_single_simulation(run_seed, beta, n)
+        result["run_id"] = f"{beta}_{i}"
+        results.append(result)
+        
+        # Progress indicator
+        if (i + 1) % 50 == 0:
+            print(f"Completed {i + 1}/{n_runs} runs for beta={beta}")
+    return results
+
 def main():
     args = parse_args()
     
     # Ensure output directory exists
     os.makedirs(args.output, exist_ok=True)
     
-    # Parse beta sweep
-    beta_values = [float(x) for x in args.beta_sweep.split(',')]
-    base_seed = 42 # Fixed base seed for reproducibility
+    # Set output directory
+    output_dir = args.output or "data/results"
+    os.makedirs(output_dir, exist_ok=True)
     
+    # Get simulation parameters from config or CLI args
+    betas_str = args.beta_sweep if args.beta_sweep else config.get("beta_sweep", "0.0,0.2,0.5,0.8,1.0")
+    betas = [float(b) for b in betas_str.split(",")]
+    n_runs = args.runs if args.runs else config.get("n_runs", 200)
+    base_seed = config.get("base_seed", 42)
+    n = config.get("sample_size", 1000)
+    n_jobs = args.n_jobs
+    
+    print(f"Starting simulation with {n_runs} runs per beta, {len(betas)} beta values, {n_jobs} parallel jobs")
+    print(f"Betas: {betas}")
+    
+    # Run simulations in parallel for each beta level
+    # Each beta level is independent, so we can parallelize across betas
     all_results = []
     
-    start_time = time.time()
+    # Use joblib to parallelize beta-level loops
+    beta_batches = Parallel(n_jobs=n_jobs)(
+        delayed(run_beta_batch)(beta, n_runs, base_seed, n)
+        for beta in betas
+    )
+    
+    # Flatten results from all beta batches
+    for batch in beta_batches:
+        all_results.extend(batch)
     
     if args.parallel and len(beta_values) > 1:
         logger.info(f"Running {len(beta_values)} beta levels in parallel with n_jobs={args.n_jobs}")
