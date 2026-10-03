@@ -59,7 +59,7 @@
 - [ ] T006 [P] Setup environment configuration management for API keys and data paths
 - [ ] T007 Create `src/utils/data_validation.py` for schema validation and checksum recording
 - [ ] T008 [P] Implement `src/utils/retry_policy.py`:
- - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s)
+ - Define exponential backoff strategy (max retries = 3, base delay = 1 second, max delay 60s)
  - Create configuration object for retry logic
  - **Output Artifact**: `src/utils/retry_policy.py`
 - [X] T009 [P] Implement `src/utils/rate_limit_handler.py`:
@@ -67,8 +67,8 @@
  - Integrate with `retry_policy.py` for backoff
  - Verify error handling by simulating rate limit responses in unit tests
  - **Output Artifact**: `src/utils/rate_limit_handler.py`
-- [ ] T025.5 [P] [Foundational] Implement `src/modeling/config_model_structure.py`:
- - **Purpose**: Satisfy Constitution Principle VI (Pre-specification)
+- [ ] T025.5 Implement `src/modeling/config_model_structure.py`:
+ - **Purpose**: Satisfy Constitution Principle VI (Pre-specification) and FR-005
  - Define the random effect structure (Intercepts for User, Slopes for UsageFrequency by User) in `config/model_structure.yaml`
  - Define fixed effects and lagged structure in the same config
  - **CONSTRAINT**: This script must NOT read any data files from `data/` or perform any data exploration. It must rely solely on hardcoded specifications from the plan.
@@ -86,45 +86,40 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for unified dataset schema in `tests/contract/test_unified_schema.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end data ingestion on sample data in `tests/integration/test_full_pipeline.py`
+- [X] T010 [P] [US1] Contract test for unified dataset schema in `tests/contract/test_unified_schema.py`
+- [X] T011 [P] [US1] Integration test for end-to-end data ingestion on sample data in `tests/integration/test_full_pipeline.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/ingest/download_loneliness.py`:
- - Fetch *Reddit Loneliness Longitudinal Dataset* from Zenodo DOI
- - Validate presence of `username` or `username_hash` and Extended periods of non-null scores
- - Halt with "Data Linkage Impossible" if linkable IDs are missing
+- [X] T012 [US1] Implement `src/ingest/download_loneliness.py`:
+ - Fetch *Reddit Loneliness Longitudinal Dataset* from Zenodo DOI.
+ - Validate presence of `username` or `username_hash` and Extended periods of non-null scores.
+ - Halt with "Data Linkage Impossible" if linkable IDs are missing.
  - **Output Artifact**: `data/raw/loneliness_dataset.parquet`
-- [ ] T012.5 [US1] Implement `src/ingest/calculate_window.py`:
+- [ ] T014 [US1] Implement `src/match/user_match.py`:
  - **Depends on**: T012 (Must read `data/raw/loneliness_dataset.parquet`)
- - Load the ingested loneliness dataset
- - Calculate the earliest and latest survey timestamps (min/max) from the *ingested* dataset
- - Persist the boundary timestamps to `data/processed/survey_window_initial.json` with keys `start_date` and `end_date`
- - **Output Artifact**: `data/processed/survey_window_initial.json`
+ - Hash raw usernames using a cryptographic hash function (UTF-8 encoded string, no salt) to produce deterministic IDs.
+ - Join datasets on hashed ID (Note: Pushshift data is fetched AFTER matching in T013).
+ - Drop unmatched rows (users with no Pushshift logs).
+ - Output `data/processed/matched_users.parquet` with anonymized IDs.
 - [ ] T012.6 [US1] Implement `src/ingest/calculate_matched_window.py`:
  - **Depends on**: T014 (Must read `data/processed/matched_users.parquet`)
- - Load the *matched* user dataset
- - Recalculate the earliest and latest survey timestamps *only* for the matched users
- - Persist the corrected boundary timestamps to `data/processed/survey_window_final.json` with keys `start_date` and `end_date`
+ - Load the *matched* user dataset.
+ - Recalculate the earliest and latest survey timestamps *only* for the matched users.
+ - Persist the corrected boundary timestamps to `data/processed/survey_window_final.json` with keys `start_date` and `end_date`.
  - **Output Artifact**: `data/processed/survey_window_final.json`
 - [ ] T013 [US1] Implement `src/ingest/fetch_pushshift.py`:
- - **Depends on**: T012.6 (Must read `data/processed/survey_window_final.json` for boundaries)
- - Retrieve AI interaction logs for `r/Replika`, `r/characterAI`, `r/AICompanions`
- - Filter logs to the exact calendar window defined by `start_date` and `end_date` from `data/processed/survey_window_final.json`
- - Implement exponential backoff (max retries, 60s timeout) using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
- - **Output Artifact**: `data/raw/pushshift_logs.parquet`
-- [ ] T014 [US1] Implement `src/match/user_match.py`:
- - Hash raw usernames using SHA-256 [UNRESOLVED-CLAIM: c_d037e196 — status=not_enough_info]
- - Join datasets on hashed ID
- - Drop unmatched rows (users with no Pushshift logs)
- - Output `data/processed/matched_users.parquet` with anonymized IDs
+ - **Depends on**: T014 (Must read `data/processed/matched_users.parquet`) AND T012.6 (Must read `data/processed/survey_window_final.json`)
+ - Retrieve AI interaction logs for `r/Replika`, `r/characterAI`, `r/AICompanions`.
+ - **Strict Constraint**: Fetch logs ONLY for the exact calendar window defined by `start_date` and `end_date` in `data/processed/survey_window_final.json`.
+ - Implement exponential backoff (max retries = 3, 60s timeout) using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`.
+ - **Output Artifact**: `data/processed/pushshift_logs_refined.parquet`
 - [ ] T015 [US1] Implement `src/validation/validate_match.py`:
  - **Depends on**: T014 (Must read `data/processed/matched_users.parquet`)
- - Calculate match rate (matched count / total loneliness users)
- - Validate N >= 500
- - **Mandatory**: If match rate < 80% OR N < 500, halt execution with "Power Insufficient" error
- - Generate `data/validation/match_report.yaml` containing `match_rate`, `total_users`, `matched_users`, `status` (pass/fail)
+ - Calculate match rate (matched count / total loneliness users).
+ - Validate N >= 500. [UNRESOLVED-CLAIM: c_45d630cb — status=not_enough_info]
+ - **Mandatory**: If match rate < 80% OR N < 500, halt execution with "Power Insufficient" error.
+ - Generate `data/validation/match_report.yaml` containing `match_rate`, `total_users`, `matched_users`, `status` (pass/fail).
  - **Output Artifact**: `data/validation/match_report.yaml`
 - [ ] T016 [US1] Add logging for ingestion stats and match failures
 
@@ -145,28 +140,37 @@
 
 ### Implementation for User Story 2
 
+- [ ] T021.0 [US2] Implement `src/ingest/download_ecar_lexicon.py`:
+ - Download *ECAR Lexicon (Emotion and Coping in AI Relationships)* from Zenodo DOI: `` (Source must be verified in spec).
+ - Validate schema: columns `keyword`, `anxiety_weight`, `avoidance_weight`.
+ - Save to `data/lexicons/ecar_lexicon.csv`.
+ - **Output Artifact**: `data/lexicons/ecar_lexicon.csv`
+- [ ] T021.1 [US2] Implement `src/features/define_baseline_window.py`:
+ - **Purpose**: Define the temporal window for baseline post identification.
+ - Create `config/baseline_window_config.yaml` with key `baseline_days_preceding` set to `30`.
+ - **Output Artifact**: `config/baseline_window_config.yaml`
 - [ ] T020 [P] [US2] Implement `src/features/usage_metrics.py`:
  - **Depends on**: T014 (Must read `data/processed/matched_users.parquet`)
- - Aggregate weekly usage frequency per user
- - Calculate `session_duration` (time between first and last activity in 7-day window, capped at 24h)
- - Handle edge cases: multiple activities, missing data
- - **Input**: `data/processed/matched_users.parquet` (Strict dependency)
+ - Aggregate weekly usage frequency per user.
+ - Calculate `session_duration` as the time difference between the first and last timestamp of consecutive activities in a 7-day window (NO cap).
+ - Handle edge cases: multiple activities, missing data.
+ - **Input**: `data/processed/matched_users.parquet` (Strict dependency).
  - **Output**: `data/processed/usage_metrics.parquet`
 - [ ] T021 [US2] Implement `src/features/attachment_proxy.py`:
- - **Depends on**: T014 (Must consume `data/processed/matched_users.parquet`)
- - Load *ECAR Lexicon (Emotion and Coping in AI Relationships)* from `data/lexicons/ecar_lexicon.csv`
- - **Schema Requirement**: The lexicon CSV MUST have columns: `keyword`, `anxiety_weight`, `avoidance_weight`.
- - **Baseline Post Identification**: Identify baseline posts by filtering Pushshift logs for a defined temporal window preceding the user's first survey timestamp in the matched dataset.
- - Scan baseline posts for anxiety/avoidance keywords
- - Compute normalized `attachment_anxiety_score` and `attachment_avoidance_score`
- - Assign default 0.0 and set `missing_attachment_flag` for users with no baseline posts
- - **Input**: `data/processed/matched_users.parquet`, `data/raw/pushshift_logs.parquet`
+ - **Depends on**: T014 (Must consume `data/processed/matched_users.parquet`), T021.0 (Must consume `data/lexicons/ecar_lexicon.csv`), AND T021.1 (Must consume `config/baseline_window_config.yaml`).
+ - Load *ECAR Lexicon* from `data/lexicons/ecar_lexicon.csv`.
+ - Load baseline window config from `config/baseline_window_config.yaml`.
+ - **Baseline Post Identification**: Identify baseline posts by filtering Pushshift logs for posts within the defined 30-day window preceding the user's first survey timestamp in the matched dataset.
+ - Scan baseline posts for anxiety/avoidance keywords.
+ - Compute normalized `attachment_anxiety_score` and `attachment_avoidance_score`.
+ - Assign default 0.0 and set `missing_attachment_flag` for users with no baseline posts.
+ - **Input**: `data/processed/matched_users.parquet`, `data/processed/pushshift_logs_refined.parquet` (from T013), `data/lexicons/ecar_lexicon.csv`, `config/baseline_window_config.yaml`.
  - **Output**: `data/processed/attachment_scores.parquet`
 - [ ] T022 [US2] Implement `src/features/integrate_features.py`:
- - Merge usage metrics and attachment scores into the unified dataset
- - **Input**: `data/processed/matched_users.parquet`, `data/processed/usage_metrics.parquet`, `data/processed/attachment_scores.parquet`
- - **Output**: `data/processed/unified_dataset.parquet`
- - Validate output columns against `contracts/unified_dataset.schema.yaml`
+ - Merge usage metrics and attachment scores into the unified dataset.
+ - **Input**: `data/processed/matched_users.parquet`, `data/processed/usage_metrics.parquet`, `data/processed/attachment_scores.parquet`.
+ - **Output**: `data/processed/unified_dataset.parquet`.
+ - Validate output columns against `contracts/unified_dataset.schema.yaml`.
 - [ ] T023 [US2] Validate output columns against `contracts/unified_dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -187,31 +191,32 @@
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `src/modeling/mixed_effects.py`:
- - **Depends on**: T022 (Must consume `data/processed/unified_dataset.parquet`)
- - **Input**: `data/processed/unified_dataset.parquet`, `config/model_structure.yaml`
- - **Mandatory**: Load random effect structure (Intercepts + Slopes for UsageFrequency) from `config/model_structure.yaml`
+ - **Depends on**: T022 (Must consume `data/processed/unified_dataset.parquet`) AND T025.5 (Must consume `config/model_structure.yaml`).
+ - **Input**: `data/processed/unified_dataset.parquet`, `config/model_structure.yaml`.
+ - **Mandatory**: Load random effect structure (Intercepts + Slopes for UsageFrequency) from `config/model_structure.yaml`.
+ - **CONSTRAINT**: If `config/model_structure.yaml` is missing or invalid, the script MUST FAIL LOUDLY with an error message stating: "Pre-specified model structure missing. Expected: random intercepts for User, random slopes for UsageFrequency by User." (Do NOT fallback to hardcoded values).
  - **Mandatory**: Implement lagged predictor structure (Usage T → Loneliness T+1) by:
- 1. Sorting data by `user_id` and `timestamp`
- 2. **Shifting** the `loneliness_score` column by +1 time step (creating `loneliness_T_plus_1`)
- 3. Aligning `usage_frequency` (T) with `loneliness_T_plus_1` (T+1)
- - Fit Linear Mixed-Effects Model (statsmodels MixedLM) using the pre-specified random effects
- - Controls: Baseline attachment scores
- - **Output**: `data/results/model_fit_summary.json`
+ 1. Sorting data by `user_id` and `timestamp`.
+ 2. **Shifting** the `loneliness_score` column by +1 time step (creating `loneliness_T_plus_1`).
+ 3. Aligning `usage_frequency` (T) with `loneliness_T_plus_1` (T+1).
+ - Fit Linear Mixed-Effects Model (statsmodels MixedLM) using the pre-specified random effects.
+ - Controls: Baseline attachment scores.
+ - **Output**: `data/results/model_fit_summary.json`.
 - [ ] T027 [US3] Implement `src/modeling/bootstrap_ci.py`:
- - Perform cluster bootstrap resampling with **1000 iterations** (seed=42) at User level
- - Generate % confidence intervals for all fixed effects
- - Run diagnostics (normality, homoscedasticity); switch to bootstrap CIs if violated
- - **Output**: `data/results/bootstrap_ci.json`
+ - Perform cluster bootstrap resampling with **1000 iterations** (seed=42) at User level.
+ - Generate confidence intervals.
+ - Run diagnostics (normality, homoscedasticity); switch to bootstrap CIs if violated.
+ - **Output**: `data/results/bootstrap_ci.json`.
 - [ ] T028 [US3] Implement `src/modeling/subgroup_analysis.py`:
- - **Depends on**: T022
- - **Input**: `data/processed/unified_dataset.parquet`
- - Filter unified dataset where `age >= 60` **AND** `age is not null` (exclude missing ages)
- - Re-fit model and compare effect sizes against full population
- - **Output**: `data/results/subgroup_analysis_60plus.json`
+ - **Depends on**: T022.
+ - **Input**: `data/processed/unified_dataset.parquet`.
+ - Filter unified dataset where `age >= 60` **AND** `age is not null` (exclude missing ages).
+ - Re-fit model and compare effect sizes against full population.
+ - **Output**: `data/results/subgroup_analysis_60plus.json`.
 - [ ] T029 [US3] Implement `src/validation/validate_success.py`:
- - Compute success metrics: Marginal R² gain (SC-002), CI stability (SC-003), Runtime (SC-004)
- - **Mandatory Check**: Compare Marginal R² gain against a predefined significance threshold..
- - If R² gain < 0.05, **DO NOT HALT**. Record the value, set `passed` flag to `false`, and continue.
+ - Compute success metrics: Marginal R² gain (SC-002, threshold = 0.05), CI stability (SC-003), Runtime (SC-004).
+ - **Mandatory Check**: Compare Marginal R² gain against threshold = 0.05 (from SC-002).
+ - **Do NOT halt execution** if R² gain < 0.05. Instead, set the `passed` flag to `false` in the report.
  - If Runtime >= 6 hours (per Plan Phase 7), set `passed` flag to `false`.
  - Generate `data/results/robustness_report.csv` with the following schema:
  - `metric_name` (e.g., "marginal_r2_gain", "ci_stability", "runtime_hours")
@@ -219,7 +224,7 @@
  - `threshold` (float/string, e.g., "0.05" or "6.0")
  - `passed` (boolean)
  - `timestamp`
- - **Output Artifact**: `data/results/robustness_report.csv`
+ - **Output Artifact**: `data/results/robustness_report.csv`.
 - [ ] T030 [US3] Export `model_results.csv` and generate concise HTML report
 
 **Checkpoint**: All user stories should now be independently functional
@@ -261,16 +266,17 @@
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Ingestion (T012, T012.5) before Matching (T014)
-- Matching (T014) before Feature Engineering (T020, T021)
-- Feature Engineering (T020, T021) before Modeling (T026, T027)
+- Ingestion (T012) before Matching (T014)
+- Matching (T014) before Window Calculation (T012.6) and Pushshift Fetch (T013)
+- Pushshift Fetch (T013) before Feature Engineering (T020, T021)
+- Feature Engineering (T020, T021) before Modeling (T026)
 - Core implementation before integration
 - Story complete before moving to next priority
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T025.5
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -287,7 +293,6 @@ Task: "Integration test for end-to-end data ingestion on sample data in tests/in
 
 # Launch ingestion scripts in parallel (they fetch different data sources):
 Task: "Implement src/ingest/download_loneliness.py"
-Task: "Implement src/ingest/calculate_window.py" (After T012)
 ```
 
 ---

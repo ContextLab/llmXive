@@ -1,9 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Unified Dataset Schema
 description: >
-  Schema for matched user data integrating loneliness scores, AI usage metrics,
-  attachment style proxies, and demographics for the parasocial relationships study.
-  This schema defines the structure of data/processed/unified_dataset.parquet.
+  Schema for the matched user data combining loneliness survey responses
+  and AI interaction metrics. Used for validation and modeling.
 type: object
 required:
   - user_id
@@ -17,118 +16,73 @@ properties:
   user_id:
     type: string
     description: >
-      Anonymized user identifier (SHA-256 hash of original username).
-      Used as the primary key for joining loneliness and usage data.
-      Pattern: 64-character hexadecimal string.
+      Cryptographic hash of the original username (SHA-256, lowercase hex).
+      Used to anonymize PII while maintaining deterministic linkage.
     pattern: "^[a-f0-9]{64}$"
   
   loneliness_score:
     type: number
-    format: float
     description: >
-      Standardized loneliness score from the UCLA Loneliness Scale (Extended Version).
-      Values are normalized to a 0-100 scale where higher indicates greater loneliness.
-      Range: [0, 100].
-    minimum: 0.0
-    maximum: 100.0
-    nullable: false
+      Standardized loneliness score from the survey instrument.
+      Typically ranges from 0 to 100 or standardized Z-scores.
+    minimum: -100.0
+    maximum: 200.0
   
   usage_frequency:
-    type: integer
+    type: number
     description: >
-      Count of AI interaction events (posts/comments) within the defined survey window.
-      Aggregated weekly or per-session depending on analysis requirements.
-      Non-negative integer count.
+      Count of AI interactions (posts/comments) by the user within the
+      defined analysis window (e.g., per week or per survey period).
     minimum: 0
   
   session_duration:
     type: number
-    format: float
     description: >
-      Total duration of AI interaction activity within the observation window,
-      calculated as time between first and last activity, capped at 24 hours.
-      Measured in seconds.
-      Range: [0, 86400].
-    minimum: 0.0
-    maximum: 86400.0
+      Total duration (in seconds) of consecutive activity sessions
+      within the analysis window. Calculated as time difference between
+      first and last activity in a 7-day window.
+    minimum: 0
   
   attachment_anxiety_score:
     type: number
-    format: float
     description: >
-      Attachment anxiety proxy score derived from ECAR Lexicon keyword analysis
-      of baseline posts. Normalized to [0, 1] scale.
-      Higher scores indicate greater attachment anxiety.
+      Normalized attachment anxiety proxy score derived from ECAR lexicon
+      keyword analysis of baseline posts. Range typically [0.0, 1.0].
     minimum: 0.0
     maximum: 1.0
   
   attachment_avoidance_score:
     type: number
-    format: float
     description: >
-      Attachment avoidance proxy score derived from ECAR Lexicon keyword analysis
-      of baseline posts. Normalized to [0, 1] scale.
-      Higher scores indicate greater attachment avoidance.
+      Normalized attachment avoidance proxy score derived from ECAR lexicon
+      keyword analysis of baseline posts. Range typically [0.0, 1.0].
     minimum: 0.0
     maximum: 1.0
   
   age:
     type: integer
     description: >
-      Self-reported age of the user at the time of the loneliness survey.
-      Nullable field as age data may be missing for some users.
-    minimum: 10
+      Self-reported age of the user at the time of the survey.
+      May be null if not provided in the source data.
+    minimum: 0
     maximum: 120
-    nullable: true
   
-  timestamp_start:
+  timestamp:
     type: string
     format: date-time
     description: >
-      ISO 8601 timestamp marking the start of the observation window
-      (earliest survey timestamp for this user).
-    nullable: false
+      ISO 8601 timestamp of the survey response or data aggregation point.
+      Used for longitudinal ordering.
   
-  timestamp_end:
-    type: string
-    format: date-time
-    description: >
-      ISO 8601 timestamp marking the end of the observation window
-      (latest survey timestamp for this user).
-    nullable: false
-  
-  match_source:
+  survey_period:
     type: string
     description: >
-      Source identifier indicating how the match was achieved.
-      Expected values: "sha256_hash_match".
-    enum:
-      - sha256_hash_match
+      Identifier for the specific longitudinal survey wave/period.
+      Used to track changes over time.
   
   missing_attachment_flag:
     type: boolean
     description: >
-      Flag indicating if attachment scores are missing (default 0.0) due to
-      no baseline posts being found for the user.
-      True if attachment scores were set to defaults.
-  
-  data_quality_score:
-    type: number
-    format: float
-    description: >
-      Composite data quality score (0-1) indicating completeness and validity
-      of the record. Used for filtering low-quality records in analysis.
-    minimum: 0.0
-    maximum: 1.0
-
+      Flag indicating if attachment scores are missing (default 0.0 assigned).
+      True if no baseline posts were found for the user.
 additionalProperties: false
-
-# Metadata for the schema itself
-metadata:
-  version: "1.0.0"
-  created_from: "T004 - Unified Dataset Schema Definition"
-  related_tasks:
-    - T014  # user_match.py
-    - T022  # integrate_features.py
-    - T023  # validate output columns
-  validation_tool: "src/utils/data_validation.py"

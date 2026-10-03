@@ -7,6 +7,7 @@ import yaml
 import pytest
 from pathlib import Path
 
+# Adjust path to match project root structure (tests/ is at root, contracts/ is at root)
 SCHEMA_PATH = Path("contracts/unified_dataset.schema.yaml")
 
 @pytest.fixture

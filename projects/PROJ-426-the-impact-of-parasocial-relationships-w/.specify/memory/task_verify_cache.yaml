@@ -1,6 +1,16 @@
-T006:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation were presented to show that
-    API keys and data paths are managed via environment variables, a `.env` file,
-    or a configuration management system. The required artifact for task T006 is missing.
+  r: "No directory listing or file tree was provided showing the required folders\
+    \ (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`,\
+    \ `docs/`, `contracts/`, `config/`). Without concrete evidence that these directories\
+    \ exist in the project root, the task requirement is not satisfied. The implementer\
+    \ must supply a visible file\u2011system snapshot (e.g., `tree` output or a screenshot)\
+    \ confirming the presence of all specified directories."
+T011:
+  c: false
+  h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
+  r: "The required file `tests/integration/test_full_pipeline.py` does not exist,\
+    \ so no integration test is present to verify end\u2011to\u2011end data ingestion\
+    \ as specified. The task\u2019s primary artifact is missing, making the claim\
+    \ of completion invalid."

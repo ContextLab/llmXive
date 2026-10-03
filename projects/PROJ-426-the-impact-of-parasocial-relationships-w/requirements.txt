@@ -1,0 +1,11 @@
+# Existing dependencies
+pandas>=2.0.0
+pyarrow>=12.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# New dependency for Zenodo download
+zenodo-get>=1.6.0
+
+# Logging and utilities
+structlog>=23.1.0

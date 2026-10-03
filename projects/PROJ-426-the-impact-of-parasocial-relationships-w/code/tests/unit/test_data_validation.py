@@ -1,5 +1,5 @@
 """
-Unit tests for data_validation module.
+Unit tests for data validation utilities.
 """
 import pytest
 import json
@@ -7,9 +7,9 @@ import tempfile
 import os
 from pathlib import Path
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import numpy as np
 import yaml
+import hashlib
 
 from src.utils.data_validation import (
     ValidationError,
@@ -25,247 +25,311 @@ from src.utils.data_validation import (
 
 
 class TestComputeSha256:
-    def test_compute_sha256_valid_file(self, tmp_path):
-        file_path = tmp_path / "test.txt"
-        file_path.write_text("Hello, World!")
-        
-        checksum = compute_sha256(file_path)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert isinstance(checksum, str)
+    """Tests for compute_sha256 function."""
     
-    def test_compute_sha256_file_not_found(self):
+    def test_compute_sha256_valid_file(self, tmp_path):
+        """Test computing SHA256 of a valid file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
+        
+        checksum = compute_sha256(test_file)
+        expected = hashlib.sha256(test_content).hexdigest()
+        
+        assert checksum == expected
+        
+    def test_compute_sha256_nonexistent_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for nonexistent file."""
+        nonexistent = tmp_path / "does_not_exist.txt"
+        
         with pytest.raises(FileNotFoundError):
-            compute_sha256("/nonexistent/file.txt")
+            compute_sha256(nonexistent)
 
 
 class TestLoadSchema:
-    def test_load_schema_valid(self, tmp_path):
-        schema_content = """
-        fields:
-          name:
-            type: string
-          age:
-            type: int
-        required:
-          - name
-        """
-        schema_file = tmp_path / "schema.yaml"
-        schema_file.write_text(schema_content)
-        
-        schema = load_schema(schema_file)
-        assert "fields" in schema
-        assert schema["fields"]["name"]["type"] == "string"
+    """Tests for load_schema function."""
     
-    def test_load_schema_not_found(self):
+    def test_load_valid_schema(self, tmp_path):
+        """Test loading a valid YAML schema."""
+        schema_content = {
+            'name': 'test_schema',
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
+        }
+        
+        schema_file = tmp_path / "schema.yaml"
+        with open(schema_file, 'w') as f:
+            yaml.dump(schema_content, f)
+            
+        loaded = load_schema(schema_file)
+        
+        assert loaded['name'] == 'test_schema'
+        assert 'id' in loaded['fields']
+        assert loaded['fields']['id']['type'] == 'integer'
+        
+    def test_load_schema_missing_fields(self, tmp_path):
+        """Test that ValidationError is raised for schema without 'fields'."""
+        schema_content = {'name': 'test_schema'}
+        
+        schema_file = tmp_path / "schema.yaml"
+        with open(schema_file, 'w') as f:
+            yaml.dump(schema_content, f)
+            
+        with pytest.raises(ValidationError):
+            load_schema(schema_file)
+            
+    def test_load_nonexistent_schema(self, tmp_path):
+        """Test that FileNotFoundError is raised for nonexistent schema."""
         with pytest.raises(FileNotFoundError):
-            load_schema("/nonexistent/schema.yaml")
+            load_schema(tmp_path / "nonexistent.yaml")
 
 
 class TestValidateFieldType:
-    def test_string_valid(self):
+    """Tests for validate_field_type function."""
+    
+    def test_validate_string(self):
+        """Test string type validation."""
         assert validate_field_type("hello", "string") is True
-        assert validate_field_type("hello", "String") is True
-    
-    def test_string_invalid(self):
+        assert validate_field_type(None, "string") is True
         assert validate_field_type(123, "string") is False
-    
-    def test_int_valid(self):
-        assert validate_field_type(42, "int") is True
-        assert validate_field_type(0, "int") is True
-    
-    def test_int_invalid_bool(self):
-        # Booleans are technically ints in Python, but we exclude them
-        assert validate_field_type(True, "int") is False
-    
-    def test_float_valid(self):
+        
+    def test_validate_integer(self):
+        """Test integer type validation."""
+        assert validate_field_type(42, "integer") is True
+        assert validate_field_type(np.int64(42), "integer") is True
+        assert validate_field_type(None, "integer") is True
+        assert validate_field_type("42", "integer") is False
+        assert validate_field_type(3.14, "integer") is False
+        
+    def test_validate_float(self):
+        """Test float type validation."""
         assert validate_field_type(3.14, "float") is True
-        assert validate_field_type(10, "float") is True # int is valid for float
-    
-    def test_boolean_valid(self):
+        assert validate_field_type(np.float64(3.14), "float") is True
+        assert validate_field_type(None, "float") is True
+        assert validate_field_type("3.14", "float") is False
+        
+    def test_validate_boolean(self):
+        """Test boolean type validation."""
         assert validate_field_type(True, "boolean") is True
-        assert validate_field_type(False, "boolean") is True
-    
-    def test_null_valid(self):
-        assert validate_field_type(None, "null") is True
-        assert validate_field_type(None, "any") is True
-    
-    def test_date_valid(self):
-        assert validate_field_type("2023-01-01", "date") is True
-        assert validate_field_type(pd.Timestamp("2023-01-01"), "date") is True
-        assert validate_field_type("invalid-date", "date") is False
+        assert validate_field_type(np.bool_(True), "boolean") is True
+        assert validate_field_type(None, "boolean") is True
+        assert validate_field_type(1, "boolean") is False
 
 
 class TestValidateRecord:
+    """Tests for validate_record function."""
+    
     def test_valid_record(self):
+        """Test validation of a valid record."""
         schema = {
-            "fields": {
-                "name": {"type": "string"},
-                "age": {"type": "int"}
-            },
-            "required": ["name"]
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
         }
-        record = {"name": "Alice", "age": 30}
+        record = {'id': 1, 'name': 'Alice'}
         
         errors = validate_record(record, schema)
         assert errors == []
-    
-    def test_missing_required(self):
+        
+    def test_missing_required_field(self):
+        """Test validation with missing required field."""
         schema = {
-            "fields": {"name": {"type": "string"}},
-            "required": ["name"]
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
         }
-        record = {}
+        record = {'id': 1}
         
         errors = validate_record(record, schema)
         assert len(errors) == 1
-        assert "Missing required field" in errors[0]
-    
-    def test_type_mismatch(self):
+        assert 'Missing required field: name' in errors[0]
+        
+    def test_invalid_type(self):
+        """Test validation with invalid field type."""
         schema = {
-            "fields": {"age": {"type": "int"}},
-            "required": []
+            'fields': {
+                'id': {'type': 'integer', 'required': True}
+            }
         }
-        record = {"age": "thirty"}
+        record = {'id': 'not_an_integer'}
         
         errors = validate_record(record, schema)
         assert len(errors) == 1
-        assert "Type mismatch" in errors[0]
+        assert 'invalid type' in errors[0]
+        
+    def test_value_constraint_violation(self):
+        """Test validation with min/max constraint violation."""
+        schema = {
+            'fields': {
+                'age': {'type': 'integer', 'required': True, 'min': 0, 'max': 150}
+            }
+        }
+        record = {'age': 200}
+        
+        errors = validate_record(record, schema)
+        assert len(errors) == 1
+        assert 'above maximum' in errors[0]
 
 
 class TestValidateParquetSchema:
-    @pytest.fixture
-    def sample_parquet(self, tmp_path):
-        data = {
-            "user_id": [1, 2, 3],
-            "name": ["Alice", "Bob", "Charlie"],
-            "score": [1.5, 2.5, 3.5]
-        }
-        df = pd.DataFrame(data)
-        file_path = tmp_path / "test.parquet"
-        df.to_parquet(file_path)
-        return file_path
+    """Tests for validate_parquet_schema function."""
     
-    def test_valid_parquet(self, sample_parquet, tmp_path):
+    def test_valid_parquet_schema(self, tmp_path):
+        """Test validation of a valid Parquet DataFrame."""
         schema = {
-            "fields": {
-                "user_id": {"type": "int"},
-                "name": {"type": "string"},
-                "score": {"type": "float"}
-            },
-            "required": ["user_id"]
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
         }
-        schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema, f)
+        df = pd.DataFrame({'id': [1, 2], 'name': ['Alice', 'Bob']})
         
-        is_valid, errors = validate_parquet_schema(sample_parquet, schema)
+        is_valid, errors = validate_parquet_schema(df, schema)
         assert is_valid is True
         assert errors == []
-    
-    def test_missing_column(self, sample_parquet, tmp_path):
-        schema = {
-            "fields": {"missing_col": {"type": "string"}},
-            "required": ["missing_col"]
-        }
-        schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema, f)
         
-        is_valid, errors = validate_parquet_schema(sample_parquet, schema)
+    def test_missing_required_column(self):
+        """Test validation with missing required column."""
+        schema = {
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
+        }
+        df = pd.DataFrame({'id': [1, 2]})
+        
+        is_valid, errors = validate_parquet_schema(df, schema)
         assert is_valid is False
-        assert len(errors) > 0
+        assert any('Missing required column: name' in e for e in errors)
+        
+    def test_strict_mode_extra_columns(self):
+        """Test strict mode with extra columns."""
+        schema = {
+            'fields': {
+                'id': {'type': 'integer', 'required': True}
+            }
+        }
+        df = pd.DataFrame({'id': [1, 2], 'extra': ['a', 'b']})
+        
+        is_valid, errors = validate_parquet_schema(df, schema, strict=True)
+        assert is_valid is False
+        assert any('Extra columns' in e for e in errors)
 
 
 class TestValidateCsvSchema:
-    @pytest.fixture
-    def sample_csv(self, tmp_path):
-        data = "name,age\nAlice,30\nBob,25"
-        file_path = tmp_path / "test.csv"
-        file_path.write_text(data)
-        return file_path
+    """Tests for validate_csv_schema function."""
     
-    def test_valid_csv(self, sample_csv, tmp_path):
+    def test_valid_csv_schema(self, tmp_path):
+        """Test validation of a valid CSV DataFrame."""
         schema = {
-            "fields": {
-                "name": {"type": "string"},
-                "age": {"type": "int"}
-            },
-            "required": ["name"]
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
         }
-        schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema, f)
+        df = pd.DataFrame({'id': [1, 2], 'name': ['Alice', 'Bob']})
         
-        is_valid, errors = validate_csv_schema(sample_csv, schema)
+        is_valid, errors = validate_csv_schema(df, schema)
         assert is_valid is True
         assert errors == []
-    
-    def test_missing_column(self, sample_csv, tmp_path):
-        schema = {
-            "fields": {"missing": {"type": "string"}},
-            "required": ["missing"]
-        }
-        schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema, f)
-        
-        is_valid, errors = validate_csv_schema(sample_csv, schema)
-        assert is_valid is False
 
 
 class TestRecordChecksum:
-    def test_record_checksum_creates_file(self, tmp_path):
-        data_file = tmp_path / "data.txt"
-        data_file.write_text("Test content")
-        output_file = tmp_path / "checksum.json"
+    """Tests for record_checksum function."""
+    
+    def test_record_checksum_success(self, tmp_path):
+        """Test successful checksum recording."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Hello, World!")
         
-        result = record_checksum(data_file, output_file)
+        checksum_file = tmp_path / "checksums" / "test.txt.sha256"
         
-        assert "checksum" in result
-        assert "file_size_bytes" in result
-        assert output_file.exists()
+        checksum = record_checksum(test_file, checksum_file)
         
-        with open(output_file) as f:
-            saved = json.load(f)
-        assert saved["checksum"] == result["checksum"]
+        assert checksum is not None
+        assert checksum_file.exists()
+        
+        # Verify checksum content
+        with open(checksum_file, 'r') as f:
+            content = f.read()
+            
+        assert checksum in content
+        assert 'algorithm: sha256' in content
+        
+    def test_record_checksum_creates_directory(self, tmp_path):
+        """Test that checksum recording creates parent directories."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Hello")
+        
+        checksum_file = tmp_path / "deep" / "nested" / "dir" / "checksum.txt.sha256"
+        
+        record_checksum(test_file, checksum_file)
+        
+        assert checksum_file.exists()
 
 
 class TestValidateAndChecksum:
-    def test_full_validation_flow(self, tmp_path):
-        # Create CSV
-        data = "name,age\nAlice,30"
-        data_file = tmp_path / "data.csv"
-        data_file.write_text(data)
-        
-        # Create Schema
-        schema = {
-            "fields": {"name": {"type": "string"}, "age": {"type": "int"}},
-            "required": ["name"]
-        }
-        schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema, f)
-        
-        # Checksum path
-        checksum_file = tmp_path / "checksum.json"
-        
-        result = validate_and_checksum(data_file, schema_file, checksum_file)
-        
-        assert result["is_valid"] is True
-        assert checksum_file.exists()
+    """Tests for validate_and_checksum function."""
     
-    def test_validation_failure_raises(self, tmp_path):
-        data = "name,age\nAlice,not_a_number"
-        data_file = tmp_path / "data.csv"
-        data_file.write_text(data)
-        
+    def test_validate_and_checksum_success(self, tmp_path):
+        """Test successful validation and checksum recording."""
+        # Create schema
         schema = {
-            "fields": {"name": {"type": "string"}, "age": {"type": "int"}},
-            "required": []
+            'name': 'test',
+            'fields': {
+                'id': {'type': 'integer', 'required': True}
+            }
         }
         schema_file = tmp_path / "schema.yaml"
-        with open(schema_file, "w") as f:
+        with open(schema_file, 'w') as f:
             yaml.dump(schema, f)
+            
+        # Create data file
+        df = pd.DataFrame({'id': [1, 2, 3]})
+        data_file = tmp_path / "data.parquet"
+        df.to_parquet(data_file)
+        
+        # Create checksum file path
+        checksum_file = tmp_path / "checksum.txt.sha256"
+        
+        result = validate_and_checksum(
+            data_file,
+            schema_path=schema_file,
+            checksum_path=checksum_file,
+            file_type='parquet'
+        )
+        
+        assert result['is_valid'] is True
+        assert result['checksum'] is not None
+        assert result['checksum_path'] == str(checksum_file)
+        assert len(result['validation_errors']) == 0
+        
+    def test_validate_and_checksum_fails_validation(self, tmp_path):
+        """Test validation failure is properly reported."""
+        # Create schema with required field
+        schema = {
+            'name': 'test',
+            'fields': {
+                'id': {'type': 'integer', 'required': True},
+                'name': {'type': 'string', 'required': True}
+            }
+        }
+        schema_file = tmp_path / "schema.yaml"
+        with open(schema_file, 'w') as f:
+            yaml.dump(schema, f)
+            
+        # Create data file missing required field
+        df = pd.DataFrame({'id': [1, 2, 3]})
+        data_file = tmp_path / "data.parquet"
+        df.to_parquet(data_file)
         
         with pytest.raises(ValidationError):
-            validate_and_checksum(data_file, schema_file)
+            validate_and_checksum(
+                data_file,
+                schema_path=schema_file,
+                file_type='parquet'
+            )

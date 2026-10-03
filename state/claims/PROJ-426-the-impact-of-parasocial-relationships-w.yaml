@@ -1191,3 +1191,208 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T18:50:56Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Fetch logs only for exact calendar window defined by survey_window_final.json
+  claim_id: c_7a2fdaea
+  context: 'Implement src/ingest/fetch_pushshift.py: Retrieve AI interaction logs
+    for r/Replika, r/characterAI, r/AICompanions. Strict Constraint: Fetch logs ONLY
+    for the exact calendar window defined by start_date and end_date in data/processed/survey_window_final.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_logs_only_for_exact_calendar_window_defined_by_survey
+  kind: entity_fact
+  raw_text: Fetch logs ONLY for the exact calendar window defined by start_date and
+    end_date in data/processed/survey_window_final.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:52:02Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Validate N greater than or equal to 500
+  claim_id: c_45d630cb
+  context: 'Implement src/validation/validate_match.py: Calculate match rate (matched
+    count / total loneliness users). Validate N >= 500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_N_greater_than_or_equal_to_500
+  kind: magnitude
+  raw_text: Validate N >= 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:53:05Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Halt execution if match rate less than 80 percent or N less than 500
+  claim_id: c_faa94d01
+  context: 'Implement src/validation/validate_match.py: Mandatory: If match rate <
+    80% OR N < 500, halt execution with ''Power Insufficient'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_match_rate_less_than_80_percent_or_N_less
+  kind: magnitude
+  raw_text: If match rate < 80% OR N < 500, halt execution with 'Power Insufficient'
+    error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:54:48Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Perform cluster bootstrap resampling with 1000 iterations at User level
+  claim_id: c_9786c041
+  context: 'Implement src/modeling/bootstrap_ci.py: Perform cluster bootstrap resampling
+    with 1000 iterations (seed=42) at User level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform cluster bootstrap resampling with 1000 iterations (seed=42) at
+    User level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:55:18Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Filter unified dataset where age greater than or equal to 60
+  claim_id: c_49eca82a
+  context: 'Implement src/modeling/subgroup_analysis.py: Filter unified dataset where
+    age >= 60 AND age is not null (exclude missing ages).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_unified_dataset_where_age_greater_than_or_equal_to_60
+  kind: magnitude
+  raw_text: Filter unified dataset where age >= 60 AND age is not null.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:55:58Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Compare Marginal R squared gain against threshold of 0.05
+  claim_id: c_d869f183
+  context: "Implement src/validation/validate_success.py: Mandatory Check: Compare\
+    \ Marginal R\xB2 gain against threshold = 0.05 (from SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare Marginal R\xB2 gain against threshold = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:57:08Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Set passed flag to false if runtime greater than or equal to 6 hours
+  claim_id: c_0189fa75
+  context: 'Implement src/validation/validate_success.py: If Runtime >= 6 hours (per
+    Plan Phase 7), set passed flag to false.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_passed_flag_to_false_if_runtime_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: If Runtime >= 6 hours, set passed flag to false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:57:35Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of mixed_effects.py to less than 10
+  claim_id: c_3e97041b
+  context: Refactor src/modeling/mixed_effects.py to reduce cyclomatic complexity
+    to < 10.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_mixed_effects.py_to_less_tha
+  kind: magnitude
+  raw_text: Refactor src/modeling/mixed_effects.py to reduce cyclomatic complexity
+    to < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:57:58Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of bootstrap_ci.py to less than 10
+  claim_id: c_dc401102
+  context: Refactor src/modeling/bootstrap_ci.py to reduce cyclomatic complexity to
+    < 10.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_bootstrap_ci.py_to_less_than
+  kind: magnitude
+  raw_text: Refactor src/modeling/bootstrap_ci.py to reduce cyclomatic complexity
+    to < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:58:18Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Reduce runtime of bootstrap_ci.py to less than 4 hours on 2-CPU runner
+  claim_id: c_8d0b8a7b
+  context: Optimize src/modeling/bootstrap_ci.py to reduce runtime to < 4 hours on
+    2-CPU runner.
+  evidence:
+    candidates:
+    - - ''
+      - 4.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Reduce_runtime_of_bootstrap_ci.py_to_less_than_4_hours_on_2-
+  kind: magnitude
+  raw_text: Optimize src/modeling/bootstrap_ci.py to reduce runtime to < 4 hours on
+    2-CPU runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-03T18:58:37Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Define exponential backoff with max retries 3, base delay 1 second, max
+    delay 60 seconds
+  claim_id: c_4d9ce84a
+  context: 'Implement src/utils/retry_policy.py: Define exponential backoff strategy
+    (max retries = 3, base delay = 1 second, max delay 60s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define exponential backoff strategy (max retries = 3, base delay = 1 second,
+    max delay 60s).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T18:58:57Z'

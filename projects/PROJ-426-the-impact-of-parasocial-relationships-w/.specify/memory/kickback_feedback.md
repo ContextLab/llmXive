@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the required root directories (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`) was provided; the claim lacks any artifact or listing confirming they exist. The task therefore remains unfinished.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T006` (rejected 1x): No configuration files, scripts, or documentation were presented to show that API keys and data paths are managed via environment variables, a `.env` file, or a configuration management system. The required artifact for task T006 is missing.
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/data_validation.py
+- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/retry_policy.py
 
 ## Required change
 

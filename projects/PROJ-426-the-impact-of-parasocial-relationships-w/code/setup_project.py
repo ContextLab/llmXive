@@ -4,27 +4,17 @@ from pathlib import Path
 
 def main():
     """
-    Create the project root directory structure for PROJ-426.
-    
-    Creates the following directories relative to the project root:
-    - src/
-    - tests/
-    - data/
-    - data/raw/
-    - data/processed/
-    - data/results/
-    - docs/
-    - contracts/
-    - config/
+    Create the project root directory structure for llmXive.
+    Implements Task T001a.
     """
-    # Determine project root (assumes script is run from project root or one level up)
-    # We use the directory containing this script as the reference point for safety,
-    # but typically this runs from the repo root.
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent if script_dir.name == 'code' else script_dir
-
-    # Define the required directory structure
-    directories = [
+    # Define the project root (assuming this script is in code/ or project root)
+    # We will create directories relative to the script's parent or current working directory
+    # To be safe, we assume the script is run from the project root or code directory.
+    # We will enforce creating the structure relative to the current working directory.
+    
+    root = Path.cwd()
+    
+    required_dirs = [
         "src",
         "tests",
         "data",
@@ -35,19 +25,34 @@ def main():
         "contracts",
         "config"
     ]
-
-    created_count = 0
-    for dir_name in directories:
-        target_path = project_root / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {target_path}")
-
-    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
-    return 0
+    
+    created = []
+    skipped = []
+    
+    for dir_path in required_dirs:
+        full_path = root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            if full_path.is_dir():
+                created.append(str(full_path))
+            else:
+                skipped.append(f"Could not create {dir_path} (exists as file)")
+        except PermissionError:
+            print(f"Permission denied creating: {full_path}")
+        except Exception as e:
+            print(f"Error creating {dir_path}: {e}")
+    
+    if created:
+        print("Successfully created directories:")
+        for d in created:
+            print(f"  - {d}")
+    else:
+        print("No new directories were created.")
+        
+    if skipped:
+        print("Skipped or failed:")
+        for s in skipped:
+            print(f"  - {s}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

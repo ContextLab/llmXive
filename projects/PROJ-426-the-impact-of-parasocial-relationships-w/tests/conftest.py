@@ -1,19 +1,23 @@
+"""
+Pytest configuration and fixtures.
+"""
 import pytest
 import sys
 from pathlib import Path
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def add_src_to_path():
-    """Add the project src directory to sys.path for imports."""
+    """Automatically add the 'code' directory to sys.path for imports."""
     root = Path(__file__).parent.parent
-    src_path = root / "code" / "src"
-    if str(src_path) not in sys.path:
-        sys.path.insert(0, str(src_path))
+    code_path = root / "code"
+    if str(code_path) not in sys.path:
+        sys.path.insert(0, str(code_path))
     yield
-    # Cleanup if necessary, though sys.path is usually global per session
+    if str(code_path) in sys.path:
+        sys.path.remove(str(code_path))
 
 @pytest.fixture
 def sample_data_path():
-    """Return the path to the sample data directory."""
+    """Fixture providing a path to sample data for testing."""
     root = Path(__file__).parent.parent
-    return root / "code" / "data" / "sample"
+    return root / "data" / "raw"
