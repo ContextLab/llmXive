@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No `project_structure.txt` file or directory listing was supplied, and there is no evidence that the requested directories (`code/utils`, `data/raw`, etc.) actually exist. The implementer must provide the `ls -R` output (or equivalent) and the generated `project_structure.txt` containing the full directory tree.
-- `T024` (rejected 1x): The provided `code/data_ingestion.py` lacks the required assertion that the downloaded count meets the `RSS_SIZE` configuration and does not include logic to obtain a large list of material IDs (the source CSV is missing). Moreover, the expected output file `data/raw/raw_pool.csv` does not exist. These missing pieces mean the task’s requirements are not satisfied.
+- `T020` (rejected 1x): The repository contains `code/test_split.py`, but the required input file `data/raw/raw_pool.csv` is absent, and the expected output files `data/processed/test_set.csv` and `data/processed/test_set_indices.csv` were not generated. Without the raw pool CSV the script cannot run, so the task’s core requirement is unmet.
 
 ## Required change
 

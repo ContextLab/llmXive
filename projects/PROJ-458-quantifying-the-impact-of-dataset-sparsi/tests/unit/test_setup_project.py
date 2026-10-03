@@ -3,39 +3,47 @@ import sys
 from pathlib import Path
 import pytest
 
-@pytest.fixture
-def project_root(tmp_path):
-    """Create a temporary directory to simulate project root."""
-    return tmp_path
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_structure_creation(project_root):
-    """Test that the setup script creates the required directories."""
-    required_dirs = [
-        "code/utils",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/metadata",
-        "tests/unit",
-        "tests/integration",
-        "docs"
-    ]
+from setup_project import main
 
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        # Verify that the script logic *would* create this
-        # Since we can't easily import the script in isolation without setting up paths,
-        # we assert that the directories should exist after running the script.
-        # In a real CI, we would run: python code/setup_project.py
-        # and then check os.path.exists(full_path)
-        pass
-
-    # This test verifies the *requirement* list.
-    # The actual execution is verified by the runner executing code/setup_project.py
-    assert True
-
-def test_artifact_generation(project_root):
-    """Test that project_structure.txt is generated."""
-    # Similar to above, we verify the expectation.
-    # The script must write project_structure.txt to the root.
-    assert True
+def test_project_structure_creation(tmp_path):
+    """
+    Test that the setup script creates the required directories
+    and generates the project_structure.txt file.
+    """
+    # Change to tmp directory to avoid polluting the real repo
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        
+        # Run the main function
+        result = main()
+        
+        assert result == 0, "Setup script should exit with 0"
+        
+        # Verify directories exist
+        required_dirs = [
+            "code/utils",
+            "data/raw",
+            "data/processed",
+            "data/results",
+            "data/metadata",
+            "tests/unit",
+            "tests/integration",
+            "docs"
+        ]
+        
+        for d in required_dirs:
+            assert Path(d).is_dir(), f"Directory {d} was not created"
+        
+        # Verify output file exists
+        assert Path("project_structure.txt").is_file(), "project_structure.txt was not created"
+        
+        # Verify content is not empty
+        content = Path("project_structure.txt").read_text()
+        assert len(content) > 0, "project_structure.txt is empty"
+        
+    finally:
+        os.chdir(original_cwd)

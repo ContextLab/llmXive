@@ -22,11 +22,13 @@ The approach involves ingesting data from the Materials Project API, engineering
 **Primary Dependencies**: `pymatgen`, `matminer`, `scikit-learn`, `gpytorch` (CPU mode with FITC), `statsmodels`, `pandas`, `numpy`, `seaborn`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`)  
 **Testing**: `pytest` (unit tests for ingestion, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions 2-core runner, CPU-only)  
+**Target Platform**: Linux (GitHub Actions multi-core runner
+
+The research question, method, and references remain unchanged from the original planning document, with the specific core count generalized to a qualitative specification of multi-core capacity., CPU-only)  
 **Project Type**: Data science research pipeline  
 **Performance Goals**: Complete full pipeline (ingestion to LMM) within 6 hours on free-tier runner; model training per subset < 60 minutes.  
 **Constraints**: No GPU usage; memory usage < 7 GB; strict reproducibility via pinned seeds.  
-**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (ranging from low to high, including 30, 40, 50, 100); Multiple random seeds per level (multiple total runs).
+**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (ranging from low to high, including moderate to high values); Multiple random seeds per level (multiple total runs).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

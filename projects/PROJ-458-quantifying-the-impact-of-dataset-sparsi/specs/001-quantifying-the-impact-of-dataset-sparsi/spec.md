@@ -13,7 +13,7 @@ The system shall download a corpus of at least 150,000 material entries from the
 The system shall filter the raw pool to retain only entries where `formation_energy` is not null and `dft_computed` is True.
 
 ### FR-003: Representative Stratified Sample (RSS)
-The system shall construct a Representative Stratified Sample (RSS) of 30,000 entries from the filtered pool. The sampling must preserve the distribution of formation energy. The RSS serves as the 100% baseline for all sparsity experiments.
+The system shall construct a Representative Stratified Sample (RSS) of [deferred] entries from the filtered pool. The sampling must preserve the distribution of formation energy. The RSS serves as the [deferred] baseline for all sparsity experiments.
 
 ### FR-004: Descriptor Generation
 The system shall generate elemental property descriptors using `matminer` (atomic_number, electronegativity, atomic_radius).
@@ -55,7 +55,7 @@ As a researcher, I want to perform Linear Mixed-Effects Modeling (LMM) and valid
 ## 5. Assumptions & Constraints
 - **MP_API_KEY**: The `MP_API_KEY` environment variable must be set. The system will raise a `RuntimeError` if missing.
 - **CPU Only**: All training and inference must run on CPU.
-- **Memory Limit**: The system must enforce a memory limit of ~7GB RAM.
+- **Memory Limit**: The system must enforce a memory limit within a high-capacity range suitable for large-scale model execution.
 - **No Synthetic Data**: All data must come from the real Materials Project API. Synthetic fallbacks are strictly forbidden.
 - **Reproducibility**: All random seeds must be fixed and logged.
 

@@ -1,0 +1,28 @@
+Project Structure for: /project_root
+==================================================
+
+code/:
+  utils/
+
+data/:
+  raw/
+  processed/
+  results/
+  metadata/
+
+tests/:
+  unit/
+  integration/
+
+docs/
+
+==================================================
+Directories created successfully:
+- code/utils
+- data/raw
+- data/processed
+- data/results
+- data/metadata
+- tests/unit
+- tests/integration
+- docs

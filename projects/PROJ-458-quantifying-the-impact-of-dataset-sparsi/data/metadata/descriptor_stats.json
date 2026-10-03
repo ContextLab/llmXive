@@ -1,0 +1,5 @@
+{
+  "generated_by": "T026",
+  "description": "Placeholder for descriptor statistics. Actual stats are calculated in T027 from descriptors_pool.csv which contains only training data.",
+  "note": "T026 generates descriptors for the training pool only. T027 will calculate mean imputation statistics from this file."
+}

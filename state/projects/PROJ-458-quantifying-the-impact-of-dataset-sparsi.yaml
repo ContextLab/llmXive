@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-458-quantifying-the-impact-of-dataset-sparsi
-last_run_id: b3bc9f2d-cee2-4aaa-bc84-366c5c9a18ba
+last_run_id: 642d8e83-f294-4e4c-bec3-8f79df4d48a3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi
 title: Quantifying the Impact of Dataset Sparsity on Machine Learning Models of Material
   Stability
-updated_at: '2026-09-29T16:03:35.808787Z'
+updated_at: '2026-10-03T09:58:08.031530Z'

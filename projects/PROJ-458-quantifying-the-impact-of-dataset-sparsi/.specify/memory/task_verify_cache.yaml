@@ -1,3 +1,9 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `project_structure.txt` file was provided, nor any listing of the created
+    directories, so the required artifact is missing. The implementer must create
+    the specified directory tree and output its recursive listing to `project_structure.txt`.
 T003:
   c: true
   h: f3dd7622761f2990f26fb6f7e199b94d073e7332ca96f8732a1c8a72876f53ec
@@ -5,39 +11,74 @@ T003:
     \ hook definitions for both ruff (including ruff\u2011format) and black, exactly\
     \ as the task required. The missing `pre-commit-config.yaml` is unrelated to the\
     \ specified artifact."
-T020:
+T021:
   c: false
-  h: 3d30c66100f7e1a0793e03e3bdd5c7eb82e9c9accdf2bedf3198ff518fde6ac4
-  r: "The script loads `data/processed/full_pool_final.csv` instead of the required\
-    \ `data/raw/raw_pool.csv`, performs a simple random shuffle rather than stratified\
-    \ sampling on formation_energy bins, and only saves `test_set.csv` (no `test_set_indices.csv`).\
-    \ Moreover, the raw pool file and the expected output files are missing. The implementation\
-    \ does not meet the task\u2019s specifications."
+  h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
+  r: The required artifact `data/metadata/test_set_metadata.json` does not exist,
+    so the test set independence verification and metadata logging have not been performed.
+    The implementer must create this JSON file containing at least the row count and
+    checksum of the test set.
+T024:
+  c: false
+  h: 70ec32480c98c1da8386c0214f8ccb8f93d972cf260b8c18a3c99ebf76458caa
+  r: "The required output file `data/raw/raw_pool.csv` does not exist, and the provided\
+    \ `code/data_ingestion.py` does not contain logic to retrieve a corpus of \u2265\
+    150,000 entries (it only fetches data for a given list of IDs) nor does it ensure\
+    \ the download uses exponential backoff and writes the specified columns to the\
+    \ required path. The implementation therefore fails to meet the core functional\
+    \ requirement."
+T025:
+  c: false
+  h: 77d94e04a77dc9a1058c366289d1b2fdaa36a22d3af832d507b2c80d5afa433e
+  r: "The repository lacks the required `data/processed/filtered_pool.csv` file, and\
+    \ the provided `code/data_ingestion.py` excerpt contains only data\u2011download\
+    \ logic with no implementation that reads `raw_pool.csv`, filters rows on `formation_energy`\
+    \ and `dft_computed`, and writes the result to the processed folder. Both the\
+    \ artifact and the necessary code are missing."
+T026:
+  c: false
+  h: 16f639e9c51dcf9b7ae2cd5429788a198b4b703973cb3c91b3ca5aadabb25543
+  r: "The repository lacks the required input file `data/processed/filtered_pool.csv`,\
+    \ the output file `data/processed/descriptors_pool.csv`, and the test\u2011set\
+    \ index file `data/processed/test_set_indices.csv`. Moreover, `code/data_ingestion.py`\
+    \ contains only API\u2011download logic and does not implement the described descriptor\
+    \ generation with `matminer`. The task\u2019s core functionality is therefore\
+    \ missing."
+T027:
+  c: false
+  h: 94649027dc8b12a2edf5fa20dd6ceb914a32442bed5be6f93fccc24960743dcb
+  r: "The repository lacks the required data files (`descriptors_pool.csv`, `test_set_indices.csv`,\
+    \ `ingestion_log.json`, `full_pool_final.csv`) and the `code/data_ingestion.py`\
+    \ script does not contain the described imputation logic (mean\u2011fill, row\
+    \ dropping, logging, and output generation). These essential artifacts are missing,\
+    \ so the task is not satisfied."
+T031:
+  c: false
+  h: c6b585f4c6dd6d7a2f9fa9ce5d4358113cc36bfc3c1d3852d3e9e345c2fdf345
+  r: "The required input files (`data/processed/full_pool_final.csv`, `data/processed/test_set_indices.csv`)\
+    \ and the expected output (`data/processed/rss_pool.csv`) are absent, and the\
+    \ provided `code/sparsity_generation.py` does not contain logic to read the full\
+    \ pool, filter test indices, perform stratified sampling, or write the RSS pool\
+    \ as specified. The task\u2019s core functionality is therefore not fulfilled."
+T032a:
+  c: false
+  h: 7527d047de06e7719844b3346d56a4e046ba6c4b1488776d02b8126b823d2d1c
+  r: "The required input file `data/processed/rss_pool.csv` does not exist, and the\
+    \ expected output `data/processed/sparsity_100pct.csv` is also missing. Moreover,\
+    \ the provided `code/sparsity_generation.py` is truncated and does not show a\
+    \ complete K\u2011Means implementation or the generation of the output file. The\
+    \ task therefore is not satisfied."
+T033:
+  c: false
+  h: f17abcd46099c7e117d3e303cb1fc294e1c4769d5ece0d6facb52d8d29efeb60
+  r: "The required output file `data/metadata/stratification_report.json` does not\
+    \ exist, and the provided `validate_stratification.py` is truncated so it\u2019\
+    s unclear whether it fully implements the KS\u2011test, error\u2011raising on\
+    \ threshold breach, and JSON logging as specified. The missing JSON report means\
+    \ the task\u2019s core deliverable is absent."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
     files, nor any listing of their contents with the required keys (`seed`, `percentage`,
     `criteria`, `checksum`). Consequently the required metadata artifacts are missing.
-T054:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an updated `spec.md` was provided; the required strings (\u201C\
-    1, 2, 5, 10, 25, 50, 100\u201D and \u201CLinear Mixed-Effects\u201D) cannot be\
-    \ verified as present. The artifact needed to confirm the task\u2019s completion\
-    \ is missing."
-T055:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` content was supplied, and there is no evidence that the file was\
-    \ updated to include the phrase \u201Cslope variance < 10%\u201D or references\
-    \ to Linear Mixed\u2011Effects Modeling in sections FR\u2011007, SC\u2011003,\
-    \ and US\u20113. The required artifact is missing."
-T056:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim references updates to `spec.md` and `plan.md`, but no file contents\
-    \ or excerpts are provided to confirm that `spec.md` now contains \u201CMP_API_KEY\u201D\
-    \ and that `plan.md` lists \u201C1, 2, 5, 10, 25, 50, 100\u201D. Without the actual\
-    \ artifacts, the requirement cannot be verified. The implementer must supply the\
-    \ updated files (or excerpts) showing the required strings."

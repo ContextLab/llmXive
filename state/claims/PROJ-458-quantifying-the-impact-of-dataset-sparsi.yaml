@@ -1897,3 +1897,917 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T16:03:35Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition a stratified sample of 5000 rows from raw pool
+  claim_id: c_6eb962ac
+  context: T020 [US1] [FR-009] Implement `code/test_split.py` to partition a stratified
+    sample (5000 rows) from `data/raw/raw_pool.csv` (the ENTIRE raw pool, produced
+    by T024) into a **Fixed Test Set** using stratified random sampling based on formation_energy
+    bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from `data/raw/raw_pool.csv`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:36:29Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Use pd.qcut with multiple quantile bins on formation_energy to define
+    strata
+  claim_id: c_db55b8cf
+  context: 'T020 [US1] [FR-009] ... **Algorithm**: Use `pd.qcut` with multiple quantile
+    bins on `formation_energy` to define strata, then sample a substantial number
+    of rows stratified by these bins with a fixed random seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pd.qcut_with_multiple_quantile_bins_on_formation_energy
+  kind: entity_fact
+  raw_text: Use `pd.qcut` with multiple quantile bins on `formation_energy` to define
+    strata, then sample a substantial number of rows stratified by these bins with
+    a fixed random seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:36:53Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Drop rows with more than 50% missing values
+  claim_id: c_9b3b3479
+  context: T027 [US1] [FR-004] Implement imputation logic in `code/data_ingestion.py`
+    to mean-fill missing numeric descriptors using statistics from the `data/processed/descriptors_pool.csv`
+    (training pool, excluding test set indices); drop rows with >50% missing values
+    and log count to `data/results/ingestion_log.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values and log count to `data/results/ingestion_log.json`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:37:09Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate RSS subset as copy of rss_pool.csv
+  claim_id: c_2ce6009d
+  context: T032a [US2] [FR-003] Implement K-Means clustering on elemental fingerprints
+    in `code/sparsity_generation.py` to generate an RSS subset (copy of `rss_pool.csv`).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_RSS_subset_as_copy_of_rss_pool.csv
+  kind: entity_fact
+  raw_text: generate an RSS subset (copy of `rss_pool.csv`)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:37:35Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested subsets at levels 2%, 5%, 10%, 25%, 50% of original RSS
+    indices
+  claim_id: c_ba5ed433
+  context: 'T032b [US2] [FR-005] Implement nested subset generation in `code/sparsity_generation.py`
+    to generate strictly nested stratified subsets from the [deferred] RSS. **Algorithm**:
+    For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling X%
+    of the *original RSS indices* (from T032a) using `pandas.DataFrame.sample(frac=X/100,
+    random_state=seed)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling
+    X% of the *original RSS indices*
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:38:01Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR with RBF kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6
+    and Random Forest with n_estimators=100
+  claim_id: c_069e65a2
+  context: T035 [US2] [FR-005] Implement `code/model_training.py` to train GPR (RBF
+    kernel, `normalize_y=True`, `max_iter_predict=1000 `, `alpha=1e-6 `) and Random
+    Forest models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000 `, `alpha=1e-6
+    `) and Random Forest models (n_estimators=100, default params) on CPU only.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:38:18Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Implement LMM using statsmodels.MixedLM with formula error ~ sparsity_level
+    + (1|seed)
+  claim_id: c_dd91a55d
+  context: T043a [US3] [FR-006] Implement Linear Mixed-Effects Modeling (LMM) using
+    `statsmodels.MixedLM` with formula `error ~ sparsity_level + (1|seed)` to handle
+    nested sparsity levels.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: seed)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Implement_LMM_using_statsmodels.MixedLM_with_formula_error_~
+    source_value: https://en.wikipedia.org/wiki/Implement_LMM_using_statsmodels.MixedLM_with_formula_error_~
+    subject: Implement LMM using statsmodels.MixedLM with formula error ~ sparsity_level
+      + (1
+  kind: relational
+  raw_text: Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM`
+    with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:38:41Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_ad0f99e1
+  context: 'T047 [US3] [FR-007] ... 4. Determine if `variance < 0.10` ([deferred]).
+    **Input**: Derive consecutive level pairs dynamically from the sorted list in
+    `config.py`. **Output**: Save calculated slope variance values AND a boolean `threshold_met`
+    to `data/results/slope_variance.json`. Note: This implements the <10% threshold
+    from the Plan, exceeding FR-007''s ambiguous requirement.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if `variance < 0.10` ([deferred]).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:39:09Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition a stratified sample of 5000 rows
+  claim_id: c_7ff44b83
+  context: T020 [US1] [FR-009] Implement code/test_split.py to partition a stratified
+    sample (5000 rows) from data/raw/raw_pool.csv (the ENTIRE raw pool, produced by
+    T024) into a Fixed Test Set using stratified random sampling based on formation_energy
+    bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:42:43Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate RSS subset via K-Means clustering
+  claim_id: c_267b0602
+  context: T032a [US2] [FR-003] Implement K-Means clustering on elemental fingerprints
+    in code/sparsity_generation.py to generate an RSS subset (copy of rss_pool.csv).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_RSS_subset_via_K-Means_clustering
+  kind: entity_fact
+  raw_text: generate an RSS subset (copy of rss_pool.csv)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:43:06Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested subsets at 1, 2, 5, 10, 25, 50 percent levels
+  claim_id: c_212b1c7b
+  context: 'T032b [US2] [FR-005] Implement nested subset generation in code/sparsity_generation.py
+    to generate strictly nested stratified subsets from the [deferred] RSS. Algorithm:
+    For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling X%
+    of the original RSS indices.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [, 2, 5, 10, 25, 50], generate the subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:43:31Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR with RBF kernel, max_iter_predict 1000, alpha 1e-6
+  claim_id: c_08d236cd
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6
+    )
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:43:53Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with 100 estimators
+  claim_id: c_f63ef2dd
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models (n_estimators=100, default params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:44:15Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_3b5d5694
+  context: 'T047 [US3] [FR-007] Implement sensitivity analysis in code/statistical_analysis.py
+    to measure slope variance between consecutive sparsity levels and log the result
+    to data/results/slope_variance.json. Algorithm: ... Determine if variance < 0.10
+    ([deferred]).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if variance < 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:44:17Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition a stratified sample of 5000 rows for fixed test set
+  claim_id: c_69639f84
+  context: T020 [US1] [FR-009] Implement code/test_split.py to partition a stratified
+    sample (5000 rows) from data/raw/raw_pool.csv... into a Fixed Test Set...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:45:41Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested sparsity subsets at 1, 2, 5, 10, 25, and 50 percent levels
+  claim_id: c_09184a4b
+  context: T032b [US2] [FR-005] Implement nested subset generation... For each level
+    X% in [, 2, 5, 10, 25, 50], generate the subset...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [1, 2, 5, 10, 25, 50], generate the subset by sampling
+    X% of the original RSS indices
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:45:44Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR with max_iter_predict 1000 and Random Forest with 100 estimators
+  claim_id: c_6713361c
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6) and Random Forest
+    models (n_estimators=100, default params)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6)
+    and Random Forest models (n_estimators=100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:45:55Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_cb26182f
+  context: 'T047 [US3] [FR-007] Implement sensitivity analysis... 4. Determine if
+    variance < 0.10 ([deferred]). Note: This implements the <10% threshold from the
+    Plan...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if variance < 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:45:57Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition stratified sample of 5000 rows into fixed test set
+  claim_id: c_9534ad70
+  context: T020 [US1] [FR-009] Implement code/test_split.py to partition a stratified
+    sample (5000 rows) from data/raw/raw_pool.csv... into a Fixed Test Set...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv...
+    into a Fixed Test Set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:49:43Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 2
+  canonical: Drop rows with more than 50 percent missing values during imputation
+  claim_id: c_eddac5e1
+  context: T027 [US1] [FR-004] Implement imputation logic... to mean-fill missing
+    numeric descriptors... drop rows with >50% missing values and log count...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50_percent_missing_values_during_im
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:49:45Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested stratified subsets at 2, 5, 10, 25, and 50 percent sparsity
+    levels
+  claim_id: c_435bc83e
+  context: T032b [US2] [FR-005] Implement nested subset generation... For each level
+    X% in [, 2, 5, 10, 25, 50], generate the subset...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [, 2, 5, 10, 25, 50], generate the subset...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:49:45Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR with max_iter_predict 1000 and Random Forest with n_estimators
+    100
+  claim_id: c_be7f7ccc
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6) and Random Forest
+    models (n_estimators=100, default params)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6)
+    and Random Forest models (n_estimators=100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:49:46Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_cf9997af
+  context: T047 [US3] [FR-007] Implement sensitivity analysis... Calculate the variance
+    of these slopes... Determine if variance < 0.10 ([deferred]).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if variance < 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:49:47Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition stratified sample of 5000 rows from raw pool
+  claim_id: c_3317ed99
+  context: T020 [US1] [FR-009] Implement code/test_split.py to partition a stratified
+    sample (5000 rows) from data/raw/raw_pool.csv (the ENTIRE raw pool, produced by
+    T024) into a Fixed Test Set using stratified random sampling based on formation_energy
+    bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:50:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Drop rows with more than 50% missing values during imputation
+  claim_id: c_2b57ca1f
+  context: T027 [US1] [FR-004] Implement imputation logic in code/data_ingestion.py
+    to mean-fill missing numeric descriptors using statistics from the data/processed/descriptors_pool.csv
+    (training pool, excluding test set indices); drop rows with >50% missing values
+    and log count to data/results/ingestion_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values_during_imputatio
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:50:22Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested stratified subsets at 1, 2, 5, 10, 25, and 50 percent
+    levels
+  claim_id: c_37262a02
+  context: 'T032b [US2] [FR-005] Implement nested subset generation in code/sparsity_generation.py
+    to generate strictly nested stratified subsets from the [deferred] RSS. Algorithm:
+    For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling X%
+    of the original RSS indices.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate nested stratified subsets for levels 1%, 2%, 5%, 10%, 25%, 50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:50:22Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR models with max_iter_predict 1000 and alpha 1e-6
+  claim_id: c_389ffcb5
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR models with max_iter_predict=1000 and alpha=1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:50:34Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train Random Forest models with 100 estimators
+  claim_id: c_7828a84c
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train Random Forest models with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:50:57Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_e0d4d501
+  context: T047 [US3] [FR-007] Implement sensitivity analysis in code/statistical_analysis.py
+    to measure slope variance between consecutive sparsity levels... 4. Determine
+    if variance < 0.10 ([deferred]).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: determine if slope variance is less than 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:51:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: partition stratified sample of 5000 rows
+  claim_id: c_790c832d
+  context: Implement code/test_split.py to partition a stratified sample (5000 rows)
+    from data/raw/raw_pool.csv (the ENTIRE raw pool, produced by T024) into a Fixed
+    Test Set using stratified random sampling based on formation_energy bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:53:18Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: drop rows with more than 50% missing values
+  claim_id: c_689c1999
+  context: Implement imputation logic in code/data_ingestion.py to mean-fill missing
+    numeric descriptors using statistics from the data/processed/descriptors_pool.csv
+    (training pool, excluding test set indices); drop rows with >50% missing values
+    and log count to data/results/ingestion_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:53:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: generate nested subsets at 1%, 2%, 5%, 10%, 25%, 50% sparsity levels
+  claim_id: c_e222bfe2
+  context: 'Algorithm: For each level X% in [, 2, 5, 10, 25, 50], generate the subset
+    by sampling X% of the *original RSS indices* (from T032a) using pandas.DataFrame.sample(frac=X/100,
+    random_state=seed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [1, 2, 5, 10, 25, 50], generate the subset by sampling
+    X% of the original RSS indices
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:53:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: train GPR with max_iter_predict 1000 and Random Forest with 100 estimators
+  claim_id: c_19924781
+  context: Implement code/model_training.py to train GPR (RBF kernel, normalize_y=True,
+    max_iter_predict=1000 , alpha=1e-6 ) and Random Forest models (n_estimators=100,
+    default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, normalize_y=True, max_iter_predict=1000, alpha=1e-6)
+    and Random Forest models (n_estimators=100, default params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:53:21Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: slope variance threshold less than 0.10
+  claim_id: c_298f9cbc
+  context: Calculate the variance of these slopes across all consecutive pairs. 4.
+    Determine if variance < 0.10 ([deferred]).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_variance_threshold_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if variance < 0.10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:53:23Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition a stratified sample of 5000 rows from raw pool
+  claim_id: c_d61f8804
+  context: T020 [US1] [FR-009] Implement code/test_split.py to partition a stratified
+    sample (5000 rows) from data/raw/raw_pool.csv (the ENTIRE raw pool, produced by
+    T024) into a Fixed Test Set using stratified random sampling based on formation_energy
+    bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from data/raw/raw_pool.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:16Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 2
+  canonical: Drop rows with more than 50% missing values
+  claim_id: c_cb7f80a2
+  context: T027 [US1] [FR-004] Implement imputation logic in code/data_ingestion.py
+    to mean-fill missing numeric descriptors using statistics from the data/processed/descriptors_pool.csv
+    (training pool, excluding test set indices); drop rows with >50% missing values
+    and log count to data/results/ingestion_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:18Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested sparsity subsets at levels 1%, 2%, 5%, 10%, 25%, and
+    50%
+  claim_id: c_474e5695
+  context: 'T032b [US2] [FR-005] Implement nested subset generation in code/sparsity_generation.py
+    to generate strictly nested stratified subsets from the [deferred] RSS. **Algorithm**:
+    For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling X%
+    of the *original RSS indices* (from T032a) using pandas.DataFrame.sample(frac=X/100,
+    random_state=seed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each level X% in [1, 2, 5, 10, 25, 50], generate the subset by sampling
+    X% of the original RSS indices
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:19Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR model with RBF kernel, normalize_y=True, max_iter_predict=1000,
+    alpha=1e-6
+  claim_id: c_b3f868b1
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6
+    )
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:19Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train Random Forest model with 100 estimators
+  claim_id: c_0bc7d8d8
+  context: T035 [US2] [FR-005] Implement code/model_training.py to train GPR (RBF
+    kernel, normalize_y=True, max_iter_predict=1000 , alpha=1e-6 ) and Random Forest
+    models (n_estimators=100, default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models (n_estimators=100, default params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:19Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_894ca1af
+  context: 'T047 [US3] [FR-007] Implement sensitivity analysis in code/statistical_analysis.py
+    to measure slope variance between consecutive sparsity levels and log the result
+    to data/results/slope_variance.json. **Algorithm**: 1. Extract the LMM fixed-effect
+    predictions for error at each sparsity level. 2. Calculate the ''slope'' as the
+    finite difference between consecutive levels: slope_i = (pred_{i+1} - pred_i)
+    / (level_{i+1} - level_i). 3. Calculate the variance of these slopes across all
+    consecutive pairs. 4. Determine if variance < 0.10 ([deferred]).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if variance < 0.10 ([deferred])
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:55:21Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Partition stratified sample of 5000 rows from raw pool
+  claim_id: c_fff072eb
+  context: Implement `code/test_split.py` to partition a stratified sample (5000 rows)
+    from `data/raw/raw_pool.csv` (the ENTIRE raw pool, produced by T024) into a **Fixed
+    Test Set** using stratified random sampling based on formation_energy bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: partition a stratified sample (5000 rows) from `data/raw/raw_pool.csv`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:56:16Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Use pd.qcut with multiple quantile bins on formation_energy for stratification
+  claim_id: c_4661748f
+  context: '**Algorithm**: Use `pd.qcut` with multiple quantile bins on `formation_energy`
+    to define strata, then sample a substantial number of rows stratified by these
+    bins with a fixed random seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pd.qcut_with_multiple_quantile_bins_on_formation_energy
+  kind: entity_fact
+  raw_text: Use `pd.qcut` with multiple quantile bins on `formation_energy` to define
+    strata
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:56:39Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Drop rows with more than 50 percent missing values
+  claim_id: c_4746bacd
+  context: Implement imputation logic in `code/data_ingestion.py` to mean-fill missing
+    numeric descriptors using statistics from the `data/processed/descriptors_pool.csv`
+    (training pool, excluding test set indices); drop rows with >50% missing values
+    and log count to `data/results/ingestion_log.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50_percent_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:56:41Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Generate nested stratified subsets at levels 1, 2, 5, 10, 25, and 50
+    percent
+  claim_id: c_7c41a6d9
+  context: 'Implement nested subset generation in `code/sparsity_generation.py` to
+    generate strictly nested stratified subsets from the [deferred] RSS. **Algorithm**:
+    For each level X% in [, 2, 5, 10, 25, 50], generate the subset by sampling X%
+    of the *original RSS indices* (from T032a) using `pandas.DataFrame.sample(frac=X/100,
+    random_state=seed)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'generate strictly nested stratified subsets from the [deferred] RSS.
+    **Algorithm**: For each level X% in [, 2, 5, 10, 25, 50]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:57:04Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Train GPR with max_iter_predict 1000 and alpha 1e-6 and Random Forest
+    with 100 estimators
+  claim_id: c_d2bd6f40
+  context: Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`,
+    `max_iter_predict=1000 `, `alpha=1e-6 `) and Random Forest models (n_estimators=100,
+    default params) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000 `, `alpha=1e-6
+    `) and Random Forest models (n_estimators=100, default params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:57:04Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Use unstructured covariance matrix for LMM to handle heteroscedasticity
+  claim_id: c_9039e602
+  context: 'Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM`
+    with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels.
+    **Input**: Read `metrics.csv` from `data/results/metrics.csv` (produced by T035).
+    **Note**: This implements the Plan''s approved deviation from FR-006 (ANOVA) due
+    to nested data structure. Use an unstructured covariance matrix as an implementation
+    choice to handle heteroscedasticity (violated sphericity).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_unstructured_covariance_matrix_for_LMM_to_handle_heteros
+  kind: entity_fact
+  raw_text: Use an unstructured covariance matrix as an implementation choice to handle
+    heteroscedasticity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:57:31Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Determine if slope variance is less than 0.10
+  claim_id: c_680899d8
+  context: 'Implement sensitivity analysis in `code/statistical_analysis.py` to measure
+    slope variance between consecutive sparsity levels and log the result to `data/results/slope_variance.json`.
+    **Algorithm**: 1. Extract the LMM fixed-effect predictions for `error` at each
+    sparsity level. 2. Calculate the ''slope'' as the finite difference between consecutive
+    levels: `slope_i = (pred_{i+1} - pred_i) / (level_{i+1} - level_i)`. 3. Calculate
+    the variance of these slopes across all consecutive pairs. 4. Determine if `variance
+    < 0.10` ([deferred]).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_if_slope_variance_is_less_than_0.10
+  kind: magnitude
+  raw_text: Determine if `variance < 0.10`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:57:33Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Dependencies include scikit-learn 1.3.0 and pandas 2.0.3
+  claim_id: c_8cbf79f9
+  context: Create `code/requirements.txt` with pinned versions for all dependencies
+    (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib,
+    requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy,
+    matplotlib, requests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T09:57:55Z'

@@ -1,0 +1,4 @@
+{
+  "rss_size": 40000,
+  "reason": "Estimated for ~40000 rows to fit within 2GB memory target. Row size estimate: 1536 bytes."
+}
