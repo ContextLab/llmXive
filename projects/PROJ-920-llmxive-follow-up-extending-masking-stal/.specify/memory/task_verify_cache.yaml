@@ -35,3 +35,20 @@ T039:
     are present or shown, and no evidence that `run_pipeline.sh` was executed on any
     subset of trajectories. The required artifacts are missing, so the pipeline execution
     has not been verified.
+T046:
+  c: true
+  h: 470023c3dfdb2988f8ab77efcbc851b5db5209af48f12d4eb6bae3cd6d541183
+  r: "The repository contains a non\u2011empty `code/generate_terms.py` that checks\
+    \ for `code/config/user_terms.json`, falls back to the hard\u2011coded default\
+    \ list, and writes `code/config/density_terms.json` with the required `{\"terms\"\
+    : [...]}` schema. The generated `density_terms.json` is present and matches the\
+    \ default list, satisfying the verification criteria."
+T048:
+  c: false
+  h: f4d244a0553b00416fd4a6477ebc77084422b3ade8d2e3d83d8aa4d1b7f4bdf6
+  r: "The required `data/raw/trajectories.json` file is absent, so the script cannot\
+    \ load the trajectories as mandated. Moreover, the provided `validate_trajectories.py`\
+    \ is truncated and does not show the full validation logic (e.g., iterating over\
+    \ trajectories, checking entropy against requested density, and exiting with appropriate\
+    \ codes). Both the missing input file and the incomplete script mean the task\u2019\
+    s requirements are not satisfied."

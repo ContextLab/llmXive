@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 99ec25c437f3f3abeb2d73fce7645086e1b676db41c37d84d19b2b19c4f7bb7f
+  artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-10-03T04:04:36.071087Z'

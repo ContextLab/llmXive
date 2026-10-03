@@ -1,0 +1,5 @@
+{
+  "min_samples_per_bin": 10,
+  "splines_df_candidates": [3, 4, 5, 6],
+  "p_value_threshold": 0.05
+}
