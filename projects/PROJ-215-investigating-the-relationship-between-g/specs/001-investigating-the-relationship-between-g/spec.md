@@ -107,7 +107,7 @@ If an independent cohort (e.g., UK Biobank, MetaHIT) is accessible, the system m
 
 ## Assumptions
 
-- The American Gut Project (AGP) public dataset (Study ID: 10317) contains both 16S rRNA sequencing data and valid mental health questionnaire responses (PHQ-9, GAD-7) for a sufficient number of overlapping samples.
+- The American Gut Project (AGP) public dataset contains both 16S rRNA sequencing data and valid mental health questionnaire responses (PHQ-9, GAD-7) for a sufficient number of overlapping samples.
 - The public API or download method for AGP data does not require authentication or paid access.
 - The analysis will be performed on a CPU-only environment (GitHub Actions free tier) with ≤ 7 GB RAM, requiring data sampling if the full dataset exceeds memory limits.
 - The mental health scores in the metadata are self-reported and valid for correlation analysis, despite potential confounding factors not captured in the dataset.

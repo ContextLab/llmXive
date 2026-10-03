@@ -1,28 +1,30 @@
-T016b:
+T012b:
   c: false
-  h: d1e3068bb11054a125fc6299151fb3f83025fbf401d8874c1b086be6dd9decd6
-  r: "The repository lacks the required `data/processed/beta_distance_matrices.npz`\
-    \ file, and the provided `code/preprocessing.py` is incomplete (e.g., `apply_rarefaction`\
-    \ contains a `pass`, `calculate_alpha_diversity` line is syntactically broken,\
-    \ and the beta\u2011diversity generation logic is absent). Consequently, the task\
-    \ of generating and saving the beta\u2011diversity matrices has not been fulfilled."
-T020:
+  h: 7c038962cb31622f966353f7e38998854d345f01cb943bb165cb67b8d0aed56a
+  r: "The repository contains a partially shown `code/data_ingestion.py` with helper\
+    \ functions for computing and saving SHA\u2011256 hashes, but the script is truncated\
+    \ and does not demonstrate iterating over the raw files or invoking those functions.\
+    \ Moreover, the required output file `data/raw/checksums.txt` is absent from the\
+    \ project. Consequently, the task of computing checksums for all downloaded raw\
+    \ data files and recording them in the specified file has not been fulfilled."
+T016:
   c: false
-  h: 0c689cdbb8c66672217445a43c1279fe68aaa1c98777789c631f743c86500546
-  r: "The provided `code/analysis.py` contains a partial implementation of the partial\
-    \ Spearman calculation but does not include any logic to save the resulting unadjusted\
-    \ p\u2011values to `data/interim/unadjusted_alpha_pvals.csv`, and that CSV file\
-    \ is missing. The script is also truncated, indicating the implementation is incomplete.\
-    \ The required output artifact is absent."
-T020a:
+  h: 166b1ebb406a6597a657a69feada7b253d2667d7fc5a7fa0b719099f5939b71c
+  r: The repository contains a `code/preprocessing.py` file, but the shown code is
+    truncated and does not include any logic that computes Shannon or Simpson metrics
+    on a preprocessed table and writes the results to `data/processed/alpha_metrics.csv`.
+    Moreover, the required output file `data/processed/alpha_metrics.csv` is absent
+    from the project. Both the implementation and the expected output are missing,
+    so the task is not satisfied.
+T021:
   c: false
-  h: d55997a9bbe0257d5fd9cb974e2f171d30c6cafcfb1a2f8f25405d50ee7ccecc
-  r: "The provided `code/analysis.py` is truncated (the `calculate_partial_spearman_taxa`\
-    \ function ends abruptly and does not contain the full implementation or any code\
-    \ that writes the unadjusted p\u2011values to `data/interim/unadjusted_taxa_pvals.csv`).\
-    \ Moreover, the required CSV file `data/interim/unadjusted_taxa_pvals.csv` is\
-    \ missing from the repository. Both the functional implementation and the expected\
-    \ output artifact are absent."
+  h: 12f66b2fb4cebac5f3fdf3f5f35dfa62ed6bfc759dcdde187c50d096184583ef
+  r: "The repository lacks the required `data/processed/bray_curtis.npz` file and\
+    \ the expected `data/interim/permanova_results.csv` output. Moreover, the provided\
+    \ `code/analysis.py` (as shown) only contains partial\u2011Spearman functions\
+    \ and does not implement the PERMANOVA analysis described in the task. Both the\
+    \ input data and the PERMANOVA result artifact are missing, so the task is not\
+    \ fulfilled."
 T023:
   c: false
   h: 10e86cd03a9023295cd503113b9b35548208b68a744430fdb91a395d2a744721

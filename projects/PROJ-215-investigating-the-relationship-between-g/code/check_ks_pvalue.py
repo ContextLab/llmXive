@@ -1,205 +1,141 @@
-"""
-Task T024: SC-002 Check - Kolmogorov-Smirnov test on p-value distribution.
-
-If no significant taxa (q < 0.05) are found in the association results,
-this script performs a Kolmogorov-Smirnov test to check if the p-value
-distribution deviates from a uniform distribution (indicating potential
-signal or bias).
-"""
-
 import os
 import logging
 import pandas as pd
 import numpy as np
 from scipy.stats import kstest, uniform
-
 from config import get_output_path
-from utils.logging import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-
-def load_association_results() -> pd.DataFrame:
+def load_association_results(filepath: str) -> pd.DataFrame:
     """
-    Load the association results from the previous analysis step.
-    
-    Returns:
-        pd.DataFrame: DataFrame containing association results with columns
-                     including 'taxon', 'pval' (unadjusted), and 'qval' (adjusted).
-    
-    Raises:
-        FileNotFoundError: If the results file does not exist.
-        ValueError: If required columns are missing.
+    Load the association results CSV containing unadjusted p-values.
+    Expected columns: feature, pval_raw (or similar), pval_adj, etc.
     """
-    input_path = get_output_path("data/processed/association_results.csv")
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Association results file not found: {filepath}")
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(
-            f"Association results file not found at {input_path}. "
-            "Ensure T025 (output association_results.csv) has been completed."
-        )
-    
-    df = pd.read_csv(input_path)
-    
-    required_cols = ['pval', 'qval']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(
-            f"Association results missing required columns: {missing_cols}"
-        )
-    
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded {len(df)} rows from {filepath}")
     return df
-
 
 def check_significant_taxa(df: pd.DataFrame, q_threshold: float = 0.05) -> bool:
     """
-    Check if there are any significant taxa based on adjusted p-values.
-    
-    Args:
-        df: DataFrame with association results.
-        q_threshold: Threshold for adjusted p-value (q-value).
-        
-    Returns:
-        bool: True if any significant taxa found, False otherwise.
+    Check if there are any significant taxa (q-value < threshold).
+    Looks for 'pval_adj' or 'qval' column.
     """
-    significant = df[df['qval'] < q_threshold]
-    return len(significant) > 0
+    # Try common column names for adjusted p-values
+    adj_col = None
+    for col in ['pval_adj', 'qval', 'adj_pval', 'q_value']:
+        if col in df.columns:
+            adj_col = col
+            break
+    
+    if adj_col is None:
+        logger.warning("No adjusted p-value column found. Assuming no significant taxa found.")
+        return False
+    
+    significant = df[df[adj_col] < q_threshold]
+    has_significant = len(significant) > 0
+    logger.info(f"Found {len(significant)} significant taxa with q < {q_threshold}")
+    return has_significant
 
+def run_kolmogorov_smirnov_test(p_values: pd.Series) -> tuple:
+    """
+    Perform KS test on p-values against uniform distribution.
+    Returns (statistic, p_value).
+    """
+    # Filter out NaN values
+    clean_pvals = p_values.dropna()
+    
+    if len(clean_pvals) == 0:
+        logger.warning("No valid p-values found for KS test.")
+        return (0.0, 1.0)
+    
+    # KS test against uniform(0,1)
+    statistic, p_value = kstest(clean_pvals, 'uniform')
+    logger.info(f"KS Test: statistic={statistic:.6f}, p_value={p_value:.6f}")
+    return (statistic, p_value)
 
-def run_kolmogorov_smirnov_test(df: pd.DataFrame) -> dict:
+def save_ks_results(statistic: float, p_value: float, output_path: str):
     """
-    Perform Kolmogorov-Smirnov test on the p-value distribution.
-    
-    The KS test checks if the observed p-values follow a uniform distribution
-    (expected under the null hypothesis of no association).
-    
-    Args:
-        df: DataFrame with association results.
-        
-    Returns:
-        dict: Dictionary containing KS test statistics and p-value.
+    Save KS test results to JSON file.
     """
-    pvals = df['pval'].dropna()
+    # Determine pass/fail based on p-value < 0.05
+    result = "PASS" if p_value < 0.05 else "FAIL"
     
-    if len(pvals) == 0:
-        logger.warning("No p-values found for KS test.")
-        return {
-            'statistic': np.nan,
-            'pvalue': np.nan,
-            'n_samples': 0,
-            'message': 'No p-values available for testing'
-        }
-    
-    # KS test against uniform distribution
-    statistic, pvalue = kstest(pvals, 'uniform')
-    
-    return {
-        'statistic': statistic,
-        'pvalue': pvalue,
-        'n_samples': len(pvals),
-        'message': 'KS test completed'
+    results = {
+        "statistic": float(statistic),
+        "p_value": float(p_value),
+        "result": result
     }
-
-
-def save_ks_results(results: dict, significant_found: bool) -> str:
-    """
-    Save the KS test results to a text file.
     
-    Args:
-        results: Dictionary containing KS test results.
-        significant_found: Whether significant taxa were found.
-        
-    Returns:
-        str: Path to the output file.
-    """
-    output_path = get_output_path("results/ks_pvalue_check.txt")
-    
-    # Ensure results directory exists
+    # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
+    import json
     with open(output_path, 'w') as f:
-        f.write("SC-002 Check: Kolmogorov-Smirnov Test on P-value Distribution\n")
-        f.write("=" * 70 + "\n\n")
-        
-        if significant_found:
-            f.write("STATUS: Significant taxa (q < 0.05) were found.\n")
-            f.write("        KS test not required per SC-002 specification.\n")
-        else:
-            f.write("STATUS: No significant taxa (q < 0.05) found.\n")
-            f.write("        Performing KS test on p-value distribution.\n\n")
-            
-            f.write(f"Number of p-values tested: {results['n_samples']}\n")
-            f.write(f"KS Test Statistic: {results['statistic']:.6f}\n")
-            f.write(f"KS Test P-value: {results['pvalue']:.6f}\n")
-            f.write(f"Null Hypothesis: P-values follow a uniform distribution\n\n")
-            
-            if results['n_samples'] > 0:
-                if results['pvalue'] < 0.05:
-                    f.write("INTERPRETATION: Reject null hypothesis (p < 0.05).\n")
-                    f.write("                The p-value distribution deviates from uniform,\n")
-                    f.write("                suggesting potential signal or systematic bias.\n")
-                else:
-                    f.write("INTERPRETATION: Fail to reject null hypothesis (p >= 0.05).\n")
-                    f.write("                The p-value distribution is consistent with uniform,\n")
-                    f.write("                suggesting no strong signal or systematic bias.\n")
-        
-        f.write("\n" + "=" * 70 + "\n")
-        f.write(f"Generated: {pd.Timestamp.now()}\n")
+        json.dump(results, f, indent=2)
     
-    return output_path
-
+    logger.info(f"Saved KS test results to {output_path}: {result}")
 
 def main():
     """
     Main entry point for T024: SC-002 Check.
-    
-    This function:
-    1. Loads the association results
-    2. Checks if significant taxa exist
-    3. If no significant taxa, performs KS test on p-value distribution
-    4. Saves results to results/ks_pvalue_check.txt
+    Performs KS test on unadjusted p-values if no significant taxa found.
     """
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+    
+    # Paths
+    unadjusted_taxa_pvals_path = get_output_path("data/interim/unadjusted_taxa_pvals.csv")
+    ks_results_path = get_output_path("data/processed/ks_test_results.json")
+    
     logger.info("Starting SC-002 Check (T024)")
     
+    # Load association results
     try:
-        # Load association results
-        logger.info("Loading association results...")
-        df = load_association_results()
-        logger.info(f"Loaded {len(df)} association results")
-        
-        # Check for significant taxa
-        logger.info("Checking for significant taxa (q < 0.05)...")
-        significant_found = check_significant_taxa(df)
-        
-        if significant_found:
-            logger.info("Significant taxa found. KS test not required.")
-            results = {
-                'statistic': np.nan,
-                'pvalue': np.nan,
-                'n_samples': len(df),
-                'message': 'Skipped - significant taxa found'
-            }
-        else:
-            logger.info("No significant taxa found. Performing KS test...")
-            results = run_kolmogorov_smirnov_test(df)
-            logger.info(f"KS Test completed: statistic={results['statistic']:.4f}, p={results['pvalue']:.4f}")
-        
-        # Save results
-        output_path = save_ks_results(results, significant_found)
-        logger.info(f"Results saved to {output_path}")
-        
-        print(f"SC-002 Check completed. Results written to: {output_path}")
-        
+        df = load_association_results(unadjusted_taxa_pvals_path)
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        logger.error(f"Cannot proceed: {e}")
         raise
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
-
+    
+    # Check for significant taxa
+    has_significant = check_significant_taxa(df, q_threshold=0.05)
+    
+    if has_significant:
+        logger.info("Significant taxa found (q < 0.05). SC-002 Check skipped (not needed).")
+        # Still write a result indicating the condition was met differently
+        import json
+        os.makedirs(os.path.dirname(ks_results_path), exist_ok=True)
+        results = {
+            "statistic": None,
+            "p_value": None,
+            "result": "SKIPPED_SIGNIFICANT_FOUND",
+            "note": "Significant taxa found, KS test not required per SC-002 logic."
+        }
+        with open(ks_results_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        return
+    
+    # No significant taxa found, perform KS test
+    logger.info("No significant taxa found. Performing KS test on p-value distribution.")
+    
+    # Find p-value column
+    pval_col = None
+    for col in ['pval_raw', 'p_value', 'pval', 'p']:
+        if col in df.columns:
+            pval_col = col
+            break
+    
+    if pval_col is None:
+        logger.error("No unadjusted p-value column found in the data.")
+        raise ValueError("Cannot find unadjusted p-value column")
+    
+    statistic, p_value = run_kolmogorov_smirnov_test(df[pval_col])
+    save_ks_results(statistic, p_value, ks_results_path)
+    
+    logger.info("SC-002 Check completed successfully.")
 
 if __name__ == "__main__":
     main()

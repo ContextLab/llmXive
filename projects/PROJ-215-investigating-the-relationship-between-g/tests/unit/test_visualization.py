@@ -14,22 +14,27 @@ from code.visualization import (
 )
 
 def test_categorize_mental_health_high_phq():
+    """Test categorization when PHQ-9 is high (>= 10)."""
     row = pd.Series({'phq9': 12, 'gad7': 5})
     assert categorize_mental_health(row) == "High Risk"
 
 def test_categorize_mental_health_high_gad():
+    """Test categorization when GAD-7 is high (>= 10)."""
     row = pd.Series({'phq9': 5, 'gad7': 12})
     assert categorize_mental_health(row) == "High Risk"
 
 def test_categorize_mental_health_low_both():
+    """Test categorization when both scores are low (< 10)."""
     row = pd.Series({'phq9': 4, 'gad7': 4})
     assert categorize_mental_health(row) == "Low Risk"
 
 def test_categorize_mental_health_missing():
+    """Test categorization when data is missing."""
     row = pd.Series({'phq9': np.nan, 'gad7': 4})
     assert categorize_mental_health(row) == "Unknown"
 
 def test_calculate_centroids():
+    """Test centroid calculation for grouped coordinates."""
     coords = np.array([
         [1.0, 2.0, 3.0],
         [2.0, 4.0, 6.0],
@@ -48,6 +53,7 @@ def test_calculate_centroids():
     assert centroids.loc['B', 'PC1'] == 10.0
 
 def test_run_pcoa_from_distance():
+    """Test PCoA execution from a distance matrix."""
     # Create a simple distance matrix for 3 points
     # Points: (0,0), (1,0), (0,1)
     # Distances: 1, 1, sqrt(2)
@@ -59,6 +65,7 @@ def test_run_pcoa_from_distance():
     assert not np.any(np.isnan(coords))
 
 def test_plot_pcoa_saves_file():
+    """Test that plot_pcoa writes a valid PNG file to disk."""
     coords = np.array([
         [1.0, 2.0, 3.0],
         [2.0, 4.0, 6.0],

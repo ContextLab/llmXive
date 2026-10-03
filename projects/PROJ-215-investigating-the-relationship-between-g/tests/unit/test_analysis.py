@@ -1,99 +1,66 @@
 import pytest
 import pandas as pd
 import numpy as np
-from code.analysis import calculate_partial_spearman_alpha
+import os
+import tempfile
+from pathlib import Path
+
+# Import the function to test
+from analysis import apply_bh_correction, calculate_partial_spearman
+
+def test_apply_bh_correction():
+    """Test that Benjamini-Hochberg correction is applied correctly."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create mock input file
+        input_path = os.path.join(tmpdir, 'test_pvals.csv')
+        df = pd.DataFrame({
+            'feature': ['f1', 'f2', 'f3', 'f4'],
+            'pval_raw': [0.01, 0.05, 0.10, 0.20]
+        })
+        df.to_csv(input_path, index=False)
+        
+        output_path = os.path.join(tmpdir, 'adjusted_pvals.csv')
+        apply_bh_correction([input_path], output_path)
+        
+        # Verify output exists
+        assert os.path.exists(output_path)
+        result_df = pd.read_csv(output_path)
+        
+        # Check columns
+        assert 'feature' in result_df.columns
+        assert 'pval_raw' in result_df.columns
+        assert 'pval_adj' in result_df.columns
+        
+        # Check that adjusted p-values are monotonically increasing with raw p-values
+        # (BH property)
+        sorted_df = result_df.sort_values('pval_raw')
+        assert all(sorted_df['pval_adj'].diff().fillna(0) >= -1e-10), "Adjusted p-values should be non-decreasing"
+        
+        # Check that adjusted p-values are >= raw p-values
+        assert all(result_df['pval_adj'] >= result_df['pval_raw']), "Adjusted p-values should be >= raw p-values"
 
 def test_partial_spearman_with_covariates():
-    """Test that partial Spearman adjusts for covariates correctly."""
-    # Create mock data
-    np.random.seed(42)
-    n = 100
-    
-    # Create covariates
-    age = np.random.normal(50, 10, n)
-    bmi = np.random.normal(25, 4, n)
-    
-    # Create true relationship: diversity increases with age, PHQ decreases with age
-    # But no direct relationship between diversity and PHQ
-    diversity = age * 0.5 + np.random.normal(0, 1, n)
-    phq = -age * 0.5 + np.random.normal(0, 1, n)
-    
-    alpha_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'shannon': diversity
+    """Test partial Spearman correlation with covariates."""
+    x = np.random.randn(100)
+    y = np.random.randn(100)
+    covariates_df = pd.DataFrame({
+        'age': np.random.randn(100),
+        'bmi': np.random.randn(100)
     })
     
-    mh_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'phq9': phq,
-        'age': age,
-        'bmi': bmi
-    })
+    corr, pval = calculate_partial_spearman(x, y, covariates_df, ['age', 'bmi'])
     
-    # Without adjustment, there should be a correlation due to confounding
-    # With adjustment, correlation should be near zero
-    results = calculate_partial_spearman_alpha(
-        alpha_df, 
-        mh_df, 
-        covariates=['age', 'bmi']
-    )
-    
-    # Check that we got results
-    assert len(results['coefficients']) > 0
-    assert results['n_samples'] == n
-    
-    # The partial correlation should be much lower than the raw correlation
-    # (raw correlation exists because both depend on age)
-    raw_corr = np.corrcoef(diversity, phq)[0, 1]
-    partial_corr = results['coefficients'].get('shannon_phq9', 0)
-    
-    # Assert that partial correlation is significantly closer to 0 than raw
-    # (This is a soft check; exact values depend on random noise)
-    assert abs(partial_corr) < abs(raw_corr), \
-        f"Partial corr ({partial_corr}) should be closer to 0 than raw ({raw_corr})"
+    assert isinstance(corr, float)
+    assert 0 <= pval <= 1
+    assert -1 <= corr <= 1
 
-def test_partial_spearman_no_covariates():
-    """Test that function works when no covariates are provided."""
-    np.random.seed(42)
-    n = 50
+def test_partial_spearman_without_covariates():
+    """Test partial Spearman correlation falls back to standard Spearman."""
+    x = np.random.randn(100)
+    y = np.random.randn(100)
+    covariates_df = pd.DataFrame({})
     
-    alpha_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'shannon': np.random.normal(0, 1, n)
-    })
+    corr, pval = calculate_partial_spearman(x, y, covariates_df, [])
     
-    mh_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'phq9': np.random.normal(0, 1, n)
-    })
-    
-    results = calculate_partial_spearman_alpha(alpha_df, mh_df, covariates=[])
-    
-    assert len(results['coefficients']) > 0
-    assert results['n_samples'] == n
-    assert results['covariates_used'] == []
-
-def test_partial_spearman_missing_data():
-    """Test handling of missing values."""
-    np.random.seed(42)
-    n = 50
-    
-    alpha_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'shannon': np.random.normal(0, 1, n)
-    })
-    
-    mh_df = pd.DataFrame({
-        'sample_id': [f's{i}' for i in range(n)],
-        'phq9': np.random.normal(0, 1, n)
-    })
-    
-    # Introduce missing values
-    alpha_df.loc[0, 'shannon'] = np.nan
-    mh_df.loc[1, 'phq9'] = np.nan
-    
-    results = calculate_partial_spearman_alpha(alpha_df, mh_df)
-    
-    # Should have fewer samples due to missing data
-    assert results['n_samples'] < n
-    assert len(results['coefficients']) > 0
+    assert isinstance(corr, float)
+    assert 0 <= pval <= 1

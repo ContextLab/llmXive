@@ -1,0 +1,13 @@
+status: none
+intent: American Gut Project 16S PHQ-9 GAD-7 dataset download Qiita python package
+  dataset
+required_fields:
+- sample_id
+- otu_asv_abundance_matrix (wide format)
+- phq9_score
+- gad7_score
+- sequencing_depth
+- prevalence_filter_flag
+cache_key: f020afe6c2a4ee76915388268bf5c7fd630c4779e31875d7a0a8b1bb8bceb0ba
+searched_at: '2026-10-03T19:58:39.052570+00:00'
+retry_count: 1

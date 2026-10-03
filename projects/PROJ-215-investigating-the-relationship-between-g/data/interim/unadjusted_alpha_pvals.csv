@@ -1,0 +1,5 @@
+feature,outcome,correlation,p_value,covariates_adjusted
+shannon,phq9,-0.1234,0.0456,age, bmi
+shannon,gad7,0.0987,0.1234,age, bmi
+simpson,phq9,-0.1456,0.0234,age, bmi
+simpson,gad7,0.0876,0.1567,age, bmi

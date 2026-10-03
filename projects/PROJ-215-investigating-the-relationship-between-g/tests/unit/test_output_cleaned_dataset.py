@@ -1,161 +1,105 @@
-"""
-Unit tests for T017: output_cleaned_dataset.py
-
-Tests the merge, filter, and verification logic.
-"""
 import pytest
 import pandas as pd
 import numpy as np
-import os
-import sys
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import sys
+import os
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.output_cleaned_dataset import merge_and_filter, verify_retention
+from code.output_cleaned_dataset import load_preprocessed_data, merge_and_filter, verify_retention
 
-class TestMergeAndFilter:
+class TestOutputCleanedDataset:
     
-    def test_merge_alpha_with_metadata(self):
-        """Test merging alpha metrics with metadata on sample_id."""
+    @pytest.fixture
+    def temp_dirs(self, tmp_path):
+        """Create temporary directories for test data."""
+        data_dir = tmp_path / "data" / "processed"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        return data_dir
+
+    def test_load_preprocessed_data_csv(self, temp_dirs):
+        """Test loading a CSV file."""
+        df = pd.DataFrame({"sample_id": [1, 2], "value": [10, 20]})
+        csv_path = temp_dirs / "test.csv"
+        df.to_csv(csv_path, index=False)
+        
+        loaded = load_preprocessed_data(str(csv_path))
+        assert loaded.shape == df.shape
+        assert list(loaded.columns) == list(df.columns)
+
+    def test_merge_and_filter(self, temp_dirs):
+        """Test merging alpha metrics with preprocessed data."""
+        # Create alpha metrics
         alpha_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'shannon': [3.5, 4.2, 3.8],
-            'simpson': [0.9, 0.95, 0.92]
+            "sample_id": [1, 2, 3],
+            "shannon": [2.5, 3.0, 1.5]
         })
+        alpha_path = temp_dirs / "alpha.csv"
+        alpha_df.to_csv(alpha_path, index=False)
         
-        metadata_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'phq9': [10, 5, 15],
-            'gad7': [8, 4, 12],
-            'age': [30, 45, 28]
+        # Create preprocessed data
+        pre_df = pd.DataFrame({
+            "sample_id": [1, 2, 4],
+            "phq9": [5, 10, 2],
+            "gad7": [3, 8, 1]
         })
+        pre_path = temp_dirs / "pre.csv"
+        pre_df.to_csv(pre_path, index=False)
         
-        result = merge_and_filter(alpha_df, None, metadata_df)
+        merged = merge_and_filter(str(alpha_path), str(pre_path))
         
-        assert result is not None
-        assert len(result) == 3
-        assert 'phq9' in result.columns
-        assert 'gad7' in result.columns
-        assert 'shannon' in result.columns
+        # Should have 2 rows (sample_id 1 and 2)
+        assert len(merged) == 2
+        assert "shannon" in merged.columns
+        assert "phq9" in merged.columns
 
-    def test_filter_missing_phq9(self):
-        """Test that rows with missing PHQ-9 are filtered out."""
-        alpha_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'shannon': [3.5, 4.2, 3.8],
-            'simpson': [0.9, 0.95, 0.92]
+    def test_verify_retention_pass(self, temp_dirs):
+        """Test verification when criteria are met."""
+        df = pd.DataFrame({
+            "sample_id": range(100),
+            "phq9": [5] * 100,
+            "gad7": [3] * 100
         })
+        initial = 100
         
-        metadata_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'phq9': [10, np.nan, 15],
-            'gad7': [8, 4, 12]
-        })
+        rate, rows, is_valid = verify_retention(df, initial)
         
-        result = merge_and_filter(alpha_df, None, metadata_df)
-        
-        assert result is not None
-        assert len(result) == 2
-        # S2 should be filtered out
-        assert 'S2' not in result['sample_id'].values
+        assert rate == 100.0
+        assert rows == 100
+        assert is_valid is True
 
-    def test_filter_missing_diversity(self):
-        """Test that rows with missing diversity metrics are filtered out."""
-        alpha_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'shannon': [3.5, np.nan, 3.8],
-            'simpson': [0.9, 0.95, 0.92]
+    def test_verify_retention_fail_low_rows(self, temp_dirs):
+        """Test verification when row count is too low."""
+        df = pd.DataFrame({
+            "sample_id": range(50),
+            "phq9": [5] * 50,
+            "gad7": [3] * 50
         })
+        initial = 100
         
-        metadata_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'phq9': [10, 5, 15],
-            'gad7': [8, 4, 12]
+        rate, rows, is_valid = verify_retention(df, initial)
+        
+        assert rate == 50.0
+        assert rows == 50
+        assert is_valid is False
+
+    def test_verify_retention_fail_missing_values(self, temp_dirs):
+        """Test verification when key columns have missing values."""
+        df = pd.DataFrame({
+            "sample_id": [1, 2, 3],
+            "phq9": [5, np.nan, 10],
+            "gad7": [3, 4, 5]
         })
+        initial = 3
         
-        result = merge_and_filter(alpha_df, None, metadata_df)
+        rate, rows, is_valid = verify_retention(df, initial)
         
-        assert result is not None
-        assert len(result) == 2
-        # S2 should be filtered out
-        assert 'S2' not in result['sample_id'].values
-
-    def test_inner_join_behavior(self):
-        """Test that only samples present in both datasets are kept."""
-        alpha_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'shannon': [3.5, 4.2, 3.8]
-        })
-        
-        metadata_df = pd.DataFrame({
-            'sample_id': ['S2', 'S3', 'S4'],
-            'phq9': [5, 15, 8]
-        })
-        
-        result = merge_and_filter(alpha_df, None, metadata_df)
-        
-        assert result is not None
-        assert len(result) == 2
-        assert set(result['sample_id'].values) == {'S2', 'S3'}
-
-    def test_empty_result_on_no_overlap(self):
-        """Test that empty result is returned when no samples overlap."""
-        alpha_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2'],
-            'shannon': [3.5, 4.2]
-        })
-        
-        metadata_df = pd.DataFrame({
-            'sample_id': ['S3', 'S4'],
-            'phq9': [5, 15]
-        })
-        
-        result = merge_and_filter(alpha_df, None, metadata_df)
-        
-        assert result is None or len(result) == 0
-
-class TestVerifyRetention:
-    
-    def test_passes_80_percent_100_rows(self):
-        """Test verification passes with >80% retention and >100 rows."""
-        clean_df = pd.DataFrame({'col': range(150)})
-        original = 180
-        
-        passed, msg = verify_retention(clean_df, original)
-        
-        assert passed is True
-        assert "passed" in msg.lower()
-
-    def test_fails_low_retention(self):
-        """Test verification fails with <80% retention."""
-        clean_df = pd.DataFrame({'col': range(50)})
-        original = 100
-        
-        passed, msg = verify_retention(clean_df, original)
-        
-        assert passed is False
-        assert "retention" in msg.lower()
-
-    def test_fails_low_rows(self):
-        """Test verification fails with <100 rows."""
-        clean_df = pd.DataFrame({'col': range(50)})
-        original = 200  # 25% retention, but also <100 rows
-        
-        passed, msg = verify_retention(clean_df, original)
-        
-        assert passed is False
-        assert "100" in msg or "rows" in msg.lower()
-
-    def test_zero_original_count(self):
-        """Test verification fails with zero original count."""
-        clean_df = pd.DataFrame({'col': range(100)})
-        original = 0
-        
-        passed, msg = verify_retention(clean_df, original)
-        
-        assert passed is False
-        assert "0" in msg
+        # Only 2 valid rows
+        assert rows == 2
+        assert rate == (2/3)*100
+        # If initial was 3, 2/3 is 66.6%, which is < 80% -> False
+        assert is_valid is False
