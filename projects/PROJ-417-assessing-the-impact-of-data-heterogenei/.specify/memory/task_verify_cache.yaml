@@ -1,9 +1,11 @@
 T006c:
   c: false
-  h: 77bb937600497bfbfb3cdb1f0f7ed31a9d40e2fefbd7ab94d1ecc88a6546bb07
-  r: "The required file `code/config_loader.py` does not exist, so there is no implementation\
-    \ that parses `code/config.yaml` or handles `FileNotFoundError` with fallback\
-    \ logic. The task\u2019s core artifact is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were presented, and therefore there is\
+    \ no evidence that it has been updated to state a concrete replicate count (e.g.,\
+    \ 500) together with a power\u2011analysis or methodological justification as\
+    \ required. The implementer must supply the updated `research.md` containing the\
+    \ explicit number and justification."
 T010:
   c: false
   h: d27516bf6f4773261f1e3baca00f2dae2e2bd27e25a89617cf5245d53e1dd0de

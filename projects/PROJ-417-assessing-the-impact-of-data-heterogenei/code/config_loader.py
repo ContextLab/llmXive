@@ -1,262 +1,296 @@
 """
-Configuration loader for the Heterogeneity Impact Assessment Pipeline.
-
-This module parses `code/config.yaml` and provides access to configuration
-parameters. It implements the fallback logic required when the primary data
-source is unavailable, triggering the synthetic data generation path.
+Configuration loader for the llmXive meta-analysis simulation project.
+Parses code/config.yaml and provides typed access to configuration values.
+Handles FileNotFoundError from data fetch and triggers fallback logic.
 """
-
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
-
+from typing import Dict, Any, Optional, List
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
+CONFIG_PATH = Path("code/config.yaml")
 
-
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_config() -> Dict[str, Any]:
     """
-    Load configuration from a YAML file.
-
-    Args:
-        config_path: Path to the config file. Defaults to code/config.yaml.
-
+    Load and parse the configuration file.
+    
     Returns:
-        Dictionary containing the configuration parameters.
-
+        Dict containing all configuration parameters.
+        
     Raises:
-        FileNotFoundError: If the config file does not exist.
-        yaml.YAMLError: If the config file is not valid YAML.
+        FileNotFoundError: If config.yaml is missing.
+        yaml.YAMLError: If config.yaml is malformed.
     """
-    if config_path is None:
-        config_path = CONFIG_PATH
-
-    if not config_path.exists():
-        logger.error(f"Configuration file not found: {config_path}")
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    with open(config_path, "r", encoding="utf-8") as f:
+    if not CONFIG_PATH.exists():
+        raise FileNotFoundError(f"Configuration file not found: {CONFIG_PATH}")
+    
+    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
-
-    logger.info(f"Configuration loaded from {config_path}")
+    
+    logger.info(f"Configuration loaded from {CONFIG_PATH}")
     return config
 
-
-def get_simulation_params(config: Dict[str, Any]) -> Dict[str, Any]:
+def get_simulation_params(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Extract simulation parameters from the configuration.
-
+    Extract simulation parameters from config.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict. If None, loads from file.
+        
     Returns:
-        Dictionary containing simulation parameters.
+        Dict with replicate_counts, tau2_levels, and random_seed.
     """
+    if config is None:
+        config = load_config()
+    
     return config.get("simulation_parameters", {})
 
-
-def get_data_source_config(config: Dict[str, Any]) -> Dict[str, Any]:
+def get_data_source_config(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Extract data source configuration from the configuration.
-
+    Extract data source configuration.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Dictionary containing data source paths.
+        Dict with data source type and paths.
     """
+    if config is None:
+        config = load_config()
+    
     return config.get("data_source", {})
 
-
-def get_base_data_path(config: Dict[str, Any]) -> Path:
+def get_base_data_path(config: Optional[Dict[str, Any]] = None) -> Path:
     """
-    Get the path to the base data file.
-
+    Determine the path to the base data file.
+    
+    This function implements the fallback logic:
+    1. Check if real data exists (cochrane_base.csv)
+    2. If not, check if synthetic base exists
+    3. If neither exists, raise FileNotFoundError to trigger fallback generation
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
         Path to the base data file.
-
+        
     Raises:
-        FileNotFoundError: If the base data file does not exist and no fallback is available.
+        FileNotFoundError: If no valid base data is found.
     """
-    data_source_config = get_data_source_config(config)
-    base_path = Path(data_source_config.get("base_data_path", "data/raw/cochrane_base.csv"))
-
-    if not base_path.exists():
-        logger.warning(f"Base data file not found: {base_path}")
-        
-        # Check for synthetic fallback
-        fallback_path = Path(data_source_config.get("synthetic_fallback_path", "data/raw/cochrane_base_synthetic.csv"))
-        
-        if fallback_path.exists():
-            logger.info(f"Using synthetic fallback data: {fallback_path}")
-            return fallback_path
+    if config is None:
+        config = load_config()
+    
+    data_source = get_data_source_config(config)
+    data_type = data_source.get("type", "synthetic")
+    
+    # Check for real Cochrane data first
+    cochrane_path = Path("data/raw/cochrane_base.csv")
+    synthetic_path = Path(data_source.get("synthetic_file", "data/raw/cochrane_base_synthetic.csv"))
+    
+    if data_type == "cochrane":
+        if cochrane_path.exists():
+            logger.info(f"Using real Cochrane data from {cochrane_path}")
+            return cochrane_path
         else:
-            logger.error("No base data available and no synthetic fallback found.")
-            # Raise FileNotFoundError to trigger the fallback logic in the main pipeline
-            # This matches the requirement to catch FileNotFoundError from data fetch
-            raise FileNotFoundError(f"REAL_DATA_FETCH_FAILED: Neither base data ({base_path}) nor synthetic fallback ({fallback_path}) found.")
+            # Real data requested but not found - trigger fallback
+            logger.warning(f"Cochrane data not found at {cochrane_path}. Falling back to synthetic.")
+            if synthetic_path.exists():
+                logger.info(f"Using synthetic base from {synthetic_path}")
+                return synthetic_path
+            else:
+                raise FileNotFoundError(
+                    f"REAL_DATA_FETCH_FAILED: Neither Cochrane data ({cochrane_path}) "
+                    f"nor synthetic base ({synthetic_path}) found. "
+                    f"Please run fetch_cochrane.py or generate_synthetic_base.py."
+                )
+    else:
+        # Synthetic path
+        if synthetic_path.exists():
+            logger.info(f"Using synthetic base from {synthetic_path}")
+            return synthetic_path
+        else:
+            raise FileNotFoundError(
+                f"REAL_DATA_FETCH_FAILED: Synthetic base not found at {synthetic_path}. "
+                f"Please run generate_synthetic_base.py."
+            )
 
-    return base_path
-
-
-def get_nominal_confidence_level(config: Dict[str, Any]) -> float:
+def get_nominal_confidence_level(config: Optional[Dict[str, Any]] = None) -> float:
     """
     Get the nominal confidence level for coverage calculations.
-
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Nominal confidence level (e.g., 0.95).
+        Confidence level as float (e.g., 0.95).
     """
+    if config is None:
+        config = load_config()
+    
     return float(config.get("nominal_confidence_level", 0.95))
 
-
-def get_min_studies_for_reliability(config: Dict[str, Any]) -> int:
+def get_min_studies_for_reliability(config: Optional[Dict[str, Any]] = None) -> int:
     """
-    Get the minimum number of studies required for a reliable result.
-
+    Get the minimum number of studies for reliability flag.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Minimum number of studies.
+        Minimum study count as integer.
     """
-    return int(config.get("analysis", {}).get("min_studies_for_reliability", 5))
+    if config is None:
+        config = load_config()
+    
+    return int(config.get("min_studies_for_reliability", 5))
 
-
-def get_significance_level(config: Dict[str, Any]) -> float:
+def get_significance_level(config: Optional[Dict[str, Any]] = None) -> float:
     """
-    Get the significance level for statistical tests.
-
+    Get the significance level for hypothesis tests.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Significance level.
+        Significance level as float (e.g., 0.05).
     """
-    return float(config.get("analysis", {}).get("significance_level", 0.01))
+    if config is None:
+        config = load_config()
+    
+    return float(config.get("significance_level", 0.05))
 
-
-def get_replicate_count(config: Dict[str, Any]) -> int:
+def get_replicate_count(purpose: str = "primary_sweep", config: Optional[Dict[str, Any]] = None) -> int:
     """
-    Get the number of replicates to generate per heterogeneity level.
-
+    Get the replicate count for a specific purpose.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        purpose: One of "primary_sweep", "sensitivity_sweep", or "test_replicates".
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Number of replicates.
+        Number of replicates as integer.
     """
-    return int(get_simulation_params(config).get("replicate_count", 500))
+    if config is None:
+        config = load_config()
+    
+    sim_params = get_simulation_params(config)
+    replicate_counts = sim_params.get("replicate_counts", {})
+    
+    return int(replicate_counts.get(purpose, 500))
 
-
-def get_tau2_levels(config: Dict[str, Any]) -> list:
+def get_tau2_levels(config: Optional[Dict[str, Any]] = None) -> List[float]:
     """
-    Get the heterogeneity levels (tau^2) to simulate.
-
+    Get the list of tau^2 heterogeneity levels.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        List of tau^2 levels.
+        List of tau^2 values.
     """
-    return get_simulation_params(config).get("tau2_levels", [0.0, 0.1, 0.5, 1.0, 2.0])
+    if config is None:
+        config = load_config()
+    
+    sim_params = get_simulation_params(config)
+    return [float(x) for x in sim_params.get("tau2_levels", [0.0, 0.1, 0.5, 1.0, 2.0])]
 
-
-def get_random_seed(config: Dict[str, Any]) -> int:
+def get_random_seed(config: Optional[Dict[str, Any]] = None) -> int:
     """
     Get the random seed for reproducibility.
-
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        Random seed.
+        Random seed as integer.
     """
-    return int(get_simulation_params(config).get("random_seed", 42))
+    if config is None:
+        config = load_config()
+    
+    sim_params = get_simulation_params(config)
+    return int(sim_params.get("random_seed", 42))
 
-
-def validate_config(config: Dict[str, Any]) -> bool:
+def get_synthetic_base_params(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Validate the configuration structure.
-
+    Get synthetic base generation parameters.
+    
     Args:
-        config: The loaded configuration dictionary.
-
+        config: Optional pre-loaded config dict.
+        
     Returns:
-        True if valid, False otherwise.
+        Dict with synthetic base parameters.
     """
-    required_keys = ["nominal_confidence_level", "simulation_parameters", "data_source", "analysis"]
-    for key in required_keys:
-        if key not in config:
-            logger.error(f"Missing required configuration key: {key}")
-            return False
+    if config is None:
+        config = load_config()
+    
+    return config.get("synthetic_base_params", {})
 
-    sim_params = config.get("simulation_parameters", {})
-    if "replicate_count" not in sim_params:
-        logger.error("Missing replicate_count in simulation_parameters")
-        return False
-
-    if "tau2_levels" not in sim_params:
-        logger.error("Missing tau2_levels in simulation_parameters")
-        return False
-
-    data_source = config.get("data_source", {})
-    if "base_data_path" not in data_source:
-        logger.error("Missing base_data_path in data_source")
-        return False
-
-    analysis = config.get("analysis", {})
-    if "min_studies_for_reliability" not in analysis:
-        logger.error("Missing min_studies_for_reliability in analysis")
-        return False
-
+def validate_config(config: Optional[Dict[str, Any]] = None) -> bool:
+    """
+    Validate that all required configuration fields are present.
+    
+    Args:
+        config: Optional pre-loaded config dict.
+        
+    Returns:
+        True if valid, raises ValueError otherwise.
+    """
+    if config is None:
+        config = load_config()
+    
+    required_fields = [
+        "nominal_confidence_level",
+        "min_studies_for_reliability",
+        "significance_level",
+        "simulation_parameters"
+    ]
+    
+    for field in required_fields:
+        if field not in config:
+            raise ValueError(f"Missing required configuration field: {field}")
+    
+    sim_params = config["simulation_parameters"]
+    required_sim_fields = ["replicate_counts", "tau2_levels", "random_seed"]
+    
+    for field in required_sim_fields:
+        if field not in sim_params:
+            raise ValueError(f"Missing required simulation parameter: {field}")
+    
+    logger.info("Configuration validation passed")
     return True
-
 
 def main():
     """
-    Main function to test the configuration loading.
+    CLI entry point for testing configuration loading.
     """
     try:
         config = load_config()
+        validate_config(config)
         
-        if not validate_config(config):
-            logger.error("Configuration validation failed.")
-            return 1
-
-        logger.info("Configuration loaded and validated successfully.")
-        logger.info(f"Nominal confidence level: {get_nominal_confidence_level(config)}")
-        logger.info(f"Replicate count: {get_replicate_count(config)}")
-        logger.info(f"Tau2 levels: {get_tau2_levels(config)}")
-        logger.info(f"Random seed: {get_random_seed(config)}")
+        print("Configuration loaded successfully:")
+        print(f"  Nominal confidence level: {get_nominal_confidence_level(config)}")
+        print(f"  Min studies for reliability: {get_min_studies_for_reliability(config)}")
+        print(f"  Significance level: {get_significance_level(config)}")
+        print(f"  Tau^2 levels: {get_tau2_levels(config)}")
+        print(f"  Replicate counts: {get_simulation_params(config).get('replicate_counts', {})}")
+        print(f"  Random seed: {get_random_seed(config)}")
         
-        # Try to get the base data path (this will trigger fallback logic if needed)
+        # Test base data path resolution
         try:
-            data_path = get_base_data_path(config)
-            logger.info(f"Base data path: {data_path}")
+            base_path = get_base_data_path(config)
+            print(f"  Base data path: {base_path}")
         except FileNotFoundError as e:
-            logger.error(f"Data fetch failed: {e}")
-            # Re-raise to allow the main pipeline to handle the fallback
-            raise
-
+            print(f"  Base data not found (expected for fresh setup): {e}")
+        
         return 0
-
-    except FileNotFoundError as e:
-        logger.error(f"Configuration or data error: {e}")
-        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Configuration error: {e}")
         return 1
-
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

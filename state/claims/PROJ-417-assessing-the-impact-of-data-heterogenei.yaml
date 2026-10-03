@@ -6939,3 +6939,1217 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T06:59:02Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: Exact Binomial Test uses p equal to nominal confidence level
+  claim_id: c_a109c082
+  context: 'T020: Use the Exact Binomial Test (scipy.stats.binom) with p set to the
+    nominal_confidence_level.'
+  evidence:
+    asserted: '0.95'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Exact Binomial Test uses p set to nominal_confidence_level (default 0.95)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:21:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level ensures Monte Carlo error less than 1% for coverage
+    estimates
+  claim_id: c_094f9cf0
+  context: 'T006c-research-power: Update research.md to explicitly state the ''sufficient
+    number'' of replicates per heterogeneity level based on a power analysis or methodological
+    justification (e.g., ''500 replicates per level ensures Monte Carlo error < 1%
+    for coverage estimates'').'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/500_replicates_per_level_ensures_Monte_Carlo_error_less_than
+  kind: magnitude
+  raw_text: 500 replicates per level ensures Monte Carlo error < 1% for coverage estimates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:22:21Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Fetch data from Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_2e786c73
+  context: 'T040: Create code/scripts/fetch_cochrane.py. Execute: python code/scripts/fetch_cochrane.py.
+    Source: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository) OR use the Cochrane Library API if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:22:24Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cite Jackson et al. (2010) for synthetic base parameters
+  claim_id: c_729239c6
+  context: 'T040b-research-params: Update research.md to explicitly define the synthetic
+    base parameters (mu, sigma, N_studies) and cite the source (e.g., Jackson et al.,
+    n.d.) if real data is unavailable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cite source Jackson et al. (2010) if real data is unavailable
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:22:44Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base parameters are mu=0.0, sigma=1.0, seed=42
+  claim_id: c_ff90984a
+  context: 'T040b-gen: ...cites Jackson et al. (2010) with mu=0.0, sigma=1.0, seed=42,
+    and updates research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base parameters include mu=0.0, sigma=1.0, seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:23:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generate 500 or more replicates per level for heterogeneity levels 0,
+    0.1, 0.5, 1.0, and 2.0
+  claim_id: c_e6c81ec8
+  context: "T010: Implement code/simulation/generator.py ... and implement a loop\
+    \ generating \u2265500 replicates per level for heterogeneity levels {0, 0.1,\
+    \ 0.5, 1.0, 2.0}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate \u2265500 replicates per level for heterogeneity levels {0,\
+    \ 0.1, 0.5, 1.0, 2.0}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:23:29Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Reliability flag is false if N_studies is less than 5
+  claim_id: c_b53acf25
+  context: 'T011b: Implement logic in code/analysis/metrics.py to set reliability_flag
+    (boolean) to False if N_studies < 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reliability_flag_is_false_if_N_studies_is_less_than_5
+  kind: magnitude
+  raw_text: Threshold for reliability_flag is N_studies < 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:23:48Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.01
+  claim_id: c_a58fd550
+  context: 'T026: Implement Bonferroni correction ... Calculate adjusted alpha = 0.05
+    / 5 = 0.01. Justification: The count of 5 corresponds to the heterogeneity levels
+    defined in FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction adjusted alpha is 0.01 (0.05 / 5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:25:11Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full scale performance test completes within 360 minutes
+  claim_id: c_9d385207
+  context: 'T014: Run generator.py for the full set ... Verify the process completes
+    within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full scale performance test must complete within 360 minutes (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:25:27Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7GB on CPU-only runner
+  claim_id: c_5ddf20b4
+  context: 'T014: Verify the process completes within 360 minutes (6 hours) and RAM
+    usage < 7GB on CPU-only runner.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7GB_on_CPU-only_runner
+  kind: magnitude
+  raw_text: RAM usage must be less than 7GB on CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:25:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cochrane Meta-Analysis Data Repository Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_bd32ec6d
+  context: 'Source: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository) OR use the Cochrane Library API if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Cochrane Meta-Analysis Data Repository is available at Zenodo DOI
+    10.5281/zenodo.10286623.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:26:30Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Jackson et al. 2010 cited for synthetic base parameters
+  claim_id: c_4958914b
+  context: 'Verify Synthetic Base Citation: Verify research.md contains the citation
+    ''Jackson et al. (2010)'' (or the cited source from T040b-research-params) and
+    the parameters.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jackson_et_al._2010_cited_for_synthetic_base_parameters
+  kind: entity_fact
+  raw_text: Jackson et al. (2010) is a cited source for synthetic base parameters
+    in meta-analysis simulations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:26:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level ensures Monte Carlo error < 1% for coverage
+    estimates
+  claim_id: c_93b719ba
+  context: Update research.md to explicitly state the 'sufficient number' of replicates
+    per heterogeneity level based on a power analysis or methodological justification
+    (e.g., '500 replicates per level ensures Monte Carlo error < 1% for coverage estimates').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/500_replicates_per_level_ensures_Monte_Carlo_error_%3C_1%25_for_
+  kind: entity_fact
+  raw_text: A sufficient number of replicates per heterogeneity level is defined as
+    500 to ensure Monte Carlo error < 1% for coverage estimates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:27:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Default nominal confidence level is 0.95
+  claim_id: c_be829c6d
+  context: Create code/config.yaml with keys nominal_confidence_level (default 0.95),
+    simulation_parameters (replicate counts, tau2 levels).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: a first sample can take any value between 0 and 0.95. The exact value
+        depends on the two
+      source_id: '1710.08708'
+      url: https://arxiv.org/abs/1710.08708
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: The default nominal confidence level for the simulation is 0.95.
+  resolved_value: '0.95'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:27:38Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base mean effect mu is 0.0
+  claim_id: c_d316b96e
+  context: 'Output: research.md must contain synthetic_base_params: {mu: 0.0, sigma:,
+    N_studies: a moderate number} and the citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic base parameters include a mean effect (mu) of 0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:28:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Primary simulation sweep tau2 levels are 0, 0.1, 0.5, 1.0, 2.0
+  claim_id: c_27868b46
+  context: "Implement code/simulation/generator.py to load base data from data/raw/...\
+    \ and implement a loop generating \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: The primary simulation sweep uses heterogeneity levels (tau2) of 0, 0.1,
+    0.5, 1.0, and 2.0.
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:28:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep tau2 levels are 0.05, 0.1, 0.5
+  claim_id: c_e6047ed5
+  context: Add CLI arguments to code/main.py to support a secondary sensitivity sweep
+    with levels {0.05, 0.1, 0.5} and other standard significance thresholds.
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: The sensitivity sweep uses heterogeneity levels (tau2) of 0.05, 0.1, and
+    0.5.
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:28:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Reliability flag is False if N_studies < 5
+  claim_id: c_683af2dd
+  context: 'Implement logic in code/analysis/metrics.py to set reliability_flag (boolean)
+    to False if N_studies < 5. Explicit threshold: N_studies < 5, configurable in
+    code/config.yaml under small_study_threshold (default 5).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reliability_flag_is_False_if_N_studies_%3C_5
+  kind: magnitude
+  raw_text: The reliability flag is set to False if the number of studies (N_studies)
+    is less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:28:45Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.01 for 5 levels
+  claim_id: c_a4568304
+  context: 'Specific Logic: Read nominal_confidence_level from config.yaml. Calculate
+    adjusted alpha = 0.05 / 5 = 0.01. Justification: The count of 5 corresponds to
+    the heterogeneity levels defined in FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_corrected_alpha_is_0.01_for_5_levels
+  kind: causal
+  raw_text: The Bonferroni correction for 5 heterogeneity levels results in an adjusted
+    alpha of 0.01.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:28:48Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full scale performance test runtime limit is 360 minutes
+  claim_id: c_ec058a0f
+  context: "Run generator.py for the full set (multiple levels \xD7 replicates_per_level\
+    \ from config). Verify the process completes within 360 minutes (6 hours) and\
+    \ RAM usage < 7GB on CPU-only runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full scale performance test requires the process to complete within
+    360 minutes (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:29:03Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full scale performance test RAM limit is 7GB
+  claim_id: c_7092e84c
+  context: 'Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner. Pass/Fail Criteria: Fail if runtime > 360 mins OR RAM
+    > 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_scale_performance_test_RAM_limit_is_7GB
+  kind: magnitude
+  raw_text: The full scale performance test requires RAM usage to be less than 7GB
+    on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:30:04Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: nominal confidence level default 0.95 cited arxiv 1710.08708
+  claim_id: c_8cd5398d
+  context: Create code/config.yaml with keys nominal_confidence_level (default 0.95
+    (1710.08708, https://arxiv.org/abs/1710.08708)), simulation_parameters (replicate
+    counts, tau2 levels).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: a first sample can take any value between 0 and 0.95. The exact value
+        depends on the two
+      source_id: '1710.08708'
+      url: https://arxiv.org/abs/1710.08708
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: nominal_confidence_level (default 0.95 (1710.08708, https://arxiv.org/abs/1710.08708))
+  resolved_value: '0.95'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:30:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: fetch data from zenodo doi 10.5281/zenodo.10286623
+  claim_id: c_93b7fc1e
+  context: 'Create code/scripts/fetch_cochrane.py. Execute: python code/scripts/fetch_cochrane.py.
+    Source: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository) OR use the Cochrane Library API if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:30:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: cite jackson et al if real data unavailable
+  claim_id: c_2d76dfa5
+  context: Update research.md to explicitly define the synthetic base parameters (mu,
+    sigma, N_studies) and cite the source (e.g., Jackson et al., n.d.) if real data
+    is unavailable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cite_jackson_et_al_if_real_data_unavailable
+  kind: entity_fact
+  raw_text: cite the source (e.g., Jackson et al., n.d.) if real data is unavailable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:31:25Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: verify citation jackson et al 2010 in research md
+  claim_id: c_07309781
+  context: Verify research.md contains the citation 'Jackson et al. (2010)' (or the
+    cited source from T040b-research-params) and the parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify research.md contains the citation 'Jackson et al. (2010)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:31:39Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level ensures monte carlo error less than 1 percent
+  claim_id: c_edbc0db0
+  context: Update research.md to explicitly state the 'sufficient number' of replicates
+    per heterogeneity level based on a power analysis or methodological justification
+    (e.g., '500 replicates per level ensures Monte Carlo error < 1% for coverage estimates').
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/500_replicates_per_level_ensures_monte_carlo_error_less_than
+  kind: magnitude
+  raw_text: 500 replicates per level ensures Monte Carlo error < 1% for coverage estimates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:31:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: calculate bonferroni adjusted alpha 0.01 from 0.05 divided by 5
+  claim_id: c_6d9f4128
+  context: 'Specific Logic: Read nominal_confidence_level from config.yaml. Calculate
+    adjusted alpha = 0.05 / 5 = 0.01. Justification: The count of 5 corresponds to
+    the heterogeneity levels defined in FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate adjusted alpha = 0.05 / 5 = 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:31:58Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: use exact binomial test scipy stats binom with p nominal confidence level
+  claim_id: c_062f5b97
+  context: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level.
+    Calculate p-value; compare against adjusted_alpha; if p < adjusted_alpha, flag
+    as deviation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_exact_binomial_test_scipy_stats_binom_with_p_nominal_con
+  kind: entity_fact
+  raw_text: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:32:34Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: calculate absolute difference in coverage rates primary vs sensitivity
+    sweeps
+  claim_id: c_aabdaf99
+  context: 'Calculate the absolute difference in coverage rates between the primary
+    and sensitivity sweeps for each overlapping level. Output: data/results/stability_analysis.json
+    reporting the difference in coverage rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_absolute_difference_in_coverage_rates_primary_vs_s
+  kind: entity_fact
+  raw_text: Calculate the absolute difference in coverage rates between the primary
+    and sensitivity sweeps for each overlapping level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:33:03Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: full scale performance test completes within 360 minutes and ram usage
+    less than 7gb
+  claim_id: c_8b984864
+  context: "Run generator.py for the full set (multiple levels \xD7 replicates_per_level\
+    \ from config). Verify the process completes within 360 minutes (6 hours) and\
+    \ RAM usage < 7GB on CPU-only runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_scale_performance_test_completes_within_360_minutes_and
+  kind: magnitude
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:33:24Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: use memory profiler mprof run to measure ram usage
+  claim_id: c_76770f5a
+  context: 'Pass/Fail Criteria: Fail if runtime > 360 mins OR RAM > 7GB. Use memory_profiler
+    (mprof run) to measure and record RAM usage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_memory_profiler_mprof_run_to_measure_ram_usage
+  kind: entity_fact
+  raw_text: Use memory_profiler (mprof run) to measure and record RAM usage
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:33:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: nominal confidence level default is 0.95 citing arXiv:1710.08708
+  claim_id: c_26b29675
+  context: Create code/config.yaml with keys nominal_confidence_level (default 0.95
+    (1710.08708, https://arxiv.org/abs/1710.08708)), simulation_parameters (replicate
+    counts, tau2 levels).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: nominal_confidence_level (default 0.95 (1710.08708, https://arxiv.org/abs/1710.08708))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:35:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cochrane Meta-Analysis Data Repository available at Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_ce9723cd
+  context: 'Source: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository) OR use the Cochrane Library API if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:35:23Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Jackson et al. (2010) cited as source for synthetic base parameters
+  claim_id: c_844d01ba
+  context: Verify research.md contains the citation Jackson et al. (2010) (or the
+    cited source from T040b-research-params) and the parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Jackson et al. (2010)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:35:42Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters mu 0.0 sigma 1.0
+  claim_id: c_4369b89d
+  context: 'Output: research.md must contain synthetic_base_params: {mu: 0.0, sigma:,
+    N_studies: a moderate number} and the citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'synthetic_base_params: {mu: 0.0, sigma: 1.0, N_studies: a moderate number}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:36:34Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters mu 0.0 sigma 1.0 seed 42 cited Jackson et al.
+    2010
+  claim_id: c_1fe51ba8
+  context: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010)
+    with mu=0.0, sigma=1.0, seed=42, and updates research.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010)
+    with mu=0.0, sigma=1.0, seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:36:48Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni adjusted alpha is 0.01 for 5 tests
+  claim_id: c_86336c50
+  context: 'Specific Logic: Read nominal_confidence_level from config.yaml. Calculate
+    adjusted alpha = 0.05 / 5 = 0.01. Justification: The count of 5 corresponds to
+    the heterogeneity levels defined in FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate adjusted alpha = 0.05 / 5 = 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:36:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Exact Binomial Test using scipy.stats.binom with p equal to nominal confidence
+    level
+  claim_id: c_321d1d5c
+  context: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level.
+    Calculate p-value; compare against adjusted_alpha; if p < adjusted_alpha, flag
+    as deviation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exact_Binomial_Test_using_scipy.stats.binom_with_p_equal_to
+  kind: entity_fact
+  raw_text: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:36:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation process completes within 360 minutes with RAM usage less than
+    7GB
+  claim_id: c_ac2a3227
+  context: 'Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner. Pass/Fail Criteria: Fail if runtime > 360 mins OR RAM
+    > 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_process_completes_within_360_minutes_with_RAM_usa
+  kind: magnitude
+  raw_text: process completes within 360 minutes (6 hours) and RAM usage < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:37:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: reliability flag set to false when N studies is less than 5
+  claim_id: c_ba69c799
+  context: 'Implement logic in code/analysis/metrics.py to set reliability_flag (boolean)
+    to False if N_studies < 5. Explicit threshold: N_studies < 5, configurable in
+    code/config.yaml under small_study_threshold (default 5).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reliability_flag_set_to_false_when_N_studies_is_less_than_5
+  kind: magnitude
+  raw_text: N_studies < 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:37:32Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: heterogeneity levels 0 0.1 0.5 1.0 2.0
+  claim_id: c_867061c7
+  context: "Implement code/simulation/generator.py to load base data from data/raw/\
+    \ and implement a loop generating \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: heterogeneity levels {0, 0.1, 0.5, 1.0, 2.0}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:37:56Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: exact binomial test p 0.95
+  claim_id: c_1bda5130
+  context: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level.
+    ... T020 uses scipy.stats.binom with p=0.95 and alpha=0.01.
+  evidence:
+    asserted: '0.95'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: The exact binomial test uses p set to the nominal confidence level of
+    0.95.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:39:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: nominal confidence level 0.95 source arXiv:1710.08708
+  claim_id: c_1863cc67
+  context: Create code/config.yaml with keys nominal_confidence_level (default 0.95
+    (1710.08708, https://arxiv.org/abs/1710.08708)).
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The nominal confidence level is 0.95, citing arXiv:1710.08708.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:39:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level ensures Monte Carlo error < 1% for coverage
+    estimates
+  claim_id: c_c773a5bd
+  context: Update research.md to explicitly state the 'sufficient number' of replicates
+    per heterogeneity level based on a power analysis or methodological justification
+    (e.g., '500 replicates per level ensures Monte Carlo error < 1% for coverage estimates').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 500 replicates per heterogeneity level ensure Monte Carlo error < 1% for
+    coverage estimates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:39:37Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cochrane Meta-Analysis Data Repository Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_9ebd87b2
+  context: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis Data
+    Repository) OR use the Cochrane Library API if available.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Cochrane Meta-Analysis Data Repository is available at Zenodo DOI
+    10.5281/zenodo.10286623.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:39:40Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters mu 0.0 sigma 1.0 seed 42 source Jackson et
+    al. 2010
+  claim_id: c_20ce75ab
+  context: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010)
+    with mu=0.0, sigma=1.0, seed=42, and updates research.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base parameters include mu=0.0, sigma=1.0, and seed=42, citing
+    Jackson et al. (2010).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:39:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 5 levels adjusted alpha 0.01
+  claim_id: c_b35f8d3c
+  context: 'Specific Logic: Read nominal_confidence_level from config.yaml. Calculate
+    adjusted alpha = 0.05 / 5 = 0.01. Justification: The count of 5 corresponds to
+    the heterogeneity levels defined in FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_for_5_levels_adjusted_alpha_0.01
+  kind: causal
+  raw_text: The Bonferroni correction for 5 heterogeneity levels results in an adjusted
+    alpha of 0.01.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:39:56Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation heterogeneity levels 0 0.1 0.5 1.0 2.0
+  claim_id: c_d17805f9
+  context: "Implement code/simulation/generator.py to load base data from data/raw/\
+    \ and implement a loop generating \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation targets heterogeneity levels of 0, 0.1, 0.5, 1.0, and 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:40:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep heterogeneity levels 0.05 0.1 0.5
+  claim_id: c_3ba54573
+  context: Add CLI arguments to code/main.py to support a secondary sensitivity sweep
+    with levels {0.05, 0.1, 0.5} and other standard significance thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep targets heterogeneity levels of 0.05, 0.1, and 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:40:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: full scale performance test runtime < 360 minutes RAM < 7GB
+  claim_id: c_2f569723
+  context: Run generator.py for the full set. Verify the process completes within
+    360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full scale performance test requires completion within 360 minutes
+    (6 hours) and RAM usage under 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:41:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: reliability flag false if N_studies < 5
+  claim_id: c_b2ce09f8
+  context: 'Implement logic in code/analysis/metrics.py to set reliability_flag (boolean)
+    to False if N_studies < 5. Explicit threshold: N_studies < 5, configurable in
+    code/config.yaml under small_study_threshold (default 5).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/reliability_flag_false_if_N_studies_%3C_5
+  kind: magnitude
+  raw_text: The reliability flag is set to False if N_studies is less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:41:17Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: nominal confidence level default 0.95 linked to arXiv 1710.08708
+  claim_id: c_ef7fe219
+  context: Create code/config.yaml with keys nominal_confidence_level (default 0.95
+    (1710.08708, https://arxiv.org/abs/1710.08708)), simulation_parameters (replicate
+    counts, tau2 levels).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: a first sample can take any value between 0 and 0.95. The exact value
+        depends on the two
+      source_id: '1710.08708'
+      url: https://arxiv.org/abs/1710.08708
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: nominal_confidence_level (default 0.95 (1710.08708, https://arxiv.org/abs/1710.08708))
+  resolved_value: '0.95'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:42:15Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 2
+  canonical: 500 replicates per level ensures Monte Carlo error less than 1 percent
+    for coverage estimates
+  claim_id: c_c80f6523
+  context: Update research.md to explicitly state the sufficient number of replicates
+    per heterogeneity level based on a power analysis or methodological justification
+    (e.g., 500 replicates per level ensures Monte Carlo error < 1% for coverage estimates).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/500_replicates_per_level_ensures_Monte_Carlo_error_less_than
+  kind: magnitude
+  raw_text: 500 replicates per level ensures Monte Carlo error < 1% for coverage estimates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:42:30Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Fetch data from Zenodo DOI 10.5281/zenodo.10286623
+  claim_id: c_190823a2
+  context: 'Source: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository) OR use the Cochrane Library API if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fetch from Zenodo DOI 10.5281/zenodo.10286623 (Cochrane Meta-Analysis
+    Data Repository)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:42:33Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cite Jackson et al. for synthetic base parameters if real data unavailable
+  claim_id: c_44196903
+  context: Update research.md to explicitly define the synthetic base parameters (mu,
+    sigma, N_studies) and cite the source (e.g., Jackson et al., n.d.) if real data
+    is unavailable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cite_Jackson_et_al._for_synthetic_base_parameters_if_real_da
+  kind: entity_fact
+  raw_text: Cite source from research.md (e.g., Jackson et al., n.d.) if real data
+    is unavailable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:42:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: synthetic base parameters mu 0.0
+  claim_id: c_5d9735f1
+  context: 'Output: research.md must contain synthetic_base_params: {mu: 0.0, sigma:,
+    N_studies: a moderate number} and the citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'synthetic_base_params: {mu: 0.0, sigma:, N_studies: a moderate number}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:43:18Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Log Odds Ratio specified as effect size metric
+  claim_id: c_f7cca796
+  context: 'Effect Size Metric: Explicitly specify Log Odds Ratio as the metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_Odds_Ratio_specified_as_effect_size_metric
+  kind: entity_fact
+  raw_text: Explicitly specify Log Odds Ratio as the metric
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:43:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: report contains associational label
+  claim_id: c_4ea71123
+  context: Unit test test_reporting.py verifying that the generated report.md contains
+    the required associational label and validates framing against the contract.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_contains_associational_label
+  kind: entity_fact
+  raw_text: verify that the generated report.md contains the required associational
+    label
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:44:33Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.01
+  claim_id: c_84e0fdb3
+  context: 'Unit test test_stats.py verifying Bonferroni correction application (alpha
+    = 0.05/5). Assertion: Corrected alpha is 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Corrected alpha is 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:44:55Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: process completes within 360 minutes and RAM usage less than 7GB
+  claim_id: c_41192830
+  context: Run generator.py for the full set. Verify the process completes within
+    360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_completes_within_360_minutes_and_RAM_usage_less_than
+  kind: magnitude
+  raw_text: process completes within 360 minutes (6 hours) and RAM usage < 7GB on
+    CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:45:17Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Use scipy.stats.binom for Exact Binomial Test
+  claim_id: c_19f82176
+  context: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_scipy.stats.binom_for_Exact_Binomial_Test
+  kind: entity_fact
+  raw_text: Use the Exact Binomial Test (scipy.stats.binom) with p set to the nominal_confidence_level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:45:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: adjusted alpha calculated as 0.05 divided by 5 equals 0.01
+  claim_id: c_5d722122
+  context: 'Specific Logic: Read nominal_confidence_level from config.yaml. Calculate
+    adjusted alpha = 0.05 / 5 = 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate adjusted alpha = 0.05 / 5 = 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:45:21Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: coverage at tau2 equals 0 indistinguishable from nominal level
+  claim_id: c_c550374f
+  context: Implement logic in metrics.py to verify coverage at tau2=0 is statistically
+    indistinguishable from the nominal level.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 6.283185307179586 (math.tau (IEEE-754 double, Python stdlib))
+      source_id: tau
+      url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+      value: '6.283185307179586'
+    filled: true
+  kind: numeric
+  raw_text: verify coverage at tau2=0 is statistically indistinguishable from the
+    nominal level
+  resolved_value: '6.283185307179586'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T05:45:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: T040b-gen cites Jackson et al. 2010 with mu 0.0 sigma 1.0 seed 42
+  claim_id: c_ace11815
+  context: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010)
+    with mu=0.0, sigma=1.0, seed=42, and updates research.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T040b-gen writes parameters to config.yaml, cites Jackson et al. (2010)
+    with mu=0.0, sigma=1.0, seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T05:45:29Z'

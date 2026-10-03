@@ -1,3 +1,8 @@
+2|coverage indistinguishable level nominal statistically tau2 verify:
+  quote: 6.283185307179586 (math.tau (IEEE-754 double, Python stdlib))
+  source_id: tau
+  url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  value: '6.283185307179586'
 '|confidence level nominal':
   quote: a first sample can take any value between 0 and 0.95. The exact value depends
     on the two

@@ -6,18 +6,42 @@ required:
 properties:
   injected_true_effect:
     type: number
+    description: The ground truth effect size injected into the simulation for this replicate.
   injected_tau2:
     type: number
+    description: The ground truth between-study variance (tau-squared) injected into the simulation.
   N_studies:
     type: integer
-  studies:
+    description: The number of studies included in this simulated meta-analysis replicate.
+  study_data:
     type: array
+    description: List of individual study results for this replicate.
     items:
       type: object
       properties:
-        effect:
-          type: number
-        se:
-          type: number
         study_id:
           type: integer
+        effect_size:
+          type: number
+        standard_error:
+          type: number
+        sample_size:
+          type: integer
+      required:
+        - study_id
+        - effect_size
+        - standard_error
+  metadata:
+    type: object
+    description: Metadata regarding the simulation run.
+    properties:
+      seed:
+        type: integer
+      timestamp:
+        type: string
+      generator_version:
+        type: string
+    required:
+      - seed
+      - timestamp
+additionalProperties: false

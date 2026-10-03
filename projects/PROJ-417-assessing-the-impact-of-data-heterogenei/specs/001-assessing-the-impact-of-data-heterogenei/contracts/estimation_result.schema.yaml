@@ -11,16 +11,16 @@ properties:
     description: "I-squared statistic representing the percentage of variation across studies due to heterogeneity rather than chance."
   Q:
     type: number
-    description: "Cochran's Q statistic for heterogeneity."
+    description: "Cochran's Q statistic measuring heterogeneity."
   reliability_flag:
     type: boolean
-    description: "Flag indicating data reliability (False if N_studies < 5, True otherwise)."
+    description: "Flag indicating if the result is reliable (True) or if N_studies < threshold (False)."
   injected_true_effect:
     type: number
-    description: "The ground truth effect size injected during simulation."
+    description: "The ground-truth effect size injected during simulation."
   injected_tau2:
     type: number
-    description: "The ground truth between-study variance (tau-squared) injected during simulation."
+    description: "The ground-truth between-study variance (tau-squared) injected during simulation."
   pooled_estimate:
     type: number
     description: "The calculated pooled effect estimate."
@@ -32,13 +32,7 @@ properties:
     description: "Upper bound of the confidence interval."
   estimator_type:
     type: string
-    description: "The meta-analysis estimator used (e.g., 'FixedEffects', 'DL', 'REML')."
+    description: "The type of estimator used (e.g., 'FixedEffects', 'DL', 'REML')."
   N_studies:
     type: integer
     description: "Number of studies included in the meta-analysis."
-  bias:
-    type: number
-    description: "Difference between pooled estimate and injected true effect."
-  coverage:
-    type: boolean
-    description: "Whether the confidence interval contains the true effect."
