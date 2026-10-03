@@ -66,20 +66,9 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
   verified_at: '2026-08-31T18:14:48.351180Z'
-- artifact_hash: 53f092c3ccd3b9a9a40a3822b55de2e776949840fcfd5c0f369fd8ce5c9c6dd3
-  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+- artifact_hash: 4d8bdf0ed764c45b6781af6cded9caab9ee8836c3ab04d2f9a5aadf48e0e3203
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/docs/trust_scale_items.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Power - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Power_
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-09-29T07:11:59.933719Z'
-- artifact_hash: 53f092c3ccd3b9a9a40a3822b55de2e776949840fcfd5c0f369fd8ce5c9c6dd3
-  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: 'Trust in Automation: Designing for Appropriate Reliance'
@@ -87,4 +76,15 @@
   value: 10.1518/hfes.46.1.50_30392
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
-  verified_at: '2026-09-29T07:11:59.933719Z'
+  verified_at: '2026-10-03T00:44:48.951910Z'
+- artifact_hash: 1795e9d84fe2bbf18724e948df7ac8b51fd87ec6a07309e51837c37bb97c52e6
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Trust in Automation: Designing for Appropriate Reliance'
+  kind: doi
+  value: 10.1518/hfes.46.1.50_30392
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
+  verified_at: '2026-10-03T00:59:32.412695Z'

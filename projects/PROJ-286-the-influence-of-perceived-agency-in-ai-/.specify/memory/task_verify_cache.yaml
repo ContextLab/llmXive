@@ -19,14 +19,6 @@ T001b:
     \ Lee &\u202FSee (2004) and Langer (1975) has not been delivered. The implementer\
     \ must create a non\u2011empty markdown file at the specified path containing\
     \ the requested summary."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No Python code, notebook, or output files showing a pre\u2011study power analysis\
-    \ for the planned directional contrasts and the overall ANOVA are present. The\
-    \ claim lacks any concrete artifact (e.g., a script using `scipy.stats`/`numpy`,\
-    \ calculated sample size or power values, or a report of the results), so the\
-    \ requirement is not demonstrably satisfied."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,6 +29,12 @@ T004:
     \ `specs/001-perceived-agency-trust/contracts` (and the `__init__.py` files in\
     \ each) were actually created. The implementer must supply a file\u2011tree listing\
     \ or screenshots showing the directories and the empty `__init__.py` files."
+T007g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research/trust_scale_verification_report.md` file is present or described;
+    the implementer provided no markdown content, so the required artifact is missing.
+    The task is not satisfied.
 T008:
   c: false
   h: a0330bc51b5274b5450356879f28f1b22106d27ed7e607fd511a5b33e1aba4d9

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010c` (rejected 1x): No verified source file for the Lee & See (2004) trust scale items is present in the provided artifacts; the implementer supplied no code, data, or document containing the items, so the required deliverable is missing.
+- `T002` (rejected 1x): No Python code, notebook, or output files showing a pre‑study power analysis for the planned directional contrasts and the overall ANOVA are present. The claim lacks any concrete artifact (e.g., a script using `scipy.stats`/`numpy`, calculated sample size or power values, or a report of the results), so the requirement is not demonstrably satisfied.
 
 ## Required change
 

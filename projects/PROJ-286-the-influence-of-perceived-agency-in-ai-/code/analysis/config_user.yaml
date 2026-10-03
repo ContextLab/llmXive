@@ -1,0 +1,12 @@
+# User Configuration for Sensitivity Analysis
+# Uncomment and modify values below to override defaults in config_defaults.yaml
+# These changes will be picked up by the protocol generation and analysis scripts.
+# sensitivity_config:
+#   attention_thresholds: [80, 90]
+#   adherence_cutoffs: [80, 90]
+#   straightlining_thresholds: [4]
+#   outlier_z_thresholds: [3.0]
+# sample_size: 150
+# alpha_level: 0.01
+# seed: 123
+# data_path: data/raw/

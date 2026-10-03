@@ -1,197 +1,127 @@
 """
-Tests for the power analysis module.
+Unit tests for the power analysis module (T002).
 """
 import json
 import os
+import sys
 import tempfile
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
+import numpy as np
 
-from code.research.power_analysis import calculate_sample_size, generate_report, main
+# Add project root to path if running from tests/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from code.research.power_analysis import (
+    normalize_contrast,
+    calculate_contrast_power,
+    calculate_anova_power,
+    find_minimum_n,
+    main
+)
 
 
-class TestCalculateSampleSize:
-    def test_calculate_sample_size_default_values(self):
-        """Test sample size calculation with default parameters."""
-        n_per_group = calculate_sample_size(
-            effect_size=0.25,
-            alpha=0.05,
-            power=0.80,
-            k_groups=3
-        )
-        assert isinstance(n_per_group, int)
-        assert n_per_group > 0
+class TestNormalizeContrast:
+    def test_normalize_valid_contrast(self):
+        """Test normalization of a standard contrast vector."""
+        contrast = [1, -1, 0]
+        normalized = normalize_contrast(contrast)
+        # Sum of squares should be 1
+        assert np.isclose(sum(c**2 for c in normalized), 1.0)
+        # Direction should be preserved
+        assert normalized[0] > 0
+        assert normalized[1] < 0
 
-    def test_calculate_sample_size_small_effect(self):
-        """Test sample size calculation with small effect size."""
-        n_per_group = calculate_sample_size(
-            effect_size=0.10,
-            alpha=0.05,
-            power=0.80,
-            k_groups=3
-        )
-        assert isinstance(n_per_group, int)
-        assert n_per_group > 0
-        # Small effect should require larger sample size
-        assert n_per_group > calculate_sample_size(0.25, 0.05, 0.80, 3)
-
-    def test_calculate_sample_size_large_effect(self):
-        """Test sample size calculation with large effect size."""
-        n_per_group = calculate_sample_size(
-            effect_size=0.40,
-            alpha=0.05,
-            power=0.80,
-            k_groups=3
-        )
-        assert isinstance(n_per_group, int)
-        assert n_per_group > 0
-        # Large effect should require smaller sample size
-        assert n_per_group < calculate_sample_size(0.25, 0.05, 0.80, 3)
-
-    def test_calculate_sample_size_invalid_parameters(self):
-        """Test that invalid parameters raise an error."""
+    def test_normalize_zeros(self):
+        """Test that zero vector raises error."""
         with pytest.raises(ValueError):
-            calculate_sample_size(
-                effect_size=0.0,  # Invalid effect size
-                alpha=0.05,
-                power=0.80,
-                k_groups=3
-            )
+            normalize_contrast([0, 0, 0])
 
 
-class TestGenerateReport:
-    def test_generate_report_structure(self):
-        """Test that the report contains required sections."""
-        results = {
-            "effect_size": 0.25,
-            "alpha": 0.05,
-            "target_power": 0.80,
-            "k_groups": 3,
-            "n_per_group": 52,
-            "total_required_n": 156,
-            "analysis_method": "One-Way ANOVA (F-test)",
-            "software": "statsmodels"
-        }
-        
-        report = generate_report(results)
-        
-        assert "# Pre-Study Power Analysis Report" in report
-        assert "## Study Design" in report
-        assert "## Parameters" in report
-        assert "## Results" in report
-        assert "## Conclusion" in report
-        
-        # Check for specific values
-        assert "0.25" in report
-        assert "0.05" in report
-        assert "0.80" in report
-        assert "52" in report
-        assert "156" in report
+class TestContrastPowerCalculation:
+    def test_calculate_contrast_power_basic(self):
+        """Test basic t-test power calculation."""
+        n_per_group, total_n = calculate_contrast_power(
+            effect_size_d=0.5,
+            alpha=0.05,
+            power_target=0.80,
+            n_groups=3
+        )
+        assert n_per_group > 0
+        assert total_n > 0
+        assert total_n == int(np.ceil(n_per_group * 2))
 
-    def test_generate_report_formatting(self):
-        """Test that the report is properly formatted markdown."""
-        results = {
-            "effect_size": 0.25,
-            "alpha": 0.05,
-            "target_power": 0.80,
-            "k_groups": 3,
-            "n_per_group": 52,
-            "total_required_n": 156,
-            "analysis_method": "One-Way ANOVA (F-test)",
-            "software": "statsmodels"
-        }
-        
-        report = generate_report(results)
-        
-        # Check for markdown table formatting
-        assert "| Parameter | Value | Description |" in report
-        assert "| :--- | :--- | :--- |" in report
+    def test_calculate_contrast_power_large_effect(self):
+        """Test with large effect size -> smaller N."""
+        n_small, _ = calculate_contrast_power(0.8, 0.05, 0.80, 3)
+        n_large, _ = calculate_contrast_power(0.2, 0.05, 0.80, 3)
+        assert n_small < n_large
 
 
-class TestMain:
-    def test_main_creates_files(self):
-        """Test that main() creates the expected output files."""
+class TestANOVA_PowerCalculation:
+    def test_calculate_anova_power_basic(self):
+        """Test basic ANOVA power calculation."""
+        n_per_group, total_n = calculate_anova_power(
+            effect_size_f=0.25,
+            alpha=0.05,
+            power_target=0.80,
+            n_groups=3
+        )
+        assert n_per_group > 0
+        assert total_n > 0
+        assert total_n == int(np.ceil(n_per_group * 3))
+
+    def test_calculate_anova_power_small_effect(self):
+        """Test with small effect size -> larger N."""
+        n_small, _ = calculate_anova_power(0.1, 0.05, 0.80, 3)
+        n_large, _ = calculate_anova_power(0.5, 0.05, 0.80, 3)
+        assert n_small > n_large
+
+
+class TestMinimumN:
+    def test_find_minimum_n(self):
+        """Test that max is selected."""
+        assert find_minimum_n(30, 50) == 50
+        assert find_minimum_n(60, 40) == 60
+
+
+class TestMainExecution:
+    def test_main_creates_file(self):
+        """Test that main() creates the expected output file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Patch the output directory
-            with patch('code.research.power_analysis.os.makedirs') as mock_makedirs:
-                with patch('code.research.power_analysis.open', create=True) as mock_open:
-                    # Mock the file write operations
-                    mock_file = mock_open.return_value.__enter__.return_value
-                    
-                    # Run main with test arguments
-                    test_args = [
-                        'power_analysis.py',
-                        '--effect_size', '0.25',
-                        '--alpha', '0.05',
-                        '--power', '0.80',
-                        '--test_type', 'anova'
-                    ]
-                    
-                    with patch('sys.argv', test_args):
-                        main()
-                    
-                    # Verify that open was called twice (JSON and MD)
-                    assert mock_open.call_count >= 2
+            # Mock the output path
+            with patch('code.research.power_analysis.PROJECT_ROOT', Path(tmpdir)):
+                with patch('code.research.power_analysis.sys.exit', return_value=0):
+                    result = main()
+            
+            output_path = Path(tmpdir) / "research" / "power_calculation.json"
+            assert output_path.exists()
+            
+            with open(output_path) as f:
+                data = json.load(f)
+            
+            assert "params" in data
+            assert "results" in data
+            assert "total_n" in data["results"]
+            assert data["status"] == "success"
 
-    def test_main_invalid_test_type(self):
-        """Test that main() exits with error for unsupported test types."""
-        test_args = [
-            'power_analysis.py',
-            '--test_type', 'ttest'
-        ]
-        
-        with patch('sys.argv', test_args):
-            with pytest.raises(SystemExit) as exc_info:
-                main()
-            assert exc_info.value.code == 1
-
-    def test_main_output_files_content(self):
-        """Test that the output files contain valid data."""
+    def test_main_parameters(self):
+        """Verify the hard-coded parameters are used correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Change to temp directory to capture output
-            original_dir = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Create research directory
-                os.makedirs('research', exist_ok=True)
-                
-                # Run main with test arguments
-                test_args = [
-                    'power_analysis.py',
-                    '--effect_size', '0.25',
-                    '--alpha', '0.05',
-                    '--power', '0.80',
-                    '--test_type', 'anova'
-                ]
-                
-                with patch('sys.argv', test_args):
+            with patch('code.research.power_analysis.PROJECT_ROOT', Path(tmpdir)):
+                with patch('code.research.power_analysis.sys.exit', return_value=0):
                     main()
-                
-                # Check JSON file
-                json_path = os.path.join('research', 'power_calculation.json')
-                assert os.path.exists(json_path)
-                
-                with open(json_path, 'r') as f:
-                    results = json.load(f)
-                
-                assert 'effect_size' in results
-                assert 'alpha' in results
-                assert 'target_power' in results
-                assert 'k_groups' in results
-                assert 'n_per_group' in results
-                assert 'total_required_n' in results
-                
-                # Check MD file
-                md_path = os.path.join('research', 'power_report.md')
-                assert os.path.exists(md_path)
-                
-                with open(md_path, 'r') as f:
-                    report = f.read()
-                
-                assert "# Pre-Study Power Analysis Report" in report
-                assert "## Conclusion" in report
-                
-            finally:
-                os.chdir(original_dir)
+            
+            output_path = Path(tmpdir) / "research" / "power_calculation.json"
+            with open(output_path) as f:
+                data = json.load(f)
+            
+            params = data["params"]
+            assert params["effect_size_f"] == 0.25
+            assert params["alpha"] == 0.05
+            assert params["target_power"] == 0.80
+            assert params["groups"] == 3
+            assert params["effect_size_d_contrast"] == 0.50

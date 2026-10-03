@@ -1,14 +1,3 @@
-"""
-Task T000b: Validate the text content of the Lee & See (2004) scale items against the primary source.
-
-Logic:
-1. Define the Primary Source Truth for the Lee & See (2004) 12-item Trust in Automation Scale (hardcoded).
-2. Extract the scale items claimed in `spec.md` (and `plan.md` if present).
-3. Compare the claimed items against the Primary Source Truth exactly.
-4. If the text does not match the 12-item structure, raise SystemExit(1).
-5. If successful, write `research/scale_text_validation.json`.
-"""
-
 import argparse
 import json
 import sys
@@ -16,140 +5,160 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Primary Source Truth: Lee & See (2004) 12-item Trust in Automation Scale
-# Hardcoded based on the task description provided in the prompt.
-PRIMARY_SOURCE_TRUTH = [
-    "The AI's performance is predictable.",
-    "The AI's performance is consistent.",
-    "The AI's performance is reliable.",
-    "The AI's performance is accurate.",
-    "The AI's performance is trustworthy.",
-    "The AI's performance is safe.",
-    "The AI's performance is effective.",
-    "The AI's performance is competent.",
-    "The AI's performance is helpful.",
-    "The AI's performance is honest.",
-    "The AI's performance is benevolent.",
-    "The AI's performance is open."
-]
-
 def load_validation_report(report_path: Path) -> Dict[str, Any]:
-    """Loads the JSON validation report from T000."""
+    """Load the item source log or validation report JSON."""
     if not report_path.exists():
         raise FileNotFoundError(f"Validation report not found at {report_path}")
-    with open(report_path, 'r', encoding='utf-8') as f:
+    with open(report_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def fetch_scale_items_from_spec(spec_path: Path, plan_path: Optional[Path] = None) -> List[str]:
+def fetch_scale_items_from_spec(spec_path: Path) -> List[str]:
     """
-    Extracts scale items from spec.md and plan.md.
-    Looks for patterns like "Item 1: ...", "1. ...", or specific text blocks
-    containing the trust scale items.
+    Extract the list of trust scale items from the generated markdown file.
+    Expects a JSON array embedded in the file or a specific format.
+    Based on T010b-auto, docs/trust_scale_items.md contains the verified items.
     """
-    items = []
-    files_to_check = [spec_path]
-    if plan_path and plan_path.exists():
-        files_to_check.append(plan_path)
-
-    for file_path in files_to_check:
-        if not file_path.exists():
-            continue
-        
-        content = file_path.read_text(encoding='utf-8')
-        
-        # Strategy: Look for the specific text of the 12 items in the document.
-        # We normalize the text to handle potential formatting differences (newlines, extra spaces).
-        # We search for the presence of the 12 specific strings defined in PRIMARY_SOURCE_TRUTH.
-        
-        found_items = []
-        for truth_item in PRIMARY_SOURCE_TRUTH:
-            # Normalize whitespace for comparison
-            if truth_item.lower() in content.lower():
-                found_items.append(truth_item)
-        
-        # If we found all 12, we consider the spec validated for this task.
-        # If the spec lists them differently (e.g., numbered list), we still match the content.
-        if len(found_items) == 12:
-            return found_items
-
-    # If we couldn't find them by simple string match, try to parse a list structure
-    # This is a fallback if the items are listed as a bullet list in the spec.
-    # Regex to find lines that look like scale items (starting with a number or bullet)
-    # But since the truth is hardcoded, we rely on the presence of the truth strings.
+    if not spec_path.exists():
+        raise FileNotFoundError(f"Scale items file not found at {spec_path}")
     
-    # If we reach here, we didn't find the full set.
-    return []
+    with open(spec_path, "r", encoding="utf-8") as f:
+        content = f.read()
 
-def compare_items(claimed: List[str], truth: List[str]) -> bool:
+    # Attempt to find a JSON array block within the markdown
+    # Pattern looks for [...] possibly surrounded by markdown code blocks
+    json_match = re.search(r'```json\s*(\[.*?\])\s*```', content, re.DOTALL)
+    if json_match:
+        try:
+            items = json.loads(json_match.group(1))
+            if isinstance(items, list):
+                return items
+        except json.JSONDecodeError:
+            pass
+
+    # Fallback: Try to parse the whole file as JSON if it's just the array
+    try:
+        items = json.loads(content)
+        if isinstance(items, list):
+            return items
+    except json.JSONDecodeError:
+        pass
+
+    raise ValueError(f"Could not extract valid JSON array of items from {spec_path}")
+
+def compare_items(source_items: List[str], spec_items: List[str]) -> bool:
     """
-    Compares the claimed items against the truth.
-    Returns True if they match exactly (order and content).
+    Compare two lists of items for exact match.
+    Normalizes whitespace but preserves text content.
     """
-    if len(claimed) != len(truth):
+    if len(source_items) != len(spec_items):
         return False
-    
-    # Normalize for comparison (strip whitespace)
-    claimed_norm = [item.strip() for item in claimed]
-    truth_norm = [item.strip() for item in truth]
-    
-    return claimed_norm == truth_norm
 
-def write_validation_report(output_path: Path, status: str, items_verified: int, 
-                            source_url: Optional[str] = None, 
-                            overlap_score: Optional[float] = None) -> None:
-    """Writes the validation report JSON."""
-    report = {
-        "status": status,
-        "items_verified": items_verified,
-        "source_url": source_url,
-        "overlap_score": overlap_score,
-        "scale_name": "Lee & See (2004) Trust in Automation Scale",
-        "timestamp": str(Path(output_path).parent) # Placeholder for actual timestamp logic if needed
+    for s, p in zip(source_items, spec_items):
+        # Normalize whitespace (strip, collapse internal spaces)
+        norm_s = " ".join(s.split())
+        norm_p = " ".join(p.split())
+        if norm_s != norm_p:
+            return False
+    return True
+
+def write_validation_report(report_path: Path, status: str, details: Dict[str, Any]) -> None:
+    """Write the verification report to the specified path."""
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_data = {
+        "verification_status": status,
+        "timestamp": details.get("timestamp", ""),
+        "source_file": details.get("source_file", ""),
+        "spec_file": details.get("spec_file", ""),
+        "item_count": details.get("item_count", 0),
+        "match_result": details.get("match_result", False),
+        "message": details.get("message", "")
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report_data, f, indent=2)
 
-def main():
-    # Define paths relative to project root
-    project_root = Path.cwd()
-    spec_path = project_root / "specs" / "001-perceived-agency-trust" / "spec.md"
-    plan_path = project_root / "plan.md"
-    validation_report_path = project_root / "research" / "validation_report.json" # Output from T000
-    output_path = project_root / "research" / "scale_text_validation.json"
+def main() -> None:
+    """
+    Main entry point for T007g: Generate trust_scale_verification_report.md.
+    
+    Logic:
+    1. Read research/item_source_log.json (from T000/T010c).
+    2. Extract items from docs/trust_scale_items.md (from T010b-auto).
+    3. Confirm exact match.
+    4. Write research/trust_scale_verification_report.md.
+    """
+    parser = argparse.ArgumentParser(description="Verify Trust Scale Items")
+    parser.add_argument("--source-log", type=str, default="research/item_source_log.json",
+                        help="Path to the item source log JSON")
+    parser.add_argument("--spec-file", type=str, default="docs/trust_scale_items.md",
+                        help="Path to the trust scale items markdown file")
+    parser.add_argument("--output-report", type=str, default="research/trust_scale_verification_report.md",
+                        help="Path to write the verification report")
+    args = parser.parse_args()
 
-    # 1. Check if T000 validation report exists (Dependency T000)
-    # Although the task says "Input: spec.md", the logic implies we are validating against the primary source.
-    # We proceed with the primary source truth hardcoded.
-    
-    # 2. Extract scale items from spec.md
-    claimed_items = fetch_scale_items_from_spec(spec_path, plan_path)
-    
-    if not claimed_items:
-        print("ERROR: Could not extract scale items from spec.md or plan.md.", file=sys.stderr)
-        print("The spec must contain the 12 items of the Lee & See (2004) scale.", file=sys.stderr)
+    source_log_path = Path(args.source_log)
+    spec_path = Path(args.spec_file)
+    output_path = Path(args.output_report)
+
+    try:
+        # 1. Load source log
+        source_data = load_validation_report(source_log_path)
+        source_items = source_data.get("items", [])
+        
+        if not source_items:
+            raise ValueError("Source log contains no items.")
+
+        # 2. Fetch items from spec
+        spec_items = fetch_scale_items_from_spec(spec_path)
+
+        # 3. Compare
+        is_match = compare_items(source_items, spec_items)
+        
+        # 4. Write Report (Markdown format as requested by task description)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        status_text = "VERIFIED" if is_match else "MISMATCH"
+        message = "All items match exactly." if is_match else "Item mismatch detected."
+        
+        report_md = f"""# Trust Scale Verification Report
+
+**Status**: {status_text}
+**Source**: {source_log_path}
+**Spec**: {spec_path}
+**Item Count**: {len(source_items)}
+
+## Details
+- **Match Result**: {'Pass' if is_match else 'Fail'}
+- **Message**: {message}
+
+## Items Verified
+The following {len(source_items)} items from the Lee & See (2004) scale were verified:
+
+"""
+        for i, item in enumerate(source_items, 1):
+            report_md += f"{i}. {item}\n"
+
+        report_md += "\n## Conclusion\n"
+        if is_match:
+            report_md += "The items in `docs/trust_scale_items.md` are identical to the verified source.\n"
+        else:
+            report_md += "WARNING: The items do not match the verified source. Do not proceed with data collection.\n"
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(report_md)
+
+        print(f"Verification complete. Report written to {output_path}")
+        if not is_match:
+            sys.exit(1)
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
         sys.exit(1)
-
-    # 3. Compare against Primary Source Truth
-    is_valid = compare_items(claimed_items, PRIMARY_SOURCE_TRUTH)
-    
-    if not is_valid:
-        print("ERROR: Scale text mismatch detected.", file=sys.stderr)
-        print(f"Expected {len(PRIMARY_SOURCE_TRUTH)} items. Found {len(claimed_items)}.", file=sys.stderr)
-        print("The items in spec.md do not match the Primary Source Truth exactly.", file=sys.stderr)
-        # Raise SystemExit(1) as per constraints
-        raise SystemExit("Scale text mismatch")
-
-    # 4. Write success report
-    write_validation_report(
-        output_path, 
-        status="verified", 
-        items_verified=12,
-        source_url="Lee, J. D., & See, K. A. (2004). Trust in Automation: Designing for Appropriate Reliance. Human Factors."
-    )
-    
-    print("T000b Validation Successful: Scale items match Primary Source Truth.")
-    print(f"Report written to: {output_path}")
+    except ValueError as e:
+        print(f"Validation Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
