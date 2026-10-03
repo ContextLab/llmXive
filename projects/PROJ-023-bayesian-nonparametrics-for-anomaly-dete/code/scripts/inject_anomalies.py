@@ -45,7 +45,11 @@ def ensure_config(config_path: Path) -> Path:
         logger.warning(f"Configuration file not found: {config_path}")
         logger.info("Creating default configuration file...")
 
+        # Default configuration based on T006b schema defaults
         default_config = {
+            "mean_shift_range": [0.5, 2.0],
+            "variance_ratio_range": [2.0, 5.0],
+            "drift_duration_range": [5, 15],
             "anomalies": [
                 {
                     "type": "mean_shift",
@@ -58,6 +62,12 @@ def ensure_config(config_path: Path) -> Path:
                     "variance_multiplier": 3.0,
                     "duration_range": [5, 15],
                     "min_gap": 10
+                },
+                {
+                    "type": "gradual_drift",
+                    "drift_rate": 0.1,
+                    "duration_range": [10, 20],
+                    "min_gap": 15
                 }
             ]
         }
@@ -76,8 +86,14 @@ def main() -> None:
     Main entry point for the anomaly injection script.
     """
     # Define paths
+    # Ensure we use the correct paths as per tasks.md and project structure
     data_path = project_root / "data" / "raw" / "series.csv"
-    config_path = project_root / "data" / "processed" / "anomaly_config.json"
+    config_path = project_root / "code" / "config" / "anomaly_injection_config.yaml"
+    
+    # If the YAML config doesn't exist, try the JSON path for backwards compatibility
+    if not config_path.exists():
+        config_path = project_root / "data" / "processed" / "anomaly_config.json"
+    
     output_path = project_root / "data" / "processed" / "series_with_anomalies.csv"
     ground_truth_path = project_root / "data" / "processed" / "ground_truth.csv"
 
@@ -96,6 +112,9 @@ def main() -> None:
     # Run anomaly injection
     try:
         logger.info("Starting anomaly injection...")
+        logger.info(f"Loading data from: {data_path}")
+        logger.info(f"Using config from: {config_path}")
+        
         df_anomaly, df_ground_truth = inject_anomalies_from_file(
             data_path=data_path,
             config_path=config_path,
@@ -109,8 +128,13 @@ def main() -> None:
         logger.info(f"Anomaly injection completed. Total anomalies injected: "
                     f"{df_ground_truth['is_anomaly'].sum()}")
 
+    except FileNotFoundError as e:
+        logger.error(f"Configuration file not found: {e}")
+        logger.error("T006b (anomaly_injection_config.yaml) must be completed first.")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Anomaly injection failed: {e}")
+        logger.exception("Full traceback:")
         sys.exit(1)
 
 

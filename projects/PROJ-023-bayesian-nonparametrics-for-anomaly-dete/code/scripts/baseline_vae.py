@@ -1,16 +1,17 @@
 """
-Baseline VAE Anomaly Detection Script.
+Baseline VAE for Anomaly Detection.
 
-Implements a lightweight Variational Autoencoder (VAE) for time series anomaly detection
-using PyTorch Lightning (as scikit-learn does not support deep generative models).
-Uses reconstruction error as the anomaly score.
+Implements a lightweight Variational Autoencoder using PyTorch Lightning
+for CPU-efficient training. Anomalies are detected based on reconstruction error.
 
 Dependencies:
     - torch
     - pytorch-lightning
     - pandas
     - numpy
-    - scikit-learn (for metrics)
+
+Output:
+    - data/results/vae_predictions.csv
 """
 
 import os
@@ -26,48 +27,43 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-import pytorch_lightning as pl
+import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.preprocessing import StandardScaler
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import EarlyStopping
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Project local imports
+# Ensure the code directory is in the path
+if 'code' not in sys.path:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from lib.data_loader import load_processed_data
-from lib.utils import set_seed, normalize_data, denormalize_data
-from lib.memory_profiler import check_memory_usage, profile_memory
+from lib.memory_profiler import check_memory_usage, MemoryProfiler
+from lib.utils import set_seed
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_SEED = 42
+DEFAULT_WINDOW_SIZE = 50
+DEFAULT_HID_DIM = 64
+DEFAULT_LATENT_DIM = 16
 DEFAULT_EPOCHS = 50
 DEFAULT_BATCH_SIZE = 32
-DEFAULT_LEARNING_RATE = 1e-3
-DEFAULT_HIDDEN_DIM = 64
-DEFAULT_LATENT_DIM = 16
-DEFAULT_WINDOW_SIZE = 50
-DEFAULT_RECONSTRUCTION_THRESHOLD = 0.5
-MAX_MEMORY_GB = 7.0
-
+DEFAULT_LEARNING_RATE = 0.001
+DEFAULT_THRESHOLD_FACTOR = 3.0  # Standard deviations for anomaly threshold
+MEMORY_LIMIT_GB = 7.0
 
 class VAE(nn.Module):
     """
     Variational Autoencoder for 1D time series.
-
-    Architecture:
-        Encoder: Input -> Linear -> ReLU -> Linear -> (mu, log_var)
-        Decoder: (mu, log_var) -> Linear -> ReLU -> Linear -> Output
+    Architecture: Encoder -> Latent (mu, log_var) -> Decoder
     """
-
-    def __init__(self, input_dim: int, hidden_dim: int, latent_dim: int):
+    def __init__(self, input_dim: int, hidden_dim: int = 64, latent_dim: int = 16):
         super(VAE, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -78,8 +74,10 @@ class VAE(nn.Module):
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU()
+            nn.ReLU(),
         )
+
+        # Latent space parameters
         self.fc_mu = nn.Linear(hidden_dim, latent_dim)
         self.fc_log_var = nn.Linear(hidden_dim, latent_dim)
 
@@ -106,383 +104,297 @@ class VAE(nn.Module):
     def decode(self, z: torch.Tensor) -> torch.Tensor:
         return self.decoder(z)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         mu, log_var = self.encode(x)
         z = self.reparameterize(mu, log_var)
         x_recon = self.decode(z)
-        return x_recon, mu, log_var, z
-
+        return x_recon, mu, log_var
 
 class VAEPlModule(pl.LightningModule):
     """
-    PyTorch Lightning module for VAE training.
+    PyTorch Lightning module wrapper for the VAE.
     """
-
-    def __init__(self, input_dim: int, hidden_dim: int, latent_dim: int, lr: float = 1e-3):
+    def __init__(self, input_dim: int, hidden_dim: int = 64, latent_dim: int = 16, lr: float = 0.001):
         super().__init__()
         self.save_hyperparameters()
         self.vae = VAE(input_dim, hidden_dim, latent_dim)
         self.lr = lr
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x_recon, _, _, _ = self.vae(x)
-        return x_recon
-
-    def _loss_function(self, x: torch.Tensor, x_recon: torch.Tensor, mu: torch.Tensor, log_var: torch.Tensor) -> torch.Tensor:
-        # Reconstruction loss (MSE)
-        recon_loss = nn.functional.mse_loss(x_recon, x, reduction='sum')
-        
-        # KL Divergence loss
-        kl_loss = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-        
-        return recon_loss + kl_loss
+    def forward(self, x):
+        return self.vae(x)
 
     def training_step(self, batch, batch_idx):
-        x = batch[0]
-        x_recon, mu, log_var, _ = self.vae(x)
-        loss = self._loss_function(x, x_recon, mu, log_var)
+        x, = batch
+        x_recon, mu, log_var = self.vae(x)
+
+        # Reconstruction loss (MSE)
+        recon_loss = nn.functional.mse_loss(x_recon, x, reduction='sum')
+
+        # KL Divergence loss
+        kl_loss = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+
+        loss = recon_loss + kl_loss
+
         self.log('train_loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x = batch[0]
-        x_recon, mu, log_var, _ = self.vae(x)
-        loss = self._loss_function(x, x_recon, mu, log_var)
-        self.log('val_loss', loss, prog_bar=True)
-        return loss
+        x, = batch
+        x_recon, mu, log_var = self.vae(x)
+        recon_loss = nn.functional.mse_loss(x_recon, x, reduction='sum')
+        self.log('val_loss', recon_loss, prog_bar=True)
+        return recon_loss
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.lr)
+        return optim.Adam(self.parameters(), lr=self.lr)
 
-
-def set_seed(seed: int = DEFAULT_SEED) -> None:
+def set_seed(seed: int = 42):
     """Set random seeds for reproducibility."""
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-    pl.seed_everything(seed)
-    logger.info(f"Seed set to {seed}")
 
-
-def check_memory_usage(max_gb: float = MAX_MEMORY_GB) -> None:
-    """Check current memory usage and warn if approaching limit."""
-    check_memory_usage(max_gb)
-
+def check_memory_usage():
+    """Check current memory usage and exit if limit exceeded."""
+    if not check_memory_usage(MEMORY_LIMIT_GB):
+        logger.error(f"Memory limit ({MEMORY_LIMIT_GB}GB) exceeded. Stopping execution.")
+        sys.exit(1)
 
 def load_and_validate_data(data_path: str) -> pd.DataFrame:
     """
-    Load processed time series data and validate schema.
-    
-    Args:
-        data_path: Path to the processed CSV file.
-        
-    Returns:
-        DataFrame with the time series data.
-        
-    Raises:
-        ValueError: If data is missing or invalid.
+    Load processed time series data from the standard location.
+    Validates that the data exists and has the expected columns.
     """
-    logger.info(f"Loading data from {data_path}")
-    
     if not os.path.exists(data_path):
-        logger.error(f"Data file not found: {data_path}")
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-    
+        raise FileNotFoundError(f"Processed data not found at {data_path}. "
+                                "Run data download and preprocessing scripts first.")
+
     df = pd.read_csv(data_path)
-    
-    # Validate expected columns
-    required_cols = ['timestamp', 'value']
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"Data must contain columns: {required_cols}")
-    
-    # Handle missing values
-    if df['value'].isna().any():
-        logger.warning("Missing values detected. Interpolating.")
-        df['value'] = df['value'].interpolate(method='linear')
-    
-    # Remove any remaining NaNs at edges
-    df = df.dropna(subset=['value'])
-    
-    logger.info(f"Loaded {len(df)} data points")
+
+    # Expected columns based on T004/T005 schema
+    required_cols = ['timestamp', 'value', 'is_anomaly']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column '{col}' in {data_path}")
+
+    logger.info(f"Loaded data with {len(df)} rows from {data_path}")
     return df
 
-
-def create_windows(data: np.ndarray, window_size: int, step_size: int = 1) -> Tuple[np.ndarray, List[int]]:
+def create_windows(series: np.ndarray, window_size: int) -> np.ndarray:
     """
-    Create sliding windows from 1D time series.
-    
-    Args:
-        data: 1D array of time series values.
-        window_size: Size of each window.
-        step_size: Step between windows.
-        
-    Returns:
-        Tuple of (windows, start_indices).
+    Create sliding windows from a 1D time series.
+    Returns a 2D array of shape (num_windows, window_size).
     """
     windows = []
-    start_indices = []
-    
-    for i in range(0, len(data) - window_size + 1, step_size):
-        windows.append(data[i:i + window_size])
-        start_indices.append(i)
-        
-    return np.array(windows), start_indices
-
+    for i in range(len(series) - window_size + 1):
+        windows.append(series[i:i+window_size])
+    return np.array(windows)
 
 def train_vae(
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    input_dim: int,
-    hidden_dim: int,
-    latent_dim: int,
-    epochs: int,
-    batch_size: int,
-    lr: float,
-    device: str,
-    checkpoint_path: Optional[str] = None
+    windows: np.ndarray,
+    hidden_dim: int = DEFAULT_HID_DIM,
+    latent_dim: int = DEFAULT_LATENT_DIM,
+    epochs: int = DEFAULT_EPOCHS,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    lr: float = DEFAULT_LEARNING_RATE,
+    seed: int = 42
 ) -> VAEPlModule:
     """
-    Train the VAE model.
-    
-    Args:
-        train_loader: Training data loader.
-        val_loader: Validation data loader.
-        input_dim: Input dimension.
-        hidden_dim: Hidden layer dimension.
-        latent_dim: Latent space dimension.
-        epochs: Number of training epochs.
-        batch_size: Batch size.
-        lr: Learning rate.
-        device: Device to train on.
-        checkpoint_path: Path to save model checkpoint.
-        
-    Returns:
-        Trained VAEPlModule.
+    Train the VAE model on the windowed data.
     """
-    model = VAEPlModule(input_dim, hidden_dim, latent_dim, lr)
-    
+    set_seed(seed)
+    check_memory_usage()
+
+    logger.info(f"Training VAE: hidden={hidden_dim}, latent={latent_dim}, epochs={epochs}")
+
+    # Convert to tensor
+    tensor_windows = torch.FloatTensor(windows)
+    dataset = TensorDataset(tensor_windows)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    # Initialize model
+    model = VAEPlModule(
+        input_dim=windows.shape[1],
+        hidden_dim=hidden_dim,
+        latent_dim=latent_dim,
+        lr=lr
+    )
+
     # Callbacks
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        dirpath=checkpoint_path if checkpoint_path else '.',
-        filename="vae_best",
-        save_top_k=1,
-        monitor="val_loss",
-        mode="min"
-    )
-    
-    early_stop_callback = pl.callbacks.EarlyStopping(
-        monitor="val_loss",
-        min_delta=0.00,
-        patience=10,
-        verbose=True,
-        mode="min"
-    )
-    
+    early_stop = EarlyStopping(monitor='val_loss', patience=5, mode='min')
+
+    # Trainer (CPU only as per constraints)
     trainer = pl.Trainer(
         max_epochs=epochs,
-        accelerator=device,
-        devices=1 if device != "cpu" else 1,
-        logger=False,
-        enable_progress_bar=True,
-        enable_checkpointing=True,
-        callbacks=[checkpoint_callback, early_stop_callback],
-        gradient_clip_val=1.0
+        callbacks=[early_stop],
+        logger=False, # Disable logger for simplicity in this script
+        enable_checkpointing=False,
+        accelerator='cpu',
+        devices=1
     )
-    
-    trainer.fit(model, train_loader, val_loader)
-    
-    # Load best model
-    best_model_path = checkpoint_callback.best_model_path
-    if best_model_path:
-        model = VAEPlModule.load_from_checkpoint(best_model_path)
-        logger.info(f"Loaded best model from {best_model_path}")
-    
-    return model
 
+    trainer.fit(model, dataloader)
+    logger.info("Training completed.")
+    return model
 
 def run_vae_detection(
     model: VAEPlModule,
-    test_loader: DataLoader,
-    device: str
+    windows: np.ndarray,
+    window_size: int,
+    threshold_factor: float = DEFAULT_THRESHOLD_FACTOR
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Run anomaly detection on test data using reconstruction error.
-    
-    Args:
-        model: Trained VAE model.
-        test_loader: Test data loader.
-        device: Device to run inference on.
-        
-    Returns:
-        Tuple of (reconstruction_errors, predictions).
+    Run anomaly detection using reconstruction error.
+    Returns anomaly scores and binary predictions aligned with original series length.
     """
-    model.to(device)
     model.eval()
-    
-    reconstruction_errors = []
-    
-    with torch.no_grad():
-        for batch in test_loader:
-            x = batch[0].to(device)
-            x_recon = model(x)
-            
-            # Calculate MSE per sample
-            mse = torch.mean((x - x_recon) ** 2, dim=1)
-            reconstruction_errors.extend(mse.cpu().numpy())
-    
-    reconstruction_errors = np.array(reconstruction_errors)
-    return reconstruction_errors
+    check_memory_usage()
 
+    tensor_windows = torch.FloatTensor(windows)
+    dataset = TensorDataset(tensor_windows)
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
+
+    reconstruction_errors = []
+
+    with torch.no_grad():
+        for batch in dataloader:
+            x, = batch
+            x_recon, _, _ = model.vae(x)
+            # Calculate MSE per window
+            mse = torch.mean((x - x_recon) ** 2, dim=1)
+            reconstruction_errors.extend(mse.numpy())
+
+    reconstruction_errors = np.array(reconstruction_errors)
+
+    # Calculate threshold based on reconstruction error distribution
+    # Using mean + k * std as threshold (similar to Shewhart logic on errors)
+    mean_err = np.mean(reconstruction_errors)
+    std_err = np.std(reconstruction_errors)
+    threshold = mean_err + threshold_factor * std_err
+
+    # Map window-level errors back to time steps
+    # Each window corresponds to the last point in the window for alignment
+    # Or we can assign the error to all points in the window.
+    # Standard approach: assign error to the center or last point.
+    # Here we assign to the last point of each window to align with 'current' detection.
+    # However, to get a score for every point, we can use a rolling window approach.
+    # Since we have (N - W + 1) windows, we will have scores for indices [W-1, N-1].
+    # For indices [0, W-2], we can pad with the first error or NaN.
+    # To keep it simple and aligned with 'current' detection, we map window i to index i + window_size - 1.
+
+    scores = np.full(len(windows) + window_size - 1, np.nan)
+    # Actually, the number of windows is len(series) - window_size + 1.
+    # The scores correspond to the end of each window.
+    # Let's map index i in windows to timestamp index i + window_size - 1.
+    for i, err in enumerate(reconstruction_errors):
+        scores[i + window_size - 1] = err
+
+    # Fill NaNs at the beginning with the first valid score
+    first_valid_idx = window_size - 1
+    if first_valid_idx > 0:
+        scores[:first_valid_idx] = scores[first_valid_idx]
+
+    # Binary predictions
+    predictions = (scores > threshold).astype(int)
+
+    return scores, predictions
 
 def save_predictions(
-    predictions_df: pd.DataFrame,
+    scores: np.ndarray,
+    predictions: np.ndarray,
+    timestamps: np.ndarray,
     output_path: str
-) -> None:
-    """
-    Save predictions to CSV.
-    
-    Args:
-        predictions_df: DataFrame with predictions.
-        output_path: Path to save the CSV file.
-    """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    predictions_df.to_csv(output_path, index=False)
-    logger.info(f"Predictions saved to {output_path}")
+):
+    """Save predictions to CSV."""
+    df_out = pd.DataFrame({
+        'timestamp': timestamps,
+        'reconstruction_error': scores,
+        'is_anomaly': predictions
+    })
+    df_out.to_csv(output_path, index=False)
+    logger.info(f"Saved predictions to {output_path}")
 
-
-def print_summary(
-    predictions_df: pd.DataFrame,
-    anomaly_count: int,
-    total_count: int
-) -> None:
+def print_summary(df: pd.DataFrame):
     """Print a summary of the detection results."""
-    logger.info("=" * 50)
-    logger.info("VAE Anomaly Detection Summary")
-    logger.info("=" * 50)
-    logger.info(f"Total samples: {total_count}")
-    logger.info(f"Anomalies detected: {anomaly_count}")
-    logger.info(f"Anomaly rate: {anomaly_count / total_count * 100:.2f}%")
-    logger.info("=" * 50)
+    total = len(df)
+    anomalies = df['is_anomaly'].sum()
+    logger.info(f"Total points: {total}")
+    logger.info(f"Anomalies detected: {anomalies} ({100 * anomalies / total:.2f}%)")
 
+def load_threshold_config(config_path: str) -> float:
+    """Load threshold factor from config if available."""
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            return config.get('threshold_factor', DEFAULT_THRESHOLD_FACTOR)
+    except FileNotFoundError:
+        logger.warning(f"Config file {config_path} not found. Using default threshold factor.")
+        return DEFAULT_THRESHOLD_FACTOR
 
 def main():
-    """Main entry point for the VAE baseline script."""
-    parser = argparse.ArgumentParser(description="VAE Anomaly Detection")
-    parser.add_argument("--data", type=str, default="data/processed/series_with_anomalies.csv",
-                        help="Path to processed data file")
-    parser.add_argument("--output", type=str, default="data/results/vae_predictions.csv",
-                        help="Path to output predictions file")
-    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed")
-    parser.add_argument("--epochs", type=int, default=DEFAULT_EPOCHS, help="Number of epochs")
-    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="Batch size")
-    parser.add_argument("--lr", type=float, default=DEFAULT_LEARNING_RATE, help="Learning rate")
-    parser.add_argument("--hidden-dim", type=int, default=DEFAULT_HIDDEN_DIM, help="Hidden dimension")
-    parser.add_argument("--latent-dim", type=int, default=DEFAULT_LATENT_DIM, help="Latent dimension")
-    parser.add_argument("--window-size", type=int, default=DEFAULT_WINDOW_SIZE, help="Window size")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_RECONSTRUCTION_THRESHOLD,
-                        help="Anomaly threshold (will be calculated as percentile if not provided)")
-    parser.add_argument("--device", type=str, default="cpu", help="Device to use (cpu or cuda)")
-    parser.add_argument("--checkpoint-dir", type=str, default="data/results/vae_checkpoints",
-                        help="Directory to save model checkpoints")
-    
+    parser = argparse.ArgumentParser(description='Run VAE Baseline for Anomaly Detection')
+    parser.add_argument('--data-path', type=str, default='data/processed/series_with_anomalies.csv',
+                        help='Path to processed data CSV')
+    parser.add_argument('--output-path', type=str, default='data/results/vae_predictions.csv',
+                        help='Path to save predictions')
+    parser.add_argument('--window-size', type=int, default=DEFAULT_WINDOW_SIZE,
+                        help='Window size for VAE input')
+    parser.add_argument('--hidden-dim', type=int, default=DEFAULT_HID_DIM,
+                        help='Hidden dimension for VAE')
+    parser.add_argument('--latent-dim', type=int, default=DEFAULT_LATENT_DIM,
+                        help='Latent dimension for VAE')
+    parser.add_argument('--epochs', type=int, default=DEFAULT_EPOCHS,
+                        help='Number of training epochs')
+    parser.add_argument('--batch-size', type=int, default=DEFAULT_BATCH_SIZE,
+                        help='Batch size for training')
+    parser.add_argument('--lr', type=float, default=DEFAULT_LEARNING_RATE,
+                        help='Learning rate')
+    parser.add_argument('--threshold-factor', type=float, default=DEFAULT_THRESHOLD_FACTOR,
+                        help='Threshold factor (std deviations)')
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Random seed')
+
     args = parser.parse_args()
-    
-    # Set seed
-    set_seed(args.seed)
-    
-    # Check memory
-    check_memory_usage()
-    
+
     # Load data
-    try:
-        df = load_and_validate_data(args.data)
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load data: {e}")
-        sys.exit(1)
-    
-    # Prepare data
-    values = df['value'].values
+    logger.info("Loading data...")
+    df = load_and_validate_data(args.data_path)
+    series = df['value'].values
     timestamps = df['timestamp'].values
-    
-    # Normalize
-    scaler = StandardScaler()
-    values_scaled = scaler.fit_transform(values.reshape(-1, 1)).flatten()
-    
+
     # Create windows
-    windows, start_indices = create_windows(values_scaled, args.window_size)
-    
-    # Split into train (80%) and test (20%)
-    split_idx = int(len(windows) * 0.8)
-    train_windows = windows[:split_idx]
-    test_windows = windows[split_idx:]
-    test_start_indices = start_indices[split_idx:]
-    
-    logger.info(f"Train windows: {len(train_windows)}, Test windows: {len(test_windows)}")
-    
-    # Create data loaders
-    train_dataset = TensorDataset(torch.FloatTensor(train_windows))
-    test_dataset = TensorDataset(torch.FloatTensor(test_windows))
-    
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-    
-    # Train model
-    logger.info("Training VAE model...")
+    logger.info(f"Creating windows (size={args.window_size})...")
+    windows = create_windows(series, args.window_size)
+    logger.info(f"Number of windows: {len(windows)}")
+
+    # Train VAE
+    logger.info("Training VAE...")
     model = train_vae(
-        train_loader, test_loader,
-        input_dim=args.window_size,
+        windows,
         hidden_dim=args.hidden_dim,
         latent_dim=args.latent_dim,
         epochs=args.epochs,
         batch_size=args.batch_size,
         lr=args.lr,
-        device=args.device,
-        checkpoint_path=args.checkpoint_dir
+        seed=args.seed
     )
-    
+
     # Run detection
-    logger.info("Running anomaly detection...")
-    reconstruction_errors = run_vae_detection(model, test_loader, args.device)
-    
-    # Determine threshold
-    if args.threshold <= 0:
-        # Calculate threshold as 95th percentile of training errors (re-run on train)
-        model.eval()
-        train_errors = []
-        with torch.no_grad():
-            for batch in train_loader:
-                x = batch[0]
-                x_recon = model(x)
-                mse = torch.mean((x - x_recon) ** 2, dim=1)
-                train_errors.extend(mse.cpu().numpy())
-        threshold = np.percentile(train_errors, 95)
-    else:
-        threshold = args.threshold
-    
-    logger.info(f"Using threshold: {threshold:.4f}")
-    
-    # Create predictions
-    predictions = (reconstruction_errors > threshold).astype(int)
-    
-    # Map back to original timestamps
-    # Only for test windows
-    pred_df = pd.DataFrame({
-        'timestamp': [timestamps[i] for i in test_start_indices],
-        'value': [values[i] for i in test_start_indices],
-        'reconstruction_error': reconstruction_errors,
-        'anomaly_score': reconstruction_errors / np.max(reconstruction_errors),  # Normalize score
-        'is_anomaly': predictions
-    })
-    
-    # Save predictions
-    save_predictions(pred_df, args.output)
-    
-    # Print summary
-    print_summary(pred_df, predictions.sum(), len(predictions))
-    
-    logger.info("VAE baseline completed successfully.")
+    logger.info("Running detection...")
+    scores, predictions = run_vae_detection(
+        model, windows, args.window_size, args.threshold_factor
+    )
 
+    # Save results
+    logger.info("Saving results...")
+    save_predictions(scores, predictions, timestamps, args.output_path)
 
-if __name__ == "__main__":
+    # Summary
+    logger.info("Detection Summary:")
+    print_summary(df.assign(is_anomaly=predictions))
+
+    logger.info("VAE Baseline completed successfully.")
+
+if __name__ == '__main__':
     main()

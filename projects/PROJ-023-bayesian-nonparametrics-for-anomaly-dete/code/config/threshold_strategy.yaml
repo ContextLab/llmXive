@@ -1,0 +1,14 @@
+# Threshold Strategy Configuration
+# Defines the fixed thresholding strategy for anomaly detection evaluation.
+#
+# Supported strategies:
+# - fixed_probability: Use a fixed probability threshold (value field required)
+# - specificity: Optimize for a target specificity (target_specificity field required)
+# - f1_optimization: Select threshold that maximizes F1 score (value field ignored)
+#
+# This file is loaded by code/scripts/evaluate.py (T026a) and code/scripts/sensitivity_analysis.py
+# to determine how anomaly scores are converted to binary predictions.
+
+strategy: "f1_optimization"
+value: 0.5  # Only used if strategy is "fixed_probability"
+target_specificity: 0.95  # Only used if strategy is "specificity"

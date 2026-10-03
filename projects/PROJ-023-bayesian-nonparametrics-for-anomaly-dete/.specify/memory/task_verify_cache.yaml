@@ -1,3 +1,12 @@
+T006:
+  c: false
+  h: e3ccfee803f20293309249158643b30cd20c81fcd3d0cd32caaaec3779fe7619
+  r: "The provided `inject_anomalies.py` creates a default configuration with hard\u2011\
+    coded values when the required `anomaly_injection_config.yaml` is absent, instead\
+    \ of raising a clear error as mandated, and it falls back to a JSON file with\
+    \ hard\u2011coded parameters. Moreover, the script does not actually load parameters\
+    \ from the specified YAML file, and the essential config file is missing. Consequently\
+    \ the task\u2019s core requirements are not met."
 T015:
   c: false
   h: 15a874dcba5ed8c80484615a648802b8e732472c7e92161548182dbc89f33cee
@@ -12,6 +21,14 @@ T016:
     implementation, and the required configuration file `code/config/inference_engine.yaml`
     is missing entirely. Both the SVI model code and the config selection are essential
     to satisfy the task.
+T021:
+  c: false
+  h: 9a2a3067c7fed0d6ef166a3b427ebc28205f4c5e488c57770b94e2abe83b9a75
+  r: "The `code/scripts/baseline_cusum.py` file exists and contains a CUSUM implementation,\
+    \ but the required output file `data/results/cusum_predictions.csv` is missing,\
+    \ indicating the script either was not run or does not write the predictions to\
+    \ the specified location. The task\u2019s core deliverable (the predictions CSV)\
+    \ is therefore not present."
 T022:
   c: false
   h: a971c19f93cbf02a036c4e0067cd2a833cbc144cde7e8581e3686746c33ea39b
@@ -19,6 +36,15 @@ T022:
     \ instead of the required scikit-learn or pytorch\u2011lightning, and the expected\
     \ output file `data/results/vae_predictions.csv` is absent. Both the mandated\
     \ library choice and the required result artifact are missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No verification artifacts (e.g., test logs, compatibility reports, or scripts)\
+    \ were provided to demonstrate that baseline scripts T020\u2011T022 successfully\
+    \ consume the unified data format from T004 and produce outputs compatible with\
+    \ evaluation script T026a. The implementer\u2019s claim lacks concrete evidence;\
+    \ a log or report showing successful end\u2011to\u2011end runs and format checks\
+    \ is required."
 T029:
   c: false
   h: 12c7a2d7ac6bd9d8345fc744351acad3353dbe15b45192760fd27098aa66e823

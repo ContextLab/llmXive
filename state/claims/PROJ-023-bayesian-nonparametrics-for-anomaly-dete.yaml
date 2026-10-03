@@ -1786,3 +1786,316 @@
   source_type: external
   status: verified
   updated_at: '2026-09-29T12:05:42Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Select first 5 univariate time series with length > 1000 sorted alphabetically
+  claim_id: c_2405bf9a
+  context: 'Implement code/lib/data_loader.py to fetch real time series from UCR Time
+    Series Archive AND UCI Machine Learning Repository. Selection Rule: Select the
+    first 5 univariate series with length > 1000, sorted alphabetically by dataset
+    name, to ensure deterministic selection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the first 5 univariate series with length > 1000, sorted alphabetically
+    by dataset name, to ensure deterministic selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:04Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Maximum retries is 10
+  claim_id: c_f38e87a1
+  context: 'Retry Logic: Max retries = 10 (or until total steps > 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max retries = 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:13Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Initial inducing points set to 20
+  claim_id: c_4623db96
+  context: 'Initial Values: Start with inducing_points=20, learning_rate=0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Start with inducing_points=20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:20Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Initial learning rate set to 0.01
+  claim_id: c_85d6398b
+  context: 'Initial Values: Start with inducing_points=20, learning_rate=0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Start with learning_rate=0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:28Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Retry 1 sets inducing points to 25 and learning rate to 0.01
+  claim_id: c_3b0fb297
+  context: 'Retry 1: Reset to original values and adjust: inducing_points=25, learning_rate=0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry 1 adjusts inducing_points=25 and learning_rate=0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:34Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Retry 2 sets inducing points to 20 and learning rate to 0.009
+  claim_id: c_327ec601
+  context: 'Retry 2: Reset to original values and adjust: inducing_points=20, learning_rate=0.009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry 2 adjusts inducing_points=20 and learning_rate=0.009.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Retry 3 sets inducing points to 25 and learning rate to 0.009
+  claim_id: c_1e1b9f4f
+  context: 'Retry 3: Reset to original values and adjust: inducing_points=25, learning_rate=0.009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry 3 adjusts inducing_points=25 and learning_rate=0.009.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:50Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap confidence intervals use 1000 bootstraps
+  claim_id: c_ad7f8f84
+  context: 'Secondary: Implement Bootstrap Confidence Intervals (scipy.stats.bootstrap,
+    n_bootstraps=1000) as robustness check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap Confidence Intervals use n_bootstraps=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:01:59Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis default range is 0.0 to 1.0 with step 0.01
+  claim_id: c_0937b6db
+  context: Create code/scripts/sensitivity_analysis.py to sweep decision thresholds
+    across a configurable range (loaded from code/config/sensitivity_config.yaml,
+    default start=0.0, stop=1.0, step=0.01) and report false-positive/negative rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis default range is start=0.0, stop=1.0, step=0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:05:09Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bayesian GP script must complete within 30 minutes on CPU
+  claim_id: c_499b0ad7
+  context: 'Verify code/scripts/bayesian_gp.py on a small sample dataset to verify
+    it produces data/results/bayesian_predictions.csv and data/results/bayesian_convergence.json
+    with valid content. Constraint: Must complete within 30 minutes on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian GP script must complete within 30 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:07:43Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Evaluation pipeline must complete within 10 minutes
+  claim_id: c_2704ad6d
+  context: 'Run code/scripts/evaluate.py to generate data/results/evaluation.json
+    and verify it contains valid p-values and confidence intervals. Constraint: Must
+    complete within 10 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Evaluation pipeline must complete within 10 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:07:51Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generated PNG files must be greater than 1KB
+  claim_id: c_00fe8fc7
+  context: 'Run code/scripts/render_fig1.py and code/scripts/render_fig2.py to generate
+    the required PNG files. Constraint: Files must be non-empty (size > 1KB) and contain
+    valid PNG headers (89 50 4E 47).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generated_PNG_files_must_be_greater_than_1KB
+  kind: magnitude
+  raw_text: Generated PNG files must be non-empty with size > 1KB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:07:55Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Core inference and evaluation pipeline must complete within 6 hours
+  claim_id: c_ec2196e2
+  context: 'Run the core inference and evaluation pipeline (data load -> inference
+    -> eval) from scratch to ensure it is fully reproducible. Constraint: Must complete
+    within 6 hours and produce identical results. (Matches SC-002 scope).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Core inference and evaluation pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:08:03Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Peak memory limit is 7GB
+  claim_id: c_3cf2ba4f
+  context: Create code/lib/memory_profiler.py to profile peak memory usage, log to
+    data/results/memory_log.json, and raise SystemExit(1) if peak > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_limit_is_7GB
+  kind: entity_fact
+  raw_text: Peak memory limit is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:08:15Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Default mean shift range is 0.5 to 2.0
+  claim_id: c_14e7e30c
+  context: 'Values: Use safe default ranges (e.g., mean_shift_range: [0.5, 2.0]) for
+    implementation reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default mean_shift_range is [0.5, 2.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:08:22Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Default fixed probability value is 0.5
+  claim_id: c_77c03b8a
+  context: 'Schema: strategy: ''f1_optimization'' value: 0.5 # Only used if strategy
+    is fixed_probability'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default value for fixed_probability strategy is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:08:30Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Default target specificity is 0.95
+  claim_id: c_beacb99b
+  context: 'Schema: target_specificity: 0.95 # Only used if strategy is specificity'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default target_specificity is 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:08:37Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Default inference engine is pymc
+  claim_id: c_63c16a3b
+  context: 'Schema: engine: ''pymc'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_inference_engine_is_pymc
+  kind: entity_fact
+  raw_text: Default engine is pymc.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:10:25Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Default correction method is bonferroni
+  claim_id: c_39580a1d
+  context: 'Load correction method from code/config/correction_config.yaml (default
+    ''bonferroni'', options: ''bonferroni'', ''benjamini_hochberg'') for multiple
+    comparisons (FR-009).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_correction_method_is_bonferroni
+  kind: entity_fact
+  raw_text: Default correction method is bonferroni.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T04:10:52Z'

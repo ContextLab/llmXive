@@ -1,0 +1,37 @@
+# Anomaly Injection Configuration Schema
+# This file defines the parameter ranges for injecting synthetic anomalies
+# into time series data for the Bayesian Nonparametrics Anomaly Detection study.
+#
+# These values are implementation defaults for reproducibility.
+# The research phase will refine these values based on empirical analysis.
+#
+# Keys:
+# - mean_shift_range: [min_shift, max_shift] in standard deviations
+# - variance_ratio_range: [min_ratio, max_ratio] relative to baseline variance
+# - drift_duration_range: [min_duration, max_duration] in time steps
+
+mean_shift_range: [0.5, 2.0]
+variance_ratio_range: [1.5, 4.0]
+drift_duration_range: [10, 50]
+
+# Additional configuration for anomaly injection logic
+injection_policy:
+  # Probability of injecting an anomaly in a given window
+  injection_probability: 0.3
+  # Minimum gap between anomalies (in time steps)
+  min_gap_steps: 20
+  # Types of anomalies to inject (weighted selection)
+  anomaly_types:
+    - type: "mean_shift"
+      weight: 0.4
+    - type: "variance_spike"
+      weight: 0.3
+    - type: "gradual_drift"
+      weight: 0.3
+
+# Validation constraints
+constraints:
+  # Maximum fraction of data that can be anomalous
+  max_anomaly_fraction: 0.15
+  # Minimum signal-to-noise ratio for detectable anomalies
+  min_signal_to_noise: 1.5
