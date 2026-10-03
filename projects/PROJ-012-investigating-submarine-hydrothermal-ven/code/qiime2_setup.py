@@ -1,13 +1,13 @@
 """
-QIIME2 Environment Setup and CLI Configuration Script.
+QIIME 2 Environment Setup and CLI Wrapper
 
-This script configures the Conda/Mamba environment for QIIME2 and provides
-a CLI wrapper to ensure the environment is active before running QIIME2 commands.
+This module provides utilities to install, configure, and verify QIIME 2
+via Conda/Mamba, and to execute QIIME 2 CLI commands.
 
-It verifies the installation of QIIME2 and its dependencies (dada2, demux, etc.)
-and provides a helper function to execute QIIME2 commands within the correct
-environment context.
+It ensures the environment is ready for downstream tasks (T018) that
+require `qiime demux summarize` and `qiime dada2 denoise-paired`.
 """
+
 import os
 import subprocess
 import sys
@@ -15,310 +15,218 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-# Configure logging
+# Configure logger
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
-# QIIME2 Environment Configuration
-QIIME2_ENV_NAME = "qiime2-2023.9"
+# QIIME 2 version to install (stable release)
+# Using a specific release ensures reproducibility.
+# This version is compatible with standard Linux/Ubuntu environments.
 QIIME2_VERSION = "2023.9"
-QIIME2_CHANNEL = "bioconda"
-QIIME2_CHANNEL_PRIORITY = 1
-
-# Required QIIME2 plugins/packages for this project
-REQUIRED_PACKAGES = [
-    "qiime2",
-    "qiime2-plugins",
-    "dada2",
-    "deblur",
-    "q2-demux",
-    "q2-dada2",
-    "q2-diversity",
-    "q2-taxa",
-    "q2-feature-table",
-    "q2-types",
-    "q2-metadata",
-    "q2-longitudinal",
-    "q2-composition",
-    "q2-sample-classifier",
-    "q2-emperor",
-    "q2-gneiss",
-    "q2-fragment-insertion",
-    "q2-phylogeny",
-    "q2-rescript",
-    "q2-feature-classifier",
-    "q2-fragment-insertion",
-    "q2-phylogeny",
-    "q2-taxa",
-    "q2-composition",
-    "q2-sample-classifier",
-    "q2-longitudinal",
-    "q2-emperor",
-    "q2-gneiss",
-    "q2-rescript",
-    "q2-feature-classifier"
-]
+CONDA_ENV_NAME = "qiime2-amplicon"
+ENV_FILE_PATH = Path("data/processed/conda_env_qiime2.yaml")
 
 def check_conda_installed() -> bool:
-    """Check if conda or mamba is installed."""
+    """
+    Checks if conda or mamba is installed and available in PATH.
+
+    Returns:
+        bool: True if conda/mamba is found, False otherwise.
+    """
     try:
-        subprocess.run(["conda", "--version"], check=True, capture_output=True)
-        logger.info("Conda is installed.")
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        try:
-            subprocess.run(["mamba", "--version"], check=True, capture_output=True)
-            logger.info("Mamba is installed.")
+        result = subprocess.run(
+            ["which", "conda"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0:
+            logger.info("Conda found at: %s", result.stdout.strip())
             return True
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            logger.error("Neither conda nor mamba is installed. Please install one first.")
-            return False
+
+        result_mamba = subprocess.run(
+            ["which", "mamba"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result_mamba.returncode == 0:
+            logger.info("Mamba found at: %s", result_mamba.stdout.strip())
+            return True
+
+        logger.warning("Neither conda nor mamba found in PATH.")
+        return False
+    except FileNotFoundError:
+        logger.error("Could not execute conda/mamba check command.")
+        return False
 
 def create_qiime2_environment() -> bool:
     """
-    Create the QIIME2 Conda environment if it doesn't exist.
-    
+    Creates the QIIME 2 Conda environment if it does not exist.
+
+    This function generates a temporary environment YAML file with the
+    specific QIIME 2 package and runs `conda create` (or `mamba create`).
+
     Returns:
-        bool: True if environment was created successfully or already exists, False otherwise.
+        bool: True if environment creation was successful, False otherwise.
     """
     if not check_conda_installed():
+        logger.error("Conda/Mamba is required but not installed.")
         return False
 
-    logger.info(f"Checking for QIIME2 environment: {QIIME2_ENV_NAME}...")
-    
-    # Check if environment exists
-    try:
-        result = subprocess.run(
-            ["conda", "env", "list"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        if QIIME2_ENV_NAME in result.stdout:
-            logger.info(f"QIIME2 environment '{QIIME2_ENV_NAME}' already exists.")
-            return True
-    except subprocess.CalledProcessError:
-        logger.warning("Could not list conda environments. Attempting to create anyway.")
+    # Ensure the directory for the env file exists
+    ENV_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Creating QIIME2 environment '{QIIME2_ENV_NAME}'...")
-    
-    # Create environment with QIIME2
-    # Using conda-forge and bioconda channels as recommended for QIIME2
-    create_cmd = [
-        "conda", "create", "-n", QIIME2_ENV_NAME, "-c", "conda-forge", "-c", "bioconda",
-        f"qiime2={QIIME2_VERSION}", "python=3.10", "-y"
-    ]
-    
+    # Write the environment file
+    # Using the official QIIME 2 channel and version
+    env_content = f"""
+    name: {CONDA_ENV_NAME}
+    channels:
+      - conda-forge
+      - bioconda
+      - qiime2
+      - defaults
+    dependencies:
+      - qiime2={QIIME2_VERSION}
+      - qiime2-amplicon={QIIME2_VERSION}
+      - python>=3.8
+    """
+
     try:
-        subprocess.run(create_cmd, check=True)
-        logger.info(f"Successfully created QIIME2 environment '{QIIME2_ENV_NAME}'.")
+        with open(ENV_FILE_PATH, 'w') as f:
+            f.write(env_content)
+        logger.info(f"Environment file written to: {ENV_FILE_PATH}")
+    except IOError as e:
+        logger.error(f"Failed to write environment file: {e}")
+        return False
+
+    # Determine command (mamba preferred for speed, fallback to conda)
+    cmd_base = "mamba" if subprocess.run(["which", "mamba"], capture_output=True).returncode == 0 else "conda"
+
+    logger.info(f"Creating environment '{CONDA_ENV_NAME}' using {cmd_base}...")
+    try:
+        # -y for yes, --file for yaml
+        subprocess.run(
+            [cmd_base, "create", "-n", CONDA_ENV_NAME, "--file", str(ENV_FILE_PATH), "-y"],
+            check=True
+        )
+        logger.info(f"Environment '{CONDA_ENV_NAME}' created successfully.")
         return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to create QIIME2 environment: {e}")
-        logger.error("This might be due to channel conflicts or network issues.")
-        logger.error("Please try creating the environment manually with:")
-        logger.error(f"  conda create -n {QIIME2_ENV_NAME} -c conda-forge -c bioconda qiime2={QIIME2_VERSION} python=3.10 -y")
+        logger.error(f"Failed to create environment: {e}")
+        # Clean up env file if creation fails to avoid confusion
+        if ENV_FILE_PATH.exists():
+            ENV_FILE_PATH.unlink()
         return False
 
-def activate_qiime2_environment() -> bool:
+def verify_qiime2_installation() -> bool:
     """
-    Activate the QIIME2 environment and verify it's active.
-    
+    Verifies that QIIME 2 is installed and the CLI is functional.
+
+    Runs `qiime --version` inside the activated environment.
+
     Returns:
-        bool: True if environment is active, False otherwise.
+        bool: True if version check passes, False otherwise.
     """
     if not check_conda_installed():
         return False
 
-    # Check if we're already in the environment
-    if os.environ.get("CONDA_DEFAULT_ENV") == QIIME2_ENV_NAME:
-        logger.info(f"Already in QIIME2 environment: {QIIME2_ENV_NAME}")
-        return True
-
-    logger.info(f"Attempting to activate QIIME2 environment: {QIIME2_ENV_NAME}...")
-    
-    # Try to activate and check if it worked
+    logger.info("Verifying QIIME 2 installation...")
     try:
-        # Use conda activate in a subprocess to verify
-        activate_cmd = [
-            "conda", "activate", QIIME2_ENV_NAME, "&&", "python", "-c", 
-            "import qiime2; print('QIIME2 imported successfully')"
-        ]
-        
-        # Note: This is a simplified check. In a real shell, we'd use eval "$(conda shell.bash hook)"
-        # For this script, we'll just verify the environment exists and can be activated
+        # Use conda run to execute without explicitly activating shell
         result = subprocess.run(
-            ["conda", "run", "-n", QIIME2_ENV_NAME, "python", "-c", "import qiime2; print('OK')"],
+            ["conda", "run", "-n", CONDA_ENV_NAME, "qiime", "--version"],
             capture_output=True,
-            text=True
+            text=True,
+            check=False
         )
-        
-        if result.returncode == 0 and "OK" in result.stdout:
-            logger.info(f"QIIME2 environment '{QIIME2_ENV_NAME}' is ready.")
+
+        if result.returncode == 0:
+            logger.info("QIIME 2 verification successful: %s", result.stdout.strip())
             return True
         else:
-            logger.error(f"Failed to verify QIIME2 environment: {result.stderr}")
+            logger.error(f"QIIME 2 verification failed: {result.stderr}")
             return False
-            
+    except FileNotFoundError:
+        logger.error("Conda command not found during verification.")
+        return False
     except Exception as e:
-        logger.error(f"Error checking QIIME2 environment: {e}")
+        logger.error(f"Unexpected error during verification: {e}")
         return False
 
-def verify_qiime2_installation() -> Tuple[bool, str]:
+def run_qiime2_command(command_args: List[str]) -> Tuple[bool, str, str]:
     """
-    Verify that QIIME2 is properly installed and all required plugins are available.
-    
+    Executes a QIIME 2 CLI command within the configured environment.
+
+    Args:
+        command_args: List of arguments for the qiime command (e.g., ['demux', 'summarize', ...]).
+
     Returns:
-        Tuple[bool, str]: (success, message)
+        Tuple[bool, str, str]: (success, stdout, stderr)
     """
-    if not check_conda_installed():
-        return False, "Conda/Mamba not found."
+    if not verify_qiime2_installation():
+        return False, "", "QIIME 2 environment not verified. Cannot run command."
 
-    if not activate_qiime2_environment():
-        return False, "QIIME2 environment not active or not found."
+    cmd = ["conda", "run", "-n", CONDA_ENV_NAME, "qiime"] + command_args
+    logger.info(f"Running QIIME 2 command: {' '.join(cmd)}")
 
-    logger.info("Verifying QIIME2 installation...")
-    
-    # Check QIIME2 version
     try:
         result = subprocess.run(
-            ["conda", "run", "-n", QIIME2_ENV_NAME, "qiime", "--version"],
+            cmd,
             capture_output=True,
-            text=True
+            text=True,
+            check=False
         )
-        
         if result.returncode == 0:
-            logger.info(f"QIIME2 version: {result.stdout.strip()}")
+            logger.info("QIIME 2 command succeeded.")
+            return True, result.stdout, result.stderr
         else:
-            return False, f"Failed to get QIIME2 version: {result.stderr}"
-            
+            logger.error(f"QIIME 2 command failed with code {result.returncode}: {result.stderr}")
+            return False, result.stdout, result.stderr
     except Exception as e:
-        return False, f"Error checking QIIME2 version: {e}"
-
-    # Check for required plugins
-    missing_plugins = []
-    for plugin in ["demux", "dada2", "diversity", "feature-table", "metadata"]:
-        try:
-            result = subprocess.run(
-                ["conda", "run", "-n", QIIME2_ENV_NAME, "qiime", "plugin", "list"],
-                capture_output=True,
-                text=True
-            )
-            if plugin not in result.stdout:
-                missing_plugins.append(plugin)
-        except Exception as e:
-            logger.warning(f"Could not check plugin {plugin}: {e}")
-            missing_plugins.append(plugin)
-
-    if missing_plugins:
-        return False, f"Missing required plugins: {', '.join(missing_plugins)}"
-
-    logger.info("All required QIIME2 components verified.")
-    return True, "QIIME2 installation verified successfully."
-
-def run_qiime2_command(command_args: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
-    """
-    Run a QIIME2 command within the correct conda environment.
-    
-    Args:
-        command_args: List of arguments for the qiime command (e.g., ["demux", "summarize", ...])
-        cwd: Working directory for the command
-        
-    Returns:
-        CompletedProcess: The result of the subprocess run
-    """
-    if not check_conda_installed():
-        raise RuntimeError("Conda/Mamba not found. Cannot run QIIME2 commands.")
-
-    if not activate_qiime2_environment():
-        raise RuntimeError("QIIME2 environment not active. Cannot run QIIME2 commands.")
-
-    cmd = ["conda", "run", "-n", QIIME2_ENV_NAME, "qiime"] + command_args
-    
-    logger.info(f"Running QIIME2 command: {' '.join(cmd)}")
-    
-    return subprocess.run(
-        cmd,
-        cwd=cwd,
-        capture_output=False,
-        text=True
-    )
+        logger.error(f"Error executing QIIME 2 command: {e}")
+        return False, "", str(e)
 
 def setup_qiime2_environment() -> bool:
     """
-    Main setup function: ensures conda is available, creates the environment if needed,
-    and verifies the installation.
-    
+    Main entry point to setup the QIIME 2 environment.
+    Checks installation, creates env if needed, and verifies.
+
     Returns:
-        bool: True if setup was successful, False otherwise.
+        bool: True if setup is complete and verified, False otherwise.
     """
-    logger.info("Starting QIIME2 environment setup...")
-    
     if not check_conda_installed():
-        logger.error("Conda/Mamba is required but not installed.")
-        logger.error("Please install Miniconda or Mambaforge from:")
-        logger.error("  https://docs.conda.io/en/latest/miniconda.html")
-        logger.error("  https://github.com/mamba-org/mamba#installation")
+        logger.error("Conda/Mamba is required to setup QIIME 2.")
         return False
 
-    if not create_qiime2_environment():
-        logger.error("Failed to create QIIME2 environment.")
-        return False
+    if not verify_qiime2_installation():
+        logger.info("QIIME 2 not found in environment. Attempting to create...")
+        if not create_qiime2_environment():
+            logger.error("Failed to create QIIME 2 environment.")
+            return False
 
-    if not activate_qiime2_environment():
-        logger.error("Failed to activate QIIME2 environment.")
-        return False
+        if not verify_qiime2_installation():
+            logger.error("QIIME 2 verification failed after creation.")
+            return False
 
-    success, message = verify_qiime2_installation()
-    if not success:
-        logger.error(f"QIIME2 verification failed: {message}")
-        return False
-
-    logger.info("QIIME2 environment setup complete!")
-    logger.info(f"Environment name: {QIIME2_ENV_NAME}")
-    logger.info("You can now run QIIME2 commands using:")
-    logger.info(f"  conda activate {QIIME2_ENV_NAME}")
-    logger.info("  qiime <command> [options]")
-    
+    logger.info("QIIME 2 environment is ready.")
     return True
 
 def main():
-    """Main entry point for the QIIME2 setup script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="Setup and configure QIIME2 Conda environment for microbiome analysis."
+    """
+    Command-line interface for setting up QIIME 2.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    parser.add_argument(
-        "--verify-only",
-        action="store_true",
-        help="Only verify existing installation, do not create environment."
-    )
-    parser.add_argument(
-        "--create",
-        action="store_true",
-        help="Force recreation of the QIIME2 environment."
-    )
-    
-    args = parser.parse_args()
-    
-    if args.verify_only:
-        success, message = verify_qiime2_installation()
-        if success:
-            logger.info("QIIME2 verification successful.")
-            sys.exit(0)
-        else:
-            logger.error(f"QIIME2 verification failed: {message}")
-            sys.exit(1)
-    
-    # Default behavior: setup environment
+
     success = setup_qiime2_environment()
-    sys.exit(0 if success else 1)
+    if success:
+        logger.info("QIIME 2 setup completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("QIIME 2 setup failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

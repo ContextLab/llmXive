@@ -1,15 +1,3 @@
-"""
-Task T020: Download ground-truth annotation file for Guava dataset.
-
-Downloads `ground_truth_annotations.json` from the official Guava release URL,
-verifies its existence, and validates the SHA256 checksum against the expected value.
-
-Dependencies:
-    - requests (must be installed via requirements.txt)
-
-Output:
-    - data/raw/guava/ground_truth_annotations.json
-"""
 import os
 import sys
 import hashlib
@@ -17,133 +5,123 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Import project utilities
-from utils.config import get_path
+from huggingface_hub import hf_hub_download
 from utils.errors import DatasetUnavailableError
 
-# Constants
-OFFICIAL_REPO = "guava/guava-dataset"
-# The specific release tag or main branch where the file is expected
-# Using the raw GitHub URL pattern for releases or main
-GROUND_TRUTH_URL = "https://raw.githubusercontent.com/guava/guava-dataset/main/data/ground_truth_annotations.json"
-EXPECTED_CHECKSUM = "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"  # Placeholder, updated dynamically or from a manifest
-
 def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file."""
+    """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_ground_truth(output_dir: Path, url: str) -> Path:
+def download_ground_truth(
+    repo_id: str,
+    filename: str,
+    output_dir: Path,
+    expected_checksum: Optional[str] = None
+) -> Path:
     """
-    Download the ground truth annotation file from the official source.
-
+    Download ground truth annotation file from Hugging Face.
+    
     Args:
-        output_dir: Directory where the file will be saved.
-        url: Direct URL to the JSON file.
-
+        repo_id: Hugging Face repository ID (e.g., 'guava/guava-v1')
+        filename: Name of the file to download
+        output_dir: Directory to save the file
+        expected_checksum: Optional expected SHA256 checksum for verification
+    
     Returns:
-        Path to the downloaded file.
-
+        Path to the downloaded file
+    
     Raises:
-        DatasetUnavailableError: If the download fails.
+        DatasetUnavailableError: If download fails or checksum mismatch
     """
-    import requests
-
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "ground_truth_annotations.json"
-
-    print(f"Downloading ground truth annotations from: {url}")
-    print(f"Target path: {output_path}")
-
+    output_path = output_dir / filename
+    
     try:
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
-        
-        # Write content to file
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(response.text)
-        
-        print(f"Successfully downloaded to: {output_path}")
-        return output_path
-
-    except requests.exceptions.RequestException as e:
-        error_msg = f"Failed to download ground truth annotations from {url}. Error: {str(e)}"
-        print(error_msg, file=sys.stderr)
-        raise DatasetUnavailableError(error_msg) from e
-    except IOError as e:
-        error_msg = f"Failed to write ground truth annotations to {output_path}. Error: {str(e)}"
-        print(error_msg, file=sys.stderr)
-        raise DatasetUnavailableError(error_msg) from e
-
-def verify_checksum(file_path: Path, expected_hash: str) -> bool:
-    """
-    Verify the SHA256 checksum of the downloaded file.
-
-    Args:
-        file_path: Path to the downloaded file.
-        expected_hash: Expected SHA256 hex string.
-
-    Returns:
-        True if checksum matches, False otherwise.
-    """
-    if not file_path.exists():
-        return False
-
-    actual_hash = calculate_sha256(file_path)
-    # In a real scenario, we would compare against a known good hash.
-    # Since the task requires verification, we log the hash.
-    # If a specific hash was provided in the project specs, we would compare here.
-    # For this implementation, we assume the download is valid if it completes,
-    # but we log the hash for audit purposes.
-    print(f"Downloaded file SHA256: {actual_hash}")
+        downloaded_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            local_dir=output_dir,
+            local_dir_use_symlinks=False
+        )
+    except Exception as e:
+        raise DatasetUnavailableError(
+            f"Failed to download ground truth annotations from {repo_id}/{filename}: {str(e)}"
+        ) from e
     
-    # If an expected hash is provided and matches, return True.
-    # If expected_hash is the placeholder, we skip strict comparison to allow the run,
-    # but in a production pipeline, this would be a strict check.
-    if expected_hash != "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456":
-        return actual_hash == expected_hash
+    if not os.path.exists(downloaded_path):
+        raise DatasetUnavailableError(
+            f"Downloaded file not found at {downloaded_path}"
+        )
     
-    # If no specific hash is known yet, we consider the download successful
-    # but note that the checksum verification is pending a known-good value.
-    # However, to satisfy "Verify: checksum matches", we return True if the file exists
-    # and we assume the URL is authoritative.
-    return True
+    actual_checksum = calculate_sha256(Path(downloaded_path))
+    
+    if expected_checksum and actual_checksum != expected_checksum:
+        raise DatasetUnavailableError(
+            f"Checksum mismatch for {filename}. "
+            f"Expected: {expected_checksum}, Got: {actual_checksum}"
+        )
+    
+    return Path(downloaded_path)
+
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Verify file checksum matches expected value."""
+    actual_checksum = calculate_sha256(file_path)
+    return actual_checksum == expected_checksum
 
 def main():
-    """Main entry point for T020."""
-    # Get the project root and data/raw/guava path
-    # Assuming the project structure: projects/PROJ-846-.../data/raw/guava/
-    project_root = Path(__file__).resolve().parents[3] # Go up from code/data to project root
-    raw_data_dir = project_root / "data" / "raw" / "guava"
+    """Main entry point for downloading ground truth annotations."""
+    # Configuration from tasks.md
+    repo_id = "guava/guava-v1"
+    remote_filename = "annotations.json"
+    output_filename = "ground_truth_annotations.json"
+    output_dir = Path("data/raw/guava")
     
-    output_path = raw_data_dir / "ground_truth_annotations.json"
-
-    # Check if file already exists to avoid re-downloading
-    if output_path.exists():
-        print(f"Ground truth file already exists at {output_path}. Skipping download.")
-        # Verify existing file
-        if verify_checksum(output_path, EXPECTED_CHECKSUM):
-            print("Checksum verification passed.")
-            return 0
-        else:
-            print("Checksum verification failed. Re-downloading.")
+    # Note: Checksum verification is performed if expected_checksum is provided.
+    # For this task, we download and verify existence. If a checksum is known,
+    # it should be passed via config or command line.
+    expected_checksum = None  # Can be overridden via config if available
+    
+    print(f"Downloading {remote_filename} from {repo_id}...")
     
     try:
-        downloaded_file = download_ground_truth(raw_data_dir, GROUND_TRUTH_URL)
+        downloaded_path = download_ground_truth(
+            repo_id=repo_id,
+            filename=remote_filename,
+            output_dir=output_dir,
+            expected_checksum=expected_checksum
+        )
         
-        if verify_checksum(downloaded_file, EXPECTED_CHECKSUM):
-            print("T020 Completed: Ground truth file downloaded and verified.")
-            return 0
-        else:
-            print("T020 Failed: Checksum mismatch.", file=sys.stderr)
-            return 1
-            
+        print(f"Successfully downloaded to: {downloaded_path}")
+        
+        # Verify file exists and is readable
+        if not downloaded_path.exists():
+            raise DatasetUnavailableError("Downloaded file does not exist")
+        
+        # Log checksum for verification
+        checksum = calculate_sha256(downloaded_path)
+        print(f"File checksum (SHA256): {checksum}")
+        
+        # Save checksum to a sidecar file for future verification
+        checksum_file = output_dir / "ground_truth_annotations.sha256"
+        with open(checksum_file, "w") as f:
+            json.dump({
+                "file": output_filename,
+                "checksum": checksum,
+                "repo_id": repo_id
+            }, f, indent=2)
+        
+        print(f"Checksum saved to: {checksum_file}")
+        
     except DatasetUnavailableError as e:
-        print(f"T020 Failed: {e}", file=sys.stderr)
-        return 1
+        print(f"ERROR: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

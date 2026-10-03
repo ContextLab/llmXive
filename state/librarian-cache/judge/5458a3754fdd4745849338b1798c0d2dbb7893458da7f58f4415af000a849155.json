@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.06558",
+  "judged_at": "2026-10-03T19:16:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-teleop: an action-conditioned world model for digital teleop\" computer science",
+  "rationale": "This paper is the foundational work (Category d) and the primary empirical study (Category e) for the specific system \"RynnWorld-Teleop\" mentioned in the user's question, serving as the essential baseline for any follow-up research extending this work.",
+  "relevant": true
+}

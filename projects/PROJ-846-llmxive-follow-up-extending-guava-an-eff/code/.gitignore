@@ -1,4 +1,4 @@
-# Python bytecode and cache
+# Byte-compiled / optimized / DLL files
 *.pyc
 __pycache__/
 *.pyo
@@ -18,36 +18,34 @@ data/artifacts/*
 
 # Logs
 *.log
-logs/
 
-# Model weights and binaries
+# Model weights (large binary files)
 *.pth
 *.pt
 *.onnx
 *.bin
-*.safetensors
 
-# IDE and OS artifacts
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
 # Build and distribution
-dist/
 build/
+dist/
 *.egg-info/
 .eggs/
 
-# Coverage and testing
+# Testing
+.pytest_cache/
 .coverage
 htmlcov/
-pytest_cache/
-.mypy_cache/
 
-# Virtual environments
-venv/
-.venv/
-env/
+# Jupyter Notebook
+.ipynb_checkpoints

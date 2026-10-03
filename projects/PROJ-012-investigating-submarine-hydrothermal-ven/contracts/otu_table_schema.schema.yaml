@@ -1,24 +1,28 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: OTU Table Schema
-description: Schema for validating OTU/ASV table data.
+description: Schema for the OTU/ASV count matrix and associated taxonomy.
 type: object
 required:
-  - feature_id
+  - otu_id
   - taxonomy
   - counts
 properties:
-  feature_id:
+  otu_id:
     type: string
-    description: Unique identifier for the feature (OTU/ASV).
-    pattern: "^OTU[0-9]+$|^ASV[0-9]+$"
+    description: Unique identifier for the OTU/ASV.
+    pattern: "^[A-Z0-9-]+$"
   taxonomy:
     type: string
     description: Taxonomic classification string.
-    pattern: "^[a-zA-Z]+;[a-zA-Z]+;[a-zA-Z]+;[a-zA-Z]+;[a-zA-Z]+;[a-zA-Z]+;[a-zA-Z]+$"
+    pattern: "^[A-Za-z;]+$"
+  sequence:
+    type: string
+    description: Representative nucleotide sequence (optional).
+    pattern: "^[ACGTN]+$"
   counts:
     type: object
-    description: Dictionary mapping sample_id to abundance count.
+    description: Mapping of sample_id to count.
     additionalProperties:
       type: integer
       minimum: 0
-additionalProperties: true
+additionalProperties: false

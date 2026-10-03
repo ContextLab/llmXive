@@ -1,15 +1,17 @@
 """
 T002b: Verify dependencies install successfully in a clean virtualenv.
 
-This script simulates the verification step by:
-1. Loading the requirements from the project path.
-2. Checking if the current environment (simulating the clean venv) has these packages installed.
-3. Reporting success or failure.
+This script performs the following actions:
+1. Locates the requirements.txt file relative to the project root.
+2. Checks if a virtual environment exists at the standard location.
+3. If not, creates a clean virtual environment.
+4. Activates the environment and runs `pip install -r requirements.txt`.
+5. Verifies installation by listing installed packages via `pip freeze`.
+6. Writes a verification report to data/artifacts/dependency_verification.json.
 
-In a real CI/CD context, this would be run inside a fresh venv created by:
-python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
-
-Here, we verify the *logic* of the dependency check and ensure the requirements file exists.
+Exit codes:
+0: Success (all dependencies installed and verified)
+1: Failure (installation error, missing requirements, or verification failed)
 """
 import subprocess
 import sys
@@ -17,162 +19,223 @@ import json
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+import shutil
 
-def get_installed_packages() -> Dict[str, str]:
-    """
-    Retrieves a dictionary of installed packages and their versions.
-    Uses pip list --format=json for robust parsing.
-    """
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "pip", "list", "--format=json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        packages = json.loads(result.stdout)
-        return {pkg["name"].lower(): pkg["version"] for pkg in packages}
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to retrieve installed packages: {e.stderr}")
-    except json.JSONDecodeError:
-        raise RuntimeError("Failed to parse pip output as JSON.")
+def get_project_root() -> Path:
+    """Determine the project root directory."""
+    # Assume script is in code/tests/, project root is two levels up
+    return Path(__file__).resolve().parent.parent.parent
 
-def load_requirements(requirements_path: Path) -> List[Dict[str, str]]:
+def get_requirements_path() -> Path:
+    """Get the path to requirements.txt."""
+    project_root = get_project_root()
+    return project_root / "code" / "requirements.txt"
+
+def get_venv_path() -> Path:
+    """Get the path to the virtual environment."""
+    project_root = get_project_root()
+    return project_root / "code" / "venv"
+
+def get_installed_packages(venv_path: Path) -> Dict[str, str]:
     """
-    Parses a requirements.txt file into a list of dictionaries.
-    Handles simple pinned versions (e.g., package==1.0.0).
+    Get a dictionary of installed packages and their versions from the venv.
+    Returns {package_name: version}.
     """
-    if not requirements_path.exists():
-        raise FileNotFoundError(f"Requirements file not found: {requirements_path}")
+    if sys.platform == "win32":
+        pip_executable = venv_path / "Scripts" / "pip"
+    else:
+        pip_executable = venv_path / "bin" / "pip"
+
+    if not pip_executable.exists():
+        raise FileNotFoundError(f"pip executable not found at {pip_executable}")
+
+    result = subprocess.run(
+        [str(pip_executable), "freeze"],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    
+    packages = {}
+    for line in result.stdout.strip().splitlines():
+        if "==" in line:
+            name, version = line.split("==", 1)
+            packages[name.strip().lower()] = version.strip()
+    return packages
+
+def load_requirements(req_path: Path) -> List[str]:
+    """Load requirements from file, filtering comments and empty lines."""
+    if not req_path.exists():
+        raise FileNotFoundError(f"Requirements file not found: {req_path}")
     
     requirements = []
-    with open(requirements_path, "r", encoding="utf-8") as f:
+    with open(req_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            
-            # Basic parsing for package==version
-            if "==" in line:
-                parts = line.split("==")
-                if len(parts) == 2:
-                    requirements.append({
-                        "name": parts[0].strip(),
-                        "version": parts[1].strip()
-                    })
-                else:
-                    # Fallback for complex specifiers, just take the name
-                    requirements.append({"name": line.split("==")[0].strip(), "version": None})
-            else:
-                # Package without version pin
-                requirements.append({"name": line, "version": None})
-    
+            if line and not line.startswith("#"):
+                requirements.append(line)
     return requirements
 
-def verify_installation(requirements: List[Dict[str, str]], installed: Dict[str, str]) -> List[Dict[str, Any]]:
+def verify_installation(
+    installed: Dict[str, str], 
+    requirements: List[str], 
+    report_path: Path
+) -> bool:
     """
-    Compares required packages against installed packages.
-    Returns a list of verification results.
+    Verify that all required packages are installed with compatible versions.
+    Writes a detailed report to report_path.
     """
-    results = []
-    for req in requirements:
-        req_name = req["name"].lower()
-        req_version = req["version"]
-        
-        if req_name not in installed:
-            results.append({
-                "package": req_name,
-                "status": "MISSING",
-                "required_version": req_version,
-                "installed_version": None
-            })
-            continue
-
-        installed_version = installed[req_name]
-        
-        if req_version is None:
-            results.append({
-                "package": req_name,
-                "status": "INSTALLED",
-                "required_version": req_version,
-                "installed_version": installed_version
-            })
-            continue
-
-        if installed_version == req_version:
-            results.append({
-                "package": req_name,
-                "status": "INSTALLED",
-                "required_version": req_version,
-                "installed_version": installed_version
-            })
-        else:
-            results.append({
-                "package": req_name,
-                "status": "VERSION_MISMATCH",
-                "required_version": req_version,
-                "installed_version": installed_version
-            })
+    report = {
+        "status": "success",
+        "missing_packages": [],
+        "version_mismatches": [],
+        "installed_packages": list(installed.keys()),
+        "verification_timestamp": "verification_in_progress" # Will be updated
+    }
     
-    return results
+    all_ok = True
+    
+    for req in requirements:
+        # Handle version specifiers (==, >=, <=, ~=, etc.)
+        # Simple parsing: split on common operators
+        import re
+        match = re.match(r'^([a-zA-Z0-9_-]+)([<>=~!]+)?(.*)$', req)
+        if not match:
+            continue
+            
+        pkg_name = match.group(1).lower()
+        operator = match.group(2)
+        required_version = match.group(3)
+        
+        if pkg_name not in installed:
+            report["missing_packages"].append({
+                "package": pkg_name,
+                "requirement": req
+            })
+            all_ok = False
+        elif operator and required_version:
+            # For simplicity, we just check exact match if ==, 
+            # or log if version differs significantly for this task
+            # A robust checker would use packaging.version, but for T002b
+            # we focus on presence and basic version string match if ==
+            if operator == "==":
+                if installed[pkg_name] != required_version:
+                    report["version_mismatches"].append({
+                        "package": pkg_name,
+                        "required": f"{operator}{required_version}",
+                        "installed": installed[pkg_name]
+                    })
+                    all_ok = False
+    
+    if all_ok:
+        report["status"] = "success"
+        report["message"] = "All dependencies installed successfully."
+    else:
+        report["status"] = "failed"
+        report["message"] = "Dependency verification failed."
+        
+    # Ensure parent directory exists
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+        
+    return all_ok
+
+def create_venv(venv_path: Path) -> bool:
+    """Create a new virtual environment."""
+    if venv_path.exists():
+        # Optionally remove existing venv for a "clean" check
+        # But for robustness in CI, we might just recreate if needed.
+        # Here we assume we want a fresh start if it exists to ensure T002b "clean" constraint.
+        print(f"Removing existing virtual environment at {venv_path}...")
+        shutil.rmtree(venv_path)
+        
+    print(f"Creating virtual environment at {venv_path}...")
+    result = subprocess.run(
+        [sys.executable, "-m", "venv", str(venv_path)],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print(f"Error creating venv: {result.stderr}")
+        return False
+    return True
+
+def install_dependencies(venv_path: Path, req_path: Path) -> bool:
+    """Install dependencies from requirements.txt into the venv."""
+    if sys.platform == "win32":
+        pip_executable = venv_path / "Scripts" / "pip"
+    else:
+        pip_executable = venv_path / "bin" / "pip"
+        
+    if not pip_executable.exists():
+        print(f"pip not found at {pip_executable} after venv creation.")
+        return False
+
+    print(f"Installing dependencies from {req_path}...")
+    result = subprocess.run(
+        [str(pip_executable), "install", "-r", str(req_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        print(f"Installation failed:\n{result.stderr}")
+        return False
+        
+    print("Installation completed.")
+    return True
 
 def main():
-    """
-    Main entry point for T002b verification.
-    """
-    # Determine project root relative to this script
-    # Script is at code/tests/verify_dependencies.py
-    # Requirements are at projects/PROJ-846-.../code/requirements.txt
-    # However, the task says "Run pip install -r requirements.txt" in the context of the project.
-    # We will look for the requirements file in the standard project structure relative to the repo root.
-    # Assuming this script is run from the repo root or code directory.
+    """Main entry point for T002b verification."""
+    project_root = get_project_root()
+    req_path = get_requirements_path()
+    venv_path = get_venv_path()
+    report_path = project_root / "data" / "artifacts" / "dependency_verification.json"
     
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent # code/
+    print(f"Project Root: {project_root}")
+    print(f"Requirements Path: {req_path}")
+    print(f"Venv Path: {venv_path}")
     
-    # The task specifically mentions: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt
-    # But T002a created code/requirements.txt. Let's check the standard location first.
-    # If the project structure is flat (code/ at root), we check code/requirements.txt.
-    req_path = project_root / "requirements.txt"
-    
-    # Fallback to the specific path if the flat one doesn't exist (for strict compliance with T002a's specific path if it was created there)
+    # Step 1: Check requirements file
     if not req_path.exists():
-        # Check if we are in the specific project subdirectory
-        specific_path = current_dir.parent.parent / "projects" / "PROJ-846-llmxive-follow-up-extending-guava-an-eff" / "code" / "requirements.txt"
-        if specific_path.exists():
-            req_path = specific_path
-        else:
-            # Try relative to the project root if the script is in a different location
-            # Assuming the repo root is the parent of 'code'
-            repo_root = project_root.parent
-            specific_path = repo_root / "projects" / "PROJ-846-llmxive-follow-up-extending-guava-an-eff" / "code" / "requirements.txt"
-            if specific_path.exists():
-                req_path = specific_path
-    
-    if not req_path.exists():
-        print(f"ERROR: requirements.txt not found at {req_path}")
-        print("T002b FAILED: Cannot verify dependencies without a requirements file.")
+        print(f"ERROR: Requirements file not found at {req_path}")
         sys.exit(1)
-
-    print(f"Verifying dependencies from: {req_path}")
-    
+        
+    # Step 2: Create/Reset venv
+    if not create_venv(venv_path):
+        print("ERROR: Failed to create virtual environment.")
+        sys.exit(1)
+        
+    # Step 3: Install dependencies
+    if not install_dependencies(venv_path, req_path):
+        print("ERROR: Failed to install dependencies.")
+        # Write failure report
+        report = {
+            "status": "failed",
+            "message": "Dependency installation failed.",
+            "error": "pip install returned non-zero exit code"
+        }
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        sys.exit(1)
+        
+    # Step 4: Verify installation
     try:
-        installed = get_installed_packages()
+        installed = get_installed_packages(venv_path)
         requirements = load_requirements(req_path)
-        results = verify_installation(requirements, installed)
         
-        all_passed = True
-        for res in results:
-            status_icon = "✓" if res["status"] == "INSTALLED" else "✗"
-            print(f"{status_icon} {res['package']}: {res['status']} (Req: {res['required_version']}, Installed: {res['installed_version']})")
-            if res["status"] != "INSTALLED":
-                all_passed = False
+        success = verify_installation(installed, requirements, report_path)
         
-        if all_passed:
-            print("\nT002b PASSED: All dependencies installed successfully.")
+        if success:
+            print("SUCCESS: All dependencies verified.")
             sys.exit(0)
         else:
-            print("\nT002b FAILED: Some dependencies are missing or version mismatched.")
+            print("FAILURE: Dependency verification failed.")
+            with open(report_path, "r") as f:
+                print(f.read())
             sys.exit(1)
             
     except Exception as e:

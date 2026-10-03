@@ -1,34 +1,30 @@
-T001:
+T004a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Git repository, .gitignore file, or an initial commit is provided;
-    the required artifacts (the .git directory and commit history) are missing.
-T002a:
-  c: false
-  h: e5fb440ea4dcd39ca895d63e0016fded1a0cff1d681b0680e4d9aaee9e9b34bb
-  r: The required file `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt`
-    does not exist, even though a similarly named `code/requirements.txt` with the
-    correct contents is present elsewhere. The task specifically demanded the file
-    at the given project path, which is missing.
-T002b:
-  c: false
-  h: 0c96433a48a645a6f6c5f96998bc3ce2bd5d92ee074d13d0512e8c65e738039f
-  r: The repository lacks a `requirements.txt` file, so the implementer could not
-    run `pip install -r requirements.txt`, and there is no evidence of a virtual environment
-    creation, installation logs, or a `pip freeze` output confirming successful dependency
-    installation. The required artifact and verification steps are missing.
-T005a:
+  r: The required `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/`
+    directory containing a `.gitkeep` file is not present in the provided evidence;
+    no artifact or file listing was supplied to confirm its creation. The implementer
+    must add the empty `raw` folder with a `.gitkeep` file inside.
+T004b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `state/` directory exists in the repository root;
-    the claim is unsubstantiated and the required artifact is missing.
-T013c:
+  r: No evidence was presented showing that the directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/`
+    exists or that it contains a `.gitkeep` file; without such artifacts the task
+    requirement is not satisfied.
+T004c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was provided that implements the required\
-    \ graceful\u2011handling logic for a missing dataset (checking `DATASET_AVAILABLE`,\
-    \ logging, setting the flag, and enabling downstream tasks to skip or use mock\
-    \ data). Without such an artifact, the task\u2019s requirement is not satisfied."
+  r: "The implementer did not provide any evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/`\
+    \ nor a `.gitkeep` file inside it; no artifact listing or file content was shown.\
+    \ The task remains undone until the specified folder with a non\u2011empty `.gitkeep`\
+    \ file is created and verified."
+T013a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/raw/guava/` directory, trajectory files, or a generated
+    `checksums.json` was provided, and there is no proof that the Hugging Face dataset
+    `guava/guava-v` was successfully streamed and downloaded. The required artifacts
+    are missing, so the task is not satisfied.
 T015a:
   c: false
   h: 69fb449f80c9bb79089907c222a55b34d94307c22eacbdad80e7c8194cd3ea11

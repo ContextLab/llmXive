@@ -31,3 +31,244 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T20:58:13Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Study title for PRJNA237986 is Microbial community structure across deep-sea
+    hydrothermal vents
+  claim_id: c_a6578132
+  context: 'Selected Dataset: PRJNA237986 (Hawaii Ocean Time-series & Vent Sites)
+    - Study Title: ''Microbial community structure across deep-sea hydrothermal vents'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_title_for_PRJNA237986_is_Microbial_community_structure
+  kind: entity_fact
+  raw_text: The study title is 'Microbial community structure across deep-sea hydrothermal
+    vents'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:00:44Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Instrument for PRJNA237986 was Illumina MiSeq
+  claim_id: c_1a3f0784
+  context: 'Selected Dataset: PRJNA237986... Instrument: Illumina MiSeq'
+  evidence:
+    entailment_evidence: Instrument for PRJNA237986 was Illumina MiSeq
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Instrument_for_PRJNA237986_was_Illumina_MiSeq
+  kind: entity_fact
+  raw_text: The instrument used for the selected dataset was an Illumina MiSeq.
+  resolved_value: Instrument for PRJNA237986 was Illumina MiSeq
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:46Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Target region for PRJNA237986 was 16S V4
+  claim_id: c_6de0090f
+  context: 'Selected Dataset: PRJNA237986... Target Region: 16S V4'
+  evidence:
+    entailment_evidence: Target region for PRJNA237986 was 16S V4
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_for_PRJNA237986_was_16S_V4
+  kind: entity_fact
+  raw_text: The target region for the 16S rRNA sequencing was V4.
+  resolved_value: Target region for PRJNA237986 was 16S V4
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:48Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample VENT_001 is SRR10292345 at Axial Seamount
+  claim_id: c_52048b43
+  context: 'Specific Run IDs (Samples): VENT_001 | SRR10292345 | Axial Seamount'
+  evidence:
+    entailment_evidence: Sample VENT 001 is SRR10292345 at Axial Seamount
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sample_VENT_001_is_SRR10292345_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample VENT_001 corresponds to SRA Run ID SRR10292345 at Axial Seamount.
+  resolved_value: Sample VENT_001 is SRR10292345 at Axial Seamount
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:50Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample VENT_002 is SRR10292346 at Axial Seamount
+  claim_id: c_fe384f60
+  context: 'Specific Run IDs (Samples): VENT_002 | SRR10292346 | Axial Seamount'
+  evidence:
+    entailment_evidence: Sample VENT 002 is SRR10292346 at Axial Seamount
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sample_VENT_002_is_SRR10292346_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample VENT_002 corresponds to SRA Run ID SRR10292346 at Axial Seamount.
+  resolved_value: Sample VENT_002 is SRR10292346 at Axial Seamount
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:53Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample VENT_003 is SRR10292347 at Axial Seamount
+  claim_id: c_b9738602
+  context: 'Specific Run IDs (Samples): VENT_003 | SRR10292347 | Axial Seamount'
+  evidence:
+    entailment_evidence: Sample VENT 003 is SRR10292347 at Axial Seamount
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sample_VENT_003_is_SRR10292347_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample VENT_003 corresponds to SRA Run ID SRR10292347 at Axial Seamount.
+  resolved_value: Sample VENT_003 is SRR10292347 at Axial Seamount
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:55Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample VENT_004 is SRR10292348 at Axial Seamount
+  claim_id: c_6fa19007
+  context: 'Specific Run IDs (Samples): VENT_004 | SRR10292348 | Axial Seamount'
+  evidence:
+    entailment_evidence: Sample VENT 004 is SRR10292348 at Axial Seamount
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sample_VENT_004_is_SRR10292348_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample VENT_004 corresponds to SRA Run ID SRR10292348 at Axial Seamount.
+  resolved_value: Sample VENT_004 is SRR10292348 at Axial Seamount
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:00:57Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample VENT_005 is SRR10292349 at Axial Seamount
+  claim_id: c_17c6e782
+  context: 'Specific Run IDs (Samples): VENT_005 | SRR10292349 | Axial Seamount'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_VENT_005_is_SRR10292349_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample VENT_005 corresponds to SRA Run ID SRR10292349 at Axial Seamount.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:01:53Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample CTRL_001 is SRR10292350 at Axial Seamount
+  claim_id: c_2a7bcb17
+  context: 'Specific Run IDs (Samples): CTRL_001 | SRR10292350 | Axial Seamount'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_CTRL_001_is_SRR10292350_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample CTRL_001 corresponds to SRA Run ID SRR10292350 at Axial Seamount.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:02:53Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample CTRL_002 is SRR10292351 at Axial Seamount
+  claim_id: c_698a92cc
+  context: 'Specific Run IDs (Samples): CTRL_002 | SRR10292351 | Axial Seamount'
+  evidence:
+    entailment_evidence: Sample CTRL 002 is SRR10292351 at Axial Seamount
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sample_CTRL_002_is_SRR10292351_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample CTRL_002 corresponds to SRA Run ID SRR10292351 at Axial Seamount.
+  resolved_value: Sample CTRL_002 is SRR10292351 at Axial Seamount
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T19:02:55Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sample CTRL_003 is SRR10292352 at Axial Seamount
+  claim_id: c_bed14640
+  context: 'Specific Run IDs (Samples): CTRL_003 | SRR10292352 | Axial Seamount'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_CTRL_003_is_SRR10292352_at_Axial_Seamount
+  kind: entity_fact
+  raw_text: Sample CTRL_003 corresponds to SRA Run ID SRR10292352 at Axial Seamount.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:03:43Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Static CSV exports cover period 2015-2016
+  claim_id: c_2c19174d
+  context: '...verified static CSV exports hosted by the OOI project for the period
+    covering the SRA sample collection (approx. 2015-2016).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The static CSV exports for sensor data cover the period approximately
+    2015-2016.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:04:17Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Axial Seamount coordinates are 45.948, -130.010
+  claim_id: c_4781acae
+  context: 'coordinates: Hardcoded to Axial Seamount (45.948, -130.010) as per OOI
+    site definition'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coordinates for Axial Seamount are 45.948, -130.010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:05:04Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: Sensor data time-series is less than 1MB
+  claim_id: c_053cb27c
+  context: 'Sensor Data: Full time-series will be loaded into memory as it is small
+    (<1MB).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensor_data_time-series_is_less_than_1MB
+  kind: magnitude
+  raw_text: The sensor data time-series is smaller than 1MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:05:30Z'

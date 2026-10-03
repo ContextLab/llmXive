@@ -1,3 +1,4 @@
-# This file ensures the directory is tracked by Git.
-# Raw data for PROJ-846-llmxive-follow-up-extending-guava-an-eff.
-# Do not commit large binary files here; use git-lfs or download scripts.
+# This directory is intentionally left empty.
+# It serves as a placeholder for raw dataset files (e.g., Guava trajectories).
+# Files here are excluded from version control via .gitignore (data/raw/*).
+# Do not remove this file; it ensures the directory exists in the repository.

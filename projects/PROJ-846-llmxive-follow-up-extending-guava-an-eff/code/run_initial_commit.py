@@ -4,27 +4,36 @@ from pathlib import Path
 from code.git_operations import run_git_command
 from code.init_git_repo import initialize_git_repository
 
+
 def main():
     """
-    Orchestrates the git initialization process.
-    This script is designed to be run as the first step in project setup.
+    Orchestrates the initial commit process.
     """
-    root_path = Path.cwd()
-    print(f"Running initial commit setup for project at: {root_path}")
+    project_root = Path.cwd()
+    
+    print("Starting initial commit process...")
+    
+    # 1. Initialize Git and Commit
+    if not initialize_git_repository(project_root):
+        print("Failed to initialize git repository.")
+        sys.exit(1)
+    
+    # 2. Verify .git directory
+    git_dir = project_root / ".git"
+    if not git_dir.exists():
+        print("Verification failed: .git directory does not exist.")
+        sys.exit(1)
+    
+    # 3. Verify commit history
+    stdout, stderr, code = run_git_command(["git", "log", "--oneline", "-1"], cwd=project_root)
+    if code != 0 or not stdout.strip():
+        print("Verification failed: No commit history found.")
+        print(f"Stderr: {stderr}")
+        sys.exit(1)
+    
+    print(f"Verification successful: Commit found - {stdout.strip()}")
+    print("Initial commit process completed successfully.")
 
-    # Check if git is already initialized
-    try:
-        run_git_command(['git', 'rev-parse', '--git-dir'], cwd=root_path)
-        print("Git repository already initialized.")
-        # Optionally, we could skip or force re-initialization
-        # For now, we assume the user wants to ensure a clean state
-        # but we won't destroy existing history.
-        return 0
-    except subprocess.CalledProcessError:
-        pass  # Not initialized, proceed
-
-    success = initialize_git_repository(root_path)
-    return 0 if success else 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

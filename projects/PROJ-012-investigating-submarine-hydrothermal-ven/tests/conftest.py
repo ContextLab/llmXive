@@ -2,10 +2,11 @@
 Pytest configuration and shared fixtures for the llmXive submarine hydrothermal vent project.
 
 This module provides:
-- Logging configuration for test runs
-- Temporary output directory management
+- Global pytest configuration hooks
+- Shared logging handlers for test execution
+- Temporary output directories for test artifacts
 - Mock data fixtures for Sample, OTU, and DiversityMetric entities
-- Shared test utilities
+- Logging configuration for test isolation
 """
 
 import logging
@@ -13,32 +14,31 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Generator, Dict, Any, List
+from typing import Generator, Dict, Any
 
 import pytest
 import pandas as pd
 import numpy as np
 
-# Add project root to path to ensure imports work during tests
-PROJECT_ROOT = Path(__file__).parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-# Import project modules for fixture usage
+# Import project modules for fixture creation
+# Note: We assume these are installed or in the path when running tests
 try:
-    from data_models import Sample, OTU, DiversityMetric
+    from code.data_models import Sample, OTU, DiversityMetric
+    from code.utils import setup_logging, get_logger
 except ImportError:
-    # Fallback if data_models not yet imported correctly
-    Sample = None
-    OTU = None
-    DiversityMetric = None
+    # Fallback for direct pytest run without full package install
+    # In CI/CD, the path will be configured correctly
+    pass
+
+# ============================================================================
+# Pytest Configuration Hooks
+# ============================================================================
 
 def pytest_configure(config):
     """
-    Configure pytest with custom markers and initial settings.
+    Configure pytest at startup.
+    
+    Sets up custom markers and initial configuration.
     """
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
@@ -47,198 +47,218 @@ def pytest_configure(config):
         "markers", "integration: marks tests as integration tests"
     )
     config.addinivalue_line(
-        "markers", "unit: marks tests as unit tests"
-    )
-    config.addinivalue_line(
         "markers", "contract: marks tests as contract/schema validation tests"
     )
+    config.addinivalue_line(
+        "markers", "unit: marks tests as unit tests"
+    )
+
+# ============================================================================
+# Shared Fixtures
+# ============================================================================
 
 @pytest.fixture(scope="session")
-def test_log_handler() -> Generator[logging.Handler, None, None]:
+def test_log_handler() -> logging.Handler:
     """
-    Provide a temporary logging handler for test output.
-    Captures logs during test execution without polluting global logging state.
+    Provide a shared logging handler for test execution.
+    
+    Returns:
+        A StreamHandler configured for test output.
     """
     handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(logging.INFO)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     handler.setFormatter(formatter)
-    
-    logger = logging.getLogger('test_runner')
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-    
-    yield handler
-    
-    logger.removeHandler(handler)
-    handler.close()
-
-@pytest.fixture(scope="function")
-def temp_output_dir() -> Generator[Path, None, None]:
-    """
-    Create a temporary directory for test outputs.
-    Ensures clean state for each test and cleanup after.
-    """
-    with tempfile.TemporaryDirectory(prefix="llmxive_test_") as tmp_dir:
-        output_path = Path(tmp_dir)
-        # Create standard subdirectories
-        (output_path / "processed").mkdir(exist_ok=True)
-        (output_path / "raw").mkdir(exist_ok=True)
-        (output_path / "figures").mkdir(exist_ok=True)
-        yield output_path
+    return handler
 
 @pytest.fixture
-def sample_data() -> List[Dict[str, Any]]:
+def temp_output_dir(tmp_path: Path) -> Generator[Path, None, None]:
     """
-    Provide mock sample data for ingestion and analysis tests.
-    Includes realistic pH, temperature, and metadata fields.
+    Provide a temporary directory for test output artifacts.
+    
+    This fixture ensures that test outputs do not pollute the project
+    data directories. The directory is automatically cleaned up after
+    the test.
+    
+    Args:
+        tmp_path: Pytest's built-in temporary path fixture.
+        
+    Yields:
+        A Path object pointing to the temporary directory.
     """
-    return [
-        {
-            "sample_id": "S001",
-            "timestamp": "2023-06-15T10:30:00Z",
-            "pH": 6.8,
-            "temp": 345.5,
-            "location": "East Pacific Rise",
-            "deployment_event": "E001",
-            "sensor_id": "SENS-001",
-            "coordinates": "21.5N, 110.5W",
-            "fastq_path": "data/raw/sample_S001.fastq.gz"
-        },
-        {
-            "sample_id": "S002",
-            "timestamp": "2023-06-15T10:45:00Z",
-            "pH": 7.2,
-            "temp": 340.2,
-            "location": "East Pacific Rise",
-            "deployment_event": "E001",
-            "sensor_id": "SENS-001",
-            "coordinates": "21.5N, 110.5W",
-            "fastq_path": "data/raw/sample_S002.fastq.gz"
-        },
-        {
-            "sample_id": "S003",
-            "timestamp": "2023-06-15T11:00:00Z",
-            "pH": 5.5,  # Edge case: acidic
-            "temp": 350.0,
-            "location": "Mid-Atlantic Ridge",
-            "deployment_event": "E002",
-            "sensor_id": "SENS-002",
-            "coordinates": "25.0N, 45.0W",
-            "fastq_path": "data/raw/sample_S003.fastq.gz"
-        },
-        {
-            "sample_id": "S004",
-            "timestamp": "2023-06-15T11:15:00Z",
-            "pH": 9.5,  # Edge case: alkaline
-            "temp": 330.1,
-            "location": "Mid-Atlantic Ridge",
-            "deployment_event": "E002",
-            "sensor_id": "SENS-002",
-            "coordinates": "25.0N, 45.0W",
-            "fastq_path": "data/raw/sample_S004.fastq.gz"
-        },
-        {
-            "sample_id": "S005",
-            "timestamp": "2023-06-15T11:30:00Z",
-            "pH": 10.5,  # Outlier: > 10.0
-            "temp": 325.0,
-            "location": "Juan de Fuca Ridge",
-            "deployment_event": "E003",
-            "sensor_id": "SENS-003",
-            "coordinates": "45.0N, 130.0W",
-            "fastq_path": "data/raw/sample_S005.fastq.gz"
+    output_dir = tmp_path / "test_outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    yield output_dir
+    # Cleanup happens automatically when tmp_path is destroyed
+
+@pytest.fixture
+def sample_data() -> Dict[str, Any]:
+    """
+    Provide mock Sample data for testing ingestion and validation.
+    
+    Returns:
+        Dictionary containing a list of mock Sample records.
+    """
+    return {
+        "samples": [
+            {
+                "sample_id": "SAMPLE_001",
+                "timestamp": "2023-05-15T10:30:00",
+                "pH": 6.8,
+                "temperature": 350.5,
+                "location": "East_Pacific_Rise",
+                "deployment_event": "EXP_2023_A",
+                "sensor_id": "SENSOR_A1",
+                "coordinates": {"lat": -23.5, "lon": -110.5, "depth": 2500},
+                "fastq_path": "data/raw/fastq/SAMPLE_001_R1.fastq.gz"
+            },
+            {
+                "sample_id": "SAMPLE_002",
+                "timestamp": "2023-05-15T10:45:00",
+                "pH": 7.2,
+                "temperature": 345.0,
+                "location": "East_Pacific_Rise",
+                "deployment_event": "EXP_2023_A",
+                "sensor_id": "SENSOR_A1",
+                "coordinates": {"lat": -23.5, "lon": -110.5, "depth": 2500},
+                "fastq_path": "data/raw/fastq/SAMPLE_002_R1.fastq.gz"
+            },
+            {
+                "sample_id": "SAMPLE_003",
+                "timestamp": "2023-05-15T11:00:00",
+                "pH": 5.5,  # Edge case: acidic
+                "temperature": 360.2,
+                "location": "Juan_de_Fuca_Ridge",
+                "deployment_event": "EXP_2023_B",
+                "sensor_id": "SENSOR_B2",
+                "coordinates": {"lat": 44.5, "lon": -130.0, "depth": 2800},
+                "fastq_path": "data/raw/fastq/SAMPLE_003_R1.fastq.gz"
+            },
+            {
+                "sample_id": "SAMPLE_004",
+                "timestamp": "2023-05-15T11:15:00",
+                "pH": 9.8,  # Edge case: alkaline
+                "temperature": 340.0,
+                "location": "Mid_Atlantic_Ridge",
+                "deployment_event": "EXP_2023_C",
+                "sensor_id": "SENSOR_C3",
+                "coordinates": {"lat": 25.0, "lon": -45.0, "depth": 3000},
+                "fastq_path": "data/raw/fastq/SAMPLE_004_R1.fastq.gz"
+            }
+        ]
+    }
+
+@pytest.fixture
+def otu_data() -> Dict[str, Any]:
+    """
+    Provide mock OTU/ASV table data for testing diversity calculations.
+    
+    Returns:
+        Dictionary containing a mock OTU table as a pandas DataFrame.
+    """
+    # Create a mock OTU table with samples as rows and OTUs as columns
+    data = {
+        "OTU_001": [100, 150, 50, 200],
+        "OTU_002": [50, 80, 20, 100],
+        "OTU_003": [200, 300, 100, 400],
+        "OTU_004": [10, 15, 5, 25],
+        "OTU_005": [30, 45, 15, 60],
+    }
+    index = ["SAMPLE_001", "SAMPLE_002", "SAMPLE_003", "SAMPLE_004"]
+    df = pd.DataFrame(data, index=index)
+    return {
+        "table": df,
+        "metadata": {
+            "rarefaction_depth": 1000,
+            "min_reads": 10,
+            "max_reads": 10000
         }
-    ]
+    }
 
 @pytest.fixture
-def otu_data() -> pd.DataFrame:
+def diversity_metric_data() -> Dict[str, Any]:
     """
-    Provide mock OTU/ASV table data for diversity analysis tests.
-    Format: Rows = samples, Columns = OTUs/ASVs.
+    Provide mock DiversityMetric data for testing analysis pipelines.
+    
+    Returns:
+        Dictionary containing mock diversity metrics.
     """
-    np.random.seed(42)
-    samples = ["S001", "S002", "S003", "S004", "S005"]
-    otus = [f"OTU_{i:04d}" for i in range(1, 101)]
-    
-    # Generate sparse count data (typical for microbiome)
-    data = np.random.negative_binomial(n=5, p=0.1, size=(len(samples), len(otus)))
-    
-    df = pd.DataFrame(data, index=samples, columns=otus)
-    return df
+    return {
+        "metrics": [
+            {
+                "sample_id": "SAMPLE_001",
+                "shannon": 2.5,
+                "simpson": 0.85,
+                "observed_otus": 50,
+                "pH": 6.8,
+                "temperature": 350.5,
+                "site": "East_Pacific_Rise"
+            },
+            {
+                "sample_id": "SAMPLE_002",
+                "shannon": 2.7,
+                "simpson": 0.88,
+                "observed_otus": 55,
+                "pH": 7.2,
+                "temperature": 345.0,
+                "site": "East_Pacific_Rise"
+            },
+            {
+                "sample_id": "SAMPLE_003",
+                "shannon": 1.8,
+                "simpson": 0.70,
+                "observed_otus": 30,
+                "pH": 5.5,
+                "temperature": 360.2,
+                "site": "Juan_de_Fuca_Ridge"
+            },
+            {
+                "sample_id": "SAMPLE_004",
+                "shannon": 2.9,
+                "simpson": 0.92,
+                "observed_otus": 60,
+                "pH": 9.8,
+                "temperature": 340.0,
+                "site": "Mid_Atlantic_Ridge"
+            }
+        ]
+    }
+
+# ============================================================================
+# Test-Specific Fixtures
+# ============================================================================
 
 @pytest.fixture
-def diversity_metric_data() -> pd.DataFrame:
+def config_for_test() -> Dict[str, Any]:
     """
-    Provide mock diversity metrics for correlation analysis tests.
-    Includes Shannon and Simpson indices.
+    Provide a configuration dictionary for test runs.
+    
+    Returns:
+        Dictionary with default test configuration.
     """
-    np.random.seed(42)
-    samples = ["S001", "S002", "S003", "S004", "S005"]
-    ph_values = [6.8, 7.2, 5.5, 9.5, 10.5]
-    
-    # Generate correlated diversity metrics
-    shannon = np.random.normal(loc=3.5, scale=0.5, size=len(samples))
-    simpson = 1 - np.random.beta(alpha=2, beta=5, size=len(samples))
-    
-    df = pd.DataFrame({
-        "sample_id": samples,
-        "pH": ph_values,
-        "shannon_diversity": shannon,
-        "simpson_diversity": simpson,
-        "site": ["EPR", "EPR", "MAR", "MAR", "JdFR"]
-    })
-    return df
+    return {
+        "output_dir": "tests/temp_output",
+        "log_level": "INFO",
+        "random_seed": 42,
+        "parallel_workers": 1,
+        "validation_strict": True
+    }
 
-@pytest.fixture
-def mock_ingestion_input(temp_output_dir: Path) -> Path:
-    """
-    Create a mock directory structure with CSV files for ingestion testing.
-    Returns the path to the mock data directory.
-    """
-    mock_dir = temp_output_dir / "mock_ingestion"
-    mock_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create pH CSV
-    ph_df = pd.DataFrame({
-        "deployment_event": ["E001", "E001", "E002", "E002"],
-        "sensor_id": ["SENS-001", "SENS-001", "SENS-002", "SENS-002"],
-        "timestamp": [
-            "2023-06-15T10:30:00Z",
-            "2023-06-15T10:45:00Z",
-            "2023-06-15T11:00:00Z",
-            "2023-06-15T11:15:00Z"
-        ],
-        "pH": [6.8, 7.2, 5.5, 9.5],
-        "coordinates": ["21.5N, 110.5W", "21.5N, 110.5W", "25.0N, 45.0W", "25.0N, 45.0W"]
-    })
-    ph_df.to_csv(mock_dir / "pH_log.csv", index=False)
-    
-    # Create Temp CSV
-    temp_df = pd.DataFrame({
-        "deployment_event": ["E001", "E001", "E002", "E002"],
-        "sensor_id": ["SENS-001", "SENS-001", "SENS-002", "SENS-002"],
-        "timestamp": [
-            "2023-06-15T10:30:00Z",
-            "2023-06-15T10:45:00Z",
-            "2023-06-15T11:00:00Z",
-            "2023-06-15T11:15:00Z"
-        ],
-        "temp": [345.5, 340.2, 350.0, 330.1],
-        "coordinates": ["21.5N, 110.5W", "21.5N, 110.5W", "25.0N, 45.0W", "25.0N, 45.0W"]
-    })
-    temp_df.to_csv(mock_dir / "temp_log.csv", index=False)
-    
-    return mock_dir
+# ============================================================================
+# Helper Functions for Tests
+# ============================================================================
 
-def configure_test_logging(level: int = logging.DEBUG):
+def configure_test_logging(handler: logging.Handler) -> None:
     """
-    Configure root logging for test environment.
+    Configure logging for the current test module.
+    
+    Args:
+        handler: The logging handler to attach.
     """
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    # Remove existing handlers to avoid duplicates
+    logger.handlers.clear()
+    logger.addHandler(handler)

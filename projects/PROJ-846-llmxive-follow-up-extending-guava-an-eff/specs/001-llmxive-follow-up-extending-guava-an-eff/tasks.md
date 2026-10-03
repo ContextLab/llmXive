@@ -82,7 +82,7 @@
 ## Phase 2: Data Acquisition & Validation (Strict Real-Data Enforcement)
 
 - [ ] T013a [US1] **Real Data Download**: Download Guava raw dataset from Hugging Face dataset `guava/guava-v` using `datasets.load_dataset(..., streaming=True)` to `data/raw/guava/`. **Action**: Verify dataset ID exists. If download fails or dataset missing, raise `DatasetUnavailableError` and exit with code 1. **NO synthetic fallback**. **Verify**: `data/raw/guava/` contains trajectory files and `checksums.json` is generated. **Depends on**: None.
-- [ ] T013b [US1] **Real Data Verification**: Scan `code/data/transform_symbolic.py` for any `try/except` blocks or `if download_failed:` logic that loads synthetic/mock data. **Action**: Assert no such patterns exist. If found, raise `SyntheticFallbackError`. **Verify**: Code scan passes. **Depends on**: T013a.
+- [X] T013b [US1] **Real Data Verification**: Scan `code/data/transform_symbolic.py` for any `try/except` blocks or `if download_failed:` logic that loads synthetic/mock data. **Action**: Assert no such patterns exist. If found, raise `SyntheticFallbackError`. **Verify**: Code scan passes. **Depends on**: T013a. <!-- FAILED: unspecified -->
 - [ ] T020 [US1] Download ground‑truth annotation file `annotations.json` from verified URL `hf://datasets/guava/guava-v1/annotations.json` using `huggingface_hub.hf_hub_download` to `data/raw/guava/ground_truth_annotations.json`. **Action**: Verify file exists and checksum matches. **Verify**: File exists and checksum matches. **Depends on**: T013a.
 - [ ] T021 [US1] Validate the integrity of `ground_truth_annotations.json` against its schema. **Depends on**: T020.
 
@@ -92,7 +92,7 @@
 
 **Goal**: Ingest Guava visual trajectories and transform them into a "Symbolic-Guava" dataset using a CPU‑only perception module.
 
-**Independent Test**: The pipeline runs on a subset of trajectories. Output JSON contains valid bounding boxes/class labels. Processing time ≤ 150 ms/frame on CPU. No raw pixel data in output.
+**Independent Test**: The pipeline runs on a subset of trajectories. Output JSON contains valid bounding boxes/class labels. Processing time ≤ 150 ms/frame on CPU [UNRESOLVED-CLAIM: c_34dad07a — status=not_enough_info]. No raw pixel data in output.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -113,7 +113,7 @@
 - [ ] T018 [US1] Add `log_latency` function in `logger.py` that records inference time per frame into `PerceptionLog`. **Depends on**: T016a.
 - [ ] T019 [US1] **Latency Flagging Implementation**: Update `transform_symbolic.py` to set a `latency_exceeded` flag in the corresponding `TaskOutcome` if inference time > 150 ms. **Depends on**: T014, T018.
 - [ ] T014 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/transform_symbolic.py` to ingest raw frames, run YOLO‑tiny inference (using `yolo_tiny.onnx`), and emit `SymbolicObservation` JSONs to `data/processed/symbolic_guava/{trajectory_id}.json`. **Action**: Integrate T016c, T017, T018, T019 logic. **Depends on**: T013a, T015a, T015c, T016a, T016b, T016c, T017, T018.
-- [ ] T019b [US1] **Validation**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/validate_perception.py` to ensure total transformation completes ≤ 4 h and verify `latency_exceeded` flags are present in logs. **Action**: Remove arbitrary precision/recall threshold; only verify time constraint and flag presence. **Depends on**: T014, T018, T019.
+- [ ] T019b [US1] **Validation**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/validate_perception.py` to ensure total transformation completes ≤ 4 h [UNRESOLVED-CLAIM: c_902bc269 — status=not_enough_info] and verify `latency_exceeded` flags are present in logs. **Action**: Remove arbitrary precision/recall threshold; only verify time constraint and flag presence. **Depends on**: T014, T018, T019.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,7 +123,7 @@
 
 **Goal**: Fine‑tune a compact LLM (Phi‑‑mini) on the Symbolic‑Guava dataset to reason over symbolic states.
 
-**Independent Test**: Fine‑tuning converges (loss decrease ≥15 %) within 4 h on CPU. Model accepts symbolic JSON input without crashing.
+**Independent Test**: Fine‑tuning converges (loss decrease ≥15 %) within 4 h on CPU [UNRESOLVED-CLAIM: c_47c3e4ce — status=not_enough_info]. Model accepts symbolic JSON input without crashing.
 
 ### Implementation for User Story 2
 
@@ -192,7 +192,7 @@
 - [X] T043 [P] Update docs/api.md with function signatures.
 - [ ] T044 [P] Run `state_manager.py` to finalize project state hashes at `state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml`.
 - [ ] T045 [P] Run quickstart.md validation.
-- [ ] T051 [P] **SC‑005 Threshold**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/validate_compute.py` to verify total compute time ≤ 6 h. Read timestamps from training and evaluation logs; assert total ≤ 6 h. **Depends on**: T037.
+- [ ] T051 [P] **SC‑005 Threshold**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/validate_compute.py` to verify total compute time ≤ 6 h [UNRESOLVED-CLAIM: c_e052b2af — status=not_enough_info]. Read timestamps from training and evaluation logs; assert total ≤ 6 h. **Depends on**: T037.
 - [ ] T055 [P] **Baseline Artifact Validation**: Verify that the Baseline-Guava model (T032b) artifact exists and is checksummed. **Action**: Log the checksum of the downloaded baseline model file and the public documentation URL for the baseline model (assuming canonical training data) to `data/artifacts/baseline_integrity.json`. **Depends on**: T032b.
 
 ---

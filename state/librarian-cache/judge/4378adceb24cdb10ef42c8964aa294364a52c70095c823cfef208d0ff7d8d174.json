@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.19538",
+  "judged_at": "2026-10-03T19:16:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-teleop: an action-conditioned world model for digital teleop\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a canonical \"action-conditioned world model\" (specifically using diffusion) for offline reinforcement learning, which is the exact mechanism and methodological framework referenced in the user's question about extending \"RynnWorld-Teleop.\" Even though the application domain (offline RL vs. digital teleop) differs slightly, the core contribution of generating state trajectories conditioned on actions is the same biological/algorithmic const",
+  "relevant": true
+}

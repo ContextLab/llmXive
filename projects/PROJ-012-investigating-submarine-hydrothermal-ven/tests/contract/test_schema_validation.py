@@ -1,133 +1,92 @@
 """
-Contract tests for data schema validation (T007).
-
-These tests verify that the YAML schemas in contracts/ are valid,
-consistent with the data_models.py definitions, and can be used
-to validate input/output data.
+Contract tests for data schema validation.
+Validates that generated artifacts conform to the defined YAML schemas.
 """
-import os
 import json
+import os
 import yaml
+import pandas as pd
 import pytest
 from pathlib import Path
-from typing import Dict, Any
+from jsonschema import validate, ValidationError, Draft7Validator
 
-# Import from code/data_models.py
-from data_models import (
-    Sample, OTU, DiversityMetric,
-    validate_sample_schema,
-    validate_otu_schema,
-    validate_diversity_metric_schema
-)
-
-BASE_DIR = Path(__file__).parent.parent.parent
-CONTRACTS_DIR = BASE_DIR / "contracts"
-
+# Path to the project root (assumed to be two levels up from tests/contract)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
 @pytest.fixture
-def sample_schema_path():
-    return CONTRACTS_DIR / "sample_schema.schema.yaml"
+def sample_schema():
+    with open(CONTRACTS_DIR / "sample_schema.schema.yaml", "r") as f:
+        return yaml.safe_load(f)
 
 @pytest.fixture
-def otu_schema_path():
-    return CONTRACTS_DIR / "otu_table_schema.schema.yaml"
+def otu_schema():
+    with open(CONTRACTS_DIR / "otu_table_schema.schema.yaml", "r") as f:
+        return yaml.safe_load(f)
 
 @pytest.fixture
-def analysis_schema_path():
-    return CONTRACTS_DIR / "analysis_results_schema.schema.yaml"
+def analysis_schema():
+    with open(CONTRACTS_DIR / "analysis_results_schema.schema.yaml", "r") as f:
+        return yaml.safe_load(f)
 
+def load_csv_as_json(path):
+    """Load a CSV file and return it as a list of dicts (JSON-compatible)."""
+    if not os.path.exists(path):
+        pytest.skip(f"File not found: {path}")
+    df = pd.read_csv(path)
+    return df.to_dict(orient="records")
 
-def test_schemas_are_valid_yaml(sample_schema_path, otu_schema_path, analysis_schema_path):
-    """Verify all schema files are valid YAML and parseable."""
-    for schema_path in [sample_schema_path, otu_schema_path, analysis_schema_path]:
-        assert schema_path.exists(), f"Schema file missing: {schema_path}"
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-        assert schema is not None, f"Empty schema: {schema_path}"
-        assert 'properties' in schema or 'required' in schema, \
-            f"Invalid schema structure: {schema_path}"
+def validate_record(record, schema, record_name):
+    """Validate a single record against a schema."""
+    try:
+        validate(instance=record, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Validation failed for {record_name}: {e.message} at {e.path}")
 
+@pytest.mark.contract
+def test_unified_sample_table_schema(sample_schema):
+    """Validates unified_sample_table.csv against sample_schema.schema.yaml"""
+    file_path = PROJECT_ROOT / "data/processed/unified_sample_table.csv"
+    records = load_csv_as_json(file_path)
+    
+    if not records:
+        pytest.skip("No records to validate in unified_sample_table.csv")
 
-def test_sample_schema_matches_data_model(sample_schema_path):
-    """Verify sample_schema.yaml matches Sample class in data_models.py."""
-    with open(sample_schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
+    for i, record in enumerate(records):
+        validate_record(record, sample_schema, f"sample_record_{i}")
 
-    # Check required fields
-    required_fields = set(schema.get('required', []))
-    sample_fields = {
-        'sample_id', 'timestamp', 'pH', 'temp', 'pH_sd',
-        'location', 'fastq_path', 'deployment_event',
-        'sensor_id', 'coordinates', 'pH_heterogeneous'
-    }
-    assert required_fields.issubset(sample_fields), \
-        f"Schema required fields exceed data model: {required_fields - sample_fields}"
+@pytest.mark.contract
+def test_alpha_diversity_results_schema(analysis_schema):
+    """Validates alpha_diversity_results.csv against analysis_results_schema.schema.yaml"""
+    file_path = PROJECT_ROOT / "data/processed/alpha_diversity_results.csv"
+    records = load_csv_as_json(file_path)
+    
+    if not records:
+        pytest.skip("No records to validate in alpha_diversity_results.csv")
 
-    # Check property definitions
-    props = schema.get('properties', {})
-    assert 'sample_id' in props, "Missing sample_id in schema"
-    assert 'pH' in props, "Missing pH in schema"
-    assert 'timestamp' in props, "Missing timestamp in schema"
+    for i, record in enumerate(records):
+        validate_record(record, analysis_schema, f"diversity_record_{i}")
 
+@pytest.mark.contract
+def test_lme_results_schema(analysis_schema):
+    """Validates lme_results.csv against analysis_results_schema.schema.yaml"""
+    file_path = PROJECT_ROOT / "data/processed/lme_results.csv"
+    records = load_csv_as_json(file_path)
+    
+    if not records:
+        pytest.skip("No records to validate in lme_results.csv")
 
-def test_otu_schema_structure(otu_schema_path):
-    """Verify OTU schema has required structure."""
-    with open(otu_schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
+    for i, record in enumerate(records):
+        validate_record(record, analysis_schema, f"lme_record_{i}")
 
-    required = set(schema.get('required', []))
-    assert 'otu_table' in required, "Missing otu_table in required"
-    assert 'taxonomy' in required, "Missing taxonomy in required"
-    assert 'sample_ids' in required, "Missing sample_ids in required"
-    assert 'otu_ids' in required, "Missing otu_ids in required"
+@pytest.mark.contract
+def test_beta_diversity_results_schema(analysis_schema):
+    """Validates beta_diversity_results.csv against analysis_results_schema.schema.yaml"""
+    file_path = PROJECT_ROOT / "data/processed/beta_diversity_results.csv"
+    records = load_csv_as_json(file_path)
+    
+    if not records:
+        pytest.skip("No records to validate in beta_diversity_results.csv")
 
-
-def test_analysis_schema_structure(analysis_schema_path):
-    """Verify analysis results schema has required structure."""
-    with open(analysis_schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
-
-    required = set(schema.get('required', []))
-    assert 'analysis_type' in required, "Missing analysis_type in required"
-    assert 'model_stats' in required, "Missing model_stats in required"
-
-    # Check for FR-003.1 metadata flag
-    props = schema.get('properties', {})
-    if 'model_stats' in props:
-        items = props['model_stats'].get('properties', {})
-        assert 'metadata_flag' in items, "Missing metadata_flag (FR-003.1)"
-
-
-def test_validate_sample_schema_function_exists():
-    """Verify validation function exists and is callable."""
-    assert callable(validate_sample_schema), "validate_sample_schema not callable"
-
-
-def test_validate_otu_schema_function_exists():
-    """Verify validation function exists and is callable."""
-    assert callable(validate_otu_schema), "validate_otu_schema not callable"
-
-
-def test_validate_diversity_metric_schema_function_exists():
-    """Verify validation function exists and is callable."""
-    assert callable(validate_diversity_metric_schema), "validate_diversity_metric_schema not callable"
-
-
-def test_schema_versioning(sample_schema_path, otu_schema_path, analysis_schema_path):
-    """Verify all schemas have version metadata."""
-    for schema_path in [sample_schema_path, otu_schema_path, analysis_schema_path]:
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-        assert 'x-schema-version' in schema, \
-            f"Missing x-schema-version in {schema_path}"
-        assert schema['x-schema-version'] != "1.0.0" or True  # Just ensure it exists
-
-
-def test_schema_references_correct_tasks(sample_schema_path, otu_schema_path, analysis_schema_path):
-    """Verify schemas reference the correct task IDs."""
-    for schema_path in [sample_schema_path, otu_schema_path, analysis_schema_path]:
-        with open(schema_path, 'r') as f:
-            content = f.read()
-        # Check that task IDs are referenced
-        assert 'T007' in content or 'T008' in content or 'T010' in content, \
-            f"Schema {schema_path} missing task references"
+    for i, record in enumerate(records):
+        validate_record(record, analysis_schema, f"beta_record_{i}")

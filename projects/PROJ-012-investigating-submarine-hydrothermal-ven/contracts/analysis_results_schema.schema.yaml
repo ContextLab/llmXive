@@ -1,41 +1,68 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Results Schema
-description: Schema for validating statistical analysis outputs (LME, PERMANOVA, dbRDA).
+description: Schema for diversity metrics and statistical analysis results.
 type: object
 required:
-  - analysis_type
-  - model_id
-  - parameters
-  - results
+  - sample_id
+  - metric_type
+  - value
 properties:
-  analysis_type:
+  sample_id:
+    type: string
+    description: Reference to the Sample entity.
+    pattern: "^[A-Z0-9-]+$"
+  metric_type:
+    type: string
+    enum:
+      - shannon
+      - simpson
+      - observed_otus
+      - bray_curtis
+      - unweighted_unifrac
+      - weighted_unifrac
+    description: Type of diversity metric.
+  value:
+    type: number
+    description: Calculated metric value.
+  rarefaction_depth:
+    type: integer
+    description: Sequencing depth used for rarefaction.
+    minimum: 1
+  transformed_value:
+    type: number
+    description: Value after CLR or log transformation.
+  model_estimate:
+    type: number
+    description: Coefficient from LME/Regression.
+  model_se:
+    type: number
+    description: Standard error of the estimate.
+  model_p_value:
+    type: number
+    description: P-value from statistical test.
+  model_type:
     type: string
     enum:
       - lme
+      - linear
+      - spearman
       - permanova
       - dbRDA
-      - sensitivity
-    description: Type of analysis performed.
-  model_id:
+    description: Type of statistical model used.
+  dispersion_flag:
     type: string
-    description: Unique identifier for the model run.
-  parameters:
-    type: object
-    description: Parameters used in the model.
-    additionalProperties: true
-  results:
-    type: object
-    description: Statistical results.
-    additionalProperties: true
-  metadata_flags:
-    type: object
-    description: Metadata flags associated with the result.
-    properties:
-      associational_analysis_of_summary_statistic:
-        type: boolean
-        description: Flag indicating if this is an associational analysis of a summary statistic.
-  execution_time_seconds:
+    enum:
+      - ok
+      - confounded
+    description: Flag for PERMANOVA dispersion issues.
+  variance_explained:
     type: number
-    minimum: 0
-    description: Time taken to run the analysis.
-additionalProperties: true
+    description: Variance explained by a factor in dbRDA.
+  source:
+    type: string
+    enum:
+      - pH
+      - temp
+      - residual
+    description: Source of variance in dbRDA.
+additionalProperties: false

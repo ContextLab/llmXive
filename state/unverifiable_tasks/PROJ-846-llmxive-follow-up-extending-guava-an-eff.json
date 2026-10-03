@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-846-llmxive-follow-up-extending-guava-an-eff",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No evidence of a Git repository, .gitignore file, or an initial commit is provided; the required artifacts (the .git directory and commit history) are missing.",
+      "first_seen": "2026-10-03T19:15:42.696665+00:00",
+      "last_seen": "2026-10-03T19:15:42.696665+00:00"
+    },
+    {
+      "task_key": "T002a",
+      "reject_count": 1,
+      "last_reason": "The required file `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt` does not exist, so the specified pinned dependencies are not provided at the correct location. The existing `code/requirements.txt` is irrelevant to the task.",
+      "first_seen": "2026-10-03T19:15:44.550204+00:00",
+      "last_seen": "2026-10-03T19:15:44.550204+00:00"
+    },
+    {
+      "task_key": "T002b",
+      "reject_count": 1,
+      "last_reason": "The repository lacks a `requirements.txt` file, so the implementer could not run `pip install -r requirements.txt`, and there is no evidence of a virtual environment creation, installation logs, or a `pip freeze` output confirming successful dependency installation. The required artifact and verification steps are missing.",
+      "first_seen": "2026-10-03T19:15:44.551473+00:00",
+      "last_seen": "2026-10-03T19:15:44.551473+00:00"
+    },
+    {
+      "task_key": "T003a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: ruff.toml",
+      "first_seen": "2026-10-03T19:15:44.552323+00:00",
+      "last_seen": "2026-10-03T19:15:44.552323+00:00"
+    },
+    {
+      "task_key": "T005a",
+      "reject_count": 1,
+      "last_reason": "No evidence was provided that a `state/` directory exists in the repository root; the claim is unsubstantiated and the required artifact is missing.",
+      "first_seen": "2026-10-03T19:15:51.083998+00:00",
+      "last_seen": "2026-10-03T19:15:51.083998+00:00"
+    }
+  ],
+  "updated_at": "2026-10-03T19:15:51.083998+00:00"
+}

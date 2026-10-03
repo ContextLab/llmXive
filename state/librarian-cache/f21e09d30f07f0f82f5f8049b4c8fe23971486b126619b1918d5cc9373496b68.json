@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-01T07:13:08Z",
+  "fetched_at": "2026-10-03T18:54:20Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Systematic Review of Privacy-Preserving Federated Learning Protocols",
       "target_n": 5
     },
-    "duration_seconds": 46.5,
-    "ended_at": "2026-09-01T07:13:08Z",
+    "duration_seconds": 35.264,
+    "ended_at": "2026-10-03T18:54:20Z",
     "expansion": null,
     "extracted_queries": [
       "differential privacy secure aggregation homomorphic encryption",
-      "federated learning TEE trusted execution environment enclaves",
-      "Byzantine robustness poisoning attacks model inversion",
-      "communication efficiency convergence rate utility privacy tradeoff",
-      "client leakage membership inference reconstruction attacks"
+      "federated learning TEE trusted execution environment SGX",
+      "Byzantine robustness poisoning attack secure multi-party computation",
+      "communication overhead gradient compression local differential privacy",
+      "membership inference model inversion reconstruction attack"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,16 +31,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2007.06081"
+        "1703.02577"
       ]
     },
     "per_query_hit_count": {
-      "Byzantine robustness poisoning attacks model inversion": 3,
+      "Byzantine robustness poisoning attack secure multi-party computation": 3,
       "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science": 3,
-      "client leakage membership inference reconstruction attacks": 3,
-      "communication efficiency convergence rate utility privacy tradeoff": 3,
+      "communication overhead gradient compression local differential privacy": 3,
       "differential privacy secure aggregation homomorphic encryption": 3,
-      "federated learning TEE trusted execution environment enclaves": 3
+      "federated learning TEE trusted execution environment SGX": 3,
+      "membership inference model inversion reconstruction attack": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -55,7 +55,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-09-01T07:12:22Z",
+    "started_at": "2026-10-03T18:53:45Z",
     "term_input": {
       "normalized": "systematic review of privacy-preserving federated learning protocols computer science",
       "raw": "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science"
@@ -75,7 +75,43 @@
           "primary_pointer": "2305.05904"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Revisiting Fully Homomorphic Encryption Schemes')",
-        "failed_at": "2026-09-01T07:12:51Z",
+        "failed_at": "2026-10-03T18:54:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum conference is a process of securely exchanging messages between three or more parties, using quantum resources. A Measurement Device Independent Quantum Dialogue (MDI-QD) protocol, which is secure against information leakage, has been proposed (Quantum Information Processing 16.12 (2017): 305) in 2017, is proven to be insecure against intercept-and-resend attack strategy. We first modify this protocol and generalize this MDI-QD to a three-party quantum conference and then to a multi-party quantum conference. We also propose a protocol for quantum multi-party XOR computation. None of these three protocols proposed here use entanglement as a resource and we prove the correctness and security of our proposed protocols.",
+          "claimed_authors": [
+            "Nayana Das",
+            "Goutam Paul"
+          ],
+          "claimed_title": "Secure Multi-Party Quantum Conference and Xor Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.05560"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Secure Multi-Party Quantum Conference and Xor Computation')",
+        "failed_at": "2026-10-03T18:54:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-Party Quantum Computation (MPQC) has attracted a lot of attention as a potential killer-app for quantum networks through it's ability to preserve privacy and integrity of the highly valuable computations they would enable. Contributing to the latest challenges in this field, we present a composable protocol achieving blindness and verifiability even in the case of a single honest client. The security of our protocol is reduced, in an information-theoretically secure way, to that of a classical composable Secure Multi-Party Computation (SMPC) used to coordinate the various parties. Our scheme thus provides a statistically secure upgrade of such classical scheme to a quantum one with the same level of security.\n  In addition, (i) the clients can delegate their computation to a powerful fully fault-tolerant server and only need to perform single qubit operations to unlock the full potential of multi-party quantum computation; (ii) the amount of quantum communication with the server is reduced to sending quantum states at the beginning of the computation and receiving the output states at the end, which is optimal and removes the need for interactive quantum communication; and (iii) it has a low constant multiplicative qubit overhead compared to the single-client delegated protocol it is built upon.\n  The main technical ingredient of our paper is the bootstraping of the MPQC construction by Double Blind Quantum Computation, a new composable resource for blind multiparty quantum computation, that demonstrates the surprising fact that the full protocol does not require verifiability of all components to achieve security.",
+          "claimed_authors": [
+            "Theodoros Kapourniotis",
+            "Elham Kashefi",
+            "Luka Music",
+            "Harold Ollivier"
+          ],
+          "claimed_title": "Delegating Multi-Party Quantum Computations vs. Dishonest Majority in Two Quantum Rounds",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.12949"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Delegating Multi-Party Quantum Computations vs. Dishonest Majority in Two Quantum Rounds')",
+        "failed_at": "2026-10-03T18:54:19Z",
         "reason": "query_irrelevant"
       },
       {
@@ -95,79 +131,64 @@
           "primary_pointer": "2006.16469"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Model-Targeted Poisoning Attacks with Provable Convergence')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "failed_at": "2026-10-03T18:54:19Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper, we investigate the problem of distributed learning (DL) in the presence of Byzantine attacks. For this problem, various robust bounded aggregation (RBA) rules have been proposed at the central server to mitigate the impact of Byzantine attacks. However, current DL methods apply RBA rules for the local gradients from the honest devices and the disruptive information from Byzantine devices, and the learning performance degrades significantly when the local gradients of different devices vary considerably from each other. To overcome this limitation, we propose a new DL method to cope with Byzantine attacks based on coded robust aggregation (CRA-DL). Before training begins, the training data are allocated to the devices redundantly. During training, in each iteration, the honest devices transmit coded gradients to the server computed from the allocated training data, and the server then aggregates the information received from both honest and Byzantine devices using RBA rules. In this way, the global gradient can be approximately recovered at the server to update the global model. Compared with current DL methods applying RBA rules, the improvement of CRA-DL is attributed to the fact that the coded gradients sent by the honest devices are closer to each other. This closeness enhances the robustness of the aggregation against Byzantine attacks, since Byzantine messages tend to be significantly different from those of honest devices in this case. We theoretically analyze the convergence performance of CRA-DL. Finally, we present numerical results to verify the superiority of the proposed method over existing baselines, showing its enhanced learning performance under Byzantine attacks.",
+          "claimed_abstract": "Large-scale distributed training requires significant communication bandwidth for gradient exchange that limits the scalability of multi-node training, and requires expensive high-bandwidth network infrastructure. The situation gets even worse with distributed training on mobile devices (federated learning), which suffers from higher latency, lower throughput, and intermittent poor connections. In this paper, we find 99.9% of the gradient exchange in distributed SGD is redundant, and propose Deep Gradient Compression (DGC) to greatly reduce the communication bandwidth. To preserve accuracy during compression, DGC employs four methods: momentum correction, local gradient clipping, momentum factor masking, and warm-up training. We have applied Deep Gradient Compression to image classification, speech recognition, and language modeling with multiple datasets including Cifar10, ImageNet, Penn Treebank, and Librispeech Corpus. On these scenarios, Deep Gradient Compression achieves a gradient compression ratio from 270x to 600x without losing accuracy, cutting the gradient size of ResNet-50 from 97MB to 0.35MB, and for DeepSpeech from 488MB to 0.74MB. Deep gradient compression enables large-scale distributed training on inexpensive commodity 1Gbps Ethernet and facilitates distributed training on mobile. Code is available at: https://github.com/synxlin/deep-gradient-compression.",
           "claimed_authors": [
-            "Chengxi Li",
-            "Ming Xiao",
-            "Mikael Skoglund"
+            "Yujun Lin",
+            "Song Han",
+            "Huizi Mao",
+            "Yu Wang",
+            "William J. Dally"
           ],
-          "claimed_title": "Coded Robust Aggregation for Distributed Learning under Byzantine Attacks",
+          "claimed_title": "Deep Gradient Compression: Reducing the Communication Bandwidth for Distributed Training",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.01989"
+          "claimed_year": 2017,
+          "primary_pointer": "1712.01887"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Coded Robust Aggregation for Distributed Learning under Byzantine Attacks')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Deep Gradient Compression: Reducing the Communication Bandwidth for Distributed Training')",
+        "failed_at": "2026-10-03T18:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_abstract": "Differential privacy is a definition of \"privacy'\" for algorithms that analyze and publish information about statistical databases. It is often claimed that differential privacy provides guarantees against adversaries with arbitrary side information. In this paper, we provide a precise formulation of these guarantees in terms of the inferences drawn by a Bayesian adversary. We show that this formulation is satisfied by both \"vanilla\" differential privacy as well as a relaxation known as (epsilon,delta)-differential privacy. Our formulation follows the ideas originally due to Dwork and McSherry [Dwork 2006]. This paper is, to our knowledge, the first place such a formulation appears explicitly. The analysis of the relaxed definition is new to this paper, and provides some concrete guidance for setting parameters when using (epsilon,delta)-differential privacy.",
           "claimed_authors": [
-            "Christina Sormani",
-            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
-            " Convergence"
+            "Shiva Prasad Kasiviswanathan",
+            "Adam Smith"
           ],
-          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_title": "On the `Semantics' of Differential Privacy: A Bayesian Formulation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.10093"
+          "claimed_year": 2008,
+          "primary_pointer": "0803.3946"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Conjectures on Convergence and Scalar Curvature')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title=\"On the `Semantics' of Differential Privacy: A Bayesian Formulation\")",
+        "failed_at": "2026-10-03T18:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A privacy-utility tradeoff is developed for an arbitrary set of finite-alphabet source distributions. Privacy is quantified using differential privacy (DP), and utility is quantified using expected Hamming distortion maximized over the set of distributions. The family of source distribution sets (source sets) is categorized into three classes, based on different levels of prior knowledge they capture. For source sets whose convex hull includes the uniform distribution, symmetric DP mechanisms are optimal. For source sets whose probability values have a fixed monotonic ordering, asymmetric DP mechanisms are optimal. For all other source sets, general upper and lower bounds on the optimal privacy leakage are developed and a necessary and sufficient condition for tightness are established. Differentially private leakage is an upper bound on mutual information (MI) leakage: the two criteria are compared analytically and numerically to illustrate the effect of adopting a stronger privacy criterion.",
+          "claimed_abstract": "Neural networks are susceptible to data inference attacks such as the model inversion attack and the membership inference attack, where the attacker could infer the reconstruction and the membership of a data sample from the confidence scores predicted by the target classifier. In this paper, we propose a unified approach, namely purification framework, to defend data inference attacks. It purifies the confidence score vectors predicted by the target classifier by reducing their dispersion. The purifier can be further specialized in defending a particular attack via adversarial learning. We evaluate our approach on benchmark datasets and classifiers. We show that when the purifier is dedicated to one attack, it naturally defends the other one, which empirically demonstrates the connection between the two attacks. The purifier can effectively defend both attacks. For example, it can reduce the membership inference accuracy by up to 15% and increase the model inversion error by a factor of up to 4. Besides, it incurs less than 0.4% classification accuracy drop and less than 5.5% distortion to the confidence scores.",
           "claimed_authors": [
-            "Kousha Kalantari",
-            "Lalitha Sankar",
-            "Anand Sarwate"
+            "Ziqi Yang",
+            "Bin Shao",
+            "Bohan Xuan",
+            "Ee-Chien Chang",
+            "Fan Zhang"
           ],
-          "claimed_title": "Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion",
+          "claimed_title": "Defending Model Inversion and Membership Inference Attacks via Prediction Purification",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1601.06426"
+          "claimed_year": 2020,
+          "primary_pointer": "2005.03915"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion')",
-        "failed_at": "2026-09-01T07:12:53Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Ensuring the usefulness of electronic data sources while providing necessary privacy guarantees is an important unsolved problem. This problem drives the need for an analytical framework that can quantify the safety of personally identifiable information (privacy) while still providing a quantifable benefit (utility) to multiple legitimate information consumers. This paper presents an information-theoretic framework that promises an analytical model guaranteeing tight bounds of how much utility is possible for a given level of privacy and vice-versa. Specific contributions include: i) stochastic data models for both categorical and numerical data; ii) utility-privacy tradeoff regions and the encoding (sanization) schemes achieving them for both classes and their practical relevance; and iii) modeling of prior knowledge at the user and/or data source and optimal encoding schemes for both cases.",
-          "claimed_authors": [
-            "Lalitha Sankar",
-            "S. Raj Rajagopalan",
-            "H. Vincent Poor"
-          ],
-          "claimed_title": "Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1102.3751"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Defending Model Inversion and Membership Inference Attacks via Prediction Purification')",
+        "failed_at": "2026-10-03T18:54:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -188,25 +209,28 @@
           "primary_pointer": "2502.00306"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Riddle Me This! Stealthy Membership Inference for Retrieval-Augmented Generation')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "failed_at": "2026-10-03T18:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present two information leakage attacks that outperform previous work on membership inference against generative models. The first attack allows membership inference without assumptions on the type of the generative model. Contrary to previous evaluation metrics for generative models, like Kernel Density Estimation, it only considers samples of the model which are close to training data records. The second attack specifically targets Variational Autoencoders, achieving high membership inference accuracy. Furthermore, previous work mostly considers membership inference adversaries who perform single record membership inference. We argue for considering regulatory actors who perform set membership inference to identify the use of specific datasets for training. The attacks are evaluated on two generative model architectures, Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs), trained on standard image datasets. Our results show that the two attacks yield success rates superior to previous work on most data sets while at the same time having only very mild assumptions. We envision the two attacks in combination with the membership inference attack type formalization as especially useful. For example, to enforce data privacy standards and automatically assessing model quality in machine learning as a service setups. In practice, our work motivates the use of GANs since they prove less vulnerable against information leakage attacks while producing detailed samples.",
+          "claimed_abstract": "Machine learning algorithms, when applied to sensitive data, pose a potential threat to privacy. A growing body of prior work has demonstrated that membership inference attack (MIA) can disclose specific private information in the training data to an attacker. Meanwhile, the algorithmic fairness of machine learning has increasingly caught attention from both academia and industry. Algorithmic fairness ensures that the machine learning models do not discriminate a particular demographic group of individuals (e.g., black and female people). Given that MIA is indeed a learning model, it raises a serious concern if MIA ``fairly'' treats all groups of individuals equally. In other words, whether a particular group is more vulnerable against MIA than the other groups. This paper examines the algorithmic fairness issue in the context of MIA and its defenses. First, for fairness evaluation, it formalizes the notation of vulnerability disparity (VD) to quantify the difference of MIA treatment on different demographic groups. Second, it evaluates VD on four real-world datasets, and shows that VD indeed exists in these datasets. Third, it examines the impacts of differential privacy, as a defense mechanism of MIA, on VD. The results show that although DP brings significant change on VD, it cannot eliminate VD completely. Therefore, fourth, it designs a new mitigation algorithm named FAIRPICK to reduce VD. An extensive set of experimental results demonstrate that FAIRPICK can effectively reduce VD for both with and without the DP deployment.",
           "claimed_authors": [
-            "Benjamin Hilprecht",
-            "Martin Härterich",
-            "Daniel Bernau"
+            "Bo Zhang",
+            "Ruotong Yu",
+            "Haipei Sun",
+            "Yanying Li",
+            "Jun Xu",
+            "Hui Wang"
           ],
-          "claimed_title": "Reconstruction and Membership Inference Attacks against Generative Models",
+          "claimed_title": "Privacy for All: Demystify Vulnerability Disparity of Differential Privacy against Membership Inference Attack",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1906.03006"
+          "claimed_year": 2020,
+          "primary_pointer": "2001.08855"
         },
-        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Reconstruction and Membership Inference Attacks against Generative Models')",
-        "failed_at": "2026-09-01T07:12:53Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Privacy for All: Demystify Vulnerability Disparity of Differential Privacy against Membership Inference Attack')",
+        "failed_at": "2026-10-03T18:54:20Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -233,7 +257,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:50Z"
+          "verified_at": "2026-10-03T18:54:17Z"
         }
       },
       {
@@ -261,7 +285,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:50Z"
+          "verified_at": "2026-10-03T18:54:17Z"
         }
       },
       {
@@ -288,7 +312,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:51Z"
+          "verified_at": "2026-10-03T18:54:17Z"
         }
       },
       {
@@ -312,13 +336,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1703.02577",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.317,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:51Z"
+          "verified_at": "2026-10-03T18:54:18Z"
         }
       },
       {
@@ -345,7 +369,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:52Z"
+          "verified_at": "2026-10-03T18:54:18Z"
         }
       },
       {
@@ -374,7 +398,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:52Z"
+          "verified_at": "2026-10-03T18:54:19Z"
         }
       },
       {
@@ -396,67 +420,32 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2007.06081",
           "http_status": 200,
-          "pdf_sample_score": 0.2004,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:53Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Minghong Fang",
-            "Xiaoyu Cao",
-            "Jinyuan Jia",
-            "Neil Zhenqiang Gong"
-          ],
-          "title": "Local Model Poisoning Attacks to Byzantine-Robust Federated Learning",
-          "venue": "arXiv",
-          "year": 2019
-        },
-        "primary_pointer": "1911.11815",
-        "summary": "In federated learning, multiple client devices jointly learn a machine learning model: each client device maintains a local model for its local training dataset, while a master device maintains a global model via aggregating the local models from the client devices. The machine learning community recently proposed several federated learning methods that were claimed to be robust against Byzantine failures (e.g., system failures, adversarial manipulations) of certain client devices. In this work, we perform the first systematic study on local model poisoning attacks to federated learning. We assume an attacker has compromised some client devices, and the attacker manipulates the local model parameters on the compromised client devices during the learning process such that the global model has a large testing error rate. We formulate our attacks as optimization problems and apply our attacks to four recent Byzantine-robust federated learning methods. Our empirical results on four real-world datasets show that our attacks can substantially increase the error rates of the models learnt by the federated learning methods that were claimed to be robust against Byzantine failures of some client devices. We generalize two defenses for data poisoning attacks to defend against our local model poisoning attacks. Our evaluation results show that one defense can effectively defend against our attacks in some cases, but the defenses are not effective enough in other cases, highlighting the need for new defenses against our local model poisoning attacks to federated learning.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1911.11815",
-          "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:53Z"
+          "verified_at": "2026-10-03T18:54:19Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Kunhao Li",
-            "Di Wu",
-            "Jun Bai",
-            "Jing Xu",
-            "Lei Yang",
-            "Ziyi Zhang",
-            "Yiliao Song",
-            "Wencheng Yang",
-            "Taotao Cai",
-            "Yan Li"
+            "Mengde Han",
+            "Tianqing Zhu",
+            "Wanlei Zhou"
           ],
-          "title": "Who Owns This Sample: Cross-Client Membership Inference Attack in Federated Graph Neural Networks",
+          "title": "Momentum Gradient Descent Federated Learning with Local Differential Privacy",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2022
         },
-        "primary_pointer": "2507.19964",
-        "summary": "Graph-structured data is prevalent in many real-world applications, including social networks, financial systems, and molecular biology. Graph Neural Networks (GNNs) have become the de facto standard for learning from such data due to their strong representation capabilities. As GNNs are increasingly deployed in federated learning (FL) settings to preserve data locality and privacy, new privacy threats arise from the interaction between graph structures and decentralized training. In this paper, we present the first systematic study of cross-client membership inference attacks (CC-MIA) against node classification tasks of federated GNNs (FedGNNs), where a malicious client aims to infer which client owns the given data. Unlike prior centralized-focused work that focuses on whether a sample was included in training, our attack targets sample-to-client attribution, a finer-grained privacy risk unique to federated settings. We design a general attack framework that exploits FedGNNs' aggregation behaviors, gradient updates, and embedding proximity to link samples to their source clients across training rounds. We evaluate our attack across multiple graph datasets under realistic FL setups. Results show that our method achieves high performance on both membership inference and ownership identification. Our findings highlight a new privacy threat in federated graph learning-client identity leakage through structural and model-level cues, motivating the need for attribution-robust GNN design.",
+        "primary_pointer": "2209.14086",
+        "summary": "Nowadays, the development of information technology is growing rapidly. In the big data era, the privacy of personal information has been more pronounced. The major challenge is to find a way to guarantee that sensitive personal information is not disclosed while data is published and analyzed. Centralized differential privacy is established on the assumption of a trusted third-party data curator. However, this assumption is not always true in reality. As a new privacy preservation model, local differential privacy has relatively strong privacy guarantees. Although federated learning has relatively been a privacy-preserving approach for distributed learning, it still introduces various privacy concerns. To avoid privacy threats and reduce communication costs, in this article, we propose integrating federated learning and local differential privacy with momentum gradient descent to improve the performance of machine learning models.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2507.19964",
+          "final_url": "https://arxiv.org/abs/2209.14086",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.4444,
@@ -464,7 +453,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T07:12:53Z"
+          "verified_at": "2026-10-03T18:54:19Z"
         }
       }
     ]

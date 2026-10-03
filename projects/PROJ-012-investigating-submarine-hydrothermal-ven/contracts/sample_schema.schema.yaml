@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Sample Schema
-description: Schema for validating unified sample table data from ingestion pipeline.
+description: Schema for unified sample table containing environmental and sequencing metadata.
 type: object
 required:
   - sample_id
@@ -15,41 +15,52 @@ properties:
   sample_id:
     type: string
     description: Unique identifier for the sample.
-    pattern: "^S[0-9]+$"
+    pattern: "^[A-Z0-9-]+$"
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the sample collection.
-  pH:
-    type: number
-    minimum: 1.0
-    maximum: 14.0
-    description: Measured pH value.
-  temperature:
-    type: number
-    description: Measured temperature in Celsius.
+    description: ISO 8601 timestamp of sample collection.
   deployment_event:
     type: string
-    description: Identifier for the deployment campaign.
+    description: Campaign or deployment identifier.
   sensor_id:
     type: string
-    description: Identifier for the sensor used.
+    description: ID of the sensor used for measurement.
   coordinates:
     type: string
-    description: Coordinates in format 'lat,lon,depth'.
-    pattern: "^-?[0-9]+(\\.[0-9]+)?,-?[0-9]+(\\.[0-9]+)?,-?[0-9]+(\\.[0-9]+)?$"
+    description: Geo-spatial coordinates (lat, long, depth).
+    pattern: "^[\\d.-]+,[\\d.-]+,[\\d.-]+$"
+  pH:
+    type: number
+    description: Measured pH value.
+    minimum: 0.0
+    maximum: 14.0
+  temperature:
+    type: number
+    description: Temperature in Celsius.
   pH_sd:
     type: number
-    minimum: 0
-    description: Standard deviation of pH within the ±15 min window.
+    description: Standard deviation of pH within ±15 min window.
+    minimum: 0.0
+  pH_heterogeneous:
+    type: boolean
+    description: Flag if pH_sd > 0.2.
+  outlier_status:
+    type: string
+    enum:
+      - valid
+      - review_low
+      - review_high
+      - excluded
+    description: Status based on pH outlier detection rules.
   fastq_path:
     type: string
-    description: Relative path to the FASTQ file.
-  rejected:
-    type: boolean
-    default: false
-    description: Flag indicating if the sample was rejected.
-  rejection_reason:
-    type: ["string", "null"]
-    description: Reason for rejection if applicable.
-additionalProperties: true
+    description: Relative path to raw FASTQ file.
+  quality_flag:
+    type: string
+    enum:
+      - pass
+      - review
+      - fail
+    description: Derived quality status.
+additionalProperties: false

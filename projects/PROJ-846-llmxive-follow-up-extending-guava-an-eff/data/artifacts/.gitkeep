@@ -1,2 +1,3 @@
-# This directory is for generated artifacts (JSON, CSV, logs, models).
-# Do not remove this file; it ensures the directory is tracked by Git.
+# This directory is for generated artifacts (JSON logs, metrics, reports).
+# It is gitignored by default in .gitignore to prevent large binary/log files from being committed.
+# Do not remove this file.
