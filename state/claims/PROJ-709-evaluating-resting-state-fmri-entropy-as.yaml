@@ -812,3 +812,90 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T16:58:29Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/paper/draft.md
+  attempts: 1
+  canonical: Delta correlation of 0.0523 with permutation p-value of 0.0120
+  claim_id: c_0e7a0b4d
+  context: "Our primary analysis compared entropy-only predictive models against functional\
+    \ connectivity baselines using Ridge Regression. Results show a delta correlation\
+    \ of \u0394r = 0.0523 with permutation p-value = 0.0120."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Results show a delta correlation of \u0394r = 0.0523 with permutation\
+    \ p-value = 0.0120."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:43:28Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/paper/draft.md
+  attempts: 1
+  canonical: 15 significant parcels identified after FDR correction
+  claim_id: c_378547aa
+  context: "Results show a delta correlation of \u0394r = 0.0523 with permutation\
+    \ p-value = 0.0120. We identified 15 significant parcels after FDR correction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We identified 15 significant parcels after FDR correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:45:40Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/paper/draft.md
+  attempts: 1
+  canonical: Motion scrubbing with FD > 0.2mm and truncation to 120 volumes
+  claim_id: c_d1ea3b10
+  context: We utilized the ADHD-200 dataset from OpenNeuro. Subjects underwent standard
+    preprocessing including motion scrubbing (FD > 0.2mm) and truncation to N=120
+    volumes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subjects underwent standard preprocessing including motion scrubbing (FD
+    > 0.2mm) and truncation to N=120 volumes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:53:44Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/paper/draft.md
+  attempts: 1
+  canonical: 95% bootstrap confidence interval lower bound for delta AUC of 0.0612
+  claim_id: c_3fe408bc
+  context: "Effect Size Confidence The 95% bootstrap confidence interval for \u0394\
+    AUC had a lower bound of 0.0612, exceeding the 0.05 effect size threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The 95% bootstrap confidence interval for \u0394AUC had a lower bound\
+    \ of 0.0612."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:53:44Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/paper/draft.md
+  attempts: 1
+  canonical: Sensitivity sweep variance of 0.000234 for correlation and 0.000156 for
+    AUC
+  claim_id: c_5c091911
+  context: Sensitivity Analysis The sensitivity sweep showed variance of 0.000234
+    for correlation and 0.000156 for AUC across r-parameter variations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep showed variance of 0.000234 for correlation and
+    0.000156 for AUC across r-parameter variations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:10:31Z'

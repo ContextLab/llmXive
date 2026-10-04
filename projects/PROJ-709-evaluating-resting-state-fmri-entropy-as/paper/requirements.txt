@@ -1,0 +1,2 @@
+# Paper generation dependencies (optional, for formatting/publishing)
+# No additional dependencies required for the draft generation script

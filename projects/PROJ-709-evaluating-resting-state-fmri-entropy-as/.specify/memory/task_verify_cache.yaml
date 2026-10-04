@@ -11,16 +11,6 @@ T010:
   r: "The required artifact `tests/unit/test_preprocessing.py` does not exist, so\
     \ no unit test verifying that frames with FD\u202F>\u202F0.2\u202Fmm are removed\
     \ is present. The task\u2019s core deliverable is missing."
-T015:
-  c: false
-  h: 38238a1e7b280f126099f30611ac92b1fec3a7d4aa4c5b1af4010133592f01d7
-  r: "The repository contains a partially\u2011implemented `code/entropy_engine.py`\
-    \ (only a `calculate_sampen` helper is shown and the file is truncated), and the\
-    \ required output file `data/processed/subject_entropy_features.csv` does not\
-    \ exist. Consequently the script does not read the NIfTI files, perform the N=120\
-    \ truncation, compute SD\u2011scaled SampEn for the specified parcels, nor write\
-    \ the CSV output as the task demands. The missing CSV and incomplete implementation\
-    \ must be added."
 T018:
   c: false
   h: 755622efc9e58e788c4206ceebcbc502247ec8c744445639cac2eb7199c30d10
@@ -36,3 +26,28 @@ T035:
     \ returns 0.0, truncated correlation logic, missing imports) that never compute\
     \ or flag the |r|\u202F\u2265\u202F0.3 condition. The task\u2019s core functionality\
     \ is therefore not delivered."
+T041b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logs, CI configuration, or script output showing that `black --check` and
+    `isort --check-only` were executed and passed without changes are present. The
+    required artifact (evidence of successful formatting checks) is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No integration\u2011test artifacts (e.g., test logs, summary report, or generated\
+    \ output files) were supplied; the claim that the full integration test suite\
+    \ was run on the complete dataset subset cannot be verified. The required evidence\
+    \ is missing."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `paper/` directory or draft file was presented, and there is no evidence that
+    metrics from `model_metrics.json` were incorporated or verified. The required
+    artifact (a finalized paper draft containing the actual metrics) is missing.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation artifact (e.g., log file, report, or updated quickstart.md) is
+    present; the implementer provided no evidence that the quickstart.md was actually
+    executed or validated. The required output is missing, so the task is not satisfied.
