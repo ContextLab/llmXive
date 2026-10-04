@@ -1,14 +1,3 @@
-- artifact_hash: dd7315111f03784e015dac03106b5d17e6c71c6cd952b21ae49e36097ce7c358
-  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema#
-  kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-09-30T20:42:56.425215Z'
 - artifact_hash: 902e91c4cef20e83667dfae232fc1ff9e8b5b26b26b501e3bdc58e1d071fcadf
   artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/code/specs/353-loss-functions-small-world/data-model.md
   cite_id: c-001
@@ -20,3 +9,47 @@
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-09-30T20:52:02.984714Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/synthetic_graph.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/synthetic_graph.json
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/training_run.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/training_run.json
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/analysis_result.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/analysis_result.json
+  verified_at: '2026-10-04T19:04:11.427044Z'

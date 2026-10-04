@@ -3959,3 +3959,308 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T21:06:06Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 10 graphs per beta level
+  claim_id: c_1d8f5a51
+  context: 'Implement code/data_generation.py to: 1. Read utils.SAMPLE_SIZE (expected
+    110) and generate exactly 10 graphs per beta level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 10 graphs per beta level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:54:45Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Sample size is 110
+  claim_id: c_19060be0
+  context: Implement code/utils.py with constants ... SAMPLE_SIZE = 110.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SAMPLE_SIZE is 110.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:55:17Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence threshold is 0.90
+  claim_id: c_3ee2728e
+  context: Implement code/utils.py with constants ... CONVERGENCE_THRESHOLD = 0.90
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CONVERGENCE_THRESHOLD is 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:55:42Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Max epochs is 1000
+  claim_id: c_2ee26e21
+  context: Implement code/utils.py with constants ... MAX_EPOCHS = 1000
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_EPOCHS is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:56:02Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Class balance less than 80 percent max
+  claim_id: c_37b5fa58
+  context: Enforce class balance (<80% max).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Class_balance_less_than_80_percent_max
+  kind: magnitude
+  raw_text: Class balance must be less than 80% max.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:56:27Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if 1000 attempts fail to generate valid graph
+  claim_id: c_89c7af99
+  context: If the loop exceeds 1000 attempts for a specific beta level without success,
+    raise a RuntimeError with a clear message indicating the failure to generate a
+    valid graph.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the loop exceeds 1000 attempts for a specific beta level without success,
+    raise a RuntimeError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:56:48Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Beta levels enumerated as 0.0 to 1.0
+  claim_id: c_286df254
+  context: 'Constraint: Beta levels must be explicitly enumerated as 0.0, 0.1,...,
+    1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Beta levels must be explicitly enumerated as 0.0, 0.1, ..., 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:57:11Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Pipeline total duration less than 21600 seconds
+  claim_id: c_5b6f558f
+  context: Run the full pipeline on the CI runner and assert total duration < 21600s
+    (6 hours).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_total_duration_less_than_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline must assert total duration is less than 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:57:32Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7GB
+  claim_id: c_99b155a0
+  context: Profile memory usage of code/train.py to ensure < 7GB limit.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: Memory usage of code/train.py must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:57:57Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Number of tests for Bonferroni correction is 2
+  claim_id: c_39fae300
+  context: 'Calculate n_tests = 2. Apply correction: p_corr = p_raw * n_tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of tests for Bonferroni correction is 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:58:20Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Significance if minimum corrected p-value is less than 0.05
+  claim_id: c_829cb8e3
+  context: 'Determine significance: is_significant = min(p_tobit_corr, p_cox_corr)
+    < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significance_if_minimum_corrected_p-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: Significance is determined if min(p_tobit_corr, p_cox_corr) is less than
+    0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:58:51Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 10 graphs per beta level for total sample size 110
+  claim_id: c_aeec2af2
+  context: 'Implement code/data_generation.py to: Read utils.SAMPLE_SIZE (expected
+    110) and generate exactly 10 graphs per beta level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 10 graphs per beta level for a total sample size of 110.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:09:37Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Beta levels enumerated from 0.0 to 1.0
+  claim_id: c_6fd16a63
+  context: 'Explicit Levels: Generate graphs for beta levels explicitly enumerated
+    as a discrete set spanning from the lower bound to the upper bound. Beta levels
+    must be explicitly enumerated as 0.0, 0.1,..., 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Beta levels are explicitly enumerated as a discrete set from 0.0 to 1.0
+    in increments of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:10:13Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Reset random seed before each loss type training on same graph
+  claim_id: c_56e733a3
+  context: 'Seed Management: Reset random seed to a common value before training each
+    loss type on the same graph to ensure fair comparison and control for weight initialization
+    variance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reset_random_seed_before_each_loss_type_training_on_same_gra
+  kind: entity_fact
+  raw_text: The random seed is reset to a common value before training each loss type
+    on the same graph.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:10:53Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: InfoNCE accuracy measured via linear probe
+  claim_id: c_3d3fbf39
+  context: 'Implementation for User Story 2... Measurement: Implement a linear probe
+    for accuracy measurement as required by Spec US-2. InfoNCE accuracy MUST be measured
+    via a linear probe as per Spec US-2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/InfoNCE_accuracy_measured_via_linear_probe
+  kind: entity_fact
+  raw_text: InfoNCE accuracy is measured using a linear probe.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:11:46Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction with 2 tests
+  claim_id: c_53a0c47c
+  context: 'Implement Bonferroni correction. Logic: Calculate n_tests = 2. Apply correction:
+    p_corr = p_raw * n_tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses Bonferroni correction with n_tests equal to 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:12:06Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime under 21600 seconds
+  claim_id: c_19707610
+  context: 'Runtime Validation: Run the full pipeline on the CI runner and assert
+    total duration < 21600s (6 hours). If this fails, the build fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_under_21600_seconds
+  kind: magnitude
+  raw_text: The total pipeline runtime is asserted to be less than 21600 seconds (6
+    hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:12:33Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_4094b733
+  context: Initialize Python 3.11 project with requirements.txt (pinned networkx,
+    torch, scikit-learn, statsmodels, lifelines, numpy, pandas)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:12:54Z'

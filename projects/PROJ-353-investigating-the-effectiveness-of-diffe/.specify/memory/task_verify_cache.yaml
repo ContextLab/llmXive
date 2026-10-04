@@ -1,14 +1,50 @@
-T001:
+T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the required `code/`, `tests/`, and `data/`\
-    \ directories actually exist in the project repository; the claim lacks any artifact\
-    \ or directory listing to verify the structure. The implementer must add these\
-    \ top\u2011level directories (and populate them as appropriate) before the task\
-    \ can be considered complete."
+  r: "No `data-model.md` file or its contents were provided; without the markdown\
+    \ document containing the required schema and JSON Schema Draft\u202F7 examples,\
+    \ the task\u2019s deliverable cannot be confirmed as completed. The implementer\
+    \ must supply a non\u2011empty `data-model.md` that defines the entities (SyntheticGraph,\
+    \ TrainingRun, AnalysisResult) as specified."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
     \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
     001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."
+T033:
+  c: false
+  h: 087b2a32d7a46bc8899c8da8809431ecfb537a3655f547e1f64ce6ca8203444c
+  r: "The provided `code/analyze.py` is truncated (ends mid\u2011line) and does not\
+    \ contain logic to write the aggregated scalar fields to `data/processed/convergence_logs.csv`.\
+    \ Moreover, the required CSV file is missing from the repository. Consequently\
+    \ the aggregation task is not fully implemented."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, or script implementing the Tobit regression (using statsmodels\
+    \ or a custom fallback) is present in the provided evidence. The required artifact\u2014\
+    a functional Tobit implementation handling censored data with the specified formula\u2014\
+    is missing, so the task is not satisfied."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or notebook implementing the Cox Proportional Hazards model
+    with `lifelines.CoxPHFitter` is present, nor is there evidence that the `convergence_status`
+    column was renamed to `event` and used in a `fit()` call. The required artifact
+    (the Cox analysis implementation) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/analysis_results.json` (or any other artifact\
+    \ containing the extracted Tobit and Cox interaction\u2011term p\u2011values)\
+    \ was provided. The task demands the specific p\u2011values to be extracted and\
+    \ saved, which is not demonstrated. The implementer must produce the JSON file\
+    \ with `tobit_interaction_p_value` and `cox_interaction_p_value` (and the `is_significant`\
+    \ flag)."
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file in `specs/353-loss-functions-small-world/` is presented,
+    and no content showing the hypothesis (InfoNCE vs CE) or the statistical approach
+    (Tobit/Cox) is provided. The required artifact is missing.

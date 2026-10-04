@@ -59,14 +59,13 @@
 **Note**: The `spec.md` is the read-only source of truth. The `plan.md` is the active working document. This phase verifies that the Plan already reflects the Spec. No modification tasks are required if the Plan is correct.
 
 - [X] T004 [S] **Implement `code/utils.py`**: Implement `seed_all()`, `hash_artifact(path: str)`, and constants `CONVERGENCE_THRESHOLD = 0.90`, `MAX_EPOCHS = 1000`, `SAMPLE_SIZE = 110`. **Verification**: Include a unit test `tests/unit/test_utils.py::test_sample_size_is_110` that asserts `utils.SAMPLE_SIZE == 110`. **Dependency**: T001.
-- [X] T011 [S] **Create Validation Script**: Create `code/validate_plan.py`. **Action**: The script must assert that `spec.md` contains "N=110" (FR-001), and `plan.md` contains "Tobit Regression", "Cox Proportional Hazards", and "0.90". If values do not match, the script MUST exit with code 1 (fail the build). **Constraint**: Do NOT modify `plan.md` or `spec.md`. **Dependency**: T004.
-- [ ] T005a1 [P] **Draft SyntheticGraph Entity**: Draft content for `SyntheticGraph` entity. **Format**: Markdown table with columns: `Entity`, `Attribute`, `Type`, `Description`. Populate with fields from FR-001 (Graph ID, Beta, Clustering Coeff, Node Count). **Dependency**: None. **Note**: Read entity definitions from spec.md (FR-001).
-- [ ] T005a2 [P] **Draft TrainingRun Entity**: Draft content for `TrainingRun` entity. **Format**: Same Markdown table. Include fields from FR-005 (Convergence Steps, Censorship Flag, Trajectory). **Dependency**: None. **Note**: Read entity definitions from spec.md (FR-005).
-- [ ] T005a3 [P] **Draft AnalysisResult Entity**: Draft content for `AnalysisResult` entity. **Format**: Same Markdown table. Include fields from SC-003 (Tobit p-value, Cox p-value, is_significant). **Dependency**: None. **Note**: Read entity definitions from spec.md (SC-003).
+- [X] T011 [S] **Create Validation Script**: Create `code/validate_plan.py`. **Action**: The script must assert that `spec.md` contains "N=110" (FR-001), and `plan.md` contains "Tobit Regression", "Cox Proportional Hazards", "0.90", AND the phrase "interaction terms" or "interaction focus" to satisfy FR-008. If values do not match, the script MUST exit with code 1 (fail the build). **Constraint**: Do NOT modify `plan.md` or `spec.md`. **Dependency**: T004.
+- [ ] T005a1 [P] **Draft SyntheticGraph Entity**: Draft content for `SyntheticGraph` entity. **Format**: Markdown table with columns: `Entity`, `Attribute`, `Type`, `Description`. Populate with fields from FR-001 (Graph ID, Beta, Clustering Coeff, Node Count). **Dependency**: T001. **Note**: Read entity definitions from spec.md (FR-001).
+- [ ] T005a2 [P] **Draft TrainingRun Entity**: Draft content for `TrainingRun` entity. **Format**: Same Markdown table. Include fields from FR-005 (Convergence Steps, Censorship Flag, Trajectory). **Dependency**: T001. **Note**: Read entity definitions from spec.md (FR-005).
+- [ ] T005a3 [P] **Draft AnalysisResult Entity**: Draft content for `AnalysisResult` entity. **Format**: Same Markdown table. Include fields from SC-003 (Tobit p-value, Cox p-value, is_significant). **Dependency**: T001. **Note**: Read entity definitions from spec.md (SC-003).
 - [ ] T005b [S] **Write Data Model**: Create `data-model.md` markdown document based on T005a1-T005a3. **Format**: Standard Markdown schema with JSON Schema Draft 7 examples. **Note**: This file is the Phase 1 deliverable referenced by `spec.md`. **Dependency**: T005a1, T005a2, T005a3.
 - [ ] T006a [P] **Generate Graph Schema**: Generate `contracts/graph.schema.yaml` from `data-model.md`. **Format**: JSON Schema Draft 7 embedded in YAML. **Dependency**: T005b.
 - [ ] T007 [P] **Generate Training Run Schema & Validate**: Generate `contracts/training_run.schema.yaml` from `data-model.md`. **Validation**: Ensure the schema includes the `trajectory` field (list of per-epoch `{loss, accuracy}` objects) as required by Constitution Principle VI and US-2. **Dependency**: T005b.
-- [ ] T040b [S] **Create Quickstart Documentation**: Create `quickstart.md` in `specs/353-loss-functions-small-world/`. **Action**: Write instructions to run the full pipeline. **Content Requirement**: Must include steps for graph generation, training, and analysis. **Constraint**: This is a Phase 1 deliverable as per `plan.md`. **Dependency**: T001.
 
 ### 1.3: Core Code Infrastructure
 
@@ -92,14 +91,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] **Implement Graph Generation Pipeline**: Implement `code/data_generation.py` to:
- 1. Read `utils.SAMPLE_SIZE` (expected 110) and generate 10 graphs per $\beta$ level. **Explicit Levels**: Generate beta values across a range spanning from zero to one.
+- [X] T019 [US1] **Implement Graph Generation Pipeline**: Implement `code/data_generation.py` to:
+ 1. Read `utils.SAMPLE_SIZE` (expected 110) and generate exactly 10 graphs per $\beta$ level. **Explicit Levels**: Generate graphs for beta levels explicitly enumerated as a discrete set spanning from the lower bound to the upper bound.
  2. Derive community labels from the initial ring lattice (before rewiring).
- 3. Validate: detect disconnected components (regenerate/skip) and enforce class balance (<80% max).
- 4. Save generated graphs to `data/raw/graphs.jsonl` with metadata (`id`, `beta`, `seed`, `clustering_coeff`, `edge_list`, `labels`).
- 5. **Metadata Propagation**: Explicitly include `beta` and `node_count` in the metadata of every generated graph record to be propagated to training run files (T026/T027) as required by Constitution Principle VII.
- 6. **Checksum**: Immediately after saving, generate a SHA-256 checksum and record it in `state/projects/PROJ-353-investigating-the-effectiveness-of-diffe.yaml` under `artifact_hashes`.
- **Constraint**: Use seeds from `code/utils.py` (pinned). **Fallback**: If count != `utils.SAMPLE_SIZE`, raise error (Spec constraint). **Dependency**: T004, T011.
+ 3. **Validation Loop**: Detect disconnected components. If a graph is disconnected, **immediately regenerate it** using the same seed and beta level until a valid connected graph is produced. **Constraint**: The loop MUST continue until exactly 10 valid graphs are saved for the current beta level. If the loop exceeds 1000 attempts for a specific beta level without success, raise a `RuntimeError` with a clear message indicating the failure to generate a valid graph, ensuring the sample size constraint is not violated by silent failure. Do NOT skip or reduce the count. The final file MUST contain a sufficient number of valid graphs.
+ 4. Enforce class balance (<80% max).
+ 5. Save generated graphs to `data/raw/graphs.jsonl` with metadata (`id`, `beta`, `seed`, `clustering_coeff`, `edge_list`, `labels`).
+ 6. **Metadata Propagation**: Explicitly include `beta` and `node_count` in the metadata of every generated graph record to be propagated to training run files (T026/T027) as required by Constitution Principle VII.
+ 7. **Checksum**: Immediately after saving, generate a SHA-256 checksum and record it in `state/projects/PROJ-353-investigating-the-effectiveness-of-diffe.yaml` under `artifact_hashes`.
+ **Constraint**: Use seeds from `code/utils.py` (pinned). **Fallback**: If the loop cannot produce 110 valid graphs after 1000 retries per level, raise an error (Spec constraint). **Dependency**: T004, T011.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,9 +120,9 @@
 
 **Note**: Code implementation is independent of US-1, but execution requires `data/raw/graphs.jsonl` (T019) to exist. This is a data-flow dependency, not a code-implementation dependency.
 
-- [ ] T025 [US2] Implement `code/main.py` pipeline logic to iterate over all graphs (using `utils.SAMPLE_SIZE`) and both loss types with sequential execution. **Constraint**: Must use `SAMPLE_SIZE` from `code/utils.py`. **Seed Management**: Reset random seed to a common value before training each loss type on the same graph to ensure fair comparison and control for weight initialization variance. **Dependency**: T019 (Data Execution Prerequisite), T026, T027, T008, T009.
-- [ ] T026 [US2] **Implement Cross-Entropy Training**: Implement `code/train.py` with training loop for Cross-Entropy loss, recording full per-epoch loss/accuracy arrays. **Output**: Save per-run results to `data/processed/trajectories/training_run_{id}_ce.json`. **Verification**: Ensure `convergence_status` is recorded as "converged" if accuracy $\ge$, or "censored" if max epochs reached. **Metadata**: Include `beta` and `node_count` from source graph in output JSON. **Dependency**: T008, T009, T004.
-- [ ] T027 [US2] **Implement InfoNCE Training**: Implement `code/train.py` with training loop for InfoNCE loss. **Logic**: Train encoder for up to `MAX_EPOCHS`. **Convergence**: Record `steps_to_convergence` when accuracy $\ge$ `CONVERGENCE_THRESHOLD`. **Measurement**: Implement a linear probe for accuracy measurement as required by Spec US-2. **Censoring**: If `MAX_EPOCHS` reached without convergence, flag `convergence_status` as "censored". **Output**: Save per-run results to `data/processed/trajectories/training_run_{id}_infonce.json` including `epochs_trained`, `convergence_status`, and `trajectory` (full list of per-epoch `{loss, accuracy}`). **Metadata**: Include `beta` and `node_count` from source graph in output JSON. **Dependency**: T008, T009, T004.
+- [X] T025 [S] [US2] **Implement Pipeline Logic**: Implement `code/main.py` pipeline logic to iterate over all graphs (using `utils.SAMPLE_SIZE`) and both loss types with sequential execution. **Constraint**: Must use `SAMPLE_SIZE` from `code/utils.py`. **Seed Management**: Reset random seed to a common value before training each loss type on the same graph to ensure fair comparison and control for weight initialization variance. **Dependency**: T019 (Data Execution Prerequisite), T026, T027, T008, T009.
+- [X] T026 [US2] **Implement Cross-Entropy Training**: Implement `code/train.py` with training loop for Cross-Entropy loss, recording full per-epoch loss/accuracy arrays. **Output**: Save per-run results to `data/processed/trajectories/training_run_{id}_ce.json`. **Verification**: Ensure `convergence_status` is recorded as "converged" if accuracy $\ge$, or "censored" if max epochs reached. **Metadata**: Include `beta` and `node_count` from source graph in output JSON. **Dependency**: T008, T009, T004.
+- [X] T027 [US2] **Implement InfoNCE Training**: Implement `code/train.py` with training loop for InfoNCE loss. **Logic**: Train encoder for up to `MAX_EPOCHS`. **Convergence**: Record `steps_to_convergence` when accuracy $\ge$ `CONVERGENCE_THRESHOLD`. **Measurement**: Implement a linear probe for accuracy measurement as required by Spec US-2. **Censoring**: If `MAX_EPOCHS` reached without convergence, flag `convergence_status` as "censored". **Output**: Save per-run results to `data/processed/trajectories/training_run_{id}_infonce.json` including `epochs_trained`, `convergence_status`, and `trajectory` (full list of per-epoch `{loss, accuracy}`). **Metadata**: Include `beta` and `node_count` from source graph in output JSON. **Dependency**: T008, T009, T004.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,18 +136,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Unit test for Tobit regression implementation in `tests/unit/test_analysis.py`
-- [ ] T032 [P] [US3] Unit test for Cox PH implementation and interaction term extraction in `tests/unit/test_analysis.py`
+- [X] T031 [P] [US3] Unit test for Tobit regression implementation in `tests/unit/test_analysis.py`
+- [X] T032 [P] [US3] Unit test for Cox PH implementation and interaction term extraction in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 3
 
 **Note**: Code implementation is independent of US-2, but execution requires `data/processed/trajectories/` (T026, T027) to exist. This is a data-flow dependency, not a code-implementation dependency.
 
 - [ ] T033 [US3] **Implement Data Aggregation**: Implement `code/analyze.py` to aggregate `data/processed/trajectories/` into a single DataFrame. **Logic**: Read files matching pattern `training_run_*.json`. **Aggregation**: Extract *scalar* fields (`steps_to_convergence`, `final_accuracy`, `max_loss`, `beta`, `loss_type`) to `data/processed/convergence_logs.csv`. **Constraint**: DO NOT include the full `trajectory` array in the CSV to avoid high cardinality; preserve trajectories only in the source JSON files. **Verification**: Verify that extracted scalar fields (e.g., `steps_to_convergence`) exactly match the values derivable from the full trajectory JSON files to ensure Single Source of Truth. **Dependency**: T026, T027 (Data Execution Prerequisite).
-- [ ] T034 [US3] **Implement Tobit Regression**: Implement Tobit Regression (`steps ~ loss_type * beta`) handling censored data (FR-005 correction). **Library**: Use `statsmodels.discrete.discrete_model.Tobit`. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`. **Censoring**: Set `lower=0` and `upper=utils.MAX_EPOCHS` to correctly handle censored observations (runs hitting max epochs without convergence). **Dependency**: T033.
-- [ ] T035 [US3] **Implement Cox PH**: Implement Cox Proportional Hazards survival analysis for convergence "time". **Library**: Use `lifelines.CoxPHFitter`. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`. **Dependency**: T033.
-- [ ] T036 [US3] **Extract Interaction Terms**: Extract interaction term F-statistic/p-value (Tobit) and Hazard Ratio/p-value (Cox). **Verification**: Ensure the interaction term is correctly identified and extracted from both models. **Dependency**: T034, T035.
-- [ ] T037 [US3] **Implement Bonferroni Correction**: Implement Bonferroni correction. **Logic**: Calculate `n_tests = 2`. Apply correction: `p_corr = p_raw * n_tests`. Determine significance: `is_significant = min(p_tobit_corr, p_cox_corr) < 0.05`. **Output**: Update `data/analysis_results.json` to include `is_significant` (boolean: true if corrected p-value < 0.05). **Dependency**: T036.
+- [ ] T034 [US3] **Implement Tobit Regression**: Implement Tobit Regression (`steps ~ loss_type * beta`) handling censored data (FR-005 correction). **Library**: Use `statsmodels.sandbox.regression.tobit.Tobit`. **Fallback**: If the sandbox module is unavailable (ImportError), implement a custom Tobit class using `scipy.optimize` to maximize the likelihood function for censored normal data. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`. **Censoring**: Set `lower=0` and `upper=utils.MAX_EPOCHS` to correctly handle censored observations (runs hitting max epochs without convergence). **Dependency**: T033.
+- [ ] T035 [US3] **Implement Cox PH**: Implement Cox Proportional Hazards survival analysis for convergence "time". **Library**: Use `lifelines.CoxPHFitter`. **Formula**: `steps_to_convergence ~ C(loss_type) * beta`. **Censoring Logic**: Map the `convergence_status` from T026/T027 to an `event` column (1 if "converged", 0 if "censored"). **Explicit Requirement**: Rename the `convergence_status` column to `event` in the DataFrame before passing to `fit()` method as `event_col='event'` to correctly handle censored data. **Dependency**: T033.
+- [ ] T036 [US3] **Extract Interaction Terms**: Extract the **interaction term's p-value** specifically from both models. **Tobit**: Extract the p-value for the coefficient corresponding to the interaction term (e.g., `C(loss_type)[T.1]:beta`). **Cox**: Extract the p-value for the interaction term hazard ratio. **Verification**: Ensure the specific interaction coefficient's p-value is extracted, not the model-level F-statistic or main effects. **Dependency**: T034, T035.
+- [ ] T037 [US3] **Implement Bonferroni Correction**: Implement Bonferroni correction. **Logic**: Calculate `n_tests = 2`. Apply correction: `p_corr = p_raw * n_tests`. Determine significance: `is_significant = min(p_tobit_corr, p_cox_corr) < 0.05`. **Output**: Update `data/analysis_results.json` to include `is_significant` (boolean: true if the minimum of the two corrected p-values is < 0.05). **Dependency**: T036.
 - [ ] T038 [US3] **Generate Analysis Results**: Generate `data/analysis_results.json` with corrected p-values, coefficients, and a boolean `is_significant` flag (SC-003). **Dependency**: T037.
 - [ ] T039 [US3] **Generate Final Report**: Generate final report in `data/report.md` summarizing whether contrastive loss converges faster as $\beta$ increases. **Traceability**: Explicitly link the report's conclusion to the `is_significant` boolean in `data/analysis_results.json`. **Dependency**: T038.
 
@@ -161,10 +161,10 @@
 
 - [ ] T041 Code cleanup and refactoring
 - [ ] T043 [P] Profile memory usage of `code/train.py` to ensure < 7GB limit.
-- [ ] T044 [P] **Runtime Validation**: Run the full pipeline on the CI runner and **assert total duration < 21600s (6 hours)**. If this fails, the build fails.
+- [ ] T044 [S] **Runtime Validation**: Run the full pipeline on the CI runner and **assert total duration < 21600s (6 hours)**. If this fails, the build fails. **Dependency**: T019, T026, T027, T033, T034, T035, T036, T037, T038, T039.
 - [ ] T045 [P] Additional unit tests in `tests/unit/`
 - [ ] T046 Run quickstart.md validation
-- [ ] T040b [S] **Create Quickstart Documentation**: Create `quickstart.md` in `specs/353-loss-functions-small-world/`. **Action**: Write instructions to run the full pipeline. **Content Requirement**: Must include steps for graph generation, training, and analysis. **Constraint**: This is a Phase 1 deliverable as per `plan.md`. **Dependency**: T001, T019, T026, T027, T033.
+- [ ] T040c [S] **Create Quickstart Documentation**: Create `quickstart.md` in `specs/353-loss-functions-small-world/`. **Action**: Write instructions to run the full pipeline. **Content Requirement**: Must include steps for graph generation, training, and analysis. **Constraint**: This is a Phase N deliverable as per `plan.md`. **Dependency**: T001, T019, T026, T027, T033.
 
 ---
 
@@ -176,7 +176,7 @@
 - **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories
  - **Critical Order**: T004 (Utils) -> T011 (Verify) -> T005b (Data Model) -> T008/T009 (Code).
  - **Strict Serial**: T005a1, T005a2, T005a3 are now [P]. T005b must complete before T008/T009. T004 must complete before T011.
- - **Documentation Ordering**: T040a (Research) is [S] and depends on T001. T040b (Quickstart) is [S] and depends on T001, T019, T026, T027, T033 (moved to Phase N).
+ - **Documentation Ordering**: T040a (Research) is [S] and depends on T001. T040c (Quickstart) is [S] and depends on T001, T019, T026, T027, T033 (moved to Phase N).
 - **User Stories (Phase 2+)**: All depend on Foundational completion.
  - **Implementation Independence**: US-1, US-2, and US-3 code can be written in parallel.
  - **Data Execution Prerequisites**:
@@ -274,7 +274,7 @@ With multiple developers:
 - **Constraint**: DO NOT modify `spec.md` directly.
 - **Constraint**: InfoNCE accuracy MUST be measured via a linear probe as per Spec US-2.
 - **Constraint**: `convergence_logs.csv` must contain only scalar fields, not full trajectory arrays.
-- **Constraint**: Beta levels must be explicitly enumerated as 0.0, 0.1, ..., 1.0.
+- **Constraint**: Beta levels must be explicitly enumerated as 0.0, 0.1,..., 1.0.
 - **Constraint**: Seed must be reset between loss runs on the same graph.
 - **Constraint**: Tobit censoring limits must be set to MAX_EPOCHS.
 - **Constraint**: Bonferroni correction must derive factor from test count.

@@ -1,65 +1,63 @@
-# Research Questions and Methodology
+# Research Documentation: Investigating Loss Functions on Small-World Graphs
 
 ## Project Overview
-
-This research investigates the effectiveness of contrastive learning (InfoNCE) versus standard supervised learning (Cross-Entropy) on small-world graph topologies. The study aims to determine whether the structural properties of small-world graphs (specifically the rewiring probability $\beta$) interact with loss function choice to influence convergence speed and final model performance.
-
-## Research Questions
-
-1. **Primary Question**: Does the use of InfoNCE loss lead to faster convergence compared to Cross-Entropy loss on Watts-Strogatz small-world graphs, and does this effect vary with the rewiring probability $\beta$?
-2. **Secondary Question**: Is there a statistically significant interaction between the graph topology parameter $\beta$ and the loss function type on the number of steps required to reach the convergence threshold?
-3. **Tertiary Question**: How does the censorship of training runs (those failing to converge within `MAX_EPOCHS`) affect the statistical inference regarding loss function efficacy?
+This research project investigates the effectiveness of contrastive learning (InfoNCE loss) versus standard classification (Cross-Entropy loss) when training Graph Neural Networks (GNNs) on small-world graph structures. Specifically, we examine how the rewiring probability ($\beta$) in Watts-Strogatz small-world graphs influences the convergence speed and final performance of these two loss functions.
 
 ## Hypothesis
+**Primary Hypothesis**: InfoNCE loss will demonstrate faster convergence (fewer epochs to reach the accuracy threshold) compared to Cross-Entropy (CE) loss as the small-world parameter $\beta$ increases.
 
-**H1 (Main Effect)**: InfoNCE loss will demonstrate a lower mean steps-to-convergence compared to Cross-Entropy loss across the sample of graphs.
-
-**H2 (Interaction Effect)**: The performance advantage of InfoNCE over Cross-Entropy will be modulated by the small-world parameter $\beta$. Specifically, we hypothesize that the contrastive approach will be more robust (or show a different convergence trajectory) as the graph transitions from a regular lattice ($\beta \approx 0$) to a random graph ($\beta \approx 1$), potentially exploiting the "short path" property differently than supervised classification.
-
-**Null Hypothesis ($H_0$)**: There is no interaction between loss type and $\beta$ on convergence steps; any observed differences are due to random variation.
+**Rationale**:
+- **Low $\beta$ (Regular Lattices)**: High clustering and long path lengths may make local neighborhood aggregation (CE) sufficient, potentially reducing the advantage of contrastive methods.
+- **High $\beta$ (Random Graphs)**: Short path lengths and lower clustering may benefit from the global structural invariance learned by InfoNCE, leading to faster convergence.
+- **Small-World Regime ($\beta \approx 0.1$)**: This regime maximizes the trade-off between local clustering and global connectivity. We hypothesize that the interaction between loss type and $\beta$ is most pronounced here, where structural complexity is highest.
 
 ## Methodology
 
-### Data Generation
-- **Graph Model**: Watts-Strogatz small-world network.
+### 1. Data Generation
+- **Graph Model**: Watts-Strogatz small-world model.
 - **Parameters**:
- - Node count ($N$): Fixed at 110 (derived from power analysis, see `code/power_analysis.py`).
- - Rewiring probability ($\beta$): 11 levels uniformly distributed from 0.0 to 1.0.
- - Replicates: 10 independent graphs per $\beta$ level (Total $N=110$).
-- **Labels**: Community labels derived from the initial ring lattice structure before rewiring, ensuring a ground truth that is structurally defined.
+ - $N = 110$ graphs (derived from power analysis for statistical significance).
+ - $\beta$ levels: Discrete set $\{0.0, 0.1, 0.2, \dots, 1.0\}$.
+ - 10 graph instances per $\beta$ level.
+- **Validation**:
+ - Ensure all graphs are connected (regenerate if disconnected).
+ - Verify clustering coefficients fall within theoretical bounds.
+ - Ensure class balance (<80% max class frequency) via community label derivation from the initial lattice.
 
-### Experimental Procedure
-1. **Model Architecture**: A 2-layer Graph Convolutional Network (GCN) as defined in `code/models.py`.
-2. **Training Regimes**:
+### 2. Training Protocol
+- **Model**: 2-layer Graph Convolutional Network (GCN).
+- **Loss Functions**:
  - **Cross-Entropy (CE)**: Standard supervised node classification.
- - **InfoNCE**: Contrastive learning followed by a linear probe for accuracy measurement (as per US-2).
-3. **Stopping Criteria**:
- - **Convergence**: Accuracy $\ge$ `CONVERGENCE_THRESHOLD` (0.90).
- - **Censoring**: Maximum epochs (`MAX_EPOCHS` = 1000) reached without convergence.
-4. **Data Recording**: Full per-epoch loss and accuracy trajectories are stored in `data/processed/trajectories/`.
+ - **InfoNCE**: Contrastive loss with a linear probe for accuracy measurement.
+- **Constraints**:
+ - CPU-only execution.
+ - Fixed random seeds for reproducibility (reset between loss runs on the same graph).
+ - Maximum epochs: $MAX\_EPOCHS = 1000$.
+ - Convergence threshold: $ACCURACY \ge 0.90$.
+- **Censoring**: Runs failing to converge by $MAX\_EPOCHS$ are flagged as "censored" for survival analysis.
 
-### Statistical Analysis Plan
+### 3. Statistical Analysis
+The core analysis focuses on the **interaction effect** between the loss type and the graph topology ($\beta$) on the "time" to convergence (steps to convergence).
 
-To address the censored nature of the data (some runs do not converge), standard linear regression is inappropriate. We employ two complementary survival analysis techniques:
+#### A. Tobit Regression
+- **Purpose**: Model censored dependent variables (steps to convergence).
+- **Model**: $Steps \sim C(loss\_type) \times \beta + \epsilon$
+- **Censoring Limits**: Lower bound = 0, Upper bound = $MAX\_EPOCHS$.
+- **Target**: Extract the p-value for the interaction term ($loss\_type: \beta$).
 
-1. **Tobit Regression**:
- - **Model**: `steps_to_convergence ~ C(loss_type) * beta`
- - **Purpose**: To estimate the effect of loss type and $\beta$ on convergence time while accounting for right-censoring at `MAX_EPOCHS`.
- - **Implementation**: `statsmodels.discrete.discrete_model.Tobit`.
+#### B. Cox Proportional Hazards Model
+- **Purpose**: Survival analysis to compare the "hazard" of converging between loss types across different $\beta$ values.
+- **Model**: $h(t) = h_0(t) \exp(\beta_1 \cdot loss\_type + \beta_2 \cdot \beta + \beta_3 \cdot (loss\_type \times \beta))$
+- **Event Definition**: Convergence (1) vs. Censoring (0).
+- **Target**: Extract the hazard ratio and p-value for the interaction term.
 
-2. **Cox Proportional Hazards Model**:
- - **Model**: `steps_to_convergence ~ C(loss_type) * beta`
- - **Purpose**: To model the hazard rate of convergence, providing a hazard ratio for the interaction term. This offers a non-parametric check on the Tobit assumptions.
- - **Implementation**: `lifelines.CoxPHFitter`.
-
-### Significance Testing
-- **Interaction Term**: The primary test is the significance of the interaction term ($\beta \times \text{loss\_type}$) in both models.
-- **Correction**: Bonferroni correction will be applied to the p-values of the two primary tests (Tobit and Cox) to control for family-wise error rate ($\alpha_{corrected} = 0.05 / 2$).
-- **Decision Rule**: If the corrected p-value for the interaction term is $< 0.05$, we reject the null hypothesis and conclude that the effectiveness of the loss function depends on the small-world topology.
+### 4. Significance Testing
+- **Correction**: Bonferroni correction applied for multiple comparisons ($n=2$ tests: Tobit interaction p-value, Cox interaction p-value).
+- **Decision Rule**: The hypothesis is supported if the minimum of the two corrected p-values is $< 0.05$.
 
 ## Expected Deliverables
-- `data/raw/graphs.jsonl`: Generated synthetic graph data.
-- `data/processed/trajectories/`: Per-run training logs.
-- `data/processed/convergence_logs.csv`: Aggregated scalar data for analysis.
-- `data/analysis_results.json`: Statistical results including coefficients, p-values, and significance flags.
-- `data/report.md`: Final narrative report interpreting the statistical findings.
+1. `data/raw/graphs.jsonl`: Validated small-world graph dataset.
+2. `data/processed/trajectories/`: Per-run training logs with convergence status.
+3. `data/processed/convergence_logs.csv`: Aggregated scalar metrics.
+4. `data/analysis_results.json`: Statistical results including interaction p-values and significance flag.
+5. `data/report.md`: Final interpretation of results.
