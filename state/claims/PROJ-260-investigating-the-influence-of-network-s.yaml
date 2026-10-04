@@ -3641,25 +3641,6 @@
   updated_at: '2026-10-04T21:36:41Z'
 - artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
   attempts: 1
-  canonical: Pipeline halts if realizations per system size are less than 30
-  claim_id: c_1c959466
-  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
-    with a fatal error. The pipeline must not proceed with statistically invalid data
-    (N<30).'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_realizations_per_system_size_are_less_than
-  kind: magnitude
-  raw_text: The pipeline must not proceed with statistically invalid data (N<30).
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-04T21:37:04Z'
-- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
-  attempts: 1
   canonical: Low power warning triggered when statistical power is below 0.8
   claim_id: c_2bb1d5b4
   context: Add 'Low Power' warning logic if power < 0.8 (SC-002)... Flag 'Low Power'
@@ -4086,3 +4067,196 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T21:49:46Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: Correlation analysis uses exactly 1000 bootstrap iterations
+  claim_id: c_1b010a8f
+  context: Execute exactly 1000 bootstrap iterations for confidence interval estimation
+    (FR-005, SC-001) using scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T22:16:19Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Fetch amorphous silicon datasets with N=1000, 2000, 4000 from Zenodo
+    IDs 1234567, 7654321, 9876543
+  claim_id: c_ee71db58
+  context: 'Dataset IDs: Fetch datasets using specific IDs: zenodo-1234567 (N=1000),
+    zenodo-7654321 (N=2000), zenodo-9876543 (N=4000). These IDs must be hardcoded
+    in the task or derived from a verified config, not a missing research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch datasets using specific IDs: zenodo-1234567 (N=1000), zenodo-7654321
+    (N=2000), zenodo-9876543 (N=4000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:16:44Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 2
+  canonical: Pipeline halts if realizations per system size are less than 30
+  claim_id: c_1c959466
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
+    with a fatal error. The pipeline must not proceed with statistically invalid data
+    (N<30).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_realizations_per_system_size_are_less_than
+  kind: magnitude
+  raw_text: The pipeline must not proceed with statistically invalid data (N<30).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:17:09Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline halts with Exit Code 2 if kappa source_id matches trajectory_source
+  claim_id: c_6f9125e8
+  context: 'Error Handling: If source_id == trajectory_source, HALT with FatalError:
+    ''Circular Dependency Detected'' (Exit Code 2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compare source_id against trajectory_source. If source_id == trajectory_source,
+    HALT with FatalError: Circular Dependency Detected (Exit Code 2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:17:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline sets return code 3 if average coordination deviates from 4.00
+    by more than 0.05
+  claim_id: c_59dc39a2
+  context: 'Global Validation: MUST calculate the average coordination number. If
+    the absolute difference from the reference value (4.00) is > 0.05, LOG a ''CRITICAL:
+    Acceptance Test Failed'' message and set return code 3.'
+  evidence:
+    asserted: '4.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'If the absolute difference from the reference value (4.00) is > 0.05,
+    LOG a CRITICAL: Acceptance Test Failed message and set return code 3.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T22:17:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Spectral anomaly flagged if peak height is under 5% of global max in
+    non-perfectly-coordinated systems
+  claim_id: c_e7c2b135
+  context: 'Algorithm: Find local maximum in the terahertz frequency range. Flag as
+    ''Spectral Anomaly'' only if (peak height < 5% of global maximum) AND (system
+    is NOT perfectly coordinated).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag as Spectral Anomaly only if peak height < 5% of global maximum AND
+    system is NOT perfectly coordinated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:17:32Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime on 4000-atom system is less than or equal to 30 minutes
+  claim_id: c_443a9b8c
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_on_4000-atom_system_is_less_than_or_equal_t
+  kind: magnitude
+  raw_text: "Verify \u226430 mins on 4000-atom system."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:17:57Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning triggers when statistical power is less than 0.8
+  claim_id: c_c5015cf3
+  context: Integration test for Low Power warning in tests/integration/test_low_power_warning.py
+    (Verifies warning triggers when power < 0.8)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggers_when_statistical_power_is_less_th
+  kind: magnitude
+  raw_text: Verify warning triggers when power < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:18:29Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Accuracy test fails if deviation from manual reference is greater than
+    or equal to 1e-6
+  claim_id: c_76cfc107
+  context: 'Threshold: Fail test if |output - manual| >= 1e-6.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accuracy_test_fails_if_deviation_from_manual_reference_is_gr
+  kind: magnitude
+  raw_text: Fail test if |output - manual| >= 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:18:48Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Streaming support triggered for datasets larger than 100k atoms
+  claim_id: c_404f7b6d
+  context: 'Trigger: Only active if dataset size > 100k atoms or memory constraints
+    are detected.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger streaming support if dataset size > 100k atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T22:18:49Z'
