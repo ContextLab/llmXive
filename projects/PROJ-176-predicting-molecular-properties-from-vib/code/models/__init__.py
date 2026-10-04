@@ -1,3 +1,3 @@
-# Models package
-from .cnn_1d import ConvBlock, MolecularPropertyCNN
-from .trainer import Trainer, main
+"""
+Model architecture and training module.
+"""

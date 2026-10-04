@@ -31,8 +31,8 @@
 Run the ingestion pipeline to download raw data, align datasets, and generate the preprocessed tensor file.
 
 ```bash
-python code/main.py --step download
-python code/main.py --step preprocess
+python code/main.py download
+python code/main.py preprocess
 ```
 
 - **Output**: `data/preprocessed/aligned_dataset.npz`
@@ -49,7 +49,7 @@ The `download` step fetches data from the following verified sources:
 
 The `preprocess` step performs the following transformations:
 1. **Alignment**: Inner join of QM9 and IR-spectra datasets on `InChIKey`.
-2. **Interpolation**: Spectra are interpolated to a fixed grid (mid-infrared region, unit wavenumber spacing).
+2. **Interpolation**: Spectra are interpolated to a fixed grid covering the mid-infrared region (400–4000 cm⁻¹) with 1 cm⁻¹ spacing.
 3. **Smoothing**: Gaussian smoothing applied with $\sigma = 2 \text{ cm}^{-1}$.
 4. **Normalization**: Unit area normalization applied to spectra.
 5. **Filtering**: Molecules missing dipole, polarizability, or HOMO-LUMO gap are removed.
@@ -60,13 +60,13 @@ The `preprocess` step performs the following transformations:
 Train the 1-D CNN on the preprocessed data. This step runs on CPU.
 
 ```bash
-python code/main.py --step train
+python code/main.py train
 ```
 
 - **Output**: `models/checkpoint_best.pt`, `runs/` (TensorBoard logs).
 - **Expected Time**: 1-3 hours (depending on batch size and epochs).
 - **Monitoring**: Use `tensorboard --logdir=runs` to view loss curves.
-- **Timeout**: The process will automatically terminate if it exceeds a predefined time limit.
+- **Timeout**: The process will automatically terminate if it exceeds a predefined time limit (6 hours).
 
 ### Hyperparameters
 
@@ -77,32 +77,36 @@ The following hyperparameters are used during model training:
 | **Learning Rate** | `1e-3` | Initial learning rate for Adam optimizer |
 | **Patience** | `10` | Early stopping patience (monitoring `val_loss`) |
 | **Kernel Size (Block 1)** | `9` | First convolutional block kernel size |
-| **Filters (Block 1)** | `64` | Number of filters in first block |
-| **Kernel Sizes (Blocks 2-3)** | `6` | Subsequent convolutional block kernel sizes |
+| **Kernel Size (Block 2)** | `7` | Second convolutional block kernel size |
+| **Kernel Size (Block 3)** | `5` | Third convolutional block kernel size |
+| **Filters (All Blocks)** | `64` | Number of filters in each convolutional block |
 | **Optimizer** | `Adam` | Optimizer type |
-| **Device** | `CPU` | Execution device (CUDA disabled) |
+| **Device** | `CPU` | Execution device (CUDA explicitly disabled) |
 | **Smoothing $\sigma$** | `2` | Gaussian smoothing standard deviation ($cm^{-1}$) |
+| **Wavenumber Range** | `400–4000` | Mid-infrared region (cm⁻¹) |
+| **Grid Spacing** | `1` | Interpolation step size (cm⁻¹) |
 
 ## Evaluation
 
 Evaluate the trained model on the held-out test set.
 
 ```bash
-python code/main.py --step evaluate --checkpoint models/checkpoint_best.pt
+python code/main.py evaluate --checkpoint models/checkpoint_best.pt
 ```
 
 - **Output**: `results/evaluation_metrics.json`.
 - **Content**: MAE, R², TOST p-values, and Hotelling's T² results for dipole, polarizability, and HOMO-LUMO gap.
+- **Validation**: Includes paired-sample t-tests to check for systematic bias (p < 0.01 threshold).
 
 ## Independent Validation (Optional)
 
 If an independent validation dataset is available (e.g., `data/external/val_dataset.npz`), run:
 
 ```bash
-python code/main.py --step validate --checkpoint models/checkpoint_best.pt --data data/external/val_dataset.npz
+python code/main.py validate --checkpoint models/checkpoint_best.pt --data data/external/val_dataset.npz
 ```
 
-If no external dataset is available, the `validate` step will automatically run a Domain Shift Simulation.
+If no external dataset is available, the `validate` step will automatically run a Domain Shift Simulation (fallback) or fail loudly if real data is strictly required by configuration.
 
 ## Testing
 
@@ -118,3 +122,4 @@ pytest tests/ -v
 - **CUDA Error**: Ensure `torch` is the CPU version. Do not install `torch` with `+cu118` or similar.
 - **Data Mismatch**: If the alignment count is 0, verify that both raw datasets contain the `InChIKey` column.
 - **Timeout**: If the process is killed, check the `timeout` logs in `logs/` to see if the 6-hour limit was reached.
+- **Missing External Data**: If validation fails due to missing data, ensure `data/external/` contains the required `.npz` file or adjust configuration to allow synthetic fallback.

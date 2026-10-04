@@ -1,1 +1,3 @@
-# Placeholder to ensure data directory exists in version control
+# Data directory
+# This directory stores raw, preprocessed, and external datasets.
+# Do not commit large binary files here; use .gitignore.

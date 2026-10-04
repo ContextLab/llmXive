@@ -1,148 +1,114 @@
-# Schema for aligned preprocessed molecular dataset
-# Generated for PROJ-176-predicting-molecular-properties-from-vib
-# Task: T008
+%YAML 1.2
+---
+# Schema for the aligned and preprocessed dataset artifact
+# Generated for task T008
+# This file defines the structure and types for data/preprocessed/aligned_data.npz
+# and associated metadata.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Vibrational Spectra Dataset"
+description: >
+  Schema for the dataset resulting from the alignment of QM9 and IR-spectra
+  datasets, followed by preprocessing (interpolation, smoothing, normalization).
+
 type: object
-description: "Aligned molecular dataset containing IR spectra and target properties"
 required:
   - metadata
-  - molecules
-  - spectra
-  - properties
+  - data
+
 properties:
   metadata:
     type: object
-    description: "Dataset provenance and processing parameters"
+    description: "Metadata describing the dataset creation process."
     required:
-      - created_at
       - source_qm9
       - source_ir
       - alignment_key
       - preprocessing_steps
-      - total_molecules
+      - creation_timestamp
+      - sample_count
+      - spectral_range
     properties:
-      created_at:
-        type: string
-        format: date-time
-        description: "ISO 8601 timestamp of dataset creation"
       source_qm9:
         type: string
-        description: "Source dataset identifier for QM9 (e. g., 'qm9_v1.0')"
+        description: "Identifier or version of the QM9 dataset used."
       source_ir:
         type: string
-        description: "Source dataset identifier for IR spectra"
+        description: "Identifier or version of the IR-spectra dataset used."
       alignment_key:
         type: string
-        const: "InChIKey"
-        description: "Key used to join datasets"
+        description: "The key used for joining datasets (e.g., 'InChIKey')."
       preprocessing_steps:
         type: array
         items:
           type: string
-        description: "List of preprocessing steps applied"
-      total_molecules:
+        description: "Ordered list of preprocessing steps applied."
+      creation_timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of when the dataset was created."
+      sample_count:
         type: integer
         minimum: 1
-        description: "Number of molecules in the final aligned dataset"
-      dft_functional:
-        type: string
-        description: "DFT functional used for property calculation"
-      dft_basis_set:
-        type: string
-        description: "DFT basis set used for property calculation"
-      coverage_audit_pvalue:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "KS-test p-value for coverage audit"
-      coverage_audit_warning:
-        type: boolean
-        description: "True if p < 0.05 indicating potential selection bias"
-  molecules:
-    type: array
-    description: "List of unique molecules in the dataset"
-    items:
-      type: object
-      required:
-        - inchi_key
-        - molecule_id
-      properties:
-        inchi_key:
-          type: string
-          description: "Standard InChIKey for molecular identification"
-        molecule_id:
-          type: integer
-          description: "Internal index in the dataset arrays"
-  spectra:
+        description: "Total number of molecules in the aligned dataset."
+      spectral_range:
+        type: object
+        description: "Wavenumber range of the spectra."
+        required:
+          - min_cm1
+          - max_cm1
+          - step_cm1
+        properties:
+          min_cm1:
+            type: integer
+            description: "Minimum wavenumber in cm⁻¹."
+          max_cm1:
+            type: integer
+            description: "Maximum wavenumber in cm⁻¹."
+          step_cm1:
+            type: integer
+            description: "Spacing between wavenumber points in cm⁻¹."
+
+  data:
     type: object
-    description: "Preprocessed IR spectra data"
+    description: "The actual data arrays stored in the .npz file."
     required:
+      - InChIKeys
       - wavenumbers
-      - intensity_matrix
-      - grid_unit
-      - smoothing_sigma
+      - spectra
+      - dipole_moment
+      - polarizability
+      - homol_gap
     properties:
+      InChIKeys:
+        type: array
+        items:
+          type: string
+        description: "List of InChIKeys for the aligned molecules."
       wavenumbers:
         type: array
         items:
           type: number
-        description: "1D array of wavenumbers (cm^-1) on fixed grid"
-      intensity_matrix:
+        description: "1D array of wavenumber values (cm⁻¹)."
+      spectra:
         type: array
         items:
           type: array
           items:
             type: number
-        description: "2D array [n_molecules x n_wavenumbers] of normalized intensities"
-      grid_unit:
-        type: string
-        const: "cm^-1"
-        description: "Unit of wavenumber axis"
-      smoothing_sigma:
-        type: number
-        const: 2.0)
-        description: "Sigma value for Gaussian smoothing"
-      normalization_method:
-        type: string
-        const: "unit_area"
-        description: "Method used for spectrum normalization"
-  properties:
-    type: object
-    description: "Target molecular properties for regression"
-    required:
-      - dipole_moment
-      - polarizability
-      - homo_lumo_gap
-      - units
-    properties:
+        description: "2D array of normalized IR spectra (N_samples x N_wavenumbers)."
       dipole_moment:
         type: array
         items:
           type: number
-        description: "Dipole moment values (D)"
+        description: "1D array of dipole moment values (Debye)."
       polarizability:
         type: array
         items:
           type: number
-        description: "Polarizability values (Angstrom^3)"
-      homo_lumo_gap:
+        description: "1D array of polarizability values (Å³)."
+      homol_gap:
         type: array
         items:
           type: number
-        description: "HOMO-LUMO gap values (eV)"
-      units:
-        type: object
-        required:
-          - dipole
-          - polarizability
-          - gap
-        properties:
-          dipole:
-            type: string
-            const: "D"
-          polarizability:
-            type: string
-            const: "Angstrom^3"
-          gap:
-            type: string
-            const: "eV"
-additionalProperties: false
+        description: "1D array of HOMO-LUMO gap values (eV)."

@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Molecular Properties from Vibrational Spectra with Deep Learning
 
 **Input**: Design documents from `/specs/001-predicting-molecular-properties-from-vib/`
@@ -5,7 +9,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -55,7 +59,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/utils/timeout_wrapper.py` to enforce a strict runtime limit (FR-006)
+- [X] T004 Create `code/utils/timeout_wrapper.py` to enforce a strict runtime limit (FR-006) and **log the specific cause of termination** (timeout vs. NaN vs. error) to the state file and logs.
 - [X] T005 Create `code/utils/update_state.py` to compute SHA-256 hashes and update `state/...yaml` (Principle V)
 - [X] T006 Create `code/utils/seed_utils.py` to pin random seeds for reproducibility (Principle I)
 - [ ] T007 Setup `data/` directory structure (`raw/`, `preprocessed/`, `external/`)
@@ -84,16 +88,20 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/data/download.py` to fetch QM9 and IR-spectra from verified URLs (datasets.load_dataset or direct URL)
-- [X] T014a [US1] Implement `code/data/preprocess.py` (Part 1): Inner join on `InChIKey` and log discarded count (keep data in memory)
-- [X] T014b [US1] Implement `code/data/preprocess.py` (Part 2): Interpolate spectra to a fixed grid covering the mid-infrared region with unit wavenumber spacing (keep data in memory)
-- [X] T014c [US1] Implement `code/data/preprocess.py` (Part 3): Apply Gaussian smoothing (σ = 2 cm⁻¹) and unit area normalization (keep data in memory)
-- [X] T014d [US1] Implement `code/data/preprocess.py` (Part 4): Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; write final aligned `.npz` to `data/preprocessed/`
-- [X] T015 [US1] Implement `code/data/preprocess.py` (Part 5): Check metadata for DFT functional/basis set; flag mismatches as 'Domain Shift' candidates per Plan Phase 1
-- [X] T019 [US1] Implement `code/data/preprocess.py` (Part 6): Perform Coverage Audit (KS-test) comparing property distributions between full QM9 and aligned subset to detect selection bias (Log warning if p < 0.05)
-- [X] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> alignment -> preprocess -> save `.npz`
-- [ ] T017 [US1] Add logging for data ingestion steps and mismatch counts
+- [X] T019 [P] [US1] Perform Coverage Audit (KS-test) comparing property distributions between **raw QM9 (from T013)** and the **aligned subset (from T014)** to detect selection bias. **CRITICAL: This MUST run BEFORE T014 (Filtering) and can run in parallel with T013.** Log warning if p < 0.05; Write coverage audit results to `results/coverage_audit.json` with schema: `{p_value, statistic, method, sample_size}`. **Depends on T013.**
+- [X] T014 [US1] Implement `code/data/preprocess.py` to perform the full pipeline:
+  1. **Alignment**: Inner join on `InChIKey` and log discarded count.
+  2. **Validation**: **Assert** that the final aligned molecule count is **≥ 129,000**. If not, raise a hard error and exit (FR-001).
+  3. **Interpolation**: Interpolate spectra to a fixed wavenumber grid covering **400–4000 cm⁻¹** with **1 cm⁻¹ spacing** (FR-002, Constitution Principle VI).
+  4. **Smoothing**: Apply Gaussian smoothing (σ = 2 cm⁻¹).
+  5. **Normalization**: Normalize to unit area.
+  6. **Filtering**: Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; log the count of discarded samples.
+  7. **Save**: Write final aligned `.npz` to `data/preprocessed/`.
+  8. **Logging**: Write structured logs for download size, mismatch count, and final counts to `logs/data_ingestion.log`. **Depends on T013.**
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Note**: T019 must run after T014d to audit the filtered subset.
+- [X] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> coverage audit -> preprocess -> save `.npz`
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
 ---
 
@@ -106,20 +114,20 @@
 
 ### Tests for User Story 2
 
-- [X] T018 [P] [US2] Unit test for model architecture in `tests/test_model.py` (verifies 3 heads, kernel sizes /9, no CUDA ops)
+- [X] T018 [P] [US2] Unit test for model architecture in `tests/test_model.py` (verifies 3 heads, kernel sizes 9/7/5, no CUDA ops)
 - [X] T021 [P] [US2] Unit test for training loop in `tests/test_training.py` (verifies early stopping trigger and checkpoint save)
 - [X] T020 [P] [US2] Integration test for NaN detection in `tests/test_training_stability.py` (verifies immediate stop on NaN loss)
 
 ### Implementation for User Story 2
 
-- [X] T025 [US2] Implement `code/models/cnn_1d.py` with exactly three convolutional blocks (kernel sizes, 9, 64 filters), ReLU, max pooling, and multiple separate regression heads (dipole, polarizability, HOMO-LUMO)
+- [X] T025 [US2] Implement `code/models/cnn_1d.py` with exactly three convolutional blocks (kernel sizes **9, 7, and 5**; 64 filters each), ReLU, max pooling, and three separate regression heads (dipole, polarizability, HOMO-LUMO).
 - [X] T026 [US2] Implement `code/models/trainer.py` with:
  - Adam optimizer (lr=1e-3)
- - Early stopping (patience=10) monitoring 'val_loss' (weighted sum of 3 heads)
+ - Early stopping with patience=10 monitoring 'val_loss' (weighted sum of 3 heads)
  - CPU-only execution (explicitly disable CUDA, standard float precision)
  - TensorBoard logging to 'runs/training/'
-- [X] T023 [US2] Integrate `code/models/trainer.py` with `code/main.py` subcommand to load preprocessed `.npz`, split data, train, and save best checkpoint (`model_best.pt`)
-- [X] T024 [US2] Implement `code/main.py` timeout enforcement using `code/utils/timeout_wrapper.py` during training
+- [X] T023 [US2] Integrate `code/models/trainer.py` with `code/main.py` subcommand to load preprocessed `.npz`, split data, train, and save best checkpoint (`model_best.pt`). **Depends on T014.**
+- [X] T024 [US2] Integrate `code/main.py` timeout enforcement using `code/utils/timeout_wrapper.py` during training, ensuring the **cause of termination** (timeout vs. error) is logged to the state file and logs. **Depends on T004 and T023.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,11 +147,12 @@
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement `code/evaluation/metrics.py` to compute MAE and R² for each of the target properties
-- [X] T032 [US3] Implement `code/evaluation/metrics.py` to perform paired-sample t-tests (Primary Validation per SC-003, null hypothesis: mean error = 0)
+- [X] T032 [US3] Implement `code/evaluation/metrics.py` to perform paired-sample t-tests (Primary Validation per SC-003, null hypothesis: mean error = 0); explicitly verify if **p-value < 0.01** for systematic bias. **CRITICAL: If p-value >= 0.01, the script MUST raise an assertion error or exit with a failure status.** Record the actual p-value, mean error, and pass/fail status in `results/evaluation_metrics.json`.
 - [X] T033 [US3] Implement `code/evaluation/metrics.py` to perform TOST (equivalence) and Hotelling's T² tests (Secondary/Exploratory per Plan Phase 3)
-- [ ] T030 [US3] Implement `code/evaluation/evaluate.py` to load `model_best.pt` and test set, run inference, and generate `results/evaluation_metrics.json`
+- [X] T030a [US3] Implement `code/evaluation/evaluate.py` to load `model_best.pt` and test set, run inference, and save predictions to `results/predictions_test.npz`. **Depends on T023 and T014.**
+- [X] T030b [US3] Implement `code/evaluation/evaluate.py` to generate `results/evaluation_metrics.json` with schema {dipole: {mae, r2, p_value, bias_pass_fail},...}
 - [X] T031 [US3] Integrate `code/evaluation/evaluate.py` with `code/main.py` subcommand to run after training
-- [ ] T034 [US3] Add logic to `code/utils/update_state.py` to hash `results/evaluation_metrics.json`
+- [X] T034 [US3] Add logic to `code/utils/update_state.py` to hash `results/evaluation_metrics.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,9 +161,9 @@
 ## Phase 6: User Story 4 - Independent Validation (Priority: P4)
 
 **Goal**: Validate model generalizability on an independent dataset (experimental or different DFT method).
-**Note**: Per FR-007, if external data is missing, implement 'Domain Shift Simulation' (synthetic noise) fallback.
+**Note**: Per FR-007, if external data is missing, the task MUST fail with a clear error. Synthetic noise is NOT a valid substitute for real data.
 
-**Independent Test**: The validation script can be tested by running it on an external dataset file (or synthetic noise), verifying that it outputs a separate JSON report with MAE and R² distinct from the training/test set results.
+**Independent Test**: The validation script can be tested by running it on an external dataset file, verifying that it outputs a separate JSON report with MAE and R² distinct from the training/test set results.
 
 ### Tests for User Story 4
 
@@ -162,13 +171,13 @@
 
 ### Implementation for User Story 4
 
-- [X] T038 [US4] Implement `code/evaluation/validate.py` to:
- - Load external validation dataset (experimental or different DFT method)
- - If external data is unavailable, generate synthetic noise (Domain Shift Simulation) to test robustness (per Plan Phase 3 fallback)
- - Compute MAE/R² and compare against test set (tolerance ≤ 20% increase)
-- [X] T039 [US4] Generate `results/validation_results.json` with separate metrics
-- [X] T040 [US4] Integrate `code/evaluation/validate.py` with `code/main.py` subcommand as the final step
-- [X] T041 [US4] Add logic to flag if independent MAE exceeds tolerance in `results/validation_results.json`
+- [X] T038a [US4] Implement `code/evaluation/validate.py` (Real Data Path):
+ - **Check Existence**: Verify the existence of the external validation dataset at `data/external/val.csv` or `data/external/val.h5`.
+ - **Fail Fast**: If the file does not exist, **raise a clear error** and exit immediately. Do NOT proceed to any simulation or fallback.
+ - **Evaluate**: If the file exists, load the external validation dataset (experimental or different DFT method).
+ - **Compute Metrics**: Compute MAE/R² and compare against test set (tolerance ≤ 20% increase).
+ - **Output**: Generate `results/validation_results.json` with separate metrics.
+ - **Depends on T023.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -178,11 +187,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T042 [P] Documentation updates in `specs/001-predicting-molecular-properties-from-vib/quickstart.md`: Add a section on data download commands, preprocessing steps, and a table of hyperparameters (lr, patience, kernel sizes)
-- [ ] T043 [P] Run static analysis (`ruff check`) on `code/` and fix all reported issues
-- [ ] T044 [P] Profile `code/main.py` with `cProfile`, identify top memory bottlenecks, and optimize dataset loading to reduce peak RAM usage to ≤ 7 GB RAM
-- [ ] T041 [P] Run `tests/` suite to verify all acceptance scenarios
-- [ ] T045 [P] Run `code/main.py` end-to-end to verify the established time limit for the procedure, ensuring compliance with the temporal constraints defined in the research protocol. and state update
+- [ ] T042 [P] Documentation updates in `specs/001-predicting-molecular-properties-from-vib/quickstart.md`: Add a section on data download commands, preprocessing steps, and a table of hyperparameters (lr, patience, kernel sizes). **CRITICAL: This task MUST verify the generation of all required artifacts: `logs/data_ingestion.log`, `results/profile_report.txt`, `results/runtime_verification.json`, and `results/evaluation_metrics.json` as part of the final deliverable checklist.**
+- [ ] T043 [P] Run static analysis (`ruff check --fix`) on `code/` and fix all reported issues. **Explicitly run `ruff check --fix` and ensure exit code 0.**
+- [X] T044 [P] Profile `code/main.py` with `cProfile`, identify top memory bottlenecks, and optimize dataset loading to reduce peak RAM usage to ≤ 7 GB RAM; generate `results/profile_report.txt` and `results/memory_log.txt`
+- [ ] T046 [P] Run `tests/` suite to verify all acceptance scenarios. **Explicitly run `pytest -v --cov` and ensure exit code 0.**
+- [X] T045 [P] Run `code/main.py` end-to-end to verify the established time limit. **Mechanism**: Measure wall-clock time, compare against the **6 hours** threshold defined in the spec/plan, and write `results/runtime_verification.json` with the result (pass/fail) and the specific duration measured.
 
 ---
 
@@ -233,7 +242,8 @@ Task: "Unit test for error handling in tests/test_data_errors.py"
 
 # Launch implementation tasks in parallel where possible:
 Task: "Implement code/data/download.py"
-Task: "Implement code/data/preprocess.py (Parts 1-5)"
+Task: "Perform Coverage Audit (T019)" (Depends on T013, runs parallel to T013)
+Task: "Implement code/data/preprocess.py (Full pipeline)" (Depends on T013)
 ```
 
 ---
@@ -281,4 +291,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: All model training tasks MUST strictly avoid CUDA/8-bit quantization.
 - **Data Constraint**: All data tasks MUST use real, verified URLs or package fetchers. No synthetic/fake data.
-- **Validation Constraint**: Independent validation (US4) requires a real external dataset OR a synthetic noise fallback (Domain Shift Simulation) per FR-007 and Plan Phase 3.
+- **Validation Constraint**: Independent validation (US4) requires a real external dataset. **No synthetic fallback is permitted.** If data is missing, the pipeline fails.

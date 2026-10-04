@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Research Pipeline
+Test suite for the molecular properties project.
 """

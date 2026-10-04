@@ -1,158 +1,85 @@
-# Schema for model training outputs and checkpoints
-# Generated for PROJ-176-predicting-molecular-properties-from-vib
-# Task: T008
+%YAML 1.2
+---
+# Schema for the trained model checkpoint artifact
+# Generated for task T008
+# This file defines the structure expected for the model checkpoint
+# saved by code/models/trainer.py.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Property CNN Model Checkpoint"
+description: >
+  Schema for the PyTorch model checkpoint containing weights, optimizer state,
+  and training metadata.
+
 type: object
-description: "Model training artifacts including checkpoint and metadata"
 required:
-  - checkpoint
+  - model_state_dict
+  - optimizer_state_dict
   - training_metadata
-  - architecture_spec
+  - architecture_config
+
 properties:
-  checkpoint:
+  model_state_dict:
     type: object
-    description: "PyTorch model state and optimizer state"
-    required:
-      - model_state_dict
-      - optimizer_state_dict
-      - epoch
-      - best_val_loss
-    properties:
-      model_state_dict:
-        type: object
-        description: "State dictionary of the CNN model"
-      optimizer_state_dict:
-        type: object
-        description: "State dictionary of the optimizer"
-      epoch:
-        type: integer
-        minimum: 0
-        description: "Epoch number when checkpoint was saved"
-      best_val_loss:
-        type: number
-        description: "Best validation loss achieved"
-      early_stopping_patience:
-        type: integer
-        const: 10
-        description: "Patience parameter for early stopping"
-      patience_count:
-        type: integer
-        description: "Current patience count at save time"
+    description: "State dictionary of the trained MolecularPropertyCNN model."
+    # Note: The actual keys depend on the specific model architecture (cnn_1d.py)
+
+  optimizer_state_dict:
+    type: object
+    description: "State dictionary of the optimizer (Adam)."
+
   training_metadata:
     type: object
-    description: "Training configuration and runtime statistics"
+    description: "Metadata regarding the training run."
     required:
-      - hyperparameters
-      - data_splits
-      - runtime_info
+      - best_val_loss
+      - epochs_trained
+      - early_stopping_patience
+      - timestamp
+      - seed
     properties:
-      hyperparameters:
-        type: object
-        required:
-          - learning_rate
-          - batch_size
-          - patience
-          - kernel_sizes
-          - num_filters
-        properties:
-          learning_rate:
-            type: number
-            const: 0.001
-          batch_size:
-            type: integer
-            minimum: 1
-          patience:
-            type: integer
-            const: 10
-          kernel_sizes:
-            type: array
-            items:
-              type: integer
-            description: "Kernel sizes for convolutional blocks"
-          num_filters:
-            type: integer
-            const: 64
-          optimizer:
-            type: string
-            const: "Adam"
-          loss_weighting:
-            type: string
-            description: "Strategy for weighting multi-task loss"
-      data_splits:
-        type: object
-        required:
-          - train
-          - val
-          - test
-        properties:
-          train:
-            type: integer
-            minimum: 0
-          val:
-            type: integer
-            minimum: 0
-          test:
-            type: integer
-            minimum: 0
-      runtime_info:
-        type: object
-        required:
-          - start_time
-          - end_time
-          - device
-        properties:
-          start_time:
-            type: string
-            format: date-time
-          end_time:
-            type: string
-            format: date-time
-          device:
-            type: string
-            const: "cpu"
-          total_runtime_seconds:
-            type: number
-            minimum: 0
-  architecture_spec:
-    type: object
-    description: "Detailed model architecture specification"
-    required:
-      - type
-      - blocks
-      - heads
-      - activation
-      - pooling
-    properties:
-      type:
-        type: string
-        const: "1D_CNN_MultiTask"
-      blocks:
+      best_val_loss:
+        type: number
+        description: "The lowest validation loss achieved during training."
+      epochs_trained:
         type: integer
-        const: 3
-        description: "Number of convolutional blocks"
-      heads:
-        type: array
-        items:
-          type: object
-          required:
-            - name
-            - output_dim
-          properties:
-            name:
-              type: string
-              enum:
-                - dipole
-                - polarizability
-                - holo_lumo_gap
-            output_dim:
-              type: integer
-              const: 1
-      activation:
+        description: "Total number of epochs the model was trained for."
+      early_stopping_patience:
+        type: integer
+        description: "Patience parameter used for early stopping."
+      timestamp:
         type: string
-        const: "ReLU"
-      pooling:
-        type: string
-        const: "MaxPool1d"
+        format: date-time
+        description: "ISO 8601 timestamp of when the checkpoint was saved."
+      seed:
+        type: integer
+        description: "Random seed used for reproducibility."
+
+  architecture_config:
+    type: object
+    description: "Configuration used to instantiate the model."
+    required:
+      - input_dim
+      - kernel_sizes
+      - num_filters
+      - num_heads
+    properties:
       input_dim:
         type: integer
-        description: "Length of input spectrum grid"
-additionalProperties: false
+        description: "Input dimension (number of wavenumber points)."
+      kernel_sizes:
+        type: array
+        items:
+          type: integer
+        description: "List of kernel sizes for convolutional blocks (e.g., [9, 7, 5])."
+      num_filters:
+        type: integer
+        description: "Number of filters per convolutional block."
+      num_heads:
+        type: integer
+        description: "Number of regression heads (should be 3)."
+      loss_weights:
+        type: array
+        items:
+          type: number
+        description: "Weights for the weighted sum of losses from each head."
