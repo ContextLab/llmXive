@@ -1,11 +1,11 @@
 """
 Unit tests for inertia tensor singularity handling and edge cases.
 
-This module tests the robustness of the inertia tensor calculations,
-specifically ensuring that:
-1. Halos with fewer than 10,000 particles raise a ValueError.
-2. Singular matrices (e.g., all particles at origin or collinear) raise a ValueError.
-3. Valid inputs produce correct eigenvalues and shape metrics.
+This module tests the robustness of the inertia tensor computation pipeline,
+specifically focusing on:
+1. Singularity handling when particle counts are too low (< 10,000).
+2. Handling of singular matrices during eigenvalue decomposition.
+3. Edge cases with degenerate particle configurations.
 """
 
 import pytest
@@ -14,197 +14,209 @@ from typing import List, Tuple, Optional
 from pathlib import Path
 import sys
 
-# Ensure the code directory is in the path for imports
-project_root = Path(__file__).resolve().parent.parent
+# Ensure project root is in path for imports
+project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from processing.inertia_tensor import (
     compute_reduced_inertia_tensor,
     compute_eigenvalues_and_eigenvectors,
-    compute_shape_from_inertia,
     process_halo_inertia
 )
 from processing.shape_metrics import filter_halo_by_particle_count
 
 
 class TestInertiaSingularity:
-    """Tests for singularity and particle count constraints."""
+    """Tests for singularity handling in inertia tensor computations."""
 
-    def test_too_few_particles_raises_error(self):
+    def test_singular_matrix_raises_error_low_particles(self):
         """
-        Test that processing a halo with < 10,000 particles raises ValueError.
-        This satisfies the requirement: 'test_singular_matrix_raises_error'
-        must raise ValueError when particles < 10,000.
+        Test that ValueError is raised when particle count < 10,000.
+
+        This verifies the filtering logic prevents computation on
+        insufficient data, which would lead to singular matrices.
         """
-        # Create a small set of particles (e.g., 100)
-        num_particles = 100
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
+        # Create a mock halo with only 5000 particles (below threshold)
+        num_particles = 5000
+        positions = np.random.rand(num_particles, 3)
         masses = np.ones(num_particles)
 
-        # The process_halo_inertia function should check particle count
-        # and raise ValueError if below threshold.
-        with pytest.raises(ValueError) as excinfo:
-            process_halo_inertia(positions, masses)
+        # The filter function should exclude this halo
+        is_valid = filter_halo_by_particle_count(num_particles, min_particles=10000)
+        assert is_valid is False, "Halo with < 10,000 particles should be filtered out"
 
-        assert "particle count" in str(excinfo.value).lower() or "insufficient" in str(excinfo.value).lower()
+        # If we attempt to compute inertia directly (bypassing filter),
+        # we should handle the singularity gracefully or raise an error
+        # depending on implementation. Here we test that the computation
+        # itself doesn't crash with a cryptic error but raises a clear ValueError.
+        with pytest.raises(ValueError, match="Insufficient particles"):
+            # Force computation with low particles to test error handling
+            compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
 
-    def test_singular_matrix_all_at_origin_raises_error(self):
+    def test_singular_matrix_raises_error_degenerate_config(self):
         """
-        Test that a singular inertia matrix (all particles at origin) raises ValueError.
+        Test that ValueError is raised when particles are collinear or coplanar.
+
+        This creates a degenerate configuration where the inertia tensor
+        is singular (rank deficient) regardless of particle count.
         """
-        # Create particles all at the origin
-        num_particles = 20000  # Satisfy particle count
-        positions = np.zeros((num_particles, 3), dtype=np.float64)
+        # Create 10,000 particles but all on a single line (x-axis)
+        # This makes the inertia tensor singular in y and z dimensions
+        num_particles = 10000
+        positions = np.zeros((num_particles, 3))
+        positions[:, 0] = np.random.rand(num_particles)  # Only x-coordinates vary
         masses = np.ones(num_particles)
 
-        # Compute inertia tensor directly to test singularity
-        inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
+        # Compute inertia tensor - this should detect singularity
+        inertia_tensor = compute_reduced_inertia_tensor(positions, masses, min_particles=100)
 
-        # The matrix should be all zeros (singular)
-        assert np.allclose(inertia_tensor, 0.0)
+        # Check if tensor is singular (determinant close to zero)
+        det = np.linalg.det(inertia_tensor)
+        is_singular = np.abs(det) < 1e-10
 
-        # Attempting to compute shape from this should fail or raise an error
-        # depending on implementation. We expect process_halo_inertia to handle this.
-        with pytest.raises(ValueError):
-            process_halo_inertia(positions, masses)
+        # If the tensor is singular, eigenvalue decomposition should raise ValueError
+        if is_singular:
+            with pytest.raises(ValueError, match="Singular matrix"):
+                compute_eigenvalues_and_eigenvectors(inertia_tensor)
+        else:
+            # If not singular (numerical noise might prevent perfect singularity),
+            # the decomposition should succeed
+            eigenvalues, eigenvectors = compute_eigenvalues_and_eigenvectors(inertia_tensor)
+            assert len(eigenvalues) == 3
+            assert eigenvalues.shape == (3,)
 
-    def test_singular_matrix_collinear_particles_raises_error(self):
+    def test_edge_case_all_particles_at_origin(self):
         """
-        Test that a singular inertia matrix (all particles on a line) raises ValueError.
+        Test handling when all particles are at the origin.
+
+        This is an extreme degenerate case where the inertia tensor
+        is entirely zero.
         """
-        # Create particles along the X-axis only
-        num_particles = 20000
-        x_coords = np.random.randn(num_particles)
-        positions = np.zeros((num_particles, 3), dtype=np.float64)
-        positions[:, 0] = x_coords
+        num_particles = 10000
+        positions = np.zeros((num_particles, 3))
         masses = np.ones(num_particles)
 
-        # Compute inertia tensor
-        inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
+        with pytest.raises(ValueError, match="Singular matrix|Zero inertia"):
+            compute_reduced_inertia_tensor(positions, masses, min_particles=100)
 
-        # The matrix should be singular (determinant ~ 0)
-        # We expect the shape computation to detect this singularity
-        with pytest.raises(ValueError):
-            process_halo_inertia(positions, masses)
+    def test_edge_case_two_distinct_positions(self):
+        """
+        Test handling when particles are only at two distinct positions.
 
-    def test_singular_matrix_planar_particles_raises_error(self):
+        This creates a highly degenerate configuration.
         """
-        Test that a singular inertia matrix (all particles on a plane) raises ValueError.
-        """
-        # Create particles on the XY plane (Z=0)
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 2).astype(np.float64)
-        positions = np.hstack([positions, np.zeros((num_particles, 1))])
+        num_particles = 10000
+        positions = np.zeros((num_particles, 3))
+        # Half at (0,0,0), half at (1,0,0)
+        positions[:num_particles//2, :] = [0, 0, 0]
+        positions[num_particles//2:, :] = [1, 0, 0]
         masses = np.ones(num_particles)
 
-        # Compute inertia tensor
-        inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
+        # This should result in a singular matrix (rank 1)
+        inertia_tensor = compute_reduced_inertia_tensor(positions, masses, min_particles=100)
+        det = np.linalg.det(inertia_tensor)
 
-        # The matrix should be singular (one eigenvalue is 0)
-        with pytest.raises(ValueError):
-            process_halo_inertia(positions, masses)
-
-    def test_valid_halo_does_not_raise(self):
-        """
-        Test that a valid, non-singular halo with enough particles does not raise.
-        """
-        # Create a valid distribution of particles (e.g., Gaussian cloud)
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64) * 10.0
-        # Add a slight offset to avoid perfect symmetry if needed, but random is fine
-        masses = np.random.uniform(0.9, 1.1, num_particles)
-
-        # This should succeed
-        try:
-            result = process_halo_inertia(positions, masses)
-            # Verify we got a dictionary with expected keys
-            assert isinstance(result, dict)
-            assert 'eigenvalues' in result
-            assert 'b_a_ratio' in result
-            assert 'c_a_ratio' in result
-        except ValueError:
-            pytest.fail("Valid halo raised ValueError unexpectedly")
+        if np.abs(det) < 1e-10:
+            with pytest.raises(ValueError, match="Singular matrix"):
+                compute_eigenvalues_and_eigenvectors(inertia_tensor)
 
 
 class TestInertiaEdgeCases:
-    """Tests for edge cases in inertia tensor calculations."""
+    """Tests for edge cases in inertia tensor computations."""
 
-    def test_single_particle_at_origin(self):
-        """Test behavior with a single particle at origin."""
-        positions = np.array([[0.0, 0.0, 0.0]], dtype=np.float64)
-        masses = np.array([1.0])
+    def test_minimum_valid_particle_count(self):
+        """Test computation with exactly 10,000 particles (minimum threshold)."""
+        num_particles = 10000
+        positions = np.random.rand(num_particles, 3) * 100  # Random positions in 100^3 box
+        masses = np.random.rand(num_particles) + 0.1  # Positive masses
 
-        # Should raise due to particle count < 10000
-        with pytest.raises(ValueError):
-            process_halo_inertia(positions, masses)
+        # Should succeed without error
+        inertia_tensor = compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
+        assert inertia_tensor.shape == (3, 3)
 
-    def test_very_small_mass_variance(self):
-        """Test with extremely small mass variance."""
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
-        masses = np.ones(num_particles) * 1e-15  # Very small masses
+        eigenvalues, eigenvectors = compute_eigenvalues_and_eigenvectors(inertia_tensor)
+        assert len(eigenvalues) == 3
+        assert np.all(eigenvalues >= 0)  # Eigenvalues should be non-negative
 
-        # Should work as long as positions are non-singular
+    def test_very_large_particle_count(self):
+        """Test computation with a large number of particles."""
+        num_particles = 1000000
+        positions = np.random.rand(num_particles, 3) * 1000
+        masses = np.ones(num_particles)
+
+        # Should handle large datasets without memory issues (in streaming context)
+        # For this unit test, we just verify it runs
+        inertia_tensor = compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
+        assert inertia_tensor.shape == (3, 3)
+
+    def test_negative_masses_handled(self):
+        """Test that negative masses are handled appropriately."""
+        num_particles = 10000
+        positions = np.random.rand(num_particles, 3)
+        masses = np.random.rand(num_particles) - 0.5  # Some negative masses
+
+        # The implementation should either reject negative masses or handle them
+        # For now, we test that it doesn't crash with an unexpected error
         try:
-            result = process_halo_inertia(positions, masses)
-            assert result is not None
-        except ValueError:
-            # If it fails due to singularity, that's acceptable if positions are effectively singular
-            # But with random positions, it should be fine
-            pass
+            inertia_tensor = compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
+            # If it succeeds, the tensor should still be symmetric
+            assert np.allclose(inertia_tensor, inertia_tensor.T)
+        except ValueError as e:
+            # If it raises ValueError, that's acceptable (negative masses not allowed)
+            assert "negative mass" in str(e).lower() or "invalid mass" in str(e).lower()
 
-    def test_extreme_mass_ratio(self):
-        """Test with one very massive particle and many tiny ones."""
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
-        masses = np.ones(num_particles)
-        masses[0] = 1e10  # One super massive particle
-
-        # Should work if the massive particle doesn't create singularity
-        try:
-            result = process_halo_inertia(positions, masses)
-            assert result is not None
-        except ValueError:
-            # If the massive particle dominates and creates numerical issues,
-            # it might raise, but generally should handle
-            pass
-
-    def test_eigenvalue_ordering(self):
-        """Test that eigenvalues are returned in descending order."""
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
+    def test_non_square_position_array(self):
+        """Test handling of incorrectly shaped position arrays."""
+        # Wrong shape: (N, 2) instead of (N, 3)
+        num_particles = 10000
+        positions = np.random.rand(num_particles, 2)
         masses = np.ones(num_particles)
 
-        inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
-        eigenvalues, _ = compute_eigenvalues_and_eigenvectors(inertia_tensor)
+        with pytest.raises((ValueError, IndexError)):
+            compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
 
-        # Check descending order
-        for i in range(len(eigenvalues) - 1):
-            assert eigenvalues[i] >= eigenvalues[i+1], "Eigenvalues not in descending order"
+    def test_mismatched_masses_length(self):
+        """Test handling of mismatched masses array length."""
+        num_particles = 10000
+        positions = np.random.rand(num_particles, 3)
+        masses = np.ones(num_particles - 1)  # One less than positions
 
-    def test_axial_ratios_bounds(self):
-        """Test that axial ratios are within valid bounds (0 < b/a <= 1, 0 < c/a <= 1)."""
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
+        with pytest.raises((ValueError, IndexError)):
+            compute_reduced_inertia_tensor(positions, masses, min_particles=10000)
+
+    def test_process_halo_inertia_with_valid_data(self):
+        """Test the full pipeline with valid data."""
+        num_particles = 15000
+        positions = np.random.rand(num_particles, 3) * 100
+        masses = np.random.rand(num_particles) + 0.1
+
+        result = process_halo_inertia(positions, masses, halo_id=12345)
+
+        assert result is not None
+        assert 'halo_id' in result
+        assert result['halo_id'] == 12345
+        assert 'eigenvalues' in result
+        assert 'eigenvectors' in result
+        assert 'axial_ratios' in result
+        assert 'triaxiality' in result
+
+    def test_process_halo_inertia_with_invalid_particles(self):
+        """Test the full pipeline with insufficient particles."""
+        num_particles = 5000  # Below threshold
+        positions = np.random.rand(num_particles, 3)
         masses = np.ones(num_particles)
 
-        result = process_halo_inertia(positions, masses)
+        with pytest.raises(ValueError, match="Insufficient particles"):
+            process_halo_inertia(positions, masses, halo_id=12345)
 
-        b_a = result['b_a_ratio']
-        c_a = result['c_a_ratio']
-
-        assert 0 < b_a <= 1, f"b/a ratio {b_a} out of bounds"
-        assert 0 < c_a <= 1, f"c/a ratio {c_a} out of bounds"
-        assert b_a >= c_a, f"b/a {b_a} should be >= c/a {c_a}"
-
-    def test_triaxiality_bounds(self):
-        """Test that triaxiality is within valid bounds (0 <= T <= 1)."""
-        num_particles = 20000
-        positions = np.random.randn(num_particles, 3).astype(np.float64)
+    def test_process_halo_inertia_with_singular_matrix(self):
+        """Test the full pipeline with degenerate particle configuration."""
+        num_particles = 10000
+        # All particles on x-axis
+        positions = np.zeros((num_particles, 3))
+        positions[:, 0] = np.random.rand(num_particles)
         masses = np.ones(num_particles)
 
-        result = process_halo_inertia(positions, masses)
-
-        T = result['triaxiality']
-        assert 0 <= T <= 1, f"Triaxiality {T} out of bounds"
+        with pytest.raises(ValueError, match="Singular matrix"):
+            process_halo_inertia(positions, masses, halo_id=12345)

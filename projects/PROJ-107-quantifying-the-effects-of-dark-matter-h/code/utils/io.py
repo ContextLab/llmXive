@@ -4,206 +4,254 @@ import h5py
 import pandas as pd
 import numpy as np
 import json
-from typing import Generator, List, Dict, Any, Optional, Callable, Union
-from pathlib import Path
 import logging
+import csv
+import hashlib
+from pathlib import Path
+from typing import Iterator, List, Dict, Any, Optional, Union, TextIO, BinaryIO
+from contextlib import contextmanager
 
-from utils.config import get_project_root, get_data_processed_path, get_output_path
+from utils.config import get_project_root, get_data_processed_path, get_data_raw_path
 
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------
-# Utility: Associational Flag Injection
-# --------------------------------------------------------------------------
-# This module now enforces the T026 requirement: all CSV and JSON writers
-# must include the "associational_only" flag to explicitly mark that
-# the data represents correlational/observational findings, not causal
-# claims.
+CHUNK_SIZE = 10000  # Number of rows per chunk for streaming operations
 
-CSV_ASSOCIATIONAL_HEADER = "# associational_only=true"
-JSON_ASSOCIATIONAL_KEY = "associational_only"
-JSON_ASSOCIATIONAL_VALUE = True
-
-def write_csv_with_associational_flag(
-    filepath: Union[str, Path],
-    df: pd.DataFrame,
-    mode: str = 'w'
-) -> None:
+def get_file_size_mb(file_path: Union[str, Path]) -> float:
     """
-    Writes a pandas DataFrame to a CSV file, prepending the mandatory
-    associational flag as a comment header.
+    Get the size of a file in megabytes.
 
     Args:
-        filepath: Path to the output CSV.
-        df: DataFrame to write.
-        mode: File write mode ('w' for overwrite, 'a' for append).
+        file_path: Path to the file.
+
+    Returns:
+        Size in MB.
     """
-    filepath = Path(filepath)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write the header comment first
-    with open(filepath, mode) as f:
-        f.write(f"{CSV_ASSOCIATIONAL_HEADER}\n")
-
-    # Append the DataFrame content
-    df.to_csv(filepath, mode='a', header=False, index=False)
-    logger.info(f"Wrote {len(df)} rows to {filepath} with associational flag.")
-
-def write_json_with_associational_flag(
-    filepath: Union[str, Path],
-    data: Dict[str, Any],
-    indent: int = 2
-) -> None:
-    """
-    Writes a dictionary to a JSON file, ensuring the mandatory
-    associational flag is included in the root object.
-
-    Args:
-        filepath: Path to the output JSON.
-        data: Dictionary to write. The 'associational_only' key will be
-              added or overwritten.
-        indent: JSON indentation level.
-    """
-    filepath = Path(filepath)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-
-    # Ensure the flag is present
-    data[JSON_ASSOCIATIONAL_KEY] = JSON_ASSOCIATIONAL_VALUE
-
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=indent)
-    logger.info(f"Wrote JSON to {filepath} with associational flag.")
-
-# --------------------------------------------------------------------------
-# Existing IO Utilities (Extended)
-# --------------------------------------------------------------------------
-
-def get_file_size_mb(filepath: Union[str, Path]) -> float:
-    """Get file size in megabytes."""
-    filepath = Path(filepath)
-    if not filepath.exists():
+    path = Path(file_path)
+    if not path.exists():
         return 0.0
-    return filepath.stat().st_size / (1024 * 1024)
+    return path.stat().st_size / (1024 * 1024)
 
-def validate_hdf5_structure(filepath: Union[str, Path], required_groups: List[str]) -> bool:
+def validate_hdf5_structure(file_path: Union[str, Path], required_groups: Optional[List[str]] = None) -> bool:
     """
-    Validates that an HDF5 file contains the required groups.
+    Validate the structure of an HDF5 file.
+
+    Args:
+        file_path: Path to the HDF5 file.
+        required_groups: Optional list of group names that must exist.
+
+    Returns:
+        True if valid, False otherwise.
     """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        logger.error(f"HDF5 file not found: {filepath}")
+    path = Path(file_path)
+    if not path.exists():
+        logger.error(f"HDF5 file not found: {path}")
         return False
 
     try:
-        with h5py.File(filepath, 'r') as f:
-            for group in required_groups:
-                if group not in f:
-                    logger.error(f"Missing group '{group}' in {filepath}")
-                    return False
+        with h5py.File(path, 'r') as f:
+            if required_groups:
+                for group_name in required_groups:
+                    if group_name not in f:
+                        logger.error(f"Missing required group '{group_name}' in {path}")
+                        return False
         return True
     except Exception as e:
-        logger.error(f"Error validating HDF5 structure for {filepath}: {e}")
+        logger.error(f"Error validating HDF5 structure for {path}: {e}")
         return False
 
-def iter_hdf5_groups(filepath: Union[str, Path], group_name: str) -> Generator[str, None, None]:
+def iter_hdf5_groups(file_path: Union[str, Path], group_name: str, chunk_size: int = CHUNK_SIZE) -> Iterator[pd.DataFrame]:
     """
-    Iterates over subgroups within a specific HDF5 group.
-    Yields the names of the subgroups.
+    Iterate over an HDF5 dataset in chunks to avoid loading the entire file into memory.
+
+    Args:
+        file_path: Path to the HDF5 file.
+        group_name: Name of the group/dataset to read (e.g., '/PartType0/Coordinates').
+        chunk_size: Number of rows to read per chunk.
+
+    Yields:
+        pandas DataFrames containing chunks of the data.
     """
-    filepath = Path(filepath)
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"HDF5 file not found: {path}")
+
     try:
-        with h5py.File(filepath, 'r') as f:
-            if group_name in f:
-                parent = f[group_name]
-                for key in parent.keys():
-                    yield key
+        with h5py.File(path, 'r') as f:
+            if group_name not in f:
+                raise ValueError(f"Group '{group_name}' not found in {path}")
+
+            dataset = f[group_name]
+            total_rows = dataset.shape[0]
+            logger.info(f"Iterating {total_rows} rows from {group_name} in {path}")
+
+            for start in range(0, total_rows, chunk_size):
+                end = min(start + chunk_size, total_rows)
+                chunk = dataset[start:end]
+                # Convert to DataFrame if necessary, assuming 2D or 1D data
+                if len(chunk.shape) == 2:
+                    df = pd.DataFrame(chunk)
+                else:
+                    df = pd.DataFrame({group_name.split('/')[-1]: chunk})
+                yield df
+                # Explicitly delete chunk to free memory
+                del chunk
+                gc.collect()
     except Exception as e:
-        logger.error(f"Error iterating HDF5 groups in {filepath}: {e}")
+        logger.error(f"Error iterating HDF5 groups in {path}: {e}")
         raise
 
-def iter_csv_chunks(filepath: Union[str, Path], chunksize: int = 100000) -> Generator[pd.DataFrame, None, None]:
+def iter_csv_chunks(file_path: Union[str, Path], chunk_size: int = CHUNK_SIZE) -> Iterator[pd.DataFrame]:
     """
-    Iterates over a CSV file in chunks, skipping the associational header if present.
+    Iterate over a CSV file in chunks.
+
+    Args:
+        file_path: Path to the CSV file.
+        chunk_size: Number of rows to read per chunk.
+
+    Yields:
+        pandas DataFrames containing chunks of the data.
     """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        logger.warning(f"CSV file not found for chunking: {filepath}")
-        return
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"CSV file not found: {path}")
 
-    # Check if the file starts with our header
-    first_line = ""
-    try:
-        with open(filepath, 'r') as f:
-            first_line = f.readline().strip()
-    except Exception:
-        pass
+    logger.info(f"Iterating CSV chunks from {path}")
+    for chunk in pd.read_csv(path, chunksize=chunk_size):
+        yield chunk
+        gc.collect()
 
-    has_header = first_line.startswith(CSV_ASSOCIATIONAL_HEADER)
-
-    try:
-        # If it has our header, we need to skip it. pandas read_csv skiprows works with int or list.
-        # If skiprows=1, it skips the first line.
-        skip = 1 if has_header else 0
-
-        for chunk in pd.read_csv(filepath, chunksize=chunksize, skiprows=skip):
-            yield chunk
-    except Exception as e:
-        logger.error(f"Error reading CSV chunks from {filepath}: {e}")
-        raise
-
-def save_dataframe_chunked(
-    df: pd.DataFrame,
-    filepath: Union[str, Path],
-    chunksize: int = 100000
-) -> None:
+def save_dataframe_chunked(df: pd.DataFrame, output_path: Union[str, Path], chunk_size: int = CHUNK_SIZE, mode: str = 'w') -> None:
     """
-    Saves a large DataFrame to CSV in chunks to manage memory.
-    Includes the associational flag header.
+    Save a large DataFrame to CSV in chunks to manage memory and I/O.
+
+    Args:
+        df: The DataFrame to save.
+        output_path: Path to the output CSV file.
+        chunk_size: Number of rows per chunk.
+        mode: Write mode ('w' for write, 'a' for append).
     """
-    filepath = Path(filepath)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    logger.info(f"Saving DataFrame to {path} in chunks of {chunk_size}")
 
-    # Write header once
-    with open(filepath, 'w') as f:
-        f.write(f"{CSV_ASSOCIATIONAL_HEADER}\n")
+    # If mode is 'w', we need to write headers for the first chunk
+    write_header = (mode == 'w')
 
-    # Write chunks
-    for i in range(0, len(df), chunksize):
-        chunk = df.iloc[i:i+chunksize]
-        chunk.to_csv(filepath, mode='a', header=False, index=False)
-
-    logger.info(f"Saved {len(df)} rows to {filepath} in chunks.")
+    for start in range(0, len(df), chunk_size):
+        end = min(start + chunk_size, len(df))
+        chunk_df = df.iloc[start:end]
+        chunk_df.to_csv(path, mode=mode, header=write_header, index=False, line_terminator='\n')
+        write_header = False  # Subsequent chunks do not need headers
+        del chunk_df
+        gc.collect()
 
 def load_config_safe(config_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Safely loads a YAML configuration file.
+    Load a YAML configuration file safely.
+
+    Args:
+        config_path: Path to the YAML config file.
+
+    Returns:
+        Dictionary containing configuration.
     """
-    config_path = Path(config_path)
-    if not config_path.exists():
-        logger.warning(f"Config file not found: {config_path}, returning empty dict.")
+    path = Path(config_path)
+    if not path.exists():
+        logger.warning(f"Config file not found: {path}, returning empty config")
         return {}
 
+    import yaml
     try:
-        import yaml
-        with open(config_path, 'r') as f:
+        with open(path, 'r') as f:
             return yaml.safe_load(f) or {}
     except Exception as e:
-        logger.error(f"Failed to load config {config_path}: {e}")
-        raise
+        logger.error(f"Error loading config {path}: {e}")
+        return {}
 
-def process_halo_chunk(
-    halo_data: pd.DataFrame,
-    processing_fn: Callable[[pd.DataFrame], pd.DataFrame]
-) -> pd.DataFrame:
+def write_csv_with_associational_flag(output_path: Union[str, Path], df: pd.DataFrame, flag_value: str = "true") -> None:
     """
-    Applies a processing function to a chunk of halo data.
-    Includes error handling and logging.
+    Write a DataFrame to CSV with a metadata comment header indicating associational-only status.
+
+    Args:
+        output_path: Path to the output CSV file.
+        df: The DataFrame to write.
+        flag_value: The value for the associational_only flag.
     """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing CSV with associational flag to {path}")
+
+    # Write the comment header
+    with open(path, 'w', newline='') as f:
+        f.write(f"# associational_only={flag_value}\n")
+
+    # Append the CSV data
+    df.to_csv(path, mode='a', index=False, line_terminator='\n')
+
+def write_json_with_associational_flag(output_path: Union[str, Path], data: Union[Dict, List], flag_value: bool = True) -> None:
+    """
+    Write data to JSON with an associational-only flag included.
+
+    Args:
+        output_path: Path to the output JSON file.
+        data: The data to write (dict or list).
+        flag_value: The value for the associational_only flag.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing JSON with associational flag to {path}")
+
+    # Ensure the flag is present
+    if isinstance(data, dict):
+        data['associational_only'] = flag_value
+    elif isinstance(data, list):
+        # If it's a list of records, we might need to wrap it or add to each
+        # Assuming the top-level structure is a dict or we wrap it
+        data = {"records": data, "associational_only": flag_value}
+    else:
+        data = {"data": data, "associational_only": flag_value}
+
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def process_halo_chunk(chunk_df: pd.DataFrame, halo_id_col: str = 'halo_id') -> pd.DataFrame:
+    """
+    Process a chunk of halo data. This is a placeholder for specific processing logic
+    that might be applied to chunks before aggregation.
+
+    Args:
+        chunk_df: DataFrame chunk.
+        halo_id_col: Name of the halo ID column.
+
+    Returns:
+        Processed DataFrame chunk.
+    """
+    # Example: Ensure halo_id is integer
+    if halo_id_col in chunk_df.columns:
+        chunk_df[halo_id_col] = chunk_df[halo_id_col].astype(int)
+    return chunk_df
+
+@contextmanager
+def managed_hdf5_reader(file_path: Union[str, Path], mode: str = 'r'):
+    """
+    Context manager for handling HDF5 file operations safely.
+
+    Args:
+        file_path: Path to the HDF5 file.
+        mode: File mode (r, r+, w, etc.).
+
+    Yields:
+        h5py.File object.
+    """
+    path = Path(file_path)
+    f = None
     try:
-        logger.debug(f"Processing halo chunk with {len(halo_data)} rows.")
-        result = processing_fn(halo_data)
-        logger.debug(f"Processing complete. Output shape: {result.shape}")
-        return result
-    except Exception as e:
-        logger.error(f"Error processing halo chunk: {e}")
-        raise
+        f = h5py.File(path, mode)
+        yield f
+    finally:
+        if f is not None:
+            f.close()
+            gc.collect()

@@ -1,56 +1,66 @@
+"""
+Setup script to create the project directory structure.
+Creates all root directories and subdirectories defined in the implementation plan.
+"""
 import os
 from pathlib import Path
 
 def create_project_structure():
     """
-    Creates the project directory structure as defined in plan.md.
-    This includes root directories and their subdirectories.
+    Creates the full project directory tree.
     
-    Directories created:
-    - code/ (with utils, ingestion, processing, analysis, tests subdirs)
-    - data/ (with raw, processed subdirs)
-    - outputs/ (with figures, reports subdirs)
+    Structure:
+    - code/ (with subdirs: utils, ingestion, processing, analysis, tests)
+    - data/ (with subdirs: raw, processed, metadata)
+    - outputs/ (with subdirs: reports, figures)
     - docs/
     - state/
     """
-    # Define the project root (assumed to be the parent of this file's directory)
-    # However, typically scripts are run from the project root, so we create relative to cwd
-    root = Path.cwd()
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Define the directory tree to create
-    # Based on standard conventions and the task description
+    # Define all directories to create
     directories = [
+        # Code structure
         "code",
         "code/utils",
         "code/ingestion",
         "code/processing",
         "code/analysis",
         "code/tests",
+        
+        # Data structure
         "data",
         "data/raw",
+        "data/raw/millennium",
         "data/processed",
-        "data/millennium",
+        "data/processed/matched_chunks",
+        "data/metadata",
+        
+        # Outputs structure
         "outputs",
-        "outputs/figures",
         "outputs/reports",
+        "outputs/figures",
+        
+        # Documentation
         "docs",
+        
+        # State tracking
         "state"
     ]
     
     created_count = 0
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
             print(f"Created directory: {full_path}")
         else:
-            # Ensure it is actually a directory
-            if not full_path.is_dir():
-                raise NotADirectoryError(f"Path exists but is not a directory: {full_path}")
+            print(f"Directory already exists: {full_path}")
     
-    print(f"Project structure ready. {created_count} new directories created.")
-    return True
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return project_root
 
 if __name__ == "__main__":
-    create_project_structure()
+    root = create_project_structure()
+    print(f"Project root: {root}")

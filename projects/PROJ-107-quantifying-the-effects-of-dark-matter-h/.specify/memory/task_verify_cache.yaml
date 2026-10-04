@@ -1,3 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree containing the required root folders (`code/`, `data/`, `outputs/`,
+    `docs/`, `state/`) or any subdirectories from `plan.md` is present in the provided
+    evidence. The implementer did not supply the empty project structure that the
+    task explicitly demanded.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `docs/` directory being present in the repository is provided;\
+    \ the implementer did not supply any artifact confirming the directory\u2019s\
+    \ existence. The required deliverable is missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, configuration files, or documentation related\
+    \ to a base logging infrastructure, and the only content present concerns halo\u2011\
+    shape computation rather than pipeline tracking. Consequently, the required logging\
+    \ artifact is missing entirely. The next implementer should add a functional logging\
+    \ module (e.g., Python `logging` setup with handlers, formatters, and integration\
+    \ points) and any associated configuration files or usage examples."
 T009:
   c: false
   h: 84779e7c89ac99752d3b18952dc52b70a4afa2f9abc3ea101c93b008f8a43849
@@ -10,22 +32,13 @@ T010:
   r: "The required artifact `code/tests/test_pipeline.py` does not exist on the repository,\
     \ so the integration test for TNG-100 download and chunk processing is missing.\
     \ Without this file, the task\u2019s core requirement is not satisfied."
-T017:
-  c: false
-  h: 460f33f9ff5112f87e8bff9d7e598bd6fe0f2f231d845d9805c56ae904123c97
-  r: "The repository contains a partially shown `pipeline_runner.py` that stops mid\u2011\
-    function and does not include the full aggregation, validation, or logging logic.\
-    \ Moreover, the required deliverables `data/processed/halo_shapes.csv` and `data/processed/exclusion_log.json`\
-    \ are absent from the project. The task\u2019s output files and complete implementation\
-    \ are therefore missing."
 T018:
   c: false
-  h: ef0005ebe30bbd54bcf75aad29e03f6d4d912d2bb74ffe216de3c488608ec952
-  r: "The required output file `data/processed/galaxy_properties.csv` does not exist,\
-    \ and the shown portion of `code/ingestion/tng_loader.py` contains only generic\
-    \ API\u2011fetching utilities with no implementation of extracting SFR, effective\
-    \ radius, or stellar mass for central subhalos or writing the specified CSV. The\
-    \ task\u2019s core deliverable is therefore missing."
+  h: 1bc022cba726ce82dd393a849556dff1a9d7050e5c7bf0efee30edc9108e72c0
+  r: The repository lacks the required `data/processed/galaxy_properties.csv` file,
+    and the provided `tng_loader.py` snippet ends abruptly without any logic to extract
+    SFR, effective radius, or stellar mass for central subhalos or to write the specified
+    CSV. Both the deliverable file and the necessary implementation are missing.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
