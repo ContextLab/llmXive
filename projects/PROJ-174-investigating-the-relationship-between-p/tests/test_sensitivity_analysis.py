@@ -4,9 +4,8 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from unittest.mock import mock_open, patch
 
-# Add code/ to path if running from tests/
+# Add code to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from classification.sensitivity_analysis import (
@@ -17,97 +16,88 @@ from classification.sensitivity_analysis import (
 )
 
 @pytest.fixture
-def sample_predictions():
-    """Create a small sample DataFrame for testing."""
-    return pd.DataFrame({
-        'true_label': [1, 1, 0, 0, 1],
-        'predicted_prob': [0.8, 0.3, 0.6, 0.2, 0.9]
-    })
+def sample_predictions(tmp_path):
+    """Create a sample predictions file for testing."""
+    data = {
+        'subject_id': ['S1', 'S1', 'S2', 'S2', 'S2'],
+        'trial_id': [1, 2, 1, 2, 3],
+        'predicted_prob': [0.1, 0.4, 0.6, 0.8, 0.9],
+        'true_label': [0, 0, 1, 1, 1]
+    }
+    df = pd.DataFrame(data)
+    path = tmp_path / "predictions.csv"
+    df.to_csv(path, index=False)
+    return str(path)
 
 @pytest.fixture
-def temp_output_file(tmp_path):
-    """Create a temporary file path."""
-    return tmp_path / "test_sensitivity.csv"
+def sample_config(tmp_path):
+    """Create a sample config file."""
+    data = {
+        'seeds': [42],
+        'thresholds': [0.3, 0.5, 0.7],
+        'paths': {'data': 'data'},
+        'aggregation': False
+    }
+    path = tmp_path / "config.yaml"
+    with open(path, 'w') as f:
+        import yaml
+        yaml.dump(data, f)
+    return str(path)
 
-def test_load_classification_predictions_valid(sample_predictions):
-    """Test loading valid predictions."""
-    # Mock file existence
-    with patch('pathlib.Path.exists', return_value=True):
-        with patch('builtins.open', mock_open(read_data=sample_predictions.to_csv(index=False))):
-            df = load_classification_predictions("dummy.csv")
-            assert 'true_label' in df.columns
-            assert 'predicted_prob' in df.columns
-            assert len(df) == 5
+def test_load_classification_predictions(sample_predictions):
+    df = load_classification_predictions(sample_predictions)
+    assert 'predicted_prob' in df.columns
+    assert 'true_label' in df.columns
+    assert len(df) == 5
 
-def test_load_classification_predictions_missing_columns(tmp_path):
-    """Test loading file with missing required columns."""
-    df_bad = pd.DataFrame({'other_col': [1, 2]})
-    file_path = tmp_path / "bad.csv"
-    df_bad.to_csv(file_path, index=False)
+def test_compute_metrics_at_threshold(sample_predictions):
+    df = pd.read_csv(sample_predictions)
     
-    with pytest.raises(ValueError, match="Missing required columns"):
-        load_classification_predictions(str(file_path))
-
-def test_compute_metrics_at_threshold_basic(sample_predictions):
-    """Test metric computation at a specific threshold."""
-    metrics = compute_metrics_at_threshold(sample_predictions, 0.5)
-    
-    # Expected:
-    # Preds: [0.8->1, 0.3->0, 0.6->1, 0.2->0, 0.9->1]
-    # Truth: [1, 1, 0, 0, 1]
-    # TP: (1,1), (0,0) -> 2? No.
-    # Row 0: P=1, T=1 -> TP
-    # Row 1: P=0, T=1 -> FN
-    # Row 2: P=1, T=0 -> FP
-    # Row 3: P=0, T=0 -> TN
-    # Row 4: P=1, T=1 -> TP
-    # TP=2, TN=1, FP=1, FN=1
-    # Acc = (2+1)/5 = 0.6
-    # Prec = 2/(2+1) = 0.666
-    # Rec = 2/(2+1) = 0.666
-    
-    assert abs(metrics['accuracy'] - 0.6) < 1e-6
-    assert abs(metrics['precision'] - 0.666666) < 1e-6
-    assert abs(metrics['recall'] - 0.666666) < 1e-6
-    assert metrics['tp'] == 2
-    assert metrics['tn'] == 1
-    assert metrics['fp'] == 1
-    assert metrics['fn'] == 1
+    # Threshold 0.2: All 0.4, 0.6, 0.8, 0.9 are >= 0.2 -> 4 preds = 1
+    # True: 0, 0, 1, 1, 1
+    # Pred: 1, 1, 1, 1, 1
+    # Acc: 3/5 = 0.6
+    metrics = compute_metrics_at_threshold(df, 0.2)
+    assert 'accuracy' in metrics
+    assert 'auc' in metrics
+    assert metrics['accuracy'] == 0.6  # 3 correct out of 5
 
 def test_calculate_stability_metrics():
-    """Test stability calculation logic."""
-    metrics = [
-        {'threshold': 0.50, 'accuracy': 0.8, 'precision': 0.8, 'recall': 0.8, 'f1_score': 0.8},
-        {'threshold': 0.60, 'accuracy': 0.7, 'precision': 0.7, 'recall': 0.7, 'f1_score': 0.7}
+    # Create mock results
+    results = [
+        {'threshold': 0.4, 'accuracy': 0.8, 'auc': 0.90},
+        {'threshold': 0.5, 'accuracy': 0.85, 'auc': 0.90}, # Same AUC
+        {'threshold': 0.6, 'accuracy': 0.82, 'auc': 0.90}
     ]
     
-    stability = calculate_stability_metrics(metrics)
+    final = calculate_stability_metrics(results)
+    assert len(final) == 3
+    assert all(r['stability_status'] == 'PASS' for r in final)
+    assert all(r['relative_decrease'] == 0.0 for r in final)
+
+def test_calculate_stability_metrics_fail():
+    # Create mock results with high variance in AUC
+    results = [
+        {'threshold': 0.4, 'accuracy': 0.8, 'auc': 1.0},
+        {'threshold': 0.5, 'accuracy': 0.85, 'auc': 0.50} # Huge drop
+    ]
     
-    # Check baseline
-    assert any(s['threshold'] == 0.50 and s['stability_status'] == 'BASELINE' for s in stability)
-    
-    # Check relative change for 0.60
-    row_060 = next(s for s in stability if s['threshold'] == 0.60)
-    # (0.7 - 0.8) / 0.8 = -0.125
-    assert abs(row_060['rel_f1_change'] - (-0.125)) < 1e-6
-    assert row_060['stability_status'] == 'DECREASE'
+    final = calculate_stability_metrics(results)
+    # Drop is 50%, which is > 5%
+    assert all(r['stability_status'] == 'FAIL' for r in final)
+    assert final[0]['relative_decrease'] == 0.5
 
 def test_run_sensitivity_analysis_integration(tmp_path, sample_predictions):
-    """Test full pipeline execution and output file generation."""
-    input_file = tmp_path / "input.csv"
-    output_file = tmp_path / "output.csv"
-    sample_predictions.to_csv(input_file, index=False)
+    output_path = str(tmp_path / "sensitivity_analysis.csv")
+    thresholds = [0.3, 0.5, 0.7]
     
-    run_sensitivity_analysis(
-        input_file=str(input_file),
-        output_file=str(output_file),
-        thresholds=[0.40, 0.50, 0.60]
-    )
+    df = run_sensitivity_analysis(sample_predictions, output_path, thresholds)
     
-    assert output_file.exists()
-    result_df = pd.read_csv(output_file)
+    assert os.path.exists(output_path)
+    result_df = pd.read_csv(output_path)
+    
     assert 'threshold' in result_df.columns
     assert 'accuracy' in result_df.columns
+    assert 'auc' in result_df.columns
     assert 'stability_status' in result_df.columns
-    assert len(result_df) == 3  # 3 thresholds
-    assert set(result_df['threshold'].values) == {0.40, 0.50, 0.60}
+    assert len(result_df) == 3

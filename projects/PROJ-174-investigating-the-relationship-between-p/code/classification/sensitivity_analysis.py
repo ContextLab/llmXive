@@ -4,200 +4,248 @@ import logging
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
-
-import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, confusion_matrix
+import numpy as np
 
-# Import from project root config
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import load_config
 
-def load_classification_predictions(predictions_path: Path) -> pd.DataFrame:
+from config import load_config
+from classification.evaluate import load_held_out_data, compute_metrics
+
+def load_classification_predictions(path: str = None) -> pd.DataFrame:
     """
-    Load the classification predictions from the evaluation step.
-    Expects a CSV with columns: subject_id, trial_id, true_label, predicted_prob
+    Load the classification results (predictions + ground truth) from disk.
+    Expected file: data/processed/classification_results.csv (or similar).
+    Falls back to looking in results/ if not found in processed.
     """
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
+    if path is None:
+        # Try standard locations based on project structure
+        processed_path = Path("data/processed/classification_results.csv")
+        results_path = Path("results/classification_results.csv")
+        
+        if processed_path.exists():
+            path = str(processed_path)
+        elif results_path.exists():
+            path = str(results_path)
+        else:
+            raise FileNotFoundError(
+                f"Could not find classification results at expected paths: "
+                f"{processed_path} or {results_path}"
+            )
     
-    df = pd.read_csv(predictions_path)
-    required_cols = ['true_label', 'predicted_prob']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Predictions file missing required columns: {missing}")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Classification results file not found: {path}")
+    
+    df = pd.read_csv(path)
+    
+    # Verify required columns exist
+    required_cols = ['prediction', 'truth'] # Assuming these are the columns from T030
+    # If column names differ (e.eg 'label', 'predicted'), we might need to adapt.
+    # Based on T030 (evaluate.py), we assume 'prediction' and 'truth' or similar.
+    # Let's be robust: check for any binary columns.
+    if 'prediction' not in df.columns:
+        if 'predicted' in df.columns:
+            df['prediction'] = df['predicted']
+        else:
+            raise ValueError("Column 'prediction' (or 'predicted') not found in results.")
+    
+    if 'truth' not in df.columns:
+        if 'label' in df.columns:
+            df['truth'] = df['label']
+        else:
+            raise ValueError("Column 'truth' (or 'label') not found in results.")
     
     return df
 
 def compute_metrics_at_threshold(df: pd.DataFrame, threshold: float) -> Dict[str, float]:
     """
-    Compute classification metrics at a specific probability threshold.
+    Compute accuracy, precision, recall, and AUC at a specific probability threshold.
+    Assumes 'prediction' column contains probabilities (0-1).
+    Converts probabilities to binary class based on threshold.
     """
-    if 'predicted_prob' not in df.columns or 'true_label' not in df.columns:
-        raise ValueError("DataFrame must contain 'predicted_prob' and 'true_label'")
-
-    binary_preds = (df['predicted_prob'] >= threshold).astype(int)
-    true_labels = df['true_label'].astype(int)
-
-    # Avoid division by zero if no positive predictions
-    try:
-        precision = precision_score(true_labels, binary_preds, zero_division=0)
-    except Exception:
-        precision = 0.0
-
-    try:
-        recall = recall_score(true_labels, binary_preds, zero_division=0)
-    except Exception:
-        recall = 0.0
-
-    accuracy = accuracy_score(true_labels, binary_preds)
+    # Ensure we have the raw probabilities
+    # If the input file already has binary predictions, we might need to re-read raw scores
+    # For this implementation, we assume the input file has a 'probability' or 'score' column.
+    # If not, we assume 'prediction' IS the probability.
     
-    # AUC is threshold-independent, but we compute it once per dataset for reference
-    # However, for sensitivity analysis, we usually look at how F1/Precision/Recall change.
-    # The task asks for "AUC drop". AUC is constant regardless of threshold.
-    # Interpretation: The task likely implies "Accuracy drop" or "F1 drop" as threshold changes,
-    # OR it implies checking stability of the model's performance (AUC) against threshold shifts
-    # in a binary classification context where we might be using a proxy for AUC (like balanced accuracy).
-    # Given standard sensitivity analysis, we report Accuracy, Precision, Recall, and F1.
-    # We will calculate a "pseudo-stability" based on Accuracy drop as a proxy for the prompt's "AUC drop"
-    # if strictly interpreted, but technically AUC is invariant.
-    # Re-reading prompt: "Stability is defined as AUC drop < 5%". 
-    # Since AUC is invariant to threshold, this definition is technically impossible to satisfy via threshold sweep 
-    # unless the "AUC" refers to a threshold-dependent metric (like Accuracy) or the prompt implies 
-    # comparing the AUC of the *model* (which is constant) to a baseline.
-    # Correction: In many engineering contexts, "AUC" is sometimes misused for "Accuracy".
-    # We will calculate Accuracy drop. If the prompt strictly means AUC, the drop is 0% (perfectly stable).
-    # We will implement the check based on Accuracy drop to make the metric meaningful.
+    if 'probability' in df.columns:
+        probs = df['probability'].values
+    elif 'score' in df.columns:
+        probs = df['score'].values
+    else:
+        # Fallback: if 'prediction' is already binary, we can't compute AUC properly
+        # without the raw scores. We will assume 'prediction' is the probability for now.
+        # If T030 output binary, this task might need the raw scores file.
+        # Let's assume T030 saved the raw probabilities in a column named 'probability'
+        # or 'prediction' is the probability.
+        if df['prediction'].dtype == float:
+            probs = df['prediction'].values
+        else:
+            raise ValueError("Cannot compute AUC without probability scores. "
+                             "Ensure 'probability', 'score', or float 'prediction' column exists.")
     
-    f1 = 0.0
-    if precision + recall > 0:
-        f1 = 2 * (precision * recall) / (precision + recall)
-
+    truths = df['truth'].values
+    
+    # Apply threshold
+    binary_preds = (probs >= threshold).astype(int)
+    
+    # Calculate metrics
+    tp = np.sum((binary_preds == 1) & (truths == 1))
+    tn = np.sum((binary_preds == 0) & (truths == 0))
+    fp = np.sum((binary_preds == 1) & (truths == 0))
+    fn = np.sum((binary_preds == 0) & (truths == 1))
+    
+    accuracy = (tp + tn) / len(truths) if len(truths) > 0 else 0.0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    
+    # Calculate AUC manually (trapezoidal rule) or use sklearn if available
+    # Since sklearn is in requirements, we can use it for robust AUC
+    try:
+        from sklearn.metrics import roc_auc_score
+        auc = roc_auc_score(truths, probs)
+    except ImportError:
+        # Fallback manual calculation if sklearn missing (unlikely per requirements)
+        # Sort by probability descending
+        sorted_indices = np.argsort(-probs)
+        sorted_truths = truths[sorted_indices]
+        sorted_probs = probs[sorted_indices]
+        
+        # Calculate TPR and FPR at each point
+        total_pos = np.sum(truths == 1)
+        total_neg = np.sum(truths == 0)
+        
+        if total_pos == 0 or total_neg == 0:
+            auc = 0.5 # Undefined or neutral
+        else:
+            tpr = np.cumsum(sorted_truths) / total_pos
+            fpr = np.cumsum(1 - sorted_truths) / total_neg
+            
+            # Add (0,0) point
+            fpr = np.concatenate([[0], fpr])
+            tpr = np.concatenate([[0], tpr])
+            
+            # Trapezoidal rule
+            auc = np.trapz(tpr, fpr)
+    
     return {
-        'threshold': threshold,
         'accuracy': accuracy,
         'precision': precision,
         'recall': recall,
-        'f1_score': f1,
-        'tp': int(confusion_matrix(true_labels, binary_preds).ravel()[0]),
-        'tn': int(confusion_matrix(true_labels, binary_preds).ravel()[1]),
-        'fp': int(confusion_matrix(true_labels, binary_preds).ravel()[2]),
-        'fn': int(confusion_matrix(true_labels, binary_preds).ravel()[3])
+        'auc': auc
     }
 
-def calculate_stability_metrics(metrics_list: List[Dict[str, float]], base_metric: str = 'accuracy') -> Dict[str, Any]:
+def calculate_stability_metrics(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Calculate stability metrics based on the sweep.
-    Definition: Stability is pass if the drop in the metric (e.g., Accuracy) across the sweep is < 5%.
-    We calculate the relative decrease from the best performing threshold to the worst.
+    Calculate stability status based on AUC drop across thresholds.
+    Stability is defined as AUC drop < 5% across the threshold sweep.
     """
-    if not metrics_list:
-        return {'stability_pass': False, 'max_drop': 0.0, 'reason': 'No metrics provided'}
-
-    values = [m[base_metric] for m in metrics_list]
-    max_val = max(values)
-    min_val = min(values)
+    if not results:
+        return results
     
-    if max_val == 0:
-        max_drop = 0.0
+    # Sort by threshold
+    sorted_results = sorted(results, key=lambda x: x['threshold'])
+    
+    # Find max and min AUC
+    aucs = [r['auc'] for r in sorted_results]
+    max_auc = max(aucs)
+    min_auc = min(aucs)
+    
+    # Calculate relative decrease
+    if max_auc > 0:
+        relative_decrease = (max_auc - min_auc) / max_auc
     else:
-        max_drop = (max_val - min_val) / max_val
-
-    # Stability condition: Drop < 5% (0.05)
-    stability_pass = max_drop < 0.05
+        relative_decrease = 0.0
     
-    return {
-        'stability_pass': stability_pass,
-        'max_drop': max_drop,
-        'max_value': max_val,
-        'min_value': min_val,
-        'threshold_at_max': next(m['threshold'] for m in metrics_list if m[base_metric] == max_val),
-        'threshold_at_min': next(m['threshold'] for m in metrics_list if m[base_metric] == min_val)
-    }
+    # Stability status: Pass if relative decrease < 0.05 (5%)
+    stable = relative_decrease < 0.05
+    stability_status = "PASS" if stable else "FAIL"
+    
+    # Update each result with the overall stability status and relative decrease
+    for r in sorted_results:
+        r['relative_decrease'] = relative_decrease
+        r['stability_status'] = stability_status
+    
+    return sorted_results
 
-def run_sensitivity_analysis(
-    predictions_path: Path, 
-    output_path: Path, 
-    thresholds: List[float] = None
-) -> Path:
+def run_sensitivity_analysis():
     """
-    Main function to run sensitivity analysis.
-    Sweeps thresholds, computes metrics, calculates stability, and saves results.
+    Main entry point for sensitivity analysis.
+    Loads config, sweeps thresholds, computes metrics, and saves results.
     """
-    if thresholds is None:
-        # Default from task description
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    # Load configuration
+    try:
+        config = load_config()
+    except Exception as e:
+        logger.error(f"Failed to load config: {e}")
+        sys.exit(1)
+    
+    # Get thresholds from config or use defaults
+    thresholds = config.get('thresholds', [0.40, 0.50, 0.60])
+    if not thresholds:
         thresholds = [0.40, 0.50, 0.60]
     
-    logging.info(f"Loading predictions from {predictions_path}")
-    df = load_classification_predictions(predictions_path)
+    logger.info(f"Running sensitivity analysis with thresholds: {thresholds}")
     
-    logging.info(f"Computing metrics for thresholds: {thresholds}")
+    # Load classification results
+    try:
+        df = load_classification_predictions()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    
+    # Compute metrics for each threshold
     results = []
     for thresh in thresholds:
+        logger.info(f"Computing metrics for threshold {thresh}")
         metrics = compute_metrics_at_threshold(df, thresh)
-        results.append(metrics)
+        results.append({
+            'threshold': thresh,
+            **metrics
+        })
     
-    df_results = pd.DataFrame(results)
+    # Calculate stability
+    results = calculate_stability_metrics(results)
     
-    # Calculate stability metrics (using Accuracy as the proxy for the "AUC drop" requirement 
-    # since true AUC is threshold-invariant. If the prompt strictly requires AUC, 
-    # the drop is 0 and it passes, but that's trivial. We use Accuracy for meaningful analysis.)
-    stability = calculate_stability_metrics(results, base_metric='accuracy')
+    # Prepare output DataFrame
+    output_df = pd.DataFrame(results)
+    # Ensure columns are in correct order: threshold, accuracy, auc, stability_status
+    # Plus relative_decrease for transparency
+    cols = ['threshold', 'accuracy', 'auc', 'relative_decrease', 'stability_status']
+    # Filter to only existing columns if any are missing (shouldn't happen)
+    output_df = output_df[[c for c in cols if c in output_df.columns]]
     
-    # Add stability info to the dataframe (repeat for all rows or just append as metadata)
-    # We will append the stability summary to the output file as well or just ensure the CSV 
-    # contains the sweep and we write a separate summary or append to the CSV.
-    # The task asks for "full metric tables AND calculate/report relative decrease... to results/sensitivity_analysis.csv"
-    # We will write the full table and include a column indicating the stability status for the sweep.
-    
-    # Add a column for the stability pass/fail status (constant across rows for this sweep)
-    df_results['stability_pass'] = stability['stability_pass']
-    df_results['max_drop'] = stability['max_drop']
-    
-    # Ensure output directory exists
+    # Save to results/sensitivity_analysis.csv
+    output_path = Path("results/sensitivity_analysis.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_df.to_csv(output_path, index=False)
     
-    df_results.to_csv(output_path, index=False)
-    logging.info(f"Sensitivity analysis saved to {output_path}")
+    logger.info(f"Sensitivity analysis complete. Results saved to {output_path}")
     
-    # Log summary
-    status = "PASS" if stability['stability_pass'] else "FAIL"
-    logging.info(f"Stability Analysis: {status} (Max Drop: {stability['max_drop']:.2%})")
+    # Print summary
+    print(f"\nSensitivity Analysis Summary:")
+    print(f"Thresholds tested: {thresholds}")
+    print(f"Stability Status: {results[0]['stability_status']}")
+    print(f"Max AUC: {max(r['auc'] for r in results):.4f}")
+    print(f"Min AUC: {min(r['auc'] for r in results):.4f}")
+    print(f"Relative Decrease: {results[0]['relative_decrease']*100:.2f}%")
     
-    return output_path
+    return output_df
 
 def main():
-    parser = argparse.ArgumentParser(description="Run sensitivity analysis on classification results")
-    parser.add_argument("--input", type=str, required=True, help="Path to classification predictions CSV")
-    parser.add_argument("--output", type=str, default="results/sensitivity_analysis.csv", help="Output path for sensitivity analysis CSV")
-    parser.add_argument("--thresholds", type=str, default=None, help="Comma-separated list of thresholds (e.g., 0.4,0.5,0.6)")
-    
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis for classification thresholds")
+    parser.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
     args = parser.parse_args()
     
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    # Load thresholds from config if not provided in args
-    thresholds = None
-    if args.thresholds:
-        thresholds = [float(t) for t in args.thresholds.split(',')]
-    else:
-        try:
-            config = load_config()
-            # Check for thresholds in config, defaulting to [0.4, 0.5, 0.6] if not present
-            thresholds = config.get('thresholds', {}).get('sensitivity_sweep', [0.40, 0.50, 0.60])
-        except Exception as e:
-            logging.warning(f"Could not load config for thresholds: {e}. Using defaults.")
-            thresholds = [0.40, 0.50, 0.60]
-    
-    try:
-        run_sensitivity_analysis(input_path, output_path, thresholds)
-    except Exception as e:
-        logging.error(f"Sensitivity analysis failed: {e}")
-        raise
+    # Override config path if provided (though load_config usually handles default)
+    # The load_config function in code/config.py likely reads from a fixed path or env.
+    # We assume the standard path for now.
+    run_sensitivity_analysis()
 
 if __name__ == "__main__":
     main()

@@ -1,239 +1,172 @@
+"""
+Correlation analysis module.
+Computes Pearson correlations between pupil metrics and load proxies,
+with optional FDR correction.
+"""
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import load_config
+
 logger = logging.getLogger(__name__)
 
-def load_processed_data(path: str) -> pd.DataFrame:
-    """Load processed data from CSV."""
-    path_obj = Path(path)
-    if not path_obj.exists():
-        raise FileNotFoundError(f"Processed data file not found: {path}")
-    return pd.read_csv(path)
+def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
+    """Load processed features data."""
+    processed_dir = Path(config['paths']['processed_data'])
+    features_file = processed_dir / 'features.csv'
+    
+    if not features_file.exists():
+        logger.error(f"Features file not found: {features_file}")
+        return pd.DataFrame()
+    
+    return pd.read_csv(features_file)
 
-def extract_pupil_metrics(df: pd.DataFrame) -> Dict[str, pd.Series]:
-    """Extract pupil diameter metrics from the dataframe."""
-    metrics = {}
-    if 'pupil_diameter' in df.columns:
-        metrics['mean'] = df['pupil_diameter'].mean()
-        metrics['peak'] = df['pupil_diameter'].max()
-        # Quantized: bin into 4 levels
-        if len(df) > 0:
-            q = pd.qcut(df['pupil_diameter'].dropna(), q=4, labels=False, duplicates='drop')
-            metrics['quantized'] = q.mean()
-        else:
-            metrics['quantized'] = np.nan
-    return metrics
+def extract_pupil_metrics(df: pd.DataFrame) -> List[str]:
+    """Get list of pupil metric columns."""
+    pupil_cols = [c for c in df.columns if c.startswith('pupil_')]
+    return pupil_cols
 
 def calculate_pearson_correlation(x: pd.Series, y: pd.Series) -> tuple:
-    """Calculate Pearson correlation and p-value."""
-    if len(x) < 2 or len(y) < 2:
-        return np.nan, np.nan
+    """
+    Calculate Pearson correlation between two series.
     
-    # Drop NaN pairs
-    mask = ~(x.isna() | y.isna())
-    x_clean = x[mask]
-    y_clean = y[mask]
+    Returns:
+        Tuple of (correlation, p-value)
+    """
+    valid_mask = x.notna() & y.notna()
+    x_valid = x[valid_mask]
+    y_valid = y[valid_mask]
     
-    if len(x_clean) < 2:
-        return np.nan, np.nan
+    if len(x_valid) < 3:
+        return (np.nan, np.nan)
     
-    r, p = np.corrcoef(x_clean, y_clean)[0, 1], 0.0
+    corr, p_value = x_valid.corr(y_valid), np.nan
+    # Simple p-value approximation (for demonstration)
+    n = len(x_valid)
+    if not np.isnan(corr):
+        t_stat = corr * np.sqrt((n - 2) / (1 - corr**2))
+        # Approximate p-value using t-distribution
+        from scipy import stats
+        p_value = 2 * stats.t.sf(abs(t_stat), n - 2)
     
-    # Calculate p-value manually or use scipy if available
-    try:
-        from scipy.stats import pearsonr
-        r, p = pearsonr(x_clean, y_clean)
-    except ImportError:
-        # Fallback to manual calculation if scipy not available
-        n = len(x_clean)
-        if n < 2:
-            return np.nan, np.nan
-        t_stat = r * np.sqrt((n - 2) / (1 - r**2 + 1e-10))
-        # Approximate p-value using t-distribution logic (simplified)
-        # For exact p-value, scipy is preferred. Here we return r and a placeholder p if scipy missing.
-        p = 0.0 # Placeholder, requires scipy for accuracy
-        if 'scipy' not in sys.modules:
-            logger.warning("scipy not available. P-values may be inaccurate.")
-
-    return float(r), float(p)
+    return (corr, p_value)
 
 def compute_correlations(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute Pearson correlations between pupil metrics and load proxies."""
-    results = []
-    
-    pupil_metrics = ['mean', 'peak', 'quantized']
-    proxies = ['search_time', 'fixation_count', 'target_salience']
-    
-    # Filter out columns that don't exist
-    available_proxies = [p for p in proxies if p in df.columns]
-    
-    for metric_name in pupil_metrics:
-        # We need to compute correlations on a trial-wise basis.
-        # Assuming the dataframe has one row per trial (aggregated).
-        # If the dataframe has raw samples, we need to group by trial_id first.
-        # Based on T016a context, we assume df is already trial-wise or we aggregate.
-        
-        # Check if we have trial_id to group by
-        if 'trial_id' in df.columns and 'pupil_diameter' in df.columns:
-            # Group by trial and compute metric
-            trial_metrics = df.groupby('trial_id')['pupil_diameter'].agg(['mean', 'max'])
-            trial_metrics['quantized'] = trial_metrics['mean'] # Placeholder for quantized logic per trial
-            # Re-calculate quantized properly per trial if needed, but for correlation, mean/peak often suffice
-            # Let's stick to the columns we have: mean, max (peak)
-            # For quantized, we need to bin per trial? No, usually global or per condition.
-            # Assuming 'mean' and 'max' are sufficient for the correlation step.
-            
-            for proxy in available_proxies:
-                if proxy in trial_metrics.columns:
-                    continue # Skip if proxy is in the metric calculation (unlikely)
-                
-                # Merge proxy if it's not in the grouped frame
-                if proxy in df.columns:
-                    # Assuming proxy is constant per trial or aggregated
-                    proxy_vals = df[['trial_id', proxy]].drop_duplicates()
-                    trial_metrics = trial_metrics.merge(proxy_vals, on='trial_id', how='inner')
-                
-                if proxy not in trial_metrics.columns:
-                    continue
-                
-                r, p = calculate_pearson_correlation(trial_metrics['mean'], trial_metrics[proxy])
-                results.append({
-                    'metric': f"{metric_name}_mean",
-                    'proxy': proxy,
-                    'pearson_r': r,
-                    'raw_p': p,
-                    'method': 'pearson'
-                })
-                
-                r, p = calculate_pearson_correlation(trial_metrics['max'], trial_metrics[proxy])
-                results.append({
-                    'metric': f"{metric_name}_peak",
-                    'proxy': proxy,
-                    'pearson_r': r,
-                    'raw_p': p,
-                    'method': 'pearson'
-                })
-        else:
-            # If no trial_id, assume rows are already aggregated trials
-            for proxy in available_proxies:
-                r, p = calculate_pearson_correlation(df['pupil_diameter'], df[proxy])
-                results.append({
-                    'metric': 'mean',
-                    'proxy': proxy,
-                    'pearson_r': r,
-                    'raw_p': p,
-                    'method': 'pearson'
-                })
-                
-                r, p = calculate_pearson_correlation(df['pupil_diameter'], df[proxy])
-                # Re-using same logic for peak if column exists, otherwise skip
-                if 'pupil_diameter_peak' in df.columns:
-                    r, p = calculate_pearson_correlation(df['pupil_diameter_peak'], df[proxy])
-                    results.append({
-                        'metric': 'peak',
-                        'proxy': proxy,
-                        'pearson_r': r,
-                        'raw_p': p,
-                        'method': 'pearson'
-                    })
-
-    return pd.DataFrame(results)
-
-def benjamini_hochberg_fdr(p_values: pd.Series) -> pd.Series:
     """
-    Apply Benjamini-Hochberg FDR correction to a series of p-values.
+    Compute correlations between all pupil metrics and load proxies.
     
     Args:
-        p_values: Series of raw p-values.
+        df: DataFrame with pupil metrics and load proxies
         
     Returns:
-        Series of adjusted p-values.
+        DataFrame with correlation results
     """
-    if len(p_values) == 0:
-        return p_values
+    if df.empty:
+        return pd.DataFrame(columns=['metric', 'proxy', 'pearson_r', 'raw_p', 'method'])
     
-    n = len(p_values)
-    # Sort p-values and keep original index
-    sorted_indices = p_values.argsort()
-    sorted_p = p_values.iloc[sorted_indices]
+    pupil_metrics = extract_pupil_metrics(df)
+    proxy_cols = ['search_time', 'fixation_count', 'target_salience']
+    proxies = [c for c in proxy_cols if c in df.columns]
     
-    # Calculate adjusted p-values
-    # Formula: (rank * p) / n, but monotonicity must be enforced (cumulative min from bottom)
-    adj_p = np.zeros(n)
-    for i in range(n):
-        rank = i + 1
-        adj_p[i] = sorted_p.iloc[i] * n / rank
+    results = []
     
-    # Enforce monotonicity (cumulative minimum from the largest rank to smallest)
-    # The BH procedure ensures that adjusted p-values are non-decreasing with rank
-    # We need to ensure adj_p[i] <= adj_p[i+1]
-    for i in range(n - 2, -1, -1):
-        adj_p[i] = min(adj_p[i], adj_p[i+1])
+    for metric in pupil_metrics:
+        for proxy in proxies:
+            # Skip if either column is all NaN
+            if df[metric].isna().all() or df[proxy].isna().all():
+                continue
+            
+            corr, p_val = calculate_pearson_correlation(df[metric], df[proxy])
+            
+            if not np.isnan(corr):
+                results.append({
+                    'metric': metric,
+                    'proxy': proxy,
+                    'pearson_r': corr,
+                    'raw_p': p_val,
+                    'method': 'pearson'
+                })
     
-    # Clip to [0, 1]
-    adj_p = np.clip(adj_p, 0, 1)
-    
-    # Restore original order
-    result = pd.Series(adj_p, index=p_values.index)
-    return result
+    return pd.DataFrame(results)
 
-def save_results(df: pd.DataFrame, output_path: str):
-    """Save results to CSV."""
-    path_obj = Path(output_path)
-    path_obj.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path_obj, index=False)
-    logger.info(f"Results saved to {output_path}")
+def save_results(correlations_df: pd.DataFrame, config: Dict[str, Any]):
+    """Save correlation results to file."""
+    results_dir = Path(config['paths']['results'])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = results_dir / 'correlations.csv'
+    correlations_df.to_csv(output_path, index=False)
+    logger.info(f"Correlations saved to {output_path}")
+
+def apply_fdr_correction(correlations_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply Benjamini-Hochberg FDR correction to p-values.
+    
+    Args:
+        correlations_df: DataFrame with raw p-values
+        
+    Returns:
+        DataFrame with adjusted p-values
+    """
+    if correlations_df.empty:
+        return correlations_df
+    
+    from statsmodels.stats.multitest import multipletests
+    
+    p_values = correlations_df['raw_p'].dropna().values
+    if len(p_values) == 0:
+        correlations_df['adj_p'] = np.nan
+        return correlations_df
+    
+    _, adj_p, _, _ = multipletests(p_values, method='fdr_bh')
+    
+    # Map adjusted p-values back to original rows
+    valid_mask = correlations_df['raw_p'].notna()
+    adj_p_values = np.full(len(correlations_df), np.nan)
+    adj_p_values[valid_mask] = adj_p
+    
+    correlations_df['adj_p'] = adj_p_values
+    
+    return correlations_df
+
+def run_correlation_pipeline(config: Dict[str, Any]):
+    """Run the full correlation analysis pipeline."""
+    df = load_processed_data(config)
+    
+    if df.empty:
+        logger.warning("No data to analyze. Creating empty correlations file.")
+        results_dir = Path(config['paths']['results'])
+        results_dir.mkdir(parents=True, exist_ok=True)
+        empty_df = pd.DataFrame(columns=['metric', 'proxy', 'pearson_r', 'raw_p', 'method', 'adj_p'])
+        empty_df.to_csv(results_dir / 'correlations.csv', index=False)
+        return
+    
+    # Compute correlations
+    correlations_df = compute_correlations(df)
+    
+    # Apply FDR correction
+    correlations_df = apply_fdr_correction(correlations_df)
+    
+    # Save results
+    save_results(correlations_df, config)
+    
+    logger.info(f"Correlation pipeline completed. Found {len(correlations_df)} significant correlations.")
 
 def main():
     """Main entry point for correlation analysis."""
-    # Define paths based on project structure
-    base_path = Path(__file__).resolve().parent.parent
-    processed_data_path = base_path / "data" / "processed" / "features.csv"
-    output_path = base_path / "results" / "correlations.csv"
+    parser = argparse.ArgumentParser(description="Compute correlations")
+    parser.add_argument("--config", type=str, default="code/config.yaml")
+    args = parser.parse_args()
     
-    if not processed_data_path.exists():
-        logger.error(f"Processed data not found at {processed_data_path}. Run preprocessing first.")
-        sys.exit(1)
-    
-    logger.info(f"Loading data from {processed_data_path}")
-    df = load_processed_data(str(processed_data_path))
-    
-    logger.info("Computing correlations...")
-    results_df = compute_correlations(df)
-    
-    if results_df.empty:
-        logger.warning("No correlations computed. Check data columns.")
-        # Create empty dataframe with correct schema if needed
-        results_df = pd.DataFrame(columns=['metric', 'proxy', 'pearson_r', 'raw_p', 'method'])
-    
-    # Apply Benjamini-Hochberg FDR correction
-    if 'raw_p' in results_df.columns and not results_df['raw_p'].isna().all():
-        logger.info("Applying Benjamini-Hochberg FDR correction...")
-        results_df['adj_p'] = benjamini_hochberg_fdr(results_df['raw_p'])
-    else:
-        results_df['adj_p'] = np.nan
-        logger.warning("No valid p-values found for FDR correction.")
-    
-    # Save results
-    save_results(results_df, str(output_path))
-    
-    # Verify adj_p is present
-    if 'adj_p' not in results_df.columns:
-        logger.error("adj_p column missing in results.")
-        sys.exit(1)
-    
-    logger.info("Correlation analysis with FDR correction complete.")
-    return results_df
+    config = load_config(Path(args.config))
+    run_correlation_pipeline(config)
 
 if __name__ == "__main__":
     main()

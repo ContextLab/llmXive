@@ -1,20 +1,25 @@
+# Configuration for Pupil Dilation Cognitive Load Pipeline
 seeds:
   random: 42
   numpy: 42
-
 thresholds:
-  correlation: 0.3
-  vif: 5.0
-  min_trials: 20
-  classification: [0.40, 0.50, 0.60]
-
+  - 0.40
+  - 0.50
+  - 0.60
 paths:
-  raw_data: data/raw
-  processed_data: data/processed
-  results: results
-  figures: figures
-  quality_report: results/quality_report.csv
-
-aggregation:
-  enabled: false
-  description: "If true, aggregate across subjects when trial count is low. If false, raise RuntimeError for subjects with < 20 trials."
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "results"
+  external_stimuli: "data/external/stimuli"
+aggregation: false
+preprocessing:
+  lowpass_cutoff: 4.0
+  blink_threshold: 30.0
+  max_blink_duration: 0.3
+analysis:
+  fdr_method: "benjamini_hochberg"
+  min_trials_per_subject: 20
+classification:
+  window_duration: 2.0
+  update_interval: 0.2
+  l2_regularization: 1.0

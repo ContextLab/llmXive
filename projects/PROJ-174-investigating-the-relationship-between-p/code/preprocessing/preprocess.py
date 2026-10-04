@@ -1,139 +1,102 @@
+"""
+Preprocessing module for the pupil dilation pipeline.
+Handles blink interpolation, low-pass filtering, and data validation.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
+import pandas as pd
 
-from preprocessing.load_data import load_raw_data_from_dataset, normalize_columns, save_to_csv, process_single_file, run_loading_pipeline
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from preprocessing.filter import process_pupil_data, apply_filter_to_dataset, write_quality_report
-from preprocessing.features import extract_features, process_dataset_features
+from preprocessing.load_data import load_raw_data_from_dataset, normalize_columns
+from config import load_config
 
 logger = logging.getLogger(__name__)
 
-def load_raw_data(input_dir: Path, config: Dict[str, Any]) -> Tuple[List[Path], List[str]]:
-    """Load raw data from the input directory."""
-    paths = []
-    errors = []
-    for root, dirs, files in os.walk(input_dir):
-        for file in files:
-            if file.endswith(('.csv', '.tsv', '.txt')):
-                full_path = Path(root) / file
-                try:
-                    # Simulate validation during loading
-                    _ = load_raw_data_from_dataset(full_path, config)
-                    paths.append(full_path)
-                except Exception as e:
-                    errors.append(f"Failed to load {file}: {str(e)}")
-    return paths, errors
+def load_raw_data(data_dir: Path) -> List[pd.DataFrame]:
+    """Load raw data files from directory."""
+    files = list(data_dir.glob("*.csv"))
+    dfs = []
+    for f in files:
+        dfs.append(pd.read_csv(f))
+    return dfs
 
-def validate_data_columns(df: Any, required_cols: List[str]) -> bool:
-    """Check if dataframe has required columns."""
-    if not hasattr(df, 'columns'):
-        return False
-    missing = [c for c in required_cols if c not in df.columns]
-    return len(missing) == 0
+def validate_data_columns(df: pd.DataFrame) -> bool:
+    """Validate that DataFrame has required columns."""
+    required = ['timestamp', 'x', 'y', 'pupil_diameter']
+    return all(col in df.columns for col in required)
 
-def preprocess_single_subject(subject_id: str, file_path: Path, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Process data for a single subject."""
-    try:
-        # 1. Load
-        raw_df = load_raw_data_from_dataset(file_path, config)
-        if raw_df is None:
-            logger.warning(f"Failed to load data for subject {subject_id}")
-            return None
+def preprocess_single_subject(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Preprocess a single subject's data.
+    
+    Args:
+        df: Input DataFrame
+        config: Configuration dictionary
+        
+    Returns:
+        Preprocessed DataFrame
+    """
+    # Apply blink interpolation and filtering
+    processed = process_pupil_data(df, config)
+    
+    # Log exclusions
+    write_quality_report(processed, config)
+    
+    return processed
 
-        # 2. Validate
-        required = ['timestamp', 'pupil_diameter', 'x', 'y']
-        if not validate_data_columns(raw_df, required):
-            logger.error(f"Missing columns for subject {subject_id}")
-            return None
-
-        # 3. Filter (Blink interpolation + Low-pass)
-        filtered_df = process_pupil_data(raw_df, config)
-        if filtered_df is None:
-            logger.warning(f"Filtering failed for subject {subject_id}")
-            return None
-
-        # 4. Extract Features
-        feature_df = extract_features(filtered_df, config)
-        if feature_df is None:
-            logger.warning(f"Feature extraction failed for subject {subject_id}")
-            return None
-
-        return {
-            'subject_id': subject_id,
-            'processed_data': feature_df,
-            'status': 'success'
-        }
-    except Exception as e:
-        logger.error(f"Error processing subject {subject_id}: {str(e)}", exc_info=True)
-        return None
-
-def run_preprocessing_pipeline(input_dir: Path, output_dir: Path, config: Dict[str, Any]) -> Dict[str, Any]:
-    """Run the full preprocessing pipeline."""
-    logger.info(f"Starting preprocessing pipeline for {input_dir}")
-
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load raw paths
-    raw_paths, load_errors = load_raw_data(input_dir, config)
-    if not raw_paths:
-        logger.error("No valid data files found.")
-        return {'status': 'fail', 'errors': load_errors}
-
-    results = []
-    for file_path in raw_paths:
-        subject_id = file_path.stem  # Assume filename is subject ID
-        result = preprocess_single_subject(subject_id, file_path, config)
-        if result:
-            results.append(result)
-            # Save processed data
-            out_path = output_dir / f"{subject_id}_processed.csv"
-            save_to_csv(result['processed_data'], out_path)
-        else:
-            logger.warning(f"Skipped subject {subject_id} due to processing failure.")
-
-    # Write quality report
-    write_quality_report(results, output_dir)
-
-    logger.info(f"Preprocessing complete. {len(results)} subjects processed.")
-    return {
-        'status': 'success',
-        'processed_count': len(results),
-        'errors': load_errors
-    }
+def run_preprocessing_pipeline(config: Dict[str, Any]):
+    """
+    Run the full preprocessing pipeline.
+    
+    Args:
+        config: Configuration dictionary
+    """
+    processed_data_dir = Path(config['paths']['processed_data'])
+    processed_data_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load processed data from loading stage
+    input_files = list(processed_data_dir.glob("*_normalized.csv"))
+    
+    if not input_files:
+        logger.warning("No normalized files found. Creating empty processed file.")
+        # Create minimal structure
+        empty_df = pd.DataFrame(columns=['timestamp', 'x', 'y', 'pupil_diameter', 'subject_id', 'trial_id'])
+        empty_df.to_csv(processed_data_dir / 'preprocessed_data.csv', index=False)
+        return
+    
+    all_processed = []
+    for input_file in input_files:
+        logger.info(f"Preprocessing {input_file}")
+        df = pd.read_csv(input_file)
+        processed = preprocess_single_subject(df, config)
+        
+        # Add subject ID based on filename
+        subject_id = input_file.stem.replace('_normalized', '')
+        processed['subject_id'] = subject_id
+        
+        all_processed.append(processed)
+    
+    # Combine all subjects
+    combined = pd.concat(all_processed, ignore_index=True)
+    output_path = processed_data_dir / 'preprocessed_data.csv'
+    combined.to_csv(output_path, index=False)
+    
+    logger.info(f"Preprocessing complete. Output: {output_path}")
 
 def main():
-    """CLI entry point for preprocessing."""
-    from config import load_config
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run preprocessing pipeline")
-    parser.add_argument("--input", type=str, required=True, help="Input directory")
-    parser.add_argument("--output", type=str, required=True, help="Output directory")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Config file path")
+    """Main entry point for preprocessing."""
+    parser = argparse.ArgumentParser(description="Preprocess eye-tracking data")
+    parser.add_argument("--config", type=str, default="code/config.yaml")
     args = parser.parse_args()
-
-    # Load config
-    config = load_config(args.config)
-
-    # Setup logging
-    from logging_config import setup_logging
-    setup_logging()
-
-    # Run pipeline
-    result = run_preprocessing_pipeline(
-        Path(args.input),
-        Path(args.output),
-        config
-    )
-
-    if result['status'] == 'fail':
-        sys.exit(1)
-
-    logger.info("Pipeline finished successfully.")
+    
+    config = load_config(Path(args.config))
+    run_preprocessing_pipeline(config)
 
 if __name__ == "__main__":
     main()

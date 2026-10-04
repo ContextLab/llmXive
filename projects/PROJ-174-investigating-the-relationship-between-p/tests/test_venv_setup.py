@@ -1,45 +1,44 @@
-import os
-import sys
 import subprocess
-import pytest
+import sys
 from pathlib import Path
 
-def test_python_version_check():
-    """Test that the Python version check function works."""
-    from setup_venv import check_python_version
-    # This should not raise if running on 3.11, otherwise it raises RuntimeError
-    # We can't guarantee the environment is 3.11 in all test runners, so we just check
-    # that the function exists and returns True if version matches, or raises otherwise.
-    try:
-        result = check_python_version()
-        assert result is True
-    except RuntimeError:
-        # If we are not on 3.11, we expect a RuntimeError, which is valid behavior
-        pass
+def test_venv_exists():
+    """Test that the virtual environment directory exists."""
+    code_dir = Path(__file__).parent.parent
+    venv_path = code_dir / '.venv'
+    assert venv_path.exists(), f"Virtual environment not found at {venv_path}"
+    assert (venv_path / 'bin' / 'python').exists(), f"Python executable not found in {venv_path}"
 
-def test_venn_path_exists_if_created():
-    """Test that the virtual environment path is correctly constructed."""
-    from setup_venv import create_virtual_environment
-    # We don't actually create it here to avoid clutter, but we check the path logic
-    venv_path = Path("code/venv")
-    assert venv_path == Path("code/venv")
+def test_python_version():
+    """Test that the virtual environment uses Python 3.11.x."""
+    code_dir = Path(__file__).parent.parent
+    python_path = code_dir / '.venv' / 'bin' / 'python'
+    
+    result = subprocess.run(
+        [str(python_path), '--version'],
+        check=True,
+        capture_output=True,
+        text=True
+    )
+    
+    version_output = result.stdout.strip()
+    assert 'Python 3.11' in version_output, f"Expected Python 3.11.x, got: {version_output}"
 
-def test_requirements_file_exists():
-    """Test that requirements.txt exists."""
-    req_path = Path("code/requirements.txt")
-    assert req_path.exists(), "requirements.txt must exist for T002b to be valid"
-
-def test_install_dependencies_logic():
-    """Test that the install_dependencies function has the correct logic."""
-    from setup_venv import install_dependencies
-    # We verify the function exists and handles the missing venv case
-    try:
-        install_dependencies()
-        # If it runs, it means venv and requirements exist
-        assert True
-    except FileNotFoundError:
-        # Expected if venv or requirements missing
-        assert True
-    except Exception:
-        # Other errors are also acceptable in test context
-        assert True
+def test_dependencies_installed():
+    """Test that key dependencies are installed in the virtual environment."""
+    code_dir = Path(__file__).parent.parent
+    python_path = code_dir / '.venv' / 'bin' / 'python'
+    
+    # List of packages that should be installed according to requirements.txt
+    required_packages = [
+        'pandas', 'numpy', 'scipy', 'statsmodels', 'scikit-learn',
+        'mne', 'pyyaml', 'tqdm', 'requests', 'datasets', 'python-dotenv'
+    ]
+    
+    for package in required_packages:
+        result = subprocess.run(
+            [str(python_path), '-c', f'import {package}'],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0, f"Package {package} is not installed or importable"
