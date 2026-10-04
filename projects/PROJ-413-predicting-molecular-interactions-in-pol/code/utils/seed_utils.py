@@ -48,21 +48,15 @@ def set_seed(seed: int = 42, deterministic: bool = True) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)  # if multi-GPU
+        
+        # PyTorch deterministic behavior for CUDA
+        if deterministic:
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
     else:
         # On CPU-only systems (common in CI runners), skip CUDA seed setting
         # but log that we are running in CPU-only mode
         pass
-
-    # PyTorch deterministic behavior
-    if deterministic:
-        # Only set CuDNN flags if CUDA is available
-        if torch.cuda.is_available():
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-        else:
-            # On CPU-only systems, we can still set some deterministic flags
-            # but CuDNN flags are not applicable
-            pass
 
     # Record the seed for logging
     system_type = "GPU" if torch.cuda.is_available() else "CPU"

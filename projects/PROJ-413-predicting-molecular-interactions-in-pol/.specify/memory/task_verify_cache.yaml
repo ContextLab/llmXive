@@ -1,11 +1,11 @@
-T025:
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `analysis/topology_audit.md` file was provided, nor any excerpt showing its
-    contents. Without the markdown file containing the required sections (Node Counts,
-    Edge Counts, Pruning Statistics, Physical Parameterization Summary), the claim
-    that the task is complete cannot be verified. The implementer must supply the
-    generated `analysis/topology_audit.md` with the specified information.
+  h: eed4b553d2fa5e71e843f3381b42dfd33a54fe2f09435c52ee4b1371e4177d0c
+  r: The repository contains a `code/utils/logger.py` that defines a `PerformanceLogger`
+    intended to write metrics to `results/performance.json`, but the required `results/performance.json`
+    file is absent, indicating the logging output has not been generated. Without
+    the JSON artifact, the task of tracking runtime and memory usage in that location
+    is not fulfilled.
 T029:
   c: false
   h: 7fdae23b32a288b1cbd77b8f7b4f98b1ad1bea8b49af5601fcf34c7cfcfbc8d9
@@ -78,9 +78,3 @@ T051:
   r: "No `analysis/power_analysis.md` file was provided, and there is no evidence\
     \ of any document containing the required sections (Effect Size, Alpha, Power,\
     \ Required N, Limitations). The task\u2019s deliverable is therefore missing."
-T063:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or its contents were provided, so we cannot confirm that FR-003\
-    \ now states \u201C3-layer Graph Attention Network (GAT)\u201D and that FR-007\
-    \ has been clarified as required. The necessary artifact is missing."
