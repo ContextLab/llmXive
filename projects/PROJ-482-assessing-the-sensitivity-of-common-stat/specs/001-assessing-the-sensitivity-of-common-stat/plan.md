@@ -17,10 +17,10 @@ This project quantifies the sensitivity of t-tests, ANOVA, and chi-squared tests
 **Project Type**: Computational Research / CLI  
 **Performance Goals**: Complete simulation suite within 6 hours; adaptive stopping ensures precision without over-computation.  
 **Constraints**: No external data fetch (synthetic only); strict adherence to ground-truth validation; CPU-only execution unless scaled GPU is explicitly required (not applicable here).  
-**Scale/Scope**: 20 sample sizes × 3 distributions × 3 tests × adaptive replicates (min 1000).
+**Scale/Scope**: A range of sample sizes × 3 distributions × 3 tests × adaptive replicates (sufficient for statistical power).
 
 **Data Generation Strategy (FR-001)**:
-- **Sample Sizes**: 20 specific points, log-spaced from 10 to 1000 (e.g., `np.logspace(1, 3, 20, dtype=int)`).
+- **Sample Sizes**: A set of points, log-spaced from 10 to 1000 (e.g., `np.logspace(1, 3, 20, dtype=int)`).
 - **Distributions**: Normal, Uniform, Log-Normal.
 - **Hypotheses**: 
   - Null ($H_0$): Effect size = 0.0.
@@ -29,7 +29,7 @@ This project quantifies the sensitivity of t-tests, ANOVA, and chi-squared tests
 
 **Simulation Engine (FR-002, FR-003)**:
 - **Tests**: Independent t-test, One-way ANOVA, Chi-squared test of independence.
-- **Adaptive Replication**: Start with a sufficient number of replicates. Calculate 95% CI width for the error rate. If width > 0.01, **add 500 replicates** until convergence.
+- **Adaptive Replication**: Start with a sufficient number of replicates. Calculate 95% CI width for the error rate. If width > 0.01, **add a sufficient number of replicates** until convergence.
 - **Chi-Squared Handling**: If expected cell counts < 5, automatically switch to **Fisher's Exact Test**.
 - **Error Classification**: 
   - Type I: Reject $H_0$ when $H_0$ is true (p < **0.05**).
@@ -37,8 +37,8 @@ This project quantifies the sensitivity of t-tests, ANOVA, and chi-squared tests
 - **Alpha Threshold**: Nominal alpha is **0.05**.
 
 **Analysis & Modeling (FR-006)**:
-- **Aggregation**: Compute mean error rates and **non-parametric bootstrap** 95% CIs (1000 resamples) for each configuration.
-- **Visualization**: Plot error rate vs. sample size, faceted by distribution and test type. "Publication-ready" defined as high-resolution (300 DPI), labeled axes, vector format (SVG).
+- **Aggregation**: Compute mean error rates and **non-parametric bootstrap** 95% CIs (A sufficient number of resamples will be conducted.) for each configuration.
+- **Visualization**: Plot error rate vs. sample size, faceted by distribution and test type. "Publication-ready" defined as high-resolution, labeled axes, vector format (SVG).
 - **Regression**: Fit a **Binomial GLM** to predict the **observed error rate** (proportion) using predictors: **natural log** of sample size, distribution type, and test type.
   - *Metric*: **Cox-Snell/Nagelkerke pseudo-$R^2$** (appropriate for Binomial GLM).
   - *Deviation*: Calculated post-hoc as |observed rate - 0.05|.
