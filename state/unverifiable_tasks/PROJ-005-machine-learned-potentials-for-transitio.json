@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-005-machine-learned-potentials-for-transitio",
+  "tasks": [
+    {
+      "task_key": "T016b",
+      "reject_count": 1,
+      "last_reason": "The required output file `code/data/processed/data_scarcity_flag.json` does not exist, and the provided excerpt of `ingest.py` shows no implementation of the scarcity\u2011flag logic (reading the count, comparing to the threshold, and writing the JSON). The task\u2019s core requirement is therefore unmet.",
+      "first_seen": "2026-10-04T16:19:20.141323+00:00",
+      "last_seen": "2026-10-04T16:19:20.141323+00:00"
+    },
+    {
+      "task_key": "T029a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: code/data/processed/cv_fold_results.json",
+      "first_seen": "2026-10-04T16:19:22.197659+00:00",
+      "last_seen": "2026-10-04T16:19:22.197659+00:00"
+    }
+  ],
+  "updated_at": "2026-10-04T16:19:22.197659+00:00"
+}

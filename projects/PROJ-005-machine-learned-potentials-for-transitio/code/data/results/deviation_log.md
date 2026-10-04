@@ -4,7 +4,7 @@
 **FR-006**: Perform a paired t-test to compare error distributions between Group 13 and Conventional ligands.
 
 ## Implemented Logic
-**Task T035**: Implemented an **unpaired Welch's t-test** to compare error distributions between Group 13 and Conventional ligands.
+**Task T034**: Implemented an **unpaired Welch's t-test** to compare error distributions between Group 13 and Conventional ligands.
 
 ## Statistical Justification
 The original specification (FR-006) requested a **paired t-test**, which assumes that each observation in Group 13 has a corresponding, naturally paired observation in the Conventional group. However, in the context of transition state catalysis:

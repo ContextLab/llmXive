@@ -1,288 +1,285 @@
 """
-T026: Implement prediction script for barrier height estimation.
-Generates metrics (MAE, RMSE, Pearson) and residuals for the held-out test set.
+Predict barrier heights for the held-out test set using the trained ensemble.
+
+This script loads the 5-fold LLSO splits, identifies the test samples,
+loads the trained SchNet ensemble models, generates predictions, and
+computes the error residuals (ML - DFT).
+
+Output: code/data/processed/residuals.parquet
 """
 import json
 import logging
-import os
 import sys
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import torch
-from torch_geometric.data import DataLoader
-from torch_geometric.data import Data
+from torch_geometric.data import Batch
 
-# Import from project structure
-from src.models.schnet import SchNet, get_model_config
-from src.utils.config import get_project_root, load_yaml_config
-from src.utils.logging import setup_logger, log_progress, log_metric, log_error_summary
+# Project root resolution
+ROOT = Path(__file__).resolve().parent.parent.parent
+if ROOT.name == "src":
+    ROOT = ROOT.parent
+if ROOT.name == "code":
+    ROOT = ROOT.parent
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(ROOT / "logs" / "predict.log", mode="a", encoding="utf-8"),
+    ],
+)
 logger = logging.getLogger(__name__)
 
-def load_checkpoint(model: SchNet, checkpoint_path: Path, device: torch.device) -> SchNet:
-    """Load weights from a checkpoint file."""
-    if not checkpoint_path.exists():
-        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
-    logger.info(f"Loading checkpoint from {checkpoint_path}")
-    checkpoint = torch.load(checkpoint_path, map_location=device)
-    model.load_state_dict(checkpoint['state_dict'])
-    model.to(device)
-    model.eval()
-    return model
+# Import local modules (assuming code/src is in sys.path or relative import structure)
+# We need to ensure the path is set up correctly for imports
+sys.path.insert(0, str(ROOT))
+from code.src.models.schnet import SchNet
+from code.src.utils.config import config
 
-def predict_batch(
-    model: SchNet,
-    batch: Data,
-    device: torch.device
-) -> torch.Tensor:
-    """Run inference on a batch of graphs."""
-    with torch.no_grad():
-        batch = batch.to(device)
-        output = model(batch)
-        return output.cpu().numpy().flatten()
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return ROOT
 
-def compute_metrics(
-    y_true: np.ndarray,
-    y_pred: np.ndarray
-) -> Dict[str, float]:
-    """Compute MAE, RMSE, and Pearson correlation."""
-    if len(y_true) == 0:
-        return {
-            "mae": 0.0,
-            "rmse": 0.0,
-            "pearson_r": 0.0,
-            "n_samples": 0
-        }
+def load_splits(splits_path: Path) -> Dict[str, List[List[int]]]:
+    """Load the LLSO splits JSON."""
+    logger.info(f"Loading splits from {splits_path}")
+    with open(splits_path, "r") as f:
+        splits = json.load(f)
+    return splits
 
-    mae = np.mean(np.abs(y_true - y_pred))
-    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+def load_graphs_for_prediction(graphs_path: Path, indices: List[int]) -> Batch:
+    """
+    Load specific graphs from the parquet file based on indices.
+    Returns a PyTorch Geometric Batch object.
+    """
+    logger.info(f"Loading {len(indices)} graphs for prediction from {graphs_path}")
+    df = pd.read_parquet(graphs_path)
     
-    # Pearson correlation
-    if np.std(y_true) == 0 or np.std(y_pred) == 0:
-        pearson_r = 0.0
+    # Filter dataframe by indices
+    # Assuming 'sample_id' or index matches the split indices
+    if 'sample_id' in df.columns:
+        # If sample_id is string, convert indices to string if necessary
+        # But typically splits use integer indices corresponding to df index
+        subset_df = df.iloc[indices]
     else:
-        pearson_r = np.corrcoef(y_true, y_pred)[0, 1]
-        if np.isnan(pearson_r):
-            pearson_r = 0.0
+        subset_df = df.iloc[indices]
 
-    return {
-        "mae": float(mae),
-        "rmse": float(rmse),
-        "pearson_r": float(pearson_r),
-        "n_samples": len(y_true)
-    }
+    if subset_df.empty:
+        raise ValueError(f"No graphs found for indices {indices[:5]}...")
 
-def run_prediction_ensemble(
-    data_path: Path,
-    model_dir: Path,
-    output_metrics_path: Path,
-    output_residuals_path: Path,
-    device: torch.device,
-    batch_size: int = 32
-) -> Dict[str, Any]:
-    """
-    Run the ensemble prediction on the test set.
+    # Reconstruct Batch from dataframe rows
+    # This assumes the dataframe contains serialized graph data or we have a loader
+    # Based on typical pipeline, graphs.parquet usually stores edge_index, x, y, etc.
+    # Or it stores a 'graph' column with pickle data.
+    # Let's assume a standard structure: x, edge_index, edge_attr, y (barrier), sample_id
     
-    Logic:
-    1. Load test data (parquet) containing node/edge features and target (barrier).
-    2. Convert to PyG Data objects.
-    3. Load 5 model checkpoints.
-    4. Aggregate predictions (mean) and compute residuals (ML - DFT).
-    5. Compute aggregate metrics.
-    6. Save metrics.json and residuals.parquet.
-    """
-    # 1. Load Data
-    logger.info(f"Loading test data from {data_path}")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Test data not found: {data_path}. Ensure T020 (graph generation) is complete.")
-    
-    df_graphs = pd.read_parquet(data_path)
-    
-    # Convert dataframe to list of PyG Data objects
-    # Assumes columns: 'atomic_numbers' (list), 'pos' (list of lists), 'edge_index' (list of lists), 'edge_attr' (list), 'y' (scalar)
-    # We need to reconstruct the Data object structure expected by SchNet
+    # We need to reconstruct PyG Data objects
     graphs = []
-    for idx, row in df_graphs.iterrows():
-        # Handle potential list/string parsing if stored as strings
-        atomic_numbers = row.get('atomic_numbers')
-        if isinstance(atomic_numbers, str):
-            atomic_numbers = eval(atomic_numbers)
+    for _, row in subset_df.iterrows():
+        # Handle potential serialization formats
+        # Case 1: Columns are direct tensors (unlikely in parquet without custom engine)
+        # Case 2: Columns are lists/arrays that need conversion
+        # Case 3: A 'graph' column with pickled objects (most robust for complex graphs)
         
-        pos = row.get('pos')
-        if isinstance(pos, str):
-            pos = eval(pos)
-        
-        edge_index = row.get('edge_index')
-        if isinstance(edge_index, str):
-            edge_index = eval(edge_index)
-        
-        edge_attr = row.get('edge_attr')
-        if isinstance(edge_attr, str):
-            edge_attr = eval(edge_attr)
-        
-        y = row.get('y') # Barrier height
-        
-        if atomic_numbers is None or pos is None:
-            logger.warning(f"Skipping row {idx} due to missing features")
-            continue
-
-        # Convert to tensors
-        x = torch.tensor(atomic_numbers, dtype=torch.long).unsqueeze(1)
-        pos_tensor = torch.tensor(pos, dtype=torch.float)
-        
-        # Edge index usually [2, num_edges]
-        if edge_index and len(edge_index) == 2:
-            edge_index_tensor = torch.tensor(edge_index, dtype=torch.long)
+        if 'graph' in row.index and pd.notna(row['graph']):
+            # Pickled graph
+            import pickle
+            import io
+            # If it's bytes, load directly. If it's a string representation, need to eval/loads
+            if isinstance(row['graph'], bytes):
+                data = pickle.loads(row['graph'])
+            else:
+                # Fallback for stringified pickle
+                data = pickle.loads(io.BytesIO(row['graph']).read())
         else:
-            # Fallback if stored differently, though spec implies standard format
-            edge_index_tensor = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
+            # Reconstruct from columns (assuming standard columns exist)
+            # This part is highly dependent on how T017b saved the data.
+            # Assuming standard columns: 'x', 'edge_index', 'edge_attr', 'y', 'sample_id'
+            x = torch.tensor(row['x'], dtype=torch.float) if isinstance(row['x'], list) else row['x']
+            edge_index = torch.tensor(row['edge_index'], dtype=torch.long) if isinstance(row['edge_index'], list) else row['edge_index']
+            edge_attr = torch.tensor(row['edge_attr'], dtype=torch.float) if isinstance(row['edge_attr'], list) else row['edge_attr']
+            y = torch.tensor([row['y']], dtype=torch.float) if isinstance(row['y'], (int, float)) else row['y']
+            
+            # Create Data object
+            from torch_geometric.data import Data
+            data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
+            # Add metadata if present
+            if 'sample_id' in row.index:
+                data.sample_id = str(row['sample_id'])
+            if 'ligand_class' in row.index:
+                data.ligand_class = row['ligand_class']
+            if 'metal_center' in row.index:
+                data.metal_center = row['metal_center']
 
-        edge_attr_tensor = torch.tensor(edge_attr, dtype=torch.float) if edge_attr else torch.empty((0, 1))
+        graphs.append(data)
 
-        graph = Data(
-            x=x,
-            pos=pos_tensor,
-            edge_index=edge_index_tensor,
-            edge_attr=edge_attr_tensor,
-            y=torch.tensor([y], dtype=torch.float)
-        )
-        graphs.append(graph)
+    if not graphs:
+        raise ValueError("No graphs reconstructed.")
 
-    logger.info(f"Loaded {len(graphs)} test graphs")
-    if len(graphs) == 0:
-        raise ValueError("No valid graphs loaded for prediction.")
+    batch = Batch.from_data_list(graphs)
+    return batch
 
-    # 2. Prepare DataLoader
-    loader = DataLoader(graphs, batch_size=batch_size, shuffle=False)
-
-    # 3. Load Models
-    model_config = get_model_config()
-    device = torch.device(device)
-    
-    checkpoints = sorted(list(model_dir.glob("seed_*.pt")))
-    if len(checkpoints) == 0:
-        raise FileNotFoundError(f"No model checkpoints found in {model_dir}. Ensure T025 (training) is complete.")
-    
+def load_ensemble_models(models_dir: Path, num_models: int = 5) -> List[SchNet]:
+    """Load all trained SchNet models from the directory."""
     models = []
-    for cp in checkpoints:
-        model = SchNet(**model_config)
-        load_checkpoint(model, cp, device)
+    for i in range(num_models):
+        model_path = models_dir / f"seed_{i}.pt"
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model checkpoint not found: {model_path}")
+        
+        logger.info(f"Loading model {i} from {model_path}")
+        model = SchNet() # Assuming default constructor matches training config
+        model.load_state_dict(torch.load(model_path, map_location="cpu"))
+        model.eval()
         models.append(model)
     
-    logger.info(f"Loaded {len(models)} ensemble models")
+    return models
 
-    # 4. Predict and Aggregate
-    all_true = []
-    all_pred_mean = []
-    all_residuals = []
-    all_pred_variance = [] # Optional: for uncertainty analysis later
-
-    for batch in loader:
-        batch_preds = []
+def predict_batch(batch: Batch, models: List[SchNet]) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Run inference on a batch using all ensemble models.
+    Returns: (mean_predictions, variance_predictions)
+    """
+    predictions = []
+    
+    with torch.no_grad():
         for model in models:
-          preds = predict_batch(model, batch, device)
-          batch_preds.append(preds)
-        
-        # Stack: (n_models, n_samples)
-        batch_preds = np.stack(batch_preds, axis=0)
-        
-        # Mean prediction
-        mean_pred = np.mean(batch_preds, axis=0)
-        # Variance (optional, for SC-005 later)
-        variance = np.var(batch_preds, axis=0)
-        
-        # Get targets
-        batch_y = batch.y.cpu().numpy().flatten()
-        
-        all_true.extend(batch_y)
-        all_pred_mean.extend(mean_pred)
-        all_pred_variance.extend(variance)
-
-        # Residual = ML - DFT (Predicted - True)
-        residuals = mean_pred - batch_y
-        all_residuals.extend(residuals.tolist())
-
-    y_true = np.array(all_true)
-    y_pred = np.array(all_pred_mean)
-    residuals = np.array(all_residuals)
-
-    # 5. Compute Metrics
-    metrics = compute_metrics(y_true, y_pred)
+            output = model(batch)
+            # output shape: [num_graphs] or [num_graphs, 1]
+            if output.dim() > 1:
+                output = output.squeeze(-1)
+            predictions.append(output.cpu().numpy())
     
-    # Add ensemble variance info to metrics if needed, or save separately
-    # For now, just basic metrics as per FR-004
-    log_metric("MAE", metrics["mae"])
-    log_metric("RMSE", metrics["rmse"])
-    log_metric("Pearson R", metrics["pearson_r"])
-
-    # 6. Save Artifacts
-    # Save metrics.json
-    output_metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Saved metrics to {output_metrics_path}")
-
-    # Save residuals.parquet
-    # Create a dataframe with original indices (if available) or just row index
-    # We need to map back to the original df to include original features if desired, 
-    # but task specifically asks for residuals.parquet containing per-sample error.
-    residuals_df = pd.DataFrame({
-        "true_barrier": y_true,
-        "predicted_barrier": y_pred,
-        "residual": residuals,
-        "ensemble_variance": all_pred_variance
-    })
+    predictions = np.stack(predictions, axis=-1) # [num_samples, num_models]
+    mean_preds = np.mean(predictions, axis=1)
+    var_preds = np.var(predictions, axis=1)
     
-    # Add original index if we want to trace back
-    residuals_df["original_index"] = range(len(residuals_df))
-    
-    output_residuals_path.parent.mkdir(parents=True, exist_ok=True)
-    residuals_df.to_parquet(output_residuals_path, index=False)
-    logger.info(f"Saved residuals to {output_residuals_path}")
+    return mean_preds, var_preds
 
-    return metrics
+def extract_test_indices(splits: Dict[str, List[List[int]]]) -> List[int]:
+    """Flatten the test indices from the 5-fold splits."""
+    # The splits format is {"train": [...], "val": [...], "test": [...]}
+    # where each value is a list of 5 lists (one per fold).
+    # We need to aggregate all test indices across all 5 folds?
+    # Or process fold by fold? The task says "held-out test set".
+    # Usually, we evaluate on the union of all test sets if we want a single metric,
+    # OR we evaluate fold-by-fold.
+    # Given T025 says "held-out test set" (singular) and T027a aggregates,
+    # we will collect all unique test indices from the 5 folds.
+    
+    test_indices = []
+    for fold_test in splits["test"]:
+        test_indices.extend(fold_test)
+    
+    # Remove duplicates just in case, though LLSO should be disjoint
+    test_indices = sorted(list(set(test_indices)))
+    logger.info(f"Total unique test samples: {len(test_indices)}")
+    return test_indices
+
+def run_prediction() -> None:
+    """Main execution function for T025."""
+    # Paths
+    splits_path = get_project_root() / "code" / "data" / "processed" / "splits.json"
+    graphs_path = get_project_root() / "code" / "data" / "processed" / "graphs.parquet"
+    models_dir = get_project_root() / "code" / "data" / "processed" / "models"
+    output_path = get_project_root() / "code" / "data" / "processed" / "residuals.parquet"
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # 1. Load Splits
+    splits = load_splits(splits_path)
+    test_indices = extract_test_indices(splits)
+
+    if not test_indices:
+        logger.error("No test indices found in splits.")
+        sys.exit(1)
+
+    # 2. Load Graphs for test set
+    # We need to load the full graph data to extract metadata (ligand_class, metal_center)
+    # and the graph structure for inference.
+    try:
+        test_batch = load_graphs_for_prediction(graphs_path, test_indices)
+    except Exception as e:
+        logger.error(f"Failed to load graphs: {e}")
+        sys.exit(1)
+
+    # 3. Load Models
+    try:
+        models = load_ensemble_models(models_dir)
+    except Exception as e:
+        logger.error(f"Failed to load models: {e}")
+        sys.exit(1)
+
+    # 4. Generate Predictions
+    logger.info("Running inference...")
+    start_time = time.time()
+    mean_preds, var_preds = predict_batch(test_batch, models)
+    inference_time = time.time() - start_time
+    logger.info(f"Inference completed in {inference_time:.2f}s for {len(test_indices)} samples.")
+
+    # 5. Prepare Output Data
+    # Load metadata from the original dataframe to match indices
+    df = pd.read_parquet(graphs_path)
+    # Filter for test indices
+    test_df = df.iloc[test_indices].copy()
+    
+    # Ensure alignment: test_df index might not be sequential 0..N, but matches test_indices
+    # We need to construct the result dataframe row by row or ensure index alignment
+    
+    results_data = {
+        "sample_id": [],
+        "error_ml_dft": [],
+        "ligand_class": [],
+        "metal_center": [],
+        "predicted_barrier": [],
+        "dft_barrier": [],
+        "ensemble_variance": []
+    }
+
+    # Iterate through the test samples (aligned by position in test_indices)
+    for i, idx in enumerate(test_indices):
+        # Get row from original df
+        row = df.iloc[idx]
+        
+        sample_id = str(row.get('sample_id', idx))
+        ligand_class = row.get('ligand_class', 'Unknown')
+        metal_center = row.get('metal_center', 'Unknown')
+        dft_barrier = float(row['y']) # Assuming 'y' is the DFT barrier height
+        
+        pred_barrier = float(mean_preds[i])
+        error = pred_barrier - dft_barrier
+        variance = float(var_preds[i])
+
+        results_data["sample_id"].append(sample_id)
+        results_data["error_ml_dft"].append(error)
+        results_data["ligand_class"].append(ligand_class)
+        results_data["metal_center"].append(metal_center)
+        results_data["predicted_barrier"].append(pred_barrier)
+        results_data["dft_barrier"].append(dft_barrier)
+        results_data["ensemble_variance"].append(variance)
+
+    results_df = pd.DataFrame(results_data)
+
+    # 6. Save Output
+    logger.info(f"Saving residuals to {output_path}")
+    results_df.to_parquet(output_path, index=False)
+    
+    logger.info("T025 completed successfully.")
+    print(f"Output written to: {output_path}")
+    print(f"Rows: {len(results_df)}")
+    print(f"Columns: {list(results_df.columns)}")
+    print(f"Sample Error Stats: Mean={results_df['error_ml_dft'].mean():.4f}, Std={results_df['error_ml_dft'].std():.4f}")
 
 def main():
-    """Main entry point for T026."""
-    project_root = get_project_root()
-    config = load_yaml_config(project_root / "config.yaml")
-    
-    # Paths
-    data_path = project_root / "data" / "processed" / "graphs.parquet"
-    model_dir = project_root / "data" / "processed" / "models"
-    output_metrics = project_root / "data" / "processed" / "metrics.json"
-    output_residuals = project_root / "data" / "processed" / "residuals.parquet"
-    
-    # Setup logger
-    setup_logger(project_root / "data" / "logs" / "predict.log")
-    
-    logger.info("Starting T026: Prediction and Metrics Generation")
-    
-    try:
-        # Determine device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if device.type == "cpu":
-            logger.warning("Running on CPU. Training was also required to be CPU-compatible.")
-        
-        metrics = run_prediction_ensemble(
-            data_path=data_path,
-            model_dir=model_dir,
-            output_metrics_path=output_metrics,
-            output_residuals_path=output_residuals,
-            device=device,
-            batch_size=32
-        )
-        
-        logger.info("T026 completed successfully.")
-        print(json.dumps(metrics, indent=2))
-        
-    except Exception as e:
-        log_error_summary(e)
-        logger.error(f"T026 failed: {e}")
-        sys.exit(1)
+    run_prediction()
 
 if __name__ == "__main__":
     main()

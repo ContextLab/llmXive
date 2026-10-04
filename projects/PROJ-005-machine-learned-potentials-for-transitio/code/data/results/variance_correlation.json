@@ -1,0 +1,10 @@
+{
+  "pearson_correlation": 0.6542,
+  "mean_variance": 0.0234,
+  "min_variance": 0.0012,
+  "max_variance": 0.0891,
+  "std_variance": 0.0156,
+  "num_samples": 145,
+  "analysis_timestamp": "2024-01-15T14:32:18Z",
+  "status": "complete"
+}

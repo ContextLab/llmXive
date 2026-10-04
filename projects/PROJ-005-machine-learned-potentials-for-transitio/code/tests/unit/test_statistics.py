@@ -1,154 +1,256 @@
 """
-Unit tests for statistical analysis module.
+Unit tests for the statistics module (T034).
 """
-import json
-import tempfile
-from pathlib import Path
+
 import pytest
-import pandas as pd
 import numpy as np
-from scipy import stats
+from pathlib import Path
+import json
+import sys
+from unittest.mock import patch, MagicMock
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 from src.analysis.statistics import (
-    load_residuals_with_ligand_labels,
     perform_welch_ttest,
+    load_residuals_with_ligand_labels,
     run_statistical_analysis
 )
 
-@pytest.fixture
-def mock_residuals_data():
-    """Create mock residuals data with ligand classes."""
-    np.random.seed(42)
-    n_group13 = 50
-    n_conventional = 75
-    
-    # Generate mock errors with different distributions
-    errors_group13 = np.random.normal(loc=0.5, scale=0.2, size=n_group13)
-    errors_conventional = np.random.normal(loc=0.3, scale=0.25, size=n_conventional)
-    
-    # Create DataFrame
-    data = {
-        'sample_id': list(range(n_group13 + n_conventional)),
-        'error': np.concatenate([errors_group13, errors_conventional]),
-        'ligand_class': ['Group 13'] * n_group13 + ['Conventional'] * n_conventional
-    }
-    return pd.DataFrame(data)
 
-@pytest.fixture
-def mock_residuals_file(mock_residuals_data):
-    """Create a temporary parquet file with mock data."""
-    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
-        mock_residuals_data.to_parquet(f.name)
-        yield Path(f.name)
-        Path(f.name).unlink()
+class TestWelchTtest:
+    """Tests for the Welch's t-test implementation."""
 
-def test_load_residuals_with_ligand_labels(mock_residuals_file):
-    """Test loading residuals and ligand labels."""
-    df, labels = load_residuals_with_ligand_labels(mock_residuals_file)
-    
-    assert 'error' in df.columns
-    assert 'ligand_class' in df.columns
-    assert len(df) == 125
-    assert set(df['ligand_class'].unique()) == {'Group 13', 'Conventional'}
+    def test_perform_welch_ttest_basic(self):
+        """Test basic functionality with simple data."""
+        # Create two independent groups with known statistics
+        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        group2 = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
 
-def test_perform_welch_ttest_basic(mock_residuals_data):
-    """Test basic Welch's t-test execution."""
-    result = perform_welch_ttest(
-        mock_residuals_data,
-        group_col='ligand_class',
-        error_col='error',
-        group1_name='Group 13',
-        group2_name='Conventional'
-    )
-    
-    assert 't_statistic' in result
-    assert 'p_value' in result
-    assert 'degrees_of_freedom' in result
-    assert 'mean_difference' in result
-    assert 'confidence_interval_95' in result
-    assert result['group1_count'] == 50
-    assert result['group2_count'] == 75
-    assert result['test_type'] == 'unpaired_welch_ttest'
+        result = perform_welch_ttest(group1, group2)
 
-def test_welch_ttest_statistical_correctness(mock_residuals_data):
-    """Verify that our implementation matches scipy's result."""
-    group1 = mock_residuals_data[mock_residuals_data['ligand_class'] == 'Group 13']['error']
-    group2 = mock_residuals_data[mock_residuals_data['ligand_class'] == 'Conventional']['error']
-    
-    # Scipy's Welch's t-test
-    t_stat_expected, p_value_expected = stats.ttest_ind(group1, group2, equal_var=False)
-    
-    # Our implementation
-    result = perform_welch_ttest(
-        mock_residuals_data,
-        group_col='ligand_class',
-        error_col='error',
-        group1_name='Group 13',
-        group2_name='Conventional'
-    )
-    
-    assert np.isclose(result['t_statistic'], t_stat_expected, rtol=1e-5)
-    assert np.isclose(result['p_value'], p_value_expected, rtol=1e-5)
+        assert result["status"] == "completed"
+        assert result["t_statistic"] is not None
+        assert result["p_value"] is not None
+        assert result["degrees_of_freedom"] is not None
+        assert "confidence_interval" in result
+        assert len(result["confidence_interval"]) == 2
+        assert "effect_size" in result
 
-def test_run_statistical_analysis(mock_residuals_file):
-    """Test full analysis pipeline."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / 'statistical_tests.json'
-        
-        result = run_statistical_analysis(mock_residuals_file, output_path)
-        
-        # Verify output file exists
-        assert output_path.exists()
-        
-        # Verify result structure
-        assert 't_statistic' in result
-        assert 'p_value' in result
-        assert 'deviation_note' in result
-        assert 'analysis_timestamp' in result
-        
-        # Verify JSON can be loaded
-        with open(output_path, 'r') as f:
-            loaded = json.load(f)
-            assert loaded == result
+    def test_perform_welch_ttest_significant_difference(self):
+        """Test detection of significant difference between groups."""
+        # Groups with large mean difference
+        group1 = np.array([1.0, 1.5, 2.0, 1.8, 2.2])
+        group2 = np.array([10.0, 11.0, 10.5, 11.5, 10.8])
 
-def test_empty_group_raises_error(mock_residuals_data):
-    """Test that empty groups raise appropriate errors."""
-    # Filter to only one group
-    single_group = mock_residuals_data[mock_residuals_data['ligand_class'] == 'Group 13']
-    
-    with pytest.raises(ValueError, match="One of the groups has no data"):
-        perform_welch_ttest(
-            single_group,
-            group_col='ligand_class',
-            error_col='error',
-            group1_name='Group 13',
-            group2_name='Conventional'
+        result = perform_welch_ttest(group1, group2)
+
+        assert result["status"] == "completed"
+        assert result["is_significant"] is True
+        assert result["p_value"] < 0.05
+
+    def test_perform_welch_ttest_no_difference(self):
+        """Test when there is no significant difference."""
+        # Groups with similar means
+        np.random.seed(42)
+        group1 = np.random.normal(5.0, 1.0, 100)
+        group2 = np.random.normal(5.1, 1.0, 100)
+
+        result = perform_welch_ttest(group1, group2)
+
+        assert result["status"] == "completed"
+        # May or may not be significant due to randomness
+        assert result["t_statistic"] is not None
+        assert result["p_value"] is not None
+
+    def test_perform_welch_ttest_unequal_variances(self):
+        """Test handling of unequal variances (Welch's key feature)."""
+        # Group with small variance
+        group1 = np.array([5.0, 5.1, 4.9, 5.0, 5.05])
+        # Group with large variance
+        group2 = np.array([5.0, 10.0, 0.0, 7.5, 2.5])
+
+        result = perform_welch_ttest(group1, group2)
+
+        assert result["status"] == "completed"
+        # Should handle unequal variances without error
+        assert result["degrees_of_freedom"] is not None
+
+    def test_perform_welch_ttest_empty_group(self):
+        """Test handling of empty groups."""
+        group1 = np.array([])
+        group2 = np.array([1.0, 2.0, 3.0])
+
+        result = perform_welch_ttest(group1, group2)
+
+        assert result["status"] == "skipped"
+        assert "reason" in result
+
+    def test_perform_welch_ttest_single_element(self):
+        """Test with single element groups (should handle gracefully)."""
+        group1 = np.array([1.0])
+        group2 = np.array([2.0])
+
+        result = perform_welch_ttest(group1, group2)
+
+        # With single elements, variance is 0, so test may be skipped or return inf df
+        assert result["status"] in ["completed", "skipped"]
+
+    def test_perform_welch_ttest_output_structure(self):
+        """Verify all required fields are present in output."""
+        group1 = np.array([1.0, 2.0, 3.0])
+        group2 = np.array([4.0, 5.0, 6.0])
+
+        result = perform_welch_ttest(group1, group2)
+
+        required_fields = [
+            "status", "t_statistic", "p_value", "degrees_of_freedom",
+            "confidence_interval", "effect_size", "sample_sizes",
+            "means", "variances", "significance_level", "is_significant"
+        ]
+
+        for field in required_fields:
+            assert field in result, f"Missing required field: {field}"
+
+    def test_perform_welch_ttest_consistency_with_scipy(self):
+        """Verify results match scipy.stats.ttest_ind with equal_var=False."""
+        from scipy import stats as scipy_stats
+
+        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+        group2 = np.array([2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0])
+
+        result = perform_welch_ttest(group1, group2)
+
+        # Compare with scipy
+        scipy_t, scipy_p = scipy_stats.ttest_ind(group1, group2, equal_var=False)
+
+        assert np.isclose(result["t_statistic"], scipy_t, rtol=1e-10)
+        assert np.isclose(result["p_value"], scipy_p, rtol=1e-10)
+
+
+class TestLoadResiduals:
+    """Tests for loading residuals with ligand labels."""
+
+    @patch('pathlib.Path.exists')
+    @patch('pandas.read_parquet')
+    def test_load_residuals_success(self, mock_read_parquet, mock_exists):
+        """Test successful loading of residuals."""
+        mock_exists.return_value = True
+
+        # Create mock dataframe
+        mock_df = MagicMock()
+        mock_df.columns = ['error_ml_dft', 'ligand_class', 'sample_id']
+        mock_df.loc = MagicMock()
+
+        # Mock the loc indexer to return arrays
+        group13_data = MagicMock()
+        group13_data.values = np.array([0.1, 0.2, 0.3])
+        conventional_data = MagicMock()
+        conventional_data.values = np.array([0.4, 0.5, 0.6])
+
+        mock_df.loc.__getitem__ = MagicMock(side_effect=[
+            (MagicMock(), group13_data),  # First call for group13
+            (MagicMock(), conventional_data)  # Second call for conventional
+        ])
+
+        mock_df.__getitem__ = MagicMock(return_value=MagicMock(values=np.array(['s1', 's2', 's3'])))
+
+        mock_read_parquet.return_value = mock_df
+
+        with patch('src.analysis.statistics.logger'):
+            errors_g13, errors_conv, sample_ids = load_residuals_with_ligand_labels()
+
+            assert len(errors_g13) == 3
+            assert len(errors_conv) == 3
+            assert len(sample_ids) == 3
+
+    @patch('pathlib.Path.exists')
+    def test_load_residuals_file_not_found(self, mock_exists):
+        """Test handling of missing file."""
+        mock_exists.return_value = False
+
+        with pytest.raises(FileNotFoundError):
+            with patch('src.analysis.statistics.logger'):
+                load_residuals_with_ligand_labels()
+
+    @patch('pathlib.Path.exists')
+    @patch('pandas.read_parquet')
+    def test_load_residuals_missing_columns(self, mock_read_parquet, mock_exists):
+        """Test handling of missing columns."""
+        mock_exists.return_value = True
+
+        mock_df = MagicMock()
+        mock_df.columns = ['error_ml_dft']  # Missing 'ligand_class'
+
+        mock_read_parquet.return_value = mock_df
+
+        with pytest.raises(ValueError) as excinfo:
+            with patch('src.analysis.statistics.logger'):
+                load_residuals_with_ligand_labels()
+
+        assert "Missing required columns" in str(excinfo.value)
+
+
+class TestRunStatisticalAnalysis:
+    """Tests for the main analysis runner."""
+
+    @patch('src.analysis.statistics.load_residuals_with_ligand_labels')
+    @patch('src.analysis.statistics.perform_welch_ttest')
+    @patch('src.analysis.statistics.save_statistical_results')
+    @patch('pathlib.Path.mkdir')
+    def test_run_statistical_analysis_success(
+        self, mock_mkdir, mock_save, mock_ttest, mock_load
+    ):
+        """Test successful analysis run."""
+        mock_load.return_value = (
+            np.array([0.1, 0.2]),
+            np.array([0.3, 0.4]),
+            ['s1', 's2']
         )
+        mock_ttest.return_value = {
+            "status": "completed",
+            "t_statistic": 1.5,
+            "p_value": 0.15
+        }
 
-def test_missing_ligand_class_raises_error():
-    """Test that missing ligand class raises appropriate errors."""
-    df = pd.DataFrame({'error': [1, 2, 3]})
-    
-    with pytest.raises(ValueError, match="Ligand class information not found"):
-        perform_welch_ttest(
-            df,
-            group_col='ligand_class',
-            error_col='error'
+        result = run_statistical_analysis()
+
+        assert result["status"] == "completed"
+        assert mock_load.called
+        assert mock_ttest.called
+        assert mock_save.called
+
+    @patch('src.analysis.statistics.load_residuals_with_ligand_labels')
+    @patch('pathlib.Path.mkdir')
+    def test_run_statistical_analysis_load_failure(self, mock_mkdir, mock_load):
+        """Test handling of data loading failure."""
+        mock_load.side_effect = FileNotFoundError("File not found")
+
+        result = run_statistical_analysis()
+
+        assert result["status"] == "failed"
+        assert "error" in result
+
+    @patch('src.analysis.statistics.load_residuals_with_ligand_labels')
+    @patch('src.analysis.statistics.perform_welch_ttest')
+    @patch('pathlib.Path.mkdir')
+    def test_run_statistical_analysis_skipped(self, mock_mkdir, mock_ttest, mock_load):
+        """Test when test is skipped."""
+        mock_load.return_value = (
+            np.array([]),
+            np.array([0.1, 0.2]),
+            []
         )
+        mock_ttest.return_value = {
+            "status": "skipped",
+            "reason": "One or both groups have zero samples"
+        }
 
-def test_confidence_interval_logic(mock_residuals_data):
-    """Test that confidence intervals are computed correctly."""
-    result = perform_welch_ttest(
-        mock_residuals_data,
-        group_col='ligand_class',
-        error_col='error',
-        group1_name='Group 13',
-        group2_name='Conventional'
-    )
-    
-    ci = result['confidence_interval_95']
-    assert len(ci) == 2
-    assert ci[0] <= ci[1]
-    
-    # Mean difference should be between the bounds
-    mean_diff = result['mean_difference']
-    assert ci[0] <= mean_diff <= ci[1]
+        result = run_statistical_analysis()
+
+        assert result["status"] == "skipped"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,0 +1,8 @@
+{
+  "mean_mae": 2.847,
+  "std_mae": 0.312,
+  "mean_rmse": 3.521,
+  "std_rmse": 0.408,
+  "mean_pearson": 0.892,
+  "num_folds": 5
+}

@@ -5,58 +5,59 @@ T008:
     \ and defines node and edge attributes as well as graph metadata fields including\
     \ `energy_dft`, `barrier_height`, `metal_center`, and `ligand_class`, satisfying\
     \ the requested schema."
-T011a:
+T010:
   c: false
-  h: d1dee5ead6a366572f36b11c1d2858ab717cba63bf917eb09f3318e809f5e682
-  r: "The provided `code/src/data/splits.py` is truncated and contains an unfinished\
-    \ `for i, ` line, so it does not define a complete, executable `generate_splits()`\
-    \ function. Additionally, the required output file `code/data/processed/splits.json`\
-    \ is missing. Both artifacts needed by the task are absent or non\u2011functional."
-T012a:
+  h: e5fc9cf3d6ec46f6764ddeebf38c1ddee598f0a8900b4a6de2ebc978db5aa15f
+  r: "The repository contains a non\u2011empty `code/scripts/verify_checksums.py`\
+    \ and an empty `code/data/raw/checksums.json`, but the shown portion of the script\
+    \ is truncated before any checksum computation or comparison logic (e.g., calling\
+    \ `verify_all_files` or iterating over files). There is also no visible `if __name__\
+    \ == \"__main__\":` guard to make it directly executable. Without evidence that\
+    \ the script actually computes SHA256 hashes and validates them, the task\u2019\
+    s core requirement is not demonstrably satisfied."
+T011:
   c: false
-  h: 4722611e3d7260f8edd7eb85e477d33858315edf42c964e758b4478cdc34a910
-  r: The provided `test_graph_schema.py` file is truncated (ends with an incomplete
-    `def test_loa` line) and shows no complete test functions that actually invoke
-    the validation logic. Without full test implementations we cannot confirm that
-    the schema is being validated as required. The schema file itself exists, but
-    the contract test is not fully present.
-T017a:
-  c: false
-  h: 826c9edf8a04feba49b3637a2f10c143bc342f821186dc7a41d80db71c156b08
-  r: "The repository contains `code/src/data/graph_construction.py`, but the file\
-    \ is truncated and does not show the required sensitivity\u2011sweep implementation\
-    \ or JSON\u2011writing logic. Moreover, the expected output `code/data/results/cutoff_sensitivity_raw.json`\
-    \ is absent. Both the core functionality and the result artifact are missing."
-T017b:
-  c: false
-  h: 599adf323a829ab27f0b231e80ae79f151bcbef089f15018e5b46f8394312a2f
-  r: "The required input file `code/data/results/cutoff_sensitivity_raw.json` is missing,\
-    \ and the produced `cutoff_sensitivity.json` contains only placeholder entries\
-    \ with zero data and no computed variance metrics. The task\u2019s core computation\
-    \ was not performed."
-T017c:
-  c: false
-  h: cf24081669fc7616ffbb10fab3f3205ca22de301806e16f8b4437c26db5cb438
-  r: "The required `code/data/processed/graphs.parquet` file is missing, and the provided\
-    \ `cutoff_sensitivity.json` contains no processed samples (all entries have `samples_processed:\
-    \ 0` and `status: \"no_data\"`), so no optimal cutoff could be selected nor graphs\
-    \ generated. The task\u2019s core outputs are absent."
-T017d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No validation log or any quantitative evidence was provided showing that the\
-    \ cutoff selected in T017c reduces variance by at least 10\u202F% compared to\
-    \ the next best cutoff. Without such a log, the requirement to verify cutoff robustness\
-    \ is unmet. The implementer must supply a concrete validation output (e.g., a\
-    \ table or printed log with variance values for each candidate cutoff and the\
-    \ calculated \u226510\u202F% improvement)."
+  h: e0297f7accbef595e61daad24880b9166ef13abbde302799fd1d754075b33162
+  r: "The required output file `code/data/processed/splits.json` is missing, and the\
+    \ implementation in `splits.py` is incomplete/incorrect (e.g., `get_project_root`\
+    \ recurses, `extract_ligand_scaffold_id` takes a SMILES string instead of a graph,\
+    \ and the expected `generate_llso_splits` and `write_splits_json` functions are\
+    \ not present). The task\u2019s deliverables are therefore not satisfied."
 T018:
   c: false
   h: 8f20289172c8be5505cb263c935b2d4820a78c868579def39b9c8cc0d56e2017
-  r: "The required `code/data/processed/graphs.parquet` file does not exist, and there\
-    \ is no evidence (e.g., log, report, or updated file) that a validation script\
-    \ was run against `code/contracts/dataset_graph.schema.yaml`. Without the parquet\
-    \ file and validation output, the task\u2019s requirement is not satisfied."
+  r: The required `code/data/processed/graphs.parquet` file is missing, and there
+    is no evidence (e.g., logs, validated output, or a script run) showing that the
+    graphs were validated against `code/contracts/dataset_graph.schema.yaml`. Without
+    the data file and validation results, the task cannot be considered completed.
+T025:
+  c: false
+  h: 2a0f9c04b5027369ddc8599df795850968c1dbda9334deb954f2299d4fa943f5
+  r: The required `code/data/processed/residuals.parquet` file does not exist, and
+    the provided `predict.py` is truncated before any code that actually writes the
+    residuals file, so the primary deliverable is missing.
+T025b:
+  c: false
+  h: 457f77ea70999555dccb200aef378442742e34ae1bbf844e9f5b5da4a29879e8
+  r: "The required output file `code/data/results/speed_constraint_check.json` is\
+    \ missing, and there is no evidence that the inference speed was measured or that\
+    \ a `status` and `time_per_sample` were computed and written. The task\u2019s\
+    \ core deliverable is therefore not present."
+T027a:
+  c: false
+  h: f155916b44047b49f4c3d27d191b2ffde01f192bb8b23d88ad4a5df34719b8de
+  r: "The required output file `code/data/processed/predictions.parquet` is missing\
+    \ from the repository. Without this artifact, the task of aggregating raw predictions\
+    \ into the final parquet file has not been fulfilled. The only available artifact\
+    \ is `residuals.parquet`, which does not satisfy the task\u2019s output requirement."
+T029d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No model checkpoint files, prediction outputs, or metric reports for any fold\
+    \ are present; the claim provides only a textual description of the intended steps\
+    \ without any concrete artifacts (e.g., saved `.pt` files, CSV predictions, or\
+    \ metric logs). The required per\u2011fold training artifacts are missing, so\
+    \ the task is not satisfied."
 T032:
   c: false
   h: d4694a535b8dbcafcd33ddebcb7127fa1373ff8e04b8457def94c8ada93c7ad0
@@ -64,6 +65,13 @@ T032:
     the repository, so the integration test for the analysis pipeline is missing.
     The task cannot be considered complete until this file is added with appropriate
     test code.
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file from `specs/001-machine-learned-potentials/` was presented,\
+    \ nor any diff showing the added entry in the \u201CSpec Deviation Notes\u201D\
+    \ table. Without the actual updated document, we cannot confirm that the specification\
+    \ amendment was made. The required artifact is missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,501 +1,275 @@
 """
-SchNet-style Graph Neural Network architecture for Transition State prediction.
-
-Implements a continuous-filter convolutional neural network adapted for 
-transition-metal catalysis graphs. Compatible with PyTorch Geometric and CPU execution.
+SchNet-style GNN architecture for transition metal catalysis.
+CPU-compatible implementation using PyTorch Geometric.
 """
 import math
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, List
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing
-from torch_geometric.typing import Adj, OptTensor, PairTensor
+from torch_geometric.utils import add_self_loops
 from torch import Tensor
 
-from code.src.utils.config import load_config
+# Import config for hyperparameters if needed, though defaults are provided here
+# from src.utils.config import get_config_value
 
 
 class GaussianSmearing(nn.Module):
     """
-    Gaussian distance smearing for continuous edge features.
-    
-    Converts scalar distances into a vector of Gaussian basis functions.
+    Gaussian radial basis function expansion for edge distances.
+    Maps continuous distances to a fixed-size vector of Gaussian features.
     """
-    def __init__(
-        self,
-        start: float = 0.0,
-        stop: float = 10.0,
-        num_gaussians: int = 50,
-        fixed: bool = True
-    ):
+    def __init__(self, start: float = 0.0, stop: float = 5.0, num_gaussians: int = 50):
         super().__init__()
-        self.offset = torch.linspace(start, stop, num_gaussians)
-        if fixed:
-            self.register_buffer('offset', self.offset)
-            self.register_buffer('sigma', torch.tensor(2.0 / num_gaussians))
-        else:
-            self.sigma = torch.nn.Parameter(torch.ones(1) * 2.0 / num_gaussians)
+        self.start = start
+        self.stop = stop
+        self.num_gaussians = num_gaussians
+        
+        # Create centers for Gaussians
+        offset = torch.linspace(start, stop, num_gaussians)
+        self.coeffs = -1.0 / (offset[1] - offset[0])**2
+        self.register_buffer('offset', offset)
 
     def forward(self, dist: Tensor) -> Tensor:
         """
         Args:
-            dist: Tensor of shape (N, 1) representing edge distances.
-        
+            dist: Tensor of shape (E,) where E is number of edges.
         Returns:
-            Tensor of shape (N, num_gaussians) with smeared distance features.
+            Tensor of shape (E, num_gaussians)
         """
-        dist = dist.view(-1, 1)
-        return torch.exp(-((dist - self.offset) ** 2) / (2 * self.sigma ** 2))
+        # dist.unsqueeze(1) -> (E, 1)
+        # offset -> (num_gaussians,)
+        # diff -> (E, num_gaussians)
+        diff = dist.unsqueeze(1) - self.offset
+        # exp(coeffs * diff^2)
+        out = torch.exp(self.coeffs * (diff ** 2))
+        return out
 
 
 class ContinuousFilterConv(MessagePassing):
     """
-    Continuous-filter convolutional layer for SchNet.
-    
-    Updates node embeddings based on distance-dependent edge filters.
+    Continuous-filter convolution layer as described in SchNet.
+    Updates node embeddings based on edge distances and neighbor features.
     """
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
         num_gaussians: int,
-        cutoff: float = 10.0,
-        activate: bool = True
+        cutoff: float = 5.0,
+        activation: Optional[nn.Module] = None,
     ):
-        super().__init__(aggr='add')  # Use 'add' aggregation (sum)
+        super().__init__(aggr='add')  # Sum aggregation
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.num_gaussians = num_gaussians
         self.cutoff = cutoff
 
-        # Filter network: maps distance features to edge weights
+        self.lin = nn.Linear(in_channels, out_channels, bias=False)
+        
+        # Filter network: maps Gaussian features to (out_channels, in_channels)
         self.filter_net = nn.Sequential(
-            nn.Linear(num_gaussians, out_channels),
-            nn.Softplus() if activate else nn.Identity(),
-            nn.Linear(out_channels, out_channels)
+            nn.Linear(num_gaussians, num_gaussians),
+            nn.Softplus(),
+            nn.Linear(num_gaussians, out_channels * in_channels),
         )
 
-        # Update network: maps node features to new embeddings
-        self.update_net = nn.Sequential(
-            nn.Linear(in_channels, out_channels),
-            nn.Softplus() if activate else nn.Identity(),
-            nn.Linear(out_channels, out_channels)
-        )
-
-        # Initialize weights
-        self._initialize_weights()
-
-    def _initialize_weights(self):
-        for layer in self.filter_net:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight, gain=nn.init.calculate_gain('softplus'))
-                nn.init.zeros_(layer.bias)
-        for layer in self.update_net:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight, gain=nn.init.calculate_gain('softplus'))
-                nn.init.zeros_(layer.bias)
+        self.activation = activation if activation else nn.Softplus()
 
     def forward(
         self,
         x: Tensor,
-        edge_index: Adj,
+        edge_index: Tensor,
         edge_attr: Tensor,
-        edge_weight: OptTensor = None
+        edge_weight: Optional[Tensor] = None,
     ) -> Tensor:
         """
         Args:
             x: Node features (N, in_channels)
-            edge_index: Edge indices (2, E)
-            edge_attr: Smeared distance features (E, num_gaussians)
-            edge_weight: Optional scalar edge weights for masking (E,)
-        
-        Returns:
-            Updated node features (N, out_channels)
+            edge_index: (2, E)
+            edge_attr: Gaussian expansion of distances (E, num_gaussians)
+            edge_weight: Optional scalar weights for edges
         """
-        # Compute edge filters
-        edge_filter = self.filter_net(edge_attr)  # (E, out_channels)
-
-        # Propagate
-        out = self.propagate(
-            edge_index,
-            x=x,
-            edge_filter=edge_filter,
-            edge_weight=edge_weight,
-            size=None
+        # Project node features
+        x_proj = self.lin(x)
+        
+        # Generate filters from edge attributes
+        # filter_weights shape: (E, out_channels, in_channels)
+        filter_weights = self.filter_net(edge_attr).view(
+            -1, self.out_channels, self.in_channels
         )
 
-        # Update node features
-        out = self.update_net(x) + out
+        # Apply message passing
+        # We need to multiply x_proj[i] by filter_weights[j] for each edge j: i->k
+        # Message: x_proj[source] * filter
+        
+        # To do this efficiently with MessagePassing:
+        # We pass x_proj as x, and filter_weights as a secondary argument
+        # But standard MessagePassing doesn't support matrix mult in message directly.
+        # Alternative: Compute messages explicitly or use a custom implementation.
+        # Here we implement the message function manually to handle the tensor shapes.
+        
+        row, col = edge_index
+        
+        # Get source node features
+        x_source = x_proj[row] # (E, in_channels)
+        
+        # Expand filter weights to (E, out_channels, in_channels)
+        # We want to compute: sum_over_neighbors ( x_source * filter_weights )
+        # Result shape per node: (out_channels)
+        
+        # Reshape for batched matrix multiplication
+        # x_source: (E, in_channels, 1)
+        # filter_weights: (E, out_channels, in_channels)
+        # We want (E, out_channels) = sum over in_channels of (x_source * filter_weights)
+        
+        # Efficiently: (E, out_channels, in_channels) @ (E, in_channels, 1) -> (E, out_channels, 1)
+        # Then squeeze
+        messages = torch.bmm(filter_weights, x_source.unsqueeze(2)).squeeze(2) # (E, out_channels)
+        
+        # Update aggregation
+        out = self.propagate(edge_index, x=messages, edge_weight=edge_weight, size=(x.size(0), x.size(0)))
+        
         return out
 
-    def message(self, x_j: Tensor, edge_filter: Tensor, edge_weight: OptTensor) -> Tensor:
-        """
-        Compute message: element-wise product of neighbor feature and edge filter.
-        """
-        msg = x_j.unsqueeze(-1) * edge_filter.unsqueeze(0)  # (E, in_channels, out_channels) -> broadcast?
-        # Correct shape handling: x_j is (E, in_channels), edge_filter is (E, out_channels)
-        # We want to apply filter to x_j. Standard SchNet: x_j * filter
-        # Since x_j is (E, in_channels) and filter is (E, out_channels), we need to match dims.
-        # Actually, in SchNet, the filter is applied to the neighbor's feature vector.
-        # x_j is (E, in_channels). edge_filter is (E, out_channels).
-        # We want output (E, out_channels).
-        # Standard implementation: x_j * edge_filter where edge_filter is (E, out_channels)
-        # But x_j is (E, in_channels). We need to project x_j to out_channels first?
-        # No, SchNet: The filter is a function of distance, and it modulates the message.
-        # Message = x_j * filter(d).
-        # If x_j is (E, in_channels) and filter is (E, out_channels), we can't multiply directly.
-        # Correction: The filter network outputs (E, out_channels).
-        # The node feature x_j is (E, in_channels).
-        # We need to project x_j to out_channels? Or the filter is (E, in_channels, out_channels)?
-        # Let's stick to standard SchNet: The filter is (E, out_channels) and x_j is (E, in_channels).
-        # We usually do: x_j * filter where filter is broadcasted? No.
-        # Standard SchNet: The filter is applied to the neighbor's feature.
-        # x_j (E, in_channels) * filter (E, out_channels) -> mismatch.
-        # Let's re-implement the filter to output (E, in_channels, out_channels) or project x_j.
-        # Actually, the standard SchNet implementation in PyG (if available) or literature:
-        # The filter is a scalar or vector that multiplies the node feature.
-        # Let's assume the filter is (E, out_channels) and we want to update x to out_channels.
-        # So we do: x_j (E, in_channels) -> project to (E, out_channels) -> multiply by filter (E, out_channels).
-        # Or: filter is (E, in_channels, out_channels).
-        
-        # Let's follow the common pattern:
-        # 1. Project x_j to out_channels? No, that's in update_net.
-        # 2. The filter should be (E, in_channels, out_channels) to multiply x_j (E, in_channels) -> (E, out_channels).
-        # But that's heavy.
-        # Alternative: The filter is (E, out_channels) and we do: x_j (E, in_channels) * filter (E, out_channels) is not possible.
-        # Let's look at the standard SchNet block:
-        # m_ij = h_i * f(d_ij). h_i is (in_channels), f(d_ij) is (out_channels).
-        # This implies f(d_ij) is a matrix? Or h_i is projected?
-        # Actually, in the original SchNet, the filter is a vector of size `out_channels`.
-        # And the node feature is `in_channels`.
-        # The operation is: x_j * filter. This requires x_j to be projected to `out_channels` first?
-        # Or the filter is `in_channels x out_channels`.
-        
-        # Let's simplify: We will project x_j to `out_channels` inside the message function if needed,
-        # or assume the filter is `in_channels x out_channels`.
-        # Given the current filter_net outputs `out_channels`, let's assume we want to project x_j to `out_channels`
-        # and then multiply element-wise.
-        
-        # Correction: The standard implementation in `torch_geometric` (if using `CGConv`) or custom:
-        # Let's use a linear layer to project x_j to out_channels, then multiply by filter.
-        # But we don't have that layer here.
-        # Let's change the filter_net to output (E, in_channels, out_channels)? No, too heavy.
-        # Let's assume the filter is (E, out_channels) and we want to update x to out_channels.
-        # So we do: x_j (E, in_channels) -> (E, out_channels) via a linear layer -> multiply by filter.
-        # But we don't have that linear layer in `message`.
-        
-        # Let's re-architect slightly:
-        # The `filter_net` should output (E, in_channels, out_channels) is too big.
-        # Let's assume the filter is (E, out_channels) and we do:
-        # x_j (E, in_channels) -> project to (E, out_channels) -> multiply by filter (E, out_channels).
-        # We need a linear layer for projection. Let's add it.
-        
-        # Wait, the standard SchNet:
-        # m_ij = h_j * f(d_ij)
-        # h_j is (in_channels). f(d_ij) is (out_channels).
-        # This implies f(d_ij) is a matrix?
-        # Actually, the original SchNet uses:
-        # f(d_ij) is a vector of size `out_channels`.
-        # And h_j is projected to `out_channels`?
-        # Let's check the literature: "SchNet: A Continuous-filter Convolutional Neural Network"
-        # Eq 3: m_ij = h_j * f(d_ij).
-        # h_j is (in_channels). f(d_ij) is (out_channels).
-        # This implies h_j is projected to `out_channels`? Or f(d_ij) is (in_channels, out_channels)?
-        # The paper says: "The filter f is a neural network that takes the distance as input and outputs a vector of size K (out_channels)."
-        # And h_j is (in_channels).
-        # So m_ij = h_j * f(d_ij) is not element-wise.
-        # It is: m_ij = h_j * f(d_ij) where * is a specific operation?
-        # Actually, the paper says: "The filter f is applied to the node features h_j."
-        # And the result is summed.
-        # Let's assume the standard implementation:
-        # The filter is (E, out_channels).
-        # The node feature h_j is (E, in_channels).
-        # We need to project h_j to (E, out_channels) and then multiply element-wise.
-        # So we need a linear layer in the message function.
-        
-        # Let's add a linear layer to project x_j to out_channels.
-        # But we don't want to add too many parameters.
-        # Alternatively, the filter is (E, in_channels, out_channels).
-        # Let's assume the filter is (E, out_channels) and we project x_j to out_channels.
-        
-        # Let's use a simple approach:
-        # 1. Project x_j to out_channels using a linear layer (shared).
-        # 2. Multiply by filter.
-        
-        # We'll add a linear layer in __init__ for projection.
-        # But we already have update_net.
-        # Let's use the same projection? No.
-        
-        # Let's change the filter_net to output (E, in_channels, out_channels) is too heavy.
-        # Let's assume the filter is (E, out_channels) and we project x_j to out_channels.
-        
-        # We'll add a linear layer `proj_x` in __init__.
-        pass
+    def message(self, x_j: Tensor, edge_weight: Optional[Tensor]) -> Tensor:
+        if edge_weight is not None:
+            x_j = x_j * edge_weight.view(-1, 1)
+        return x_j
 
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        num_gaussians: int,
-        cutoff: float = 10.0,
-        activate: bool = True
-    ):
-        # Re-initialize with projection
-        super().__init__(aggr='add')
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.num_gaussians = num_gaussians
-        self.cutoff = cutoff
-
-        # Projection for x_j
-        self.proj_x = nn.Linear(in_channels, out_channels)
-
-        # Filter network
-        self.filter_net = nn.Sequential(
-            nn.Linear(num_gaussians, out_channels),
-            nn.Softplus() if activate else nn.Identity(),
-            nn.Linear(out_channels, out_channels)
-        )
-
-        # Update network
-        self.update_net = nn.Sequential(
-            nn.Linear(in_channels, out_channels),
-            nn.Softplus() if activate else nn.Identity(),
-            nn.Linear(out_channels, out_channels)
-        )
-
-        self._initialize_weights()
-
-    def _initialize_weights(self):
-        nn.init.xavier_uniform_(self.proj_x.weight, gain=nn.init.calculate_gain('linear'))
-        nn.init.zeros_(self.proj_x.bias)
-        
-        for layer in self.filter_net:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight, gain=nn.init.calculate_gain('softplus'))
-                nn.init.zeros_(layer.bias)
-        
-        for layer in self.update_net:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight, gain=nn.init.calculate_gain('softplus'))
-                nn.init.zeros_(layer.bias)
-
-    def message(self, x_j: Tensor, edge_filter: Tensor) -> Tensor:
-        # x_j: (E, in_channels)
-        # edge_filter: (E, out_channels)
-        # Project x_j to out_channels
-        x_j_proj = self.proj_x(x_j)  # (E, out_channels)
-        # Element-wise multiply
-        return x_j_proj * edge_filter  # (E, out_channels)
+    def update(self, aggr_out: Tensor) -> Tensor:
+        if self.activation is not None:
+            aggr_out = self.activation(aggr_out)
+        return aggr_out
 
 
 class SchNetBlock(nn.Module):
     """
-    A block of SchNet layers with residual connection.
+    A block of SchNet layers.
     """
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
         num_gaussians: int,
-        cutoff: float = 10.0,
-        activate: bool = True
+        cutoff: float = 5.0,
+        activation: Optional[nn.Module] = None,
     ):
         super().__init__()
         self.conv = ContinuousFilterConv(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            num_gaussians=num_gaussians,
-            cutoff=cutoff,
-            activate=activate
+            in_channels, out_channels, num_gaussians, cutoff, activation
         )
-        self.act = nn.Softplus() if activate else nn.Identity()
-        # Residual connection requires in_channels == out_channels
-        self.residual = nn.Identity() if in_channels == out_channels else nn.Linear(in_channels, out_channels)
+        self.act = activation if activation else nn.Softplus()
 
     def forward(
         self,
         x: Tensor,
-        edge_index: Adj,
+        edge_index: Tensor,
         edge_attr: Tensor,
-        edge_weight: OptTensor = None
     ) -> Tensor:
-        out = self.conv(x, edge_index, edge_attr, edge_weight)
-        out = self.act(out)
-        residual = self.residual(x)
-        return out + residual
+        out = self.conv(x, edge_index, edge_attr)
+        return out
 
 
 class SchNet(nn.Module):
     """
-    SchNet model for predicting barrier heights from TransitionStateGraphs.
-    
-    Architecture:
-    1. Input embedding layer
-    2. SchNet blocks (residual)
-    3. Output head (readout)
+    SchNet model for predicting scalar properties (e.g., barrier heights) from graphs.
     """
     def __init__(
         self,
         num_atom_types: int = 100,
-        hidden_channels: int = 128,
-        num_filters: int = 32,
-        num_interactions: int = 6,
+        embedding_dim: int = 128,
+        num_filters: int = 128,
+        num_interactions: int = 3,
         num_gaussians: int = 50,
-        cutoff: float = 10.0,
-        readout: str = 'add',
-        **kwargs
+        cutoff: float = 5.0,
+        output_dim: int = 1,
     ):
         super().__init__()
         self.num_atom_types = num_atom_types
-        self.hidden_channels = hidden_channels
+        self.embedding_dim = embedding_dim
         self.num_filters = num_filters
         self.num_interactions = num_interactions
         self.num_gaussians = num_gaussians
         self.cutoff = cutoff
-        self.readout = readout
+        self.output_dim = output_dim
 
         # Atom embedding
-        self.embedding = nn.Embedding(num_atom_types, hidden_channels)
+        self.embedding = nn.Embedding(num_atom_types, embedding_dim)
 
-        # Distance smearing
-        self.distance_expansion = GaussianSmearing(
-            start=0.0,
-            stop=cutoff,
-            num_gaussians=num_gaussians
-        )
+        # Gaussian smearing
+        self.smearing = GaussianSmearing(0.0, cutoff, num_gaussians)
 
-        # SchNet blocks
+        # Interaction blocks
         self.interactions = nn.ModuleList()
-        for i in range(num_interactions):
-            block = SchNetBlock(
-                in_channels=hidden_channels,
-                out_channels=hidden_channels,
-                num_gaussians=num_gaussians,
-                cutoff=cutoff,
-                activate=True
+        for _ in range(num_interactions):
+            self.interactions.append(
+                SchNetBlock(embedding_dim, embedding_dim, num_gaussians, cutoff)
             )
-            self.interactions.append(block)
 
-        # Output head
+        # Output network
         self.output_net = nn.Sequential(
-            nn.Linear(hidden_channels, hidden_channels // 2),
+            nn.Linear(embedding_dim, embedding_dim),
             nn.Softplus(),
-            nn.Linear(hidden_channels // 2, 1)
+            nn.Linear(embedding_dim, output_dim),
         )
 
     def forward(
         self,
-        z: Tensor,
-        pos: Tensor,
-        batch: Tensor,
-        edge_index: Adj,
+        x: Tensor,
+        edge_index: Tensor,
         edge_attr: Tensor,
-        edge_weight: OptTensor = None
+        batch: Optional[Tensor] = None,
     ) -> Tensor:
         """
         Args:
-            z: Node atomic numbers (N,)
-            pos: Node positions (N, 3)
-            batch: Batch indices (N,)
-            edge_index: Edge indices (2, E)
-            edge_attr: Smeared distances (E, num_gaussians) - precomputed or computed here?
-                       Usually computed from pos in the forward pass if not provided.
-            edge_weight: Optional edge weights (E,)
-        
+            x: Atomic numbers (N,) or node features
+            edge_index: (2, E)
+            edge_attr: Gaussian expanded distances (E, num_gaussians)
+            batch: Graph assignment vector (N,) for pooling
         Returns:
-            Predicted scalar property (B, 1)
+            Predicted property (num_graphs,) or (num_graphs, output_dim)
         """
-        # Compute edge distances if not provided (assuming pos is available)
-        # But the task says we receive graphs. We need to compute edge_attr from pos.
-        # However, the forward signature usually takes edge_attr as input if precomputed.
-        # Let's assume edge_attr is precomputed (smeared distances) as per the task description.
-        # If not, we compute it here.
-        
-        # Check if edge_attr is already smeared?
-        # The task says: "edge_attr: Smeared distance features".
-        # So we assume it's already smeared.
-        
-        # If edge_attr is not smeared (raw distances), we smearing it here.
-        # Let's assume the input edge_attr is raw distances for safety, or we check.
-        # But the task says "edge_attr: Smeared distance features".
-        # So we use it directly.
-        
-        # However, to be safe, let's compute distances from pos if edge_attr is not provided or is raw.
-        # But the signature expects edge_attr.
-        # Let's assume the caller provides smeared edge_attr.
-        
-        # If edge_attr is not provided, compute it.
-        if edge_attr is None:
-            # Compute distances
-            row, col = edge_index
-            dist = (pos[row] - pos[col]).norm(dim=-1).unsqueeze(-1)
-            edge_attr = self.distance_expansion(dist)
+        # Embed atoms
+        if x.dim() == 1:
+            x = self.embedding(x)
         else:
-            # If edge_attr is provided, assume it's smeared.
-            # But if it's raw distances (scalar), smearing it.
-            if edge_attr.dim() == 1 or edge_attr.dim() == 2 and edge_attr.size(-1) == 1:
-                edge_attr = self.distance_expansion(edge_attr)
+            x = x.float() # Assume already embedded if 2D
 
-        # Embedding
-        x = self.embedding(z)
-
-        # Interactions
+        # Apply interactions
         for interaction in self.interactions:
-            x = interaction(x, edge_index, edge_attr, edge_weight)
+            x = x + interaction(x, edge_index, edge_attr)
 
-        # Readout
-        # Sum pooling
-        if self.readout == 'add':
-            x = self.pooling(x, batch)
-        elif self.readout == 'mean':
-            x = self.pooling(x, batch, reduce='mean')
-        
-        # Output
-        out = self.output_net(x)
-        return out
-
-    def pooling(self, x: Tensor, batch: Tensor, reduce: str = 'add') -> Tensor:
-        """
-        Graph pooling (sum, mean, max).
-        """
-        return torch_scatter.scatter(x, batch, dim=0, reduce=reduce)
-    
-    # Note: torch_scatter is not in the API surface. We can implement a simple sum.
-    def pooling(self, x: Tensor, batch: Tensor, reduce: str = 'add') -> Tensor:
-        """
-        Simple graph pooling using scatter.
-        If torch_scatter is not available, use a simple loop or cumsum.
-        But PyTorch Geometric usually has scatter.
-        Let's assume we can use torch_scatter or implement a simple version.
-        Since the API surface doesn't include torch_scatter, let's implement a simple sum.
-        """
-        # Simple implementation for sum
-        if reduce == 'add':
-            out = torch.zeros(batch.max() + 1, x.size(1), device=x.device)
-            out = out.index_add(0, batch, x)
-            return out
-        elif reduce == 'mean':
-            # Count per batch
-            counts = torch.bincount(batch, minlength=x.size(0))
-            out = torch.zeros(batch.max() + 1, x.size(1), device=x.device)
-            out = out.index_add(0, batch, x)
-            return out / counts.unsqueeze(1)
+        # Global pooling
+        if batch is None:
+            # If no batch provided, assume single graph
+            # Sum or mean over all nodes
+            out = x.sum(dim=0, keepdim=True)
         else:
-            raise ValueError(f"Unknown reduce: {reduce}")
+            # Use scatter add for graph-level representation
+            # torch_geometric.nn.pool.global_add_pool is usually used, but here we do it manually
+            # to avoid extra imports if not available in strict environment
+            from torch_scatter import scatter_add
+            out = scatter_add(x, batch, dim=0)
+
+        # Predict property
+        out = self.output_net(out)
+        return out
 
 
 def get_model_config() -> Dict[str, Any]:
     """
-    Returns the default model configuration from the project config.
+    Returns default configuration for SchNet model.
+    These values can be overridden by loading config from YAML.
     """
-    config = load_config()
     return {
-        'hidden_channels': config.get('MODEL', {}).get('hidden_channels', 128),
-        'num_filters': config.get('MODEL', {}).get('num_filters', 32),
-        'num_interactions': config.get('MODEL', {}).get('num_interactions', 6),
-        'num_gaussians': config.get('MODEL', {}).get('num_gaussians', 50),
-        'cutoff': config.get('MODEL', {}).get('cutoff', 10.0),
+        "num_atom_types": 100,
+        "embedding_dim": 128,
+        "num_filters": 128,
+        "num_interactions": 3,
+        "num_gaussians": 50,
+        "cutoff": 5.0,
+        "output_dim": 1,
     }
