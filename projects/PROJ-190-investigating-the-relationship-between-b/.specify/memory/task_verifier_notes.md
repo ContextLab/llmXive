@@ -4,3 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T014b** — No artifact (e.g., script output, log file, or computed value) showing the mean framewise displacement of the final retained dataset was provided, nor any evidence that the value was logged and checked against the ≤0.2 mm threshold. Without such concrete output, the task requirement is not satisfied.
 - **T015** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-190-investigating-the-relationship-between-b.yaml
+- **T019** — No code, script, or generated binary graph files for the specified densities (0.20, 0.25) were provided; the claim lacks any tangible artifact demonstrating the thresholding logic implementation. The required output is missing.

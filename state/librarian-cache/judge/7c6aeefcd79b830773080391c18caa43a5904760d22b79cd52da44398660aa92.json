@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.03059",
+  "judged_at": "2026-10-04T16:33:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"on the scaling of peft: towards million personal models of trillion pa\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for Parameter-Efficient Fine-Tuning (PEFT) and criterion (b) by measuring the efficiency and performance of PEFT on a specific domain (3D point clouds), which is directly relevant to the user's question about scaling PEFT for millions of models. Although the user's question focuses on \"million personal models\" (likely implying personalization or multi-tenant scaling) and this paper focuses on 3D geometry, it provides the ",
+  "relevant": true
+}

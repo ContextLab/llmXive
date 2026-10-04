@@ -221,22 +221,6 @@
   updated_at: '2026-07-05T00:43:07Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: analysis complete on CPU within 6 hours
-  claim_id: c_3f86f15a
-  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
-    use sampling if necessary.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: All analysis must complete on CPU within 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T00:43:39Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: permutations calculation if elapsed time exceeds 5.5 hours
   claim_id: c_732bad5f
   context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
@@ -972,21 +956,6 @@
   updated_at: '2026-08-18T12:32:51Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: streaming data to stay below 7 GB RAM
-  claim_id: c_adda78cb
-  context: Performance optimization (streaming data to stay <7GB RAM)
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: streaming data to stay <7GB RAM
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-18T12:32:52Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: warm-up permutations employed to evaluate robustness consistent with
     established practices
   claim_id: c_5fda14f8
@@ -1168,23 +1137,6 @@
   updated_at: '2026-09-21T07:28:17Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: graph density within 1% of target
-  claim_id: c_6f6e2e42
-  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
-    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
-    \ verify graph density is within graph density is within \xB11% of target."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "verify graph density is within graph density is within \xB11% of target"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T07:28:18Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: permutations set to max of 1000 or floor of 6 hours minus elapsed time
     divided by average permutation time if elapsed time exceeds 5.5 hours
   claim_id: c_e4e73c92
@@ -1201,22 +1153,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T07:28:18Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: analysis must complete on CPU within 6 hours
-  claim_id: c_2be8ed6d
-  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
-    use sampling if necessary.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: All analysis must complete on CPU within 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T07:28:39Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
   canonical: never fabricate data
@@ -1253,24 +1189,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T07:30:19Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: mean framewise displacement less than or equal to 0.2 mm
-  claim_id: c_60fcfcab
-  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
-    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_mm
-  kind: magnitude
-  raw_text: "mean FD \u22640.2 mm"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T07:30:43Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
   canonical: filter subjects with mean framewise displacement greater than 0.5 mm
@@ -1354,3 +1272,488 @@
   source_type: external
   status: verified
   updated_at: '2026-09-21T07:32:17Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for at least 95 percent of subjects
+  claim_id: c_45945eef
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95_percent_of_subje
+  kind: magnitude
+  raw_text: "efficiency metrics are computed for efficiency metrics are computed for\
+    \ \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:35:33Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: graph density within plus or minus 1 percent of target
+  claim_id: c_84fcea43
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "graph density is within graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:35:33Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutations set to maximum of 1000 or floor of 6 hours minus elapsed
+    time divided by average permutation time
+  claim_id: c_d2ed14dd
+  context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutations = max(1000, floor((6h - t_elapsed) / avg_perm_time))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:36:21Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: analysis complete on CPU within 6 hours
+  claim_id: c_3f86f15a
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:36:47Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: streaming data to stay under 7 gigabytes RAM
+  claim_id: c_f4ffd51c
+  context: Performance optimization (streaming data to stay <7GB RAM)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: streaming data to stay <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:36:47Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 0
+  canonical: Wikidata Q113106917
+  claim_id: c_a7ebebcf
+  context: 'Implement VIF check: {{claim:c_86cfecf2}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: Q113107166
+    filled: true
+  kind: entity_fact
+  raw_text: Wikidata Q113106917
+  resolved_value: Q113107166
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T16:40:06Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 3
+  canonical: mean framewise displacement less than or equal to 0.2 mm
+  claim_id: c_60fcfcab
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_mm
+  kind: magnitude
+  raw_text: "mean FD \u22640.2 mm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:08Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: mean framewise displacement greater than 0.5 mm
+  claim_id: c_ee9d41fb
+  context: 'Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the
+    exclusion count, and proceed; do NOT halt the pipeline if the retained cohort
+    drops below [deferred] of the original'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_greater_than_0.5_mm
+  kind: magnitude
+  raw_text: mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:10Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: efficiency metrics computed for 95% of subjects
+  claim_id: c_414c1584
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "efficiency metrics are computed for \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:10Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: graph density within 1% of target
+  claim_id: c_6f6e2e42
+  context: "Independent Test: Verify efficiency metrics are computed for efficiency\
+    \ metrics are computed for \u226595% of subjects and stored with expected ranges;\
+    \ verify graph density is within graph density is within \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify graph density is within graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:10Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: binary graphs generated for densities 0.15, 0.20, and 0.25
+  claim_id: c_1a3dc9ac
+  context: 'Implement thresholding logic: Generate binary graphs for densities {,
+    0.20, 0.25} as required by FR-009/SC-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate binary graphs for densities {0.15, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:34Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: binary graphs generated for densities 0.15, 0.20, and 0.25
+  claim_id: c_8fa8046d
+  context: Calculate Frontoparietal Efficiency using Yeo atlas network definition
+    for each density in {0.15, Generate binary graphs for densities {, 0.20, 0.25}
+    }
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate binary graphs for densities {0.15, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:40:34Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: dataset contains more than 500 subjects
+  claim_id: c_2f25a040
+  context: "If dataset >500 subjects and time is critical, sample to \u2264500 subjects\
+    \ dynamically."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 4,274 studies from 23 institutions across 14 countries. The dataset is
+        freely available for non-
+      source_id: '2405.19595'
+      url: https://arxiv.org/abs/2405.19595
+      value: 4,274
+    filled: true
+  kind: magnitude
+  raw_text: dataset >500 subjects
+  resolved_value: 4,274
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T16:41:23Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: sample dataset to 500 subjects or fewer
+  claim_id: c_cab2143b
+  context: "If dataset >500 subjects and time is critical, sample to \u2264500 subjects\
+    \ dynamically."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample to \u2264500 subjects dynamically"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:41:23Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: elapsed time greater than 5.5 hours
+  claim_id: c_82c3d6a6
+  context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Elapsed_time_greater_than_5.5_hours
+  kind: magnitude
+  raw_text: If t_elapsed > 5.5h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:41:25Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutations set to maximum of 1000 or floor of (6 hours minus elapsed
+    time) divided by average permutation time
+  claim_id: c_6948a99b
+  context: If t_elapsed > 5.5h, set permutations = max(1000, floor((6h - t_elapsed)
+    / avg_perm_time)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutations = max(1000, floor((6h - t_elapsed) / avg_perm_time))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:41:25Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: findings are associational and do not imply causation due to the observational
+    study design
+  claim_id: c_23058825
+  context: 'Generate data/results/report.md: Include correlation stats, p-values,
+    effect sizes, VIFs, and the phrase ''Findings are associational and do not imply
+    causation due to the observational study design'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_are_associational_and_do_not_imply_causation_due_to
+  kind: entity_fact
+  raw_text: Findings are associational and do not imply causation due to the observational
+    study design
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:41:59Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: streaming data to stay below 7 GB RAM
+  claim_id: c_adda78cb
+  context: Performance optimization (streaming data to stay <7GB RAM)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: streaming data to stay <7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:41:59Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: analysis must complete on CPU within 6 hours
+  claim_id: c_2be8ed6d
+  context: 'Critical Constraint: All analysis must complete on CPU within 6 hours;
+    use sampling if necessary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All analysis must complete on CPU within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:42:00Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Wikidata Q387749
+  claim_id: c_69b140e2
+  context: 'Critical Constraint: {{claim:c_92c7d144}} (Wikidata Q387749, https://www.wikidata.org/wiki/Q387749);
+    never fabricate data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q387749
+  kind: entity_fact
+  raw_text: Wikidata Q387749
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:42:16Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP 1200-release contains at least 1200 subjects
+  claim_id: c_01e1889c
+  context: 'Task T011: Fetch raw fMRI and NIH Toolbox scores from HCP 1200-release'
+  evidence:
+    entailment_evidence: HCP 1200-release contains at least 1200 subjects
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HCP_1200-release_contains_at_least_1200_subjects
+  kind: magnitude
+  raw_text: The Human Connectome Project (HCP) 1200-release contains data for at least
+    1200 subjects.
+  resolved_value: HCP 1200-release contains at least 1200 subjects
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T16:43:09Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: NIH Toolbox Fluid Intelligence score is a validated measure
+  claim_id: c_b23245b4
+  context: 'Task T011: Fetch raw fMRI and NIH Toolbox scores from HCP 1200-release'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIH_Toolbox_Fluid_Intelligence_score_is_a_validated_measure
+  kind: entity_fact
+  raw_text: The NIH Toolbox Fluid Intelligence score is a validated measure of fluid
+    intelligence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:43:41Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas is a parcellation scheme for brain network analysis
+  claim_id: c_89f792e4
+  context: 'Goal for User Story 2: Parcellate brains using Schaefer atlas'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_is_a_parcellation_scheme_for_brain_network_an
+  kind: entity_fact
+  raw_text: The Schaefer atlas is a parcellation scheme used for brain network analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:44:48Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Yeo atlas defines frontoparietal network
+  claim_id: c_6a716a43
+  context: 'Task T021: Calculate Frontoparietal Efficiency using Yeo atlas network
+    definition'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Yeo_atlas_defines_frontoparietal_network
+  kind: entity_fact
+  raw_text: The Yeo atlas defines a frontoparietal network used for efficiency calculations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:45:41Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: VIF detects multicollinearity in regression
+  claim_id: c_b8f395b5
+  context: 'Task T028: Implement VIF check'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P366: multicollinearity'
+      source_id: Q13434396
+      url: https://www.wikidata.org/wiki/Q13434396
+      value: multicollinearity
+    filled: true
+  kind: entity_fact
+  raw_text: Variance Inflation Factor (VIF) is a measure used to detect multicollinearity
+    in regression analysis.
+  resolved_value: multicollinearity
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T16:45:52Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: arXiv 2405.19595 discusses adaptive permutation testing or statistical
+    robustness
+  claim_id: c_808f5304
+  context: 'Task T030: If claim:c_2f25a040 (2405.19595, https://arxiv.org/abs/2405.19595)
+    and time is critical'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv preprint 2405.19595 discusses methods related to adaptive permutation
+    testing or statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T16:46:05Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Wikidata Q387749 refers to Human Connectome Project
+  claim_id: c_afcc932f
+  context: 'Critical Constraint: {{claim:c_92c7d144}} (Wikidata Q387749, https://www.wikidata.org/wiki/Q387749)'
+  evidence:
+    entailment_evidence: Wikidata Q387749 refers to Human Connectome Project
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q387749_refers_to_Human_Connectome_Project
+  kind: entity_fact
+  raw_text: Wikidata Q387749 refers to the Human Connectome Project.
+  resolved_value: Wikidata Q387749 refers to Human Connectome Project
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T16:46:07Z'

@@ -20,3 +20,9 @@ T014b:
     \ framewise displacement of the final retained dataset was provided, nor any evidence\
     \ that the value was logged and checked against the \u22640.2\u202Fmm threshold.\
     \ Without such concrete output, the task requirement is not satisfied."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or generated binary graph files for the specified densities
+    (0.20, 0.25) were provided; the claim lacks any tangible artifact demonstrating
+    the thresholding logic implementation. The required output is missing.

@@ -1,153 +1,151 @@
 """
 write_scaling_results.py
 
-Implements T025: Read the optimal scaling factor `s` and its CI from the output
-of T022/T023 (derived by `derive_scaling.py`) and write to `data/derived/scaling_factor.txt`.
+Implements Task T025:
+Read the optimal scaling factor `s` and its CI from the output of T022/T023
+and write to `data/derived/scaling_factor.txt`.
 
-This module provides the `write_scaling_file` function to generate the human-readable,
-parsable text artifact required by the task. It also exposes `load_scaling_results`
-to read this artifact back into the pipeline (used by T026 and T027).
+This module provides functions to load the computed scaling results from
+`derive_scaling.py` and write them to a human-readable, parsable text file.
 """
+
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+# Import from sibling modules using the exact public API surface provided
 from logger import get_logger, info, error
 from derive_scaling import fit_scaling_factor, bootstrap_scaling_analysis, load_raw_energies
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def write_scaling_file(
-    output_path: str,
-    optimal_s: float,
-    ci_lower: float,
-    ci_upper: float,
-    p_value: Optional[float] = None,
-    hypothesis_rejected: Optional[bool] = None
-) -> None:
+def load_scaling_results(
+    scaling_output_path: str = "data/derived/scaling_results.json"
+) -> Dict[str, Any]:
     """
-    Writes the optimal scaling factor and confidence interval to a text file.
-
-    The format is human-readable and parsable:
-    ```
-    Scaling Factor: <value>
-    95% CI: [<lower>, <upper>]
-    Hypothesis Test (s=1.0): <rejected/failed/not_tested>
-    P-value: <value or N/A>
-    ```
+    Load the scaling results computed by derive_scaling.py.
 
     Args:
-        output_path: Path to the output text file (e.g., 'data/derived/scaling_factor.txt').
-        optimal_s: The optimal scaling factor found by optimization.
-        ci_lower: Lower bound of the 95% confidence interval.
-        ci_upper: Upper bound of the 95% confidence interval.
-        p_value: Optional p-value from the hypothesis test.
-        hypothesis_rejected: Optional boolean indicating if H0 (s=1.0) was rejected.
-    """
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    info(f"Writing scaling results to {output_path}")
-
-    status = "Not Tested"
-    if hypothesis_rejected is not None:
-        status = "Rejected" if hypothesis_rejected else "Failed to Reject"
-
-    p_val_str = f"{p_value:.6f}" if p_value is not None else "N/A"
-
-    content = (
-        f"Scaling Factor: {optimal_s:.6f}\n"
-        f"95% CI: [{ci_lower:.6f}, {ci_upper:.6f}]\n"
-        f"Hypothesis Test (s=1.0): {status}\n"
-        f"P-value: {p_val_str}\n"
-    )
-
-    with open(output_path, 'w') as f:
-        f.write(content)
-
-    info(f"Successfully wrote scaling results to {output_path}")
-
-def load_scaling_results(input_path: str) -> Dict[str, Any]:
-    """
-    Reads the scaling factor text file and returns a dictionary with the values.
-
-    Args:
-        input_path: Path to the text file (e.g., 'data/derived/scaling_factor.txt').
+        scaling_output_path: Path to the JSON file containing scaling results.
 
     Returns:
-        Dict containing 'optimal_s', 'ci_lower', 'ci_upper', 'hypothesis_rejected', 'p_value'.
-        Raises FileNotFoundError if the file does not exist.
+        Dictionary containing the scaling factor, confidence interval, and metadata.
+
+    Raises:
+        FileNotFoundError: If the scaling results file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    path = Path(input_path)
+    path = Path(scaling_output_path)
     if not path.exists():
-        raise FileNotFoundError(f"Scaling results file not found: {input_path}")
+        error(f"Scaling results file not found: {scaling_output_path}")
+        raise FileNotFoundError(f"Scaling results file not found: {scaling_output_path}")
 
-    logger.info(f"Loading scaling results from {input_path}")
-
-    data = {}
     with open(path, 'r') as f:
-        lines = f.readlines()
+        results = json.load(f)
 
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-        if line.startswith("Scaling Factor:"):
-            data['optimal_s'] = float(line.split(":")[1].strip())
-        elif line.startswith("95% CI:"):
-            # Format: 95% CI: [0.9, 1.1]
-            parts = line.split(":")[1].strip()
-            parts = parts.strip("[]").split(",")
-            data['ci_lower'] = float(parts[0].strip())
-            data['ci_upper'] = float(parts[1].strip())
-        elif line.startswith("Hypothesis Test"):
-            # Format: Hypothesis Test (s=1.0): Rejected
-            status = line.split(":")[1].strip()
-            data['hypothesis_rejected'] = status == "Rejected"
-        elif line.startswith("P-value:"):
-            val = line.split(":")[1].strip()
-            data['p_value'] = float(val) if val != "N/A" else None
+    info(f"Loaded scaling results from {scaling_output_path}")
+    return results
 
-    return data
-
-def main():
+def write_scaling_file(
+    results: Dict[str, Any],
+    output_path: str = "data/derived/scaling_factor.txt"
+) -> None:
     """
-    Main entry point to execute the full scaling derivation and write results.
-    This function orchestrates T022, T023, T024, and T025.
+    Write the optimal scaling factor and its confidence interval to a text file.
+
+    This function implements the core requirement of Task T025: reading the
+    optimal scaling factor `s` and its CI from the output of T022/T023 and
+    writing it to `data/derived/scaling_factor.txt` in a human-readable,
+    parsable format.
+
+    Args:
+        results: Dictionary containing scaling factor, CI, and metadata.
+        output_path: Path to the output text file.
+
+    Raises:
+        ValueError: If required keys are missing from results.
     """
-    logger.info("Starting scaling factor derivation and export (T022-T025)...")
+    # Validate required keys
+    required_keys = ['optimal_s', 'ci_lower', 'ci_upper', 'hypothesis_test_passed']
+    for key in required_keys:
+        if key not in results:
+            error(f"Missing required key in results: {key}")
+            raise ValueError(f"Missing required key in results: {key}")
 
-    # 1. Load raw energies (T022 input)
-    raw_energies_path = "data/derived/raw_energies.csv"
-    logger.info(f"Loading raw energies from {raw_energies_path}")
-    df = load_raw_energies(raw_energies_path)
+    # Ensure output directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    if df is None or df.empty:
-        error("Failed to load raw energies. Aborting.")
-        return
+    # Format the output as human-readable text
+    lines = [
+        "=" * 60,
+        "DFT-D3 Scaling Factor Results for Ionic Liquids",
+        "=" * 60,
+        "",
+        "Optimal Scaling Factor (s):",
+        f"  Value: {results['optimal_s']:.6f}",
+        "",
+        "95% Confidence Interval:",
+        f"  Lower Bound: {results['ci_lower']:.6f}",
+        f"  Upper Bound: {results['ci_upper']:.6f}",
+        "",
+        "Hypothesis Test (s = 1.0):",
+        f"  Result: {'PASSED' if results['hypothesis_test_passed'] else 'FAILED'}",
+        f"  Interpretation: {'The CI excludes 1.0, indicating significant deviation from unity.' if results['hypothesis_test_passed'] else 'The CI includes 1.0, no significant deviation from unity.'}",
+        "",
+        "Metadata:",
+        f"  Bootstrap Replicates: {results.get('bootstrap_replicates', 'N/A')}",
+        f"  Dataset Size: {results.get('dataset_size', 'N/A')} pairs",
+        f"  Objective: Minimize MAE of corrected energies",
+        "",
+        "Note: This dataset (20 pairs) is underpowered for the Spec's intended",
+        "statistical significance (≥100 pairs). CIs are for descriptive purposes only.",
+        "=" * 60,
+    ]
 
-    # 2. Fit scaling factor (T022)
-    optimal_s, _ = fit_scaling_factor(df)
-    logger.info(f"Optimal scaling factor found: {optimal_s:.6f}")
+    # Write to file
+    with open(output_file, 'w') as f:
+        f.write('\n'.join(lines))
 
-    # 3. Bootstrap analysis for CI and Hypothesis Test (T023, T024)
-    ci_lower, ci_upper, p_value, hypothesis_rejected = bootstrap_scaling_analysis(df)
-    logger.info(f"95% CI: [{ci_lower:.6f}, {ci_upper:.6f}]")
-    logger.info(f"Hypothesis Test (s=1.0): {'Rejected' if hypothesis_rejected else 'Failed to Reject'}")
+    info(f"Scaling factor results written to {output_path}")
 
-    # 4. Write results to file (T025)
-    output_path = "data/derived/scaling_factor.txt"
-    write_scaling_file(
-        output_path=output_path,
-        optimal_s=optimal_s,
-        ci_lower=ci_lower,
-        ci_upper=ci_upper,
-        p_value=p_value,
-        hypothesis_rejected=hypothesis_rejected
-    )
+def main() -> None:
+    """
+    Main entry point for Task T025.
 
-    logger.info("Scaling factor derivation and export complete.")
+    This function orchestrates the workflow:
+    1. Load raw energies (to ensure T022/T023 have been run)
+    2. Load the scaling results from derive_scaling.py output
+    3. Write the scaling factor and CI to data/derived/scaling_factor.txt
+    """
+    info("Starting Task T025: Write scaling factor results")
+
+    try:
+        # Define paths
+        raw_energies_path = "data/derived/raw_energies.csv"
+        scaling_results_path = "data/derived/scaling_results.json"
+        output_path = "data/derived/scaling_factor.txt"
+
+        # Verify raw energies exist (dependency T017)
+        if not Path(raw_energies_path).exists():
+            error(f"Raw energies file not found: {raw_energies_path}")
+            error("Please run T017 (analyze_energies.py) before T025.")
+            raise FileNotFoundError(f"Raw energies file not found: {raw_energies_path}")
+
+        # Load scaling results (output of T022/T023/T024)
+        info(f"Loading scaling results from {scaling_results_path}")
+        results = load_scaling_results(scaling_results_path)
+
+        # Write the scaling factor file
+        write_scaling_file(results, output_path)
+
+        info("Task T025 completed successfully.")
+
+    except Exception as e:
+        error(f"Task T025 failed: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()
