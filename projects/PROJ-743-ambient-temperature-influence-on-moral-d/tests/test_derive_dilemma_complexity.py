@@ -1,96 +1,71 @@
-import os
-import sys
-import tempfile
-from pathlib import Path
-
-import pandas as pd
 import pytest
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import tempfile
+import os
 
-# Import the function to test
-from code.derive_dilemma_complexity import calculate_complexity_score, derive_complexity
+from derive_dilemma_complexity import calculate_complexity_score, derive_complexity
 
-def test_calculate_complexity_score_basic():
-    """Test basic complexity calculation with known values."""
-    # Create a mock row with standard column names
-    row_data = {
-        'number_of_people_left': 1,
-        'number_of_people_right': 5,
-        'pedestrians_left': 1,
-        'pedestrians_right': 0
+@pytest.fixture
+def sample_data():
+    """Create a mock DataFrame similar to Moral Machine data."""
+    data = {
+        'participant_id': ['p1', 'p2', 'p3'],
+        'dilemma_id': ['d1', 'd2', 'd3'],
+        'n_pedestrians': [1, 5, 2],
+        'n_passengers': [2, 1, 3],
+        'dilemma_type': ['same', 'different', 'sides_conflict'],
+        'response_time': [1500, 2000, 1800] # Should NOT be used
     }
-    row = pd.Series(row_data)
-    
-    complexity = calculate_complexity_score(row)
-    
-    # Expected: 1 + 5 = 6 (base) + 0.2 (disparity: 1/5 < 0.3) + 0.5 (pedestrians) = 6.7
-    assert complexity == pytest.approx(6.7, rel=1e-5)
+    return pd.DataFrame(data)
 
-def test_calculate_complexity_score_no_pedestrians():
-    """Test complexity calculation without pedestrians."""
-    row_data = {
-        'number_of_people_left': 2,
-        'number_of_people_right': 2,
-    }
-    row = pd.Series(row_data)
-    
-    complexity = calculate_complexity_score(row)
-    
-    # Expected: 2 + 2 = 4 (base) + 0.0 (no disparity, 2/2 = 1.0) + 0.0 (no pedestrians) = 4.0
-    assert complexity == pytest.approx(4.0, rel=1e-5)
+def test_calculate_complexity_score_basic(sample_data):
+    """Test that complexity is calculated based on lives."""
+    row = sample_data.iloc[0]
+    score = calculate_complexity_score(row)
+    # 1 pedestrian + 2 passengers = 3 lives. Base score = 3.
+    assert score == 3.0
 
-def test_calculate_complexity_score_missing_columns():
-    """Test complexity calculation when standard columns are missing."""
-    # Mock row with no standard columns
-    row_data = {
-        'other_column': 10,
-        'participant_id': 123
-    }
-    row = pd.Series(row_data)
-    
-    complexity = calculate_complexity_score(row)
-    
-    # Expected: 0 (no lives found) + 0.0 + 0.0 = 0.0
-    assert complexity == pytest.approx(0.0, rel=1e-5)
+def test_calculate_complexity_score_sides_conflict(sample_data):
+    """Test that sides conflict adds complexity."""
+    row = sample_data.iloc[2]
+    score = calculate_complexity_score(row)
+    # 2 pedestrians + 3 passengers = 5 lives.
+    # 'sides_conflict' contains 'sides', so +1.0
+    # Total = 6.0
+    assert score == 6.0
 
-def test_derive_complexity_dataframe():
-    """Test deriving complexity for a full dataframe."""
-    df_data = {
-        'participant_id': [1, 2, 3],
-        'dilemma_id': ['A', 'B', 'C'],
-        'number_of_people_left': [1, 2, 1],
-        'number_of_people_right': [5, 2, 3],
-        'pedestrians_left': [1, 0, 1],
-        'pedestrians_right': [0, 0, 0]
-    }
-    df = pd.DataFrame(df_data)
+def test_derive_complexity_independence_from_response_time(sample_data):
+    """Verify that response_time is not used in the calculation."""
+    # Modify response_time to see if it affects the score
+    original_score = calculate_complexity_score(sample_data.iloc[0])
     
-    df_result = derive_complexity(df)
+    sample_data.loc[0, 'response_time'] = 999999
+    new_score = calculate_complexity_score(sample_data.iloc[0])
     
-    # Check that the new column exists
+    assert original_score == new_score, "Response time should not affect complexity score"
+
+def test_derive_complexity_column_creation(sample_data):
+    """Test that the derive_complexity function adds the correct column."""
+    df_result = derive_complexity(sample_data.copy())
     assert 'dilemma_complexity' in df_result.columns
+    assert len(df_result) == len(sample_data)
     
-    # Check the values
-    # Row 0: 1+5=6 + 0.2 (disparity) + 0.5 (ped) = 6.7
-    # Row 1: 2+2=4 + 0.0 (no disparity) + 0.0 = 4.0
-    # Row 2: 1+3=4 + 0.2 (disparity: 1/3 < 0.3) + 0.5 (ped) = 4.7
-    assert df_result.iloc[0]['dilemma_complexity'] == pytest.approx(6.7, rel=1e-5)
-    assert df_result.iloc[1]['dilemma_complexity'] == pytest.approx(4.0, rel=1e-5)
-    assert df_result.iloc[2]['dilemma_complexity'] == pytest.approx(4.7, rel=1e-5)
+    # Check values
+    assert df_result.loc[0, 'dilemma_complexity'] == 3.0
+    assert df_result.loc[1, 'dilemma_complexity'] == 6.0 # 5+1 = 6, no sides
+    assert df_result.loc[2, 'dilemma_complexity'] == 6.0 # 2+3+1 = 6 (sides)
 
-def test_derive_complexity_preserves_original():
-    """Test that derive_complexity does not modify the original dataframe."""
-    df_data = {
-        'participant_id': [1],
-        'number_of_people_left': [1],
-        'number_of_people_right': [5]
+def test_handle_missing_life_columns():
+    """Test behavior when no numeric life columns are found."""
+    data = {
+        'participant_id': ['p1'],
+        'dilemma_type': ['unknown'],
+        'response_time': [1000]
     }
-    df_original = pd.DataFrame(df_data)
-    df_copy = df_original.copy()
-    
-    derive_complexity(df_original)
-    
-    # Check that the original dataframe is unchanged
-    assert df_original.equals(df_copy)
-    # Check that the result has the new column
-    df_result = derive_complexity(df_copy)
-    assert 'dilemma_complexity' in df_result.columns
+    df = pd.DataFrame(data)
+    row = df.iloc[0]
+    score = calculate_complexity_score(row)
+    # Fallback to 2.0
+    assert score == 2.0

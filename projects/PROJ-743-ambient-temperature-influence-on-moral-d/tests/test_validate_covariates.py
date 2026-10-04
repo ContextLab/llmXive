@@ -1,156 +1,107 @@
-"""
-Tests for T028e: validate_covariates.py
-"""
-import os
-import json
-import tempfile
 import pytest
-import pandas as pd
+import json
+import os
+import tempfile
 from pathlib import Path
+import pandas as pd
 
-# Import the main function and logic
-from code.validate_covariates import main, parse_args, validate_covariate_file
+from code.validate_covariates import main, validate_covariate_file, ensure_directories
 
-@pytest.fixture
-def temp_dirs():
+def test_validate_covariate_file_missing_file():
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        # Create necessary subdirectories
-        (tmp_path / "data" / "processed").mkdir(parents=True)
-        (tmp_path / "results" / "logs").mkdir(parents=True)
-        yield tmp_path
+        base = Path(tmpdir)
+        file_path = base / "missing.csv"
+        expected_ids = {1, 2, 3}
+        
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["exists"] is False
+        assert result["valid"] is False
+        assert "File does not exist" in result["issues"]
 
-def test_validate_empty_merged_dataset(temp_dirs):
-    """Test that validation fails if merged dataset is empty."""
-    merged_path = temp_dirs / "data" / "processed" / "merged_dataset.parquet"
-    pd.DataFrame({"participant_id": []}).to_parquet(merged_path)
-    
-    covariates_dir = temp_dirs / "data" / "processed"
-    output_path = temp_dirs / "results" / "logs" / "covariate_validation.json"
-    
-    # Create a dummy covariate file
-    cov_path = covariates_dir / "dilemma_choices.csv"
-    pd.DataFrame({"participant_id": ["P1"], "choice": ["A"]}).to_csv(cov_path)
-    
-    args = [
-        "--input", str(merged_path),
-        "--covariates-dir", str(covariates_dir),
-        "--output", str(output_path)
-    ]
-    
-    # We need to patch sys.argv or call main directly with args
-    # Since main uses argparse, we can't easily pass args without sys.argv manipulation
-    # For unit testing, we will test the logic functions directly or mock sys.argv
-    pass 
+def test_validate_covariate_file_empty():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        file_path = base / "empty.csv"
+        file_path.touch()
+        expected_ids = {1, 2, 3}
+        
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["exists"] is True
+        assert result["valid"] is False
+        assert any("Empty" in issue or "no columns" in issue for issue in result["issues"])
 
-def test_validate_missing_covariate_file(temp_dirs):
-    """Test that validation reports fail if a covariate file is missing."""
-    # Create a valid merged dataset
-    merged_path = temp_dirs / "data" / "processed" / "merged_dataset.parquet"
-    pd.DataFrame({"participant_id": ["P1", "P2"]}).to_parquet(merged_path)
-    
-    covariates_dir = temp_dirs / "data" / "processed"
-    output_path = temp_dirs / "results" / "logs" / "covariate_validation.json"
-    
-    # Do NOT create dilemma_choices.csv
-    
-    args = [
-        "--input", str(merged_path),
-        "--covariates-dir", str(covariates_dir),
-        "--output", str(output_path)
-    ]
-    
-    # Mock sys.argv for main()
-    import sys
-    original_argv = sys.argv
-    sys.argv = ["test"] + args
-    try:
-        result = main()
-        assert result == 1  # Should fail
+def test_validate_covariate_file_success():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        file_path = base / "valid.csv"
         
-        with open(output_path) as f:
-            report = json.load(f)
+        # Create a valid CSV
+        df = pd.DataFrame({
+            "participant_id": [1, 2, 3],
+            "value": [10, 20, 30]
+        })
+        df.to_csv(file_path, index=False)
         
-        assert report["status"] == "fail"
-        assert report["covariates"]["dilemma_choice"]["status"] == "fail"
-        assert "File not found" in report["covariates"]["dilemma_choice"]["reason"]
-    finally:
-        sys.argv = original_argv
+        expected_ids = {1, 2, 3}
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["exists"] is True
+        assert result["valid"] is True
+        assert len(result["issues"]) == 0
 
-def test_validate_invalid_participant_ids(temp_dirs):
-    """Test that validation fails if covariate has IDs not in merged dataset."""
-    # Create merged dataset
-    merged_path = temp_dirs / "data" / "processed" / "merged_dataset.parquet"
-    pd.DataFrame({"participant_id": ["P1", "P2"]}).to_parquet(merged_path)
-    
-    covariates_dir = temp_dirs / "data" / "processed"
-    output_path = temp_dirs / "results" / "logs" / "covariate_validation.json"
-    
-    # Create a covariate file with an invalid ID
-    cov_path = covariates_dir / "dilemma_choices.csv"
-    pd.DataFrame({"participant_id": ["P1", "P99"], "choice": ["A", "B"]}).to_csv(cov_path)
-    
-    args = [
-        "--input", str(merged_path),
-        "--covariates-dir", str(covariates_dir),
-        "--output", str(output_path)
-    ]
-    
-    import sys
-    original_argv = sys.argv
-    sys.argv = ["test"] + args
-    try:
-        result = main()
-        assert result == 1  # Should fail
+def test_validate_covariate_file_missing_participants():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        file_path = base / "partial.csv"
         
-        with open(output_path) as f:
-            report = json.load(f)
+        # Create a CSV with missing participants
+        df = pd.DataFrame({
+            "participant_id": [1, 2], # 3 is missing
+            "value": [10, 20]
+        })
+        df.to_csv(file_path, index=False)
         
-        assert report["status"] == "fail"
-        assert report["covariates"]["dilemma_choice"]["status"] == "fail"
-        assert any("not in merged dataset" in issue for issue in report["covariates"]["dilemma_choice"]["issues"])
-    finally:
-        sys.argv = original_argv
+        expected_ids = {1, 2, 3}
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["valid"] is False
+        assert any("Missing" in issue for issue in result["issues"])
 
-def test_validate_success(temp_dirs):
-    """Test successful validation when all files match."""
-    # Create merged dataset
-    merged_path = temp_dirs / "data" / "processed" / "merged_dataset.parquet"
-    pd.DataFrame({"participant_id": ["P1", "P2", "P3"]}).to_parquet(merged_path)
-    
-    covariates_dir = temp_dirs / "data" / "processed"
-    output_path = temp_dirs / "results" / "logs" / "covariate_validation.json"
-    
-    # Create valid covariate files
-    # dilemma_choices
-    pd.DataFrame({"participant_id": ["P1", "P2", "P3"], "choice": ["A", "B", "A"]}).to_csv(covariates_dir / "dilemma_choices.csv")
-    # dilemma_complexity
-    pd.DataFrame({"participant_id": ["P1", "P2", "P3"], "complexity": [1, 2, 1]}).to_csv(covariates_dir / "dilemma_complexity.csv")
-    # time_of_day
-    pd.DataFrame({"participant_id": ["P1", "P2", "P3"], "time_of_day": ["morning", "afternoon", "night"]}).to_csv(covariates_dir / "time_of_day.csv")
-    # demographics
-    pd.DataFrame({"participant_id": ["P1", "P2", "P3"], "age": [20, 30, 40]}).to_csv(covariates_dir / "covariates.csv")
-    
-    args = [
-        "--input", str(merged_path),
-        "--covariates-dir", str(covariates_dir),
-        "--output", str(output_path)
-    ]
-    
-    import sys
-    original_argv = sys.argv
-    sys.argv = ["test"] + args
-    try:
-        result = main()
-        assert result == 0  # Should pass
+def test_validate_covariate_file_extra_participants():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        file_path = base / "extra.csv"
         
-        with open(output_path) as f:
-            report = json.load(f)
+        # Create a CSV with extra participants
+        df = pd.DataFrame({
+            "participant_id": [1, 2, 3, 4], # 4 is extra
+            "value": [10, 20, 30, 40]
+        })
+        df.to_csv(file_path, index=False)
         
-        assert report["status"] == "pass"
-        assert report["covariates"]["dilemma_choice"]["status"] == "pass"
-        assert report["covariates"]["dilemma_complexity"]["status"] == "pass"
-        assert report["covariates"]["time_of_day"]["status"] == "pass"
-        assert report["covariates"]["demographics"]["status"] == "pass"
-    finally:
-        sys.argv = original_argv
+        expected_ids = {1, 2, 3}
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["valid"] is False
+        assert any("extra" in issue.lower() for issue in result["issues"])
+
+def test_validate_covariate_file_null_ids():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        file_path = base / "nulls.csv"
+        
+        # Create a CSV with null participant_ids
+        df = pd.DataFrame({
+            "participant_id": [1, None, 3],
+            "value": [10, 20, 30]
+        })
+        df.to_csv(file_path, index=False)
+        
+        expected_ids = {1, 3} # None is dropped from expected set logic usually, but here we check the file
+        # The function checks for nulls in the file
+        result = validate_covariate_file(file_path, expected_ids, "test_covariate")
+        
+        assert result["valid"] is False
+        assert any("missing participant_id" in issue for issue in result["issues"])

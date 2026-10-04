@@ -1,238 +1,279 @@
-"""
-T028a: Check and Fetch Demographic Covariates
-
-This script checks for individual-level age/gender data in the Moral Machine dataset.
-If missing (expected), it fetches country-level aggregates (e.g., median age, population)
-from the World Bank API and merges them to the dataset using the 'country' code.
-"""
 import os
 import sys
 import logging
 import json
 import pandas as pd
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
-import requests
+from typing import Optional, Dict, Any, List
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+import time
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# --- Configuration & Constants ---
+WORLD_BANK_API_URL = "https://api.worldbank.org/v2/country/all/indicator"
+INDICATORS = [
+    "SP.POP.DPGE",  # Population by age and sex (Annual %) - Proxy for age distribution
+    "SP.DYN.LE00.IN" # Life expectancy at birth, total (years) - Proxy for general health/age
+]
+INDICATOR_MAP = {
+    "SP.POP.DPGE": "population_age_sex_pct",
+    "SP.DYN.LE00.IN": "life_expectancy"
+}
 
-from config import get_path_env_override
-
-def ensure_directories():
-    """Ensure output directories exist."""
-    output_dir = project_root / "data" / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
-
-def setup_custom_logger(name):
-    """Setup a custom logger."""
+# --- Logging Setup ---
+def setup_custom_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-def fetch_world_bank_indicator(indicator_id: str, logger: logging.Logger) -> Optional[pd.DataFrame]:
+# --- Directory Management ---
+def ensure_directories(base_path: Path) -> None:
+    processed_dir = base_path / "data" / "processed"
+    logs_dir = base_path / "results" / "logs"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+# --- Geocoding Helper ---
+def get_country_code_from_coords(lat: float, lon: float, geolocator: Nominatim) -> Optional[str]:
     """
-    Fetch indicator data from the World Bank API.
-    Args:
-        indicator_id: The World Bank indicator code (e.g., 'SP.POP.GROW', 'SP.POP.TOTL').
-        logger: Logger instance.
-    Returns:
-        DataFrame with country data or None if failed.
+    Reverse geocode lat/lon to get ISO-3 country code.
+    Returns None if geocoding fails or times out.
     """
-    url = f"https://api.worldbank.org/v2/country/all/indicator/{indicator_id}"
+    if pd.isna(lat) or pd.isna(lon):
+        return None
+    try:
+        location = geolocator.reverse(f"{lat}, {lon}", timeout=10)
+        if location and location.raw:
+            address = location.raw.get('address', {})
+            country_code = address.get('country_code') # Usually 2-letter (e.g., 'us')
+            if country_code:
+                # Convert to 3-letter ISO (e.g., 'usa') if needed, but World Bank often accepts 2-letter or specific codes.
+                # World Bank API usually accepts 2-letter codes (ISO 3166-1 alpha-2) or 'all'.
+                # We will return the 2-letter code as it is standard for World Bank.
+                return country_code.upper()
+    except (GeocoderTimedOut, GeocoderServiceError) as e:
+        logging.warning(f"Geocoding failed for ({lat}, {lon}): {e}")
+    except Exception as e:
+        logging.warning(f"Unexpected error geocoding ({lat}, {lon}): {e}")
+    return None
+
+# --- World Bank Data Fetching ---
+def fetch_world_bank_indicator(indicator_id: str, country_codes: List[str]) -> pd.DataFrame:
+    """
+    Fetches data for a specific indicator from World Bank API.
+    Returns a DataFrame with columns: country_code, year, value.
+    """
+    import requests
+    data_list = []
+    # World Bank API returns JSON. We need to handle pagination if necessary, but for these indicators it's usually one page.
+    # We will fetch the most recent year available (or a range if needed).
+    # Let's fetch the latest 5 years to be safe, or just the latest.
+    # API format: /indicator/{id}?format=json&date={start}:{end}
+    # We'll try to get the latest data.
+    
+    url = f"{WORLD_BANK_API_URL}/{indicator_id}"
     params = {
         "format": "json",
-        "date": "2014:2018", # Match study period
-        "per_page": 300
+        "date": "2014:2018", # Match our study period
+        "per_page": 3000     # Max per page
     }
-
+    
     try:
-        logger.info(f"Fetching World Bank indicator {indicator_id}...")
         response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()
-        data = response.json()
-
-        if len(data) < 2:
-            logger.warning(f"No data found for indicator {indicator_id}")
-            return None
-
-        records = data[1]
-        df = pd.DataFrame(records)
+        json_data = response.json()
         
-        # Standardize columns
-        if 'countryiso3code' in df.columns:
-            df['country_code'] = df['countryiso3code']
-        elif 'iso2code' in df.columns:
-            df['country_code'] = df['iso2code']
-        
-        # Pivot to get years as columns if multiple years exist
-        # The API returns one row per country per year
-        if 'date' in df.columns and 'value' in df.columns:
-            df = df.pivot_table(
-                index='country_code', 
-                columns='date', 
-                values='value', 
-                aggfunc='first'
-            ).reset_index()
-            df.columns.name = None # Remove pivot index name
-            df = df.rename(columns={str(y): f"value_{y}" for y in df.columns if isinstance(df.columns.get_loc(y), int) or y.isdigit()})
-            
-            # Clean column names if they are just years
-            clean_cols = ['country_code']
-            for col in df.columns:
-                if col != 'country_code':
-                    clean_cols.append(f"{indicator_id}_{col}")
-            df.columns = clean_cols
-        else:
-            # Fallback if structure is different
-            if 'value' in df.columns:
-                df = df[['country_code', 'value']].rename(columns={'value': f"{indicator_id}_latest"})
-        
-        return df
-
-    except Exception as e:
-        logger.error(f"Failed to fetch World Bank data for {indicator_id}: {e}")
-        return None
-
-def fetch_demographic_data(logger: logging.Logger) -> Optional[pd.DataFrame]:
-    """
-    Fetch a set of relevant demographic indicators from World Bank.
-    Returns a merged DataFrame of country-level demographics.
-    """
-    # Indicators: Median Age, Population, Urban Population %
-    # Note: Specific codes may vary, using common ones.
-    # SP.POP.MEDI.MA: Median age, total (years) - might not be available annually
-    # SP.POP.TOTL: Population, total
-    # SP.URB.TOTL.IN.ZS: Urban population (% of total)
-    indicators = [
-        "SP.POP.TOTL", 
-        "SP.URB.TOTL.IN.ZS"
-    ]
-
-    all_dfs = []
-    for ind in indicators:
-        df = fetch_world_bank_indicator(ind, logger)
-        if df is not None:
-            all_dfs.append(df)
+        if isinstance(json_data, list) and len(json_data) > 1:
+            records = json_data[1] # First element is metadata, second is data
+            for record in records:
+                country_id = record.get('country', {}).get('id')
+                value = record.get('value')
+                year = record.get('date')
+                if country_id and value is not None and str(year) in ["2014", "2015", "2016", "2017", "2018"]:
+                    # Filter for our country codes if provided (optional optimization)
+                    if not country_codes or country_id.upper() in [c.upper() for c in country_codes]:
+                        data_list.append({
+                            "country_code": country_id,
+                            "year": year,
+                            "value": value
+                        })
+    except requests.RequestException as e:
+        logging.error(f"Failed to fetch World Bank data for {indicator_id}: {e}")
+        return pd.DataFrame(columns=["country_code", "year", "value"])
     
-    if not all_dfs:
-        logger.warning("No demographic data fetched from World Bank.")
-        return None
+    return pd.DataFrame(data_list)
 
-    # Merge on country_code
-    merged_df = all_dfs[0]
-    for df in all_dfs[1:]:
-        merged_df = pd.merge(merged_df, df, on='country_code', how='outer')
-
-    return merged_df
-
-def log_gap(original_df: pd.DataFrame, merged_df: pd.DataFrame, logger: logging.Logger):
-    """Log statistics about the merge (how many countries matched, etc)."""
-    original_countries = set(original_df['country'].unique())
-    merged_countries = set(merged_df['country_code'].unique())
-    
-    matched = original_countries.intersection(merged_countries)
-    missing = original_countries - merged_countries
-
-    logger.info(f"Original countries: {len(original_countries)}")
-    logger.info(f"Merged countries (from API): {len(merged_countries)}")
-    logger.info(f"Matched countries: {len(matched)}")
-    logger.info(f"Missing coverage: {len(missing)}")
-    
-    if missing:
-        logger.warning(f"Missing data for countries: {missing}")
-
-def merge_demographics_to_data(moral_data_path: str, demographics_df: pd.DataFrame, output_path: str, logger: logging.Logger):
+def fetch_demographic_data(unique_countries: List[str]) -> pd.DataFrame:
     """
-    Merge demographic data to the main dataset.
-    Assumes moral_data_path points to the processed parquet or csv.
+    Fetches demographic data for a list of unique country codes.
+    Returns a merged DataFrame with indicators.
     """
-    # Try to load the main dataset
-    try:
-        if moral_data_path.endswith('.parquet'):
-            df_main = pd.read_parquet(moral_data_path)
-        elif moral_data_path.endswith('.csv'):
-            df_main = pd.read_csv(moral_data_path)
-        else:
-            raise ValueError("Unsupported file format for main data")
-    except Exception as e:
-        logger.error(f"Failed to load main dataset from {moral_data_path}: {e}")
-        return
+    all_data = []
+    for indicator_id in INDICATORS:
+        logging.info(f"Fetching World Bank data for indicator: {indicator_id}")
+        df = fetch_world_bank_indicator(indicator_id, unique_countries)
+        if not df.empty:
+            df['indicator'] = indicator_id
+            all_data.append(df)
+        
+        # Be nice to the API
+        time.sleep(1)
 
-    if 'country' not in df_main.columns:
-        logger.error("Main dataset does not have a 'country' column.")
-        return
+    if not all_data:
+        logging.warning("No demographic data fetched from World Bank.")
+        return pd.DataFrame()
 
-    # Normalize country column to string and uppercase for matching if needed
-    # World Bank usually uses ISO3 or ISO2. Moral Machine often has country names.
-    # We need a mapping. For this task, we assume the 'country' column in Moral Machine
-    # might be ISO3 or we need a mapping. 
-    # Given the constraints, we will attempt a direct merge if 'country' matches 'country_code'.
-    # If not, we might need a mapping table. 
-    # Let's assume for now the data has ISO3 codes or we map via a simple dict if needed.
-    # Since we don't have a mapping file, we will try to match on 'country' == 'country_code'
-    # and log if it fails.
+    combined_df = pd.concat(all_data, ignore_index=True)
     
-    # Check if 'country' column matches 'country_code' in demographics
-    if 'country' in df_main.columns and 'country_code' in demographics_df.columns:
-        # Attempt merge
-        final_df = pd.merge(df_main, demographics_df, left_on='country', right_on='country_code', how='left')
-        
-        # Drop the duplicate key if present
-        if 'country_code' in final_df.columns and 'country' in final_df.columns:
-             # Keep 'country', drop 'country_code'
-             final_df = final_df.drop(columns=['country_code'])
-        
-        # Save
-        final_df.to_csv(output_path, index=False)
-        logger.info(f"Merged demographics saved to {output_path}")
-        logger.info(f"Shape after merge: {final_df.shape}")
+    # Pivot to wide format: country_code, year, indicator -> value
+    # We want: country_code, year, population_age_sex_pct, life_expectancy
+    pivot_df = combined_df.pivot_table(
+        index=['country_code', 'year'],
+        columns='indicator',
+        values='value',
+        aggfunc='first' # In case of duplicates, take first
+    ).reset_index()
+    
+    # Rename columns based on map
+    pivot_df.rename(columns=INDICATOR_MAP, inplace=True)
+    
+    return pivot_df
+
+# --- Gap Logging ---
+def log_gap(missing_countries: List[str], log_path: Path) -> None:
+    """Logs countries for which covariates could not be fetched or derived."""
+    if missing_countries:
+        log_entry = {
+            "status": "partial_missing",
+            "missing_countries": list(set(missing_countries)),
+            "count": len(set(missing_countries))
+        }
+        with open(log_path, 'w') as f:
+            json.dump(log_entry, f, indent=2)
+        logging.warning(f"Failed to fetch covariates for {len(missing_countries)} unique countries.")
     else:
-        logger.error("Column mismatch for merge. Expected 'country' in main and 'country_code' in demographics.")
+        log_entry = {"status": "complete"}
+        with open(log_path, 'w') as f:
+            json.dump(log_entry, f, indent=2)
+
+# --- Main Logic ---
+def merge_demographics_to_data(moral_data: pd.DataFrame, demo_data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merges demographic data into the moral machine dataset.
+    Assumes moral_data has 'country' (ISO-3 or name) or lat/lon.
+    We will use 'country' if available, else derive from lat/lon (handled before this call).
+    Here we assume 'country' in moral_data is the ISO-2 code (from geocoding) or needs mapping.
+    World Bank uses ISO-3 usually, but API often accepts ISO-2.
+    Let's assume the 'country' column in moral_data is the ISO-2 code derived from geocoding.
+    """
+    if demo_data.empty:
+        logging.warning("Demo data is empty, returning original data with NaN covariates.")
+        moral_data['population_age_sex_pct'] = pd.NA
+        moral_data['life_expectancy'] = pd.NA
+        return moral_data
+
+    # Ensure country column in moral_data is string and upper case for matching
+    if 'country' not in moral_data.columns:
+        logging.error("Moral data missing 'country' column. Cannot merge demographics.")
+        return moral_data
+
+    moral_data['country'] = moral_data['country'].astype(str).str.upper()
+    demo_data['country_code'] = demo_data['country_code'].astype(str).str.upper()
+
+    # We need to match by country and ideally year.
+    # Since moral data might not have exact year match for every row, we can:
+    # 1. Merge on country only (average across years)
+    # 2. Merge on country and year (if year is available in moral data)
+    
+    # Check if 'year' exists in moral data
+    if 'year' in moral_data.columns:
+        moral_data['year'] = moral_data['year'].astype(str)
+        merged = pd.merge(
+            moral_data,
+            demo_data,
+            left_on=['country', 'year'],
+            right_on=['country_code', 'year'],
+            how='left'
+        )
+        merged.drop(columns=['country_code'], inplace=True, errors='ignore')
+    else:
+        # No year in moral data, merge on country only (taking mean of available years)
+        demo_mean = demo_data.groupby('country_code').mean().reset_index()
+        merged = pd.merge(
+            moral_data,
+            demo_mean,
+            left_on='country',
+            right_on='country_code',
+            how='left'
+        )
+        merged.drop(columns=['country_code'], inplace=True, errors='ignore')
+
+    return merged
 
 def main():
-    logger = setup_custom_logger("T028a_Derive_Demographics")
-    logger.info("Starting T028a: Check and Fetch Demographic Covariates")
-
-    # 1. Check for individual data in Moral Machine (simulated check based on known schema)
-    # The Moral Machine dataset typically does NOT have individual age/gender per response.
-    # It has country, dilemma, and response.
-    logger.info("Checking for individual-level age/gender data...")
-    logger.info("Result: Individual-level age/gender data is NOT present in the standard Moral Machine dataset.")
-    logger.info("Proceeding to fetch country-level aggregates.")
-
-    # 2. Fetch Country-Level Aggregates
-    output_dir = ensure_directories()
-    demographics_path = output_dir / "covariates.csv"
+    base_path = Path(os.getcwd())
+    ensure_directories(base_path)
+    logger = setup_custom_logger("derive_demographics")
     
-    # We need a source for the main data to merge against.
-    # The task description says "merge to the dataset". 
-    # We assume the merged dataset from T019b-finalize is available at:
-    # data/processed/merged_dataset.parquet (as per tasks.md)
-    main_data_path = project_root / "data" / "processed" / "merged_dataset.parquet"
-    
-    if not main_data_path.exists():
-        logger.error(f"Main dataset not found at {main_data_path}. Cannot merge.")
+    input_path = base_path / "data" / "processed" / "merged_dataset.parquet"
+    output_path = base_path / "data" / "processed" / "covariates.csv"
+    log_path = base_path / "results" / "logs" / "covariate_status.json"
+
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
 
-    demographics_df = fetch_demographic_data(logger)
-    
-    if demographics_df is None:
-        logger.error("Failed to fetch any demographic data. Aborting.")
+    try:
+        logger.info(f"Loading data from {input_path}")
+        df = pd.read_parquet(input_path)
+
+        # Step 1: Ensure 'country' column exists and is ISO-2
+        if 'country' not in df.columns:
+            logger.warning("No 'country' column found. Attempting to derive from lat/lon.")
+            geolocator = Nominatim(user_agent="llmXive_moral_temp_study")
+            df['country'] = df.apply(
+                lambda row: get_country_code_from_coords(row['latitude'], row['longitude'], geolocator),
+                axis=1
+            )
+            # Save the geocoded country if it was missing
+            df.to_parquet(input_path, index=False)
+
+        # Step 2: Identify unique countries
+        unique_countries = df['country'].dropna().unique().tolist()
+        logger.info(f"Found {len(unique_countries)} unique countries.")
+
+        # Step 3: Fetch World Bank Data
+        demo_df = fetch_demographic_data(unique_countries)
+
+        # Step 4: Merge
+        final_df = merge_demographics_to_data(df, demo_df)
+
+        # Step 5: Extract covariates only (for the specific task output)
+        covariate_cols = ['country', 'population_age_sex_pct', 'life_expectancy']
+        # Filter to columns that exist
+        available_cols = [c for c in covariate_cols if c in final_df.columns]
+        covariates_df = final_df[available_cols].copy()
+        
+        # Drop duplicates to keep one row per country (as per task "save to covariates.csv")
+        # Or keep all rows? Task says "save to data/processed/covariates.csv".
+        # Usually covariates are joined back. Let's save the unique mapping for reference.
+        unique_covariates = covariates_df.drop_duplicates(subset=['country'])
+        
+        unique_covariates.to_csv(output_path, index=False)
+        logger.info(f"Covariates saved to {output_path}")
+
+        # Step 6: Log status
+        missing = [c for c in unique_countries if c not in unique_covariates['country'].values]
+        log_gap(missing, log_path)
+
+    except Exception as e:
+        logger.error(f"Error processing demographics: {e}", exc_info=True)
         sys.exit(1)
-
-    log_gap(pd.read_parquet(main_data_path), demographics_df, logger)
-    
-    merge_demographics_to_data(str(main_data_path), demographics_df, str(demographics_path), logger)
-
-    logger.info("T028a completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -4,136 +4,150 @@ import json
 import logging
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, Any, Optional
 
+# Import existing utilities from the project
 from config import get_path_env_override
-from setup_logging import setup_logging, get_data_quality_logger
 
-def ensure_directories():
-    """Ensure required directories exist."""
+def ensure_directories() -> None:
+    """Ensure all required output directories exist."""
     dirs = [
-        Path("results/logs"),
-        Path("data/raw"),
-        Path("data/processed"),
-        Path("data/external"),
-        Path("state/projects"),
+        "results/logs",
+        "state/projects",
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
 
-def load_json_log(file_path: Path) -> dict:
+def load_json_log(path: Path) -> Dict[str, Any]:
     """Load a JSON log file if it exists, otherwise return an empty dict."""
-    if file_path.exists():
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logging.warning(f"Could not load JSON log {file_path}: {e}")
-            return {}
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
     return {}
 
-def check_file_exists(file_path: Path, logger: logging.Logger) -> bool:
-    """Check if a file exists and is non-empty."""
-    if not file_path.exists():
-        logger.error(f"Required file missing: {file_path}")
-        return False
-    if file_path.stat().st_size == 0:
-        logger.error(f"Required file is empty: {file_path}")
-        return False
-    return True
+def check_file_exists(path: Path) -> bool:
+    """Check if a specific file exists."""
+    return path.is_file()
 
-def check_directory_exists(dir_path: Path, logger: logging.Logger) -> bool:
-    """Check if a directory exists and contains at least one file."""
-    if not dir_path.exists():
-        logger.error(f"Required directory missing: {dir_path}")
+def check_directory_exists(path: Path) -> bool:
+    """Check if a specific directory exists and is not empty."""
+    if not path.is_dir():
         return False
-    if not any(dir_path.iterdir()):
-        logger.error(f"Required directory is empty: {dir_path}")
+    try:
+        return any(path.iterdir())
+    except PermissionError:
         return False
-    return True
 
-def update_project_state(status: str, logger: logging.Logger):
+def update_project_state(status: str, reason: str = "") -> None:
     """Update the project state YAML file."""
-    state_file = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
+    state_path = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
     ensure_directories()
     
     state_data = {
         "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
         "status": status,
-        "updated_at": datetime.now(timezone.utc).isoformat()
+        "updated_at": datetime.utcnow().isoformat(),
+        "last_validation": {
+            "timestamp": datetime.utcnow().isoformat(),
+            "status": status,
+            "reason": reason
+        }
     }
     
-    # Simple YAML writing without external dependency if possible, 
-    # but we assume pyyaml is available based on T008
-    try:
-        import yaml
-        with open(state_file, 'w', encoding='utf-8') as f:
-            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"Project state updated to '{status}' in {state_file}")
-    except ImportError:
-        # Fallback to manual string formatting if yaml is missing
-        content = f"project_id: PROJ-743-ambient-temperature-influence-on-moral-d\nstatus: {status}\nupdated_at: {state_data['updated_at']}\n"
-        with open(state_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        logger.warning("PyYAML not found, writing manual YAML. Project state updated.")
+    # Simple YAML serialization without external dependency for this specific task
+    # to avoid circular dependencies if yaml is not installed in this specific context
+    # though requirements.txt includes it. We write a basic YAML structure.
+    with open(state_path, "w", encoding="utf-8") as f:
+        f.write(f"project_id: {state_data['project_id']}\n")
+        f.write(f"status: '{state_data['status']}'\n")
+        f.write(f"updated_at: '{state_data['updated_at']}'\n")
+        f.write("last_validation:\n")
+        f.write(f"  timestamp: '{state_data['last_validation']['timestamp']}'\n")
+        f.write(f"  status: '{state_data['last_validation']['status']}'\n")
+        f.write(f"  reason: '{state_data['last_validation']['reason']}'\n")
 
-def run_validation_gate(logger: logging.Logger) -> bool:
+def run_validation_gate() -> bool:
     """
-    Aggregate results from T000-gate and verify that:
-    1. data/raw/era5_raw_chunks/ exists and is not empty
-    2. data/raw/moral_machine.csv.gz exists and is not empty
+    Run the pre-ingestion validation gate.
     
-    Returns True if gate passes, False otherwise.
+    Checks:
+    1. T000-gate results (Moral Machine, ERA5 Sample, Full ERA5 validation)
+    2. Existence of data/raw/era5_raw_chunks/
+    3. Existence of data/raw/moral_machine.csv.gz
+    
+    Returns:
+        bool: True if gate passes, False otherwise.
     """
-    moral_machine_path = Path("data/raw/moral_machine.csv.gz")
-    era5_chunks_path = Path("data/raw/era5_raw_chunks")
-    validation_log_path = Path("results/logs/data_validation_log.txt")
+    ensure_directories()
+    logger = logging.getLogger("validation_gate")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+
+    log_path = Path("results/logs/data_validation_log.txt")
+    
+    # 1. Check T000-gate results in the validation log
+    # We look for specific "PASS" strings logged by previous tasks
+    gate_checks = [
+        "Moral Machine Validation: PASS",
+        "ERA5 Validation: PASS",
+        "Full ERA5 Validation: PASS"
+    ]
     
     gate_passed = True
-
-    # Check Moral Machine dataset
-    if not check_file_exists(moral_machine_path, logger):
-        gate_passed = False
+    missing_logs = []
     
-    # Check ERA5 raw chunks directory
-    if not check_directory_exists(era5_chunks_path, logger):
+    if log_path.exists():
+        with open(log_path, "r", encoding="utf-8") as f:
+            log_content = f.read()
+        
+        for check in gate_checks:
+            if check not in log_content:
+                gate_passed = False
+                missing_logs.append(check)
+    else:
         gate_passed = False
+        missing_logs.append(f"Validation log file {log_path} not found")
+
+    # 2. Check data/raw/moral_machine.csv.gz
+    moral_machine_path = Path("data/raw/moral_machine.csv.gz")
+    if not check_file_exists(moral_machine_path):
+        gate_passed = False
+        missing_logs.append("data/raw/moral_machine.csv.gz missing")
+
+    # 3. Check data/raw/era5_raw_chunks/
+    era5_chunks_path = Path("data/raw/era5_raw_chunks")
+    if not check_directory_exists(era5_chunks_path):
+        gate_passed = False
+        missing_logs.append("data/raw/era5_raw_chunks/ missing or empty")
 
     # Log final status
-    timestamp = datetime.now().isoformat()
-    with open(validation_log_path, 'a', encoding='utf-8') as f:
-        if gate_passed:
-            f.write(f"[{timestamp}] Pre-Ingestion Gate: PASS\n")
-            logger.info("Pre-Ingestion Validation Gate: PASS")
-        else:
-            f.write(f"[{timestamp}] Pre-Ingestion Gate: FAIL\n")
-            logger.error("Pre-Ingestion Validation Gate: FAIL")
-    
-    return gate_passed
+    if gate_passed:
+        logger.info("Gate Open: All pre-ingestion validations passed.")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.utcnow().isoformat()} - Pre-Ingestion Validation Gate: PASS\n")
+        update_project_state("ready", "Pre-ingestion validation passed.")
+        return True
+    else:
+        logger.error("Gate Blocked: Validation failed.")
+        logger.error(f"Missing checks: {missing_logs}")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.utcnow().isoformat()} - Pre-Ingestion Validation Gate: FAIL\n")
+            f.write(f"Reason: {', '.join(missing_logs)}\n")
+        update_project_state("blocked", f"Pre-ingestion validation failed: {', '.join(missing_logs)}")
+        raise RuntimeError(f"Pre-ingestion validation gate failed. Missing: {', '.join(missing_logs)}")
 
-def main():
-    """Main entry point for T006."""
-    setup_logging()
-    logger = get_data_quality_logger()
-    
-    logger.info("Starting Pre-Ingestion Validation Gate (T006)")
-    
-    ensure_directories()
-    
+def main() -> None:
+    """Main entry point for the script."""
     try:
-        is_valid = run_validation_gate(logger)
-        
-        if not is_valid:
-            update_project_state("blocked", logger)
-            logger.error("Validation failed. Pipeline blocked.")
-            sys.exit(1)
-        else:
-            update_project_state("ready", logger)
-            logger.info("Validation passed. Pipeline ready.")
-            sys.exit(0)
-            
+        run_validation_gate()
+    except RuntimeError as e:
+        print(f"Validation Gate Failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.exception(f"Critical error during validation gate: {e}")
-        update_project_state("blocked", logger)
+        print(f"Unexpected error during validation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

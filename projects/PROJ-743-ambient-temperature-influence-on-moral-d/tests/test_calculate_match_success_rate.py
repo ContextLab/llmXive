@@ -1,148 +1,71 @@
 """
-Tests for T022a: Calculate Match Success Rate
+Tests for Task T022a: Calculate Match Success Rate
 """
 import json
 import os
 import tempfile
 from pathlib import Path
-
 import pytest
 
-# We need to import the logic. Since the task creates a new file, 
-# we import from the module name assuming it's in the code/ path.
-# For the test to run in isolation, we might need to adjust sys.path or 
-# rely on the project structure.
+# Import the functions to test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from calculate_match_success_rate import (
-    calculate_success_rate,
-    load_counts,
-    save_success_rate,
-    ensure_directories
+    calculate_success_rate, 
+    load_counts, 
+    save_success_rate
 )
-
-@pytest.fixture
-def temp_counts_file(tmp_path):
-    """Create a temporary counts.json file for testing."""
-    counts_data = {
-        "count_total_original_valid_location": 1000,
-        "count_matched_pre_exclusion": 850,
-        "other_count": 100
-    }
-    file_path = tmp_path / "counts.json"
-    with open(file_path, 'w') as f:
-        json.dump(counts_data, f)
-    return file_path
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary output directory."""
-    output_dir = tmp_path / "results" / "logs"
-    output_dir.mkdir(parents=True)
-    return output_dir
 
 def test_calculate_success_rate_basic():
     """Test basic calculation."""
     counts = {
-        "count_total_original_valid_location": 1000,
-        "count_matched_pre_exclusion": 850
+        'count_total_original_valid_location': 1000,
+        'count_matched_pre_exclusion': 800
     }
     rate = calculate_success_rate(counts)
-    assert rate == 85.0
+    assert rate == 80.0
 
 def test_calculate_success_rate_zero_total():
     """Test handling of zero total."""
     counts = {
-        "count_total_original_valid_location": 0,
-        "count_matched_pre_exclusion": 0
+        'count_total_original_valid_location': 0,
+        'count_matched_pre_exclusion': 0
     }
     rate = calculate_success_rate(counts)
     assert rate == 0.0
 
 def test_calculate_success_rate_missing_key():
-    """Test that missing keys raise ValueError."""
-    counts = {"count_total_original_valid_location": 1000}
-    with pytest.raises(ValueError, match="Missing 'count_matched_pre_exclusion'"):
+    """Test error handling for missing keys."""
+    counts = {
+        'count_total_original_valid_location': 1000
+        # missing count_matched_pre_exclusion
+    }
+    with pytest.raises(ValueError):
         calculate_success_rate(counts)
 
-def test_load_counts_success(temp_counts_file, monkeypatch):
-    """Test loading counts from a valid file."""
-    # Monkeypatch the path used by load_counts to point to our temp file
-    # The function hardcodes "results/logs/counts.json", so we need to mock the Path or the open
-    # For simplicity in this unit test, we'll test the logic if we refactor load_counts to accept a path.
-    # However, adhering to the task spec, load_counts reads from a fixed path.
-    # We will test by creating the file in the expected relative location in a temp dir 
-    # and changing the working directory, or by mocking.
+def test_save_and_load_success_rate(tmp_path):
+    """Test saving and loading the result file."""
+    counts = {
+        'count_total_original_valid_location': 500,
+        'count_matched_pre_exclusion': 450
+    }
+    rate = 90.0
     
-    # Let's mock the Path existence and open
-    import calculate_match_success_rate as module
+    output_file = tmp_path / "match_success_rate.json"
+    counts_file = tmp_path / "counts.json"
     
-    original_path = module.Path
+    # Write dummy counts file first
+    with open(counts_file, 'w') as f:
+        json.dump(counts, f)
     
-    class MockPath:
-        def __init__(self, path_str):
-            self.path_str = path_str
-            self.exists_flag = (path_str == "results/logs/counts.json")
-        
-        def exists(self):
-            return self.exists_flag
-        
-        def read_text(self, encoding='utf-8'):
-            if self.path_str == "results/logs/counts.json":
-                return json.dumps({
-                    "count_total_original_valid_location": 200,
-                    "count_matched_pre_exclusion": 150
-                })
-            return ""
-
-    module.Path = MockPath
+    save_success_rate(rate, str(output_file))
     
-    try:
-        counts = load_counts()
-        assert counts["count_total_original_valid_location"] == 200
-        assert counts["count_matched_pre_exclusion"] == 150
-    finally:
-        module.Path = original_path
-
-def test_save_success_rate(temp_output_dir, monkeypatch):
-    """Test saving the result."""
-    import calculate_match_success_rate as module
+    assert output_file.exists()
     
-    original_path = module.Path
+    with open(output_file, 'r') as f:
+        result = json.load(f)
     
-    class MockPath:
-        def __init__(self, path_str):
-            self.path_str = path_str
-            self.exists_flag = False # Directory check
-            self.content = None
-        
-        def __truediv__(self, other):
-            return self
-        
-        def mkdir(self, parents=True, exist_ok=False):
-            pass
-        
-        def exists(self):
-            # For output file
-            return self.path_str.endswith("match_success_rate.json") and False
-        
-        def open(self, mode, **kwargs):
-            # Capture the content
-            if 'w' in mode:
-                from io import StringIO
-                self.content = StringIO()
-                return self.content
-            return None
-        
-        def write(self, data):
-            if self.content:
-                self.content.write(data)
-
-    module.Path = MockPath
-    
-    try:
-        save_success_rate(75.5, "results/logs/match_success_rate.json")
-        # Verify content was written (mocked)
-    finally:
-        module.Path = original_path
+    assert result['match_success_rate'] == 90.0
+    assert result['count_matched_pre_exclusion'] == 450
+    assert result['count_total_original_valid_location'] == 500

@@ -1,95 +1,104 @@
 """
-Tests for T028b: Derive Dilemma Choice.
-
-Verifies that the derivation logic correctly identifies 'save_many' vs 'save_few'
-without using response_time.
+Unit tests for the derive_dilemma_choice module.
+Verifies that the dilemma_choice is derived correctly and independently of response_time.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
-import os
 
-# Add code directory to path
+# Ensure the code directory is in the path
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from derive_dilemma_choice import derive_choice
 
-class TestDeriveDilemmaChoice:
-    
-    def test_save_many_choice(self):
-        """Test case where participant chooses the side with more lives."""
-        data = {
-            'participant_id': [1],
-            'n_alives_ego': [5],
-            'n_alives_other': [2],
-            'choice': ['ego']  # Chose ego side (5 lives) over other (2 lives)
-        }
-        df = pd.DataFrame(data)
-        result = derive_choice(df)
-        assert result['dilemma_choice'].iloc[0] == 'save_many'
+def test_derive_choice_save_many():
+    """Test that choosing the side with more lives results in 'save_many'."""
+    data = {
+        'participant_id': [1, 2],
+        'dilemma_id': [101, 102],
+        'lives_pedestrians': [5, 1],
+        'lives_passengers': [1, 5],
+        'choice': ['pedestrians', 'passengers']
+    }
+    df = pd.DataFrame(data)
+    result = derive_choice(df)
 
-    def test_save_few_choice(self):
-        """Test case where participant chooses the side with fewer lives."""
-        data = {
-            'participant_id': [1],
-            'n_alives_ego': [2],
-            'n_alives_other': [5],
-            'choice': ['ego']  # Chose ego side (2 lives) over other (5 lives)
-        }
-        df = pd.DataFrame(data)
-        result = derive_choice(df)
-        assert result['dilemma_choice'].iloc[0] == 'save_few'
+    assert result.shape[0] == 2
+    assert result['dilemma_choice'].iloc[0] == 'save_many'  # 5 > 1, chose pedestrians
+    assert result['dilemma_choice'].iloc[1] == 'save_many'  # 5 > 1, chose passengers
 
-    def test_other_side_choice(self):
-        """Test case where participant chooses 'other' side."""
-        data = {
-            'participant_id': [1],
-            'n_alives_ego': [2],
-            'n_alives_other': [5],
-            'choice': ['other']  # Chose other side (5 lives) over ego (2 lives)
-        }
-        df = pd.DataFrame(data)
-        result = derive_choice(df)
-        assert result['dilemma_choice'].iloc[0] == 'save_many'
+def test_derive_choice_save_few():
+    """Test that choosing the side with fewer lives results in 'save_few'."""
+    data = {
+        'participant_id': [1, 2],
+        'dilemma_id': [101, 102],
+        'lives_pedestrians': [1, 5],
+        'lives_passengers': [5, 1],
+        'choice': ['pedestrians', 'passengers']
+    }
+    df = pd.DataFrame(data)
+    result = derive_choice(df)
 
-    def test_equal_lives(self):
-        """Test case where lives are equal."""
-        data = {
-            'participant_id': [1],
-            'n_alives_ego': [3],
-            'n_alives_other': [3],
-            'choice': ['ego']
-        }
-        df = pd.DataFrame(data)
-        result = derive_choice(df)
-        assert result['dilemma_choice'].iloc[0] == 'equal'
+    assert result.shape[0] == 2
+    assert result['dilemma_choice'].iloc[0] == 'save_few'   # 1 < 5, chose pedestrians
+    assert result['dilemma_choice'].iloc[1] == 'save_few'   # 1 < 5, chose passengers
 
-    def test_no_response_time_dependency(self):
-        """Ensure the function does not use response_time column."""
-        # If the function tried to access response_time, it would raise KeyError
-        # if the column is missing, or use it if present.
-        # We construct a DF with response_time but ensure logic relies on lives.
-        data = {
-            'participant_id': [1],
-            'n_alives_ego': [5],
-            'n_alives_other': [2],
-            'choice': ['ego'],
-            'response_time': [1000]  # This should be ignored
-        }
-        df = pd.DataFrame(data)
-        # This should run without error and produce 'save_many'
-        result = derive_choice(df)
-        assert result['dilemma_choice'].iloc[0] == 'save_many'
+def test_derive_choice_no_action():
+    """Test that 'none' choice results in 'no_action'."""
+    data = {
+        'participant_id': [1],
+        'dilemma_id': [101],
+        'lives_pedestrians': [5],
+        'lives_passengers': [1],
+        'choice': ['none']
+    }
+    df = pd.DataFrame(data)
+    result = derive_choice(df)
 
-    def test_missing_columns_raises_error(self):
-        """Test that missing life count columns raise a ValueError."""
-        data = {
-            'participant_id': [1],
-            'choice': ['ego']
-            # Missing n_alives_ego, n_alives_other
-        }
-        df = pd.DataFrame(data)
-        with pytest.raises(ValueError, match="Missing required life count columns"):
-            derive_choice(df)
+    assert result['dilemma_choice'].iloc[0] == 'no_action'
+
+def test_derive_choice_independence_from_response_time():
+    """Ensure response_time is NOT used in the derivation."""
+    data = {
+        'participant_id': [1],
+        'dilemma_id': [101],
+        'lives_pedestrians': [5],
+        'lives_passengers': [1],
+        'choice': ['pedestrians'],
+        'response_time': [1000] # High response time
+    }
+    df = pd.DataFrame(data)
+    result = derive_choice(df)
+
+    # The result should not contain response_time
+    assert 'response_time' not in result.columns
+
+    # The choice should be 'save_many' regardless of the response time
+    assert result['dilemma_choice'].iloc[0] == 'save_many'
+
+    # Modify response time and ensure result is identical
+    df['response_time'] = [9000]
+    result2 = derive_choice(df)
+    assert result['dilemma_choice'].iloc[0] == result2['dilemma_choice'].iloc[0]
+
+def test_derive_choice_empty_df():
+    """Test handling of empty DataFrame."""
+    df = pd.DataFrame(columns=['participant_id', 'dilemma_id', 'lives_pedestrians', 'lives_passengers', 'choice'])
+    result = derive_choice(df)
+    assert result.empty
+    assert 'dilemma_choice' in result.columns
+
+def test_derive_choice_unknown_columns():
+    """Test behavior when expected columns are missing."""
+    data = {
+        'participant_id': [1],
+        'dilemma_id': [101],
+        'random_col': [123]
+    }
+    df = pd.DataFrame(data)
+    result = derive_choice(df)
+    # Should fallback to 'unknown'
+    assert result['dilemma_choice'].iloc[0] == 'unknown'

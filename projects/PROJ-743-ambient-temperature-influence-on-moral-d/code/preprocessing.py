@@ -1,163 +1,228 @@
 """
-Preprocessing Wrapper Script (T055).
+Preprocessing module for T033d: Compute Temperature-Adjusted Response Times.
 
-This script orchestrates the data ingestion and interpolation steps required
-to produce the final cleaned dataset for analysis. It acts as the entry point
-for the quickstart run-book command:
-    python code/preprocessing.py
+This module calculates `adjusted_response_time` by subtracting a baseline
+reaction time from the raw response time if baseline data is available.
+If no baseline data exists, `adjusted_response_time` is set equal to
+`response_time`.
 
-It depends on the outputs of T017 (ingestion) and T019c (interpolation) to
-ensure the merged dataset is valid, filtered, and gap-handled.
+It handles the logic for checking the existence of baseline data,
+performing the subtraction, and logging the proportion of records
+with and without baseline data.
 """
-
 import os
 import sys
 import logging
 import argparse
 from pathlib import Path
+import pandas as pd
+import numpy as np
 
-# Import the main entry points from the ingestion and interpolation modules
-# as defined in the existing API surface.
-from ingestion import main as ingestion_main
-from interpolation import main as interpolation_main
-from setup_logging import setup_logging, get_data_quality_logger
-from config import get_path_env_override
+# Import logging utilities from existing project structure
+try:
+    from config import get_path_env_override
+except ImportError:
+    # Fallback if config is not in path, though it should be per T010
+    pass
 
+def setup_logging_custom(log_file=None):
+    """Set up custom logging for the preprocessing script."""
+    logger = logging.getLogger("preprocessing")
+    logger.setLevel(logging.INFO)
+
+    # Avoid adding multiple handlers if called multiple times in same session
+    if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+        if log_file:
+            # Ensure directory exists
+            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
+    return logger
 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Preprocessing wrapper: Ingests and interpolates data."
+        description="Compute temperature-adjusted response times."
     )
     parser.add_argument(
         "--input",
         type=str,
-        default="data/raw/moral_machine.csv.gz",
-        help="Path to the raw Moral Machine dataset.",
+        required=True,
+        help="Path to the input merged dataset (Parquet)."
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="data/processed/cleaned_dataset.parquet",
-        help="Path for the final cleaned dataset output.",
+        required=True,
+        help="Path to save the adjusted dataset (Parquet)."
     )
     parser.add_argument(
-        "--temp-input",
+        "--baseline-input",
         type=str,
-        default="data/raw/era5_full.parquet",
-        help="Path to the full ERA5 temperature dataset.",
+        required=False,
+        default=None,
+        help="Optional path to the baseline reaction time dataset (CSV/Parquet)."
+    )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        required=False,
+        default="results/logs/preprocessing.log",
+        help="Path to the log file."
     )
     return parser.parse_args()
 
+def load_baseline_data(baseline_path, logger):
+    """
+    Load baseline reaction time data.
+    Returns a DataFrame if successful, None if file missing or error occurs.
+    """
+    if not baseline_path:
+        logger.info("No baseline input path provided. Proceeding without baseline adjustment.")
+        return None
+
+    baseline_path = Path(baseline_path)
+    if not baseline_path.exists():
+        logger.warning(f"Baseline file not found at {baseline_path}. Proceeding without baseline adjustment.")
+        return None
+
+    try:
+        if baseline_path.suffix == '.csv':
+            df = pd.read_csv(baseline_path)
+        elif baseline_path.suffix == '.parquet':
+            df = pd.read_parquet(baseline_path)
+        else:
+            logger.warning(f"Unsupported baseline file format: {baseline_path.suffix}. Proceeding without baseline.")
+            return None
+
+        logger.info(f"Loaded baseline data with {len(df)} rows.")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load baseline data: {e}")
+        return None
+
+def merge_baseline_data(main_df, baseline_df, logger):
+    """
+    Merge baseline data into the main dataframe on participant_id.
+    """
+    if baseline_df is None:
+        return main_df, False
+
+    # Ensure participant_id is string for consistent merging
+    if 'participant_id' in main_df.columns and 'participant_id' in baseline_df.columns:
+        main_df['participant_id'] = main_df['participant_id'].astype(str)
+        baseline_df['participant_id'] = baseline_df['participant_id'].astype(str)
+
+        merged_df = main_df.merge(
+            baseline_df[['participant_id', 'baseline_response_time']],
+            on='participant_id',
+            how='left'
+        )
+        # Check how many had a match
+        matched_count = merged_df['baseline_response_time'].notna().sum()
+        total_count = len(merged_df)
+        match_rate = (matched_count / total_count) * 100 if total_count > 0 else 0
+
+        logger.info(f"Merged baseline data: {matched_count}/{total_count} records ({match_rate:.2f}%) have baseline RT.")
+        return merged_df, True
+    else:
+        logger.warning("participant_id column missing in one or both dataframes. Cannot merge baseline.")
+        return main_df, False
+
+def compute_adjusted_response_time(df, logger):
+    """
+    Compute adjusted_response_time = response_time - baseline_response_time.
+    If baseline is missing for a row, use the raw response_time.
+    """
+    if 'baseline_response_time' in df.columns:
+        # Calculate adjusted time
+        # If baseline is NaN, the result of subtraction is NaN.
+        # We want to fall back to raw response_time in that case.
+        df['adjusted_response_time'] = df['response_time'] - df['baseline_response_time']
+        
+        # Fill NaNs in adjusted_response_time with raw response_time
+        df['adjusted_response_time'] = df['adjusted_response_time'].fillna(df['response_time'])
+        
+        # Count records with and without baseline
+        with_baseline = df['baseline_response_time'].notna().sum()
+        without_baseline = df['baseline_response_time'].isna().sum()
+        total = len(df)
+        
+        logger.info(f"Adjusted Response Time Calculation:")
+        logger.info(f"  - Records with baseline: {with_baseline} ({with_baseline/total*100:.2f}%)")
+        logger.info(f"  - Records without baseline (using raw RT): {without_baseline} ({without_baseline/total*100:.2f}%)")
+    else:
+        # No baseline column exists
+        logger.info("No baseline_response_time column found. Setting adjusted_response_time = response_time.")
+        df['adjusted_response_time'] = df['response_time']
+
+    return df
 
 def main():
-    """
-    Execute the preprocessing pipeline:
-    1. Run Ingestion (T017): Load, filter, and count records.
-    2. Run Interpolation (T019c): Handle temporal gaps and flag exclusions.
-    3. The interpolation step is responsible for producing the final
-       merged and cleaned dataset (or updating the intermediate merged dataset
-       with gap-handling flags) which is then saved to the final output path.
-
-    Note: This script assumes T006 (Pre-ingestion Validation Gate) has passed
-    and that data/raw/moral_machine.csv.gz and data/raw/era5_full.parquet exist.
-    """
+    """Main entry point for T033d."""
     args = parse_args()
+    logger = setup_logging_custom(args.log_file)
+    
+    logger.info(f"Starting T033d: Compute Temperature-Adjusted Response Times")
+    logger.info(f"Input: {args.input}")
+    logger.info(f"Output: {args.output}")
 
-    # Setup logging
-    setup_logging()
-    logger = get_data_quality_logger()
-    logger.info("Starting Preprocessing Pipeline (T055)...")
-
-    # Ensure output directories exist
+    # Ensure output directory exists
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory ensured: {output_path.parent}")
 
-    # Step 1: Ingestion (T017)
-    # The ingestion module is designed to be run as a script.
-    # We pass the input path via environment variables or command line if supported,
-    # but primarily we rely on the module's internal logic to read from the
-    # standard location if no args are passed, or we can inject args.
-    # To keep it simple and robust, we assume the ingestion script reads from
-    # the default path or the one set in config, but we can override via args if needed.
-    # For this wrapper, we will call the ingestion main directly.
-    # Note: The ingestion.py script expects to be run as a standalone script.
-    # We simulate this by setting sys.argv if necessary, but since we imported main,
-    # we call it directly. However, ingestion.py's main() likely parses args itself.
-    # To avoid conflict, we will rely on the default paths defined in ingestion.py
-    # or the config, assuming the user has placed data in the standard locations.
-    # If the ingestion script requires specific args, we would need to modify
-    # ingestion.py to accept them or pass them here. Given the constraint to extend
-    # existing files, we assume ingestion.py handles the default paths correctly.
-
-    logger.info("Executing Ingestion (T017)...")
+    # Load main dataset
     try:
-        # We call ingestion_main directly. It should handle its own argument parsing
-        # or use defaults. If it requires the input path, it should be set in config
-        # or we need to pass it. For now, we assume defaults.
-        # If ingestion.py's main() parses sys.argv, we might need to inject args.
-        # Let's assume ingestion.py is robust and uses defaults or config.
-        ingestion_main()
-        logger.info("Ingestion (T017) completed successfully.")
-    except SystemExit as e:
-        if e.code != 0:
-            logger.error(f"Ingestion (T017) failed with exit code {e.code}")
-            sys.exit(e.code)
+        input_path = Path(args.input)
+        if input_path.suffix == '.parquet':
+            df = pd.read_parquet(input_path)
+        elif input_path.suffix == '.csv':
+            df = pd.read_csv(input_path)
+        else:
+            logger.error(f"Unsupported input format: {input_path.suffix}")
+            sys.exit(1)
+        
+        logger.info(f"Loaded {len(df)} records from {args.input}")
     except Exception as e:
-        logger.error(f"Ingestion (T017) failed with exception: {e}")
-        raise
+        logger.error(f"Failed to load input dataset: {e}")
+        sys.exit(1)
 
-    # Step 2: Interpolation (T019c)
-    # This step processes the merged dataset (produced by ingestion or an intermediate step)
-    # and handles temporal gaps, flagging or excluding records.
-    # It should produce the final cleaned dataset or update the merged dataset.
-    logger.info("Executing Interpolation (T019c)...")
+    # Check for required column
+    if 'response_time' not in df.columns:
+        logger.error("Input dataset missing 'response_time' column.")
+        sys.exit(1)
+
+    # Load and merge baseline data
+    df, baseline_available = merge_baseline_data(df, load_baseline_data(args.baseline_input, logger), logger)
+
+    # Compute adjusted response time
+    df = compute_adjusted_response_time(df, logger)
+
+    # Save output
     try:
-        # Similar to ingestion, we call interpolation_main directly.
-        # It should handle its own argument parsing or use defaults.
-        interpolation_main()
-        logger.info("Interpolation (T019c) completed successfully.")
-    except SystemExit as e:
-        if e.code != 0:
-            logger.error(f"Interpolation (T019c) failed with exit code {e.code}")
-            sys.exit(e.code)
+        if output_path.suffix == '.parquet':
+            df.to_parquet(output_path, index=False)
+        elif output_path.suffix == '.csv':
+            df.to_csv(output_path, index=False)
+        else:
+            logger.error(f"Unsupported output format: {output_path.suffix}")
+            sys.exit(1)
+        
+        logger.info(f"Successfully saved adjusted dataset to {args.output}")
     except Exception as e:
-        logger.error(f"Interpolation (T019c) failed with exception: {e}")
-        raise
+        logger.error(f"Failed to save output dataset: {e}")
+        sys.exit(1)
 
-    # Step 3: Finalize Output
-    # The interpolation step should have produced the final cleaned dataset.
-    # If the output path is different from what interpolation produced, we might
-    # need to move/rename the file. However, the task description says:
-    # "calls the necessary functions from code/ingestion.py (T017, T019c) to satisfy
-    # the quickstart run-book command".
-    # We assume the interpolation step writes to the final output path or the
-    # ingestion step writes to a merged dataset and interpolation updates it.
-    # For robustness, we check if the output file exists.
-    if output_path.exists():
-        logger.info(f"Final cleaned dataset produced at: {output_path}")
-    else:
-        # If the expected output is not at the specified path, we check common locations.
-        # The ingestion step might produce 'data/processed/merged_dataset.parquet'
-        # and interpolation might update it or produce 'data/processed/cleaned_dataset.parquet'.
-        # We assume interpolation produces the final output.
-        # If not, we might need to copy the merged dataset if no changes were made.
-        # However, the task implies the wrapper orchestrates the steps to produce the output.
-        # Let's assume the interpolation step writes to the path specified in its own config
-        # or we need to ensure it writes to the path we want.
-        # To satisfy the requirement, we will assume the interpolation step writes to
-        # the path defined in its own logic, and we just need to ensure it runs.
-        # If the output is not at the expected path, we log a warning.
-        logger.warning(f"Expected output file not found at {output_path}. "
-                       "Check the interpolation step's output configuration.")
-        # For the purpose of this task, we assume the interpolation step writes to
-        # the correct location or the ingestion step writes the final output if
-        # interpolation is just a flagging step.
-        # We will not move files here to avoid side effects, but we log the status.
-
-    logger.info("Preprocessing Pipeline (T055) completed.")
-
+    logger.info("T033d completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,73 +1,66 @@
-import pytest
+"""
+Tests to verify the pytest configuration and fixtures for PROJ-743.
+"""
 import os
-import sys
-from pathlib import Path
+import pytest
+import pandas as pd
 
-def test_cpu_only_enforcement():
-    """
-    Verify that CPU-only mode is enforced by checking CUDA_VISIBLE_DEVICES.
-    """
-    # This test assumes the global fixture or autouse fixture has run
-    assert os.environ.get("CUDA_VISIBLE_DEVICES") == "", \
-        "CUDA_VISIBLE_DEVICES should be empty in CPU-only mode"
+def test_cpu_only_mode_enabled(cpu_only_mode):
+    """Verify that CPU-only mode is active."""
+    assert cpu_only_mode is True
+    assert os.environ.get('CUDA_VISIBLE_DEVICES') == ''
 
-def test_sample_fraction_config():
-    """
-    Verify that sample fraction is correctly loaded.
-    """
-    from code.setup_pytest import sample_fraction
-    assert isinstance(sample_fraction, float)
-    assert 0.0 < sample_fraction <= 1.0
+def test_sample_data_loading(stratified_sample):
+    """Test that the stratified sample fixture loads data correctly."""
+    if stratified_sample is None:
+        pytest.skip("Test data file not found or empty. Skipping sample loading test.")
+    
+    assert isinstance(stratified_sample, pd.DataFrame)
+    assert len(stratified_sample) > 0
+    # Verify we have the expected columns if they exist in the source
+    expected_cols = ['participant_id', 'response_time', 'temperature_celsius']
+    for col in expected_cols:
+        if col in stratified_sample.columns:
+            assert not stratified_sample[col].isna().all()
 
-def test_stratify_column_config():
-    """
-    Verify that stratify column is correctly loaded.
-    """
-    from code.setup_pytest import stratify_column
-    assert isinstance(stratify_column, str)
-    assert len(stratify_column) > 0
+def test_stratified_sampling_logic(stratified_sample, sample_size):
+    """Verify that the sample size is respected and stratification works."""
+    if stratified_sample is None:
+        pytest.skip("Test data file not found or empty.")
+    
+    # The sample size should be approximately the requested size or less if data is small
+    assert len(stratified_sample) <= sample_size
+    
+    # If we have a cultural_region column, check that multiple regions are represented
+    if 'cultural_region' in stratified_sample.columns:
+        regions = stratified_sample['cultural_region'].dropna().unique()
+        # We expect at least a few regions if the dataset is large enough
+        if len(stratified_sample) > 10:
+            assert len(regions) > 1, "Stratification should cover multiple regions"
 
-def test_temp_directories_exist(global_test_config):
-    """
-    Verify that temporary test directories were created.
-    """
-    assert os.path.isdir(global_test_config["temp_data_dir"])
-    assert os.path.isdir(global_test_config["temp_results_dir"])
+def test_temp_data_directory(temp_data_dir):
+    """Test that the temporary data directory is created and writable."""
+    assert temp_data_dir.exists()
+    assert temp_data_dir.is_dir()
+    
+    # Try to write a dummy file
+    test_file = temp_data_dir / "test_write.txt"
+    test_file.write_text("test")
+    assert test_file.exists()
+    
+    # Cleanup is handled by the fixture
 
-def test_mock_data_generation(mock_moral_machine_data):
-    """
-    Verify that mock data fixture generates a valid CSV file.
-    """
-    assert mock_moral_machine_data.exists()
-    import pandas as pd
-    df = pd.read_csv(mock_moral_machine_data)
-    assert "participant_id" in df.columns
-    assert "latitude" in df.columns
-    assert "response_time" in df.columns
-
-def test_stratified_sampling_works(stratified_sample_fixture):
-    """
-    Verify that stratified sampling returns a DataFrame.
-    """
-    import pandas as pd
-    assert isinstance(stratified_sample_fixture, pd.DataFrame)
-    assert len(stratified_sample_fixture) > 0
-
-@pytest.mark.gpu
-def test_gpu_test_skipped_in_cpu_mode():
-    """
-    Verify that GPU-marked tests are skipped when CPU-only is enforced.
-    """
-    # This test is marked as GPU, so it should be skipped by the collection modify hook
-    # The fact that we are running this function means the marker logic worked
-    # (if it didn't work, this test would fail or run on GPU)
-    pytest.skip("GPU test skipped in CPU-only mode")
-
-def test_pytest_markers_registered():
-    """
-    Verify that custom markers are registered in pytest config.
-    """
-    import pytest
-    # Check if markers are recognized (no warning about unknown markers)
-    # This is implicitly tested by running with --strict-markers
-    assert True
+def test_sample_data_loader_fixture(sample_data_loader, project_root):
+    """Test the sample_data_loader fixture."""
+    # Try to load a known file if it exists, otherwise just test the function signature
+    # We check if the function returns None for non-existent files gracefully
+    result = sample_data_loader("data/non_existent.parquet")
+    assert result is None
+    
+    # Try to load the config module to ensure path resolution works
+    # This is a bit of a hack to test the loader without needing a specific data file
+    # but it verifies the path logic
+    config_path = project_root / "code" / "config.py"
+    if config_path.exists():
+        # We can't easily load a .py as a dataframe, so we just check the path logic
+        assert config_path.is_file()

@@ -1,11 +1,11 @@
 """
-T028d: Derive Time-of-Day from timestamps.
+Task T028d: Derive Time-of-Day from timestamps.
 
-Extracts the hour of day from the 'timestamp' column in the filtered Moral Machine
-dataset and categorizes it into meaningful periods (Morning, Afternoon, Evening, Night).
-Saves the resulting mapping to data/processed/time_of_day.csv.
+Extracts the hour of the day from the 'timestamp' column of the input data,
+categorizes it into time-of-day bins (Morning, Afternoon, Evening, Night),
+and saves the result to a CSV file.
 
-Dependencies: T017-run (filtered data must exist).
+Dependencies: T017-run (filtered moral machine data).
 """
 import os
 import sys
@@ -15,131 +15,121 @@ from pathlib import Path
 import pandas as pd
 from datetime import datetime
 
-# Add parent directory to path to allow imports if run as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import get_path_env_override
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('results/logs/derive_time_of_day.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Derive time-of-day categories from timestamps.")
+    parser = argparse.ArgumentParser(description='Derive time-of-day from timestamps.')
     parser.add_argument(
-        "--input",
+        '--input',
         type=str,
-        default="data/processed/filtered_moral_machine.parquet",
-        help="Path to the filtered Moral Machine dataset (output of T017-run).",
+        required=True,
+        help='Path to the input Parquet file (merged dataset).'
     )
     parser.add_argument(
-        "--output",
+        '--output',
         type=str,
-        default="data/processed/time_of_day.csv",
-        help="Path to save the derived time-of-day CSV.",
+        required=True,
+        help='Path to the output CSV file.'
     )
     return parser.parse_args()
 
-def ensure_directories(output_path: Path):
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def ensure_directories(file_path: Path):
+    """Ensure the directory for the given file path exists."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
 
 def categorize_hour(hour: int) -> str:
     """
-    Categorize an integer hour (0-23) into a time-of-day string.
+    Categorize an hour of the day into a time-of-day bin.
     
-    Definitions:
-    - Morning: 06:00 - 11:59
-    - Afternoon: 12:00 - 17:59
-    - Evening: 18:00 - 23:59
-    - Night: 00:00 - 05:59
+    Args:
+        hour (int): Hour of the day (0-23).
+    
+    Returns:
+        str: Category string ('Morning', 'Afternoon', 'Evening', 'Night').
     """
-    if 6 <= hour < 12:
-        return "Morning"
-    elif 12 <= hour < 18:
-        return "Afternoon"
-    elif 18 <= hour < 24:
-        return "Evening"
+    if 5 <= hour < 12:
+        return 'Morning'
+    elif 12 <= hour < 17:
+        return 'Afternoon'
+    elif 17 <= hour < 21:
+        return 'Evening'
     else:
-        return "Night"
+        return 'Night'
 
-def derive_time_of_day(input_path: Path, output_path: Path):
-    logger = logging.getLogger("derive_time_of_day")
+def derive_time_of_day(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Derive time-of-day categories from the timestamp column.
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    Args:
+        df (pd.DataFrame): Input DataFrame with a 'timestamp' column.
     
-    logger.info(f"Loading data from {input_path}")
-    try:
-        # Try loading parquet first, fallback to csv if needed
-        if input_path.suffix == '.parquet':
-            df = pd.read_parquet(input_path)
-        elif input_path.suffix == '.csv':
-            df = pd.read_csv(input_path)
-        else:
-            # Generic load attempt
-            df = pd.read_parquet(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load input file: {e}")
-        raise
-
-    # Ensure timestamp column exists
+    Returns:
+        pd.DataFrame: DataFrame with an added 'time_of_day' column.
+    """
     if 'timestamp' not in df.columns:
-        raise ValueError(f"Input file missing required column 'timestamp'. Columns: {df.columns.tolist()}")
-
-    logger.info(f"Processing {len(df)} records")
-
-    # Parse timestamps if they are strings
-    if df['timestamp'].dtype == 'object':
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        raise ValueError("Input DataFrame must contain a 'timestamp' column.")
     
-    # Drop rows where timestamp could not be parsed
-    initial_count = len(df)
-    df = df.dropna(subset=['timestamp'])
-    dropped_count = initial_count - len(df)
-    if dropped_count > 0:
-        logger.warning(f"Dropped {dropped_count} records with invalid timestamps.")
-
+    # Ensure timestamp is datetime
+    df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+    
     # Extract hour
     df['hour'] = df['timestamp'].dt.hour
-
-    # Categorize
-    df['time_of_day'] = df['hour'].apply(categorize_hour)
-
-    # Select relevant columns for output
-    # We include participant_id to allow merging back if needed, plus the derived fields
-    output_cols = ['participant_id', 'timestamp', 'hour', 'time_of_day']
-    # Filter to only existing columns in case participant_id was dropped in previous steps
-    available_cols = [c for c in output_cols if c in df.columns]
     
-    result_df = df[available_cols].copy()
-
-    logger.info(f"Saving derived time-of-day data to {output_path}")
-    ensure_directories(output_path)
-    result_df.to_csv(output_path, index=False)
-
-    logger.info(f"Successfully derived time-of-day for {len(result_df)} records.")
-    return len(result_df)
+    # Categorize hour
+    df['time_of_day'] = df['hour'].apply(categorize_hour)
+    
+    # Select relevant columns for output
+    # Assuming we want to keep participant_id to link back, plus the new field
+    output_cols = ['participant_id', 'timestamp', 'hour', 'time_of_day']
+    # Check if participant_id exists, otherwise just output the derived columns
+    if 'participant_id' in df.columns:
+        return df[output_cols]
+    else:
+        # Fallback if participant_id is missing (unlikely given task deps)
+        return df[['timestamp', 'hour', 'time_of_day']]
 
 def main():
     args = parse_args()
     input_path = Path(args.input)
     output_path = Path(args.output)
 
-    # Setup logging
-    log_dir = Path("results/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_dir / "derive_time_of_day.log"),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    logger = logging.getLogger("derive_time_of_day")
+    ensure_directories(output_path)
 
-    try:
-        count = derive_time_of_day(input_path, output_path)
-        logger.info(f"Task completed. Output saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Task failed: {e}")
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
 
-if __name__ == "__main__":
+    logger.info(f"Loading data from {input_path}")
+    try:
+        df = pd.read_parquet(input_path)
+    except Exception as e:
+        logger.error(f"Failed to load parquet file: {e}")
+        sys.exit(1)
+
+    logger.info(f"Loaded {len(df)} records.")
+    logger.info(f"Columns: {list(df.columns)}")
+
+    if df.empty:
+        logger.warning("Input DataFrame is empty. Creating empty output.")
+        df_result = pd.DataFrame(columns=['participant_id', 'timestamp', 'hour', 'time_of_day'])
+    else:
+        logger.info("Deriving time-of-day categories...")
+        df_result = derive_time_of_day(df)
+
+    logger.info(f"Saving derived time-of-day data to {output_path}")
+    df_result.to_csv(output_path, index=False)
+
+    logger.info("Time-of-day derivation complete.")
+    print(f"Success: Output written to {output_path}")
+
+if __name__ == '__main__':
     main()

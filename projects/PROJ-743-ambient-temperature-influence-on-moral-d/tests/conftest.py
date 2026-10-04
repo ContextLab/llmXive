@@ -1,115 +1,124 @@
+"""
+Pytest configuration for CPU-only execution and stratified sampling.
+"""
 import os
 import sys
+import random
+from pathlib import Path
+from typing import List, Any, Dict, Optional
+
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import tempfile
-import shutil
 
-# Import configuration from code/setup_pytest.py
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-from setup_pytest import (
-    sample_fraction, 
-    stratify_column, 
-    cpu_only, 
-    temp_data_dir, 
-    temp_results_dir,
-    setup_test_environment,
-    sample_data_loader,
-    cpu_only_mode
-)
+# Add project root to path to ensure imports work when running from tests/
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from code.config import get_path_env_override
+
+
+def pytest_configure(config):
+    """
+    Configure pytest at startup.
+    - Enforce CPU-only execution for ML/Stats libraries if applicable.
+    - Register custom markers for stratified sampling.
+    """
+    # Force CPU-only for torch/tensorflow if they were imported (defensive)
+    # Note: This project uses statsmodels/pandas, but we set env vars for consistency
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
+    # Register markers
+    config.addinivalue_line(
+        "markers", "stratified: Mark a test to use stratified sampling on the input data."
+    )
+    config.addinivalue_line(
+        "markers", "cpu_only: Explicitly mark a test as CPU-only (enforced via config)."
+    )
+
 
 @pytest.fixture(scope="session", autouse=True)
-def global_test_config():
-    """
-    Global fixture to set up test environment based on setup_pytest.py config.
-    """
-    # Ensure temp directories exist
-    Path(temp_data_dir).mkdir(parents=True, exist_ok=True)
-    Path(temp_results_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Enforce CPU-only if configured
-    if cpu_only:
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    
-    yield {
-        "temp_data_dir": temp_data_dir,
-        "temp_results_dir": temp_results_dir,
-        "sample_fraction": sample_fraction,
-        "stratify_column": stratify_column,
-        "cpu_only": cpu_only
-    }
-    
-    # Cleanup
-    for d in [temp_data_dir, temp_results_dir]:
-        if os.path.exists(d):
-            shutil.rmtree(d)
-
-@pytest.fixture
-def mock_moral_machine_data(global_test_config):
-    """
-    Generate a small mock Moral Machine dataset for testing ingestion logic.
-    Uses real column names but synthetic values for speed.
-    """
-    n_rows = 100
-    data = {
-        "participant_id": [f"P{i}" for i in range(n_rows)],
-        "latitude": np.random.uniform(-60, 60, n_rows),
-        "longitude": np.random.uniform(-180, 180, n_rows),
-        "timestamp": pd.date_range("2016-01-01", periods=n_rows, freq="h"),
-        "response_time": np.random.uniform(200, 5000, n_rows),
-        "country": np.random.choice(["US", "UK", "DE", "FR", "JP"], n_rows),
-        "dilemma_id": np.random.choice(["D1", "D2", "D3"], n_rows)
-    }
-    df = pd.DataFrame(data)
-    save_path = Path(global_test_config["temp_data_dir"]) / "mock_moral_machine.csv"
-    df.to_csv(save_path, index=False)
-    return save_path
-
-@pytest.fixture
-def mock_era5_data(global_test_config):
-    """
-    Generate a small mock ERA5 dataset for testing matching logic.
-    """
-    n_rows = 50
-    data = {
-        "grid_id": [f"G{i//10}" for i in range(n_rows)],
-        "timestamp": pd.date_range("2016-01-01", periods=n_rows, freq="h"),
-        "latitude": np.random.uniform(-60, 60, n_rows),
-        "longitude": np.random.uniform(-180, 180, n_rows),
-        "temperature_celsius": np.random.uniform(-10, 35, n_rows)
-    }
-    df = pd.DataFrame(data)
-    save_path = Path(global_test_config["temp_data_dir"]) / "mock_era5.csv"
-    df.to_csv(save_path, index=False)
-    return save_path
-
-@pytest.fixture
-def stratified_sample_fixture(sample_data_loader, mock_moral_machine_data):
-    """
-    Fixture providing a stratified sample of the mock data.
-    """
-    df = pd.read_csv(mock_moral_machine_data)
-    return sample_data_loader(df)
-
-@pytest.fixture(autouse=True)
 def enforce_cpu_only():
     """
-    Ensure every test runs in CPU-only mode unless explicitly marked otherwise.
+    Session-scoped fixture that ensures the environment is set to CPU-only.
+    This is an autouse fixture, so it runs for every test.
     """
-    if os.getenv("PYTEST_CPU_ONLY", "true").lower() in ("true", "1", "yes"):
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    # Re-assert environment variables to ensure no library overrides them
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
     yield
-    # Reset if needed (handled by global config cleanup)
+    # No teardown needed for env vars usually, but we could restore if needed
 
-def pytest_report_header(config):
+
+@pytest.fixture
+def stratified_sample(request):
     """
-    Add custom header to test reports.
+    Fixture to perform stratified sampling on a DataFrame based on a column.
+    Usage:
+      @pytest.mark.stratified(column='country', n=50)
+      def test_my_model(stratified_sample):
+          df = stratified_sample(...)
     """
-    return [
-        "Test Configuration:",
-        f"  CPU-Only: {os.getenv('CUDA_VISIBLE_DEVICES', 'Not Set') == ''}",
-        f"  Sample Fraction: {config.getoption('--sample-fraction')}",
-        f"  Stratify Column: {config.getoption('--stratify-column')}",
+
+    def _sample(df: pd.DataFrame, column: str, n_per_strata: int = 10) -> pd.DataFrame:
+        if column not in df.columns:
+            raise ValueError(f"Stratification column '{column}' not found in DataFrame.")
+
+        if len(df) == 0:
+            return df
+
+        groups = df.groupby(column)
+        sampled_dfs = []
+
+        for name, group in groups:
+            if len(group) <= n_per_strata:
+                sampled_dfs.append(group)
+            else:
+                sampled_dfs.append(group.sample(n=n_per_strata, random_state=42))
+
+        return pd.concat(sampled_dfs, ignore_index=True)
+
+    return _sample
+
+
+@pytest.fixture
+def mock_data_loader():
+    """
+    Fixture to provide a mock data loader for testing ingestion logic.
+    Returns a DataFrame with realistic but synthetic structure (not values).
+    """
+    # We use a small, deterministic dataset for unit tests.
+    # This is NOT the real data source, but a structural mock.
+    data = {
+        'participant_id': ['P001', 'P002', 'P003', 'P004', 'P005'],
+        'latitude': [51.5074, 40.7128, 35.6895, -33.8688, 55.7558],
+        'longitude': [-0.1278, -74.0060, 139.6917, 151.2093, 37.6173],
+        'timestamp': pd.to_datetime(['2016-01-01 12:00:00', '2016-01-02 14:30:00',
+                                     '2016-01-03 09:15:00', '2016-01-04 18:45:00',
+                                     '2016-01-05 11:20:00']),
+        'response_time': [2500, 1800, 3200, 4100, 2900],
+        'country': ['UK', 'USA', 'Japan', 'Australia', 'Russia'],
+        'dilemma_id': ['D1', 'D1', 'D2', 'D2', 'D3']
+    }
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    """
+    Fixture to create a temporary output directory structure mimicking the project.
+    """
+    dirs = [
+        "data/processed",
+        "results/logs",
+        "results/figures",
+        "results/stats"
     ]
+    for d in dirs:
+        (tmp_path / d).mkdir(parents=True, exist_ok=True)
+    return tmp_path

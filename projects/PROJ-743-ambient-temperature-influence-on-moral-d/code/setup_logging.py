@@ -1,72 +1,39 @@
-"""
-Logging infrastructure setup.
-"""
-import os
-import sys
 import logging
-from datetime import datetime
+import sys
 from pathlib import Path
-from config import get_path_env_override
+import os
 
-def ensure_directories():
-    """Ensure logging directories exist."""
-    dirs = [
-        "results/logs",
-        "results/figures",
-        "results/stats"
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-
-def setup_logging():
-    """Configure root logging."""
-    ensure_directories()
-    log_file = Path("results/logs/pipeline.log")
+def setup_logging(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
+    """
+    Setup a logger with console and optional file handler.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+    if logger.handlers:
+        return logger
 
-def get_data_quality_logger(name: str = "data_quality") -> logging.Logger:
-    """Get a logger specifically for data quality checks."""
-    ensure_directories()
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        log_file = Path("results/logs/data_quality.log")
-        handler = logging.FileHandler(log_file)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # File handler (if specified)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
     return logger
 
-def get_model_diagnostics_logger(name: str = "model_diagnostics") -> logging.Logger:
-    """Get a logger for model diagnostics."""
-    ensure_directories()
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        log_file = Path("results/logs/model_diagnostics.log")
-        handler = logging.FileHandler(log_file)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-def get_exclusion_logger(name: str = "exclusions") -> logging.Logger:
-    """Get a logger for excluded records."""
-    ensure_directories()
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        log_file = Path("results/logs/exclusions.log")
-        handler = logging.FileHandler(log_file)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-def main():
-    setup_logging()
+def get_data_quality_logger() -> logging.Logger:
+    """
+    Returns a pre-configured logger for data quality logs.
+    """
+    return setup_logging("data_quality", log_file="results/logs/data_quality_log.txt")

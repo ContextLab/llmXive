@@ -1,216 +1,229 @@
-"""
-T028e: Validate Covariate Integrity
-
-Ensures all derived covariate files (demographics, dilemma_choice, dilemma_complexity, time_of_day)
-are complete, have no missing rows, and match the participant set from the primary merged dataset.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, Set, List, Any
+from typing import Dict, Any, Optional, List, Tuple
 
-import pandas as pd
-import numpy as np
+# Import logging setup from the project's standard location
+try:
+    from setup_logging import setup_logging, get_data_quality_logger
+except ImportError:
+    # Fallback if setup_logging is not in path (though task 11 should have created it)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    def setup_logging(name):
+        return logging.getLogger(name)
+    def get_data_quality_logger():
+        return logging.getLogger("data_quality")
 
-# Import from existing project modules to align with API surface
 from config import get_path_env_override
-from setup_logging import setup_logging, get_data_quality_logger
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate covariate integrity against merged dataset.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/processed/merged_dataset.parquet",
-        help="Path to the merged dataset (primary source of truth)."
-    )
-    parser.add_argument(
-        "--covariates-dir",
-        type=str,
-        default="data/processed",
-        help="Directory containing derived covariate CSV files."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="results/logs/covariate_validation.json",
-        help="Path to save the validation report JSON."
-    )
-    return parser.parse_args()
+logger = logging.getLogger(__name__)
+data_logger = get_data_quality_logger()
 
-def load_covariate_file(path: Path) -> pd.DataFrame:
-    """Load a CSV covariate file safely."""
-    if not path.exists():
-        raise FileNotFoundError(f"Covariate file not found: {path}")
+def ensure_directories(base_path: Path):
+    """Ensure all required output directories exist."""
+    dirs = [
+        base_path / "results" / "logs",
+        base_path / "data" / "processed"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+def load_csv_as_dict_set(filepath: Path) -> set:
+    """Load a CSV file and return a set of unique participant_ids."""
+    if not filepath.exists():
+        logger.warning(f"File not found: {filepath}")
+        return set()
+    
+    import pandas as pd
     try:
-        return pd.read_csv(path)
+        df = pd.read_csv(filepath)
+        # Expect 'participant_id' column based on task descriptions
+        if 'participant_id' in df.columns:
+            return set(df['participant_id'].dropna().unique())
+        else:
+            # Fallback: assume first column is ID if 'participant_id' missing
+            # Log this discrepancy
+            logger.warning(f"Column 'participant_id' not found in {filepath}. Using first column.")
+            return set(df.iloc[:, 0].dropna().unique())
     except Exception as e:
-        raise RuntimeError(f"Failed to load {path}: {e}")
+        logger.error(f"Error reading {filepath}: {e}")
+        return set()
 
-def validate_covariate_file(
-    name: str,
-    df: pd.DataFrame,
-    valid_participant_ids: Set[str],
-    logger: logging.Logger
-) -> Dict[str, Any]:
+def validate_covariate_file(filepath: Path, expected_ids: set, covariate_name: str) -> Dict[str, Any]:
     """
-    Validate a single covariate file:
-    1. Check for missing rows (NaN in critical columns).
-    2. Check that all participant_ids exist in the main merged dataset.
-    3. Check for duplicates if applicable.
+    Validate a single covariate file.
+    Returns a dict with validation status and details.
     """
-    issues = []
-    status = "pass"
-
-    if df.empty:
-        issues.append("File is empty.")
-        return {"status": "fail", "issues": issues}
-
-    # 1. Check for missing values in participant_id
-    if "participant_id" not in df.columns:
-        issues.append("Missing 'participant_id' column.")
-        return {"status": "fail", "issues": issues}
-
-    missing_pid = df["participant_id"].isna().sum()
-    if missing_pid > 0:
-        issues.append(f"Found {missing_pid} rows with missing participant_id.")
-        status = "fail"
-
-    # 2. Check for missing values in other critical columns
-    # We assume all columns in the covariate file are critical for integrity
-    non_pid_cols = [c for c in df.columns if c != "participant_id"]
-    for col in non_pid_cols:
-        missing_count = df[col].isna().sum()
-        if missing_count > 0:
-            issues.append(f"Column '{col}' has {missing_count} missing values.")
-            status = "fail"
-
-    # 3. Check participant ID membership
-    current_ids = set(df["participant_id"].dropna().astype(str))
-    invalid_ids = current_ids - valid_participant_ids
-    if invalid_ids:
-        issues.append(f"Found {len(invalid_ids)} participant_ids not in merged dataset.")
-        # Log first 5 for debugging
-        if len(invalid_ids) > 0:
-            issues.append(f"Sample invalid IDs: {list(invalid_ids)[:5]}")
-        status = "fail"
-
-    # 4. Check for duplicates
-    if df.duplicated(subset=["participant_id"]).any():
-        dup_count = df.duplicated(subset=["participant_id"]).sum()
-        issues.append(f"Found {dup_count} duplicate participant_ids.")
-        status = "fail"
-
-    logger.info(f"Validation for {name}: {status}")
-    if issues:
-        for issue in issues:
-            logger.warning(f"  - {issue}")
-
-    return {
-        "status": status,
-        "row_count": len(df),
-        "issues": issues
+    result = {
+        "file": str(filepath),
+        "covariate_name": covariate_name,
+        "exists": filepath.exists(),
+        "valid": False,
+        "issues": []
     }
 
-def main() -> int:
-    args = parse_args()
-    
-    # Setup logging
-    log_dir = Path(args.output).parent
-    log_dir.mkdir(parents=True, exist_ok=True)
-    logger = get_data_quality_logger("covariate_validation")
-    
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not result["exists"]:
+        result["issues"].append("File does not exist")
+        return result
 
-    logger.info(f"Starting covariate validation. Input: {args.input}")
-
-    # 1. Load the primary merged dataset
     try:
-        merged_df = pd.read_parquet(args.input)
+        # Load the file
+        if filepath.suffix == '.csv':
+            df = pd.read_csv(filepath)
+        elif filepath.suffix == '.parquet':
+            df = pd.read_parquet(filepath)
+        else:
+            result["issues"].append(f"Unsupported file format: {filepath.suffix}")
+            return result
+
+        # Check for participant_id column
+        if 'participant_id' not in df.columns:
+            # Try to infer if the first column is the ID
+            if len(df.columns) > 0:
+                first_col = df.columns[0]
+                # If it looks like an ID (e.g., contains 'id' or is the only non-data col)
+                # For safety, we assume the task output format includes participant_id
+                result["issues"].append(f"Missing 'participant_id' column. Found columns: {list(df.columns)}")
+                return result
+            else:
+                result["issues"].append("Empty file or no columns")
+                return result
+
+        file_ids = set(df['participant_id'].dropna().unique())
+        result["total_records"] = len(df)
+        result["unique_participants"] = len(file_ids)
+
+        # Check for missing rows in the file itself (NaN in participant_id)
+        null_ids = df['participant_id'].isna().sum()
+        if null_ids > 0:
+            result["issues"].append(f"Contains {null_ids} rows with missing participant_id")
+
+        # Check against expected set
+        missing_in_file = expected_ids - file_ids
+        extra_in_file = file_ids - expected_ids
+
+        if missing_in_file:
+            result["issues"].append(f"Missing {len(missing_in_file)} participants found in reference set")
+            # Don't log all IDs to avoid log spam, just count
+        if extra_in_file:
+            result["issues"].append(f"Contains {len(extra_in_file)} participants not in reference set")
+
+        # Determine validity
+        # We require the file to exist, have no missing IDs in the participant_id column,
+        # and contain exactly the set of participants (or a subset if the task allows, but T028e says "match the participant set")
+        # "match the participant set" implies exact match or superset? Usually exact for integrity.
+        # Let's be strict: no missing, no extra (unless extra is just noise which is bad).
+        if not missing_in_file and not extra_in_file and null_ids == 0:
+            result["valid"] = True
+        else:
+            result["valid"] = False
+
     except Exception as e:
-        logger.error(f"Failed to load merged dataset: {e}")
-        # Write failure report and exit
-        report = {
-            "status": "fail",
-            "reason": f"Could not load merged dataset: {e}",
-            "covariates": {}
-        }
-        with open(output_path, "w") as f:
-            json.dump(report, f, indent=2)
-        return 1
+        result["issues"].append(f"Error processing file: {str(e)}")
+    
+    return result
 
-    if merged_df.empty:
-        logger.error("Merged dataset is empty.")
-        report = {"status": "fail", "reason": "Merged dataset is empty", "covariates": {}}
-        with open(output_path, "w") as f:
-            json.dump(report, f, indent=2)
-        return 1
+def main():
+    parser = argparse.ArgumentParser(description="Validate covariate integrity for T028e")
+    parser.add_argument("--base-path", type=str, default=None, help="Base project path. Defaults to current dir.")
+    args = parser.parse_args()
 
-    # Extract valid participant IDs
-    valid_participant_ids = set(merged_df["participant_id"].dropna().astype(str))
-    logger.info(f"Loaded {len(valid_participant_ids)} unique participant IDs from merged dataset.")
+    base_path = Path(args.base_path) if args.base_path else Path.cwd()
+    ensure_directories(base_path)
 
-    # 2. Define expected covariate files based on T028a-d
-    # T028a: demographics (covariates.csv)
-    # T028b: dilemma_choice (dilemma_choices.csv)
-    # T028c: dilemma_complexity (dilemma_complexity.csv)
-    # T028d: time_of_day (time_of_day.csv)
+    # Define input files based on T028a, T028b, T028c, T028d
+    # T028a: data/processed/covariates.csv
+    # T028b: data/processed/dilemma_choices.csv
+    # T028c: data/processed/dilemma_complexity.csv
+    # T028d: data/processed/time_of_day.csv
     
     covariate_files = [
-        ("demographics", "covariates.csv"),
-        ("dilemma_choice", "dilemma_choices.csv"),
-        ("dilemma_complexity", "dilemma_complexity.csv"),
-        ("time_of_day", "time_of_day.csv")
+        (base_path / "data" / "processed" / "covariates.csv", "covariates"),
+        (base_path / "data" / "processed" / "dilemma_choices.csv", "dilemma_choices"),
+        (base_path / "data" / "processed" / "dilemma_complexity.csv", "dilemma_complexity"),
+        (base_path / "data" / "processed" / "time_of_day.csv", "time_of_day"),
     ]
 
-    results = {}
-    all_pass = True
+    # We need a reference set of participants.
+    # The most logical source is the merged dataset (if it exists) or the raw moral machine data.
+    # Since T028e depends on T019b-finalize (merged_dataset.parquet) and T017-run (filtered data),
+    # we try to load the merged dataset first. If not, we try the raw moral machine data.
+    
+    reference_ids = set()
+    merged_path = base_path / "data" / "processed" / "merged_dataset.parquet"
+    raw_path = base_path / "data" / "raw" / "moral_machine.csv.gz"
 
-    for name, filename in covariate_files:
-        file_path = Path(args.covariates_dir) / filename
-        if not file_path.exists():
-            logger.warning(f"Covariate file missing: {filename}")
-            results[name] = {
-                "status": "fail",
-                "reason": "File not found",
-                "issues": ["File not found"]
-            }
-            all_pass = False
-            continue
-
+    if merged_path.exists():
         try:
-            df = load_covariate_file(file_path)
-            result = validate_covariate_file(name, df, valid_participant_ids, logger)
-            results[name] = result
-            if result["status"] == "fail":
-                all_pass = False
+            import pandas as pd
+            df = pd.read_parquet(merged_path)
+            if 'participant_id' in df.columns:
+                reference_ids = set(df['participant_id'].dropna().unique())
+                logger.info(f"Loaded {len(reference_ids)} participant IDs from merged_dataset.parquet")
+            else:
+                logger.warning("participant_id not found in merged_dataset.parquet. Trying raw data.")
         except Exception as e:
-            logger.error(f"Error processing {name}: {e}")
-            results[name] = {
-                "status": "fail",
-                "reason": str(e),
-                "issues": [str(e)]
-            }
-            all_pass = False
+            logger.error(f"Failed to load merged dataset: {e}")
+    
+    if not reference_ids and raw_path.exists():
+        try:
+            import pandas as pd
+            df = pd.read_csv(raw_path, compression='gzip')
+            # Map column name if necessary
+            if 'participant_id' in df.columns:
+                reference_ids = set(df['participant_id'].dropna().unique())
+            elif 'id' in df.columns:
+                reference_ids = set(df['id'].dropna().unique())
+            else:
+                # Fallback to first column
+                reference_ids = set(df.iloc[:, 0].dropna().unique())
+            logger.info(f"Loaded {len(reference_ids)} participant IDs from moral_machine.csv.gz")
+        except Exception as e:
+            logger.error(f"Failed to load raw moral machine data: {e}")
 
-    # 3. Final Report
-    final_status = "pass" if all_pass else "fail"
-    report = {
-        "status": final_status,
-        "total_participants_in_merged": len(valid_participant_ids),
-        "covariates": results
-    }
+    if not reference_ids:
+        logger.error("Could not determine reference participant set. Validation cannot proceed.")
+        # Create a failure log
+        validation_result = {
+            "status": "failed",
+            "reason": "Could not determine reference participant set",
+            "files_validated": []
+        }
+    else:
+        validation_results = []
+        all_valid = True
 
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
+        for filepath, name in covariate_files:
+            res = validate_covariate_file(filepath, reference_ids, name)
+            validation_results.append(res)
+            if not res["valid"]:
+                all_valid = False
 
-    logger.info(f"Validation complete. Status: {final_status}. Report saved to {output_path}")
-    return 0 if all_pass else 1
+        validation_result = {
+            "status": "passed" if all_valid else "failed",
+            "reference_set_size": len(reference_ids),
+            "files_validated": validation_results,
+            "summary": "All covariate files match the participant set and have no missing rows." if all_valid else "One or more covariate files have integrity issues."
+        }
+
+    # Write output
+    output_path = base_path / "results" / "logs" / "covariate_validation.json"
+    with open(output_path, 'w') as f:
+        json.dump(validation_result, f, indent=2)
+
+    logger.info(f"Validation complete. Results written to {output_path}")
+    data_logger.info(f"Covariate Validation: {'PASS' if validation_result['status'] == 'passed' else 'FAIL'}")
+
+    if not all_valid:
+        # Log specific issues to the data quality log for debugging
+        for res in validation_results:
+            if not res["valid"]:
+                data_logger.warning(f"Issues in {res['covariate_name']}: {', '.join(res['issues'])}")
+
+    return 0 if all_valid else 1
 
 if __name__ == "__main__":
     sys.exit(main())

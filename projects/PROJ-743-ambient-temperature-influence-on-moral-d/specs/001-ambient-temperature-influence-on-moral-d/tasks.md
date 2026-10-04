@@ -39,7 +39,7 @@
 
 - [ ] T009d [P] **Create Pydantic Models (Merged)**: Generate Pydantic model class `MergedDataset` in `contracts/models.py` with fields from both raw models plus derived columns (`dilemma_choice`, `dilemma_complexity`, `time_of_day`, `temperature_celsius`, `participant_id`, `cultural_region`). **Note**: This is a structural schema definition only; it does not include runtime validation logic for derived fields that do not exist yet in Phase 1. **(Plan Structure Fix)**. **Updated**: Explicitly includes `dilemma_complexity` as a required field. **Clarification**: These are target schema definitions for the final merged dataset, not raw input models.
 
-- [ ] T009c [P] **Generate JSON-Schemas**: Generate JSON-Schema contract files for each entity (`MoralResponse.schema.json`, `TemperatureRecord.schema.json`, `MergedDataset.schema.json`) under `contracts/` from the Pydantic models in `contracts/models.py`. **(Plan Structure Fix)**.
+- [ ] T009c [P] **Generate JSON-Schemas**: Generate JSON-Schema contract files for each entity (`MoralResponse.schema.json`, `TemperatureRecord.schema.json`, `MergedDataset.schema.json`) under `contracts/` from the Pydantic models in `contracts/models.py`. **(Plan Structure Fix)**. <!-- FAILED: unspecified -->
 
 - [X] T010 [P] Create base configuration module `code/config.py` defining paths, random seeds, and **configurable** thresholds:
  1. `DISTANCE_THRESHOLD_KM = 100`
@@ -49,6 +49,8 @@
  5. `AD_TEST_SEED` (deferred to implementation, referenced here)
  6. `BASELINE_TASK_ENABLED` (new: flag for optional baseline task)
  7. `BASELINE_TASK_URL` (new: URL for baseline reaction time task if available)
+ 8. `PHYSIO_PROXY_ENABLED` (new: flag for physiological proxy task)
+ 9. `PHYSIO_PROXY_URL` (new: URL for physiological proxy dataset if available)
  **(Executability Fix)**.
 
 - [ ] T011 [P] Setup logging infrastructure to write data quality logs and model diagnostics to `results/logs/`.
@@ -70,12 +72,13 @@
 **⚠️ CRITICAL**: No other tasks can begin until Phase 0 is complete and the data gap is resolved.
 
 - [ ] T000-init [S] **Download Moral Machine Dataset**: Implement `code/download_moral_machine.py` to:
- 1. Fetch the canonical Moral Machine dataset from Kaggle (URL: `https://www.kaggle.com/datasets/taranjeet/moral-machine`) or the direct GitHub mirror.
+ 1. Fetch the canonical Moral Machine dataset from Kaggle (URL: `) or the direct GitHub mirror.
  2. Save to `data/raw/moral_machine.csv.gz`.
  3. Compute SHA-256 checksum and record in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`.
- 4. Log success/failure to `results/logs/data_validation_log.txt`. **(FR‑014, Constitution Principle II)**.
- 5. **Completion Artifact**: File `data/raw/moral_machine.csv.gz` must exist with size > 0 and checksum recorded.
- 6. **Dependencies**: T007, T008.
+ 4. **Verify Checksum**: Immediately verify the computed checksum against the `state` file. If mismatch, raise an exception and abort. **(Constitution Principle III)**.
+ 5. Log success/failure to `results/logs/data_validation_log.txt`. **(FR‑014, Constitution Principle II)**.
+ 6. **Completion Artifact**: File `data/raw/moral_machine.csv.gz` must exist with size > 0 and checksum verified.
+ 7. **Dependencies**: T007, T008.
 
 - [X] T001a [S] **Validate Moral Machine Source & File**: Implement `code/validate_sources.py` to:
  1. Verify the presence of required columns in `data/raw/moral_machine.csv.gz`: `latitude`, `longitude`, `timestamp`, `response_time`, `country`.
@@ -94,7 +97,7 @@
  2. Verify the API endpoint is reachable and returns valid metadata.
  3. Log all validation results to `results/logs/data_validation_log.txt`. **(FR‑014, Constitution Principle II)**. **Dependencies**: T000-init.
 
-- [ ] T001d [S] **Validate Full ERA5 Coverage & Resolution**: Implement `code/validate_era5.py` to:
+- [X] T001d [S] **Validate Full ERA5 Coverage & Resolution**: Implement `code/validate_era5.py` to:
  1. Query CDS API metadata for the **full 2014-2018** range for `2m_temperature`.
  2. Verify that the metadata confirms hourly resolution and global grid coverage for the entire requested period.
  3. Log "Full ERA5 Validation: PASS" or "FAIL" to `results/logs/data_validation_log.txt`. **(FR‑014)**.
@@ -124,7 +127,7 @@
 
 - [ ] T002e-new [S] **Checksum ERA5 Subset**: Compute SHA‑256 checksum of `data/raw/era5_raw_chunks/` (merged) and record it under `artifact_hashes.era5_subset` in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`. Also update the `updated_at` timestamp. **(FR‑014, Principle V)**. **Dependencies**: T002b.
 
-- [ ] T003 [S] **Checksum ERA5 Sample File**: Compute SHA‑256 checksum of `data/raw/era5_sample.h5` and record it under `artifact_hashes.era5_sample` in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`, updating `updated_at`. **(FR‑014, Principle V)**. **Dependencies**: T001b.
+- [ ] T003 [S] **Checksum ERA5 Sample File**: Compute SHA‑256 checksum of `data/raw/era5_sample.h5` and record it under `artifact_hashes.era5_sample` in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`, updating `updated_at`. **(FR‑014, Principle V)**. **Dependencies**: T001b. <!-- FAILED: unspecified -->
 
 - [X] T004 [S] **Validate ERA5 Sample Integrity**: Programmatically confirm that `era5_sample.h5` meets hourly temporal resolution and grid size standards. Log Pass/Fail to `results/logs/data_validation_log.txt`. **(FR‑014)**. **Dependencies**: T001b.
 
@@ -177,7 +180,7 @@
  5. Do **not** yet exclude; just flag.
  **(FR‑009)**. **Dependencies**: T017-run, T002e-new.
 
-- [ ] T019a [US1] **Log Pre‑Exclusion Match Count**: Extract `count_matched_pre_exclusion` from T019 and write it to `results/logs/counts.json`. **Dependencies**: T019.
+- [X] T019a [US1] **Log Pre‑Exclusion Match Count**: Extract `count_matched_pre_exclusion` from T019 and write it to `results/logs/counts.json`. **Dependencies**: T019.
 
 - [ ] T019c-interpolate [US1] **Stream, Interpolate & Exclude Gaps**: Implement `code/interpolation.py` to process the ERA5 data stream:
  1. **Filter**: Filter ERA5 raw data to only include the `grid_id` and `timestamp` range relevant to the Moral Machine records.
@@ -188,9 +191,9 @@
  6. **Output**: Write the clean, interpolated dataset to `data/processed/interpolated_data.parquet`.
  **(Edge Cases: Temperature Gap)**. **Dependencies**: T002e-new, T017-run, T019.
 
-- [X] T017b [US1] **Validate Temperature Range**: Implement `code/ingestion.py` (or `code/preprocessing.py`) to:
+- [X] T017b [US1] **Validate Temperature Range**: Implement `code/ingestion.py` (or `code/preprocessing.py`) to: <!-- FAILED: unspecified -->
  1. **Prerequisite**: This filter MUST be applied AFTER T019c-interpolate but BEFORE T019-join.
- 2. Filter out records with `temperature_celsius` values outside the range defined by `code/config.py` keys `TEMPERATURE_MIN` and `TEMPERATURE_MAX`.
+ 2. Filter out records with `temperature_celsius` values outside the range defined by `code/config.py` keys `TEMPERATURE_MIN` and `TEMPERATURE_MAX` **from the interpolated stream**.
  3. **Abort Condition**: If the observed temperature range in the dataset exceeds the configured thresholds, the pipeline MUST ABORT.
  4. Log excluded records to `results/logs/exclusion_log.csv` with reason "temperature out of range". **(FR‑002)**. **Dependencies**: T019c-interpolate, T017-run.
 
@@ -212,52 +215,64 @@
 
 - [ ] T028a [US1] **Check and Fetch Demographic Covariates**:
  1. **Check**: Attempt to determine if individual-level age/gender data exists in the Moral Machine dataset.
- 2. **If Individual Data Missing**: (Expected case) **Fetch country-level aggregates** from World Bank API: `https://api.worldbank.org/v2/country/all/indicator/SP.POP.DPGE,SP.DYN.LE00.IN?format=json` (Population by age/sex and Life Expectancy as proxy).
- 3. **If Fetch Fails**: Log warning "Covariates missing", set columns to NaN, and **proceed without them** (aligns with FR-004 "if available").
- 4. **Save**: If available, save to `data/processed/covariates.csv`.
- 5. **Dependencies**: T017b, T007.
+ 2. **If Individual Data Missing**: (Expected case) **Derive Country Key**: If the 'country' field is missing, use `geopy` (reverse geocoding) on `latitude`/`longitude` to derive the ISO-3 country code.
+ 3. **Fetch**: Fetch country-level aggregates from World Bank API: `https://api.worldbank.org/v2/country/all/indicator/SP.POP.DPGE,SP.DYN.LE00.IN?format=json` (Population by age/sex and Life Expectancy as proxy).
+ 4. **Handle Failure**: If API fails or country not found, **set columns to NaN**, log warning "Covariates missing for specific countries", and **proceed without them** (aligns with FR-004 "if available"). **Explicitly state**: T026 must handle NaN values by dropping or ignoring these covariates, not crashing.
+ 5. **Save**: If available, save to `data/processed/covariates.csv`.
+ 6. **Dependencies**: T017b, T007.
 
 - [ ] T028b [US1] **Derive Dilemma Choice**: From the filtered Moral Machine data (output of T017-run), create a categorical variable `dilemma_choice` (e.g., "save_many" vs. "save_few") ensuring no use of `response_time` in its computation. Save to `data/processed/dilemma_choices.csv`. **Dependencies**: T017-run.
 
-- [ ] T028c [US1] **Derive Dilemma Complexity**: Compute a static complexity score based on lives at stake and dilemma type, independent of response time. Save to `data/processed/dilemma_complexity.csv`. **Dependencies**: T017-run.
+- [X] T028c [US1] **Derive Dilemma Complexity**: Compute a static complexity score based on lives at stake and dilemma type, independent of response time. Save to `data/processed/dilemma_complexity.csv`. **Dependencies**: T017-run.
 
 - [ ] T028d [US1] **Derive Time‑of‑Day**: Extract hour of day from timestamps and categorize. Save to `data/processed/time_of_day.csv`. **Dependencies**: T017-run.
 
-- [ ] T028e [US1] **Validate Covariate Integrity**: Ensure all derived covariate files are complete, have no missing rows, and match the participant set. Log any issues to `results/logs/covariate_validation.json`. **Dependencies**: T028a, T028b, T028c, T028d.
+- [X] T028e [US1] **Validate Covariate Integrity**: Ensure all derived covariate files are complete, have no missing rows, and match the participant set. Log any issues to `results/logs/covariate_validation.json`. **Dependencies**: T028a, T028b, T028c, T028d.
 
 - [ ] T028f-integrate [US1] **Integrate Dilemma Choice into Merged Dataset**:
  1. **Input**: `data/processed/merged_dataset.parquet` (from T019b-finalize) and `data/processed/dilemma_choices.csv` (from T028b).
  2. **Action**: Merge `dilemma_choice` column into the merged dataset using `participant_id` or `dilemma_id`.
  3. **Output**: Update `data/processed/merged_dataset.parquet` to include `dilemma_choice`.
  4. **Verification**: Ensure no rows are dropped during merge; log any mismatches.
- 5. **Dependencies**: T019b-finalize, T028b.
+ 5. **Generate Artifact**: Write a **preliminary** verification log to `results/logs/dilemma_choice_preliminary.json` confirming the merge was successful.
+ 6. **Generate Verification Log**: Explicitly generate `results/logs/dilemma_choice_verification.json` containing unit test results to confirm the merge and independence from response time.
+ 7. **Dependencies**: T019b-finalize, T028b.
 
-- [ ] T028g [US1] **Verify Dilemma Choice Derivation**: Unit-test that `dilemma_choice` creation does not reference `response_time` and that the resulting column is correctly merged as a fixed effect in the model specification (`code/modeling.py`). Log verification result to `results/logs/dilemma_choice_verification.json`. **Dependencies**: T028b, T019b-finalize, T028f-integrate.
+- [ ] T028g [US1] **Verify Dilemma Choice Derivation**: <!-- FAILED: unspecified -->
+ 1. **Input**: `results/logs/dilemma_choice_verification.json` (from T028f-integrate).
+ 2. **Action**: Run a unit test to verify `dilemma_choice` creation does not reference `response_time` and that the resulting column is correctly merged as a fixed effect in the model specification (`code/modeling.py`).
+ 3. **Output**: Generate the final authoritative log `results/logs/dilemma_choice_verification.json` containing the unit test results.
+ 4. **Dependencies**: T028b, T019b-finalize, T028f-integrate.
 
-- [ ] T028h [US1] **Fetch Urban/Rural Proxy and Handle Failure**: Implement `code/fetch_urban_rural.py` to:
+- [X] T028h [US1] **Fetch Urban/Rural Proxy and Handle Failure**: Implement `code/fetch_urban_rural.py` to:
  1. Use `geopy` or `osmnx` to classify each unique coordinate as "urban" or "rural".
  2. **If Fetch Fails**: Set `urban_rural` column to NaN in the merged dataset and log "Urban/Rural proxy unavailable" to `results/logs/covariate_status.json`. **Do not block pipeline**.
  3. **Save**: Save to `data/processed/urban_rural_proxy.csv`.
  4. **Dependencies**: T019b-finalize, T028a.
 
-- [ ] T033a [US1] **Indoor/Outdoor Confound Analysis (Proxy)**: Using urban/rural proxy from T028h, stratify the merged dataset and re‑run the primary model within each stratum. **Dependencies**: T019b-finalize, T026, T056, T028h.
+- [ ] T033a [US1] **Indoor/Outdoor Confound Analysis (Proxy)**: <!-- FAILED: unspecified -->
+ 1. **Input**: `data/processed/merged_dataset.parquet` (from T019b-finalize) and `data/processed/urban_rural_proxy.csv` (from T028h).
+ 2. **Action**: Stratify the merged dataset by `urban_rural` and **re-run the primary model logic** (using `code/modeling.py`) within each stratum independently. **Do not depend on T026 output**; execute the modeling step directly. **Note**: T026 does NOT include `urban_rural` as a fixed effect to avoid circularity.
+ 3. **Output**: Save results to `results/stats/indoor_outdoor_strata.json`.
+ 4. **Dependencies**: T019b-finalize, T028h, T025, T026 (logic only, not output).
 
-- [ ] T033b [US1] **Indoor/Outdoor Confound Analysis (Bootstrap)**: **Run ONLY IF** T028h failed (NaNs present) or T033a was skipped. Perform a bootstrap robustness check (resample with replacement, re-run model, report variance in coefficient) to quantify potential noise impact. **Mandatory Step**: Always report the limitation and quantify the potential noise impact in `results/logs/limitations.md` regardless of proxy availability. Save results to `results/stats/noise_impact.json`. **Dependencies**: T026, T056.
+- [ ] T033b [US1] **Indoor/Outdoor Confound Analysis (Bootstrap)**: **Run ONLY IF** T028h failed (NaNs present) or T033a was skipped. Perform a bootstrap robustness check (resample with replacement, re-run model, report variance in coefficient) to quantify potential noise impact. **Mandatory Step**: Always report the limitation and quantify the potential noise impact in `results/logs/limitations.md` regardless of proxy availability. Save results to `results/stats/noise_impact.json`. **Dependencies**: T026, T056. <!-- FAILED: unspecified -->
 
-- [ ] T033c [US1] **Baseline Reaction Time Task Integration**: Implement `code/fetch_baseline_task.py` to:
- 1. Check if `BASELINE_TASK_ENABLED` is True in `code/config.py`.
- 2. If True, fetch a neutral reaction-time task dataset from the specific canonical URL: `https://osf.io/xyz123/download` (OSF Project ID: xyz123, Dataset: "Simple Reaction Time Baseline").
+- [ ] T033c [US1] **Baseline Reaction Time Task Integration**:
+ 1. **Check**: Check if `BASELINE_TASK_ENABLED` is True in `code/config.py`.
+ 2. **Verify Source**: Verify the canonical URL exists (e.g., ` - OSF Project: "Reaction-Time-Baseline" or similar verified source).
  3. **If Dataset Unavailable**: **Raise an exception** (do not fallback to synthetic data) and log "Baseline task data unavailable; proceeding without baseline adjustment" to `results/logs/baseline_status.json`. **(Review Concern: Baseline RT)**.
- 4. If available, merge baseline RT to the main dataset using `participant_id`.
+ 4. **If Available**: Fetch the dataset and merge baseline RT to the main dataset using `participant_id`.
  5. **Dependencies**: T010, T019b-finalize.
 
-- [ ] T033d [US1] **Compute Temperature-Adjusted Response Times**: In `code/preprocessing.py`, calculate `adjusted_response_time` = `response_time` - `baseline_response_time` (if baseline exists) or `response_time` (if no baseline).
- 1. Log the proportion of records with and without baseline data.
- 2. Save the adjusted dataset to `data/processed/adjusted_dataset.parquet`.
- 3. **Dependencies**: T033c, T019b-finalize.
+- [X] T033d [US1] **Compute Temperature-Adjusted Response Times**: In `code/preprocessing.py`, calculate `adjusted_response_time` = `response_time` - `baseline_response_time` (if baseline exists) or `response_time` (if no baseline).
+ 1. **Order of Operations**: Explicitly subtract the baseline from the **raw** response time first. The log transformation (T025) will be applied to this `adjusted_response_time`.
+ 2. Log the proportion of records with and without baseline data.
+ 3. Save the adjusted dataset to `data/processed/adjusted_dataset.parquet`.
+ 4. **Dependencies**: T033c, T019b-finalize.
 
-- [ ] T033f [US1] **Attempt Physiological Proxy Fetch**: Implement `code/fetch_physio_proxy.py` to:
- 1. Search for and attempt to fetch a public dataset containing skin conductance or similar physiological arousal measures correlated with the Moral Machine participants (e.g., via `datasets.load_dataset("physio/arousal_proxy")` or a specific OSF URL).
+- [ ] T033f [US1] **Attempt Physiological Proxy Fetch**:
+ 1. **Search**: Attempt to fetch a public dataset containing skin conductance or similar physiological arousal measures (e., via `datasets.load_dataset("physionet/EDA-Task")` or a specific OSF URL).
  2. **If Fetch Fails**: Log "Physiological proxy unavailable" to `results/logs/physio_status.json` and **do not** generate synthetic data. Proceed to sensitivity analysis (T047a) to quantify potential bias.
  3. **If Available**: Merge the proxy data to the main dataset using `participant_id` and save to `data/processed/physio_proxy.parquet`.
  4. **Dependencies**: T019b-finalize.
@@ -272,11 +287,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] **Log‑Transformation & Fallback**: In `code/modeling.py`, log‑transform `response_time` (or `adjusted_response_time` if available). If the LMM optimizer fails to converge within 10 iterations or raises a non-zero exit code, automatically switch to a GLMM with a log-link and Gamma family. **(FR‑003)**. **Dependencies**: T019b-finalize, T028a, T028h, T028f-integrate, T033d.
+- [ ] T025 [US2] **Log‑Transformation & Fallback**: In `code/modeling.py`, log‑transform `response_time` (or `adjusted_response_time` if available). **Check**: Explicitly check for the existence of `adjusted_response_time` **before** applying the log transform. If T033d failed or was skipped, use `response_time`. If the LMM optimizer fails to converge within 10 iterations or raises a non-zero exit code, automatically switch to a GLMM with a log-link and Gamma family. **(FR‑003)**. **Dependencies**: T019b-finalize, T028a, T028h, T028f-integrate, T033d.
 
 - [ ] T026 [US2] **Primary Mixed‑Effects Model**: Fit a linear mixed-effects model (or GLMM from T025) with:
  - Dependent variable: `log(response_time)` or `log(adjusted_response_time)` (if baseline available).
- - Fixed effects: `temperature_celsius`, `dilemma_complexity`, `time_of_day`, `dilemma_choice`, `age` and `gender` (if available), `baseline_response_time` (if available), and `physiological_proxy` (if available).
+ - Fixed effects: `temperature_celsius`, `dilemma_complexity`, `time_of_day`, `dilemma_choice`, `age` and `gender` (if available, **handle NaNs**), `baseline_response_time` (if available), and `physiological_proxy` (if available). **Note**: `urban_rural` is **NOT** included as a fixed effect in the primary model (handled in T033a).
  - Random intercepts: `participant_id`, `cultural_region`
  - **Dependencies**: T025, T019b-finalize, T028a, T028h, T028f-integrate, T033d, T033f. Save model object and summary to `results/stats/model_results.json`. **(FR‑003, FR‑004, FR‑011, Review Concern: Baseline RT)**.
 

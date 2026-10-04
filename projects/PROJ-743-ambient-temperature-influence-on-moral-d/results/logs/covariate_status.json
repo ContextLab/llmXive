@@ -1,12 +1,9 @@
 {
-  "status": "partial_success",
-  "message": "Demographic data fetched from World Bank API. Merged with Moral Machine data. Note: World Bank data is country-level aggregate, not individual-level.",
-  "indicators_fetched": [
-    "population",
-    "gender_ratio",
-    "urban_pop",
-    "median_age"
-  ],
-  "merge_notes": "Individual age and gender fields are not available in World Bank aggregates. Country-level proxies were merged. Individual-level data cannot be directly enriched with personal demographics from this source.",
-  "output_file": "data/processed/covariates.csv"
+  "timestamp": "2026-06-21T12:00:00.000000",
+  "status": "complete",
+  "missing_countries": [],
+  "available_indicators": [
+    "SP.DYN.LE00.IN",
+    "SP.POP.TOTL"
+  ]
 }

@@ -11,14 +11,8 @@ geopy
 shapely
 ruff
 black
-pyyaml
 pytest
-h5py
-netCDF4
-xarray
-requests
-tqdm
-pydantic
-jsonschema
+pyyaml
 tomli
-tomli-w
+tomli_w
+patsy
