@@ -1,40 +1,48 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Alloy Dataset Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyRecord Schema
+type: object
 properties:
-  alloy_id:
-    type: "string"
-    description: "Unique identifier from BMG dataset"
+  composition:
+    type: string
+    description: "String representation of ternary alloy (e.g., Zr50Cu30Al20)"
   elements:
-    type: "string"
-    description: "Comma-separated element symbols (e.g., 'Fe,Cr,Ni')"
-  compositions:
-    type: "array"
+    type: array
     items:
-      type: "number"
-    description: "Atomic fractions [c1, c2, c3]"
+      type: string
+    minItems: 3
+    maxItems: 3
+  fractions:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    minItems: 3
+    maxItems: 3
   critical_cooling_rate:
-    type: "number"
-    description: "Target variable (K/s)"
+    type: number
+    minimum: 0
+    description: "Target variable in K/s"
   mixing_enthalpy:
-    type: "number"
-    description: "Mixing enthalpy (kJ/mol)"
+    type: number
+    description: "kJ/mol"
   atomic_size_mismatch:
-    type: "number"
-    description: "Atomic size mismatch (dimensionless)"
+    type: number
+    description: "Dimensionless"
   electronegativity_variance:
-    type: "number"
-    description: "Electronegativity variance (dimensionless)"
+    type: number
+    description: "Dimensionless"
   source_label:
-    type: "string"
-    description: "Label from dataset (e.g., 'glass', 'crystal')"
+    type: string
+  exclusion_reason:
+    type: ["string", "null"]
 required:
-  - "alloy_id"
-  - "elements"
-  - "compositions"
-  - "critical_cooling_rate"
-  - "mixing_enthalpy"
-  - "atomic_size_mismatch"
-  - "electronegativity_variance"
-  - "source_label"
+  - composition
+  - elements
+  - fractions
+  - critical_cooling_rate
+  - mixing_enthalpy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - source_label
 additionalProperties: false

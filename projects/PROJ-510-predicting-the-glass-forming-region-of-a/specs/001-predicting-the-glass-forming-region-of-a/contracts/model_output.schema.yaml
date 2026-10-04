@@ -33,6 +33,12 @@ properties:
   valid_entry_count:
     type: "integer"
     description: "Redundant check for SC-001"
+  oob_score:
+    type: "number"
+    description: "Out-of-bag score"
+  learning_curve_slope:
+    type: "number"
+    description: "Learning curve slope"
 required:
   - "mean_cv_rmse"
   - "cv_rmse_std"
@@ -43,4 +49,6 @@ required:
   - "feature_p_values"
   - "final_dataset_size"
   - "valid_entry_count"
+  - "oob_score"
+  - "learning_curve_slope"
 additionalProperties: false

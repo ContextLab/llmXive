@@ -43,9 +43,18 @@ properties:
         - "feature_pair"
         - "correlation"
     description: "List of flagged collinear pairs"
+  stability_status:
+    type: "string"
+    enum: ["PASS", "FAIL"]
+    description: "PASS if variance < 5% of mean"
+  top_2_features_valid:
+    type: "boolean"
+    description: "True if top-2 features have p < 0.05"
 required:
   - "thresholds"
   - "rmse_at_thresholds"
   - "rmse_variance"
   - "collinearity_flags"
+  - "stability_status"
+  - "top_2_features_valid"
 additionalProperties: false

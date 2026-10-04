@@ -9,13 +9,13 @@
     "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 13, in <module>\n    from sklearn.ensemble import RandomForestRegressor, DummyRegressor\nImportError: cannot import name 'DummyRegressor' from 'sklearn.ensemble' (/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/.venv/lib/python3.11/site-packages/sklearn/ensemble/__init__.py)",
     "python code/analyze.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py\", line 32, in <module>\n    def check_collinearity(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, Any]:\n                                                           ^^^^\nNameError: name 'List' is not defined. Did you mean: 'list'?"
   ],
-  "fix_rounds": 5,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python code/ingestion.py"
   ],
-  "updated_at": "2026-09-22T09:45:31Z"
+  "updated_at": "2026-10-04T16:23:07Z"
 }

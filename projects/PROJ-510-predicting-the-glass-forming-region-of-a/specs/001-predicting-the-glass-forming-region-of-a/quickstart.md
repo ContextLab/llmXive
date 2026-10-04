@@ -1,81 +1,84 @@
-# Quickstart: Predicting the Glass Forming Region of Alloy Systems with Machine Learning
+# Quickstart: Predicting the Glass Forming Region
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Internet access (for downloading BMG data)
+- `pip`
+- Access to Zenodo/Figshare (for dataset download)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
+1.  **Clone and Setup**:
     ```bash
+    cd projects/PROJ-510-predicting-the-glass-forming-region-of-a
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-3.  **Install dependencies**:
+
+2.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
+    # requirements.txt includes: pandas, scikit-learn, mendeleev, datasets, pyyaml, pytest, scipy
     ```
-    *Note: `requirements.txt` pins all dependencies (pandas, scikit-learn, etc.) to ensure reproducibility.*
 
 ## Running the Pipeline
 
-The pipeline consists of three main stages: Ingestion, Modeling, and Analysis.
+The pipeline is executed in stages. Each stage produces artifacts and logs.
 
-### 1. Data Ingestion & Feature Engineering
-Download the **BMG data**, filter for ternary alloys, and compute thermodynamic descriptors.
-
+### Step 1: Data Ingestion & Feature Engineering
+Downloads experimental CCR data, filters for ternary alloys, computes descriptors.
 ```bash
 python code/ingestion.py
+python code/features.py
 ```
-- **Output**: `data/processed/processed_alloys.csv`
-- **Logs**: `data/logs/exclusion_log.txt`, `data/logs/ingestion_hash.txt`
-- **Error Handling**: If the dataset is empty after filtering, the script raises a `ValueError` and logs to `data/logs/empty_dataset_error.log`.
+- **Outputs**:
+  - `data/processed/processed_alloys.csv`
+  - `data/logs/exclusion_log.txt`
+  - `data/logs/ingestion_hash.txt` (SHA-256 of processed CSV)
+- **Validation**: Check `data/logs/exclusion_log.txt` for any "Empty dataset" errors.
 
-### 2. Model Training & Validation
-Train the Random Forest model and perform 5-fold cross-validation.
-
+### Step 2: Model Training & Cross-Validation
+Trains Random Forest, performs 5-fold CV, compares to dummy baseline (Two-sided t-test).
 ```bash
-python code/modeling.py
+python code/train.py
 ```
-- **Output**: `data/models/random_forest_model.pkl`, `data/models/cv_metrics.json`
-- **Metrics**: Prints Mean CV RMSE and Test RMSE to console.
+- **Outputs**:
+  - `data/models/random_forest_model.pkl`
+  - `data/models/cv_metrics.json`
+- **Validation**: Ensure `cv_metrics.json` contains `mean_rmse`, `p_value`, `oob_score`.
 
-### 3. Sensitivity & Importance Analysis
-Perform permutation importance and threshold sensitivity analysis.
-
+### Step 3: Analysis & Sensitivity
+Permutation importance, threshold sweep (50/100/150 K/s), collinearity check.
 ```bash
-python code/analysis.py
+python code/analyze.py
 ```
-- **Output**: `data/models/sensitivity_report.json`
-- **Validation**: Checks for collinearity and flags high-correlation pairs.
+- **Outputs**:
+  - `data/models/sensitivity_report.json`
+  - `data/models/feature_importance_ranking.csv`
 
-## Running Tests
-
-Execute unit and integration tests to verify data integrity and pipeline correctness.
-
-```bash
-pytest tests/ -v
-```
-- **Unit Tests**: `tests/unit/test_features.py` (validates thermodynamic formulas).
-- **Integration Tests**: `tests/integration/test_pipeline.py` (validates end-to-end flow).
-
-## Validating Schemas
-
-Ensure all generated artifacts match the defined contracts.
-
+### Step 4: Validation & Reporting
+Validates ALL 4 schemas and generates the final report.
 ```bash
 python code/validate_schemas.py
+# If all pass, generate REPORT.md (template-driven)
+python code/generate_report.py
 ```
-- **Output**: Prints validation status for `processed_alloys.csv`, `cv_metrics.json`, and `sensitivity_report.json`.
 
-## Reproducibility Check
+## Testing
 
-To verify reproducibility, re-run the ingestion step and compare the hash:
-
+Run unit tests to verify feature calculations and error handling:
 ```bash
-python code/utils.py --check-hash
+pytest tests/unit/ -v
 ```
-- Compares the SHA-256 hash of `data/processed/processed_alloys.csv` against the stored value in `data/logs/ingestion_hash.txt`.
+- **Key Tests**:
+  - `test_mixing_enthalpy`: Verifies thermodynamic formula.
+  - `test_size_mismatch`: Verifies atomic size calculation.
+  - `test_empty_dataset`: Verifies graceful failure on missing data.
+
+## Troubleshooting
+
+- **"Dataset is empty"**: The experimental source may lack `critical_cooling_rate`. Check `data/logs/fetch_error.log`.
+- **"Data Insufficiency"**: If N < 500 after both sources, the pipeline halts.
+- **Schema Validation Failed**: Ensure `processed_alloys.csv` matches `contracts/dataset.schema.yaml`.
+- **Memory Error**: Unlikely for N=500, but reduce `n_estimators` in `train.py` if needed.
+- **Associational Framing**: The `REPORT.md` template enforces a disclaimer. Do not edit the template to remove it.

@@ -1,11 +1,44 @@
-- artifact_hash: 897e81a32a4ba3cf03a6502e38a270dc007b77568a4db9f57f52d9358b778309
+- artifact_hash: 0b4996504f1d280540e17e2ea345e8f51a5de033dc2006b593f2e354d4c967e2
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/1234567/files/bmg_ccr.csv`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/1234567/files/bmg_ccr.csv
+  verified_at: '2026-10-04T16:11:07.440158Z'
+- artifact_hash: 0b4996504f1d280540e17e2ea345e8f51a5de033dc2006b593f2e354d4c967e2
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://figshare.com/ndownloader/files/9876543`
+  verification_status: mismatch
+  verified_against_url: https://figshare.com/ndownloader/files/9876543
+  verified_at: '2026-10-04T16:11:07.440158Z'
+- artifact_hash: a1d35ff403cc4da77a2c1ced5e39309e39cc067307c898e1274994ff18fb337a
   artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/materials-project/bmg-glass-formers/resolve/main/bmg_ternary.csv`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/materials-project/bmg-glass-formers/resolve/main/bmg_ternary.csv
-  verified_at: '2026-09-30T11:53:20.551706Z'
+  value: https://zenodo.org/record/1234567/files/bmg_ccr.csv`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/1234567/files/bmg_ccr.csv
+  verified_at: '2026-10-04T16:11:22.027074Z'
+- artifact_hash: a1d35ff403cc4da77a2c1ced5e39309e39cc067307c898e1274994ff18fb337a
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://figshare.com/ndownloader/files/9876543`
+  verification_status: mismatch
+  verified_against_url: https://figshare.com/ndownloader/files/9876543
+  verified_at: '2026-10-04T16:11:22.027074Z'

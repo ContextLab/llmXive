@@ -83,7 +83,7 @@ The system MUST perform permutation importance analysis to rank thermodynamic pa
 
 - **SC-001**: The dataset construction pipeline MUST produce a final training set with at least 500 valid entries (after filtering) to ensure statistical power, measured against the initial data query count (See FR-001, US-1).
 - **SC-002**: The Random Forest model MUST achieve a cross-validation RMSE that is statistically distinguishable from a null model (dummy regressor predicting mean target value) with p < 0.05 (two-sided t-test), measured against the baseline null performance (See FR-003, US-2).
-- **SC-003**: The sensitivity analysis MUST demonstrate that the headline metric (e.g., RMSE) varies by a negligible margin across the swept threshold range {50, 100, 150} K/s (or F1 varies by <10% if binarized using threshold < 100 K/s), measured against the baseline threshold result (See FR-005, US-3).
+- **SC-003**: The sensitivity analysis MUST demonstrate that the headline metric (e.g., RMSE) varies by a negligible margin across the swept threshold range. (or F1 varies by <10% if binarized using threshold < 100 K/s), measured against the baseline threshold result (See FR-005, US-3).
 - **SC-004**: The feature importance analysis MUST identify at least one thermodynamic parameter (e.g., mixing enthalpy) as a top-2 contributor with a p-value < 0.05 from a permutation test (n=1000), measured against the shuffled baseline (See FR-004, US-3).
 - **SC-005**: The analysis MUST complete within 6 hours on a standard CPU-only runner (2 cores, 7 GB RAM) without GPU acceleration, measured against the CI job time limit (See US-2, US-3).
 
