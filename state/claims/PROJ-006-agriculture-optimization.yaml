@@ -5212,3 +5212,439 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T01:03:13Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Crossref API citation check uses title overlap threshold > 0.7
+  claim_id: c_165613ea
+  context: 'T050b [Depends: T050a] [P] **Implement Automated Citation Validator**:
+    Create src/cli/validate_citations.py to automatically verify citations in research.md
+    against primary sources.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The script must parse research.md, extract citations, query the primary
+    source via Crossref API (DOI lookup), and check title overlap (threshold > 0.7).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T01:03:47Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Code formatting configured with line-length 88
+  claim_id: c_4cfe0bc5
+  context: 'T003 [P] Configure linting and formatting tools (black, flake8, isort)
+    and .gitignore. Specifics: Configure black (line-length=88), flake8 (max-line-length=88),
+    isort (profile=black).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure black (line-length=88), flake8 (max-line-length=88), isort (profile=black).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:04:42Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Buffer size configured as 1.0 km
+  claim_id: c_ceff6807
+  context: T004 [P] Create src/config/constants.py with random seeds, paths, cloud
+    cover thresholds (e.g., high values), buffer_size_km = 1.0, grid_resolution_km
+    = 0.1, and other configuration constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: buffer_size_km = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:07:52Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Grid resolution configured as 0.1 km
+  claim_id: c_3e2d68f5
+  context: T004 [P] Create src/config/constants.py with random seeds, paths, cloud
+    cover thresholds (e.g., high values), buffer_size_km = 1.0, grid_resolution_km
+    = 0.1, and other configuration constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid_resolution_km = 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:07:58Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Synthetic cloud cover metadata ranges 0.0 to 0.9
+  claim_id: c_e8d7e1c1
+  context: 'T016b [US1] [FR-001] [Depends: T003] **Generate Synthetic Sentinel-2 Granules
+    (Structural Validation Mode)**: Metadata: Embed cloud_cover metadata (ranging
+    0.0 to 0.9) in the generated.tif files or a sidecar JSON to enable sensitivity
+    analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cloud cover metadata ranges 0.0 to 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregation triggered if linkage < 95% or N < 300
+  claim_id: c_f82a81ce
+  context: 'T017b [US1] [FR-002] [Depends: T004, T015b, T015c, T016b] **Perform Spatial
+    Join and Linkage Validation**: Logic: Calculate linkage percentage from actual
+    data results (Real or Synthetic). If linkage < 95% or N < 300, set triggered_aggregation
+    to true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If linkage < 95% or N < 300, set triggered_aggregation to true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:05Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Synthetic NDVI noise standard deviation is 0.1
+  claim_id: c_5f470bf5
+  context: 'T018b [US1] [FR-003] [Depends: T017b] **Extract Raw NDVI Time-Series**:
+    Synthetic Path: If real granules are missing, generate synthetic NDVI time-series
+    using a sinusoidal function with stochastic noise (std 0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Synthetic Path: If real granules are missing, generate synthetic NDVI
+    time-series using a sinusoidal function with stochastic noise (std 0.1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:08Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Final dataset must contain more than 300 records
+  claim_id: c_3f48e8dd
+  context: 'T017e [US1] [FR-002] [Constitution VII] [Depends: T018d, T017b] **Perform
+    Final Dataset Validation and Assembly**: Verification: Assert the final file exists,
+    passes schema validation, and contains >300 records.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_dataset_must_contain_more_than_300_records
+  kind: magnitude
+  raw_text: Assert the final file exists, passes schema validation, and contains >300
+    records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:21Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni adjusted alpha is 0.0167
+  claim_id: c_af497407
+  context: 'T025d [US2] [FR-004] [FR-005] [FR-007] [Depends: T025c] **Implement Bonferroni
+    Correction and Write Output**: Apply standard Bonferroni correction for 3 tests
+    (Yield Stability, Food Security, Interaction): adjusted_alpha = 0.05 / 3. Write
+    final structured results to data/processed/regression_results.json including fields:
+    adjusted_alpha, bonferroni_corrected_p_values, coefficients, vif_scores, model_type,
+    collinearity_warning, aggregation_warning. Verification: Assert model_type is
+    ''aggregated'' or ''clustered''. Assert that vif_scores are present. Assert adjusted_alpha
+    == 0.0167.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assertion adjusted_alpha == 0.0167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:26Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover threshold sweep range 0.0 to 0.9
+  claim_id: c_9c410b13
+  context: 'T087 [US3] [FR-006] [Depends: T016b, T018b] **Sensitivity Sweep and Metrics
+    Calculation**: Implement cloud cover threshold sweep. Sweep Range: [0.0, 0.6,
+    0.7, 0.8, 0.9].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sweep Range: [0.0, 0.6, 0.7, 0.8, 0.9]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:34Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Report states Bonferroni-adjusted alpha is 0.0167
+  claim_id: c_9eb23620
+  context: 'T088 [US3] [FR-008] [Depends: T087] **Implement Report Logic**: Text:
+    Results are associational. Bonferroni-adjusted alpha = 0.0167. Structural Validation
+    Only: No scientific claims regarding the hypothesis are made due to lack of verified
+    real-world data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-adjusted alpha = 0.0167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:40Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Verification requires dataset to have more than 300 records
+  claim_id: c_0a949923
+  context: 'T091 [P] **Verify Artifacts**: Verify data/processed/analysis_dataset.csv,
+    data/processed/regression_results.json, and reports/final_report.pdf are generated
+    and valid. Verification: Assert all three files exist, contain valid data (non-empty,
+    schema-compliant), and have >300 records for the dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verification_requires_dataset_to_have_more_than_300_records
+  kind: magnitude
+  raw_text: Assert all three files exist, contain valid data (non-empty, schema-compliant),
+    and have >300 records for the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:08:50Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Data artifact validation requires more than 300 records
+  claim_id: c_664d08db
+  context: 'T090b [P] **Verify Data Artifact Generation**: Run src/cli/validate.py
+    against data/processed/analysis_dataset.csv. Verification: Assert exit code 0
+    and file contains >300 records.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_artifact_validation_requires_more_than_300_records
+  kind: magnitude
+  raw_text: Verify exit code 0 and file contains >300 records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:09:39Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Citation validator checks title overlap with threshold greater than 0.7
+    using Crossref API
+  claim_id: c_c198d7cd
+  context: 'T050b [Depends: T050a] [P] Implement Automated Citation Validator: Create
+    src/cli/validate_citations.py to automatically verify citations in research.md
+    against primary sources.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The script must parse research.md, extract citations, query the primary
+    source via Crossref API (DOI lookup), and check title overlap (threshold > 0.7).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T01:13:25Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Spec completeness check verifies quantifiable success criteria such as
+    greater than or equal to 95% linkage
+  claim_id: c_b6a680c5
+  context: 'T060 [P] Verify Spec Completeness: Create and run scripts/validate_spec_completeness.py.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_completeness_check_verifies_quantifiable_success_criter
+  kind: magnitude
+  raw_text: "The script scans spec.md and plan.md for _TODO: markers, verifies the\
+    \ presence of a 'Research Hypothesis' section with falsifiable statements, and\
+    \ checks for quantifiable success criteria (e.g., '\u2265 95% linkage')."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:14:15Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Synthetic NDVI time-series generated with stochastic noise standard deviation
+    of 0.1
+  claim_id: c_375f52ba
+  context: 'T018b [US1] [FR-003] [Depends: T017b] Extract Raw NDVI Time-Series: Implement
+    src/data/processing/feature_engineering.py to extract raw NDVI time-series for
+    each household/plot.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic NDVI time-series using a sinusoidal function with stochastic
+    noise (std 0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:14:34Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregation triggered if linkage percentage is less than 95% or total
+    valid households is less than 300
+  claim_id: c_7b5ebffd
+  context: 'T017b [US1] [FR-002] [Depends: T004, T015b, T015c, T016b] Perform Spatial
+    Join and Linkage Validation: Implement src/data/processing/spatial_join.py to
+    link household coordinates to satellite pixels.'
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Aggregation_triggered_if_linkage_percentage_is_less_than_95%25
+  kind: magnitude
+  raw_text: If linkage < 95% or N < 300, set triggered_aggregation to true.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T01:15:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Final analysis dataset must contain more than 300 records
+  claim_id: c_35bcfd53
+  context: 'T017e [US1] [FR-002] [Constitution VII] [Depends: T018d, T017b] Perform
+    Final Dataset Validation and Assembly: Logic: Read data/logs/linkage_validation.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_analysis_dataset_must_contain_more_than_300_records
+  kind: magnitude
+  raw_text: The final file exists, passes schema validation, and contains >300 records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:15:34Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 3 tests resulting in adjusted alpha
+    of 0.0167
+  claim_id: c_19308c6e
+  context: 'T025d [US2] [FR-004] [FR-005] [FR-007] [Depends: T025c] Implement Bonferroni
+    Correction and Write Output: Apply standard Bonferroni correction for 3 tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply standard Bonferroni correction for 3 tests (Yield Stability, Food
+    Security, Interaction): adjusted_alpha = 0.05 / 3.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:15:52Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Adjusted alpha value asserted to be 0.0167
+  claim_id: c_1cae8388
+  context: 'T025d [US2] [FR-004] [FR-005] [FR-007] [Depends: T025c] Implement Bonferroni
+    Correction and Write Output: Write final structured results to data/processed/regression_results.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert adjusted_alpha == 0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:16:10Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover threshold sweep range includes 0.0, 0.6, 0.7, 0.8, and 0.9
+  claim_id: c_ec049b7e
+  context: 'T087 [US3] [FR-006] [Depends: T016b, T018b] Sensitivity Sweep and Metrics
+    Calculation: Implement cloud cover threshold sweep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sweep Range: [0.0, 0.6, 0.7, 0.8, 0.9].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:16:10Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Report states Bonferroni-adjusted alpha equals 0.0167
+  claim_id: c_1c3d4cda
+  context: 'T088 [US3] [FR-008] [Depends: T087] Implement Report Logic: Create src/services/report_generator.py.
+    Specifics: Generate reports/final_report.pdf using reportlab.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-adjusted alpha = 0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:16:11Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis execution completes within 60 minutes on CPU
+  claim_id: c_86cbc332
+  context: 'Independent Test: Execution of src/analysis/run_regression.py produces
+    a summary file containing regression coefficients, p-values, and VIF scores for
+    both Yield Stability and Food Security models, completing within 60 minutes on
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline completes within 60 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T01:17:03Z'

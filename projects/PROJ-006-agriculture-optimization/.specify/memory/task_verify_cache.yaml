@@ -21,44 +21,38 @@ T010b:
   r: The required `.github/workflows/ci.yml` file is missing, so the CI workflow has
     not been created or configured as specified. Without this file, the verification
     step cannot be performed.
-T015a:
+T015b:
   c: false
-  h: 548bf86f3c8ded1cbf157717f875adcd711993854047c039fdbc58eb48d5110c
-  r: The repository contains `src/data/collectors/survey_collector.py`, but the file
-    is truncated and shows no evidence of mapping the UCI columns to the required
-    schema, performing checksum verification, or writing the two CSV outputs. Moreover,
-    `data/raw/survey_raw.csv` and `data/raw/filtered_survey.csv` are absent, so the
-    verification step (file existence and schema validation) fails. The implementer
-    must complete the collector logic, ensure caching/checksum handling, generate
-    the required CSV files, and confirm they conform to the specified schema.
-T016a:
+  h: 7d917a929da3c41d0dc3f1d4bfe44b13456eddf6f0f4c1b173a3db860b4780b2
+  r: "The provided `survey_collector.py` fetches an unrelated UCI water\u2011treatment\
+    \ dataset instead of using the required `structural_validation_generator.py` and\
+    \ does not produce the specified agricultural schema fields. Moreover, the fallback\
+    \ generator file is missing and the expected output CSVs (`data/raw/survey_raw.csv`,\
+    \ `data/raw/filtered_survey.csv`) are not present. The task\u2019s schema, caching,\
+    \ and file\u2011creation requirements are therefore unmet."
+T015c:
+  c: false
+  h: a16aa7035c05e63190cc0b7ab3ae2c76b84571ff9bd4fd9f73ebfdd3c337676e
+  r: "The provided `survey_collector.py` implements a fallback to a UCI dataset and\
+    \ contains no logic to check for `data/raw/lsms_isa.csv`, load it, or validate\
+    \ its schema as required by T015c. Moreover, the expected `data/raw/lsms_isa.csv`\
+    \ file is absent. The task\u2019s real\u2011data handling and skip\u2011logic\
+    \ are therefore not implemented."
+T016b:
   c: false
   h: 8cb2c7392f856616486dea5186fd49617f4cc5113f7bfbc5a1bfe9734ed20a6f
   r: "The provided `remote_sensing_collector.py` contains code for querying USGS EarthExplorer\
-    \ and does not generate synthetic NDVI time\u2011series, embed cloud\u2011cover\
-    \ metadata, or write `data/raw/sentinel2/synthetic_granules.tif`. Moreover, the\
-    \ required `synthetic_granules.tif` file is missing. The task\u2019s core requirements\
-    \ are therefore unmet."
-T017:
+    \ and downloading real Landsat images, not the required synthetic NDVI time\u2011\
+    series generation with sinusoidal noise and cloud\u2011cover metadata. Additionally,\
+    \ the expected output file `data/raw/sentinel2/synthetic_granules.tif` is missing.\
+    \ The task\u2019s core requirements are therefore not satisfied."
+T017b:
   c: false
   h: 6b856b687adedbb8f88953da090559983127c4ac0598763101d991561efd1026
-  r: "The repository contains a `spatial_join.py` file, but it does not demonstrate\
-    \ reading `buffer_size_km`, creating the `buffered_coordinates.geojson`, performing\
-    \ the join, or writing the required `spatial_joined_data.csv` and `linkage_validation.json`.\
-    \ Moreover, the three mandatory output files are absent from the filesystem. The\
-    \ task\u2019s core deliverables are therefore missing."
-T021b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No dataset file was presented; the claim provides only a description of the required
-    checks but no actual file, column verification, row count, or uniqueness evidence.
-    The required artifact (the aggregated dataset) is missing.
-T041b:
-  c: false
-  h: 8feaeac25bf0470ad2bc07767977cec6dbb406c203ae93888b11e6bab496de75
-  r: The required `data/processed/analysis_dataset.csv` does not exist (and thus cannot
-    have >300 records), and the referenced schema file `contracts/dataset.schema.yaml`
-    is also missing, so the validation script cannot be run successfully.
+  r: The `spatial_join.py` file is present but truncated, does not read a `buffer_size_km`
+    constant (which is not defined in `constants.py`), and no output artifacts (`buffered_coordinates.geojson`,
+    `spatial_joined_data.csv`, `linkage_validation.json`) were created. The required
+    files and logic are therefore missing.
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,17 +68,3 @@ T050a:
     \ does not exist, and there is no evidence that placeholder citation markers are\
     \ present. The implementer must supply a non\u2011empty `research.md` containing\
     \ a literature review with the specified placeholder citations."
-T065a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script or log file was provided that checks for the `data/raw/` directory,\
-    \ validates LSMS\u2011ISA or Sentinel\u20112 credentials, or exits with status\u202F\
-    0 in structural\u2011validation mode. Consequently the required artifact (the\
-    \ verification script and its successful run) is missing."
-T065b:
-  c: false
-  h: 18a9ea3f2fc3f9c54b09ed2f6e3db38fb549da577065c506d9b4faaa1dd4fe87
-  r: "The required output file `data/processed/analysis_dataset.csv` does not exist,\
-    \ and the provided `run_pipeline.py` excerpt shows no handling of a `--no-synthetic`\
-    \ flag (argument parsing is incomplete). Without the generated dataset and proper\
-    \ flag logic, the task\u2019s verification condition is not met."
