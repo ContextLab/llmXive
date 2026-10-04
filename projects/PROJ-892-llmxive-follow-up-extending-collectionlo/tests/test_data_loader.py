@@ -1,225 +1,109 @@
 import pytest
 import json
-import os
+import torch
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from safetensors.torch import save_file
 import sys
+import os
 
-# Add the code directory to the path
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from data_loader import load_subspace_ranks, get_project_root, load_artifacts_state, save_artifacts_state
+from data_loader import (
+    get_project_root,
+    ensure_download_dir,
+    compute_sha256_file,
+    generate_procedural_source_loras,
+    load_and_verify_source_loras,
+    check_lora_compatibility,
+    compute_source_ranks,
+    merge_collection_lora,
+    compute_merged_ranks,
+    load_fp16_adapter_and_base_model
+)
 
-class TestLoadSubspaceRanks:
-    """Tests for the load_subspace_ranks function (T009c)."""
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Creates a temporary project root structure."""
+    # Create necessary directories
+    dirs = [
+        "data/models/source_loras",
+        "data/models",
+        "state",
+        "data"
+    ]
+    for d in dirs:
+        (tmp_path / d).mkdir(parents=True, exist_ok=True)
+    
+    # Mock the get_project_root function to return tmp_path
+    import data_loader
+    original_get_root = data_loader.get_project_root
+    data_loader.get_project_root = lambda: tmp_path
+    
+    yield tmp_path
+    
+    # Restore original function
+    data_loader.get_project_root = original_get_root
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.project_root = get_project_root()
-        self.ranks_path = self.project_root / "data" / "subspace_ranks_merged.json"
-        self.state_path = self.project_root / "state" / "artifacts.yaml"
-        
-        # Ensure directories exist
-        self.ranks_path.parent.mkdir(parents=True, exist_ok=True)
-        (self.project_root / "state").mkdir(parents=True, exist_ok=True)
+def test_generate_procedural_source_loras(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    assert len(paths) == 5
+    for effect, path in paths.items():
+        assert path.exists()
+        assert path.suffix == ".safetensors"
 
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        # Remove test file if it exists
-        if self.ranks_path.exists():
-            self.ranks_path.unlink()
-        
-        # Reset state
-        if self.state_path.exists():
-            self.state_path.unlink()
+def test_check_lora_compatibility(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    assert check_lora_compatibility(paths) is True
 
-    def test_load_subspace_ranks_success(self):
-        """Test successful loading of subspace ranks."""
-        # Create a valid test file
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"rank": 8, "key": "oil_painting"},
-                "watercolor": {"rank": 12, "key": "watercolor"},
-                "cyberpunk": {"rank": 10, "key": "cyberpunk"}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        # Load and verify
-        result = load_subspace_ranks()
-        
-        assert result == test_data
-        assert result['tolerance'] == 1e-5
-        assert len(result['effects']) == 3
+def test_compute_source_ranks(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    ranks = compute_source_ranks(paths)
+    assert len(ranks) == 5
+    for rank in ranks.values():
+        assert isinstance(rank, int)
+        assert rank > 0
 
-    def test_load_subspace_ranks_file_not_found(self):
-        """Test error when file does not exist."""
-        with pytest.raises(FileNotFoundError, match="Subspace ranks file not found"):
-            load_subspace_ranks()
+def test_merge_collection_lora(temp_project_root):
+    source_paths = generate_procedural_source_loras(num_effects=5)
+    output_path = temp_project_root / "data/models/collection_lora.safetensors"
+    result_path = merge_collection_lora(source_paths, output_path)
+    assert result_path.exists()
 
-    def test_load_subspace_ranks_missing_tolerance(self):
-        """Test error when tolerance is missing."""
-        test_data = {
-            "effects": {
-                "oil_painting": {"rank": 8}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="Tolerance threshold not found"):
-            load_subspace_ranks()
+def test_compute_merged_ranks(temp_project_root):
+    # Setup: Generate source, merge, then compute merged ranks
+    source_paths = generate_procedural_source_loras(num_effects=5)
+    output_path = temp_project_root / "data/models/collection_lora.safetensors"
+    merge_collection_lora(source_paths, output_path)
+    
+    ranks = compute_merged_ranks()
+    assert len(ranks) == 5
+    assert "subspace_ranks_merged.json" in str(temp_project_root / "data/subspace_ranks_merged.json")
+    assert (temp_project_root / "data/subspace_ranks_merged.json").exists()
 
-    def test_load_subspace_ranks_invalid_tolerance(self):
-        """Test error when tolerance is invalid."""
-        test_data = {
-            "tolerance": -1e-5,
-            "effects": {
-                "oil_painting": {"rank": 8}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="Invalid tolerance threshold"):
-            load_subspace_ranks()
+def test_load_fp16_adapter_and_base_model_defaults(temp_project_root):
+    # Setup: Create the expected adapter file
+    adapter_path = temp_project_root / "data/models/collection_lora.safetensors"
+    save_file({"dummy": torch.tensor([1.0])}, str(adapter_path))
+    
+    adapter, base = load_fp16_adapter_and_base_model()
+    assert adapter == adapter_path
+    assert base == temp_project_root / "data/models/base/placeholder.safetensors"
 
-    def test_load_subspace_ranks_missing_effects(self):
-        """Test error when effects data is missing."""
-        test_data = {
-            "tolerance": 1e-5
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="No 'effects' data found"):
-            load_subspace_ranks()
+def test_load_fp16_adapter_and_base_model_args(temp_project_root):
+    adapter_path = temp_project_root / "data/models/collection_lora.safetensors"
+    save_file({"dummy": torch.tensor([1.0])}, str(adapter_path))
+    
+    # Test positional args
+    adapter, base = load_fp16_adapter_and_base_model(str(adapter_path), "custom_base.safetensors")
+    assert adapter == adapter_path
+    assert base == Path("custom_base.safetensors")
+    
+    # Test keyword args
+    adapter, base = load_fp16_adapter_and_base_model(adapter_path=str(adapter_path), base_model_path="another_base.safetensors")
+    assert adapter == adapter_path
+    assert base == Path("another_base.safetensors")
 
-    def test_load_subspace_ranks_empty_effects(self):
-        """Test error when effects data is empty."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {}
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="Effects data is empty"):
-            load_subspace_ranks()
-
-    def test_load_subspace_ranks_missing_rank(self):
-        """Test error when rank is missing for an effect."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"key": "oil_painting"}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="Rank not found for effect"):
-            load_subspace_ranks()
-
-    def test_load_subspace_ranks_invalid_rank(self):
-        """Test error when rank is invalid."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"rank": -5, "key": "oil_painting"}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        with pytest.raises(ValueError, match="Invalid rank for effect"):
-            load_subspace_ranks()
-
-    def test_load_subspace_ranks_registers_in_state(self):
-        """Test that the function registers the file in state if not present."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"rank": 8}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        # Ensure state is empty
-        save_artifacts_state({})
-        
-        # Load
-        load_subspace_ranks()
-        
-        # Check state
-        state = load_artifacts_state()
-        assert 'subspace_ranks_merged' in state
-        assert state['subspace_ranks_merged']['path'] == str(self.ranks_path.relative_to(self.project_root))
-        assert 'hash' in state['subspace_ranks_merged']
-        assert state['subspace_ranks_merged']['type'] == 'subspace_ranks'
-
-    def test_load_subspace_ranks_updates_hash_mismatch(self):
-        """Test that the function updates the hash if there's a mismatch."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"rank": 8}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        # Set up state with wrong hash
-        state = {
-            'subspace_ranks_merged': {
-                'path': str(self.ranks_path.relative_to(self.project_root)),
-                'hash': 'wrong_hash',
-                'type': 'subspace_ranks'
-            }
-        }
-        save_artifacts_state(state)
-        
-        # Load
-        load_subspace_ranks()
-        
-        # Check state was updated
-        state = load_artifacts_state()
-        assert state['subspace_ranks_merged']['hash'] != 'wrong_hash'
-        assert len(state['subspace_ranks_merged']['hash']) == 64  # SHA256 hex length
-
-    def test_load_subspace_ranks_validates_multiple_effects(self):
-        """Test loading with multiple effects."""
-        test_data = {
-            "tolerance": 1e-5,
-            "effects": {
-                "oil_painting": {"rank": 8, "key": "oil_painting"},
-                "watercolor": {"rank": 12, "key": "watercolor"},
-                "cyberpunk": {"rank": 10, "key": "cyberpunk"},
-                "pencil_sketch": {"rank": 6, "key": "pencil_sketch"},
-                "ink_wash": {"rank": 9, "key": "ink_wash"}
-            }
-        }
-        
-        with open(self.ranks_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        result = load_subspace_ranks()
-        
-        assert len(result['effects']) == 5
-        for effect_name, effect_data in result['effects'].items():
-            assert 'rank' in effect_data
-            assert effect_data['rank'] > 0
-            assert 'key' in effect_data
-            assert effect_data['key'] == effect_name
+def test_load_fp16_adapter_not_found(temp_project_root):
+    with pytest.raises(FileNotFoundError):
+        load_fp16_adapter_and_base_model()

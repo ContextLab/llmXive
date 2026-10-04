@@ -1,31 +1,52 @@
 T001d:
   c: false
-  h: 1b5db5c97276b3bdc0c3c30c02bbda49e0efb0661795e7b48587aa69c31f87e0
-  r: "The provided `code/data_loader.py` excerpt does not contain a `compute_source_ranks`\
-    \ implementation, and the required output file `data/subspace_ranks_source.json`\
-    \ is absent from the repository. Without the function and its generated JSON,\
-    \ the task\u2019s specifications are not met."
+  h: dcd636734351ad25cb8a52d54c6c8db75c6bfdbd637b8166a16e64ecdba05ca5
+  r: "The provided `code/data_loader.py` does not contain a `compute_source_ranks`\
+    \ function (the file is truncated before any such implementation). The required\
+    \ output file `data/subspace_ranks_source.json` is absent, and `state/artifacts.yaml`\
+    \ was not updated with a hash for that file (it only contains a placeholder entry\
+    \ with size\u202F0). The task\u2019s core logic and artifact registration are\
+    \ therefore missing."
+T001e:
+  c: false
+  h: 62a23719e49d217f92d603fb2a88202e1ecd5e367cfbe6fdabc9c6e592253c98
+  r: "The `code/data_loader.py` file does not contain an implementation of `compute_merged_ranks`\
+    \ (the shown excerpt ends before such a function). Moreover, the required input\
+    \ file `data/models/collection_lora.safetensors` and the expected output `data/subspace_ranks_merged.json`\
+    \ are absent, and `state/artifacts.yaml` only records a placeholder zero\u2011\
+    byte artifact. Consequently the task\u2019s specifications are not satisfied."
+T002:
+  c: false
+  h: a382283fb592ee6d8631da4a93a41576d79ad3449a309b736de40a27190a2c5b
+  r: The repository lacks a `collection_lora.safetensors` file and the `state/artifacts.yaml`
+    does not record a hash for it. Moreover, the provided `code/data_loader.py` excerpt
+    does not contain a `merge_collection_lora` implementation (or it is incomplete/truncated),
+    so the required orthogonal projection, validity check, saving, and artifact registration
+    are not present. The task therefore remains unfinished.
 T004b:
   c: false
-  h: 7f06fb16b6e0416dd13717cf8a4c18a85663e9ba3eec92f7c08865d2ae781784
+  h: 948cd73626eec7b0ce4d2b5a560d4943b8f1fabec538797a13c1d6b98a783e85
   r: "The provided `code/data_loader.py` does not contain a `map_prompts_to_effects`\
-    \ implementation (the file is truncated and the function is absent), and the required\
-    \ `data/subspace_ranks_merged.json` file is missing, so the mapping logic cannot\
-    \ be executed. The task\u2019s core requirement is therefore not satisfied."
+    \ function (the file is truncated before any such implementation). Moreover, both\
+    \ `data/subspace_ranks_merged.json` and `data/subspace_ranks_source.json` are\
+    \ absent, so the function could not perform the required primary/fallback loading\
+    \ or raise the specified `ValueError`. The task\u2019s core logic and required\
+    \ artifacts are therefore missing."
 T004c:
   c: false
-  h: 4d63320caffcc76ff42d12e16120af5da44c4e5119a5a085ee2a34a7b44c6731
-  r: The provided `code/data_loader.py` does not contain a `validate_prompt_mapping`
-    implementation (the file is truncated before any such function appears), and the
-    required output file `data/config/validated_prompts.json` is absent. Both the
-    core function and its expected JSON artifact are missing, so the task is not fulfilled.
+  h: 13dc4124fabc8a696cf005b496cde89b3c802681662f8f2153da5646a1eb27e7
+  r: "The provided `code/data_loader.py` does not contain a `validate_prompt_mapping`\
+    \ function (the file is truncated before any such implementation) and the required\
+    \ output file `data/config/validated_prompts.json` is absent. Both the core function\
+    \ and its expected side\u2011effect are missing, so the task is not satisfied."
 T009c:
   c: false
-  h: 09e55d5d308c5750df99a04541dc8ca2de83f512491612c263c7a91f83ff5155
-  r: The required `data/subspace_ranks_merged.json` file does not exist, and `state/artifacts.yaml`
-    lacks any entry (checksum, size, etc.) for that file. Consequently, the loading
-    logic, tolerance validation, and artifact registration are not demonstrated. The
-    missing JSON and artifact entry must be added for the task to be considered complete.
+  h: 8b4d34b566c4590ef15154664bdcab9bfd5fa092583c7734b286b208fcbea813
+  r: "The required files `data/subspace_ranks_merged.json` and the fallback `data/subspace_ranks_source.json`\
+    \ are absent, and `state/artifacts.yaml` does not contain a checksum entry for\
+    \ either file (the only entry is a zero\u2011size placeholder for a different\
+    \ artifact). Consequently the loading logic, tolerance validation, and artifact\
+    \ registration are not implemented."
 T011:
   c: false
   h: 94b482a58e3d056405b3ac4384b6ff322b5e697d2a0d22cc30ba1c1ef12e1302

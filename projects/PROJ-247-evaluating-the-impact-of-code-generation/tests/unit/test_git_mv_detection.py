@@ -1,178 +1,111 @@
-"""
-Unit tests for T012b: Git MV Detection.
-
-Tests the logic for detecting structural refactors using git log --follow.
-"""
-import pytest
 import os
+import sys
 import tempfile
 import subprocess
+import csv
 import json
+import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the module under test
-from code.utils.git_mv_detector import GitMvDetector, run_refactor_verification
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestGitMvDetector:
-    
-    @pytest.fixture
-    def temp_repo(self):
-        """Create a temporary git repository with some history."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            repo_path = Path(tmpdir)
-            
-            # Initialize git repo
-            subprocess.run(["git", "init"], cwd=repo_path, check=True, capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_path, check=True, capture_output=True)
-            subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_path, check=True, capture_output=True)
-            
-            # Create a file
-            file_path = repo_path / "original_file.py"
-            file_path.write_text("def hello(): pass\n")
-            
-            subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
-            subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=repo_path, check=True, capture_output=True)
-            
-            yield repo_path, "original_file.py"
+from utils.git_mv_detector import GitMvDetector, run_refactor_verification
 
-    def test_no_history(self, temp_repo):
-        """Test behavior when file has no history."""
-        repo_path, _ = temp_repo
-        detector = GitMvDetector(str(repo_path))
-        
-        # Query a non-existent file
-        result = detector.check_refactor_exclusion("block_123", "non_existent.py")
-        
-        # Should return None (not excluded) because we can't verify a refactor
-        assert result is None
+class TestGitMvDetector(unittest.TestCase):
 
-    def test_no_rename(self, temp_repo):
-        """Test behavior when file has history but no rename."""
-        repo_path, file_path = temp_repo
+    def setUp(self):
+        # Create a temporary directory structure for testing
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.repo_path = Path(self.test_dir.name) / "repo"
+        self.repo_path.mkdir()
         
-        # Modify the file
-        (repo_path / file_path).write_text("def hello(): pass\n# Comment\n")
-        subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Modify file"], cwd=repo_path, check=True, capture_output=True)
-        
-        detector = GitMvDetector(str(repo_path))
-        result = detector.check_refactor_exclusion("block_123", file_path)
-        
-        # Should return None (not excluded)
-        assert result is None
+        # Initialize git repo
+        subprocess.run(["git", "init"], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=self.repo_path, check=True, capture_output=True)
 
-    def test_rename_same_directory(self, temp_repo):
-        """Test detection of rename within the same directory."""
-        repo_path, file_path = temp_repo
+        # Create initial file
+        initial_file = self.repo_path / "src" / "old_file.py"
+        initial_file.parent.mkdir(parents=True, exist_ok=True)
+        initial_file.write_text("def hello(): pass\n")
         
-        # Rename file within same directory
-        new_path = "renamed_file.py"
-        subprocess.run(["git", "mv", file_path, new_path], cwd=repo_path, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Rename file"], cwd=repo_path, check=True, capture_output=True)
-        
-        detector = GitMvDetector(str(repo_path))
-        
-        # Query using the NEW path (current state)
-        result = detector.check_refactor_exclusion("block_123", new_path)
-        
-        # Same directory rename should NOT be excluded (depth change = 0)
-        assert result is None
+        subprocess.run(["git", "add", "."], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=self.repo_path, check=True, capture_output=True)
 
-    def test_rename_different_directory_deep(self, temp_repo):
-        """Test detection of rename to a different directory (structural refactor)."""
-        repo_path, file_path = temp_repo
-        
-        # Create a deep directory structure
-        deep_dir = repo_path / "src" / "deep" / "nested"
-        deep_dir.mkdir(parents=True)
-        new_path = "src/deep/nested/renamed_file.py"
-        
-        subprocess.run(["git", "mv", file_path, new_path], cwd=repo_path, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Move to deep directory"], cwd=repo_path, check=True, capture_output=True)
-        
-        detector = GitMvDetector(str(repo_path))
-        
-        # Query using the NEW path
-        result = detector.check_refactor_exclusion("block_123", new_path)
-        
-        # Should be excluded due to directory level change
-        assert result is not None
-        assert "Directory level change" in result['reason']
-        assert result['old_path'] == file_path
-        assert result['new_path'] == new_path
+        # Simulate a rename (git mv)
+        new_file = self.repo_path / "src" / "new_file.py"
+        subprocess.run(["git", "mv", "src/old_file.py", "src/new_file.py"], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Rename file"], cwd=self.repo_path, check=True, capture_output=True)
 
-    def test_run_refactor_verification(self, temp_repo):
-        """Test the full pipeline execution."""
-        repo_path, file_path = temp_repo
-        
-        # Create a deep move
-        new_path = "src/deep/nested/renamed_file.py"
-        deep_dir = repo_path / "src" / "deep" / "nested"
-        deep_dir.mkdir(parents=True)
-        subprocess.run(["git", "mv", file_path, new_path], cwd=repo_path, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Move to deep directory"], cwd=repo_path, check=True, capture_output=True)
-        
-        # Create a mock CSV input
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("block_id,file_path,start_line,end_line,language,content_hash\n")
-            f.write("block_1,src/deep/nested/renamed_file.py,1,5,python,abc123\n")
-            f.write("block_2,original_file.py,1,5,python,def456\n") # This file doesn't exist in history anymore
-            csv_path = f.name
+        # Create code blocks CSV
+        self.blocks_csv = Path(self.test_dir.name) / "code_blocks.csv"
+        with open(self.blocks_csv, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["block_id", "file_path", "start_line", "end_line", "language", "content_hash"])
+            writer.writerow(["block_1", "src/old_file.py", "1", "1", "python", "hash123"])
+            writer.writerow(["block_2", "src/new_file.py", "1", "1", "python", "hash456"])
+            writer.writerow(["block_3", "src/unchanged.py", "1", "1", "python", "hash789"]) # Unchanged file
 
-        log_path = tempfile.mktemp(suffix='.log')
-        report_path = tempfile.mktemp(suffix='.json')
+        self.log_path = Path(self.test_dir.name) / "logs" / "exclusions.log"
+        self.report_path = Path(self.test_dir.name) / "logs" / "report.json"
 
-        try:
-            run_refactor_verification(
-                repo_path=str(repo_path),
-                code_blocks_csv_path=csv_path,
-                log_path=log_path,
-                report_path=report_path
-            )
+    def tearDown(self):
+        self.test_dir.cleanup()
 
-            # Check log file exists and has content
-            assert os.path.exists(log_path)
-            with open(log_path, 'r') as f:
-                log_content = f.read()
-                assert "block_1" in log_content # Should be excluded
-                assert "Directory level change" in log_content
-
-            # Check report file
-            assert os.path.exists(report_path)
-            with open(report_path, 'r') as f:
-                report = json.load(f)
-                assert report['total_excluded'] == 1
-                assert report['inclusion_rate'] < 1.0
-
-        finally:
-            os.unlink(csv_path)
-            if os.path.exists(log_path):
-                os.unlink(log_path)
-            if os.path.exists(report_path):
-                os.unlink(report_path)
-
-    def test_deferred_pass_rate(self, temp_repo):
-        """
-        Verify that the 'deferred' pass rate logic holds.
-        The task description mentions 'ensuring [deferred] pass rate'.
-        This test ensures that blocks with ambiguous history are NOT excluded (deferred decision).
-        """
-        repo_path, file_path = temp_repo
+    def test_detect_rename(self):
+        """Test that the detector identifies a renamed file."""
+        detector = GitMvDetector(str(self.repo_path), log_path=str(self.log_path))
         
-        # Just a normal modification, no rename
-        (repo_path / file_path).write_text("def hello(): pass\n# More code\n")
-        subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Update"], cwd=repo_path, check=True, capture_output=True)
+        # Block 1 refers to old path. History should show it moved to new path.
+        exclusion = detector.detect_refactor("block_1", "src/old_file.py")
         
-        detector = GitMvDetector(str(repo_path))
+        self.assertIsNotNone(exclusion)
+        self.assertEqual(exclusion["block_id"], "block_1")
+        self.assertEqual(exclusion["old_path"], "src/old_file.py")
+        self.assertEqual(exclusion["new_path"], "src/new_file.py")
+        self.assertIn("Rename", exclusion["reason"])
+
+    def test_no_rename(self):
+        """Test that unchanged files are not flagged."""
+        detector = GitMvDetector(str(self.repo_path), log_path=str(self.log_path))
         
-        # This should NOT be excluded
-        result = detector.check_refactor_exclusion("block_deferred", file_path)
-        
-        # If result is None, it means we did NOT exclude it (deferred to next check or kept)
-        # In the context of "deferred pass rate", this implies the block passed the exclusion check.
-        assert result is None
+        # Create a dummy unchanged file for the test to exist in git
+        unchanged_file = self.repo_path / "src" / "unchanged.py"
+        unchanged_file.write_text("def world(): pass\n")
+        subprocess.run(["git", "add", "."], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Add unchanged"], cwd=self.repo_path, check=True, capture_output=True)
+
+        exclusion = detector.detect_refactor("block_3", "src/unchanged.py")
+        self.assertIsNone(exclusion)
+
+    def test_run_refactor_verification(self):
+        """Test the full pipeline function."""
+        result = run_refactor_verification(
+            str(self.blocks_csv),
+            str(self.repo_path),
+            str(self.log_path),
+            str(self.report_path)
+        )
+
+        self.assertIn("total_blocks_processed", result)
+        self.assertIn("blocks_excluded", result)
+        self.assertGreater(result["blocks_excluded"], 0)
+
+        # Verify log file content
+        self.assertTrue(self.log_path.exists())
+        with open(self.log_path, 'r') as f:
+            log_content = f.read()
+            self.assertIn("block_1", log_content)
+            self.assertIn("src/old_file.py", log_content)
+
+        # Verify report content
+        self.assertTrue(self.report_path.exists())
+        with open(self.report_path, 'r') as f:
+            report_data = json.load(f)
+            self.assertEqual(report_data["blocks_excluded"], 1)
+            self.assertEqual(report_data["exclusions"][0]["block_id"], "block_1")
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    unittest.main()

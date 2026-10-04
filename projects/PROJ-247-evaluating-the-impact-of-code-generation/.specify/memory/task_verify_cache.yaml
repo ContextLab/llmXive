@@ -1,27 +1,34 @@
 T012b:
   c: false
-  h: f9f8cb594f3459c277150b4daa5dd17eeeb245244bb790c1ba965c83fdf7ea24
-  r: The required output files `data/logs/refactor_exclusions.log` and `data/logs/refactor_validation_report.json`
-    are missing, and there is no evidence that the `GitMvDetector` implementation
-    and `run_refactor_verification` logic have been added or produce the specified
-    logs. Without these artifacts (and passing the unit tests), the task is not satisfied.
+  h: 6ef2be3b9238c38872369a1afe842d020d5bcfb565402325a1617cee806d3fae
+  r: The required log file `data/logs/refactor_exclusions.log` and validation report
+    `data/logs/refactor_validation_report.json` are missing, and the provided test
+    suite is incomplete (truncated) with no evidence that the verification logic runs
+    or passes. The implementation and its outputs need to be added.
 T013:
   c: false
-  h: 6db3581258a0966ee82f3094f43cb0b2f44227f2f22b5c2a78c128a548627b2c
-  r: "The provided `code/01_data_curation.py` shows imports and constants for the\
-    \ classifier and log file, but the visible portion does not contain any code that\
-    \ actually runs the CodeBERT classifier, tags blocks, checks the confidence threshold,\
-    \ or writes exclusions to `data/logs/classifier_exclusions.log`. Moreover, the\
-    \ required log file is missing from the repository. The task\u2019s core functionality\
-    \ and logging artifact are therefore not present."
+  h: 2652c02707670f6761086e1630cee4047d75fcc2eb9ad6742fef1414d9b2ec15
+  r: "The provided `code/01_data_curation.py` stops after extracting code blocks and\
+    \ does not contain any logic that runs the `CodeBERTClassifier`, checks the confidence\
+    \ \u2265\u202F0.8, tags blocks as LLM/Human, or writes low\u2011confidence exclusions\
+    \ to `data/logs/classifier_exclusions.log`. Moreover, the required log file does\
+    \ not exist on disk. These missing pieces mean the task\u2019s requirements are\
+    \ not met."
 T015:
   c: false
-  h: 48462cee272624ce3e36db07537a8d6db2a4b69d8d1ead9d223db06a6b7bc8c9
-  r: "The `matching.py` implementation uses a placeholder random\u2011number propensity\
-    \ score instead of fitting a logistic regression on `cyclomatic_complexity` and\
-    \ `LOC`, and the file is truncated before completing the match\u2011pair dataframe.\
-    \ Moreover, the required output `data/processed/matched_pairs.csv` does not exist.\
-    \ Both the algorithmic requirement and the expected output artifact are missing."
+  h: 5dec053ad46009f65cdf7f55ab2d55de850a474a2c009e18c6bb534eb1dad7a8
+  r: "The provided `code/utils/matching.py` is truncated (ends mid\u2011line at `clf.fit(X_sca`)\
+    \ and does not contain the nearest\u2011neighbor matching logic nor code to write\
+    \ `data/processed/matched_pairs.csv`. Moreover, the required output CSV file is\
+    \ missing entirely. The task\u2019s core functionality and output artifact are\
+    \ therefore not present."
+T017b:
+  c: false
+  h: f9e1aeaa54529a4daeb2d7acd0b00ddeccf237ff280873f23a711b822e08885e
+  r: The required output file `data/ground_truth/classifier_metrics.json` is missing,
+    and there is no evidence that the test suite was executed and passed. The implementer
+    must generate the metrics JSON file (containing precision, recall, etc.) and confirm
+    that `tests/unit/test_classifier_metrics.py` runs successfully on the mock data.
 T022:
   c: false
   h: 74a9148711a87e3ac4a67d0d9cad19bbe39be302a180b6c31ce3ebb2a6923839
@@ -37,11 +44,17 @@ T023:
     \ of the form `pair_id, reason` for each excluded pair."
 T024:
   c: false
+  h: f4ed9d225c07828184a766e8ecb9d0d370efab2e5e92c7c901fac1a1c2a8afea
+  r: "Both required artifacts are absent: the log file `data/logs/repo_deletion.log`\
+    \ does not exist, and the updated CSV `data/processed/metrics_longitudinal.csv`\
+    \ is missing, so the task\u2019s output and logging requirements are not satisfied."
+T027a:
+  c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided that demonstrate handling of\
-    \ repository deletions or private\u2011status changes (i.e., catching 404 responses\
-    \ and excluding those repos from the analysis count). Without an actual implementation\
-    \ artifact, the requirement cannot be verified as met."
+  r: "No code, notebook, or result file was provided that actually computes the Wilcoxon\
+    \ signed\u2011rank test (W\u2011statistic and p\u2011value) on the matched maintainability\
+    \ metric pairs using `scipy.stats.wilcoxon`. The claim lacks any artifact demonstrating\
+    \ the required calculation."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

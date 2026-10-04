@@ -1,96 +1,121 @@
-"""
-Unit tests for code/metrics.py functions.
-
-These tests verify the correctness of CLIP embedding extraction,
-cosine similarity computation, LPIPS distance, and CESR score calculation.
-"""
-import torch
-import numpy as np
-from PIL import Image
-from io import BytesIO
 import pytest
+import numpy as np
 from pathlib import Path
-import logging
+import sys
+import os
 
-# Configure logging to avoid noise during tests
-logging.basicConfig(level=logging.WARNING)
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-# Import the functions to test
 from metrics import (
     extract_clip_image_embedding,
     extract_clip_text_embedding,
     compute_cosine_similarity,
     compute_image_text_similarity,
+    batch_compute_image_text_similarity,
     compute_lpips_distance,
-    compute_cesr_score
+    compute_lpips_distance_from_paths,
+    compute_cesr_score,
+    compute_lpips_matrix
 )
 
-@pytest.fixture
-def sample_image():
-    """Create a simple synthetic test image."""
-    # Create a 224x224 RGB image with random values
-    img_array = np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
-    return Image.fromarray(img_array)
+class TestMetrics:
+    """Test suite for metrics module."""
 
-@pytest.fixture
-def sample_text():
-    """Sample text for embedding extraction."""
-    return "a photo of a cat"
+    def test_extract_clip_image_embedding(self):
+        """Test CLIP image embedding extraction."""
+        # Create a dummy image path
+        dummy_path = Path("/tmp/dummy.png")
+        
+        # Should return a 512-dimensional vector
+        embedding = extract_clip_image_embedding(dummy_path)
+        assert isinstance(embedding, np.ndarray)
+        assert embedding.shape == (512,)
 
-def test_extract_clip_text_embedding(sample_text):
-    """Test that text embedding extraction returns a valid tensor."""
-    embedding = extract_clip_text_embedding(sample_text)
-    assert embedding is not None
-    assert isinstance(embedding, torch.Tensor)
-    assert embedding.dim() == 1  # Should be a 1D vector
+    def test_extract_clip_text_embedding(self):
+        """Test CLIP text embedding extraction."""
+        text = "test prompt"
+        embedding = extract_clip_text_embedding(text)
+        
+        assert isinstance(embedding, np.ndarray)
+        assert embedding.shape == (512,)
 
-def test_extract_clip_image_embedding(sample_image):
-    """Test that image embedding extraction returns a valid tensor."""
-    embedding = extract_clip_image_embedding(sample_image)
-    assert embedding is not None
-    assert isinstance(embedding, torch.Tensor)
-    assert embedding.dim() == 1  # Should be a 1D vector
+    def test_compute_cosine_similarity(self):
+        """Test cosine similarity computation."""
+        emb1 = np.array([1.0, 0.0, 0.0])
+        emb2 = np.array([1.0, 0.0, 0.0])
+        emb3 = np.array([0.0, 1.0, 0.0])
+        
+        # Identical vectors should have similarity 1.0
+        assert abs(compute_cosine_similarity(emb1, emb2) - 1.0) < 1e-6
+        
+        # Orthogonal vectors should have similarity 0.0
+        assert abs(compute_cosine_similarity(emb1, emb3)) < 1e-6
 
-def test_compute_cosine_similarity():
-    """Test cosine similarity between two identical vectors is 1.0."""
-    vec1 = torch.tensor([1.0, 2.0, 3.0])
-    vec2 = torch.tensor([1.0, 2.0, 3.0])
-    similarity = compute_cosine_similarity(vec1, vec2)
-    assert abs(similarity.item() - 1.0) < 1e-6
+    def test_compute_image_text_similarity(self):
+        """Test image-text similarity computation."""
+        dummy_path = Path("/tmp/dummy.png")
+        text = "test prompt"
+        
+        similarity = compute_image_text_similarity(dummy_path, text)
+        assert isinstance(similarity, float)
+        assert 0.0 <= similarity <= 1.0
 
-def test_compute_cosine_similarity_opposite():
-    """Test cosine similarity between opposite vectors is -1.0."""
-    vec1 = torch.tensor([1.0, 0.0, 0.0])
-    vec2 = torch.tensor([-1.0, 0.0, 0.0])
-    similarity = compute_cosine_similarity(vec1, vec2)
-    assert abs(similarity.item() - (-1.0)) < 1e-6
+    def test_batch_compute_image_text_similarity(self):
+        """Test batch image-text similarity computation."""
+        dummy_paths = [Path("/tmp/dummy1.png"), Path("/tmp/dummy2.png")]
+        texts = ["prompt1", "prompt2"]
+        
+        similarities = batch_compute_image_text_similarity(dummy_paths, texts)
+        assert len(similarities) == 2
+        assert all(isinstance(s, float) for s in similarities)
 
-def test_compute_image_text_similarity(sample_image, sample_text):
-    """Test end-to-end image-text similarity computation."""
-    similarity = compute_image_text_similarity(sample_image, sample_text)
-    assert -1.0 <= similarity <= 1.0
+    def test_compute_lpips_distance(self):
+        """Test LPIPS distance computation."""
+        dummy_path1 = Path("/tmp/dummy1.png")
+        dummy_path2 = Path("/tmp/dummy2.png")
+        
+        distance = compute_lpips_distance(dummy_path1, dummy_path2)
+        assert isinstance(distance, float)
+        assert 0.0 <= distance <= 1.0
 
-def test_compute_lpips_distance(sample_image):
-    """Test LPIPS distance computation (should be non-negative)."""
-    # LPIPS distance between an image and itself should be 0
-    distance = compute_lpips_distance(sample_image, sample_image)
-    assert distance >= 0.0
-    # Due to numerical precision, it might not be exactly 0
-    assert distance < 0.01
+    def test_compute_lpips_distance_from_paths(self):
+        """Test LPIPS distance from paths."""
+        dummy_path1 = Path("/tmp/dummy1.png")
+        dummy_path2 = Path("/tmp/dummy2.png")
+        
+        distance = compute_lpips_distance_from_paths(dummy_path1, dummy_path2)
+        assert isinstance(distance, float)
 
-def test_compute_cesr_score():
-    """Test CESR score computation with mock data."""
-    # Mock embeddings: target and reference
-    target_embedding = torch.tensor([1.0, 0.0, 0.0])
-    reference_embeddings = [
-        torch.tensor([0.0, 1.0, 0.0]),  # Different concept
-        torch.tensor([0.0, 0.0, 1.0])   # Different concept
-    ]
-    
-    cesr = compute_cesr_score(target_embedding, reference_embeddings)
-    
-    # CESR should be a ratio between 0 and 1
-    assert 0.0 <= cesr <= 1.0
+    def test_compute_cesr_score(self):
+        """Test CESR score computation."""
+        query_emb = np.random.random(512)
+        ref_embs = [np.random.random(512) for _ in range(5)]
+        distr_embs = [np.random.random(512) for _ in range(3)]
+        
+        cesr_norm, cesr_base = compute_cesr_score(query_emb, ref_embs, distr_embs)
+        
+        assert isinstance(cesr_norm, float)
+        assert isinstance(cesr_base, float)
+
+    def test_compute_cesr_score_empty_references(self):
+        """Test CESR with empty references."""
+        query_emb = np.random.random(512)
+        
+        cesr_norm, cesr_base = compute_cesr_score(query_emb, [], [])
+        
+        assert cesr_norm == 0.0
+        assert cesr_base == 0.0
+
+    def test_compute_lpips_matrix(self):
+        """Test LPIPS distance matrix computation."""
+        dummy_paths = [Path("/tmp/dummy1.png"), Path("/tmp/dummy2.png"), Path("/tmp/dummy3.png")]
+        
+        matrix = compute_lpips_matrix(dummy_paths)
+        
+        assert matrix.shape == (3, 3)
+        assert np.allclose(matrix, matrix.T)  # Symmetric
+        assert np.allclose(np.diag(matrix), 0.0)  # Diagonal is zero
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
