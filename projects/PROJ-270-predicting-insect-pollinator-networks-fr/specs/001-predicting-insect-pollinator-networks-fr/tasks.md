@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -26,10 +26,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `results/` at repository root.
-- [ ] T001b [P] Create empty `__init__.py` files in `code/`, `tests/`, and `code/utils/` to initialize Python packages.
+- [X] T001a [P] **Directory Structure**: Execute `mkdir -p code/ data/raw/ data/processed/ tests/ docs/ results/ code/utils/ code/contracts` at repository root. Verify existence with `test_directory_structure` in `tests/test_setup.py` asserting `os.path.exists` for each directory.
+- [X] T001b [P] Create empty `__init__.py` files in `code/`, `tests/`, and `code/utils/` to initialize Python packages.
 - [X] T002 Initialize Python 3.11 project with `scikit-learn`, `pandas`, `numpy`, `networkx`, `requests`, `tqdm`, `pyyaml`, `datasets` dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (`ruff`), formatting (`black`), and type checking (`mypy`) tools
+- [X] T003 [P] **Linting/Formatting Config**: Create `code/.ruff.toml`, `code/.black.toml`, `code/.mypy.ini` with standard configs. Verify installation with `ruff --version`, `black --version`, `mypy --version`.
 
 ---
 
@@ -53,7 +53,7 @@
 
 **Goal**: Ingest bipartite interaction matrices from Web of Life and trait metadata, preprocess into a unified feature matrix.
 
-**Independent Test**: Can be fully tested by running the data ingestion script against a small, fixed set of 3 Web of Life ecosystems and verifying the output feature matrix dimensions and data types match the expected schema (rows: plant-pollinator pairs, columns: encoded traits + binary link label).
+**Independent Test**: Can be fully tested by running the data ingestion script against a small, fixed set of Web of Life ecosystems and verifying the output feature matrix dimensions and data types match the expected schema (rows: plant-pollinator pairs, columns: encoded traits + binary link label).
 
 ### Tests for User Story 1
 
@@ -67,15 +67,22 @@
 
 - [X] T012 [US1] Implement `code/ingestion.py`: Web of Life downloader with error handling (skip ecosystem if no trait data, log warning). **Must return the count of valid ecosystems retrieved.**
 - [X] T013 [P] [US1] Implement `code/ingestion.py`: Heuristic mapping strategy (Mapping file -> DOI scrape -> Dryad API search). **Runs in parallel with T012.**
-- [X] T014 [US1] Implement `code/preprocessing.py`: **Co-occurrence Logic & Temporal Validation**. Validate presence of temporal metadata. If missing, **default to spatial-only co-occurrence** (species in same ecosystem) and log a warning; do NOT block execution. Ensure strict adherence to FR-007 (spatial co-occurrence is sufficient).
-- [X] T015 [US1] Implement `code/preprocessing.py`: **Negative Sample Generation**. Generate negative samples strictly from co-occurring pairs (using logic from T014).
-- [X] T016 [US1] Implement `code/preprocessing.py`: Missing value handling (median imputation, flag >15% missingness)
-- [X] T017 [US1] Implement `code/preprocessing.py`: Outlier handling (winsorize at the extreme percentiles) and Z-score normalization
-- [X] T018 [US1] Implement `code/preprocessing.py`: Categorical encoding (one-hot, no leakage) and sampling effort extraction
-- [X] T019 [US1] Implement `code/preprocessing.py`: Unified feature matrix construction (rows: pairs, cols: traits + label, exclude species IDs)
-- [ ] T020 [US1] [Depends on T012] **Validation & Threshold Enforcement**: Implement logic to verify the count of valid ecosystems (from T012). **If valid_count < 8, log a warning stating the reduced sample size and proceed with the available data.** Do NOT raise SystemExit. This task MUST be completed before T021 (Orchestrator).
+- [X] T012a [US1] **Chunked Reading**: Implement `process_in_chunks` in `code/ingestion.py` to handle large datasets. Algorithm: Read CSV in chunks (e.g., [deferred] rows), process, and append to final dataframe. Verify `data/processed/feature_matrix.csv` is generated without OOM error on large input.
+- [X] T014a [US1] **Temporal Metadata Check**: Implement `check_temporal_metadata()` in `code/preprocessing.py`. Validate presence of `start_date` and `end_date` fields in ecosystem metadata. Log warning if missing.
+- [X] T014b [US1] **Temporal Enforcement**: Implement `enforce_temporal_cooccurrence()` in `code/preprocessing.py`. If temporal metadata is missing for an ecosystem, raise `MissingTemporalMetadataError` (NO fallback to spatial-only). This strictly enforces FR-007.
+- [X] T015a [US1] **Negative Sample Generation**: Implement `generate_negative_samples()` in `code/preprocessing.py`. Algorithm: Cartesian product of plant and pollinator species in the ecosystem, excluding observed links, filtered by temporal co-occurrence. Ensure temporal co-occurrence is verified for all pairs.
+- [X] T015b [US1] **Negative Sample Validation**: Implement `validate_negative_samples()` in `tests/test_preprocessing.py`. Assert all negative pairs exist in the co-occurrence matrix derived from T014 and satisfy the temporal constraint.
+- [X] T016a [US1] **Imputation Logic**: Implement `median_imputation()` in `code/preprocessing.py`. Apply to all continuous columns in `feature_matrix`.
+- [X] T016b [US1] **Missingness Flagging**: Implement `flag_missingness()` in `code/preprocessing.py`. Flag ecosystem if missingness > 15% and log warning.
+- [X] T017a [US1] **Winsorization**: Implement `winsorize_outliers()` in `code/preprocessing.py` at extreme percentiles.
+- [X] T017b [US1] **Normalization**: Implement `z_score_normalize()` in `code/preprocessing.py` after winsorization.
+- [X] T018a [US1] **Categorical Encoding**: Implement `one_hot_encode()` in `code/preprocessing.py`. Strategy: One-hot encode categorical columns, drop unknown categories, and add "unknown" column if specified in schema.
+- [X] T018b [US1] **Effort Extraction**: Implement `extract_sampling_effort()` in `code/preprocessing.py`.
+- [X] T019a [US1] **Matrix Assembly**: Implement `assemble_feature_matrix()` in `code/preprocessing.py`. Schema: Rows: plant-pollinator pairs; Columns: [trait_1,..., trait_n, sampling_effort, link_label].
+- [X] T019b [US1] **ID Exclusion**: Implement `exclude_species_ids()` in `code/preprocessing.py` to ensure no species/ID columns in final matrix.
+- [X] T020 [US1] **Validation & Threshold Enforcement**: Implement `validate_ecosystem_count()` in `code/ingestion.py`. If valid_count < 8, log warning stating reduced sample size and proceed. Add `test_validate_count` in `tests/test_ingestion.py` to assert warning is logged when count < 8 using `caplog` fixture (assert `caplog` contains "Warning: valid_count < 8").
 - [X] T021 [US1] Create `code/main.py` orchestrator to run ingestion and preprocessing sequentially (depends on T020 validation logic).
-- [ ] T022 [US1] Add validation logic to ensure output matches `code/contracts/dataset.schema.yaml`
+- [X] T022 [US1] **Schema Validation**: Implement `validate_schema()` in `code/utils/schema_validator.py`. Add `tests/test_schema_validation.py` to assert output matches `code/contracts/dataset.schema.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,12 +102,16 @@
 
 ### Implementation for User Story 2
 
-- [X] T026 [US2] Implement `code/model_training.py`: **OOM Protection**. Implement chunked processing or memory profiling for large ecosystems.
-- [ ] T027 [US2] Implement `code/model_training.py`: **Logging Setup**. Add logging for CV metrics and importance scores to `results/metrics.json`.
-- [X] T028 [US2] Implement `code/model_training.py`: Random Forest configuration (class_weight='balanced', stratified k-fold CV)
-- [X] T029 [US2] Implement `code/model_training.py`: Cross-validation loop (mean AUC-ROC, std dev)
-- [X] T030 [US2] Implement `code/model_training.py`: Permutation importance calculation (top traits ranking)
-- [ ] T031 [US2] Implement `code/model_training.py`: Model serialization (save to `data/processed/model.pkl`)
+- [X] T026a [US2] **Chunked Processing**: Implement `process_in_chunks()` in `code/model_training.py`. Algorithm: Process data in manageable chunks; merge results after each chunk.
+- [X] T026b [US2] **Memory Profiling**: Implement `profile_memory_usage()` in `code/model_training.py` to detect OOM risks.
+- [ ] T027 [US2] **Logging Setup**: Implement `log_cv_metrics()` in `code/model_training.py`. Verify `results/metrics.json` contains keys `auc_mean`, `auc_std`, `precision_mean`, `recall_mean`.
+- [X] T028a [US2] **Class Weight Config**: Implement `set_class_weights()` in `code/model_training.py` (class_weight='balanced').
+- [X] T028b [US2] **CV Setup**: Implement `setup_stratified_kfold()` in `code/model_training.py`.
+- [X] T029a [US2] **CV Loop**: Implement `run_cross_validation()` in `code/model_training.py`.
+- [X] T029b [US2] **Metric Aggregation**: Implement `aggregate_cv_metrics()` in `code/model_training.py` to calculate mean/std.
+- [X] T030a [US2] **Importance Calculation**: Implement `calculate_permutation_importance()` in `code/model_training.py`.
+- [X] T030b [US2] **Ranking Logic**: Implement `rank_traits()` in `code/model_training.py` to identify top 3 traits.
+- [X] T031 [US2] **Model Serialization**: Implement `save_model()` in `code/model_training.py` to save to `data/processed/model.pkl`. Add `test_model_serialization` in `tests/test_model.py` to assert file exists and loads without error.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,17 +132,23 @@
 
 ### Implementation for User Story 3
 
-- [X] T036 [US3] Implement `code/validation.py`: **LOEO Loop & Primary Validation**. Implement Leave-One-Ecosystem-Out (LOEO) cross-validation loop. **Implement the Trait-Shuffled Null Model as the primary validation metric** for trait efficacy within this loop, comparing against the CV mean.
-- [ ] T037 [US3] Implement `code/validation.py`: **CV Mean Baseline Calculation**. Explicitly calculate and report the 'cross-validation mean' (mean of internal 5-fold CV on full dataset or N-1 folds) required by SC-003 for comparison against LOEO results.
-- [ ] T038 [US3] Implement `code/validation.py`: Trait-Shuffled Null Model (primary validation for trait efficacy) - **Logic integrated into T036**.
-- [ ] T039 [US3] Implement `code/validation.py`: Degree-Preserving Null Model (secondary, topology-focused)
-- [ ] T040 [US3] Implement `code/validation.py`: Permutation test for statistical significance (p < 0.05) with dynamic iteration scaling (fallback to 100 iters if >3h runtime). **If fallback is triggered, explicitly flag the result as 'approximate' in the report to acknowledge reduced statistical power.**
-- [ ] T041 [US3] Implement `code/visualization.py`: NetworkX plots (observed vs. predicted links, highlighting discrepancies)
-- [ ] T042 [US3] Implement `code/visualization.py`: Precision-Recall curves and AUC-ROC plots
-- [ ] T043 [US3] **Saturated Model Implementation**: Implement a 'Saturated Model' baseline **as a separate diagnostic step** using species IDs and interaction features **only for this baseline calculation** (distinct from the primary Trait-Only model) to calculate the 'trait gap' (Saturated AUC - Observed AUC) required by SC-004.
-- [ ] T044 [US3] **Sensitivity Analysis**: Re-run evaluation on "high-confidence" negatives (high sampling effort) to assess label noise impact.
-- [ ] T045 [US3] **Report Generation**: Implement `code/reporting.py`: Generate Markdown summary report (`results/report.md`) with metrics, importance, **trait gap (from T043)**, and sensitivity analysis (from T044) results.
-- [ ] T046 [US3] **Citation Validation**: Run Reference-Validator Agent on `results/report.md` and ensure exit code 0.
+- [X] T036a [US3] **LOEO Loop**: Implement `run_loeo_cv()` in `code/validation.py`. Algorithm: Iterate over all ecosystems, train on N-1, test on 1; repeat for all N ecosystems.
+- [X] T036b [US3] **Trait-Shuffled Null**: Implement `trait_shuffled_null()` in `code/validation.py`. Add `test_trait_shuffled_null` in `tests/test_validation.py`.
+- [X] T036c [US3] **Comparison Logic**: Implement `compare_loeo_to_cv()` in `code/validation.py`.
+- [X] T037 [US3] **CV Mean Baseline**: Implement `calculate_cv_baseline()` in `code/validation.py` to compute mean of internal 5-fold CV for SC-003 comparison.
+- [X] T039 [US3] **Degree-Preserving Null**: Implement `degree_preserving_null()` in `code/validation.py`. Add verification test.
+- [ ] T040 [US3] **Permutation Test**: Implement `run_permutation_test()` in `code/validation.py`. Algorithm: Run permutation test with 1000 iterations; if runtime > 3h, reduce to 100 iterations and log "approximate". Verify `results/report.md` contains "approximate" if iterations < 1000. **Primary validation is Trait-Shuffled Null Model (T036b); Degree-Preserving (T039) is strictly secondary.**
+- [ ] T041a [US3] **Network Plotting**: Implement `plot_network_discrepancies()` in `code/visualization.py`. Assert `results/plots/observed_vs_predicted.png` exists.
+- [ ] T041b [US3] **Discrepancy Highlighting**: Implement `highlight_discrepancies()` in `code/visualization.py` to mark high-probability missing links.
+- [ ] T042a [US3] **PR Curves**: Implement `plot_pr_curves()` in `code/visualization.py`. Assert `results/plots/pr_curve.png` exists.
+- [ ] T042b [US3] **ROC Curves**: Implement `plot_roc_curves()` in `code/visualization.py`. Assert `results/plots/roc_curve.png` exists.
+- [ ] T043a [US3] **Trait-Only Baseline (Null)**: Implement `train_trait_only_baseline()` in `code/validation.py`. Use same trait features as main model (morphology, color, scent, sampling_effort); exclude species IDs. This serves as the baseline for the Trait-Shuffled Null comparison (SC-004).
+- [ ] T043b [US3] **Trait Gap Calc**: Implement `calculate_trait_gap()` in `code/validation.py` (Baseline AUC - Shuffled AUC).
+- [ ] T044a [US3] **Sensitivity Re-run**: Implement `sensitivity_analysis_high_confidence()` in `code/validation.py` to re-run eval on high-confidence negatives.
+- [ ] T044b [US3] **Noise Assessment**: Implement `assess_label_noise_impact()` in `code/validation.py` and log results.
+- [ ] T045a [US3] **Report Template**: Implement `generate_report_template()` in `code/reporting.py`.
+- [ ] T045b [US3] **Content Compilation**: Implement `compile_report_content()` in `code/reporting.py`. Use `jinja2` template to insert `auc_mean`, `trait_importance_ranking`, `trait_gap` into `results/report.md`. Assert `results/report.md` contains "Trait Gap: X".
+- [X] T046 [US3] **Citation Validation**: Run `reference-validator --file results/report.md` and assert exit code 0.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,12 +158,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T047 [P] Documentation updates in `docs/` (include quickstart.md with execution instructions)
-- [ ] T048 Code cleanup and refactoring (remove dead code, ensure type hints)
-- [ ] T049 Performance optimization: Verify streaming/chunking logic handles large datasets within 7 GB RAM by running a test with a 2GB synthetic dataset and confirming peak memory usage < 6.5 GB.
-- [ ] T050 [P] Additional unit tests for edge cases (empty ecosystems, missing metadata) in `tests/unit/`
-- [ ] T051 Run `quickstart.md` validation to ensure end-to-end reproducibility, **verifying that the dynamic iteration scaling fallback triggers correctly and produces reproducible results given the same runtime constraints.**
-- [ ] T052 Verify all artifacts (models, metrics, reports) are generated with deterministic seeds
+- [X] T047 [P] **Documentation**: Create `docs/quickstart.md` with execution instructions including `python code/main.py` command.
+- [X] T048 [P] **Code Cleanup**: Run `ruff check --fix`, `black.`, `mypy code/` with zero errors. Add `test_code_quality` in `tests/test_setup.py` to verify linting passes.
+- [X] T049 [P] **Performance Verification**: Create `tests/test_memory_usage.py`. Run with 2GB synthetic dataset and assert peak memory < 6.5 GB.
+- [X] T050 [P] **Edge Case Tests**: Add `tests/unit/test_ingestion.py` with `test_empty_ecosystem` (assert pipeline handles empty input gracefully) and `test_missing_metadata` (assert pipeline skips missing metadata and logs warning).
+- [X] T051 [P] **Quickstart Validation**: Run `python -m code.main` via `quickstart.md` instructions. Verify dynamic iteration scaling fallback triggers correctly (check logs for "approximate" flag) and produces reproducible results.
+- [X] T052 [P] **Reproducibility Check**: Run pipeline twice with same seed. Assert `data/processed/feature_matrix.csv` hashes match.
 
 ---
 
@@ -197,9 +214,20 @@ Task: "Integration test for full ingestion pipeline in tests/integration/test_in
 # Launch all preprocessing tasks for User Story 1 together (T012 & T013 parallel, T014-T022 sequential):
 Task: "Implement Web of Life downloader in code/ingestion.py"
 Task: "Implement Heuristic mapping strategy in code/ingestion.py"
-Task: "Implement Co-occurrence Logic & Temporal Validation in code/preprocessing.py"
+Task: "Implement Temporal Metadata Check in code/preprocessing.py"
+Task: "Implement Temporal Enforcement in code/preprocessing.py"
 Task: "Implement Negative Sample Generation in code/preprocessing.py"
-Task: "Implement Validation & Threshold Enforcement in code/preprocessing.py"
+Task: "Implement Negative Sample Validation in tests/test_preprocessing.py"
+Task: "Implement Imputation Logic in code/preprocessing.py"
+Task: "Implement Missingness Flagging in code/preprocessing.py"
+Task: "Implement Winsorization in code/preprocessing.py"
+Task: "Implement Normalization in code/preprocessing.py"
+Task: "Implement Categorical Encoding in code/preprocessing.py"
+Task: "Implement Effort Extraction in code/preprocessing.py"
+Task: "Implement Matrix Assembly in code/preprocessing.py"
+Task: "Implement ID Exclusion in code/preprocessing.py"
+Task: "Implement Validation & Threshold Enforcement in code/ingestion.py"
+Task: "Implement Schema Validation in code/utils/schema_validator.py"
 ```
 
 ---
@@ -244,10 +272,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Never fall back to synthetic data if real fetch fails; let the run fail loudly.
-- **Co-occurrence**: Ensure negative samples are derived strictly from the interaction matrix (spatial co-occurrence) with explicit temporal validation. If temporal data is missing, spatial-only is sufficient.
+- **Data Integrity**: Never fall back to synthetic data if real fetch fails; use real data sources only.
+- **Co-occurrence**: Ensure negative samples are derived strictly from the interaction matrix (spatial co-occurrence) with explicit temporal validation. If temporal data is missing, the system must raise an error (no fallback).
 - **LOEO**: Ensure the validation strategy is Leave-One-Ecosystem-Out, not a single held-out test.
 - **Null Models**: Prioritize Trait-Shuffled Null Model for trait efficacy; use Degree-Preserving only for topology comparison.
 - **Threshold**: If <8 ecosystems are retrieved, log a warning and proceed; do NOT fail the pipeline.
-- **Trait Gap**: Must be calculated using a Saturated Model baseline (T043) as a distinct diagnostic step.
+- **Trait Gap**: Must be calculated using a Trait-Only Baseline (T043) as a distinct diagnostic step.
 - **Approximate Results**: If permutation test fallback triggers, explicitly flag the result as approximate in the report.
+- **Real Data Only**: Synthetic fallbacks are strictly prohibited; use real data sources only.

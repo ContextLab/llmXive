@@ -9,7 +9,7 @@ import os
 import tempfile
 import shutil
 
-from ingestion import download_web_of_life_ecosystem, WebOfLifeDownloader, load_interactions_csv
+from ingestion import download_web_of_life_ecosystem, WebOfLifeDownloader, load_interactions_csv, run_validation_check
 from config import get_data_raw
 
 @pytest.fixture
@@ -119,3 +119,51 @@ def test_load_interactions_csv(mock_file):
     assert len(result) == 2
     assert result[0] == {"plant": "A", "pollinator": "B"}
     assert result[1] == {"plant": "C", "pollinator": "D"}
+
+def test_validate_count_below_threshold(caplog, temp_data_dir):
+    """Test that a warning is logged when valid_count < 8."""
+    downloader = WebOfLifeDownloader(raw_dir=temp_data_dir)
+    downloader.downloaded_count = 5  # Set count below threshold
+    downloader.failed_count = 2
+    
+    with caplog.at_level(logging.WARNING):
+        result = run_validation_check(downloader)
+        
+        # Assert the function returns False
+        assert result is False
+        
+        # Assert the warning message is logged
+        assert "Warning: valid_count < 8" in caplog.text
+        assert "current: 5" in caplog.text
+
+def test_validate_count_meets_threshold(caplog, temp_data_dir):
+    """Test that no warning is logged when valid_count >= 8."""
+    downloader = WebOfLifeDownloader(raw_dir=temp_data_dir)
+    downloader.downloaded_count = 10  # Set count above threshold
+    downloader.failed_count = 2
+    
+    with caplog.at_level(logging.WARNING):
+        result = run_validation_check(downloader)
+        
+        # Assert the function returns True
+        assert result is True
+        
+        # Assert no warning about low count
+        assert "Warning: valid_count < 8" not in caplog.text
+        assert "meets threshold" in caplog.text
+
+def test_validate_count_exactly_threshold(caplog, temp_data_dir):
+    """Test behavior when count is exactly 8."""
+    downloader = WebOfLifeDownloader(raw_dir=temp_data_dir)
+    downloader.downloaded_count = 8  # Exactly the threshold
+    downloader.failed_count = 0
+    
+    with caplog.at_level(logging.WARNING):
+        result = run_validation_check(downloader)
+        
+        # Assert the function returns True (8 is not < 8)
+        assert result is True
+        
+        # Assert no warning about low count
+        assert "Warning: valid_count < 8" not in caplog.text
+        assert "meets threshold" in caplog.text

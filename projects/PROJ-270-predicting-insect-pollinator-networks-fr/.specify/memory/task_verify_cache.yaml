@@ -23,12 +23,11 @@ T022:
     it is invoked where appropriate.
 T027:
   c: false
-  h: 461f67a8bdca755a692a3728184a88031e507ec61c10ecf5c19a8d70b891f2f0
-  r: "The repository contains `code/model_training.py`, but the shown code (and the\
-    \ rest of the file) does not include any logic that writes cross\u2011validation\
-    \ metrics or feature\u2011importance scores to `results/metrics.json`. Moreover,\
-    \ the `results/metrics.json` file is absent from the project. Consequently, the\
-    \ required logging setup is not implemented."
+  h: c3cfe07128c8518818bfd3a7c2a868ec24a555c9452e6cc5197b75ef6ce48c13
+  r: The repository lacks a `log_cv_metrics()` implementation in `code/model_training.py`
+    (the file ends abruptly and the function is not present), and the required `results/metrics.json`
+    file does not exist at all. Both the code artifact and the output file required
+    by the task are missing.
 T031:
   c: false
   h: 1b53d06ea3ac3e1c6dcdc5a25d68367ccd173158682785ce43684c15d7df810b

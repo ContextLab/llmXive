@@ -4,203 +4,242 @@ from typing import Tuple, Optional, List, Dict, Any
 from utils.logger import get_logger
 from config import get_data_processed
 from pathlib import Path
-import json
+import logging
 
-logger = get_logger(__name__)
+logger = get_logger("preprocessing")
 
-def winsorize_outliers(df: pd.DataFrame, lower_pct: float = 0.01, upper_pct: float = 0.99) -> pd.DataFrame:
+class MissingTemporalMetadataError(Exception):
+    """Raised when temporal metadata is missing and required."""
+    pass
+
+def check_temporal_metadata(metadata: Dict[str, Any]) -> bool:
     """
-    Winsorize outliers in numeric columns of the DataFrame.
-    
-    Args:
-        df: Input DataFrame
-        lower_pct: Lower percentile for winsorization
-        upper_pct: Upper percentile for winsorization
-        
-    Returns:
-        DataFrame with winsorized values
+    Validate presence of start_date and end_date fields in ecosystem metadata.
+    Logs a warning if missing.
     """
-    df_winsorized = df.copy()
+    if 'start_date' not in metadata or 'end_date' not in metadata:
+        logger.warning(f"Missing temporal metadata (start_date/end_date) in ecosystem: {metadata.get('ecosystem_id', 'unknown')}")
+        return False
+    return True
+
+def enforce_temporal_cooccurrence(metadata: Dict[str, Any]) -> None:
+    """
+    If temporal metadata is missing for an ecosystem, raise MissingTemporalMetadataError.
+    This strictly enforces FR-007.
+    """
+    if not check_temporal_metadata(metadata):
+        raise MissingTemporalMetadataError(
+            f"Temporal metadata missing for ecosystem {metadata.get('ecosystem_id', 'unknown')}. "
+            "Cannot proceed with temporal co-occurrence enforcement."
+        )
+
+def generate_negative_samples(
+    interactions: pd.DataFrame,
+    cooccurrence_matrix: pd.DataFrame,
+    temporal_valid_mask: pd.Series
+) -> pd.DataFrame:
+    """
+    Generate negative samples (unobserved links) based on Cartesian product of
+    plant and pollinator species in the ecosystem, excluding observed links,
+    filtered by temporal co-occurrence.
+    """
+    plants = interactions['plant_species'].unique()
+    pollinators = interactions['pollinator_species'].unique()
+
+    # Create all possible pairs
+    all_pairs = pd.DataFrame([
+        {'plant_species': p, 'pollinator_species': po}
+        for p in plants for po in pollinators
+    ])
+
+    # Filter by temporal co-occurrence mask (assuming index alignment)
+    # This assumes cooccurrence_matrix index aligns with the pair generation
+    if temporal_valid_mask is not None:
+        valid_pairs_mask = temporal_valid_mask
+        all_pairs = all_pairs.loc[valid_pairs_mask]
+
+    # Remove observed links
+    observed_keys = set(
+        zip(interactions['plant_species'], interactions['pollinator_species'])
+    )
+    negative_samples = all_pairs[
+        ~all_pairs.apply(lambda row: (row['plant_species'], row['pollinator_species']) in observed_keys, axis=1)
+    ]
+    negative_samples['link_label'] = 0
+    return negative_samples
+
+def validate_negative_samples(negative_samples: pd.DataFrame, cooccurrence_matrix: pd.DataFrame) -> bool:
+    """
+    Assert all negative pairs exist in the co-occurrence matrix derived from T014
+    and satisfy the temporal constraint.
+    """
+    # Check if all negative pairs are in the cooccurrence matrix
+    # Assuming cooccurrence matrix index is (plant, pollinator) or similar structure
+    # Simplified check: ensure no negative pair violates co-occurrence
+    for idx, row in negative_samples.iterrows():
+        # Logic depends on specific cooccurrence structure; assuming boolean check
+        if not cooccurrence_matrix.loc[(row['plant_species'], row['pollinator_species']), 'valid']:
+            logger.error(f"Negative sample {row['plant_species']}-{row['pollinator_species']} violates co-occurrence.")
+            return False
+    return True
+
+def median_imputation(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply median imputation to all continuous columns in feature_matrix.
+    """
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    
     for col in numeric_cols:
-        lower_bound = df[col].quantile(lower_pct)
-        upper_bound = df[col].quantile(upper_pct)
-        df_winsorized[col] = df[col].clip(lower=lower_bound, upper=upper_bound)
-        
-    return df_winsorized
+        median_val = df[col].median()
+        df[col] = df[col].fillna(median_val)
+    return df
 
-def z_score_normalize(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Tuple[float, float]]]:
+def flag_missingness(df: pd.DataFrame, threshold: float = 0.15) -> pd.DataFrame:
     """
-    Apply Z-score normalization to numeric columns.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Tuple of (normalized DataFrame, dict of (mean, std) for each column)
+    Flag ecosystem if missingness > 15% and log warning.
     """
-    df_normalized = df.copy()
-    stats = {}
+    missing_ratio = df.isnull().sum() / len(df)
+    high_missing_cols = missing_ratio[missing_ratio > threshold]
+    if not high_missing_cols.empty:
+        logger.warning(f"High missingness detected (>15%) in columns: {list(high_missing_cols.index)}")
+    return df
+
+def winsorize_outliers(df: pd.DataFrame, lower_percentile: float = 1, upper_percentile: float = 99) -> pd.DataFrame:
+    """
+    Winsorize continuous columns at extreme percentiles.
+    """
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    
+    for col in numeric_cols:
+        lower = df[col].quantile(lower_percentile / 100)
+        upper = df[col].quantile(upper_percentile / 100)
+        df[col] = df[col].clip(lower=lower, upper=upper)
+    return df
+
+def z_score_normalize(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply z-score normalization to continuous columns after winsorization.
+    """
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     for col in numeric_cols:
         mean = df[col].mean()
         std = df[col].std()
-        if std == 0:
-            std = 1.0  # Avoid division by zero
-        stats[col] = (mean, std)
-        df_normalized[col] = (df[col] - mean) / std
-        
-    return df_normalized, stats
-
-def encode_categorical_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, List[str]]]:
-    """
-    One-hot encode categorical features without data leakage.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Tuple of (encoded DataFrame, dict of original categories per column)
-    """
-    df_encoded = df.copy()
-    category_map = {}
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns
-    
-    for col in categorical_cols:
-        # Store categories for potential inverse transform or validation
-        categories = df[col].unique().tolist()
-        category_map[col] = categories
-        
-        # One-hot encode
-        dummies = pd.get_dummies(df[col], prefix=col, drop_first=False)
-        df_encoded = df_encoded.drop(columns=[col])
-        df_encoded = pd.concat([df_encoded, dummies], axis=1)
-        
-    return df_encoded, category_map
-
-def extract_sampling_effort(df: pd.DataFrame, effort_col: Optional[str] = 'sampling_effort') -> pd.DataFrame:
-    """
-    Extract and handle sampling effort metadata.
-    
-    Args:
-        df: Input DataFrame
-        effort_col: Name of the sampling effort column
-        
-    Returns:
-        DataFrame with sampling effort as a feature
-    """
-    if effort_col and effort_col in df.columns:
-        df['sampling_effort'] = df[effort_col].fillna(0)
-        df = df.drop(columns=[effort_col])
-    else:
-        # If no sampling effort column, create a default (e.g., 1.0 for all)
-        logger.warning(f"Sampling effort column '{effort_col}' not found. Using default value.")
-        df['sampling_effort'] = 1.0
-        
+        if std > 0:
+            df[col] = (df[col] - mean) / std
+        else:
+            df[col] = 0.0
     return df
 
-def build_feature_matrix(interactions_df: pd.DataFrame, traits_df: pd.DataFrame, 
-                         ecosystem_id: str) -> pd.DataFrame:
+def one_hot_encode(df: pd.DataFrame, columns: List[str], drop_unknown: bool = True) -> pd.DataFrame:
     """
-    Build unified feature matrix from interactions and trait data.
-    
-    Args:
-        interactions_df: DataFrame with interaction data (plant, pollinator, ecosystem)
-        traits_df: DataFrame with trait data for species
-        ecosystem_id: Identifier for the current ecosystem
-        
-    Returns:
-        Feature matrix with rows as plant-pollinator pairs and columns as traits + label
+    One-hot encode categorical columns.
     """
-    logger.info(f"Building feature matrix for ecosystem: {ecosystem_id}")
-    
-    # Merge interactions with plant traits
-    merged = interactions_df.merge(traits_df, left_on='plant_species', right_on='species_id', how='left', suffixes=('_plant', '_pollinator'))
-    
-    # Merge with pollinator traits (assuming same traits_df structure)
-    # This might need adjustment based on actual data structure
-    # For now, we assume traits_df has both plant and pollinator traits
-    
-    # Create feature columns
-    feature_cols = [col for col in merged.columns if col not in ['plant_species', 'pollinator_species', 'ecosystem_id']]
-    
-    feature_matrix = merged[feature_cols].copy()
-    
-    # Ensure label column exists
-    if 'label' not in feature_matrix.columns:
-        feature_matrix['label'] = 1  # Positive samples from interactions
-        
-    return feature_matrix
+    if not columns:
+        return df
+    encoded = pd.get_dummies(df, columns=columns, drop_first=True, dummy_na=not drop_unknown)
+    return encoded
 
-def save_feature_matrix(feature_matrix: pd.DataFrame, output_path: Path) -> None:
+def extract_sampling_effort(df: pd.DataFrame, effort_col: str = 'sampling_effort') -> pd.DataFrame:
     """
-    Save feature matrix to disk.
-    
-    Args:
-        feature_matrix: DataFrame to save
-        output_path: Path to save the file
+    Extract sampling effort column if present, otherwise create a default/normalized column.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    feature_matrix.to_csv(output_path, index=False)
-    logger.info(f"Feature matrix saved to {output_path}")
+    if effort_col not in df.columns:
+        logger.warning(f"Column '{effort_col}' not found. Creating default effort column.")
+        df[effort_col] = 1.0
+    return df
 
-def validate_ecosystem_count(valid_count: int, min_threshold: int = 8) -> bool:
+def assemble_feature_matrix(
+    interactions: pd.DataFrame,
+    traits: pd.DataFrame,
+    effort_col: str = 'sampling_effort'
+) -> pd.DataFrame:
     """
-    Validate the count of valid ecosystems against a minimum threshold.
-    
-    Args:
-        valid_count: Number of valid ecosystems retrieved
-        min_threshold: Minimum required count (default 8)
-        
-    Returns:
-        True if count meets threshold, False otherwise
-        
-    Note:
-        This function logs a warning if count is below threshold but does NOT
-        raise SystemExit. It allows the pipeline to proceed with reduced data.
+    Assemble feature matrix: Rows: plant-pollinator pairs;
+    Columns: [trait_1,..., trait_n, sampling_effort, link_label].
     """
-    if valid_count < min_threshold:
-        logger.warning(
-            f"Valid ecosystem count ({valid_count}) is below the recommended threshold "
-            f"({min_threshold}). Proceeding with available data, but results may be limited."
-        )
-        return False
+    # Merge traits with interactions
+    # Assuming traits has 'species' column matching both plant and pollinator
+    # This is a simplified merge logic; real implementation might need more complex joining
+    df_plants = traits.rename(columns={'species': 'plant_species'})
+    df_pollinators = traits.rename(columns={'species': 'pollinator_species'})
+
+    merged = interactions.merge(df_plants, on='plant_species', how='left')
+    merged = merged.merge(df_pollinators, on='pollinator_species', how='left', suffixes=('_plant', '_pollinator'))
+
+    # Combine trait columns (simplified: just take plant traits + pollinator traits)
+    # In reality, one might average or concatenate specific trait vectors
+    trait_cols = [c for c in merged.columns if c.startswith('trait_')]
+    for col in trait_cols:
+        if f"{col}_plant" in merged.columns and f"{col}_pollinator" in merged.columns:
+            merged[col] = merged[f"{col}_plant"].fillna(0) + merged[f"{col}_pollinator"].fillna(0)
+            merged.drop(columns=[f"{col}_plant", f"{col}_pollinator"], inplace=True)
+
+    # Ensure effort column exists
+    merged = extract_sampling_effort(merged, effort_col)
+
+    # Add link label (1 for observed)
+    merged['link_label'] = 1
+
+    return merged
+
+def exclude_species_ids(df: pd.DataFrame, id_columns: Optional[List[str]] = None) -> pd.DataFrame:
+    """
+    Ensure no species/ID columns remain in the final feature matrix.
+    Removes columns like 'plant_species', 'pollinator_species', or any column
+    containing 'species', 'id', or 'taxon' in the name if not explicitly kept.
+    """
+    if id_columns is None:
+        # Common species/ID column patterns to exclude
+        patterns = ['species', 'id', 'taxon', 'plant_species', 'pollinator_species']
+        cols_to_drop = [col for col in df.columns if any(p in col.lower() for p in patterns)]
     else:
-        logger.info(f"Valid ecosystem count ({valid_count}) meets the threshold ({min_threshold}).")
+        cols_to_drop = [col for col in id_columns if col in df.columns]
+
+    if cols_to_drop:
+        logger.info(f"Dropping species/ID columns: {cols_to_drop}")
+        df = df.drop(columns=cols_to_drop)
+
+    return df
+
+def save_feature_matrix(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the feature matrix to CSV.
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Feature matrix saved to {output_file}")
+
+def process_in_chunks(
+    input_path: str,
+    output_path: str,
+    chunk_size: int = 10000,
+    process_func: Optional[callable] = None
+) -> None:
+    """
+    Read CSV in chunks, process, and append to final dataframe.
+    """
+    if process_func is None:
+        process_func = lambda x: x
+
+    first_chunk = True
+    for chunk in pd.read_csv(input_path, chunksize=chunk_size):
+        processed_chunk = process_func(chunk)
+        if first_chunk:
+            processed_chunk.to_csv(output_path, index=False)
+            first_chunk = False
+        else:
+            processed_chunk.to_csv(output_path, mode='a', header=False, index=False)
+
+def validate_ecosystem_count(count: int, min_threshold: int = 8) -> bool:
+    """
+    Validate ecosystem count. If < min_threshold, log warning and return True (proceed).
+    """
+    if count < min_threshold:
+        logger.warning(f"Warning: valid_count ({count}) < {min_threshold}. Proceeding with reduced sample size.")
         return True
+    return True
 
-def run_validation_check(ingestion_output_path: str = "data/processed/ingestion_summary.json") -> int:
+def run_validation_check(ecosystem_count: int) -> None:
     """
-    Run validation check on ingestion output to verify ecosystem count.
-    
-    Args:
-        ingestion_output_path: Path to the ingestion summary file
-        
-    Returns:
-        Number of valid ecosystems found
+    Wrapper to run validation check and log results.
     """
-    try:
-        with open(ingestion_output_path, 'r') as f:
-            summary = json.load(f)
-        
-        valid_count = summary.get('valid_ecosystem_count', 0)
-        validate_ecosystem_count(valid_count)
-        return valid_count
-        
-    except FileNotFoundError:
-        logger.error(f"Ingestion summary file not found: {ingestion_output_path}")
-        raise
-    except json.JSONDecodeError:
-        logger.error(f"Invalid JSON in ingestion summary file: {ingestion_output_path}")
-        raise
-
-if __name__ == "__main__":
-    # Example usage for testing
-    import sys
-    if len(sys.argv) > 1:
-        count = run_validation_check(sys.argv[1])
-        print(f"Valid ecosystem count: {count}")
-    else:
-        print("Usage: python preprocessing.py <path_to_ingestion_summary.json>")
+    validate_ecosystem_count(ecosystem_count)
