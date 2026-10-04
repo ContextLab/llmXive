@@ -1,5 +1,6 @@
 """
-llmXive research-implementer agent system prompt
+llmXive Research Pipeline: Source Package.
 
-Top-level package initialization for the network structure heat conduction study.
+This package contains the core implementation modules for investigating
+the influence of network structure on heat conduction in amorphous solids.
 """

@@ -1,9 +1,2 @@
-"""
-Service layer for data processing, analysis, and pipeline orchestration.
-
-This module aggregates service classes for:
-    - Data loading and verification
-    - Topology extraction
-    - VDOS calculation
-    - Statistical analysis
-"""
+# llmXive Project - Services Package
+# Contains core business logic and data processing services.

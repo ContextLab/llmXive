@@ -31,7 +31,7 @@
 **Independent Test**: The system can take the output of User Story 1 (network topology) and a velocity dump, compute the VDOS, and output a scalar value representing the "density of localized modes" for that specific simulation box.
 
 **Acceptance Scenarios**:
-1. **Given** a velocity dump file and a corresponding network topology, **When** the VDOS is calculated, **Then** the resulting spectrum shows a non-zero density in the low-frequency range (acoustic modes) and a distinct peak in the high-frequency range (10.0–15.0 THz) consistent with the reference dataset (Materials Cloud ID: aSi-VDOS-Ref).
+1. **Given** a velocity dump file and a corresponding network topology, **When** the VDOS is calculated, **Then** the resulting spectrum shows a non-zero density in the low-frequency range (acoustic modes) and a distinct peak in the high-frequency range (–15.0 THz) consistent with the reference dataset (Materials Cloud ID: aSi-VDOS-Ref).
 2. **Given** a simulation box with a known cluster of under-coordinated atoms (coordination < 3), **When** the bottleneck density is calculated, **Then** the system flags this region. The system MUST also perform a sensitivity analysis by sweeping the under-coordination threshold by ±0.5 and report the stability of the bottleneck density metric (coefficient of variation < 0.1).
 3. **Given** a system where all atoms are perfectly coordinated, **When** the localized mode density is calculated, **Then** the participation ratio indicates a lower density of localized modes compared to a disordered system of the same size.
 
@@ -46,7 +46,7 @@
 **Independent Test**: The system can ingest three datasets with distinct system sizes and pre-computed topology, run the correlation analysis, and output a summary table showing the correlation coefficient, p-value, and 95% confidence interval for each dataset.
 
 **Acceptance Scenarios**:
-1. **Given** three datasets of varying sizes (e.g., 1000, 2000, 4000 atoms) with known thermal conductivities from independent sources, **When** the correlation analysis is run, **Then** the system outputs the Spearman correlation coefficient and a 95% confidence interval derived from 1000 bootstrap iterations. The system verifies the calculation accuracy by comparing the output to a manual calculation (|output - manual| < 1e-6).
+1. **Given** three datasets of varying sizes (e.g., 1000, 2000, 4000 atoms) with known thermal conductivities from independent sources, **When** the correlation analysis is run, **Then** the system outputs the Spearman correlation coefficient and a confidence interval derived from bootstrap iterations. The system verifies the calculation accuracy by comparing the output to a manual calculation (|output - manual| < 1e-6).
 2. **Given** a dataset where the topological metrics are randomized, **When** the correlation is run, **Then** the system reports a correlation coefficient near 0 (|r| < 0.1) and a p-value > 0.5, confirming the signal is not random.
 3. **Given** a scenario where the sample size is insufficient for standard significance testing, **When** the analysis runs, **Then** the system flags a "Low Power" warning and reports the calculated statistical power (or notes it as a limitation) but does not fail the test.
 

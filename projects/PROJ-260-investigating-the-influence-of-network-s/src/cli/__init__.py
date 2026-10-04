@@ -1,7 +1,5 @@
 """
-Command-line interface modules for the research pipeline.
+CLI Package.
 
-Provides CLI entry points for running the full pipeline or specific stages.
+Contains command-line interface entry points and argument parsing utilities.
 """
-# CLI entry points will be defined in main.py
-pass

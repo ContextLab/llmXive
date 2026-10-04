@@ -1,10 +1,10 @@
 """
-Data models for the amorphous solids heat conduction simulation.
+Models Package.
 
-Exports:
-    SimulationBox: Data class for atomic positions, velocities, metadata.
-    BondNetwork: Graph representation of atomic bonds.
-    VibrationalSpectrum: Data class for VDOS and participation ratios.
+Contains data classes and graph representations for atomic simulations:
+- SimulationBox: Atomic positions, velocities, and metadata.
+- BondNetwork: Graph representation of atomic bonds.
+- VibrationalSpectrum: VDOS and participation ratio data.
 """
 from src.models.simulation_box import SimulationBox
 from src.models.bond_network import BondNetwork

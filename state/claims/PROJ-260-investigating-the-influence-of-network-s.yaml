@@ -238,24 +238,6 @@
   updated_at: '2026-08-29T23:57:09Z'
 - artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
   attempts: 1
-  canonical: verify runtime less than or equal to 30 minutes on 4000 atom system
-  claim_id: c_0c5509ad
-  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
-    \ (Verifies \u226430 mins on 4000-atom system)"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_30_minutes_on_4000_atom
-  kind: magnitude
-  raw_text: "Verify \u226430 mins on 4000-atom system"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-29T23:57:40Z'
-- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
-  attempts: 1
   canonical: verify low power warning triggers when statistical power is less than
     0.8
   claim_id: c_91dc4c31
@@ -3613,3 +3595,884 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T20:39:40Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: Bootstrap analysis requires exactly 1000 iterations
+  claim_id: c_bc5bbc68
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:04:14Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Fetch amorphous silicon datasets for N=1000, N=2000, and N=4000 from
+    Zenodo IDs zenodo-1234567, zenodo-7654321, and zenodo-9876543
+  claim_id: c_3900a9bb
+  context: 'Dataset IDs: Fetch datasets using specific IDs: zenodo-1234567 (N=1000),
+    zenodo-7654321 (N=2000), zenodo-9876543 (N=4000). These IDs must be hardcoded
+    in the task or derived from a verified config, not a missing research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch datasets using specific IDs: zenodo-1234567 (N=1000), zenodo-7654321
+    (N=2000), zenodo-9876543 (N=4000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:05:07Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Halting condition: fewer than 30 realizations per system size'
+  claim_id: c_c3682940
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
+    with a fatal error. The pipeline must not proceed with statistically invalid data
+    (N<30).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halting_condition:_fewer_than_30_realizations_per_system_siz
+  kind: magnitude
+  raw_text: If the count of realizations per size is < 30, HALT with a fatal error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:05:55Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning threshold set to 0.8
+  claim_id: c_82951f98
+  context: Add 'Low Power' warning logic if power < 0.8 (SC-002) ... Flag 'Low Power'
+    if < 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_threshold_set_to_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if statistical power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:06:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime threshold of 30 minutes on 4-core CPU
+  claim_id: c_c38f25c3
+  context: "Performance Note (SC-005): The implementation of T041 (1000 bootstrap\
+    \ iterations on N\u226530 samples) MUST include performance optimizations (e.g.,\
+    \ vectorization, parallel processing) to ensure the full pipeline completes within\
+    \ the 30-minute runtime threshold on a 4-core CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the full pipeline completes within 30 minutes on a 4-core
+    CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:06:48Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Spectral anomaly flag condition: peak height < 5% of global maximum
+    and imperfect coordination'
+  claim_id: c_ffa7f80e
+  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
+    AND (system is NOT perfectly coordinated).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spectral_anomaly_flag_condition:_peak_height_%3C_5%25_of_global_
+  kind: magnitude
+  raw_text: Flag spectral anomaly only if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:07:45Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep range of plus or minus 0.5
+  claim_id: c_f91c9e3c
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate bottleneck density stability with a threshold sweep of \xB1\
+    0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:08:38Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling accuracy tolerance of 1e-6
+  claim_id: c_bbbf40ec
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_accuracy_tolerance_of_1e-6
+  kind: magnitude
+  raw_text: Verify that the difference between output and manual calculation is less
+    than 1e-6 for bootstrap resampling tests.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:12:20Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Analysis performed across system sizes N=1000, N=2000, and N=4000
+  claim_id: c_1219d3ac
+  context: Implement loop to ingest data for three distinct system sizes (N=1000,
+    2000, 4000) and aggregate power metrics (FR-006, Plan Scale/Scope)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Process three distinct system sizes: N=1000, 2000, and 4000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:12:49Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: Bootstrap analysis uses exactly 1000 iterations
+  claim_id: c_bd41e31b
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:13:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Datasets with N=1000, N=2000, and N=4000 retrieved via Zenodo IDs 1234567,
+    7654321, and 9876543
+  claim_id: c_5552dcbc
+  context: 'Implement src/services/data_loader.py to fetch real amorphous silicon
+    trajectories. Dataset IDs: Fetch datasets using specific IDs: zenodo-1234567 (N=1000),
+    zenodo-7654321 (N=2000), zenodo-9876543 (N=4000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch datasets using specific IDs: zenodo-1234567 (N=1000), zenodo-7654321
+    (N=2000), zenodo-9876543 (N=4000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:13:30Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if realizations per system size is less than 30
+  claim_id: c_206efa9b
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
+    with a fatal error. The pipeline must not proceed with statistically invalid data
+    (N<30).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_realizations_per_system_size_is_less_than
+  kind: magnitude
+  raw_text: The pipeline must not proceed with statistically invalid data (N<30).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:14:04Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning triggered when statistical power < 0.8
+  claim_id: c_5619151f
+  context: Flag 'Low Power' if < 0.8.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggered_when_statistical_power_%3C_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if statistical power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:14:05Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Bootstrap CI calculation accuracy verified with error margin less than
+    1e-6
+  claim_id: c_f835669a
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_CI_calculation_accuracy_verified_with_error_margin
+  kind: magnitude
+  raw_text: Verify absolute difference between output and manual calculation is less
+    than 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:14:45Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: "Bottleneck density stability verified with threshold sweep of \xB10.5"
+  claim_id: c_143dbcdf
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify bottleneck density stability with threshold sweep \xB10.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:15:17Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Spectral anomaly flagged if high-freq peak height < 5% of global maximum
+    in non-perfectly-coordinated systems
+  claim_id: c_e0b3369a
+  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
+    AND (system is NOT perfectly coordinated).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spectral_anomaly_flagged_if_high-freq_peak_height_%3C_5%25_of_gl
+  kind: magnitude
+  raw_text: Flag as 'Spectral Anomaly' only if peak height is less than 5% of global
+    maximum and system is not perfectly coordinated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:15:20Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime threshold is 30 minutes for 4000-atom systems
+  claim_id: c_a4b810e0
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline completes within 30 minutes on a 4000-atom system.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:15:54Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Data validation requires existence of N=1000, N=2000, and N=4000 system
+    sizes
+  claim_id: c_e7b94b10
+  context: 'Validation: MUST verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validate that data exists for three required system sizes: N=1000, 2000,
+    and 4000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:16:19Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: Execute 1000 bootstrap iterations for confidence interval estimation
+  claim_id: c_03488a96
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:17:02Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Fetch datasets with IDs zenodo-1234567, zenodo-7654321, zenodo-9876543
+    for system sizes 1000, 2000, 4000
+  claim_id: c_26123242
+  context: 'Dataset IDs: Fetch datasets using specific IDs: zenodo-1234567 (N=1000),
+    zenodo-7654321 (N=2000), zenodo-9876543 (N=4000). These IDs must be hardcoded
+    in the task or derived from a verified config, not a missing research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch datasets using specific IDs: zenodo-1234567 (N=1000), zenodo-7654321
+    (N=2000), zenodo-9876543 (N=4000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:05Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if realizations per size are less than 30
+  claim_id: c_e3759982
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
+    with a fatal error. The pipeline must not proceed with statistically invalid data
+    (N<30).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_realizations_per_size_are_less_than_30
+  kind: magnitude
+  raw_text: The pipeline must not proceed with statistically invalid data (N<30).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:07Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify existence of data for system sizes 1000, 2000, and 4000
+  claim_id: c_a3d0a4cf
+  context: 'Validation: MUST verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000). If any size is missing, HALT with a fatal error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data exists for all three required system sizes (N=1000, 2000,
+    4000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Flag low power if statistical power is less than 0.8
+  claim_id: c_00bea537
+  context: 'Add ''Low Power'' warning logic if power < 0.8 (SC-002). Note: This is
+    a warning log, not a halt, as the calculation is valid but underpowered.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_power_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if statistical power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:29Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify bottleneck density stability with threshold sweep of plus or minus
+    0.5
+  claim_id: c_e4eedb00
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify bottleneck density stability with threshold sweep \xB10.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:30Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify bootstrap resampling accuracy with absolute difference less than
+    1e-6
+  claim_id: c_4298f6f5
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_bootstrap_resampling_accuracy_with_absolute_differenc
+  kind: magnitude
+  raw_text: Verify that |output - manual| < 1e-6 for bootstrap resampling accuracy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:17:54Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Flag spectral anomaly if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated
+  claim_id: c_2a68ae56
+  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
+    AND (system is NOT perfectly coordinated).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Flag_spectral_anomaly_if_peak_height_is_less_than_5%25_of_glob
+  kind: magnitude
+  raw_text: Flag as 'Spectral Anomaly' only if peak height is less than 5% of global
+    maximum and system is not perfectly coordinated.
+  resolved_value: Flag spectral anomaly if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:17:57Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify runtime is less than or equal to 30 minutes on 4000-atom system
+  claim_id: c_6d4288bf
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_is_less_than_or_equal_to_30_minutes_on_4000-a
+  kind: magnitude
+  raw_text: "Verify runtime threshold of \u226430 mins on 4000-atom system."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:18:17Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: 1000 bootstrap iterations for confidence interval estimation
+  claim_id: c_1a29002b
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:20:07Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: Flag spectral anomaly if peak height < 5% of global maximum and system
+    not perfectly coordinated
+  claim_id: c_ff622084
+  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
+    AND (system is NOT perfectly coordinated).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Flag_spectral_anomaly_if_peak_height_is_less_than_5%25_of_glob
+  kind: magnitude
+  raw_text: Flag spectral anomaly only if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated
+  resolved_value: Flag spectral anomaly if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:21:16Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Process all available realizations for three distinct system sizes:
+    N=1000, 2000, and 4000'
+  claim_id: c_8dd3a8a4
+  context: Implement loop to ingest data for three distinct system sizes (N=1000,
+    2000, 4000) and aggregate power metrics (FR-006, Plan Scale/Scope). Process all
+    available realizations fetched by T056 for each of the 3 system sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Process all available realizations for three distinct system sizes: N=1000,
+    2000, and 4000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:21:37Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: HALT with fatal error if realizations per size < 30
+  claim_id: c_2585990b
+  context: If available realizations < 30 per size, HALT with a fatal error (no proceed
+    with warning). The pipeline must not proceed with statistically invalid data (N<30).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HALT_with_fatal_error_if_realizations_per_size_%3C_30
+  kind: magnitude
+  raw_text: HALT with a fatal error if the count of realizations per size is less
+    than 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:22:50Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Flag Low Power if statistical power < 0.8
+  claim_id: c_3cbf21bf
+  context: Flag 'Low Power' if < 0.8. This is a warning log, not a halt, as the calculation
+    is valid but underpowered.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Low_Power_if_statistical_power_%3C_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if statistical power is less than 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:22:50Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime <= 30 minutes on 4-core CPU for 4000-atom system
+  claim_id: c_7c8ce174
+  context: "To meet SC-005 (\u226430 mins), the implementation MUST use vectorized\
+    \ operations (numpy/scipy) and parallel processing for independent bootstrap iterations\
+    \ where feasible. Verifies \u226430 mins on 4000-atom system."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must complete within 30 minutes on a 4-core CPU for
+    a 4000-atom system
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:23:11Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Use numpy.float64 for VDOS and RDF calculations
+  claim_id: c_78703e7d
+  context: 'Precision: MUST cast all numerical arrays to numpy.float64 explicitly
+    to satisfy Constitution Principle VI. All VDOS and RDF calculations MUST use numpy.float64
+    (T026).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_numpy.float64_for_VDOS_and_RDF_calculations
+  kind: entity_fact
+  raw_text: The implementation must use numpy.float64 for all numerical arrays in
+    VDOS and RDF calculations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:23:40Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify source trajectory ID distinct from topology extraction trajectory
+  claim_id: c_e6be169e
+  context: 'Strict Independence: MUST implement src/services/independence_validator.py
+    to verify that the source trajectory ID (from T057) is different from the topology
+    extraction trajectory.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_source_trajectory_ID_distinct_from_topology_extractio
+  kind: entity_fact
+  raw_text: Verify that the source trajectory ID is distinct from the topology extraction
+    trajectory
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:24:24Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: execute 1000 bootstrap iterations for confidence interval
+  claim_id: c_9e7261f6
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:25:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: flag spectral anomaly if peak height less than 5% of global maximum
+  claim_id: c_29d477b3
+  context: Flag as Spectral Anomaly only if (peak height < 5% of global maximum) AND
+    (system is NOT perfectly coordinated).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Flag_spectral_anomaly_if_peak_height_is_less_than_5%25_of_glob
+  kind: magnitude
+  raw_text: Flag spectral anomaly only if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated.
+  resolved_value: Flag spectral anomaly if peak height is less than 5% of global maximum
+    and system is not perfectly coordinated
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T21:25:29Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: fetch amorphous silicon datasets zenodo-1234567 N=1000 zenodo-7654321
+    N=2000 zenodo-9876543 N=4000
+  claim_id: c_e4f58348
+  context: 'Dataset IDs: Fetch datasets using specific IDs: zenodo-1234567 (N=1000),
+    zenodo-7654321 (N=2000), zenodo-9876543 (N=4000). These IDs must be hardcoded
+    in the task or derived from a verified config, not a missing research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch datasets using specific IDs: zenodo-1234567 (N=1000), zenodo-7654321
+    (N=2000), zenodo-9876543 (N=4000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:25:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: halt pipeline if realizations per size less than 30
+  claim_id: c_86ee0a2e
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, HALT
+    with a fatal error. The pipeline must not proceed with statistically invalid data
+    (N<30).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_realizations_per_size_less_than_30
+  kind: magnitude
+  raw_text: The pipeline must not proceed with statistically invalid data (N<30).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:25:34Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag low power warning if power less than 0.8
+  claim_id: c_a1ddca6c
+  context: 'Add Low Power warning logic if power < 0.8 (SC-002). Note: This is a warning
+    log, not a halt, as the calculation is valid but underpowered.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_power_warning_if_power_less_than_0.8
+  kind: magnitude
+  raw_text: Flag Low Power warning if statistical power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:26:06Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 2
+  canonical: verify runtime less than or equal to 30 minutes on 4000 atom system
+  claim_id: c_0c5509ad
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_30_minutes_on_4000_atom
+  kind: magnitude
+  raw_text: "Verify \u226430 mins on 4000-atom system"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:26:34Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify r approximately 0 and p greater than 0.5 on randomized metrics
+  claim_id: c_41800b9d
+  context: "Integration test for randomization control in tests/integration/test_randomization_control.py\
+    \ (Verifies r\u22480, p>0.5 on randomized metrics)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_r_approximately_0_and_p_greater_than_0.5_on_randomize
+  kind: magnitude
+  raw_text: Verify correlation coefficient r is approximately 0 and p-value greater
+    than 0.5 on randomized metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:27:39Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify bootstrap CI accuracy absolute difference less than 1e-6
+  claim_id: c_0f1fd33e
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_bootstrap_CI_accuracy_absolute_difference_less_than_1
+  kind: magnitude
+  raw_text: Verify bootstrap CI calculation accuracy with absolute difference between
+    output and manual calculation less than 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:28:02Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: sweep under-coordination threshold plus or minus 0.5
+  claim_id: c_97a139cb
+  context: "Sweep under-coordination threshold (\xB10.5) Calculate bottleneck density\
+    \ (coordination < 3) Report coefficient of variation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep under-coordination threshold by \xB10.5 for sensitivity analysis."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:28:26Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: process three distinct system sizes N=1000 N=2000 N=4000
+  claim_id: c_e1355c08
+  context: Implement loop to ingest data for three distinct system sizes (N=1000,
+    2000, 4000) and aggregate power metrics (FR-006, Plan Scale/Scope)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validate that the system can process three distinct system sizes: N=1000,
+    2000, and 4000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T21:28:50Z'
