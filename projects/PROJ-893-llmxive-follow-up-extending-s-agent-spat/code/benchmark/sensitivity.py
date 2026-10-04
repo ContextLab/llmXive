@@ -1,3 +1,12 @@
+"""
+Sensitivity Analysis for Symbolic vs VLM Benchmarking.
+
+Implements the sensitivity analysis sweep algorithm to evaluate how the
+symbolic solver's performance changes across different accuracy thresholds.
+Generates `data/results/sensitivity_analysis.csv` as the authoritative source
+for sensitivity data (Constitution Principle IV).
+"""
+
 import os
 import sys
 import csv
@@ -5,247 +14,241 @@ import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Import from sibling modules as per API surface
+# Note: We assume benchmark_results.csv exists as produced by T019b-final
+# If not, we handle it gracefully with an error message.
 
-from config import Config
-
-def load_benchmark_results(filepath: str) -> List[Dict[str, Any]]:
+def load_benchmark_results(file_path: str) -> List[Dict[str, Any]]:
     """
     Load benchmark results from a CSV file.
-    
+
     Args:
-        filepath: Path to the benchmark results CSV.
-        
+        file_path: Path to the benchmark results CSV file.
+
     Returns:
-        List of dictionaries representing each row.
-        
+        List of dictionaries containing benchmark results.
+
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+        ValueError: If the file is malformed or missing required columns.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Benchmark results file not found: {filepath}")
-    
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Benchmark results file not found: {file_path}")
+
     results = []
-    required_columns = {'scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 'exact_match', 'f1', 'latency_ms', 'status'}
-    
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        required_columns = {'scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 'exact_match', 'f1', 'latency_ms', 'status', 'p_value'}
         
-        # Verify required columns exist
-        if reader.fieldnames is None:
-            raise ValueError("CSV file is empty or has no header.")
-        
-        missing_cols = required_columns - set(reader.fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing required columns in benchmark results: {missing_cols}")
-        
+        if not required_columns.issubset(set(reader.fieldnames)):
+            missing = required_columns - set(reader.fieldnames)
+            raise ValueError(f"Benchmark results file missing required columns: {missing}")
+
         for row in reader:
             # Convert numeric fields
-            row['exact_match'] = row['exact_match'].lower() == 'true'
-            row['f1'] = float(row['f1'])
-            row['latency_ms'] = float(row['latency_ms'])
+            try:
+                row['exact_match'] = row['exact_match'] == 'True' or row['exact_match'] == 'true' or row['exact_match'] == '1'
+                row['f1'] = float(row['f1'])
+                row['latency_ms'] = float(row['latency_ms'])
+                row['p_value'] = float(row['p_value'])
+            except (ValueError, TypeError) as e:
+                raise ValueError(f"Malformed data in row {row.get('scene_id', 'unknown')}: {e}")
             results.append(row)
-    
+
+    if not results:
+        raise ValueError("Benchmark results file is empty or has no valid data rows.")
+
     return results
 
 def calculate_vlm_baseline_accuracy(results: List[Dict[str, Any]]) -> float:
     """
-    Calculate the overall accuracy of the VLM baseline.
-    
+    Calculate the baseline accuracy of the VLM predictions.
+
     Args:
         results: List of benchmark result dictionaries.
-        
+
     Returns:
-        Accuracy as a float between 0 and 1.
+        Float representing the VLM baseline accuracy (0.0 to 1.0).
     """
     if not results:
         return 0.0
-    
+
     correct = sum(1 for r in results if r['vlm_pred'] == r['ground_truth'])
     return correct / len(results)
 
-def calculate_symbolic_accuracy_at_threshold(
-    results: List[Dict[str, Any]], 
-    threshold: float
-) -> float:
+def calculate_symbolic_accuracy_at_threshold(results: List[Dict[str, Any]], threshold: float) -> float:
     """
-    Calculate symbolic accuracy considering only cases where VLM confidence 
-    (proxied by F1 score) exceeds a threshold.
+    Calculate the symbolic solver's accuracy at a given threshold.
     
-    Note: Since we don't have explicit confidence scores, we use the F1 score
-    from the benchmark results as a proxy for VLM confidence/quality.
+    The threshold is applied to the F1 score. A prediction is considered
+    'successful' if its F1 score is >= threshold.
     
     Args:
         results: List of benchmark result dictionaries.
-        threshold: Minimum F1 score threshold for inclusion.
-        
-    Returns:
-        Symbolic accuracy for filtered results, or 0.0 if no results match threshold.
-    """
-    filtered = [r for r in results if r['f1'] >= threshold]
-    
-    if not filtered:
-        return 0.0
-    
-    correct = sum(1 for r in filtered if r['symbolic_pred'] == r['ground_truth'])
-    return correct / len(filtered)
+        threshold: Accuracy threshold (0.0 to 1.0).
 
-def calculate_false_positive_rate(
-    results: List[Dict[str, Any]], 
-    threshold: float
-) -> float:
-    """
-    Calculate the false positive rate of the symbolic solver at a given threshold.
-    
-    A false positive is defined as: VLM is correct (F1 >= threshold) but 
-    Symbolic is incorrect.
-    
-    Args:
-        results: List of benchmark result dictionaries.
-        threshold: Minimum F1 score threshold for VLM correctness.
-        
     Returns:
-        False positive rate as a float between 0 and 1.
+        Float representing the symbolic solver's success rate at the threshold.
     """
-    filtered = [r for r in results if r['f1'] >= threshold]
-    
-    if not filtered:
+    if not results:
         return 0.0
-    
-    false_positives = sum(
-        1 for r in filtered 
-        if r['vlm_pred'] == r['ground_truth'] and r['symbolic_pred'] != r['ground_truth']
-    )
-    
-    return false_positives / len(filtered)
 
-def run_sensitivity_analysis(
-    results: List[Dict[str, Any]], 
-    min_threshold: float = 0.50, 
-    max_threshold: float = 0.95, 
-    step: float = 0.05
-) -> List[Dict[str, Any]]:
+    # Filter results where the symbolic solver's F1 score meets the threshold
+    # We consider a prediction successful if F1 >= threshold
+    successful = sum(1 for r in results if r['f1'] >= threshold)
+    return successful / len(results)
+
+def calculate_false_positive_rate(results: List[Dict[str, Any]], threshold: float) -> float:
     """
-    Run sensitivity analysis by sweeping the accuracy threshold.
+    Calculate the false positive rate at a given threshold.
+    
+    A false positive is defined as a case where the symbolic solver's F1 score
+    meets the threshold (>= threshold), but the prediction is incorrect
+    (symbolic_pred != ground_truth).
     
     Args:
         results: List of benchmark result dictionaries.
-        min_threshold: Minimum threshold value.
-        max_threshold: Maximum threshold value.
-        step: Step size for the sweep.
-        
+        threshold: Accuracy threshold (0.0 to 1.0).
+
+    Returns:
+        Float representing the false positive rate (0.0 to 1.0).
+    """
+    if not results:
+        return 0.0
+
+    # Count cases where F1 >= threshold (predicted positive)
+    predicted_positive = sum(1 for r in results if r['f1'] >= threshold)
+    
+    if predicted_positive == 0:
+        return 0.0
+
+    # Count cases where F1 >= threshold AND prediction is wrong (false positive)
+    false_positives = sum(1 for r in results if r['f1'] >= threshold and r['symbolic_pred'] != r['ground_truth'])
+    
+    return false_positives / predicted_positive
+
+def run_sensitivity_analysis(results: List[Dict[str, Any]], start: float = 0.50, end: float = 0.95, step: float = 0.05) -> List[Dict[str, float]]:
+    """
+    Run the sensitivity analysis sweep algorithm.
+
+    Sweeps the accuracy threshold from `start` to `end` (inclusive) with `step` size.
+    Calculates success_rate and false_positive_rate for each threshold.
+
+    Args:
+        results: List of benchmark result dictionaries.
+        start: Starting threshold value (default 0.50).
+        end: Ending threshold value (default 0.95).
+        step: Step size for the sweep (default 0.05).
+
     Returns:
         List of dictionaries containing threshold, success_rate, and false_positive_rate.
     """
     analysis_results = []
+    current_threshold = start
     
-    current_threshold = min_threshold
-    while current_threshold <= max_threshold + 1e-9:  # Floating point tolerance
-        success_rate = calculate_symbolic_accuracy_at_threshold(results, current_threshold)
-        fpr = calculate_false_positive_rate(results, current_threshold)
+    # Use a small epsilon for float comparison to ensure 'end' is included
+    epsilon = 1e-9
+    
+    while current_threshold <= end + epsilon:
+        # Clamp to end to avoid floating point drift
+        threshold = min(current_threshold, end)
+        
+        success_rate = calculate_symbolic_accuracy_at_threshold(results, threshold)
+        fpr = calculate_false_positive_rate(results, threshold)
         
         analysis_results.append({
-            'threshold': round(current_threshold, 2),
+            'threshold': round(threshold, 2),
             'success_rate': round(success_rate, 4),
             'false_positive_rate': round(fpr, 4)
         })
         
         current_threshold += step
-    
+
     return analysis_results
 
-def save_sensitivity_analysis(
-    analysis_results: List[Dict[str, Any]], 
-    output_path: str
-) -> None:
+def save_sensitivity_analysis(analysis_results: List[Dict[str, float]], output_path: str) -> None:
     """
     Save sensitivity analysis results to a CSV file.
-    
+
     Args:
-        analysis_results: List of analysis result dictionaries.
-        output_path: Path for the output CSV file.
+        analysis_results: List of dictionaries with analysis data.
+        output_path: Path to the output CSV file.
     """
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
     fieldnames = ['threshold', 'success_rate', 'false_positive_rate']
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    with open(path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(analysis_results)
 
 def main():
-    """Main entry point for sensitivity analysis."""
+    """
+    Main entry point for the sensitivity analysis script.
+    """
     parser = argparse.ArgumentParser(
-        description='Perform sensitivity analysis on benchmark results.'
+        description='Run sensitivity analysis on benchmark results.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
+    
     parser.add_argument(
-        '--input', 
-        type=str, 
+        '--input',
+        type=str,
         default='data/results/benchmark_results.csv',
         help='Path to the benchmark results CSV file.'
     )
+    
     parser.add_argument(
-        '--output', 
-        type=str, 
+        '--output',
+        type=str,
         default='data/results/sensitivity_analysis.csv',
-        help='Path for the output sensitivity analysis CSV file.'
+        help='Path to the output sensitivity analysis CSV file.'
     )
+    
     parser.add_argument(
-        '--min-threshold', 
-        type=float, 
+        '--start',
+        type=float,
         default=0.50,
-        help='Minimum threshold for the sweep (default: 0.50).'
+        help='Starting threshold value for the sweep.'
     )
+    
     parser.add_argument(
-        '--max-threshold', 
-        type=float, 
+        '--end',
+        type=float,
         default=0.95,
-        help='Maximum threshold for the sweep (default: 0.95).'
+        help='Ending threshold value for the sweep.'
     )
+    
     parser.add_argument(
-        '--step', 
-        type=float, 
+        '--step',
+        type=float,
         default=0.05,
-        help='Step size for the sweep (default: 0.05).'
+        help='Step size for the threshold sweep.'
     )
     
     args = parser.parse_args()
     
-    print(f"Loading benchmark results from {args.input}...")
+    print(f"Loading benchmark results from: {args.input}")
     try:
         results = load_benchmark_results(args.input)
         print(f"Loaded {len(results)} benchmark results.")
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        print(f"ERROR: Invalid data format - {e}")
+    except (FileNotFoundError, ValueError) as e:
+        print(f"ERROR: Failed to load benchmark results: {e}")
         sys.exit(1)
     
-    if len(results) == 0:
-        print("ERROR: No benchmark results found to analyze.")
+    print(f"Running sensitivity analysis from {args.start} to {args.end} with step {args.step}...")
+    analysis_results = run_sensitivity_analysis(results, args.start, args.end, args.step)
+    
+    print(f"Saving sensitivity analysis to: {args.output}")
+    try:
+        save_sensitivity_analysis(analysis_results, args.output)
+        print("Sensitivity analysis completed successfully.")
+    except IOError as e:
+        print(f"ERROR: Failed to save sensitivity analysis: {e}")
         sys.exit(1)
-    
-    print(f"Running sensitivity analysis from {args.min_threshold} to {args.max_threshold} with step {args.step}...")
-    analysis_results = run_sensitivity_analysis(
-        results, 
-        args.min_threshold, 
-        args.max_threshold, 
-        args.step
-    )
-    
-    print(f"Saving sensitivity analysis to {args.output}...")
-    save_sensitivity_analysis(analysis_results, args.output)
-    
-    print(f"Sensitivity analysis complete. {len(analysis_results)} thresholds evaluated.")
-    print(f"Output written to: {args.output}")
 
 if __name__ == '__main__':
     main()

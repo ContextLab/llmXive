@@ -1,15 +1,3 @@
-"""
-Merge exclusion logs from data extraction (T006b) and solver execution (T012)
-into a final categorized exclusion log.
-
-This script aggregates:
-1. Exclusions from T006b (data/results/exclusion_log.json) - primarily "MissingData"
-2. Exclusions from T012 (data/derived/solver_failures.json) - categorized by error_type
-
-The final output is written to data/results/exclusion_log.json with a unified
-categorization structure.
-"""
-
 import os
 import sys
 import json
@@ -17,208 +5,157 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Project root handling
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-DATA_DERIVED_DIR = PROJECT_ROOT / "data" / "derived"
+from config import Config
 
-
-def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file and return its contents."""
-    if not file_path.exists():
-        print(f"ERROR: File not found: {file_path}")
-        return None
+def load_json_file(file_path: str) -> Dict[str, Any]:
+    """Load a JSON file and return its contents as a dictionary."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             return json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: File not found: {file_path}")
+        sys.exit(1)
     except json.JSONDecodeError as e:
         print(f"ERROR: Invalid JSON in {file_path}: {e}")
-        return None
-    except Exception as e:
-        print(f"ERROR: Failed to load {file_path}: {e}")
-        return None
+        sys.exit(1)
 
+def save_json_file(file_path: str, data: Dict[str, Any]) -> None:
+    """Save a dictionary to a JSON file."""
+    ensure_directory(file_path)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f"Saved exclusion log to: {file_path}")
 
-def save_json_file(file_path: Path, data: Dict[str, Any]) -> bool:
-    """Save data to a JSON file."""
-    try:
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-        print(f"SUCCESS: Written {file_path}")
-        return True
-    except Exception as e:
-        print(f"ERROR: Failed to write {file_path}: {e}")
-        return False
+def ensure_directory(file_path: str) -> None:
+    """Ensure the directory for a file path exists."""
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-
-def merge_exclusions(
-    extraction_log_path: Path,
-    solver_failures_path: Path,
-    output_path: Path
-) -> bool:
+def merge_exclusions(extraction_log_path: str, solver_failures_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Merge exclusion logs from extraction and solver stages.
-
-    Args:
-        extraction_log_path: Path to T006b output (data/results/exclusion_log.json)
-        solver_failures_path: Path to T012 output (data/derived/solver_failures.json)
-        output_path: Path for the final merged exclusion log
-
-    Returns:
-        True if merge was successful, False otherwise
+    Merge exclusion logs from extraction (T006b) and solver failures (T012-exec).
+    
+    Logic:
+    1. Load extraction log (MissingData exclusions).
+    2. Load solver failures (ConstraintError, GeometricAmbiguity, BatchTimeout, etc.).
+    3. Aggregate counts and IDs by category.
+    4. Calculate totals and summary statistics.
     """
-    # Load extraction exclusions (T006b)
-    extraction_data = load_json_file(extraction_log_path)
-    if extraction_data is None:
-        print("ERROR: Could not load extraction exclusion log. Aborting.")
-        return False
-
-    # Load solver failures (T012)
+    
+    # Load inputs
+    extraction_log = load_json_file(extraction_log_path)
     solver_failures = load_json_file(solver_failures_path)
-    if solver_failures is None:
-        # Solver failures file might be empty or missing if all scenes succeeded
-        # This is acceptable - we proceed with just extraction exclusions
-        print("WARNING: Solver failures file not found or empty. Proceeding with extraction exclusions only.")
-        solver_failures = []
-
-    # Initialize categories
-    categories = {
+    
+    # Initialize merged structure with all possible categories
+    merged_categories = {
         "MissingData": {"count": 0, "ids": []},
         "ConstraintError": {"count": 0, "ids": []},
         "GeometricAmbiguity": {"count": 0, "ids": []},
         "BatchTimeout": {"count": 0, "ids": []},
         "UnexpectedSolverError": {"count": 0, "ids": []}
     }
-
-    # Process extraction exclusions (T006b)
-    # These are primarily "MissingData" but the source file might have categories
-    if "categories" in extraction_data:
-        # Source already has categorized data
-        for category_name, cat_data in extraction_data["categories"].items():
-            if category_name in categories:
-                categories[category_name]["count"] += cat_data.get("count", 0)
-                categories[category_name]["ids"].extend(cat_data.get("ids", []))
-            else:
-                # Unknown category from extraction - treat as MissingData
-                categories["MissingData"]["count"] += cat_data.get("count", 0)
-                categories["MissingData"]["ids"].extend(cat_data.get("ids", []))
-    else:
-        # Fallback: treat all extraction exclusions as MissingData
-        excluded_ids = extraction_data.get("excluded_ids", [])
-        categories["MissingData"]["count"] += len(excluded_ids)
-        categories["MissingData"]["ids"].extend(excluded_ids)
-
-    # Process solver failures (T012)
-    # solver_failures is expected to be a list of dicts with 'scene_id' and 'error_type'
+    
+    total_scenes_processed = extraction_log.get("total_scenes_processed", 0)
+    
+    # 1. Process Extraction Log (MissingData)
+    # The extraction log might have a 'categories' key or flat 'excluded_ids'
+    if "categories" in extraction_log and "MissingData" in extraction_log["categories"]:
+        cat_data = extraction_log["categories"]["MissingData"]
+        merged_categories["MissingData"]["count"] = cat_data.get("count", 0)
+        merged_categories["MissingData"]["ids"] = list(cat_data.get("ids", []))
+    elif "excluded_ids" in extraction_log:
+        # Fallback if structure is flat
+        merged_categories["MissingData"]["count"] = len(extraction_log["excluded_ids"])
+        merged_categories["MissingData"]["ids"] = list(extraction_log["excluded_ids"])
+    
+    # 2. Process Solver Failures
+    # solver_failures is expected to be a list of failure objects or a dict with 'failures'
+    solver_failures_list = []
     if isinstance(solver_failures, list):
-        for failure in solver_failures:
-            scene_id = failure.get("scene_id")
-            error_type = failure.get("error_type")
-
-            if not scene_id:
-                print(f"WARNING: Skipping solver failure without scene_id: {failure}")
-                continue
-
-            # Map error_type to category
-            if error_type in categories:
-                categories[error_type]["count"] += 1
-                categories[error_type]["ids"].append(scene_id)
-            else:
-                # Unknown error type - treat as UnexpectedSolverError
-                categories["UnexpectedSolverError"]["count"] += 1
-                categories["UnexpectedSolverError"]["ids"].append(scene_id)
-    elif isinstance(solver_failures, dict):
-        # Handle case where solver_failures is a dict with 'failures' key
-        failures_list = solver_failures.get("failures", [])
-        if failures_list:
-            for failure in failures_list:
-                scene_id = failure.get("scene_id")
-                error_type = failure.get("error_type")
-
-                if not scene_id:
-                    print(f"WARNING: Skipping solver failure without scene_id: {failure}")
-                    continue
-
-                if error_type in categories:
-                    categories[error_type]["count"] += 1
-                    categories[error_type]["ids"].append(scene_id)
-                else:
-                    categories["UnexpectedSolverError"]["count"] += 1
-                    categories["UnexpectedSolverError"]["ids"].append(scene_id)
-
+        solver_failures_list = solver_failures
+    elif isinstance(solver_failures, dict) and "failures" in solver_failures:
+        solver_failures_list = solver_failures["failures"]
+    
+    for failure in solver_failures_list:
+        error_type = failure.get("error_type", "UnexpectedSolverError")
+        scene_id = failure.get("scene_id")
+        
+        if error_type in merged_categories:
+            merged_categories[error_type]["ids"].append(scene_id)
+        else:
+            # Map unknown errors to UnexpectedSolverError
+            merged_categories["UnexpectedSolverError"]["ids"].append(scene_id)
+    
+    # Update counts based on IDs
+    for cat_key in merged_categories:
+        # Deduplicate IDs just in case
+        unique_ids = list(set(merged_categories[cat_key]["ids"]))
+        merged_categories[cat_key]["ids"] = unique_ids
+        merged_categories[cat_key]["count"] = len(unique_ids)
+    
     # Calculate totals
-    total_excluded = sum(cat["count"] for cat in categories.values())
+    total_excluded = sum(cat["count"] for cat in merged_categories.values())
     all_excluded_ids = []
-    for cat in categories.values():
+    for cat in merged_categories.values():
         all_excluded_ids.extend(cat["ids"])
-
-    # Remove duplicates (though there shouldn't be any between stages)
-    all_excluded_ids = list(set(all_excluded_ids))
-
-    # Build final output structure
-    final_log = {
-        "total_scenes_processed": 1000,  # From T006b sample size
+    
+    # Build summary
+    summary_by_category = {k: v["count"] for k, v in merged_categories.items()}
+    
+    final_output = {
+        "total_scenes_processed": total_scenes_processed,
         "excluded_count": total_excluded,
-        "excluded_ids": sorted(all_excluded_ids),
-        "categories": categories,
+        "excluded_ids": list(set(all_excluded_ids)), # Ensure uniqueness across sources
+        "categories": merged_categories,
         "summary": {
             "total_excluded": total_excluded,
-            "by_category": {
-                cat_name: cat_data["count"]
-                for cat_name, cat_data in categories.items()
-            }
-        },
-        "sources": {
-            "extraction_log": str(extraction_log_path),
-            "solver_failures": str(solver_failures_path),
-            "merged_at": str(Path(__file__).parent)  # Placeholder for timestamp if needed
+            "by_category": summary_by_category
         }
     }
-
-    # Save output
-    return save_json_file(output_path, final_log)
-
+    
+    return final_output
 
 def main():
-    """Main entry point for the merge exclusions script."""
-    parser = argparse.ArgumentParser(
-        description="Merge exclusion logs from extraction and solver stages"
-    )
+    parser = argparse.ArgumentParser(description="Merge exclusion logs from extraction and solver stages.")
     parser.add_argument(
         "--extraction-log",
-        type=Path,
-        default=DATA_RESULTS_DIR / "exclusion_log.json",
-        help="Path to T006b exclusion log (default: data/results/exclusion_log.json)"
+        type=str,
+        default="data/results/exclusion_log.json",
+        help="Path to the extraction log (T006b output)"
     )
     parser.add_argument(
         "--solver-failures",
-        type=Path,
-        default=DATA_DERIVED_DIR / "solver_failures.json",
-        help="Path to T012 solver failures (default: data/derived/solver_failures.json)"
+        type=str,
+        default="data/derived/solver_failures.json",
+        help="Path to the solver failures log (T012-exec output)"
     )
     parser.add_argument(
         "--output",
-        type=Path,
-        default=DATA_RESULTS_DIR / "exclusion_log.json",
-        help="Path for the merged exclusion log (default: data/results/exclusion_log.json)"
+        type=str,
+        default="data/results/exclusion_log.json",
+        help="Path to the merged output exclusion log"
     )
-
+    
     args = parser.parse_args()
-
-    print(f"Loading extraction log from: {args.extraction_log}")
-    print(f"Loading solver failures from: {args.solver_failures}")
-    print(f"Writing merged log to: {args.output}")
-
-    success = merge_exclusions(args.extraction_log, args.solver_failures, args.output)
-
-    if not success:
-        print("ERROR: Merge failed. Check logs above.")
+    
+    # Check input file existence explicitly before processing
+    if not os.path.exists(args.extraction_log):
+        print(f"ERROR: Extraction log not found: {args.extraction_log}")
         sys.exit(1)
-    else:
-        print("SUCCESS: Exclusion logs merged successfully.")
-        sys.exit(0)
-
+    if not os.path.exists(args.solver_failures):
+        print(f"ERROR: Solver failures log not found: {args.solver_failures}")
+        sys.exit(1)
+        
+    print(f"Merging exclusions from:")
+    print(f"  Extraction: {args.extraction_log}")
+    print(f"  Solver: {args.solver_failures}")
+    
+    result = merge_exclusions(args.extraction_log, args.solver_failures, args.output)
+    save_json_file(args.output, result)
+    
+    # Verification print
+    print(f"Merged exclusion log created with {result['excluded_count']} total exclusions.")
+    print(f"Categories: {result['summary']['by_category']}")
 
 if __name__ == "__main__":
     main()

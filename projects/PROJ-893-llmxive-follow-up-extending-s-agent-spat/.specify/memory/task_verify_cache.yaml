@@ -1,3 +1,9 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented in `specs/001-symbolic-spatial-reasoning/`,
+    nor was its content (research question, methodology, and Verified Datasets block)
+    shown. The required artifact is missing, so the task is not satisfied.
 T004:
   c: false
   h: d141df1467d7417e045bf293ece2790bdd5adff15b4e68ec4b3ac0aa34c71a71
@@ -5,21 +11,28 @@ T004:
     typo and the script never writes the computed hashes back to the YAML), and the
     required state file `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
     does not exist at all. Both the implementation and the target artifact are missing/incomplete.
-T006a:
-  c: true
-  h: 5e4a8c79b8eb5dfd7abdf774d3735b6b1a1b25c92e1ab996aa20ccd33444d4b7
-  r: "The repository contains a non\u2011empty `code/data/verify_checksum.py` that\
-    \ implements SHA\u2011256 checksum computation, loads `sampled_manifest.json`,\
-    \ validates its presence and format, and raises errors when the manifest is missing\
-    \ or checksums mismatch, fulfilling the task\u2019s requirements."
+T006c:
+  c: false
+  h: cdc67d1b0eb6afefd9c6d92fa78ec8dc0454a5f4a88f4a04d62d6cb3bcf4d45d
+  r: "The repository contains a partially\u2011written `load_vlm_baseline.py` (truncated\
+    \ and never writes `vlm_baseline.csv`). Moreover, the required input `data/raw/sampled_scenes.jsonl`\
+    \ and the expected output `data/derived/vlm_baseline.csv` are absent. Consequently\
+    \ the task\u2019s specifications are not met."
+T013:
+  c: false
+  h: 3b509115da89861d6fd898b85f1dba79dcb325d310fb55f834d32cb967c6fa31
+  r: The required input `data/derived/solver_failures.json` is absent, so `merge_exclusions.py`
+    cannot perform the merge as specified. Consequently the script cannot be executed
+    to produce the categorized exclusion log, and the implementation is incomplete.
 T017:
   c: false
-  h: 8c5104abe3364ba27a33d568f00a414b29c80e1e993b0a7ac9d6227aedf60009
-  r: "The `code/benchmark/metrics.py` file does not contain a complete implementation\
-    \ that reads `benchmark_results.csv`, builds the contingency table, computes the\
-    \ McNemar p\u2011value and appends it to the CSV; the function is truncated and\
-    \ never writes the result. Moreover, the required `data/results/benchmark_results.csv`\
-    \ file is missing entirely, so the verification step cannot succeed."
+  h: 80a045704744e700c589115bf8f86a39d55eaa7257964fa04dd207b64a6edef8
+  r: "The repository lacks the required input CSV (`data/results/benchmark_results_base.csv`)\
+    \ and the produced output file (`data/results/p_values.jsonl`). Moreover, the\
+    \ `compute_mcnemar_test` function in `code/benchmark/metrics.py` is truncated\
+    \ and does not contain the logic to build the contingency table, compute the p\u2011\
+    value, append it to each row, or write the JSONL file. These essential artifacts\
+    \ and functionality are missing."
 T021:
   c: false
   h: d53224998bc09381189d881406b873bc52c66f69a06686852215d98030fc1a3b
@@ -37,32 +50,16 @@ T026:
     \ test outputs."
 T027:
   c: false
-  h: d6925e1c9207b652c970db26e757f171b7707cbbe092763af4c78bb3e9b2d82a
-  r: The repository lacks the required `data/raw/sampled_scenes.jsonl` and the generated
-    `data/results/vlm_trace_audit.json`. Moreover, `code/validate/vlm_audit.py` is
-    truncated (e.g., undefined `excluded_id` and no code that writes the audit JSON),
-    so it cannot produce the specified output. The task therefore remains unfinished.
-T029:
+  h: 6ce4ebd44dbe1952e8d46acad91bdb709c7f8c4f6e69e071ae9c9b02bb81f244
+  r: The `vlm_audit.py` script exists but the required input file `data/raw/sampled_scenes.jsonl`
+    is missing, causing the audit to fail at runtime, and the expected output `data/results/vlm_trace_audit.json`
+    was not generated. Without these files the script cannot produce the required
+    pass/fail JSON, so the task is not genuinely completed.
+T030:
   c: false
-  h: 9d05a564943c4e4380c1349691edbdec97d02a9aaee5e0e0b7c4cccb6a891af9
-  r: The `dry_run.py` script is truncated and never writes `data/results/dry_run_status.json`;
-    the required `constraints.schema.yaml` file is missing, and the expected output
-    file does not exist. Consequently the validation step is not fully implemented
-    nor does it produce the required status JSON.
-T030a:
-  c: false
-  h: 996c3948e64c248c5bffa4c20605ebd32fbf9ac299d5a36dcbac1632246c7437
-  r: The repository contains `code/benchmark/sensitivity.py`, but the file is truncated
-    and does not show any logic that writes `data/results/sensitivity_analysis.csv`.
-    Moreover, the required output file `data/results/sensitivity_analysis.csv` is
-    absent. Without a complete script that generates the CSV with the required `threshold,
-    verdict` columns, the task is not satisfied.
-T031:
-  c: false
-  h: ca8a0b7f545b8d67314ac89a02231cd8790c237c8985c51c58cf37208a4fa98c
-  r: "The repository contains a `final_report_generator.py` file, but it is truncated\
-    \ and does not show any logic that writes `data/results/final_research_report.md`\
-    \ or includes the required section headers. Moreover, the expected output file\
-    \ `data/results/final_research_report.md` is absent. Consequently, the task\u2019\
-    s core requirement\u2014producing the aggregated final report with the specified\
-    \ headers\u2014is not met."
+  h: 896f61a936852c1c04bd58d5647cd93c5c3b59ce0528028dd1f2a596e82ffa87
+  r: "The repository contains a partially\u2011implemented `code/benchmark/sensitivity.py`\
+    \ (the file ends abruptly and never defines the sweep loop or CSV writing), and\
+    \ the required output file `data/results/sensitivity_analysis.csv` does not exist.\
+    \ Consequently the task\u2019s core deliverable\u2014a CSV with rows for thresholds\
+    \ 0.50\u20110.95 and the specified columns\u2014is missing."

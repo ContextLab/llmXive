@@ -18,20 +18,24 @@ from config import Config
 
 def load_scene_data(input_dir: Path) -> List[Dict[str, Any]]:
     """Load scene data from the expected JSONL file."""
-    # The expected filename based on the failure log and task context
-    raw_file = input_dir / "s_agent_k_subset.jsonl"
+    # The expected filename based on the task context and T006 output
+    raw_file = input_dir / "sampled_scenes.jsonl"
     if not raw_file.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_file}")
+        raise FileNotFoundError(f"Raw data file not found: {raw_file}. Ensure T006 has run successfully.")
     
     scenes = []
     with open(raw_file, 'r', encoding='utf-8') as f:
-        for line in f:
+        for line_num, line in enumerate(f, 1):
             if line.strip():
                 try:
-                    scenes.append(json.loads(line))
+                    scene = json.loads(line)
+                    # Ensure every scene has an ID, generate one if missing based on line
+                    if 'id' not in scene:
+                        scene['id'] = f"line_{line_num}_hash_{hashlib.md5(line.encode()).hexdigest()[:8]}"
+                    scenes.append(scene)
                 except json.JSONDecodeError as e:
                     # Log malformed JSON lines as invalid scenes with a generated ID
-                    scene_id = f"malformed_{hashlib.md5(line.encode()).hexdigest()[:8]}"
+                    scene_id = f"malformed_line_{line_num}_{hashlib.md5(line.encode()).hexdigest()[:8]}"
                     scenes.append({"id": scene_id, "error": str(e)})
     return scenes
 
@@ -47,6 +51,9 @@ def validate_scene_constraints(scene: Dict[str, Any]) -> Tuple[bool, Optional[st
         return False, "Invalid geometry format"
     if not isinstance(scene.get("label"), (int, float)):
         return False, "Invalid label format"
+    # Additional check for empty geometry
+    if not scene.get("geometry"):
+        return False, "Empty geometry"
     return True, None
 
 def extract_constraints(scenes: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -115,6 +122,7 @@ def main():
     
     logger.info(f"Extracted {len(valid_constraints)} valid constraints.")
     logger.info(f"Logged {len(exclusions)} exclusions to {exclusion_log_file}")
+    logger.info(f"Valid sample size n = {len(valid_constraints)}")
 
 if __name__ == "__main__":
     main()

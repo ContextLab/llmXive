@@ -19,6 +19,9 @@ if hasattr(config, 'DATA_RAW'):
     data_raw_path = config.DATA_RAW
 elif hasattr(config, 'DATA_DIR') and hasattr(config, 'DATA_RAW_SUBDIR'):
     data_raw_path = getattr(config, 'DATA_DIR') / getattr(config, 'DATA_RAW_SUBDIR')
+elif hasattr(config, 'DATA_DIR'):
+    # Fallback: assume data_raw is a subdirectory of DATA_DIR
+    data_raw_path = getattr(config, 'DATA_DIR') / 'raw'
 else:
     # Fallback to standard project structure if attributes are missing
     data_raw_path = Path("data/raw")

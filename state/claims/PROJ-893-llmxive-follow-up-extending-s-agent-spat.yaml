@@ -2794,3 +2794,271 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T09:44:45Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset stratification by object_density and scene_complexity
+  claim_id: c_14a0db80
+  context: 'Logic: Must perform a stratified random sample of exactly n=1,000 static
+    multi-view scenes. Algorithm: Attempt pandas.DataFrame.groupby([''object_density'',
+    ''scene_complexity'']).sample(n=..., random_state=SEED).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/S-Agent_dataset_stratification_by_object_density_and_scene_c
+  kind: entity_fact
+  raw_text: The S-Agent dataset is stratified by object_density and scene_complexity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:21Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset sample size of 1,000 scenes
+  claim_id: c_57463546
+  context: 'Logic: Must perform a stratified random sample of exactly n=1,000 static
+    multi-view scenes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the S-Agent dataset is exactly 1,000 static multi-view
+    scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:27Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis range 0.50 to 0.95 step 0.05
+  claim_id: c_a530cb69
+  context: 'Logic: The sweep must explicitly cover a range from 0.50 to 0.95 with
+    a step size of 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep covers a range from 0.50 to 0.95 with a
+    step size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:36Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Solver execution wall-clock time < 6 hours
+  claim_id: c_558a7d77
+  context: 'Success Criterion: Confirm total wall-clock time is < 6 hours by parsing
+    data/results/wall_clock_time.json for the total_duration_seconds value (must be
+    < 21600).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solver_execution_wall-clock_time_%3C_6_hours
+  kind: magnitude
+  raw_text: The solver execution must complete within a total wall-clock time of less
+    than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:43Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Parallel executor workers set to 2
+  claim_id: c_d7aa65fb
+  context: 'Parallelization: Must explicitly set workers=2 to leverage the 2-core
+    CPU constraint of the GitHub Actions runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The parallel executor must be configured with exactly 2 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:51Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Title-token overlap >= 0.7 for citation verification
+  claim_id: c_4e658af4
+  context: "Requirement: Must check title-token-overlap \u2265 0.7. Exit with error\
+    \ if any citation is unreachable or mismatched."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token_overlap_%3E=_0.7_for_citation_verification
+  kind: magnitude
+  raw_text: The title-token overlap for citation verification must be greater than
+    or equal to 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:14:58Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: 'Semantic gap proportion formula: count(VLM_correct AND Symbolic_fail)
+    / count(Symbolic_fail)'
+  claim_id: c_3edcc90b
+  context: 'Logic: Formula = count(VLM_correct AND Symbolic_fail) / count(Symbolic_fail).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_gap_proportion_formula:_count(VLM_correct_AND_Symbo
+  kind: entity_fact
+  raw_text: The semantic gap proportion is calculated as the count of (VLM_correct
+    AND Symbolic_fail) divided by the count of (Symbolic_fail).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:15:05Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: stratified random sample of 1000 static multi-view scenes from S-Agent
+    dataset
+  claim_id: c_847703d2
+  context: 'Logic: Must perform a **stratified random sample** of exactly n=1,000
+    static multi-view scenes. **Algorithm**: Attempt `pandas.DataFrame.groupby([''object_density'',
+    ''scene_complexity'']).sample(n=..., random_state=SEED).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must perform a stratified random sample of exactly n=1,000 static multi-view
+    scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:18:11Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: symbolic solver wall-clock time under 6 hours for 1000 scenes
+  claim_id: c_9afb9c5d
+  context: '**Success Criterion**: Confirm total wall-clock time is < 6 hours by parsing
+    `data/results/wall_clock_time.json` for the `total_duration_seconds` value (must
+    be < 21600). Verify `solver_failures.json` contains no "BatchTimeout" entries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm total wall-clock time is < 6 hours by parsing `data/results/wall_clock_time.json`
+    for the `total_duration_seconds` value (must be < 21600).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:18:12Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis threshold sweep range 0.50 to 0.95 with step 0.05
+  claim_id: c_5194e696
+  context: 'Logic: The sweep must explicitly cover a range from **0.50 to 0.95** with
+    a **step size of 0.05**. **Output**: `data/results/sensitivity_analysis.csv` containing
+    columns `threshold`, `success_rate`, `false_positive_rate`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sweep must explicitly cover a range from 0.50 to 0.95 with a step
+    size of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:18:19Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 0
+  canonical: Exact Match acceptance threshold is 85 percent of VLM baseline
+  claim_id: c_d93403a2
+  context: 'Success Verdict: Must explicitly verify SC-005 (Exact Match score >= 85%
+    of VLM baseline).'
+  evidence:
+    entailment_evidence: Exact Match must be at least 85% of VLM baseline
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exact_Match_must_be_at_least_85%25_of_VLM_baseline
+  kind: magnitude
+  raw_text: The acceptance criteria require an Exact Match score of at least 85% of
+    the VLM baseline.
+  resolved_value: Exact Match must be at least 85% of VLM baseline
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T04:45:36Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: S-Agent dataset size is 300,000 scenes
+  claim_id: c_723520da
+  context: Implement code/data/streaming_loader.py to handle large dataset streaming
+    if the full S-Agent-300K exceeds local disk limits...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The S-Agent dataset contains 300K scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:46:00Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sample size of 1,000 scenes for S-Agent dataset
+  claim_id: c_e7be6f5e
+  context: 'Logic: Must perform a stratified random sample of exactly n=1,000 static
+    multi-view scenes from the full dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study requires a stratified random sample of exactly n=1,000 static
+    multi-view scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:46:16Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis step size is 0.05
+  claim_id: c_869f437b
+  context: 'Logic: The sweep must explicitly cover a range from a lower bound to a
+    high threshold with a step size of 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep algorithm covers a range with a step size
+    of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:46:47Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Primary pass threshold is 0.85
+  claim_id: c_196ea9c0
+  context: 'Note: The is_primary_pass column must be True ONLY for the row where threshold
+    == 0.85 (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary pass point for the sensitivity analysis is at a threshold
+    of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T04:47:24Z'

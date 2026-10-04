@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-893-llmxive-follow-up-extending-s-agent-spat",
+  "tasks": [
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "The provided `code/data/download.py` stops after printing \u201cPerforming stratified random sample \u2026\u201d and does not contain the sampling, file download, manifest creation, or JSONL output logic. Moreover, the required artifacts `data/raw/sampled_manifest.json` and `data/raw/sampled_scenes.jsonl` are absent. The task\u2019s core requirements are therefore unmet.",
+      "first_seen": "2026-10-04T04:47:32.449144+00:00",
+      "last_seen": "2026-10-04T04:47:32.449144+00:00"
+    },
+    {
+      "task_key": "T006a",
+      "reject_count": 1,
+      "last_reason": "The provided `code/data/verify_checksum.py` is truncated (e.g., the `verify_directory_integrity` function ends abruptly with \u201cmani\u201d) and lacks the full implementation and entry\u2011point logic required to actually perform the checksum verification and abort on mismatches or a missing manifest. Consequently the script is non\u2011functional despite the manifest file also being absent. The task\u2019s requirement is not satisfied.",
+      "first_seen": "2026-10-04T04:47:32.456660+00:00",
+      "last_seen": "2026-10-04T04:47:32.456660+00:00"
+    },
+    {
+      "task_key": "T006d",
+      "reject_count": 1,
+      "last_reason": "The repository contains a partially\u2011implemented `load_ground_truth.py`, but the script does not appear to include the logic that writes `data/derived/ground_truth.csv`, and the required CSV file is absent. Consequently the task\u2019s core output (the filtered ground\u2011truth CSV) is missing.",
+      "first_seen": "2026-10-04T04:47:34.635084+00:00",
+      "last_seen": "2026-10-04T04:47:34.635084+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "The provided `validate_distribution.py` script is incomplete (the code is truncated and never shows the KS\u2011test computation or writing of `distribution_validity.json`). Moreover, the required output file `data/results/distribution_validity.json` does not exist. The task\u2019s core requirement\u2014performing KS\u2011tests on object density and spatial variance and saving the results\u2014is therefore not fulfilled.",
+      "first_seen": "2026-10-04T04:47:38.898383+00:00",
+      "last_seen": "2026-10-04T04:47:38.898383+00:00"
+    },
+    {
+      "task_key": "T007b",
+      "reject_count": 1,
+      "last_reason": "The repository contains a non\u2011empty `code/data/validate_pilot_mode.py`, but the required output `data/results/pilot_validity.json` is missing, and the script appears truncated/incomplete, providing no evidence that it actually generates the JSON with the specified fields. The task\u2019s core deliverable (the validity JSON) is not present.",
+      "first_seen": "2026-10-04T04:47:40.836979+00:00",
+      "last_seen": "2026-10-04T04:47:40.836979+00:00"
+    }
+  ],
+  "updated_at": "2026-10-04T04:47:40.836979+00:00"
+}
