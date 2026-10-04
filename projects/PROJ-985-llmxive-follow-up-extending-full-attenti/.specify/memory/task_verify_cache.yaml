@@ -26,6 +26,16 @@ T005:
     test file asserting peak memory\u202F<\u202F7\u202FGB, and the required `data/logs/memory_profile.csv`\
     \ does not exist. These missing pieces mean the task\u2019s requirements are not\
     \ satisfied."
+T011:
+  c: false
+  h: 3f47311f84dab8d1df80e4c318cf19b9e545c191f6d7c950400344b5ab211d99
+  r: "The required manifest `data/config/document_manifest.json` and the resulting\
+    \ `data/intermediate/downloaded_docs.jsonl` are both absent, so the verification\
+    \ step cannot succeed. Moreover, the provided `code/data/download.py` is truncated\
+    \ and does not show the actual streaming download, error handling, or writing\
+    \ of the filtered JSONL, leaving the core functionality unproven. The implementer\
+    \ must supply the manifest, ensure the script creates the exact 50\u2011document\
+    \ JSONL file, and include the full streaming download logic."
 T019:
   c: false
   h: e1e6629dd0df5e24483ec42736b10cb86bd364b199b6c1a6d17045a486f225d3
@@ -107,3 +117,11 @@ T039:
   r: No logs, output files, or any other artifacts showing that the quickstart.md
     validation was actually executed on the free tier, nor any evidence of reproducibility
     checks. The required evidence is missing.
+T046b:
+  c: false
+  h: ae0b0e895659c78e48b8b873e9e0b962872d152291a27bfb98e2e8d9e7ae0675
+  r: The repository contains `code/data/generate_manifest.py`, but the script is truncated
+    and does not show any code that writes `data/config/document_manifest.json`. Moreover,
+    the required `document_manifest.json` file is missing entirely, so the verification
+    conditions (file existence, 50 unique IDs, determinism) are not met. The implementer
+    must add the missing logic to save the IDs and ensure the JSON file is created.

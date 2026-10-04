@@ -1276,3 +1276,230 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T19:56:14Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RULER validation split test uses 100-document sample
+  claim_id: c_3ea7b0aa
+  context: The test MUST use a 100-document sample from the RULER validation split
+    using datasets.load_dataset(..., split='validation')[:100].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:19:37Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit 7GB
+  claim_id: c_16c8793a
+  context: Implement memory-efficient data loader... and includes a unit test asserting
+    peak memory usage < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_7GB
+  kind: magnitude
+  raw_text: The script must assert peak memory usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:08Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Document manifest contains 50 unique IDs
+  claim_id: c_dac42abd
+  context: Generate a script that uses a fixed seed (42) to select the first 50 documents...
+    Assert document_manifest.json exists, contains exactly 50 unique IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manifest must contain exactly 50 unique IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:17Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Ground truth generation uses 50 document subset
+  claim_id: c_06249d2d
+  context: Process the strictly sampled subset of 50 documents defined in data/config/document_manifest.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The process must strictly sample a subset of 50 documents defined in the
+    document manifest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:23Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RTPurbo default parameters k=10 and threshold=0.05
+  claim_id: c_4c950d35
+  context: Use default values for k=10 and threshold=0.05, but log these as empirical
+    in data/logs/ground_truth_params.yaml.
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The ground truth generation must use default values of k=10 and threshold=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T00:23:23Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Downloaded docs file contains 50 documents
+  claim_id: c_7af26b30
+  context: Assert data/intermediate/downloaded_docs.jsonl exists and contains exactly
+    the 50 documents listed in the manifest.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output file must contain exactly the 50 documents listed in the manifest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:30Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Learned Sparse baseline uses 5 random seeds
+  claim_id: c_f6691924
+  context: Implement Learned Sparse (RTPurbo) baseline runner to execute 5 independent
+    random seeds and save per-document scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Learned Sparse baseline runner must execute 5 independent random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:33Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Fixed seeds 42, 123, 456, 789, 101
+  claim_id: c_6df549db
+  context: 'Seeds: Use fixed seeds [42, 123, 456, 789, 101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed seeds for the Learned Sparse baseline are 42, 123, 456, 789,
+    and 101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:44Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Static heuristic sparsification uses 5 seeds
+  claim_id: c_59ee0803
+  context: 'Output: Per-document Perplexity and Exact Match metrics to data/intermediate/static_per_document.json
+    for 5 independent seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The static heuristic sparsification runner must run for 5 independent
+    seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:47Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Performance drop threshold 0.01
+  claim_id: c_1dd52690
+  context: 'Create configuration file data/config/threshold.yaml defining the performance
+    drop threshold. Content: value: 0.01.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_threshold_0.01
+  kind: entity_fact
+  raw_text: The performance drop threshold is defined as 0.01.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:54Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Total pipeline execution time under 21600 seconds
+  claim_id: c_a9b77bf0
+  context: Assert script exits with code 0 if duration < 21600s.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_execution_time_under_21600_seconds
+  kind: magnitude
+  raw_text: The total pipeline execution time must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:23:57Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Reproducibility manifest records dataset hash, seeds, and versions
+  claim_id: c_9ee49b42
+  context: Create reproducibility manifest in data/results/reproducibility_manifest.json
+    that records the exact dataset version, random seeds, and library versions used
+    for the run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_manifest_records_dataset_hash,_seeds,_and_ve
+  kind: entity_fact
+  raw_text: The reproducibility manifest must record the dataset hash, seeds used,
+    and dependency versions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:24:02Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Memory profile log includes document_id, peak_ram_mb, status
+  claim_id: c_9641e4d6
+  context: Assert data/logs/memory_profile_gt.csv is generated with document_id, peak_ram_mb,
+    and status columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_profile_log_includes_document_id,_peak_ram_mb,_status
+  kind: entity_fact
+  raw_text: The peak RAM usage log must include columns for document_id, peak_ram_mb,
+    and status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T00:24:55Z'
