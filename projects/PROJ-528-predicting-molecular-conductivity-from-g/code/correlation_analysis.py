@@ -1,126 +1,85 @@
-"""
-Correlation Analysis Module for Molecular Conductivity Project.
-
-This module implements the calculation of Pearson correlations between features
-and the target variable (conductivity or HOMO-LUMO gap), including p-value
-calculation and result persistence.
-"""
 import os
 import json
 import logging
 import pandas as pd
 import numpy as np
 from scipy import stats
-from typing import List, Dict, Tuple, Optional
+from typing import Dict, Tuple, List, Optional
 
-# Configure logging
-logger = logging.getLogger(__name__)
+from code.logging_config import setup_logging
 
-def calculate_correlation_pvalues(
-    data: pd.DataFrame,
-    target_col: str,
-    feature_cols: Optional[List[str]] = None
-) -> Dict[str, Tuple[float, float]]:
+logger = setup_logging(__name__)
+
+def calculate_correlation_pvalues(df: pd.DataFrame, target_col: str, feature_cols: Optional[List[str]] = None) -> Dict[str, Tuple[float, float]]:
     """
-    Calculate Pearson correlation coefficients and p-values for features vs target.
+    Calculate Pearson correlation coefficients and p-values between features and the target variable.
 
     Args:
-        data: DataFrame containing features and target variable.
+        df: DataFrame containing features and target.
         target_col: Name of the target column (e.g., 'conductivity', 'log_conductivity').
-        feature_cols: Optional list of feature columns to analyze. If None, uses all
-                      numeric columns except the target.
+        feature_cols: List of feature column names. If None, all numeric columns except target are used.
 
     Returns:
         Dictionary mapping feature names to (correlation_coefficient, p_value) tuples.
-
-    Raises:
-        ValueError: If target column is not found or if data is empty.
     """
-    if target_col not in data.columns:
-        raise ValueError(f"Target column '{target_col}' not found in data. "
-                       f"Available columns: {list(data.columns)}")
-
     if feature_cols is None:
-        # Select all numeric columns except the target
-        feature_cols = data.select_dtypes(include=[np.number]).columns.tolist()
+        # Select all numeric columns excluding the target
+        feature_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         if target_col in feature_cols:
             feature_cols.remove(target_col)
 
-    if not feature_cols:
-        logger.warning("No feature columns found for correlation analysis.")
-        return {}
-
     results = {}
-    logger.info(f"Calculating correlations for {len(feature_cols)} features against '{target_col}'")
+    target_data = df[target_col].dropna()
 
     for feature in feature_cols:
-        x = data[feature].dropna()
-        y = data[target_col].loc[x.index].dropna()
+        feature_data = df[feature].dropna()
 
-        # Ensure we have matching non-NaN pairs
-        if len(x) == 0 or len(y) == 0:
-            logger.warning(f"Skipping '{feature}': no valid data pairs with target.")
+        # Align indices to ensure we are comparing the same rows
+        common_idx = target_data.index.intersection(feature_data.index)
+        if len(common_idx) < 3:
+            logger.warning(f"Insufficient data points for correlation between {feature} and {target_col}. Skipping.")
+            results[feature] = (np.nan, np.nan)
             continue
 
-        if len(x) != len(y):
-            # Re-align after dropna
-            mask = ~(data[feature].isna() | data[target_col].isna())
-            x = data.loc[mask, feature]
-            y = data.loc[mask, target_col]
-
-        if len(x) < 2:
-            logger.warning(f"Skipping '{feature}': insufficient data points ({len(x)}) for correlation.")
-            continue
+        y = target_data.loc[common_idx]
+        x = feature_data.loc[common_idx]
 
         try:
             corr, p_val = stats.pearsonr(x, y)
-            if not np.isfinite(corr) or not np.isfinite(p_val):
-                logger.warning(f"Non-finite correlation/p-value for '{feature}'. Setting to NaN.")
-                results[feature] = (np.nan, np.nan)
-            else:
-                results[feature] = (float(corr), float(p_val))
+            results[feature] = (corr, p_val)
         except Exception as e:
-            logger.error(f"Error calculating correlation for '{feature}': {e}")
+            logger.warning(f"Failed to compute correlation for {feature}: {e}")
             results[feature] = (np.nan, np.nan)
 
     return results
 
-def save_correlation_results(
-    results: Dict[str, Tuple[float, float]],
-    output_path: str
-) -> None:
+def save_correlation_results(results: Dict[str, Tuple[float, float]], output_path: str) -> None:
     """
     Save correlation results to a JSON file.
 
     Args:
-        results: Dictionary of correlation results from calculate_correlation_pvalues.
-        output_path: Path to save the JSON file.
+        results: Dictionary of correlation results.
+        output_path: Path to the output JSON file.
     """
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Convert tuples to lists for JSON serialization
+    # Convert tuple values to a serializable format (list or dict)
     serializable_results = {
-        feature: [float(corr), float(p_val)]
-        for feature, (corr, p_val) in results.items()
+        k: {"correlation": v[0], "p_value": v[1]} for k, v in results.items()
     }
 
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(serializable_results, f, indent=2)
-
-    logger.info(f"Saved correlation results to {output_path}")
+    logger.info(f"Correlation results saved to {output_path}")
 
 def load_correlation_results(input_path: str) -> Dict[str, Tuple[float, float]]:
     """
     Load correlation results from a JSON file.
 
     Args:
-        input_path: Path to the JSON file containing results.
+        input_path: Path to the input JSON file.
 
     Returns:
-        Dictionary mapping feature names to (correlation_coefficient, p_value) tuples.
+        Dictionary of correlation results.
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Correlation results file not found: {input_path}")
@@ -128,67 +87,50 @@ def load_correlation_results(input_path: str) -> Dict[str, Tuple[float, float]]:
     with open(input_path, 'r') as f:
         data = json.load(f)
 
-    return {
-        feature: (float(corr), float(p_val))
-        for feature, (corr, p_val) in data.items()
-    }
+    # Convert back to tuple format
+    return {k: (v["correlation"], v["p_value"]) for k, v in data.items()}
 
 def main():
     """
-    Main entry point for correlation analysis script.
-    Expects command-line arguments:
-      --data: Path to processed data CSV (e.g., data/processed/descriptors.csv)
-      --target: Name of target column (default: 'log_conductivity' or 'conductivity')
-      --output: Path to save correlation results JSON
+    CLI entry point for correlation analysis.
+    Expects a processed data file and outputs correlation results.
     """
-    import argparse
-
     parser = argparse.ArgumentParser(description="Calculate feature-target correlations.")
-    parser.add_argument("--data", type=str, required=True, help="Path to input data CSV")
-    parser.add_argument("--target", type=str, default=None, help="Target column name")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
-
+    parser.add_argument("--input", type=str, default="data/processed/descriptors.csv",
+                        help="Path to the input data file (CSV).")
+    parser.add_argument("--target", type=str, default="log_conductivity",
+                        help="Name of the target column.")
+    parser.add_argument("--output", type=str, default="data/processed/correlation_results.json",
+                        help="Path to the output JSON file.")
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logging()
-
-    logger.info(f"Loading data from {args.data}")
-    try:
-        data = pd.read_csv(args.data)
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
         sys.exit(1)
 
-    # Determine target column if not specified
-    target_col = args.target
-    if target_col is None:
-        if 'log_conductivity' in data.columns:
-            target_col = 'log_conductivity'
-        elif 'conductivity' in data.columns:
-            target_col = 'conductivity'
+    logger.info(f"Loading data from {args.input}")
+    df = pd.read_csv(args.input)
+
+    if args.target not in df.columns:
+        # Fallback: try to find a column containing 'conductivity' or 'gap'
+        possible_targets = [c for c in df.columns if 'conductivity' in c.lower() or 'gap' in c.lower()]
+        if possible_targets:
+            args.target = possible_targets[0]
+            logger.warning(f"Target '{args.target}' not found. Using '{args.target}' instead.")
         else:
-            logger.error("No target column specified and could not auto-detect.")
+            logger.error(f"Target column '{args.target}' not found in data.")
             sys.exit(1)
 
-    logger.info(f"Using target column: {target_col}")
+    logger.info(f"Calculating correlations with target: {args.target}")
+    results = calculate_correlation_pvalues(df, args.target)
 
-    # Calculate correlations
-    results = calculate_correlation_pvalues(data, target_col)
-
-    if not results:
-        logger.warning("No correlations calculated. Check data and target column.")
-        # Still save empty results to avoid downstream failures
-        save_correlation_results(results, args.output)
-        return
-
-    logger.info(f"Calculated {len(results)} correlations. Range: "
-              f"[{min(r[0] for r in results.values()):.3f}, "
-              f"{max(r[0] for r in results.values()):.3f}]")
-
-    # Save results
+    logger.info(f"Saving results to {args.output}")
     save_correlation_results(results, args.output)
-    logger.info("Correlation analysis complete.")
+
+    # Print summary
+    significant = [k for k, v in results.items() if not np.isnan(v[1]) and v[1] < 0.05]
+    logger.info(f"Found {len(significant)} features with p-value < 0.05")
 
 if __name__ == "__main__":
+    import sys
     main()

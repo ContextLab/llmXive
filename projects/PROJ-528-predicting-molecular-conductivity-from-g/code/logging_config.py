@@ -1,50 +1,62 @@
+"""
+Logging Configuration (T006)
+
+Configures a rotating file handler with JSON formatting.
+"""
+
 import logging
 import os
 import json
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict
 
+from code.config import LOG_FILE
+
 class JsonFormatter(logging.Formatter):
-    def format(self, record):
+    """Custom JSON formatter for log records."""
+
+    def format(self, record: logging.LogRecord) -> str:
         log_record = {
-            'timestamp': self.formatTime(record, self.datefmt),
             'level': record.levelname,
-            'logger': record.name,
             'message': record.getMessage(),
             'module': record.module,
             'function': record.funcName,
-            'line': record.lineno
+            'line': record.lineno,
+            'timestamp': self.formatTime(record, self.datefmt)
         }
         if record.exc_info:
-            log_record['exc_info'] = self.formatException(record.exc_info)
+            log_record['exception'] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
-def setup_logging(log_file: str = None):
-    """Configure logging with rotating file handler and JSON formatting."""
-    if log_file is None:
-        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
-        os.makedirs(log_dir, exist_ok=True)
-        log_file = os.path.join(log_dir, 'pipeline.log')
-    
-    # Create logger
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
+    """
+    Setup logging infrastructure.
+    Returns the root logger.
+    """
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    
-    # Clear existing handlers
+    logger.setLevel(level)
+
+    # Remove existing handlers to avoid duplicates
     logger.handlers.clear()
-    
+
+    # File handler with rotation
+    file_handler = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=10*1024*1024,  # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(level)
+    file_handler.setFormatter(JsonFormatter())
+
     # Console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
+    logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-    
-    # File handler (rotating)
-    try:
-        file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
-        file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(JsonFormatter())
-        logger.addHandler(file_handler)
-    except Exception as e:
-        logging.warning(f"Could not setup file handler: {e}")
+
+    return logger
+
+# Initialize logging on module import
+setup_logging()

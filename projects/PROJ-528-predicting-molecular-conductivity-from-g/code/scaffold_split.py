@@ -1,9 +1,7 @@
 """
-Scaffold-based train/test split utility.
+Scaffold Splitting Utility (T008, T027)
 
-Implements a structural diversity split to prevent data leakage by ensuring
-that molecules with the same Bemis-Murcko scaffold are not split across
-training and testing sets.
+Implements scaffold-based train/test split to ensure structural diversity.
 """
 
 import logging
@@ -13,122 +11,110 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem.Scaffolds import MurckoScaffold
 
-from config import SEED
-
 logger = logging.getLogger(__name__)
-
 
 def get_murcko_scaffold(smiles: str) -> Optional[str]:
     """
-    Extract the Bemis-Murcko scaffold from a SMILES string.
-
-    Args:
-        smiles: SMILES string of the molecule.
-
-    Returns:
-        Canonical SMILES of the scaffold, or None if extraction fails.
+    Extract the Murcko scaffold from a SMILES string.
+    Returns the scaffold as a SMILES string, or None if invalid.
     """
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
         scaffold = MurckoScaffold.GetScaffoldForMol(mol)
-        # Remove stereochemistry and return canonical SMILES
-        Chem.RemoveStereochemistry(scaffold)
         return Chem.MolToSmiles(scaffold)
     except Exception as e:
-        logger.debug(f"Failed to extract scaffold from {smiles}: {e}")
+        logger.warning(f"Failed to extract scaffold from '{smiles}': {e}")
         return None
 
-
-def scaffold_split(
-    df: pd.DataFrame,
-    smiles_col: str = "smiles",
-    train_ratio: float = 0.8,
-    seed: int = SEED
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def scaffold_split(df: pd.DataFrame, smiles_col: str = 'smiles',
+                   train_frac: float = 0.8, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Perform a scaffold-based train/test split.
-
-    Groups molecules by their Bemis-Murcko scaffold, then splits the
-    scaffold groups rather than individual molecules to ensure structural
-    diversity between train and test sets.
-
-    Args:
-        df: DataFrame containing SMILES strings and target values.
-        smiles_col: Column name containing SMILES strings.
-        train_ratio: Fraction of scaffolds to use for training (default 0.8).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Tuple of (train_df, test_df) DataFrames.
-
-    Raises:
-        ValueError: If the DataFrame is empty or contains no valid molecules.
+    Split the DataFrame into train and test sets based on Murcko scaffolds.
+    Ensures that molecules with the same scaffold are in the same split.
     """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-
     if smiles_col not in df.columns:
         raise ValueError(f"Column '{smiles_col}' not found in DataFrame.")
 
-    # Compute scaffolds for all molecules
-    logger.info("Computing Bemis-Murcko scaffolds...")
-    df_with_scaffold = df.copy()
-    df_with_scaffold["scaffold"] = df_with_scaffold[smiles_col].apply(get_murcko_scaffold)
+    # Extract scaffolds
+    logger.info("Extracting Murcko scaffolds...")
+    scaffolds = df[smiles_col].apply(get_murcko_scaffold)
+    df_with_scaffolds = df.copy()
+    df_with_scaffolds['scaffold'] = scaffolds
 
-    # Filter out molecules where scaffold extraction failed
-    valid_mask = df_with_scaffold["scaffold"].notna()
-    if not valid_mask.all():
-        invalid_count = (~valid_mask).sum()
-        logger.warning(f"Skipping {invalid_count} molecules with invalid scaffolds.")
-        df_with_scaffold = df_with_scaffold[valid_mask]
+    # Remove rows with invalid scaffolds
+    valid_mask = df_with_scaffolds['scaffold'].notna()
+    df_valid = df_with_scaffolds[valid_mask].reset_index(drop=True)
+    dropped_count = len(df_with_scaffolds) - len(df_valid)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows with invalid scaffolds.")
 
-    if df_with_scaffold.empty:
-        raise ValueError("No valid molecules with extractable scaffolds found.")
+    if len(df_valid) == 0:
+        raise ValueError("No valid scaffolds found. Cannot split.")
 
-    # Group by scaffold and count molecules per scaffold
-    scaffold_counts = df_with_scaffold.groupby("scaffold").size().reset_index(name="count")
+    # Group by scaffold and assign to train/test
+    scaffold_groups = df_valid.groupby('scaffold')
+    scaffold_list = list(scaffold_groups.groups.keys())
 
-    # Shuffle scaffolds deterministically
-    np.random.seed(seed)
-    shuffled_scaffolds = scaffold_counts["scaffold"].sample(frac=1, random_state=seed).reset_index(drop=True)
+    # Shuffle scaffolds
+    rng = np.random.default_rng(seed)
+    rng.shuffle(scaffold_list)
 
-    # Determine split point
-    n_scaffolds = len(shuffled_scaffolds)
-    train_n_scaffolds = int(np.ceil(train_ratio * n_scaffolds))
-    train_scaffolds = set(shuffled_scaffolds.iloc[:train_n_scaffolds])
+    # Determine split index
+    n_scaffolds = len(scaffold_list)
+    n_train_scaffolds = int(n_scaffolds * train_frac)
+    train_scaffolds = set(scaffold_list[:n_train_scaffolds])
+    test_scaffolds = set(scaffold_list[n_train_scaffolds:])
 
-    # Split the dataframe based on scaffold membership
-    train_mask = df_with_scaffold["scaffold"].isin(train_scaffolds)
-    train_df = df_with_scaffold[train_mask].drop(columns=["scaffold"])
-    test_df = df_with_scaffold[~train_mask].drop(columns=["scaffold"])
+    # Assign splits
+    def assign_split(scaffold: str) -> str:
+        if scaffold in train_scaffolds:
+            return 'train'
+        elif scaffold in test_scaffolds:
+            return 'test'
+        else:
+            return 'val'  # Fallback (should not happen)
 
-    logger.info(f"Scaffold split complete: {len(train_df)} train, {len(test_df)} test samples.")
-    logger.info(f"Train scaffolds: {len(train_scaffolds)}, Test scaffolds: {n_scaffolds - len(train_scaffolds)}")
+    df_valid['split'] = df_valid['scaffold'].apply(assign_split)
 
+    # Separate train and test
+    train_df = df_valid[df_valid['split'] == 'train'].drop(columns=['scaffold', 'split'])
+    test_df = df_valid[df_valid['split'] == 'test'].drop(columns=['scaffold', 'split'])
+
+    logger.info(f"Scaffold split: {len(train_df)} train, {len(test_df)} test")
     return train_df, test_df
 
-
-def split_indices(
-    df: pd.DataFrame,
-    smiles_col: str = "smiles",
-    train_ratio: float = 0.8,
-    seed: int = SEED
-) -> Tuple[List[int], List[int]]:
+def split_indices(df: pd.DataFrame, smiles_col: str = 'smiles',
+                  train_frac: float = 0.8, seed: int = 42) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Return train/test split indices based on scaffold.
-
-    Args:
-        df: DataFrame containing SMILES strings.
-        smiles_col: Column name containing SMILES strings.
-        train_ratio: Fraction of scaffolds for training.
-        seed: Random seed.
-
-    Returns:
-        Tuple of (train_indices, test_indices).
+    Return indices for train and test splits (for sklearn compatibility).
     """
-    train_df, test_df = scaffold_split(df, smiles_col, train_ratio, seed)
-    train_indices = train_df.index.tolist()
-    test_indices = test_df.index.tolist()
+    train_df, test_df = scaffold_split(df, smiles_col, train_frac, seed)
+    train_indices = train_df.index.values
+    test_indices = test_df.index.values
     return train_indices, test_indices
+
+def main():
+    """CLI for testing scaffold split."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Test scaffold split.")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV.")
+    parser.add_argument("--output-train", type=str, required=True, help="Output train CSV.")
+    parser.add_argument("--output-test", type=str, required=True, help="Output test CSV.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    args = parser.parse_args()
+
+    from code.logging_config import setup_logging
+    setup_logging()
+
+    df = pd.read_csv(args.input)
+    train_df, test_df = scaffold_split(df, seed=args.seed)
+    train_df.to_csv(args.output_train, index=False)
+    test_df.to_csv(args.output_test, index=False)
+    logger.info(f"Saved train to {args.output_train}, test to {args.output_test}")
+    return 0
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

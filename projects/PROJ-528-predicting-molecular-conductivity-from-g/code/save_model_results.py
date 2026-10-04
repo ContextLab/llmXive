@@ -2,14 +2,12 @@ import os
 import json
 import logging
 import argparse
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from code.config import DATA_PATH
 from code.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
-
 def get_default_results() -> Dict[str, Any]:
-    """Return the default structure for model_results.json if it doesn't exist."""
+    """Return the default structure for model_results.json."""
     return {
         "rf_r2": 0.0,
         "gb_r2": 0.0,
@@ -18,93 +16,94 @@ def get_default_results() -> Dict[str, Any]:
         "vif_scores": []
     }
 
-def initialize_results_file(filepath: str) -> None:
-    """Initialize the results file with default values if it does not exist."""
-    if not os.path.exists(filepath):
-        logger.info(f"Initializing {filepath} with default structure.")
-        with open(filepath, 'w') as f:
-            json.dump(get_default_results(), f, indent=2)
-
-def load_results(filepath: str) -> Dict[str, Any]:
-    """Load results from the JSON file."""
-    if not os.path.exists(filepath):
-        logger.warning(f"Results file {filepath} not found. Returning defaults.")
-        return get_default_results()
+def initialize_results_file(filepath: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Create or overwrite the model results JSON file with the default structure.
     
+    Args:
+        filepath: Path to the results file. Defaults to DATA_PATH/model_results.json.
+        
+    Returns:
+        The initialized dictionary structure.
+    """
+    if filepath is None:
+        filepath = os.path.join(DATA_PATH, "processed", "model_results.json")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
+    results = get_default_results()
+    
+    with open(filepath, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logging.info(f"Initialized model results file at: {filepath}")
+    return results
+
+def load_results(filepath: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load existing results from file.
+    
+    Args:
+        filepath: Path to the results file.
+        
+    Returns:
+        The loaded dictionary.
+    """
+    if filepath is None:
+        filepath = os.path.join(DATA_PATH, "processed", "model_results.json")
+        
+    if not os.path.exists(filepath):
+        return get_default_results()
+        
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def save_results_to_json(results: Dict[str, Any], filepath: str) -> None:
-    """Save the results dictionary to a JSON file."""
+def save_results_to_json(results: Dict[str, Any], filepath: Optional[str] = None) -> None:
+    """
+    Save results dictionary to JSON file.
+    
+    Args:
+        results: The results dictionary to save.
+        filepath: Path to the results file.
+    """
+    if filepath is None:
+        filepath = os.path.join(DATA_PATH, "processed", "model_results.json")
+        
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
     with open(filepath, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {filepath}")
+        
+    logging.info(f"Saved model results to: {filepath}")
 
-def main():
-    """
-    Finalize model_results.json by updating it with final R²/MAE from T039c (VIF loop)
-    and T032 (Sensitivity analysis).
+def main() -> None:
+    """CLI entry point to initialize the model results file."""
+    parser = argparse.ArgumentParser(description="Initialize or update model results JSON.")
+    parser.add_argument(
+        "--init", 
+        action="store_true", 
+        help="Initialize file with default structure (overwrite existing)."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default=None, 
+        help="Output file path (default: data/processed/model_results.json)."
+    )
     
-    This script aggregates results from:
-    1. data/processed/vif_iteration_log.json (Final VIF iteration metrics)
-    2. data/processed/sensitivity_analysis.json (Sensitivity variance metrics)
-    3. Updates data/processed/model_results.json
-    """
+    args = parser.parse_args()
     setup_logging()
     
-    results_path = os.path.join(DATA_PATH, "processed", "model_results.json")
-    vif_log_path = os.path.join(DATA_PATH, "processed", "vif_iteration_log.json")
-    sensitivity_path = os.path.join(DATA_PATH, "processed", "sensitivity_analysis.json")
-    
-    # Load existing results or initialize
-    results = load_results(results_path)
-    
-    # Update with VIF Loop Final Metrics (from T039c)
-    if os.path.exists(vif_log_path):
-        try:
-            with open(vif_log_path, 'r') as f:
-                vif_log = json.load(f)
-            
-            iterations = vif_log.get('iterations', [])
-            if iterations:
-                final_iteration = iterations[-1]
-                results['rf_r2'] = final_iteration.get('r2', 0.0)
-                # Assuming MAE is stored as 'mae' in the log
-                results['mae'] = final_iteration.get('mae', 0.0) 
-                results['vif_scores'] = final_iteration.get('vif_scores', {})
-                logger.info(f"Updated results with final VIF iteration R2: {results['rf_r2']}")
-            else:
-                logger.warning("VIF log exists but has no iterations.")
-        except Exception as e:
-            logger.error(f"Failed to load VIF log: {e}")
+    if args.init:
+        initialize_results_file(args.output)
     else:
-        logger.warning(f"VIF log not found at {vif_log_path}. Skipping VIF update.")
-
-    # Update with Sensitivity Analysis (from T032)
-    if os.path.exists(sensitivity_path):
-        try:
-            with open(sensitivity_path, 'r') as f:
-                sensitivity_data = json.load(f)
-            
-            results['sensitivity_analysis'] = {
-                'thresholds': sensitivity_data.get('thresholds', []),
-                'r2_variance': sensitivity_data.get('r2_variance', 0.0),
-                'range': sensitivity_data.get('range', 0.0),
-                'population_variance': sensitivity_data.get('population_variance', 0.0)
-            }
-            logger.info("Updated results with sensitivity analysis data.")
-        except Exception as e:
-            logger.error(f"Failed to load sensitivity analysis: {e}")
-    else:
-        logger.warning(f"Sensitivity analysis not found at {sensitivity_path}. Skipping sensitivity update.")
-
-    # Save the finalized results
-    save_results_to_json(results, results_path)
-    
-    logger.info("T033b Finalization complete.")
+        # If not initializing, just ensure the file exists with defaults
+        if not os.path.exists(args.output if args.output else os.path.join(DATA_PATH, "processed", "model_results.json")):
+            initialize_results_file(args.output)
+            logging.info("File did not exist. Initialized with defaults.")
+        else:
+            logging.info("File already exists. Use --init to overwrite.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Finalize model results JSON")
-    parser.parse_args()
     main()

@@ -1,227 +1,115 @@
-"""
-Train Random Forest and Gradient Boosting regressors on log-transformed target.
-Implements FR-003.
-"""
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Tuple, Optional
-
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.metrics import r2_score, mean_absolute_error
-from sklearn.model_selection import cross_val_predict
-
-from code.config import SEED, DATA_PATH, TARGET_VAR
 from code.logging_config import setup_logging
+from code.config import DATA_PATH, SEED
 from code.scaffold_split import scaffold_split
-from code.data_loader import load_and_validate_target, apply_log_transformation
-from code.descriptors import compute_descriptors_batch
+from code.model_training import apply_log_transformation, train_models, run_cross_validation, save_model_results
 
-# Setup logging
-logger = setup_logging()
-
-def load_processed_data() -> pd.DataFrame:
-    """Load the processed descriptors and target data."""
-    descriptor_path = os.path.join(DATA_PATH, "processed", "descriptors.csv")
-    if not os.path.exists(descriptor_path):
-        raise FileNotFoundError(f"Descriptor file not found at {descriptor_path}. "
-                                "Run the descriptor pipeline first.")
-    
-    df = pd.read_csv(descriptor_path)
-    
-    # Filter valid molecules
-    if 'status' in df.columns:
-        df = df[df['status'] == 'valid'].copy()
-    
-    # Load target variable
-    target_df = load_and_validate_target(DATA_PATH)
-    
-    # Merge descriptors with target
-    # Assuming 'smiles' is the key in both
-    if 'smiles' not in df.columns or 'smiles' not in target_df.columns:
-        raise ValueError("Both descriptor and target data must have 'smiles' column")
-    
-    merged_df = pd.merge(df, target_df, on='smiles', how='inner')
-    
-    if merged_df.empty:
-        raise ValueError("No matching molecules found between descriptors and target data")
-    
-    return merged_df
-
-def prepare_features_and_target(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def load_processed_data(path: Optional[str] = None) -> pd.DataFrame:
     """
-    Prepare feature matrix X, target y, and indices for splitting.
-    Excludes SMILES and status columns.
+    Loads processed data (descriptors + target).
+    Default path: data/processed/descriptors.csv
     """
-    # Identify feature columns (exclude SMILES, status, and target)
-    exclude_cols = ['smiles', 'status', TARGET_VAR]
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
+    if path is None:
+        path = os.path.join(DATA_PATH, "processed", "descriptors.csv")
     
-    if not feature_cols:
-        raise ValueError("No feature columns found after excluding metadata and target")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Processed data not found at {path}")
     
+    df = pd.read_csv(path)
+    logging.info(f"Loaded processed data: {len(df)} rows, {len(df.columns)} columns")
+    return df
+
+def prepare_features_and_target(df: pd.DataFrame, target_col: Optional[str] = None) -> Tuple[np.ndarray, np.ndarray, list]:
+    """
+    Prepares feature matrix X and target vector y.
+    Returns X, y, feature_names.
+    """
+    # Identify target column
+    if target_col is None:
+        # Try to find a target column
+        possible_targets = ['conductivity', 'log_conductivity', 'HOMO_LUMO_gap', 'log_conductivity_proxy']
+        target_col = None
+        for col in possible_targets:
+            if col in df.columns:
+                target_col = col
+                break
+        
+        if target_col is None:
+            # Fallback: last column
+            target_col = df.columns[-1]
+            logging.warning(f"Target column not found, using last column: {target_col}")
+    
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in data.")
+    
+    # Separate features and target
+    feature_cols = [c for c in df.columns if c != target_col]
     X = df[feature_cols].values
-    y = df[TARGET_VAR].values
-    smiles_list = df['smiles'].values
+    y = df[target_col].values
     
-    # Apply log transformation to target
-    y_log = apply_log_transformation(y)
+    # Handle log transformation if needed
+    # Check if target is already log-transformed
+    if 'log_' not in target_col and 'conductivity' in target_col:
+        logging.info(f"Applying log transformation to target: {target_col}")
+        y = np.log(y)
+        # Create new column name
+        new_target_col = f"log_{target_col}"
+        df[new_target_col] = y
     
-    return X, y_log, smiles_list, feature_cols
+    return X, y, feature_cols
 
-def train_and_evaluate(
-    X: np.ndarray,
-    y: np.ndarray,
-    smiles: np.ndarray,
-    feature_names: list,
-    seed: int = SEED
-) -> Dict[str, Any]:
+def train_and_evaluate(X: np.ndarray, y: np.ndarray, feature_names: list, 
+                       train_idx: list, test_idx: list) -> Dict[str, Any]:
     """
-    Train Random Forest and Gradient Boosting models using scaffold split.
-    Returns metrics and model artifacts.
+    Trains models on the training split and evaluates on test split.
     """
-    logger.info(f"Starting model training with {len(X)} samples")
-    
-    # Perform scaffold split
-    # We need to map smiles to indices for the split function
-    smiles_to_idx = {smi: i for i, smi in enumerate(smiles)}
-    
-    # The scaffold_split function expects a DataFrame with 'smiles' column
-    # We'll create a temporary DataFrame for splitting
-    split_df = pd.DataFrame({'smiles': smiles})
-    
-    try:
-        train_idx, test_idx = scaffold_split(split_df, seed=seed)
-    except Exception as e:
-        logger.error(f"Scaffold split failed: {e}")
-        # Fallback to random split if scaffold split fails
-        logger.warning("Falling back to random split due to scaffold split failure")
-        np.random.seed(seed)
-        indices = np.arange(len(smiles))
-        np.random.shuffle(indices)
-        split_point = int(0.8 * len(indices))
-        train_idx = indices[:split_point]
-        test_idx = indices[split_point:]
-    
     X_train, X_test = X[train_idx], X[test_idx]
     y_train, y_test = y[train_idx], y[test_idx]
     
-    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+    # Train models (RF and GB)
+    results = train_models(X_train, y_train, X_test, y_test, seed=SEED)
     
-    # Initialize models
-    rf_model = RandomForestRegressor(
-        n_estimators=100,
-        random_state=seed,
-        n_jobs=-1,
-        max_depth=10
-    )
+    # Cross-validation
+    cv_results = run_cross_validation(X_train, y_train, seed=SEED)
     
-    gb_model = GradientBoostingRegressor(
-        n_estimators=100,
-        random_state=seed,
-        max_depth=5,
-        learning_rate=0.1
-    )
-    
-    # Train models
-    logger.info("Training Random Forest...")
-    rf_model.fit(X_train, y_train)
-    
-    logger.info("Training Gradient Boosting...")
-    gb_model.fit(X_train, y_train)
-    
-    # Predictions
-    y_pred_rf = rf_model.predict(X_test)
-    y_pred_gb = gb_model.predict(X_test)
-    
-    # Calculate metrics
-    rf_r2 = r2_score(y_test, y_pred_rf)
-    gb_r2 = r2_score(y_test, y_pred_gb)
-    rf_mae = mean_absolute_error(y_test, y_pred_rf)
-    gb_mae = mean_absolute_error(y_test, y_pred_gb)
-    
-    logger.info(f"Random Forest - R²: {rf_r2:.4f}, MAE: {rf_mae:.4f}")
-    logger.info(f"Gradient Boosting - R²: {gb_r2:.4f}, MAE: {gb_mae:.4f}")
-    
-    # Cross-validation scores (on training set)
-    logger.info("Performing 5-fold cross-validation on training set...")
-    rf_cv_pred = cross_val_predict(rf_model, X_train, y_train, cv=5)
-    gb_cv_pred = cross_val_predict(gb_model, X_train, y_train, cv=5)
-    
-    rf_cv_r2 = r2_score(y_train, rf_cv_pred)
-    gb_cv_r2 = r2_score(y_train, gb_cv_pred)
-    
-    # Feature importances
-    rf_importance = dict(zip(feature_names, rf_model.feature_importances_.tolist()))
-    gb_importance = dict(zip(feature_names, gb_model.feature_importances_.tolist()))
-    
-    results = {
-        'rf_r2': float(rf_r2),
-        'rf_mae': float(rf_mae),
-        'rf_cv_r2': float(rf_cv_r2),
-        'gb_r2': float(gb_r2),
-        'gb_mae': float(gb_mae),
-        'gb_cv_r2': float(gb_cv_r2),
-        'train_size': int(len(X_train)),
-        'test_size': int(len(X_test)),
-        'seed': seed,
-        'target_var': TARGET_VAR,
-        'feature_importance_rf': rf_importance,
-        'feature_importance_gb': gb_importance
+    return {
+        "models": results,
+        "cv_scores": cv_results
     }
-    
-    # Save model artifacts (just the predictions and metrics for now)
-    # In a real scenario, we'd pickle the models, but for this task we focus on metrics
-    predictions_df = pd.DataFrame({
-        'smiles': smiles[test_idx],
-        'actual': y_test,
-        'pred_rf': y_pred_rf,
-        'pred_gb': y_pred_gb
-    })
-    
-    output_dir = os.path.join(DATA_PATH, "processed")
-    os.makedirs(output_dir, exist_ok=True)
-    
-    predictions_path = os.path.join(output_dir, "model_predictions.csv")
-    predictions_df.to_csv(predictions_path, index=False)
-    logger.info(f"Saved predictions to {predictions_path}")
-    
-    return results
 
 def main():
-    """Main entry point for model training."""
-    logger.info("Starting model training pipeline (T029)")
+    """
+    CLI entry point for model training.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Train models on processed data.")
+    parser.add_argument("--input", type=str, default=None, help="Path to processed data CSV.")
+    parser.add_argument("--target", type=str, default=None, help="Target column name.")
+    args = parser.parse_args()
+
+    setup_logging()
     
-    try:
-        # Load data
-        df = load_processed_data()
-        logger.info(f"Loaded {len(df)} molecules")
-        
-        # Prepare features and target
-        X, y, smiles, feature_names = prepare_features_and_target(df)
-        logger.info(f"Prepared {X.shape[1]} features for {X.shape[0]} samples")
-        
-        # Train and evaluate models
-        results = train_and_evaluate(X, y, smiles, feature_names)
-        
-        # Save results
-        output_dir = os.path.join(DATA_PATH, "processed")
-        os.makedirs(output_dir, exist_ok=True)
-        
-        results_path = os.path.join(output_dir, "model_results.json")
-        with open(results_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Saved model results to {results_path}")
-        logger.info("Model training completed successfully")
-        
-        return results
-        
-    except Exception as e:
-        logger.error(f"Model training failed: {e}", exc_info=True)
-        raise
+    # Load data
+    df = load_processed_data(args.input)
+    
+    # Prepare features and target
+    X, y, feature_names = prepare_features_and_target(df, args.target)
+    
+    # Split data
+    train_idx, test_idx = scaffold_split(df, 'smiles') # Assuming 'smiles' column exists
+    
+    # Train and evaluate
+    results = train_and_evaluate(X, y, feature_names, train_idx, test_idx)
+    
+    # Save results
+    save_model_results(results)
+    
+    logging.info("Model training completed.")
 
 if __name__ == "__main__":
     main()

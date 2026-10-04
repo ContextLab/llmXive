@@ -116,7 +116,7 @@ projects/PROJ-528-predicting-molecular-conductivity-from-g/
 ### Phase 3: Model Training & Evaluation
 - **T022**: [SC-001, SC-009] Perform Residual Variance Test to check for circularity. If correlation > 0.95, halt.
 - **T023**: Train Random Forest and Gradient Boosting models.
-- **T024**: Evaluate models (R², MAE, CV). **Mitigation**: If N < 100, use Nested CV and Bootstrap (1000 iters).
+- **T024**: Evaluate models (R², MAE, CV). **Mitigation**: If N < 100, use Nested CV and Bootstrap (sufficient iterations).
 - **T025**: Perform sensitivity analysis (Kruskal-Wallis H-test with a sufficient sample size).
 - **T026**: Apply Benjamini-Hochberg correction to p-values.
 - **T027**: Generate feature importance rankings and correlation plots.

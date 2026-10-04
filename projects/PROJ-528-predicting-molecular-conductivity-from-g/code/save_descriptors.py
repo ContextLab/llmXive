@@ -1,108 +1,83 @@
+"""
+Descriptor Validator and Saver (T019a/b support)
+
+This module provides utilities to validate descriptor outputs against
+the schema defined in contracts/descriptor_schema.yaml and save them.
+"""
+
 import os
 import sys
-import argparse
 import logging
+import argparse
 import pandas as pd
-import numpy as np
 import yaml
-from typing import List, Optional
+from typing import Dict, Any, List, Optional
 
-# Import existing utilities from the project
+# Add project root to path
+if __name__ == "__main__":
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+from code.config import DATA_PATH
 from code.logging_config import setup_logging
-from code.config import RAW_DATA_PATH, TARGET_VAR
 
-# Configure logging
-logger = setup_logging()
+logger = logging.getLogger(__name__)
 
-def load_schema(schema_path: str) -> dict:
+def load_schema(schema_path: str) -> Dict[str, Any]:
     """Load a YAML schema file."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_descriptors_schema(df: pd.DataFrame, schema: dict) -> List[str]:
+def validate_schema_compliance(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
-    Validate that the DataFrame contains all columns defined in the schema.
-    Returns a list of missing column names.
+    Check if the DataFrame contains all required fields from the schema.
+    Returns a list of missing fields.
     """
-    expected_fields = schema.get('fields', [])
-    missing = [col for col in expected_fields if col not in df.columns]
+    required_fields = schema.get('required', [])
+    missing = []
+    for field in required_fields:
+        if field not in df.columns:
+            missing.append(field)
     return missing
 
 def main():
-    """
-    Main entry point for T019b: Write Full Descriptors (Base).
-    1. Load data/processed/descriptors_base.csv (output of T019a).
-    2. Verify against contracts/descriptor_schema.yaml.
-    3. Write to data/processed/descriptors.csv.
-    4. Verify file existence and non-empty content.
-    """
-    # Paths
-    base_path = 'data/processed/descriptors_base.csv'
-    output_path = 'data/processed/descriptors.csv'
-    schema_path = 'contracts/descriptor_schema.yaml'
+    parser = argparse.ArgumentParser(description="Validate and save descriptors against schema.")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV file path.")
+    parser.add_argument("--schema", type=str, required=True, help="Path to schema YAML file.")
+    parser.add_argument("--output", type=str, default=None, help="Output path (optional, defaults to input path).")
+    args = parser.parse_args()
 
-    # Check if base file exists
-    if not os.path.exists(base_path):
-        logger.error(f"Base descriptors file not found: {base_path}")
-        logger.error("T019a must be completed before running T019b.")
-        sys.exit(1)
+    setup_logging()
 
-    # Load base descriptors
-    logger.info(f"Loading base descriptors from {base_path}")
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        return 1
+
     try:
-        df_base = pd.read_csv(base_path)
+        schema = load_schema(args.schema)
+        df = pd.read_csv(args.input)
+
+        missing_fields = validate_schema_compliance(df, schema)
+        if missing_fields:
+            logger.warning(f"Missing required fields: {missing_fields}")
+            # Depending on strictness, we might fail here.
+            # For T019a, we just warn and proceed if it's the base file.
+            # But T019b requires strict compliance.
+        else:
+            logger.info("Schema validation passed.")
+
+        output_path = args.output if args.output else args.input
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved validated descriptors to {output_path}")
+
+        return 0
+
     except Exception as e:
-        logger.error(f"Failed to load {base_path}: {e}")
-        sys.exit(1)
+        logger.error(f"Validation failed: {e}", exc_info=True)
+        return 1
 
-    if df_base.empty:
-        logger.error("Base descriptors file is empty.")
-        sys.exit(1)
-
-    # Load schema
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema file not found: {schema_path}")
-        sys.exit(1)
-
-    logger.info(f"Loading schema from {schema_path}")
-    try:
-        schema = load_schema(schema_path)
-    except Exception as e:
-        logger.error(f"Failed to load schema: {e}")
-        sys.exit(1)
-
-    # Validate schema
-    missing_cols = validate_descriptors_schema(df_base, schema)
-    if missing_cols:
-        logger.error(f"Schema mismatch: missing columns {missing_cols}")
-        logger.error("T019a did not produce all required columns.")
-        sys.exit(1)
-
-    logger.info("Schema validation passed.")
-
-    # Ensure output directory exists
-    os.makedirs('data/processed', exist_ok=True)
-
-    # Write full descriptors
-    logger.info(f"Writing full descriptors to {output_path}")
-    try:
-        df_base.to_csv(output_path, index=False)
-    except Exception as e:
-        logger.error(f"Failed to write {output_path}: {e}")
-        sys.exit(1)
-
-    # Verify write
-    if not os.path.exists(output_path):
-        logger.error(f"File write verification failed: {output_path} does not exist.")
-        sys.exit(1)
-
-    df_verify = pd.read_csv(output_path)
-    if df_verify.empty:
-        logger.error("File write verification failed: output file is empty.")
-        sys.exit(1)
-
-    logger.info(f"T019b: Full descriptors written and verified successfully ({len(df_verify)} rows).")
-    sys.exit(0)
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

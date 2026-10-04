@@ -1,14 +1,9 @@
 """
-Feature Importance Analysis Module (T040).
+Feature Importance Analysis Module.
 
-Computes permutation importance on the final VIF-filtered model and saves
+Computes permutation importance for the final VIF-filtered model and saves
 the ranked list to data/processed/feature_importance.csv.
-
-Dependencies:
-  - T039c: Final VIF-filtered model must exist (loaded via model_training.py or analysis.py).
-  - T004: SEED constant.
 """
-
 import os
 import json
 import logging
@@ -18,158 +13,157 @@ from typing import Dict, Any, List, Tuple, Optional
 from sklearn.inspection import permutation_importance
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
+
 from code.config import SEED, DATA_PATH
 from code.logging_config import setup_logging
 
 # Setup logging
 logger = setup_logging(__name__)
 
-
-def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame, Optional[pd.DataFrame]]:
     """
-    Loads the final processed data (descriptors.csv) and the target variable.
-    Assumes T019b has written data/processed/descriptors.csv.
-    Returns X (features) and y (target).
+    Load the processed descriptors and target variable.
+    Returns X (features), y (target), and the original dataframe for reference.
     """
     descriptors_path = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+    results_path = os.path.join(DATA_PATH, 'processed', 'model_results.json')
+
     if not os.path.exists(descriptors_path):
-        raise FileNotFoundError(f"Processed descriptors file not found: {descriptors_path}")
+        raise FileNotFoundError(f"Descriptors file not found at {descriptors_path}. "
+                                "Run T019b to generate descriptors first.")
 
     df = pd.read_csv(descriptors_path)
 
-    # Determine target column based on T026 logic (conductivity, HOMO_LUMO_gap, or proxy)
-    # We check for common target names. T026 should have set the target column name.
-    # For now, assume the column is named 'conductivity' or 'HOMO_LUMO_gap' or 'log_conductivity_proxy'.
-    target_col = None
-    candidates = ['conductivity', 'HOMO_LUMO_gap', 'log_conductivity_proxy']
-    for cand in candidates:
-        if cand in df.columns:
-            target_col = cand
-            break
+    # Determine target variable from model_results.json or config
+    target_var = 'conductivity'
+    if os.path.exists(results_path):
+        with open(results_path, 'r') as f:
+            results = json.load(f)
+            if 'target_variable' in results:
+                target_var = results['target_variable']
 
-    if target_col is None:
-        # Fallback: check if any column looks like a target (e.g., ends with '_target')
-        for col in df.columns:
-            if 'target' in col.lower():
-                target_col = col
-                break
-
-    if target_col is None:
-        raise ValueError("Could not identify target variable in descriptors.csv. Expected one of: 'conductivity', 'HOMO_LUMO_gap', 'log_conductivity_proxy'")
-
-    y = df[target_col]
-    X = df.drop(columns=[target_col])
-
-    return X, y
-
-
-def prepare_features_and_target(X: pd.DataFrame, y: pd.Series) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """
-    Prepares feature matrix and target array for model training.
-    Returns X_np, y_np, feature_names.
-    """
-    feature_names = list(X.columns)
-    X_np = X.values
-    y_np = y.values
-    return X_np, y_np, feature_names
-
-
-def train_model(X: np.ndarray, y: np.ndarray, model_type: str = 'rf') -> Any:
-    """
-    Trains a model on the provided data.
-    model_type: 'rf' for Random Forest, 'gb' for Gradient Boosting.
-    Uses the final VIF-filtered data (assumed to be passed in).
-    """
-    if model_type == 'rf':
-        model = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED)
-    elif model_type == 'gb':
-        model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=SEED)
+    # Check if log-transformed target exists
+    log_target_col = f"log_{target_var}"
+    if log_target_col in df.columns:
+        y = df[log_target_col]
+    elif target_var in df.columns:
+        logger.warning(f"Log-transformed target {log_target_col} not found. Using raw target {target_var}.")
+        y = df[target_var]
     else:
-        raise ValueError(f"Unsupported model_type: {model_type}")
+        raise ValueError(f"Target variable '{target_var}' or its log version not found in descriptors.")
 
+    # Features are all columns except the target and 'smiles'
+    feature_cols = [col for col in df.columns if col not in [target_var, log_target_col, 'smiles']]
+    X = df[feature_cols]
+
+    return X, y, df
+
+def prepare_features_and_target() -> Tuple[pd.DataFrame, pd.Series, List[str]]:
+    """
+    Prepare features and target, ensuring no NaN values remain.
+    Returns X, y, and the list of feature names.
+    """
+    X, y, df = load_processed_data()
+
+    # Drop rows with any NaN in features or target
+    combined = pd.concat([X, y], axis=1)
+    combined = combined.dropna()
+    X = combined[X.columns]
+    y = combined[y.name]
+
+    return X, y, X.columns.tolist()
+
+def train_model(X: pd.DataFrame, y: pd.Series) -> RandomForestRegressor:
+    """
+    Train a Random Forest model on the provided data.
+    Uses the same parameters as T029.
+    """
+    model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=None,
+        random_state=SEED,
+        n_jobs=-1
+    )
     model.fit(X, y)
     return model
 
-
-def compute_feature_importance(model: Any, X: np.ndarray, y: np.ndarray, feature_names: List[str], n_repeats: int = 10) -> pd.DataFrame:
+def compute_feature_importance(model: Any, X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     """
-    Computes permutation importance for the given model.
-    Returns a DataFrame with 'feature' and 'importance_score'.
+    Compute permutation importance.
+    Returns a DataFrame with 'feature' and 'importance_score' columns.
     """
-    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=SEED)
+    result = permutation_importance(
+        model, X, y,
+        n_repeats=10,
+        random_state=SEED,
+        n_jobs=-1
+    )
 
     importance_scores = result.importances_mean
-    importance_std = result.importances_std
+    features = X.columns
 
-    df_importance = pd.DataFrame({
-        'feature': feature_names,
-        'importance_score': importance_scores,
-        'importance_std': importance_std
+    # Create DataFrame
+    importance_df = pd.DataFrame({
+        'feature': features,
+        'importance_score': importance_scores
     })
 
-    # Sort by importance_score descending
-    df_importance = df_importance.sort_values(by='importance_score', ascending=False).reset_index(drop=True)
+    # Sort by importance score descending
+    importance_df = importance_df.sort_values(by='importance_score', ascending=False).reset_index(drop=True)
 
-    return df_importance
+    return importance_df
 
-
-def save_feature_importance_csv(df_importance: pd.DataFrame, output_path: str) -> None:
+def save_feature_importance_csv(importance_df: pd.DataFrame, output_path: str) -> None:
     """
-    Saves the feature importance DataFrame to a CSV file.
+    Save the feature importance ranking to a CSV file.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df_importance.to_csv(output_path, index=False)
+    importance_df.to_csv(output_path, index=False)
     logger.info(f"Feature importance saved to {output_path}")
 
+    # Verify file exists and has content
+    if not os.path.exists(output_path):
+        raise FileNotFoundError(f"Failed to create file at {output_path}")
 
-def run_feature_importance_analysis(model_type: str = 'rf', n_repeats: int = 10) -> pd.DataFrame:
-    """
-    Main function to run the feature importance analysis.
-    1. Load processed data.
-    2. Train model (using final VIF-filtered data).
-    3. Compute permutation importance.
-    4. Save results to data/processed/feature_importance.csv.
-    """
-    logger.info("Starting feature importance analysis (T040)...")
+    loaded_df = pd.read_csv(output_path)
+    if 'feature' not in loaded_df.columns or 'importance_score' not in loaded_df.columns:
+        raise ValueError(f"Output file {output_path} does not contain required columns.")
 
-    # Load data
-    X, y = load_processed_data()
-    X_np, y_np, feature_names = prepare_features_and_target(X, y)
+    logger.info(f"Verification passed: {len(loaded_df)} features ranked.")
+
+def run_feature_importance_analysis() -> pd.DataFrame:
+    """
+    Main function to run the full feature importance analysis pipeline.
+    """
+    logger.info("Starting feature importance analysis (T040).")
+
+    # Prepare data
+    X, y, feature_names = prepare_features_and_target()
+    logger.info(f"Loaded {len(X)} samples with {len(feature_names)} features.")
 
     # Train model
-    logger.info(f"Training {model_type} model on VIF-filtered data...")
-    model = train_model(X_np, y_np, model_type)
+    model = train_model(X, y)
+    logger.info("Model trained successfully.")
 
     # Compute importance
-    logger.info("Computing permutation importance...")
-    df_importance = compute_feature_importance(model, X_np, y_np, feature_names, n_repeats)
+    importance_df = compute_feature_importance(model, X, y)
+    logger.info("Permutation importance computed.")
 
-    # Save results
+    # Save output
     output_path = os.path.join(DATA_PATH, 'processed', 'feature_importance.csv')
-    save_feature_importance_csv(df_importance, output_path)
+    save_feature_importance_csv(importance_df, output_path)
 
-    # Verify
-    if os.path.exists(output_path):
-        df_check = pd.read_csv(output_path)
-        assert 'feature' in df_check.columns and 'importance_score' in df_check.columns
-        logger.info("Feature importance analysis completed and verified.")
-    else:
-        raise RuntimeError("Failed to save feature importance CSV.")
-
-    return df_importance
-
+    logger.info("Feature importance analysis completed successfully.")
+    return importance_df
 
 def main():
     """
     CLI entry point for T040.
     """
-    parser = argparse.ArgumentParser(description="Compute feature importance rankings (T040).")
-    parser.add_argument('--model', type=str, default='rf', choices=['rf', 'gb'], help="Model type: 'rf' (Random Forest) or 'gb' (Gradient Boosting).")
-    parser.add_argument('--n_repeats', type=int, default=10, help="Number of repeats for permutation importance.")
-    args = parser.parse_args()
-
-    run_feature_importance_analysis(model_type=args.model, n_repeats=args.n_repeats)
-
+    try:
+        run_feature_importance_analysis()
+    except Exception as e:
+        logger.error(f"Feature importance analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

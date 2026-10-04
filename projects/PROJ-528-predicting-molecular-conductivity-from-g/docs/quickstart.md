@@ -1,69 +1,104 @@
-# Quickstart Guide
+# Quickstart Guide: Predicting Molecular Conductivity from Graph-Based Features
+
+This guide walks you through the entire pipeline to compute descriptors, train models, and generate analysis reports.
 
 ## Prerequisites
 
 - Python 3.8+
 - Virtual environment (recommended)
 
-## Installation
+## Setup
 
-1. Clone the repository.
-2. Create and activate a virtual environment:
+1. **Create and activate a virtual environment:**
  ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-3. Install dependencies:
+
+2. **Install dependencies:**
  ```bash
  pip install -r requirements.txt
  ```
 
-## Data Preparation
-
-Ensure you have a valid SMILES dataset at `data/raw/smiles.csv`.
-The file must contain at least two columns: `smiles` and a target variable
-(e.g., `conductivity`, `HOMO_LUMO_gap`, or `log_conductivity_proxy`).
-
 ## Running the Pipeline
 
-Execute the full pipeline end-to-end:
+Execute the following commands in order to run the full analysis pipeline.
 
+### Step 1: Initialize Project Structure and Sample Data
 ```bash
-python code/main.py
+python code/setup_structure.py
+python code/run_training.py --ensure-data
 ```
 
-This command will:
-1. Load and validate the data.
-2. Compute graph-based descriptors.
-3. Perform scaffold splitting.
-4. Run sensitivity analysis and outlier filtering.
-5. Train models with iterative VIF filtering.
-6. Generate feature importance and correlation plots.
-7. Save all results to `data/processed/`.
+### Step 2: Compute Molecular Descriptors
+This step loads SMILES strings, validates them, and computes graph-based descriptors.
+```bash
+python code/run_descriptor_pipeline.py
+```
+
+### Step 3: Initialize Model Results File
+Creates the `model_results.json` file with default structure if it doesn't exist.
+```bash
+python code/save_model_results.py --init
+```
+
+### Step 4: Run Sensitivity Analysis
+Trains models with different outlier thresholds to assess stability.
+```bash
+python code/run_sensitivity_analysis.py
+```
+
+### Step 5: Run VIF Iterative Loop
+Iteratively removes features with high VIF to reduce multicollinearity.
+```bash
+python code/run_huckel_vif_loop.py
+```
+
+### Step 6: Train Final Models
+Trains Random Forest and Gradient Boosting models on the filtered data.
+```bash
+python code/train_models.py
+```
+
+### Step 7: Generate Feature Importance and Correlation Analysis
+Computes permutation importance and correlation statistics.
+```bash
+python code/run_analysis.py
+```
+
+### Step 8: Generate Analysis Summary
+Creates the final `analysis_summary.json` with top features and adjusted p-values.
+```bash
+python code/run_analysis_summary.py
+```
+
+### Step 9: Generate Visualizations
+Creates scatter plots for top features.
+```bash
+python code/plot_top_features.py
+```
 
 ## Validation
 
-To verify that all expected output files were generated:
-
+Verify that all expected artifacts were produced:
 ```bash
-python code/main.py --validate-only
+python code/validators.py --validate data/processed/descriptors.csv --schema contracts/descriptor_schema.yaml
+python code/validators.py --validate data/processed/model_results.json --schema contracts/model_results_schema.yaml
 ```
 
-## Output Artifacts
-
-The pipeline produces the following artifacts:
-
-- `data/processed/descriptors.csv`: Computed molecular descriptors.
-- `data/processed/sensitivity_analysis.json`: Results of sensitivity analysis.
-- `data/processed/vif_iteration_log.json`: Log of VIF filtering iterations.
-- `data/processed/feature_importance.csv`: Ranked feature importance.
-- `data/processed/correlation_results.json`: Feature-target correlations.
-- `data/processed/analysis_summary.json`: Final analysis summary.
-- `data/processed/corr_plot_top5.png`: Scatter plots for top features.
-- `data/processed/model_results.json`: Final model performance metrics.
+Check for expected files:
+- `data/processed/descriptors.csv`
+- `data/processed/descriptors_base.csv`
+- `data/processed/model_results.json`
+- `data/processed/sensitivity_analysis.json`
+- `data/processed/feature_importance.csv`
+- `data/processed/analysis_summary.json`
+- `data/processed/corr_plot_top5.png`
+- `data/processed/corr_plot_resonance.png`
 
 ## Troubleshooting
 
-- **Missing Data**: If `data/raw/smiles.csv` is missing, provide a valid dataset.
-- **Import Errors**: Ensure all dependencies in `requirements.txt` are installed.
-- **Pipeline Failure**: Check `logs/pipeline.log` for detailed error messages.
+If you encounter errors related to missing data:
+1. Ensure you ran `python code/run_training.py --ensure-data` first.
+2. Check that `data/raw/smiles.csv` exists and contains valid SMILES strings.
+3. Verify your internet connection if the data loader attempts to fetch from external sources.

@@ -1,17 +1,16 @@
-status: none
-intent: PubChem 10M canonicalized SMILES graph descriptor python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import itertools\nfrom datasets import load_dataset\n\nds = load_dataset(\"\
+  sagawa/pubchem-10m-canonicalized\", split=\"train\", streaming=True)\n# Sample a\
+  \ manageable number of records\nsample = list(itertools.islice(ds, 5000))\nprint(f\"\
+  RECORDS={len(sample)}\")\nif sample:\n    fields = sample[0].keys()\n    print(\"\
+  FIELDS=\" + \",\".join(fields))"
+record_count: 5000
+sample_fields:
+- smiles
+field_coverage: 1.0
 required_fields:
 - smiles
-- aromatic_ring_count
-- conjugation_length
-- degree_distribution_mean
-- degree_distribution_std
-- average_path_length
-- longest_conjugated_path_length
-- aromaticity_index
-- ring_count
-- graph_diameter
-- graph_density
-cache_key: b60d801b571a87c944a985ff711ad6cc666baf3816d907fca7238070e3b2e351
-searched_at: '2026-09-29T23:44:42.508179+00:00'
-retry_count: 1
+intent: PubChem SMILES 10M canonicalized dataset download python package dataset
+cache_key: 5943ffa0e2881d5b59d8b5cae3980f5a030e3b2402709e3fe570b666e88a6d17

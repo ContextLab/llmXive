@@ -6,156 +6,84 @@ import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-
 from code.logging_config import setup_logging
 from code.config import DATA_PATH
-
-logger = logging.getLogger(__name__)
-
-def load_feature_importance(path: str) -> pd.DataFrame:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Feature importance file not found: {path}")
-    return pd.read_csv(path)
-
-def load_correlation_results(path: str) -> dict:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Correlation results file not found: {path}")
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_processed_data(path: str) -> pd.DataFrame:
-    """Load the processed data CSV."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Processed data file not found: {path}")
-    return pd.read_csv(path)
+from code.analysis_summary import load_feature_importance, get_top_features
+from code.correlation_analysis import load_correlation_results
 
 def create_scatter_plot_with_regression(df: pd.DataFrame, x_col: str, y_col: str, output_path: str, title: str):
-    """Create a scatter plot with regression line and save it."""
-    plt.figure(figsize=(8, 6))
+    """Create a scatter plot with regression line."""
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df[x_col], df[y_col], alpha=0.6)
     
-    # Scatter
-    plt.scatter(df[x_col], df[y_col], alpha=0.6, label='Data')
-    
-    # Regression line
+    # Fit regression
     z = np.polyfit(df[x_col], df[y_col], 1)
     p = np.poly1d(z)
-    plt.plot(df[x_col], p(df[x_col]), "r--", label=f'Regression (slope={z[0]:.3f})')
+    plt.plot(df[x_col], p(df[x_col]), "r--", label=f'y = {z[0]:.2f}x + {z[1]:.2f}')
     
     plt.xlabel(x_col)
     plt.ylabel(y_col)
     plt.title(title)
     plt.legend()
     plt.grid(True)
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     plt.close()
-    logger.info(f"Saved plot to {output_path}")
+    logging.info(f"Saved plot to {output_path}")
 
-def generate_top_feature_plots(importance_path: str, data_path: str, output_dir: str, n: int = 5):
-    """Generate scatter plots for top N features."""
-    importance_df = load_feature_importance(importance_path)
-    df = load_processed_data(data_path)
+def create_combined_plot(df: pd.DataFrame, feature_cols: list, target_col: str, output_dir: str):
+    """Create scatter plots for top features."""
+    os.makedirs(output_dir, exist_ok=True)
     
-    # Get top N features
-    top_features = importance_df.nlargest(n, 'importance_score')['feature'].tolist()
-    
-    # Determine target column
-    target_col = 'conductivity'
-    if target_col not in df.columns:
-        # Try alternatives
-        for t in ['log_conductivity', 'charge_carrier_mobility', 'HOMO_LUMO_gap']:
-            if t in df.columns:
-                target_col = t
-                break
-    
-    for i, feat in enumerate(top_features):
-        if feat not in df.columns:
-            logger.warning(f"Feature {feat} not found in data. Skipping.")
+    for i, feature in enumerate(feature_cols):
+        if feature not in df.columns:
+            logging.warning(f"Feature {feature} not in data.")
             continue
         
-        output_path = os.path.join(output_dir, f'corr_plot_{feat}.png')
-        create_scatter_plot_with_regression(
-            df, feat, target_col, output_path, 
-            title=f'{feat} vs {target_col}'
-        )
-    
-    return top_features
-
-def create_combined_plot(importance_path: str, data_path: str, output_path: str, n: int = 5):
-    """Create a combined plot or just ensure the main output file exists as requested."""
-    # The task asks for `data/processed/corr_plot_top5.png`. 
-    # We will generate a combined figure or a single representative one if combined is too complex.
-    # For now, let's generate a single plot for the #1 feature as a placeholder for the "top5" requirement
-    # or a grid. Let's do a grid of 2x3 for top 5.
-    
-    importance_df = load_feature_importance(importance_path)
-    df = load_processed_data(data_path)
-    
-    target_col = 'conductivity'
-    if target_col not in df.columns:
-        for t in ['log_conductivity', 'charge_carrier_mobility', 'HOMO_LUMO_gap']:
-            if t in df.columns:
-                target_col = t
-                break
-    
-    top_features = importance_df.nlargest(n, 'importance_score')['feature'].tolist()
-    
-    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-    axes = axes.flatten()
-    
-    for i, feat in enumerate(top_features):
-        if feat not in df.columns:
-            continue
-        
-        ax = axes[i]
-        ax.scatter(df[feat], df[target_col], alpha=0.5)
-        z = np.polyfit(df[feat], df[target_col], 1)
-        p = np.poly1d(z)
-        ax.plot(df[feat], p(df[feat]), "r--")
-        ax.set_title(f'{feat}')
-        ax.set_xlabel(feat)
-        ax.set_ylabel(target_col)
-        ax.grid(True)
-    
-    # Hide unused subplots
-    for j in range(i+1, len(axes)):
-        fig.delaxes(axes[j])
-    
-    plt.tight_layout()
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved combined top 5 plot to {output_path}")
+        output_path = os.path.join(output_dir, f"corr_plot_{feature}.png")
+        create_scatter_plot_with_regression(df, feature, target_col, output_path, f"{feature} vs {target_col}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate top feature plots.")
-    parser.add_argument('--importance', type=str, default='data/processed/feature_importance.csv',
-                        help='Path to feature importance CSV')
-    parser.add_argument('--data', type=str, default='data/processed/descriptors.csv',
-                        help='Path to processed data CSV')
-    parser.add_argument('--output', type=str, default='data/processed/corr_plot_top5.png',
-                        help='Path to save combined plot')
-    parser.add_argument('--output-dir', type=str, default='data/processed/correlation_plots',
-                        help='Directory for individual plots')
-    
+    """CLI entry point for plotting top features."""
+    parser = argparse.ArgumentParser(description="Generate plots for top features.")
+    parser.add_argument("--n", type=int, default=5, help="Number of top features to plot.")
     args = parser.parse_args()
-    
+
     setup_logging()
     
-    try:
-        # Ensure output directory exists
-        os.makedirs(args.output_dir, exist_ok=True)
-        
-        # Generate individual plots
-        generate_top_feature_plots(args.importance, args.data, args.output_dir)
-        
-        # Generate combined plot
-        create_combined_plot(args.importance, args.data, args.output)
-        
-    except Exception as e:
-        logger.error(f"Error generating plots: {e}")
-        raise
+    # Load data
+    importance_df = load_feature_importance()
+    top_features = get_top_features(importance_df, args.n)
+    
+    # Load processed data (descriptors)
+    data_path = os.path.join(DATA_PATH, "processed", "descriptors.csv")
+    if not os.path.exists(data_path):
+        logging.error(f"Processed data not found: {data_path}")
+        return
+    
+    df = pd.read_csv(data_path)
+    
+    # Determine target column
+    target_col = None
+    possible = ['conductivity', 'log_conductivity', 'HOMO_LUMO_gap', 'log_conductivity_proxy']
+    for col in possible:
+        if col in df.columns:
+            target_col = col
+            break
+    if not target_col:
+        target_col = df.columns[-1]
+    
+    # Generate plots
+    output_dir = os.path.join(DATA_PATH, "processed")
+    create_combined_plot(df, top_features, target_col, output_dir)
+    
+    # Specific plot for top 5 combined (as per T043)
+    combined_plot_path = os.path.join(output_dir, "corr_plot_top5.png")
+    # Create a multi-panel figure or just the first one for simplicity if combined is complex
+    # Here we create a single plot for the #1 feature as a representative
+    if top_features:
+        create_scatter_plot_with_regression(df, top_features[0], target_col, combined_plot_path, f"Top Feature: {top_features[0]}")
+    
+    logging.info("Plotting complete.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

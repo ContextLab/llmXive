@@ -10,4 +10,4 @@ networkx
 statsmodels
 joblib
 h5py
-jsonschema
+datasets

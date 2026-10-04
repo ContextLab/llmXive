@@ -1,11 +1,11 @@
 T004:
   c: true
-  h: 74f03493ea098c55b2cd5f82481ef07cfaad2707cf0178ec3bc4df0cc48c4b23
+  h: 4944e2d4bd793e804d8d85f0c73203fe35b8190b2164e5e133fce024604e46f0
   r: "The `code/config.py` file exists, is non\u2011empty, and defines all required\
     \ constants (`DATA_PATH`, `SEED`, `OUTLIER_SIGMA`, `VIF_THRESHOLD`, `TARGET_VAR`,\
     \ `RAW_DATA_PATH`, `SENSITIVITY_THRESHOLDS`, `CONFIDENCE_INTERVAL_TARGET`) with\
-    \ appropriate default values. The missing `data/raw/smiles.csv` does not affect\
-    \ the configuration module requirement."
+    \ the specified default values. The missing `data/raw/smiles.csv` is unrelated\
+    \ to this configuration task."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,11 +57,13 @@ T031:
     the retraining logic are present, and there is no evidence that the implementation
     reuses the exact split indices from T027 or the seed from T004. The required artifacts
     are missing, so the task is not satisfied.
-T033b:
+T032c:
   c: false
   h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
-  r: "The required artifact `data/processed/model_results.json` does not exist, so\
-    \ the final R\xB2/MAE values cannot be verified. The task is therefore not completed."
+  r: The required artifact `data/processed/model_results.json` does not exist, so
+    the sensitivity analysis results have not been recorded as the task demands. The
+    implementer must create this file and populate it with the appropriate sensitivity
+    analysis data.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,13 +85,20 @@ T036:
     plot\u2011with\u2011confidence\u2011intervals feature were provided; the claim\
     \ lacks any tangible artifact to verify that such a test exists and passes. The\
     \ required test file (e.g., a pytest module) is missing."
+T039d:
+  c: false
+  h: eb1ada1ff6f27ca5ac0a6ef851128aac2fdd7265e6e0ae129850ea6f7b8d8ad7
+  r: "The required artifact `data/processed/model_results.json` does not exist, so\
+    \ no data (including final R\xB2/MAE) can be verified against the schema. The\
+    \ task cannot be considered completed until this JSON file is created, populated\
+    \ with the appropriate fields, and conforms to `contracts/model_results_schema.yaml`."
 T040:
   c: false
-  h: fc36237522e43b9ed82435731c2db320e31cdb2c82a80a48322570e77d8813a6
-  r: "The repository lacks `data/processed/feature_importance.csv` (the file is missing)\
-    \ and the provided `code/analysis.py` excerpt does not contain any implementation\
-    \ of `sklearn.inspection.permutation_importance` or logic to save a ranked feature\u2011\
-    importance list. Consequently the required computation and output were not produced."
+  h: 6ce224ea57ff812ad4b74ef7626b2f038cf9f0217ac259d469b1cb0b2dd5d948
+  r: "The repository lacks the required `data/processed/feature_importance.csv` file,\
+    \ and the provided `code/analysis.py` does not contain any implementation of `sklearn.inspection.permutation_importance`\
+    \ nor code that writes a ranked feature\u2011importance list to that CSV. The\
+    \ task\u2019s core output is therefore missing."
 T043:
   c: false
   h: 739244b74ebd699aede79c39839f05deb756748afc1e4dec8ffe63d5bbe1a451

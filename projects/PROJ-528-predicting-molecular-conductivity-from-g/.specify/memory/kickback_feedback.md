@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T033a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/model_results.json
-- `T050` (rejected 1x): The required data files (`data/processed/descriptors.csv`, `model_results.json`, `analysis_summary.json`) and the descriptor schema (`contracts/descriptor_schema.yaml`) are absent, and there is no evidence of a validation script being run or its results. The task cannot be considered fulfilled.
+- `T019b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/descriptors.csv
+- `T033b` (rejected 1x): The required artifact `data/processed/model_results.json` does not exist, so the final R²/MAE values cannot be verified. The task is therefore not completed.
 
 ## Required change
 
