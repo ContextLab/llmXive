@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-10-04T22:00:47.255930+00:00"
+    "audited_at": "2026-10-04T22:21:07.939547+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-658-humanoid-gpt-scaling-data-and-structure",
-  "updated_at": "2026-10-04T22:00:47.255945+00:00"
+  "updated_at": "2026-10-04T22:21:07.939565+00:00"
 }
