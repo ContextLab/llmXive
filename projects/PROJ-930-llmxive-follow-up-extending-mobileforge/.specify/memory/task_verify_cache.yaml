@@ -1,27 +1,37 @@
-T009:
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/power_analysis.py` file or `calculate_required_n` function was presented,
-    and there is no `state/validated_n.json` output shown. Without these artifacts,
-    the task requirements are not satisfied.
-T019a:
+  r: "The provided artifacts pertain only to the MobileForge logic\u2011distillation\
+    \ specification and contain no configuration files, scripts, or documentation\
+    \ for setting up ruff linting or black formatting. No `pyproject.toml`, `ruff.toml`,\
+    \ `black.toml`, or related setup instructions are present, so the linting/formatting\
+    \ tools have not been configured as required."
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided, nor any excerpt showing that FR-005 now\
-    \ reads \u201CMcNemar's test (for binary paired outcomes)\u201D instead of \u201C\
-    paired t-test\u201D. Without the actual document change, the requirement cannot\
-    \ be confirmed as satisfied."
-T019b:
+  r: "No `state/` directory or any checksum/versioning files are present in the provided\
+    \ artifacts; without tangible evidence of the directory\u2019s creation and its\
+    \ contents, the requirement cannot be confirmed as satisfied."
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided showing the replacement of \u201Cpost-hoc\
-    \ power analysis\u201D with \u201CA priori power analysis\u201D in FR\u2011007,\
-    \ nor any evidence that the specification was amended. The required artifact is\
-    \ missing."
-T019c:
+  r: No `utils/emulator.py` file or its contents were provided; consequently the required
+    functions (`launch_emulator()`, `send_action(action_seq)`, `check_crash()`, `get_screenshot()`)
+    and error codes (`EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`) are absent. The
+    task cannot be considered completed until this module is present and implements
+    the specified interface.
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file was provided, so we cannot verify that FR-002 was\
-    \ edited to replace \u201Cencoder\u2011only model (e.g., DistilBERT)\u201D with\
-    \ \u201CEncoder\u2011Decoder model (e.g., T5\u2011small)\u201D. The required artifact\
-    \ is missing."
+  r: "No `utils/metrics.py` file or any code defining base classes for \u201CSuccess\
+    \ Rate\u201D and \u201CStep Efficiency\u201D was provided; thus the required artifact\
+    \ is missing. The task cannot be considered completed until the file exists with\
+    \ appropriate class implementations."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation were provided that define or
+    manage environment variables for dataset paths and random seeds, so the requirement
+    to set up such environment variable management is not demonstrated. The implementer
+    must supply the actual artifact (e.g., a `.env` template, a Python/CLI config
+    module, or setup instructions) showing how these variables are defined and used.

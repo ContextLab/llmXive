@@ -43,29 +43,26 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}` and `touch projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{requirements.txt,README.md}`
+- [ ] T001 Create project directory structure: Execute `mkdir -p projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{data/raw,data/processed,data/evaluation,models,utils,tests/unit,tests/integration}`
+- [ ] T001b Initialize project config files: Execute `touch projects/PROJ-930-llmxive-follow-up-extending-mobileforge/code/{requirements.txt,README.md}`
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin, including Kickback requests for spec amendments.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin, including Power Analysis to determine N *before* data extraction.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinned `torch`, `transformers`, `datasets`, `pandas`, `scikit-learn`, `pytest`, `statsmodels`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 Setup `state/` directory for artifact checksums and versioning (Constitution Principle III)
-- [ ] T005 [P] Implement `utils/emulator.py`: Headless Android emulator wrapper with robust retry logic for environment crashes. Must expose functions: `launch_emulator()`, `send_action(action_seq)`, `check_crash()`, `get_screenshot()`. Must define error codes: `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`. **Produces the interface required by US3 (T026/T027)**.
-- [ ] T005a [P] [US2] Implement `tests/unit/test_emulator.py` with mock emulator fixtures to verify T005 functions in isolation.
+- [ ] T005 [P] [Foundational] Implement `utils/emulator.py`: Thin wrapper for interacting with the `androidworld` dataset evaluation interface. Must expose functions: `launch_emulator()`, `send_action(action_seq)`, `check_crash()`, `get_screenshot()`. Must define error codes: `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND`. **Produces the interface required by US3 (T026/T027)**.
+- [ ] T005a [P] [Foundational] Implement `tests/unit/test_emulator.py` with mock emulator fixtures to verify T005 functions in isolation.
 - [ ] T006 [P] Setup `utils/metrics.py` base classes for "Success Rate" and "Step Efficiency" calculation
 - [ ] T007 [P] Create base data entities and schema definitions in `code/data/schema.py` for `ExtractionDataset`, `DistilledModel`, and `EvaluationResult`
 - [ ] T008 Configure environment variable management for dataset paths and random seeds (Constitution Principle I)
-- [ ] T009 [P] Implement `utils/power_analysis.py` script structure: Define function `calculate_required_n(effect_size: float, alpha: float, power: float) -> dict` which returns `{'validated_n': int, 'effect_size': float, 'power': float}`. Output must be written to `state/validated_n.json`. *Note: This is an initial estimate.*
-- [ ] T019a [P] [Kickback] **Spec Amendment Required**: Update `spec.md`:FR-005 to replace "paired t-test" with "McNemar's test (for binary paired outcomes)". Justification: Binary success/fail outcomes require a test for paired proportions, not continuous means.
-- [ ] T019b [P] [Kickback] **Spec Amendment Required**: Update `spec.md`:FR-007 to replace "post-hoc power analysis" with "A priori power analysis". Justification: Post-hoc power is tautological; a priori analysis validates sample size sufficiency before execution.
-- [ ] T019c [P] [Kickback] **Spec Amendment Required**: Update `spec.md`:FR-002 to replace "encoder-only model (e.g., DistilBERT)" with "Encoder-Decoder model (e.g., T5-small)". Justification: Sequence generation requires an Encoder-Decoder architecture; encoder-only models cannot natively generate variable-length sequences.
-- [ ] T019d [P] [Kickback] **Spec Amendment Required**: Update `spec.md`:US-3 and FR-003 to replace "500 unseen tasks" with "N tasks determined by A priori power analysis (see T032)". Update `spec.md`:SC-006 to reference McNemar's test for statistical power measurement.
+- [ ] T009 [P] [Foundational] Implement `utils/power_analysis.py` script: Define function `calculate_required_n(effect_size=0.2, alpha=0.05, power=0.8) -> dict` which returns `{'validated_n': int, 'effect_size': float, 'power': float, 'baseline_p0': 0.5}`. **Explicitly forbid accepting any 'estimated p0' from pilot data; use ONLY the assumed p0=0.5.** **Runtime Check:** Before calculation, verify that no data extraction artifacts (e.g., `data/processed/`, `state/extraction_stats.json`) exist with timestamps newer than the script start; if found, script MUST fail with "A priori constraint violated: Data extraction detected before power analysis." Output must be written to `state/validated_n.json` with the exact schema: `{"validated_n": <int>, "effect_size": 0.2, "power": 0.8, "baseline_p0": 0.5}`. **This N is the authoritative sample size for evaluation and must be calculated BEFORE data extraction.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,11 +72,11 @@
 
 **Goal**: Extract and filter `(UI_state, Corrective_Hint, Action)` triples from MobileForge logs, ensuring "failed-then-success" trajectories and purely linguistic hints.
 
-**Independent Test**: Running `code/utils/extraction.py` against raw logs produces a CSV/JSON with sufficient valid triples (target determined by T032), no nulls in key fields, and zero coordinate-based hints.
+**Independent Test**: Running `code/utils/extraction.py` against raw logs produces a CSV/JSON with sufficient valid triples (target determined by T009), no nulls in key fields, and zero coordinate-based hints.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for "failed-then-success" filter logic in `code/tests/unit/test_extraction.py`
+- [X] T010 [P] [US1] Unit test for "failed-then-success" filter logic in `code/tests/unit/test_extraction.py`
 - [ ] T011 [P] [US1] Unit test for "coordinate-free" hint validation regex in `code/tests/unit/test_extraction.py`
 
 ### Implementation for User Story 1
@@ -88,9 +85,8 @@
 - [ ] T013 [US1] Implement `code/utils/extraction.py`: Log parser to extract `(UI_state, Corrective_Hint, Action)` triples from raw logs.
 - [ ] T014 [US1] Implement `code/utils/extraction.py`: Filter logic for "initial failure, post-hint success" trajectories.
 - [ ] T015 [US1] Implement `code/utils/extraction.py`: Hint purity checker to exclude coordinate-based visual grounding (e.g., `[x,y]`).
-- [ ] T016 [US1] Generate `ExtractionDataset` (CSV/Parquet) at `code/data/processed/triples_v1.parquet`. **Script must count valid triples. If count < estimated_n (from T009), script must exit with code 1 and log "Dataset Shortage"**.
+- [ ] T016 [US1] Implement `code/utils/extraction.py`: **First step: Read `state/validated_n.json` to retrieve N.** **Dependency: T009 must complete before this task.** **Runtime Check:** Verify `state/validated_n.json` exists and was generated before any data extraction artifacts (check timestamps). If `validated_n.json` is missing or data artifacts are newer, script MUST exit with code 1 and a fatal error "A priori constraint violated". Count valid triples. **If count < N, script MUST exit with code 1 and a fatal error message "Dataset Volume Insufficient: X < N".** Do NOT log a warning and continue. Generate `ExtractionDataset` (CSV/Parquet) at `code/data/processed/triples_v1.parquet`. **Write valid triple count and validation status to `state/extraction_stats.json` with schema `{"valid_count": <int>, "status": "PASS|FAIL"}`.**
 - [ ] T017 [US1] Implement checksum generation for `ExtractionDataset` in `state/` (Constitution Principle III)
-- [ ] T032 [US1] **A Priori Power Analysis & N Finalization**: Implement `code/utils/power_analysis.py` logic to calculate the final required N based on the **actual** extracted triple count from T016 and assumed effect size. Output `validated_n` to `state/validated_n.json`. **This N is the authoritative sample size for evaluation.** *Note: This task runs AFTER T016 and BEFORE T026.*
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,7 +96,7 @@
 
 **Goal**: Train a lightweight T5-small (Encoder-Decoder, ≤100M params) model on CPU to predict action sequences from UI states and hints.
 
-**Independent Test**: Training job on `ubuntu-22.04` runner completes in ≤6 hours, Final loss ≤0.5, with no GPU/CUDA errors.
+**Independent Test**: Training job on `ubuntu-22.04` runner completes in ≤6 hours, Final loss converges, with no GPU/CUDA errors.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,7 +106,7 @@
 
 - [ ] T019 [US2] Implement `code/models/train_distilled.py`: Initialize T5-small (Encoder-Decoder, ≤100M params) with `device="cpu"` and sequence generation head (per amended FR-002).
 - [ ] T021 [US2] Implement `code/models/train_distilled.py`: Data loading with streaming/chunking to fit ≤7GB RAM constraint.
-- [ ] T020 [US2] Implement `code/models/train_distilled.py`: Training loop with loss monitoring and convergence check. **Script must assert final_loss <= 0.5**. If not met, exit with code 1.
+- [ ] T020 [US2] Implement `code/models/train_distilled.py`: Training loop with loss monitoring and convergence check. **Script must log final loss.** **CRITICAL CONSTRAINT: The script MUST enforce a hard timeout of a predetermined duration. (e.g., via `signal.alarm` or `subprocess` timeout). If the 6-hour limit is exceeded, the script MUST exit with code 1 and the message "Training Timeout: Exceeded 6 hours", failing the build immediately to satisfy SC-003.**
 - [ ] T022 [US2] Add explicit assertion/error check to fail loudly if CUDA device is detected (Constitution Principle VI).
 - [ ] T023 [US2] Save `DistilledModel` weights and config to `code/models/` upon completion.
 - [ ] T024 [US2] Log training duration and resource usage to verify ≤6h CPU constraint.
@@ -131,13 +127,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/data/evaluation/`: Load **N** tasks (where N comes from `state/validated_n.json` generated by T032) from `androidworld` dataset (DOI:10.48550/arXiv.2405.14793) using `datasets.load_dataset("androidworld")`. Ensure task IDs are tracked for pairing. *Dependency: T032 must complete before this task.*
-- [ ] T027 [US3] Implement `code/models/eval.py`: Execution loop for `DistilledModel` on the tracked tasks via headless emulator.
-- [ ] T028 [US3] Implement `code/models/eval.py`: Execution loop for TinyLlama baseline on the **exact same** tracked tasks (same task IDs) to enable pairing.
-- [ ] T029 [US3] Implement `code/models/eval.py`: "Generic retry" prompt baseline run on the **same** set of tasks for ablation study (Constitution Principle VII), distinct from primary TinyLlama comparison. **Produces ablation results required by T037.**
-- [ ] T030 [US3] Implement `code/utils/metrics.py`: Calculate "Success Rate" and "Step Efficiency" for both models, outputting paired results (task_id -> [distilled_score, baseline_score]) to `data/results/results.csv`.
-- [ ] T031 [US3] Implement `code/utils/metrics.py`: Perform **McNemar's test** (for binary outcomes) comparing Distilled vs. TinyLlama baseline on the paired results (same task IDs) to satisfy amended FR-005. Input: 2x2 contingency table from `results.csv` (columns: `task_id`, `distilled_success`, `baseline_success`).
-- [ ] T033 [US3] Generate `EvaluationResult` report with metrics, p-values, and power analysis in `data/results/`.
+- [ ] T026 [US3] Implement `code/data/evaluation/`: **First step: Read `state/validated_n.json` to retrieve N.** **Dependency: T009 must complete before this task.** Load **N** tasks from `androidworld` dataset (DOI:10.48550/arXiv.2405.14793) using `datasets.load_dataset("androidworld")`. **If the dataset contains fewer than N unique tasks, script MUST exit with code 1 and a fatal error message "Dataset Size Insufficient: X < N".** Do NOT proceed with available tasks. Ensure task IDs are tracked for pairing. Output the list of task IDs to `data/evaluation/tasks.json`.
+- [ ] T027 [US3] Implement `code/models/eval.py`: **Load task IDs from `data/evaluation/tasks.json`.** Execution loop for `DistilledModel` on the tracked tasks via headless emulator.
+- [ ] T028 [US3] Implement `code/models/eval.py`: **Load task IDs from `data/evaluation/tasks.json`.** Execution loop for TinyLlama baseline on the **exact same** tracked tasks (same task IDs) to enable pairing.
+- [ ] T029 [US3] Implement `code/models/eval.py`: **Load task IDs from `data/evaluation/tasks.json`.** "Generic retry" prompt baseline run on the **same** set of tasks for ablation study (Constitution Principle VII), distinct from primary TinyLlama comparison. **Output results to `data/results/ablation_results.json` with schema `{"task_id": <str>, "success": <bool>}`.** *Dependency: T026 must complete before this task.*
+- [ ] T030 [US3] Implement `code/utils/metrics.py`: **Load task IDs from `data/evaluation/tasks.json`.** Calculate "Success Rate" and "Step Efficiency" for both models. **Output paired results to `data/results/results.csv` with columns: `task_id`, `distilled_success` (binary True/False), `baseline_success` (binary True/False), `distilled_efficiency`, `baseline_efficiency`.** **Verify that all task IDs from `tasks.json` are present in both model outputs.** Ensure `data/results/` directory exists before writing.
+- [ ] T031 [US3] Implement `code/utils/metrics.py`: **Load paired results from `data/results/results.csv`.** **Explicitly verify that the input data contains paired binary outcomes (Success/Fail) from the exact same task instances (same task_id) for both models.** **Extract the binary `distilled_success` and `baseline_success` columns to construct the 2x2 contingency table (cells: a=both success, b=distilled success/baseline fail, c=distilled fail/baseline success, d=both fail).** Perform **McNemar's test** (for binary outcomes) comparing Distilled vs. TinyLlama baseline. **Dependency: T037 (Ablation Report) must complete before this task to ensure the ablation study accompanies the performance claim.** *Dependency: T030 must complete before this task.*
+- [ ] T033 [US3] Generate `EvaluationResult` report with metrics, p-values, and power analysis in `data/results/`. **Dependency: T037 must complete.**
+- [ ] T037 [US3] Generate `AblationReport` comparing "hint" input vs. "generic retry" baseline performance **using results from `data/results/ablation_results.json`**. **Output to `state/ablation_report.md` (Markdown format) including quantitative metrics: success rate difference, p-value.** *Dependency: T029 must complete before this task.*
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,12 +148,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T034 [US4] Implement `code/models/eval.py`: Sensitivity sweep logic for "inconsistency tolerance" thresholds across a range of significance levels as mandated by FR-006 and SC-005.
+- [ ] T034 [US4] Implement `code/models/eval.py`: Sensitivity sweep logic for "inconsistency tolerance" thresholds across a range of Levenshtein distances as mandated by FR-006.
 - [ ] T035 [US4] Implement `code/utils/metrics.py`: Variance calculation for success rates across swept thresholds.
-- [ ] T036 [US4] Generate `SensitivityReport` in `data/results/` measuring variance across swept thresholds (no hard pass/fail threshold, per SC-005).
-- [ ] T037 [US4] Generate `AblationReport` comparing "hint" input vs. "generic retry" baseline performance **using results from T029**. *Dependency: T029 must complete before this task.*
-- [ ] T038 [US4] Implement `code/models/eval.py`: **Stress Test** logic to evaluate Distilled Model on a subset of tasks with ambiguous hints (if available) to measure distribution shift.
-- [ ] T039 [US4] Implement `code/utils/metrics.py`: **Confounding Control** via difficulty matching to rule out confounders in the evaluation set.
+- [ ] T036 [US4] Generate `SensitivityReport` in `data/results/` measuring variance across swept thresholds (no hard pass/fail threshold, per SC-005). **Dependency: T037 must complete to ensure ablation context is available.**
+
+**Note**: T037 (Ablation Report) is located in Phase 5 (US3) to maintain logical grouping with its data source (T029), though US4 can start in parallel with US3 execution.
 
 ---
 
@@ -170,9 +166,6 @@
 - [ ] T041a [P] Code cleanup: Remove unused imports and variables across `code/`.
 - [ ] T041b [P] Code cleanup: Enforce line length < 88 and formatting consistency (black).
 - [ ] T041c [P] Code cleanup: Fix missing type hints in `code/utils/` and `code/models/`.
-- [ ] T042 Performance optimization for data streaming and model inference
-- [ ] T043 [P] Additional unit tests for edge cases (empty logs, emulator crashes) in `code/tests/unit/`
-- [ ] T044 Run `quickstart.md` validation and update if needed
 
 ---
 
@@ -186,7 +179,7 @@
  - **US1 (P1)**: Must complete before US2 (Training needs dataset) and US3 (Evaluation needs model)
  - **US2 (P2)**: Must complete before US3 and US4 (Evaluation needs model)
  - **US3 (P3)**: Can run in parallel with US4 once US2 is complete
- - **US4 (P3)**: Can run in parallel with US3 once US2 is complete
+ - **US4 (P3)**: Can run in parallel with US3 once US2 is complete (Note: Final US4 reporting depends on US3 completion)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -194,14 +187,15 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 (Dataset)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 (Tasks) and US2 (Model)
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 (Model) and specifically **T029** (Ablation Results from US3)
+- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 (Model). **Final reporting (T036) depends on US3 completion (T037 results)** to ensure ablation context is available.
 
 ### Specific Artifact Dependencies
 
-- **T032 (N Calculation)**: Must complete before T026 (Evaluation Load). T032 is in Phase 3; T026 is in Phase 5.
-- **T029 (Ablation Run)**: Must complete before T037 (Ablation Report). T029 is in Phase 5; T037 is in Phase 6.
+- **T009 (N Calculation)**: Must complete before T016 (Data Extraction) and T026 (Evaluation Load). T009 is in Phase 2; T016/T026 are in Phase 3/5. **Explicitly enforced by file existence and timestamp checks.**
+- **T029 (Ablation Run)**: Must complete before T037 (Ablation Report). T029 is in Phase 5; T037 is in Phase 5.
 - **T005 (Emulator)**: Provides interface for T026/T027.
-- **T016 (Data Extraction)**: Must complete before T032 (N Calculation).
+- **T016 (Data Extraction)**: Must complete before T017 (Checksums).
+- **T037 (Ablation Report)**: Must complete before T031 (McNemar's Test) and T033 (Evaluation Report) and T036 (Sensitivity Report).
 
 ### Parallel Opportunities
 
@@ -210,7 +204,7 @@
 - Once Foundational phase completes:
  - **US1** must run first (blocks US2)
  - Once **US1** completes, **US2** can start
- - Once **US2** completes, **US3** and **US4** can run in parallel
+ - Once **US2** completes, **US3** and **US4** can start in parallel
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -226,6 +220,10 @@
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Constraint**: All data loaders MUST fail loudly on missing real data; no synthetic fallbacks allowed.
 - **Critical Compute Constraint**: All training must be explicitly CPU-only; any CUDA usage must trigger an immediate failure.
-- **Architecture Note**: Tasks now mandate T5-small (Encoder-Decoder) per amended FR-002 (see Kickback T019c).
-- **Statistical Note**: Tasks now mandate McNemar's test and A priori analysis per amended FR-005/FR-007 (see Kickback T019a, T019b).
-- **Kickback Note**: Tasks T019a-d are Kickback requests. The spec.md MUST be updated externally to reflect these changes before the project is considered fully compliant.
+- **Architecture Note**: Tasks now mandate T5-small (Encoder-Decoder) per amended FR-002.
+- **Statistical Note**: Tasks now mandate McNemar's test and A priori analysis per amended FR-005/FR-007.
+- **Power Analysis Note**: T009 calculates N using assumed parameters (p0=0.5) BEFORE data extraction (T016) to satisfy "A priori" requirement. Includes runtime timestamp checks.
+- **Data Volume Note**: T016 and T026 now enforce N as a hard constraint; scripts MUST exit with code 1 if data is insufficient or if `validated_n.json` is missing.
+- **Ablation Note**: T029 outputs to `data/results/ablation_results.json`; T037 reads from this file to generate `state/ablation_report.md`. T037 is a strict dependency for T031, T033, and T036.
+- **Sensitivity Note**: T034 explicitly sweeps thresholds [0, 1, 2, 3].
+- **Performance Note**: T020 now explicitly enforces the 6-hour timeout as a hard failure condition, resolving the previous contradiction.

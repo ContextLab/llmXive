@@ -1,13 +1,12 @@
 """
-Power Analysis Utilities for MobileForge Logic Distillation.
+Power Analysis Module for MobileForge Logic Distillation.
 
-This module implements A priori power analysis to determine the required
-sample size (N) for statistical tests (specifically McNemar's test for
-paired binary outcomes) to achieve a desired statistical power.
+This module implements the calculation of the required sample size (N) for
+statistical evaluation, adhering to the Constitution Principles and specific
+project constraints (FR-007).
 
-It adheres to the Constitution Principle I (Environment Variables) for
-configuration and Constitution Principle III (State Management) for
-artifact versioning.
+It explicitly forbids using pilot data to estimate baseline probability (p0),
+enforcing the use of the conservative assumption p0 = 0.5.
 """
 
 import json
@@ -16,154 +15,189 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import project root helper from env_manager to ensure consistent pathing
 from utils.env_manager import get_project_root
 
 
-def calculate_required_n(effect_size: float, alpha: float = 0.05, power: float = 0.80) -> Dict[str, Any]:
+def _calculate_z_score(probability: float) -> float:
     """
-    Calculate the required sample size (N) for a paired proportions test (McNemar's).
+    Approximates the inverse of the standard normal cumulative distribution function (Z-score).
+    Uses the Abramowitz and Stegun approximation (26.2.23) for high precision.
+    """
+    if probability <= 0 or probability >= 1:
+        raise ValueError("Probability must be strictly between 0 and 1.")
 
-    This function performs an A priori power analysis. It estimates the number
-    of subjects (tasks) needed to detect a specified effect size with a given
-    significance level (alpha) and statistical power.
+    # Constants for approximation
+    b0 = 2.515517
+    b1 = 0.802853
+    b2 = 0.010328
+    a1 = 1.432788
+    a2 = 0.189269
+    a3 = 0.001308
 
-    For McNemar's test on paired binary data, the effect size is often represented
-    by the difference in discordant proportions or an odds ratio. This implementation
-    uses a normal approximation for the sample size calculation based on the
-    difference in proportions (p1 - p2) where p1 and p2 are the success rates
-    of the two conditions (Distilled vs Baseline).
+    p = probability
+    if p > 0.5:
+        p = 1.0 - p
+    
+    t = math.sqrt(-2.0 * math.log(p))
+    
+    # Abramowitz and Stegun approximation
+    z = t - (b0 + b1 * t + b2 * t * t) / (1.0 + a1 * t + a2 * t * t + a3 * t * t * t)
+    
+    if probability > 0.5:
+        return -z
+    return z
 
-    Formula (Normal Approximation for Paired Proportions):
-    N = ( (Z_alpha * sqrt(2*P_bar*(1-P_bar)) + Z_beta * sqrt(P_diff)) )^2 / (P_diff)^2
-    *Simplified for general power analysis context where effect_size is Cohen's h or similar.*
 
-    Here, we implement a standard approximation for detecting a difference in proportions
-    assuming a balanced design and using the standard normal distribution.
+def calculate_required_n(
+    effect_size: float = 0.2,
+    alpha: float = 0.05,
+    power: float = 0.8,
+    baseline_p0: float = 0.5
+) -> Dict[str, Any]:
+    """
+    Calculates the required sample size (N) for a proportion test.
+
+    This function implements the a priori power analysis required by FR-007.
+    It explicitly enforces the use of `baseline_p0 = 0.5` regardless of any
+    pilot data, as per project constraints to ensure conservative estimation.
 
     Args:
-        effect_size (float): The expected effect size (e.g., Cohen's h or difference in proportions).
-        alpha (float): Significance level (default 0.05).
-        power (float): Desired statistical power (default 0.80).
+        effect_size (float): The minimum detectable difference in proportions (delta).
+        alpha (float): The significance level (Type I error rate).
+        power (float): The statistical power (1 - Type II error rate).
+        baseline_p0 (float): The assumed baseline success rate. 
+                             **Constraint**: Must be 0.5. The function ignores 
+                             any other value passed to ensure compliance.
 
     Returns:
         dict: A dictionary containing:
-            - 'validated_n': int (The calculated minimum sample size, rounded up)
-            - 'effect_size': float (The input effect size)
-            - 'power': float (The input power)
-            - 'alpha': float (The input alpha)
-            - 'method': str (Description of the method used)
+            - 'validated_n': The calculated integer sample size.
+            - 'effect_size': The input effect size.
+            - 'power': The input power.
+            - 'baseline_p0': The fixed baseline probability (0.5).
 
     Raises:
-        ValueError: If inputs are out of valid ranges.
+        ValueError: If effect_size, alpha, or power are out of valid ranges.
     """
+    # Input validation
     if not (0 < alpha < 1):
-        raise ValueError(f"Alpha must be between 0 and 1, got {alpha}")
+        raise ValueError("Alpha must be between 0 and 1.")
     if not (0 < power < 1):
-        raise ValueError(f"Power must be between 0 and 1, got {power}")
-    if effect_size <= 0:
-        raise ValueError(f"Effect size must be positive, got {effect_size}")
+        raise ValueError("Power must be between 0 and 1.")
+    if not (0 < effect_size < 1):
+        raise ValueError("Effect size must be between 0 and 1.")
+
+    # Enforce the conservative baseline p0 = 0.5 constraint
+    # This prevents "p-hacking" or optimistic bias from pilot data.
+    enforced_p0 = 0.5
+    p1 = enforced_p0 + effect_size
+
+    if not (0 < p1 < 1):
+        # If effect_size pushes p1 out of bounds, clamp or error depending on strictness.
+        # Given effect_size=0.2 and p0=0.5, p1=0.7 is valid.
+        # If effect_size was 0.6, p1=1.1 -> invalid.
+        raise ValueError(f"Effect size {effect_size} with p0={enforced_p0} results in invalid p1={p1}.")
 
     # Z-scores
-    # Z_alpha for two-tailed test (standard for McNemar's)
-    z_alpha = abs(math.erfcinv(alpha) * math.sqrt(2))
-    # Z_beta for power (1 - beta)
-    z_beta = abs(math.erfcinv(2 * (1 - power)) * math.sqrt(2))
+    z_alpha_2 = _calculate_z_score(1 - alpha / 2)
+    z_beta = _calculate_z_score(power)
 
-    # Calculation for difference in proportions (approximation)
-    # N = ( (Z_alpha + Z_beta)^2 * (p1*(1-p1) + p2*(1-p2)) ) / (p1 - p2)^2
-    # Since we are given an abstract 'effect_size', we treat it as the standardized
-    # difference (Cohen's h) or a direct proportion difference for the approximation.
-    # Using the standard formula for sample size given effect size (h):
-    # N = ( (Z_alpha + Z_beta) / effect_size )^2
-    # This is a conservative estimate for the number of pairs needed.
+    # Pooled proportion under null hypothesis (p0) vs alternative (p1)
+    # For a one-sample proportion test (comparing observed p1 to fixed p0):
+    # n = ( (Z_alpha * sqrt(p0*(1-p0)) + Z_beta * sqrt(p1*(1-p1)))^2 ) / (p1 - p0)^2
+    
+    # Note: Some formulations use two-sample test logic if comparing two groups.
+    # Here, we are establishing a sample size for a single evaluation run against 
+    # a known baseline (TinyLlama or theoretical chance), or detecting a shift.
+    # The standard formula for one-sample proportion test:
+    
+    p0 = enforced_p0
+    p_alt = p1
 
-    numerator = (z_alpha + z_beta) ** 2
-    n = numerator / (effect_size ** 2)
-
-    # Round up to the nearest integer
-    validated_n = math.ceil(n)
+    term1 = z_alpha_2 * math.sqrt(p0 * (1 - p0))
+    term2 = z_beta * math.sqrt(p_alt * (1 - p_alt))
+    
+    numerator = (term1 + term2) ** 2
+    denominator = (p_alt - p0) ** 2
+    
+    n_raw = numerator / denominator
+    
+    # Round up to ensure power is met
+    validated_n = math.ceil(n_raw)
 
     return {
-        'validated_n': validated_n,
-        'effect_size': effect_size,
-        'power': power,
-        'alpha': alpha,
-        'method': 'A priori power analysis (Normal Approximation for Paired Proportions)'
+        "validated_n": validated_n,
+        "effect_size": effect_size,
+        "power": power,
+        "baseline_p0": enforced_p0
     }
 
 
-def write_validated_n(result: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+def write_validated_n(
+    result: Dict[str, Any],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Write the power analysis result to the state directory.
+    Writes the validated N calculation result to a JSON file in the state directory.
 
     Args:
         result (dict): The dictionary returned by calculate_required_n.
-        output_path (Optional[Path]): Explicit path to write the file. If None,
-            defaults to state/validated_n.json within the project root.
+        output_path (Path, optional): Override the default output path.
 
     Returns:
-        Path: The path to the written JSON file.
-
-    Raises:
-        IOError: If the file cannot be written.
+        Path: The path to the written file.
     """
     if output_path is None:
         project_root = get_project_root()
         state_dir = project_root / "state"
-        state_dir.mkdir(parents=True, exist_ok=True)
+        if not state_dir.exists():
+            state_dir.mkdir(parents=True, exist_ok=True)
         output_path = state_dir / "validated_n.json"
     else:
         # Ensure parent directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(result, f, indent=2)
-        return output_path
-    except IOError as e:
-        raise IOError(f"Failed to write validated_n.json to {output_path}: {e}")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2)
+
+    return output_path
 
 
 def main() -> None:
     """
-    Main entry point for the power analysis script.
-
-    Reads configuration from environment variables or uses defaults:
-    - POWER_EFFECT_SIZE: Expected effect size (default 0.3, medium effect)
-    - POWER_ALPHA: Significance level (default 0.05)
-    - POWER_POWER: Desired power (default 0.80)
-
-    Calculates N and writes to state/validated_n.json.
+    Entry point for the power analysis script.
+    Calculates N and writes it to state/validated_n.json.
     """
-    import os
+    print("Starting Power Analysis for MobileForge Logic Distillation...")
+    print("Constraint: Baseline p0 is fixed at 0.5 (Conservative Assumption).")
 
-    # Default values
-    default_effect_size = 0.3
-    default_alpha = 0.05
-    default_power = 0.80
-
-    # Load from environment if set
-    effect_size = float(os.getenv('POWER_EFFECT_SIZE', default_effect_size))
-    alpha = float(os.getenv('POWER_ALPHA', default_alpha))
-    power = float(os.getenv('POWER_POWER', default_power))
-
-    print(f"Running A priori power analysis...")
-    print(f"  Effect Size: {effect_size}")
-    print(f"  Alpha: {alpha}")
-    print(f"  Power: {power}")
+    # Default parameters as per task specification
+    effect_size = 0.2
+    alpha = 0.05
+    power = 0.8
 
     try:
-        result = calculate_required_n(effect_size, alpha, power)
-        output_path = write_validated_n(result)
-        print(f"Calculation complete.")
+        result = calculate_required_n(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power
+        )
+        
+        output_file = write_validated_n(result)
+        
+        print(f"Calculation Complete.")
+        print(f"  Effect Size: {result['effect_size']}")
+        print(f"  Alpha: {result['effect_size']}")
+        print(f"  Power: {result['power']}")
+        print(f"  Baseline p0: {result['baseline_p0']}")
         print(f"  Required N: {result['validated_n']}")
-        print(f"  Output written to: {output_path}")
+        print(f"  Output written to: {output_file}")
+
     except ValueError as e:
-        print(f"Error: Invalid input parameters. {e}")
+        print(f"Error in calculation: {e}")
         raise
-    except IOError as e:
-        print(f"Error: Failed to write output. {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         raise
 
 

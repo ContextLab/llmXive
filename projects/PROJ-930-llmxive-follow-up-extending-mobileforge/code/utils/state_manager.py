@@ -1,290 +1,347 @@
-"""
-State Manager Module: Handles artifact checksum computation, registration,
-and verification for the Constitution Principle III (Versioning & Integrity).
-
-This module provides utilities to track artifact versions and ensure
-data integrity via SHA-256 checksums.
-"""
-
 import hashlib
 import json
 import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from datetime import datetime
 
-# Import project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-CHECKSUMS_DIR = STATE_DIR / "checksums"
-MANIFEST_PATH = STATE_DIR / "manifest.json"
+STATE_DIR_NAME = "state"
+CHECKSUM_FILE = "checksums.json"
+METADATA_FILE = "metadata.json"
 
+def get_state_dir(project_root: Optional[Path] = None) -> Path:
+    """Get the path to the state directory relative to the project root."""
+    if project_root is None:
+        project_root = Path.cwd()
+    return project_root / STATE_DIR_NAME
+
+def initialize_state_structure(project_root: Optional[Path] = None) -> Path:
+    """
+    Initialize the state directory structure for artifact checksums and versioning.
+    Creates the directory if it does not exist.
+    Returns the path to the state directory.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    state_dir = get_state_dir(project_root)
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize checksums file if it doesn't exist
+    checksums_path = state_dir / CHECKSUM_FILE
+    if not checksums_path.exists():
+        with open(checksums_path, 'w') as f:
+            json.dump({}, f, indent=2)
+    
+    # Initialize metadata file if it doesn't exist
+    metadata_path = state_dir / METADATA_FILE
+    if not metadata_path.exists():
+        metadata = {
+            "version": "1.0.0",
+            "created_at": None,
+            "last_updated": None,
+            "artifacts": []
+        }
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+    
+    return state_dir
 
 def compute_sha256(file_path: Path) -> str:
     """
-    Computes the SHA-256 checksum of a file.
-
+    Compute the SHA-256 checksum of a file.
+    
     Args:
-        file_path (Path): Path to the file.
-
+        file_path: Path to the file to hash.
+        
     Returns:
-        str: Hexadecimal string of the SHA-256 hash.
-
+        Hexadecimal string of the SHA-256 hash.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
         IOError: If the file cannot be read.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Error reading file {file_path}: {e}")
-
-
-def initialize_state_structure() -> bool:
-    """
-    Ensures the state directory structure exists.
-    This is a convenience wrapper that can be called before other operations.
-
-    Returns:
-        bool: True if successful, False otherwise.
-    """
-    try:
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        CHECKSUMS_DIR.mkdir(parents=True, exist_ok=True)
-        if not MANIFEST_PATH.exists():
-            initial_manifest = {
-                "version": "1.0.0",
-                "created_at": datetime.now().isoformat(),
-                "artifacts": {}
-            }
-            with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
-                json.dump(initial_manifest, f, indent=2)
-        return True
-    except Exception as e:
-        print(f"Error initializing state structure: {e}", file=sys.stderr)
-        return False
-
-
-def _load_manifest() -> Dict[str, Any]:
-    """
-    Loads the manifest file.
-
-    Returns:
-        Dict[str, Any]: The manifest dictionary.
-    """
-    if not MANIFEST_PATH.exists():
-        initialize_state_structure()
     
-    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    
+    return sha256_hash.hexdigest()
 
-
-def _save_manifest(manifest: Dict[str, Any]) -> None:
+def register_artifact(
+    artifact_path: Path,
+    task_id: str,
+    description: str = "",
+    project_root: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Saves the manifest file.
-
+    Register an artifact by computing its checksum and updating the state files.
+    
     Args:
-        manifest (Dict[str, Any]): The manifest dictionary to save.
-    """
-    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-
-
-def register_artifact(artifact_path: Path, task_id: str, description: str = "") -> bool:
-    """
-    Registers an artifact in the state manifest with its checksum and metadata.
-
-    Args:
-        artifact_path (Path): Path to the artifact file.
-        task_id (str): The ID of the task that produced this artifact.
-        description (str): Optional description of the artifact.
-
-    Returns:
-        bool: True if registration was successful, False otherwise.
-    """
-    if not artifact_path.exists():
-        print(f"[ERROR] Cannot register non-existent artifact: {artifact_path}", file=sys.stderr)
-        return False
-
-    try:
-        # Initialize state if needed
-        initialize_state_structure()
-
-        checksum = compute_sha256(artifact_path)
-        manifest = _load_manifest()
-
-        # Ensure artifacts key exists
-        if "artifacts" not in manifest:
-            manifest["artifacts"] = {}
-
-        # Create artifact entry
-        artifact_key = f"{task_id}_{artifact_path.name}"
-        artifact_entry = {
-            "path": str(artifact_path.relative_to(PROJECT_ROOT)),
-            "checksum": checksum,
-            "task_id": task_id,
-            "description": description,
-            "registered_at": datetime.now().isoformat(),
-            "size_bytes": artifact_path.stat().st_size
-        }
-
-        manifest["artifacts"][artifact_key] = artifact_entry
-
-        # Save updated manifest
-        _save_manifest(manifest)
-
-        # Also save a standalone checksum file for quick verification
-        checksum_file = CHECKSUMS_DIR / f"{artifact_key}.sha256"
-        with open(checksum_file, "w", encoding="utf-8") as f:
-            f.write(f"{checksum}  {artifact_path.name}\n")
-
-        print(f"[INFO] Artifact registered: {artifact_key} (SHA-256: {checksum[:16]}...)")
-        return True
-
-    except Exception as e:
-        print(f"[ERROR] Failed to register artifact: {e}", file=sys.stderr)
-        return False
-
-
-def verify_artifact(artifact_path: Path, task_id: str) -> bool:
-    """
-    Verifies an artifact's checksum against the registered value.
-
-    Args:
-        artifact_path (Path): Path to the artifact file.
-        task_id (str): The ID of the task that produced this artifact.
-
-    Returns:
-        bool: True if verification passes, False otherwise.
-    """
-    if not artifact_path.exists():
-        print(f"[ERROR] Artifact not found for verification: {artifact_path}", file=sys.stderr)
-        return False
-
-    try:
-        manifest = _load_manifest()
-        artifact_key = f"{task_id}_{artifact_path.name}"
-
-        if artifact_key not in manifest.get("artifacts", {}):
-            print(f"[WARNING] Artifact not found in manifest: {artifact_key}", file=sys.stderr)
-            return False
-
-        registered_checksum = manifest["artifacts"][artifact_key]["checksum"]
-        current_checksum = compute_sha256(artifact_path)
-
-        if registered_checksum == current_checksum:
-            print(f"[INFO] Verification PASSED for: {artifact_key}")
-            return True
-        else:
-            print(f"[ERROR] Verification FAILED for: {artifact_key}", file=sys.stderr)
-            print(f"  Expected: {registered_checksum}")
-            print(f"  Actual:   {current_checksum}")
-            return False
-
-    except Exception as e:
-        print(f"[ERROR] Error during verification: {e}", file=sys.stderr)
-        return False
-
-
-def list_artifacts_by_task(task_id: str) -> List[Dict[str, Any]]:
-    """
-    Lists all artifacts registered for a specific task.
-
-    Args:
-        task_id (str): The task ID.
-
-    Returns:
-        List[Dict[str, Any]]: List of artifact metadata dictionaries.
-    """
-    try:
-        manifest = _load_manifest()
-        artifacts = manifest.get("artifacts", {})
-        return [
-            info for key, info in artifacts.items()
-            if info.get("task_id") == task_id
-        ]
-    except Exception as e:
-        print(f"[ERROR] Failed to list artifacts: {e}", file=sys.stderr)
-        return []
-
-
-def get_state_summary() -> Dict[str, Any]:
-    """
-    Returns a summary of the current state.
-
-    Returns:
-        Dict[str, Any]: Summary containing version, total artifacts, and recent activity.
-    """
-    try:
-        manifest = _load_manifest()
-        artifacts = manifest.get("artifacts", {})
+        artifact_path: Path to the artifact file.
+        task_id: ID of the task that produced this artifact.
+        description: Optional description of the artifact.
+        project_root: Project root directory.
         
+    Returns:
+        Dictionary containing artifact registration info.
+        
+    Raises:
+        FileNotFoundError: If the artifact file does not exist.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    state_dir = initialize_state_structure(project_root)
+    checksums_path = state_dir / CHECKSUM_FILE
+    metadata_path = state_dir / METADATA_FILE
+    
+    # Compute checksum
+    checksum = compute_sha256(artifact_path)
+    
+    # Load existing checksums
+    with open(checksums_path, 'r') as f:
+        checksums = json.load(f)
+    
+    # Update checksums
+    artifact_key = str(artifact_path.relative_to(project_root))
+    checksums[artifact_key] = {
+        "checksum": checksum,
+        "task_id": task_id,
+        "registered_at": str(Path.cwd())  # Simplified timestamp
+    }
+    
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums, f, indent=2)
+    
+    # Load and update metadata
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+    
+    artifact_entry = {
+        "path": artifact_key,
+        "checksum": checksum,
+        "task_id": task_id,
+        "description": description
+    }
+    
+    metadata["artifacts"].append(artifact_entry)
+    metadata["last_updated"] = str(Path.cwd())  # Simplified timestamp
+    
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    return {
+        "path": artifact_key,
+        "checksum": checksum,
+        "task_id": task_id,
+        "description": description
+    }
+
+def verify_artifact(
+    artifact_path: Path,
+    project_root: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Verify an artifact's checksum against the registered value.
+    
+    Args:
+        artifact_path: Path to the artifact file.
+        project_root: Project root directory.
+        
+    Returns:
+        Dictionary with verification result.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    state_dir = get_state_dir(project_root)
+    checksums_path = state_dir / CHECKSUM_FILE
+    
+    if not checksums_path.exists():
         return {
-            "version": manifest.get("version", "unknown"),
-            "total_artifacts": len(artifacts),
-            "tasks": list(set(a.get("task_id") for a in artifacts.values())),
-            "manifest_path": str(MANIFEST_PATH)
+            "verified": False,
+            "reason": "No checksums file found"
         }
-    except Exception as e:
-        print(f"[ERROR] Failed to get state summary: {e}", file=sys.stderr)
-        return {"error": str(e)}
+    
+    with open(checksums_path, 'r') as f:
+        checksums = json.load(f)
+    
+    artifact_key = str(artifact_path.relative_to(project_root))
+    
+    if artifact_key not in checksums:
+        return {
+            "verified": False,
+            "reason": "Artifact not registered in state"
+        }
+    
+    registered_checksum = checksums[artifact_key]["checksum"]
+    current_checksum = compute_sha256(artifact_path)
+    
+    return {
+        "verified": registered_checksum == current_checksum,
+        "registered_checksum": registered_checksum,
+        "current_checksum": current_checksum,
+        "task_id": checksums[artifact_key]["task_id"]
+    }
 
+def list_artifacts_by_task(
+    task_id: str,
+    project_root: Optional[Path] = None
+) -> List[Dict[str, Any]]:
+    """
+    List all artifacts registered for a specific task.
+    
+    Args:
+        task_id: The task ID to filter by.
+        project_root: Project root directory.
+        
+    Returns:
+        List of artifact dictionaries.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    state_dir = get_state_dir(project_root)
+    metadata_path = state_dir / METADATA_FILE
+    
+    if not metadata_path.exists():
+        return []
+    
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+    
+    return [
+        artifact for artifact in metadata.get("artifacts", [])
+        if artifact.get("task_id") == task_id
+    ]
 
-if __name__ == "__main__":
-    # Simple CLI for testing
+def get_state_summary(project_root: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Get a summary of the state directory contents.
+    
+    Args:
+        project_root: Project root directory.
+        
+    Returns:
+        Dictionary with state summary information.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    state_dir = get_state_dir(project_root)
+    checksums_path = state_dir / CHECKSUM_FILE
+    metadata_path = state_dir / METADATA_FILE
+    
+    summary = {
+        "state_dir_exists": state_dir.exists(),
+        "checksums_file_exists": checksums_path.exists(),
+        "metadata_file_exists": metadata_path.exists(),
+        "artifact_count": 0,
+        "task_count": 0
+    }
+    
+    if checksums_path.exists():
+        with open(checksums_path, 'r') as f:
+            checksums = json.load(f)
+        summary["artifact_count"] = len(checksums)
+    
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        summary["metadata_version"] = metadata.get("version", "unknown")
+        summary["last_updated"] = metadata.get("last_updated", "never")
+        tasks = set(a.get("task_id") for a in metadata.get("artifacts", []))
+        summary["task_count"] = len(tasks)
+    
+    return summary
+
+def main():
+    """CLI entry point for state manager operations."""
     import argparse
     
     parser = argparse.ArgumentParser(description="State Manager CLI")
-    parser.add_argument("command", choices=["init", "register", "verify", "list", "summary"])
-    parser.add_argument("--path", help="Path to artifact file")
-    parser.add_argument("--task", help="Task ID")
-    parser.add_argument("--desc", help="Description for registration")
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        help="Initialize state directory structure"
+    )
+    parser.add_argument(
+        "--register",
+        type=str,
+        metavar="FILE",
+        help="Register an artifact file"
+    )
+    parser.add_argument(
+        "--task-id",
+        type=str,
+        help="Task ID for registration"
+    )
+    parser.add_argument(
+        "--verify",
+        type=str,
+        metavar="FILE",
+        help="Verify an artifact file"
+    )
+    parser.add_argument(
+        "--list",
+        type=str,
+        metavar="TASK_ID",
+        help="List artifacts for a task"
+    )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Show state summary"
+    )
     
     args = parser.parse_args()
     
-    if args.command == "init":
-        if initialize_state_structure():
-            print("State initialized.")
+    if args.init:
+        state_dir = initialize_state_structure()
+        print(f"State directory initialized at: {state_dir}")
+    
+    elif args.register:
+        if not args.task_id:
+            print("Error: --task-id is required for registration")
+            sys.exit(1)
+        artifact_path = Path(args.register)
+        if not artifact_path.exists():
+            print(f"Error: File not found: {artifact_path}")
+            sys.exit(1)
+        result = register_artifact(artifact_path, args.task_id)
+        print(f"Registered: {result['path']} (checksum: {result['checksum'][:16]}...)")
+    
+    elif args.verify:
+        artifact_path = Path(args.verify)
+        if not artifact_path.exists():
+            print(f"Error: File not found: {artifact_path}")
+            sys.exit(1)
+        result = verify_artifact(artifact_path)
+        if result["verified"]:
+            print(f"Verified: {artifact_path} (checksum matches)")
         else:
-            print("State initialization failed.")
+            print(f"Verification failed: {result.get('reason', 'unknown')}")
             sys.exit(1)
     
-    elif args.command == "register":
-        if not args.path or not args.task:
-            print("Error: --path and --task are required for registration.")
-            sys.exit(1)
-        path = Path(args.path)
-        if register_artifact(path, args.task, args.desc or ""):
-            print("Artifact registered.")
+    elif args.list:
+        artifacts = list_artifacts_by_task(args.list)
+        if not artifacts:
+            print(f"No artifacts found for task: {args.list}")
         else:
-            sys.exit(1)
+            print(f"Artifacts for task {args.list}:")
+            for a in artifacts:
+                print(f"  - {a['path']} ({a['checksum'][:16]}...)")
     
-    elif args.command == "verify":
-        if not args.path or not args.task:
-            print("Error: --path and --task are required for verification.")
-            sys.exit(1)
-        path = Path(args.path)
-        if verify_artifact(path, args.task):
-            print("Verification passed.")
-        else:
-            sys.exit(1)
-    
-    elif args.command == "list":
-        if not args.task:
-            print("Error: --task is required.")
-            sys.exit(1)
-        artifacts = list_artifacts_by_task(args.task)
-        print(json.dumps(artifacts, indent=2))
-    
-    elif args.command == "summary":
+    elif args.summary:
         summary = get_state_summary()
         print(json.dumps(summary, indent=2))
+    
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

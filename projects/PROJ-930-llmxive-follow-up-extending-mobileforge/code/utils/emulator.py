@@ -1,8 +1,13 @@
 """
-Headless Android emulator wrapper with robust retry logic for environment crashes.
+Emulator interface wrapper for interacting with the AndroidWorld dataset evaluation environment.
 
-Provides functions to launch, interact with, and monitor a headless Android emulator
-instance, handling common failure modes like crashes, timeouts, and missing binaries.
+This module provides a thin abstraction over the AndroidWorld emulator to support
+task execution, action sending, and crash detection for model evaluation.
+
+Error Codes:
+  EMU_CRASH: The emulator process crashed during execution
+  EMU_TIMEOUT: The emulator operation timed out
+  EMU_NOT_FOUND: The requested emulator binary or process was not found
 """
 
 import os
@@ -11,674 +16,504 @@ import time
 import signal
 import sys
 import re
-from typing import List, Optional, Dict, Any, Tuple
-from dataclasses import dataclass
 from enum import Enum
+from typing import List, Optional, Dict, Any, Tuple
+from pathlib import Path
 
-# Error codes as constants (also available as an Enum for type safety)
-class EmulatorErrorCode(str, Enum):
+# Error code definitions as required by the specification
+class EmulatorErrorCode(Enum):
     EMU_CRASH = "EMU_CRASH"
     EMU_TIMEOUT = "EMU_TIMEOUT"
     EMU_NOT_FOUND = "EMU_NOT_FOUND"
 
-# Module-level constants for backward compatibility
-EMU_CRASH = EmulatorErrorCode.EMU_CRASH.value
-EMU_TIMEOUT = EmulatorErrorCode.EMU_TIMEOUT.value
-EMU_NOT_FOUND = EmulatorErrorCode.EMU_NOT_FOUND.value
-
-@dataclass
 class EmulatorError(Exception):
     """Custom exception for emulator-related errors."""
-    code: str
-    message: str
-    details: Optional[Dict[str, Any]] = None
-    
-    def __str__(self) -> str:
-        base = f"[{self.code}] {self.message}"
-        if self.details:
-            base += f" (Details: {self.details})"
-        return base
+    def __init__(self, code: EmulatorErrorCode, message: str):
+        self.code = code
+        self.message = message
+        super().__init__(f"{code.value}: {message}")
 
-# Global state to track emulator process
+# Global state for emulator process
 _emulator_process: Optional[subprocess.Popen] = None
 _emulator_pid: Optional[int] = None
-_last_error: Optional[EmulatorError] = None
-_emulator_ready: bool = False
+_emulator_timeout_seconds: int = 300  # Default 5 minute timeout
 
-# Configuration constants
-DEFAULT_RETRY_COUNT = 3
-DEFAULT_RETRY_DELAY = 2.0  # seconds
-DEFAULT_STARTUP_TIMEOUT = 120  # seconds
-DEFAULT_ACTION_TIMEOUT = 30  # seconds
-DEFAULT_AVD_NAME = "test_device"
-DEFAULT_EMULATOR_BINARY = "emulator"
-DEFAULT_ADB_BINARY = "adb"
-
-def _find_emulator_binary() -> Tuple[bool, str]:
+def _find_emulator_binary() -> Optional[Path]:
     """
-    Locate the emulator binary in the system PATH.
+    Locate the Android emulator binary in the system PATH or common installation locations.
     
     Returns:
-        Tuple of (found: bool, path: str)
+        Path to the emulator binary if found, None otherwise.
     """
-    # Check common locations
-    possible_paths = [
-        DEFAULT_EMULATOR_BINARY,
-        os.path.expanduser("~/Android/Sdk/emulator/emulator"),
-        os.path.expanduser("~/Library/Android/sdk/emulator/emulator"),
-        "/usr/lib/android-sdk/emulator/emulator",
+    # Common emulator binary names
+    binary_names = ["emulator", "avdmanager", "sdkmanager"]
+    
+    # Check system PATH first
+    for binary in binary_names:
+        path = shutil.which(binary)
+        if path:
+            return Path(path)
+    
+    # Check common Android SDK locations
+    sdk_paths = [
+        Path(os.environ.get("ANDROID_HOME", "")) / "emulator" / "emulator",
+        Path(os.environ.get("ANDROID_SDK_ROOT", "")) / "emulator" / "emulator",
+        Path.home() / "Android" / "Sdk" / "emulator" / "emulator",
+        Path("/usr/local/android-sdk/emulator/emulator"),
     ]
     
-    for path in possible_paths:
-        if os.path.isfile(path) and os.access(path, os.X_OK):
-            return True, path
-        
-        # Try with 'which' for PATH resolution
-        try:
-            result = subprocess.run(
-                ["which", path],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0:
-                return True, result.stdout.strip()
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            continue
+    for sdk_path in sdk_paths:
+        if sdk_path.exists():
+            return sdk_path
     
-    return False, ""
+    return None
 
-def _find_adb_binary() -> Tuple[bool, str]:
+def _check_emulator_process() -> bool:
     """
-    Locate the ADB binary in the system PATH.
+    Check if the emulator process is currently running.
     
     Returns:
-        Tuple of (found: bool, path: str)
+        True if the process is running, False otherwise.
     """
-    possible_paths = [
-        DEFAULT_ADB_BINARY,
-        os.path.expanduser("~/Android/Sdk/platform-tools/adb"),
-        os.path.expanduser("~/Library/Android/sdk/platform-tools/adb"),
-        "/usr/lib/android-sdk/platform-tools/adb",
-    ]
-    
-    for path in possible_paths:
-        if os.path.isfile(path) and os.access(path, os.X_OK):
-            return True, path
-        
-        try:
-            result = subprocess.run(
-                ["which", path],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0:
-                return True, result.stdout.strip()
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            continue
-    
-    return False, ""
-
-def with_retry(max_retries: int = DEFAULT_RETRY_COUNT, delay: float = DEFAULT_RETRY_DELAY):
-    """
-    Decorator to add retry logic to emulator functions.
-    
-    Args:
-        max_retries: Maximum number of retry attempts
-        delay: Delay between retries in seconds
-    """
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            last_exception = None
-            
-            for attempt in range(max_retries + 1):
-                try:
-                    return func(*args, **kwargs)
-                except EmulatorError as e:
-                    last_exception = e
-                    if attempt < max_retries:
-                        time.sleep(delay)
-                        continue
-                    raise
-                except subprocess.TimeoutExpired as e:
-                    last_exception = EmulatorError(
-                        code=EMU_TIMEOUT,
-                        message=f"Operation timed out after {delay * (attempt + 1):.1f}s",
-                        details={"attempt": attempt + 1, "original_error": str(e)}
-                    )
-                    if attempt < max_retries:
-                        time.sleep(delay)
-                        continue
-                    raise
-                except Exception as e:
-                    last_exception = EmulatorError(
-                        code=EMU_CRASH,
-                        message=f"Unexpected error: {str(e)}",
-                        details={"attempt": attempt + 1, "error_type": type(e).__name__}
-                    )
-                    if attempt < max_retries:
-                        time.sleep(delay)
-                        continue
-                    raise
-            
-            # Should not reach here, but just in case
-            raise last_exception
-        return wrapper
-    return decorator
-
-@with_retry(max_retries=DEFAULT_RETRY_COUNT, delay=DEFAULT_RETRY_DELAY)
-def launch_emulator(
-    avd_name: str = DEFAULT_AVD_NAME,
-    headless: bool = True,
-    no_window: bool = True,
-    no_audio: bool = True,
-    no_boot_complete: bool = False,
-    extra_args: Optional[List[str]] = None
-) -> int:
-    """
-    Launch a headless Android emulator instance.
-    
-    Args:
-        avd_name: Name of the Android Virtual Device to launch
-        headless: Run in headless mode (no GUI)
-        no_window: Disable the window display
-        no_audio: Disable audio
-        no_boot_complete: Don't wait for boot completion
-        extra_args: Additional arguments to pass to the emulator
-    
-    Returns:
-        Process ID of the launched emulator
-    
-    Raises:
-        EmulatorError: If emulator binary not found or launch fails
-    """
-    global _emulator_process, _emulator_pid, _emulator_ready
-    
-    # Check for emulator binary
-    found, emulator_path = _find_emulator_binary()
-    if not found:
-        raise EmulatorError(
-            code=EMU_NOT_FOUND,
-            message="Android emulator binary not found in PATH or default locations",
-            details={"searched_paths": [
-                DEFAULT_EMULATOR_BINARY,
-                os.path.expanduser("~/Android/Sdk/emulator/emulator"),
-            ]}
-        )
-    
-    # Build command
-    cmd = [
-        emulator_path,
-        "-avd", avd_name,
-        "-no-snapshot-save",
-    ]
-    
-    if headless:
-        cmd.append("-no-window")
-    if no_window:
-        cmd.append("-no-window")
-    if no_audio:
-        cmd.append("-no-audio")
-    if no_boot_complete:
-        cmd.append("-no-boot-anim")
-    
-    if extra_args:
-        cmd.extend(extra_args)
+    global _emulator_pid
+    if _emulator_pid is None:
+        return False
     
     try:
-        # Start the emulator process
+        # Check if process exists
+        os.kill(_emulator_pid, 0)
+        return True
+    except OSError:
+        return False
+
+def _get_emulator_screenshot_path() -> Path:
+    """
+    Generate a path for the emulator screenshot.
+    
+    Returns:
+        Path to the screenshot file.
+    """
+    screenshot_dir = Path("data/evaluation/screenshots")
+    screenshot_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = int(time.time() * 1000)
+    return screenshot_dir / f"screenshot_{timestamp}.png"
+
+def launch_emulator(avd_name: Optional[str] = None, timeout: int = 300) -> bool:
+    """
+    Launch the Android emulator with the specified AVD (Android Virtual Device).
+    
+    Args:
+        avd_name: Name of the AVD to launch. If None, uses the default AVD.
+        timeout: Maximum time in seconds to wait for the emulator to boot.
+    
+    Returns:
+        True if the emulator launched successfully, False otherwise.
+    
+    Raises:
+        EmulatorError: If the emulator binary is not found or fails to start.
+    """
+    global _emulator_process, _emulator_pid, _emulator_timeout_seconds
+    
+    _emulator_timeout_seconds = timeout
+    
+    # Find emulator binary
+    emulator_path = _find_emulator_binary()
+    if not emulator_path:
+        raise EmulatorError(
+            EmulatorErrorCode.EMU_NOT_FOUND,
+            "Android emulator binary not found in PATH or common SDK locations. "
+            "Please install Android SDK and set ANDROID_HOME or ANDROID_SDK_ROOT."
+        )
+    
+    # Check if already running
+    if _check_emulator_process():
+        return True
+    
+    # Build command
+    cmd = [str(emulator_path)]
+    if avd_name:
+        cmd.extend(["-avd", avd_name])
+    else:
+        # Try to find any available AVD
+        avd_path = emulator_path.parent.parent / "avd"
+        if avd_path.exists():
+            avds = list(avd_path.glob("*.ini"))
+            if avds:
+                cmd.extend(["-avd", avds[0].stem])
+    
+    cmd.extend([
+        "-no-window",
+        "-no-snapshot",
+        "-camera-back", "none",
+        "-camera-front", "none",
+        "-gpu", "swiftshader_indirect",
+        "-accel", "auto"
+    ])
+    
+    try:
+        # Start emulator process
         _emulator_process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            start_new_session=True  # Detach from terminal
+            start_new_session=True
         )
         _emulator_pid = _emulator_process.pid
-        _emulator_ready = False
         
-        # Wait a moment for the process to start
-        time.sleep(2)
+        # Wait for emulator to boot
+        start_time = time.time()
+        boot_complete = False
         
-        # Check if process is still running
-        if _emulator_process.poll() is not None:
-            stdout, stderr = _emulator_process.communicate()
+        while time.time() - start_time < timeout:
+            if not _check_emulator_process():
+                raise EmulatorError(
+                    EmulatorErrorCode.EMU_CRASH,
+                    "Emulator process crashed during startup"
+                )
+            
+            # Check for boot completion signal
+            if _emulator_process.stdout:
+                line = _emulator_process.stdout.readline()
+                if b"boot completed" in line.lower() or b"sys.boot_completed" in line.lower():
+                    boot_complete = True
+                    break
+            
+            time.sleep(1)
+        
+        if not boot_complete:
             raise EmulatorError(
-                code=EMU_CRASH,
-                message="Emulator process exited immediately after launch",
-                details={
-                    "returncode": _emulator_process.returncode,
-                    "stdout": stdout.decode("utf-8", errors="ignore")[:500],
-                    "stderr": stderr.decode("utf-8", errors="ignore")[:500]
-                }
+                EmulatorErrorCode.EMU_TIMEOUT,
+                f"Emulator failed to boot within {timeout} seconds"
             )
         
-        # Wait for emulator to be ready (ADB connection)
-        _wait_for_adb_connection(timeout=DEFAULT_STARTUP_TIMEOUT)
-        _emulator_ready = True
-        
-        return _emulator_pid
+        return True
         
     except FileNotFoundError:
         raise EmulatorError(
-            code=EMU_NOT_FOUND,
-            message=f"Emulator binary not executable: {emulator_path}",
-            details={"path": emulator_path}
+            EmulatorErrorCode.EMU_NOT_FOUND,
+            f"Emulator binary not found: {emulator_path}"
         )
     except Exception as e:
         raise EmulatorError(
-            code=EMU_CRASH,
-            message=f"Failed to launch emulator: {str(e)}",
-            details={"command": " ".join(cmd), "error": str(e)}
+            EmulatorErrorCode.EMU_CRASH,
+            f"Failed to launch emulator: {str(e)}"
         )
 
-def _wait_for_adb_connection(timeout: int = DEFAULT_STARTUP_TIMEOUT) -> bool:
+def send_action(action_seq: List[str], timeout: Optional[int] = None) -> Dict[str, Any]:
     """
-    Wait for ADB to detect the emulator.
+    Send a sequence of actions to the emulator.
     
     Args:
-        timeout: Maximum time to wait in seconds
+        action_seq: List of actions to perform (e.g., ["tap", "swipe", "input_text"]).
+        timeout: Optional timeout for the action sequence.
     
     Returns:
-        True if ADB connection established, False otherwise
-    """
-    found, adb_path = _find_adb_binary()
-    if not found:
-        raise EmulatorError(
-            code=EMU_NOT_FOUND,
-            message="ADB binary not found - cannot wait for connection",
-            details={"searched_paths": [DEFAULT_ADB_BINARY]}
-        )
-    
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        try:
-            result = subprocess.run(
-                [adb_path, "devices"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            if result.returncode == 0:
-                # Check if emulator device is listed
-                if "emulator-5554" in result.stdout or "device" in result.stdout:
-                    return True
-            
-            time.sleep(2)
-        except subprocess.TimeoutExpired:
-            continue
-        except Exception:
-            continue
-    
-    return False
-
-@with_retry(max_retries=3, delay=1.0)
-def send_action(action_seq: List[str], timeout: int = DEFAULT_ACTION_TIMEOUT) -> Dict[str, Any]:
-    """
-    Send a sequence of actions to the emulator via ADB.
-    
-    Args:
-        action_seq: List of ADB commands to execute (e.g., ["input tap 100 200", "input text hello"])
-        timeout: Maximum time to wait for all actions in seconds
-    
-    Returns:
-        Dictionary with execution results
+        Dictionary containing action execution results.
     
     Raises:
-        EmulatorError: If emulator is not running or actions fail
+        EmulatorError: If the emulator is not running or the action fails.
     """
-    global _emulator_process
+    global _emulator_process, _emulator_timeout_seconds
     
-    if _emulator_process is None or _emulator_process.poll() is not None:
+    if timeout is None:
+        timeout = _emulator_timeout_seconds
+    
+    # Check if emulator is running
+    if not _check_emulator_process():
         raise EmulatorError(
-            code=EMU_CRASH,
-            message="Emulator is not running or has crashed",
-            details={"process_state": "not_running" if _emulator_process is None else "exited"}
+            EmulatorErrorCode.EMU_NOT_FOUND,
+            "Emulator is not running. Call launch_emulator() first."
         )
     
-    found, adb_path = _find_adb_binary()
-    if not found:
-        raise EmulatorError(
-            code=EMU_NOT_FOUND,
-            message="ADB binary not found",
-            details={}
-        )
+    results = {
+        "actions_executed": 0,
+        "actions_failed": 0,
+        "details": []
+    }
     
-    results = []
-    start_time = time.time()
-    
-    for i, action in enumerate(action_seq):
-        if time.time() - start_time > timeout:
+    # Use ADB to send actions (assuming ADB is available)
+    adb_path = shutil.which("adb")
+    if not adb_path:
+        # Try to find ADB in Android SDK
+        sdk_root = Path(os.environ.get("ANDROID_SDK_ROOT", ""))
+        adb_path = sdk_root / "platform-tools" / "adb"
+        if not adb_path.exists():
             raise EmulatorError(
-                code=EMU_TIMEOUT,
-                message=f"Action sequence timed out after {timeout}s",
-                details={"completed_actions": len(results), "current_action": action}
+                EmulatorErrorCode.EMU_NOT_FOUND,
+                "ADB not found. Please install Android Platform Tools."
             )
-        
+        adb_path = str(adb_path)
+    
+    for action in action_seq:
         try:
-            result = subprocess.run(
-                [adb_path, "shell", action],
-                capture_output=True,
-                text=True,
-                timeout=timeout - (time.time() - start_time)
+            # Parse action format: "action_type:parameters"
+            if ":" in action:
+                action_type, params = action.split(":", 1)
+            else:
+                action_type = action
+                params = ""
+            
+            # Execute action via ADB shell
+            if action_type == "tap":
+                # Format: tap x y
+                coords = params.split()
+                if len(coords) != 2:
+                    raise ValueError(f"Invalid tap coordinates: {params}")
+                cmd = ["input", "tap", coords[0], coords[1]]
+            
+            elif action_type == "swipe":
+                # Format: swipe x1 y1 x2 y2 duration
+                swipe_params = params.split()
+                if len(swipe_params) != 4:
+                    raise ValueError(f"Invalid swipe parameters: {params}")
+                cmd = ["input", "swipe"] + swipe_params
+            
+            elif action_type == "input_text":
+                # Format: input_text "text"
+                text = params.strip('"')
+                cmd = ["input", "text", text.replace(" ", "%s")]
+            
+            elif action_type == "key":
+                # Format: key key_code
+                key_code = params
+                cmd = ["input", "keyevent", key_code]
+            
+            else:
+                raise ValueError(f"Unknown action type: {action_type}")
+            
+            # Execute via ADB
+            process = subprocess.Popen(
+                [adb_path, "shell"] + cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=timeout
             )
             
-            results.append({
-                "action": action,
-                "success": result.returncode == 0,
-                "stdout": result.stdout.strip(),
-                "stderr": result.stderr.strip(),
-                "returncode": result.returncode
-            })
+            stdout, stderr = process.communicate()
+            
+            if process.returncode == 0:
+                results["actions_executed"] += 1
+                results["details"].append({
+                    "action": action,
+                    "status": "success"
+                })
+            else:
+                results["actions_failed"] += 1
+                results["details"].append({
+                    "action": action,
+                    "status": "failed",
+                    "error": stderr.decode() if stderr else "Unknown error"
+                })
             
         except subprocess.TimeoutExpired:
-            raise EmulatorError(
-                code=EMU_TIMEOUT,
-                message=f"Action '{action}' timed out",
-                details={"action_index": i}
-            )
-        except Exception as e:
-            results.append({
+            results["actions_failed"] += 1
+            results["details"].append({
                 "action": action,
-                "success": False,
-                "error": str(e),
-                "returncode": -1
+                "status": "timeout"
+            })
+        except Exception as e:
+            results["actions_failed"] += 1
+            results["details"].append({
+                "action": action,
+                "status": "error",
+                "error": str(e)
             })
     
-    return {
-        "total_actions": len(action_seq),
-        "successful": sum(1 for r in results if r.get("success", False)),
-        "results": results,
-        "elapsed_time": time.time() - start_time
-    }
+    return results
 
-def check_crash() -> Dict[str, Any]:
+def check_crash() -> Tuple[bool, Optional[str]]:
     """
-    Check if the emulator has crashed or become unresponsive.
+    Check if the emulator has crashed.
     
     Returns:
-        Dictionary with crash status and details
+        Tuple of (is_crashed, error_message).
     """
-    global _emulator_process, _emulator_ready
+    global _emulator_process, _emulator_pid
     
-    if _emulator_process is None:
-        return {
-            "is_crashed": True,
-            "reason": "No emulator process running",
-            "details": {}
-        }
+    if not _check_emulator_process():
+        # Process is not running
+        if _emulator_pid is not None:
+            return True, "Emulator process terminated unexpectedly"
+        return False, None
     
-    # Check if process is still running
-    if _emulator_process.poll() is not None:
-        stdout, stderr = _emulator_process.communicate()
-        return {
-            "is_crashed": True,
-            "reason": "Emulator process exited",
-            "details": {
-                "returncode": _emulator_process.returncode,
-                "stdout": stdout.decode("utf-8", errors="ignore")[:1000],
-                "stderr": stderr.decode("utf-8", errors="ignore")[:1000]
-            }
-        }
-    
-    # Check ADB connection
-    found, adb_path = _find_adb_binary()
-    if not found:
-        return {
-            "is_crashed": True,
-            "reason": "ADB binary not found",
-            "details": {}
-        }
-    
+    # Check for crash indicators in logcat (if available)
     try:
-        result = subprocess.run(
-            [adb_path, "shell", "echo", "ping"],
-            capture_output=True,
-            text=True,
-            timeout=5
+        adb_path = shutil.which("adb")
+        if not adb_path:
+            return False, None
+        
+        # Check for ANR or crash in logcat
+        process = subprocess.Popen(
+            [adb_path, "shell", "logcat", "-d", "-s", "AndroidRuntime", "FATAL"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=10
         )
         
-        if result.returncode != 0:
-            return {
-                "is_crashed": True,
-                "reason": "ADB shell command failed",
-                "details": {
-                    "returncode": result.returncode,
-                    "stderr": result.stderr.strip()
-                }
-            }
+        stdout, _ = process.communicate()
+        log_output = stdout.decode()
         
-        return {
-            "is_crashed": False,
-            "reason": None,
-            "details": {
-                "process_running": True,
-                "adb_responsive": True
-            }
-        }
+        if "FATAL" in log_output or "CRASH" in log_output:
+            return True, log_output[:500]  # Return first 500 chars
         
-    except subprocess.TimeoutExpired:
-        return {
-            "is_crashed": True,
-            "reason": "ADB shell command timed out",
-            "details": {}
-        }
-    except Exception as e:
-        return {
-            "is_crashed": True,
-            "reason": f"Error checking emulator status: {str(e)}",
-            "details": {"error": str(e)}
-        }
+    except Exception:
+        pass
+    
+    return False, None
 
-@with_retry(max_retries=2, delay=0.5)
-def get_screenshot(output_path: Optional[str] = None) -> str:
+def get_screenshot() -> Optional[Path]:
     """
     Capture a screenshot from the emulator.
     
-    Args:
-        output_path: Optional path to save the screenshot. If None, returns base64 encoded image.
-    
     Returns:
-        Path to saved screenshot or base64 encoded image string
+        Path to the screenshot file, or None if capture failed.
     
     Raises:
-        EmulatorError: If emulator is crashed or screenshot fails
+        EmulatorError: If the emulator is not running.
     """
-    global _emulator_process
-    
-    crash_status = check_crash()
-    if crash_status["is_crashed"]:
+    if not _check_emulator_process():
         raise EmulatorError(
-            code=EMU_CRASH,
-            message="Cannot take screenshot: emulator is crashed",
-            details=crash_status["details"]
-        )
-    
-    found, adb_path = _find_adb_binary()
-    if not found:
-        raise EmulatorError(
-            code=EMU_NOT_FOUND,
-            message="ADB binary not found",
-            details={}
+            EmulatorErrorCode.EMU_NOT_FOUND,
+            "Emulator is not running. Call launch_emulator() first."
         )
     
     try:
-        if output_path:
-            # Take screenshot and pull to local file
-            subprocess.run(
-                [adb_path, "shell", "screencap", "-p", "/sdcard/screenshot.png"],
-                capture_output=True,
-                timeout=10
+        adb_path = shutil.which("adb")
+        if not adb_path:
+            raise EmulatorError(
+                EmulatorErrorCode.EMU_NOT_FOUND,
+                "ADB not found. Please install Android Platform Tools."
             )
-            
-            subprocess.run(
-                [adb_path, "pull", "/sdcard/screenshot.png", output_path],
-                capture_output=True,
-                timeout=10
-            )
-            
-            # Clean up remote file
-            subprocess.run(
-                [adb_path, "shell", "rm", "/sdcard/screenshot.png"],
-                capture_output=True,
-                timeout=5
-            )
-            
-            return output_path
-        else:
-            # Take screenshot and pull as base64
-            import base64
-            import tempfile
-            
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                temp_path = tmp.name
-            
-            try:
-                subprocess.run(
-                    [adb_path, "shell", "screencap", "-p", "/sdcard/screenshot.png"],
-                    capture_output=True,
-                    timeout=10
-                )
-                
-                subprocess.run(
-                    [adb_path, "pull", "/sdcard/screenshot.png", temp_path],
-                    capture_output=True,
-                    timeout=10
-                )
-                
-                with open(temp_path, "rb") as f:
-                    image_data = f.read()
-                
-                base64_image = base64.b64encode(image_data).decode("utf-8")
-                return base64_image
-                
-            finally:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                subprocess.run(
-                    [adb_path, "shell", "rm", "/sdcard/screenshot.png"],
-                    capture_output=True,
-                    timeout=5
-                )
-                
-    except subprocess.TimeoutExpired:
-        raise EmulatorError(
-            code=EMU_TIMEOUT,
-            message="Screenshot capture timed out",
-            details={}
+        
+        # Create local screenshot path
+        local_path = _get_emulator_screenshot_path()
+        
+        # Capture screenshot to device
+        device_path = "/tmp/screenshot.png"
+        process = subprocess.Popen(
+            [adb_path, "shell", "screencap", "-p", device_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30
         )
+        process.communicate()
+        
+        # Pull screenshot to local
+        process = subprocess.Popen(
+            [adb_path, "pull", device_path, str(local_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30
+        )
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0 and local_path.exists():
+            return local_path
+        else:
+            # Try alternative method: screenshot via ADB shell
+            process = subprocess.Popen(
+                [adb_path, "shell", "screencap", "-p"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=30
+            )
+            stdout, stderr = process.communicate()
+            
+            if process.returncode == 0:
+                with open(local_path, "wb") as f:
+                    f.write(stdout)
+                return local_path
+        
+        return None
+        
     except Exception as e:
         raise EmulatorError(
-            code=EMU_CRASH,
-            message=f"Failed to capture screenshot: {str(e)}",
-            details={"error": str(e)}
+            EmulatorErrorCode.EMU_CRASH,
+            f"Failed to capture screenshot: {str(e)}"
         )
 
-def stop_emulator(force: bool = False) -> Dict[str, Any]:
+def stop_emulator() -> bool:
     """
-    Stop the running emulator instance.
-    
-    Args:
-        force: If True, forcefully kill the process
+    Stop the running emulator process.
     
     Returns:
-        Dictionary with stop status
+        True if the emulator was stopped successfully.
     """
-    global _emulator_process, _emulator_pid, _emulator_ready
+    global _emulator_process, _emulator_pid
     
-    if _emulator_process is None:
-        return {
-            "success": True,
-            "message": "No emulator process running",
-            "details": {}
-        }
+    if not _check_emulator_process():
+        return False
     
     try:
-        if _emulator_process.poll() is None:
-            if force:
-                _emulator_process.terminate()
-                _emulator_process.wait(timeout=5)
-            else:
-                # Try graceful shutdown via ADB first
-                found, adb_path = _find_adb_binary()
-                if found:
-                    try:
-                        subprocess.run(
-                            [adb_path, "shell", "am", "broadcast", "-a", "android.intent.action.SHUTDOWN"],
-                            capture_output=True,
-                            timeout=10
-                        )
-                        # Wait a bit for graceful shutdown
-                        for _ in range(10):
-                            if _emulator_process.poll() is not None:
-                                break
-                            time.sleep(1)
-                        
-                        if _emulator_process.poll() is None:
-                            _emulator_process.terminate()
-                            _emulator_process.wait(timeout=5)
-                    except:
-                        _emulator_process.terminate()
-                        _emulator_process.wait(timeout=5)
-                else:
-                    _emulator_process.terminate()
-                    _emulator_process.wait(timeout=5)
+        # Send kill signal to process group
+        if _emulator_process:
+            os.killpg(os.getpgid(_emulator_process.pid), signal.SIGTERM)
+            _emulator_process.wait(timeout=30)
         
-        stdout, stderr = _emulator_process.communicate()
-        _emulator_process = None
+        # Clean up PID
         _emulator_pid = None
-        _emulator_ready = False
+        _emulator_process = None
+        return True
         
-        return {
-            "success": True,
-            "message": "Emulator stopped successfully",
-            "details": {
-                "returncode": _emulator_process.returncode if _emulator_process else None,
-                "stdout": stdout.decode("utf-8", errors="ignore")[:500] if stdout else "",
-                "stderr": stderr.decode("utf-8", errors="ignore")[:500] if stderr else ""
-            }
-        }
-        
-    except subprocess.TimeoutExpired:
-        _emulator_process.kill()
-        return {
-            "success": False,
-            "message": "Failed to stop emulator gracefully, force kill required",
-            "details": {}
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "message": f"Error stopping emulator: {str(e)}",
-            "details": {"error": str(e)}
-        }
+    except Exception:
+        # Force kill if graceful shutdown fails
+        try:
+            if _emulator_pid:
+                os.kill(_emulator_pid, signal.SIGKILL)
+            _emulator_pid = None
+            _emulator_process = None
+            return True
+        except Exception:
+            return False
 
 def get_emulator_status() -> Dict[str, Any]:
     """
     Get the current status of the emulator.
     
     Returns:
-        Dictionary with emulator status information
+        Dictionary containing emulator status information.
     """
-    global _emulator_process, _emulator_ready, _emulator_pid
-    
-    crash_status = check_crash()
+    is_running = _check_emulator_process()
+    is_crashed, crash_msg = check_crash()
     
     return {
-        "is_running": _emulator_process is not None and _emulator_process.poll() is None,
-        "is_ready": _emulator_ready,
-        "is_crashed": crash_status["is_crashed"],
+        "running": is_running,
+        "crashed": is_crashed,
+        "crash_message": crash_msg,
         "pid": _emulator_pid,
-        "crash_reason": crash_status.get("reason"),
-        "crash_details": crash_status.get("details", {})
+        "timeout_seconds": _emulator_timeout_seconds
     }
 
-# Cleanup on module exit
-def _cleanup():
-    """Clean up emulator resources on module exit."""
-    if _emulator_process is not None and _emulator_process.poll() is None:
-        stop_emulator(force=True)
+# Convenience function with retry logic
+def with_retry(max_retries: int = 3, delay: float = 2.0):
+    """
+    Decorator to add retry logic to emulator functions.
+    
+    Args:
+        max_retries: Maximum number of retry attempts.
+        delay: Delay between retries in seconds.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except EmulatorError as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        time.sleep(delay)
+                        continue
+                    raise
+                except Exception as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        time.sleep(delay)
+                        continue
+                    raise
+            raise last_exception
+        return wrapper
+    return decorator
 
-import atexit
-atexit.register(_cleanup)
+# Import shutil at module level for binary detection
+import shutil

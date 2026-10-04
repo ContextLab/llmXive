@@ -15,8 +15,8 @@ This plan implements CPU-tractable logic distillation for the MobileForge framew
 **Target Platform**: Linux (GitHub Actions CPU runner), Android Emulator (for evaluation simulation).
 **Project Type**: Research/Data Science Pipeline.
 **Performance Goals**: Training ≤ 6 hours on 2 CPU cores, 7GB RAM. Evaluation on N tasks (calculated via power analysis).
-**Constraints**: CPU-only execution (CUDA detection = failure), no synthetic data fallbacks, strict memory limits (~7GB RAM).
-**Scale/Scope**: ~100k training triples (sampled if larger), N evaluation tasks (calculated via `power_analysis`).
+**Constraints**: CPU-only execution (CUDA detection = failure), no synthetic data fallbacks, strict memory limits.
+**Scale/Scope**: A large-scale set of training triples (sampled if larger), N evaluation tasks (calculated via `power_analysis`).
 
 ## Constitution Check
 

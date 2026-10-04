@@ -1,14 +1,3 @@
-- artifact_hash: c73338b56bb878164d29b01cbc95a93e877d85d16429835c95ad706ff657b206
-  artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.48550/arXiv.2405.14793
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-09-26T16:54:51.359888Z'
 - artifact_hash: 448823720e300e3ba616afeec23eafe4d2c34405a8b131bf89da85ec5b48cb21
   artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/research.md
   cite_id: c-001
@@ -31,3 +20,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/google-deepmind/androidworld
   verified_at: '2026-09-30T07:09:22.008967Z'
+- artifact_hash: a6dabc1f32c068a62bf7b4b5edf2e24e177f64a0ed910db4d1733bb9262a4570
+  artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.48550/arXiv.2405.14793
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-04T11:58:08.173008Z'

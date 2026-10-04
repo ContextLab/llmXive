@@ -1,184 +1,201 @@
 """
-Unit tests for utils.metrics module.
+Unit tests for the metrics calculation utilities.
 """
 import pytest
 from utils.metrics import (
-    TaskResult,
-    SuccessRateCalculator,
-    StepEfficiencyCalculator,
+    TaskResult, 
+    SuccessRateCalculator, 
+    StepEfficiencyCalculator, 
     MetricsReporter,
     compute_success_rate,
     compute_step_efficiency
 )
-from pathlib import Path
-import os
-import json
-import csv
 
 
 class TestSuccessRateCalculator:
-    def test_empty_list(self):
-        calc = SuccessRateCalculator()
-        result = calc.calculate([])
-        assert result["success_rate"] == 0.0
-        assert result["total_tasks"] == 0
-
+    """Tests for the SuccessRateCalculator class."""
+    
     def test_all_success(self):
+        """Test success rate when all tasks succeed."""
         results = [
-            TaskResult("t1", True, 5),
-            TaskResult("t2", True, 3)
+            TaskResult(task_id=f"t{i}", model_name="test", success=True, steps_taken=5)
+            for i in range(10)
         ]
-        calc = SuccessRateCalculator()
-        result = calc.calculate(results)
+        calculator = SuccessRateCalculator()
+        result = calculator.calculate(results)
+        
         assert result["success_rate"] == 1.0
-        assert result["successful_tasks"] == 2
-
-    def test_all_failure(self):
+        assert result["successful_tasks"] == 10
+        assert result["failed_tasks"] == 0
+        assert result["total_tasks"] == 10
+    
+    def test_all_fail(self):
+        """Test success rate when all tasks fail."""
         results = [
-            TaskResult("t1", False, 10),
-            TaskResult("t2", False, 20)
+            TaskResult(task_id=f"t{i}", model_name="test", success=False, steps_taken=5)
+            for i in range(10)
         ]
-        calc = SuccessRateCalculator()
-        result = calc.calculate(results)
+        calculator = SuccessRateCalculator()
+        result = calculator.calculate(results)
+        
         assert result["success_rate"] == 0.0
         assert result["successful_tasks"] == 0
-
-    def test_mixed(self):
+        assert result["failed_tasks"] == 10
+    
+    def test_mixed_results(self):
+        """Test success rate with mixed outcomes."""
         results = [
-            TaskResult("t1", True, 5),
-            TaskResult("t2", False, 10),
-            TaskResult("t3", True, 8)
+            TaskResult(task_id="t1", model_name="test", success=True, steps_taken=5),
+            TaskResult(task_id="t2", model_name="test", success=False, steps_taken=5),
+            TaskResult(task_id="t3", model_name="test", success=True, steps_taken=5),
+            TaskResult(task_id="t4", model_name="test", success=False, steps_taken=5),
+            TaskResult(task_id="t5", model_name="test", success=True, steps_taken=5),
         ]
-        calc = SuccessRateCalculator()
-        result = calc.calculate(results)
-        assert result["success_rate"] == 2/3
-        assert result["failure_rate"] == 1/3
+        calculator = SuccessRateCalculator()
+        result = calculator.calculate(results)
+        
+        assert result["success_rate"] == 0.6
+        assert result["successful_tasks"] == 3
+        assert result["failed_tasks"] == 2
+    
+    def test_insufficient_samples(self):
+        """Test that insufficient samples raise an error."""
+        results = [
+            TaskResult(task_id="t1", model_name="test", success=True, steps_taken=5)
+        ]
+        calculator = SuccessRateCalculator(min_samples=5)
+        
+        with pytest.raises(ValueError, match="Insufficient samples"):
+            calculator.calculate(results)
 
 
 class TestStepEfficiencyCalculator:
-    def test_empty_list(self):
-        calc = StepEfficiencyCalculator()
-        result = calc.calculate([])
-        assert result["mean_efficiency"] == 0.0
-        assert result["mean_steps"] == 0.0
-
-    def test_no_max_steps(self):
-        # Without max_steps, efficiency ratio cannot be calculated,
-        # but mean steps should still work.
+    """Tests for the StepEfficiencyCalculator class."""
+    
+    def test_perfect_efficiency(self):
+        """Test efficiency when actual steps equal optimal steps."""
         results = [
-            TaskResult("t1", True, 5),
-            TaskResult("t2", True, 10)
+            TaskResult(task_id=f"t{i}", model_name="test", success=True, 
+                     steps_taken=5, steps_optimal=5)
+            for i in range(10)
         ]
-        calc = StepEfficiencyCalculator()
-        result = calc.calculate(results)
-        # Efficiency should be 0.0 if no max_steps provided for normalization
-        assert result["mean_efficiency"] == 0.0
-        assert result["mean_steps"] == 7.5
-
-    def test_with_max_steps(self):
+        calculator = StepEfficiencyCalculator()
+        result = calculator.calculate(results)
+        
+        assert result["step_efficiency"] == 1.0
+        assert result["total_steps_taken"] == 50
+        assert result["total_optimal_steps"] == 50
+    
+    def test_suboptimal_efficiency(self):
+        """Test efficiency when actual steps exceed optimal steps."""
         results = [
-            TaskResult("t1", True, 5, max_steps=10), # Eff = 10/5 = 2.0
-            TaskResult("t2", True, 10, max_steps=20) # Eff = 20/10 = 2.0
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
         ]
-        calc = StepEfficiencyCalculator()
-        result = calc.calculate(results)
-        assert result["mean_efficiency"] == 2.0
-        assert result["mean_steps"] == 7.5
-
-    def test_mixed_success_failure(self):
-        # Only successful tasks contribute to efficiency usually
+        calculator = StepEfficiencyCalculator()
+        result = calculator.calculate(results)
+        
+        # Total optimal: 10, Total actual: 20 -> Efficiency: 0.5
+        assert result["step_efficiency"] == 0.5
+        assert result["total_steps_taken"] == 20
+        assert result["total_optimal_steps"] == 10
+    
+    def test_mixed_optimal_unknown(self):
+        """Test efficiency calculation ignores tasks without optimal steps."""
         results = [
-            TaskResult("t1", True, 5, max_steps=10),
-            TaskResult("t2", False, 20, max_steps=20), # Failed, ignored
-            TaskResult("t3", True, 10, max_steps=20)
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t3", model_name="test", success=True, 
+                     steps_taken=20, steps_optimal=None),  # Should be ignored
         ]
-        calc = StepEfficiencyCalculator()
-        result = calc.calculate(results)
-        # t1: 2.0, t3: 2.0 -> mean 2.0
-        assert result["mean_efficiency"] == 2.0
-        # Mean steps of successful: (5+10)/2 = 7.5
-        assert result["mean_steps"] == 7.5
-
-    def test_zero_steps_success(self):
-        # Edge case: success with 0 steps?
+        calculator = StepEfficiencyCalculator()
+        result = calculator.calculate(results)
+        
+        # Only t1 and t2 count: optimal=10, actual=20 -> 0.5
+        assert result["step_efficiency"] == 0.5
+        assert result["samples_with_optimal"] == 2
+        assert result["samples_without_optimal"] == 1
+    
+    def test_insufficient_samples_with_optimal(self):
+        """Test error when insufficient samples have optimal steps."""
         results = [
-            TaskResult("t1", True, 0, max_steps=10)
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=5, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=True, 
+                     steps_taken=5, steps_optimal=None),
         ]
-        calc = StepEfficiencyCalculator()
-        # __post_init__ allows 0 steps? Yes.
-        # But efficiency calc filters r.steps > 0.
-        result = calc.calculate(results)
-        assert result["mean_efficiency"] == 0.0
-        assert result["total_tasks_evaluated"] == 0
+        calculator = StepEfficiencyCalculator(min_samples_with_optimal=2)
+        
+        with pytest.raises(ValueError, match="Insufficient samples with optimal steps"):
+            calculator.calculate(results)
 
 
 class TestMetricsReporter:
-    def setup_method(self):
-        self.tmp_dir = Path("tests/tmp_metrics")
-        self.tmp_dir.mkdir(parents=True, exist_ok=True)
-        self.output_file = self.tmp_dir / "results.csv"
-
-    def teardown_method(self):
-        if self.output_file.exists():
-            self.output_file.unlink()
-        summary_file = self.tmp_dir / "results.json"
-        if summary_file.exists():
-            summary_file.unlink()
-        if self.tmp_dir.exists():
-            self.tmp_dir.rmdir()
-
-    def test_add_results(self):
-        reporter = MetricsReporter(str(self.output_file))
-        r1 = TaskResult("t1", True, 5)
-        r2 = TaskResult("t2", False, 10)
-        reporter.add_results([r1, r2])
-        assert len(reporter.results) == 2
-
-    def test_write_csv(self):
-        reporter = MetricsReporter(str(self.output_file))
-        reporter.add_results([
-            TaskResult("t1", True, 5, model_name="test_model"),
-            TaskResult("t2", False, 10, model_name="test_model")
-        ])
-        reporter.write_csv()
-
-        assert self.output_file.exists()
-        with open(self.output_file, 'r') as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            assert header == ['task_id', 'success', 'steps', 'model_name']
-            rows = list(reader)
-            assert len(rows) == 2
-            assert rows[0] == ['t1', 'True', '5', 'test_model']
-
-    def test_write_summary(self):
-        reporter = MetricsReporter(str(self.output_file))
-        reporter.add_results([
-            TaskResult("t1", True, 5, max_steps=10),
-            TaskResult("t2", True, 10, max_steps=20)
-        ])
-        reporter.write_summary()
-
-        summary_file = self.tmp_dir / "results.json"
-        assert summary_file.exists()
-        with open(summary_file, 'r') as f:
-            data = json.load(f)
-            assert "success_rate" in data
-            assert "step_efficiency" in data
-            assert data["success_rate"]["success_rate"] == 1.0
+    """Tests for the MetricsReporter class."""
+    
+    def test_generate_report(self):
+        """Test report generation with mixed results."""
+        results = [
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=False, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t3", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+        ]
+        reporter = MetricsReporter()
+        report = reporter.generate_report(results)
+        
+        assert report["total_results"] == 3
+        assert "success_rate" in report["metrics"]
+        assert "step_efficiency" in report["metrics"]
+        assert report["metrics"]["success_rate"]["success_rate"] == 2/3
+        assert report["metrics"]["step_efficiency"]["step_efficiency"] == 0.5
+    
+    def test_write_report_to_csv(self, tmp_path):
+        """Test writing results to CSV file."""
+        results = [
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=False, 
+                     steps_taken=10, steps_optimal=5),
+        ]
+        output_file = tmp_path / "metrics_report.csv"
+        reporter = MetricsReporter()
+        reporter.write_report_to_csv(results, str(output_file))
+        
+        assert output_file.exists()
+        content = output_file.read_text()
+        assert "t1" in content
+        assert "t2" in content
+        assert "success_rate" in content
+        assert "step_efficiency" in content
 
 
 class TestConvenienceFunctions:
+    """Tests for the convenience functions."""
+    
     def test_compute_success_rate(self):
+        """Test the compute_success_rate function."""
         results = [
-            TaskResult("t1", True, 5),
-            TaskResult("t2", False, 10)
+            TaskResult(task_id="t1", model_name="test", success=True, steps_taken=5),
+            TaskResult(task_id="t2", model_name="test", success=False, steps_taken=5),
+            TaskResult(task_id="t3", model_name="test", success=True, steps_taken=5),
         ]
-        assert compute_success_rate(results) == 0.5
-
+        rate = compute_success_rate(results)
+        assert rate == 2/3
+    
     def test_compute_step_efficiency(self):
+        """Test the compute_step_efficiency function."""
         results = [
-            TaskResult("t1", True, 5, max_steps=10),
-            TaskResult("t2", True, 10, max_steps=20)
+            TaskResult(task_id="t1", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
+            TaskResult(task_id="t2", model_name="test", success=True, 
+                     steps_taken=10, steps_optimal=5),
         ]
-        assert compute_step_efficiency(results) == 2.0
+        efficiency = compute_step_efficiency(results)
+        assert efficiency == 0.5

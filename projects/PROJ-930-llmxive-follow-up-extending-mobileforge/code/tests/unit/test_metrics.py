@@ -1,9 +1,10 @@
 """
-Unit tests for the metrics module.
+Unit tests for metrics calculation utilities.
 """
 import pytest
 from utils.metrics import (
     TaskResult,
+    MetricCalculator,
     SuccessRateCalculator,
     StepEfficiencyCalculator,
     MetricsReporter,
@@ -13,161 +14,197 @@ from utils.metrics import (
 
 
 class TestSuccessRateCalculator:
-    """Tests for SuccessRateCalculator."""
+    """Tests for the SuccessRateCalculator class."""
     
     def test_empty_results(self):
-        """Test calculation with empty results."""
+        """Test calculation with empty results list."""
         calculator = SuccessRateCalculator()
         result = calculator.calculate([])
-        assert result["success_rate"] == 0.0
-        assert result["total_tasks"] == 0
-        assert result["successful_tasks"] == 0
+        
+        assert result['success_rate'] == 0.0
+        assert result['successful_count'] == 0
+        assert result['total_count'] == 0
+        assert result['failed_count'] == 0
     
     def test_all_success(self):
         """Test calculation when all tasks succeed."""
         results = [
-            TaskResult("t1", True, 5, 5, "model"),
-            TaskResult("t2", True, 3, 3, "model"),
-            TaskResult("t3", True, 10, 10, "model")
+            TaskResult(task_id=f"task_{i}", model_name="test", success=True, 
+                     steps_taken=5, max_steps=10)
+            for i in range(5)
         ]
+        
         calculator = SuccessRateCalculator()
         result = calculator.calculate(results)
-        assert result["success_rate"] == 1.0
-        assert result["successful_tasks"] == 3
+        
+        assert result['success_rate'] == 1.0
+        assert result['successful_count'] == 5
+        assert result['total_count'] == 5
+        assert result['failed_count'] == 0
     
-    def test_all_failure(self):
+    def test_all_fail(self):
         """Test calculation when all tasks fail."""
         results = [
-            TaskResult("t1", False, 0, 5, "model"),
-            TaskResult("t2", False, 0, 3, "model")
+            TaskResult(task_id=f"task_{i}", model_name="test", success=False,
+                     steps_taken=10, max_steps=10)
+            for i in range(5)
         ]
+        
         calculator = SuccessRateCalculator()
         result = calculator.calculate(results)
-        assert result["success_rate"] == 0.0
-        assert result["successful_tasks"] == 0
+        
+        assert result['success_rate'] == 0.0
+        assert result['successful_count'] == 0
+        assert result['total_count'] == 5
+        assert result['failed_count'] == 5
     
     def test_mixed_results(self):
         """Test calculation with mixed success/failure."""
         results = [
-            TaskResult("t1", True, 5, 5, "model"),
-            TaskResult("t2", False, 0, 3, "model"),
-            TaskResult("t3", True, 10, 10, "model"),
-            TaskResult("t4", False, 0, 2, "model")
+            TaskResult(task_id="task_1", model_name="test", success=True,
+                     steps_taken=5, max_steps=10),
+            TaskResult(task_id="task_2", model_name="test", success=False,
+                     steps_taken=10, max_steps=10),
+            TaskResult(task_id="task_3", model_name="test", success=True,
+                     steps_taken=3, max_steps=10),
+            TaskResult(task_id="task_4", model_name="test", success=False,
+                     steps_taken=8, max_steps=10),
         ]
+        
         calculator = SuccessRateCalculator()
         result = calculator.calculate(results)
-        assert result["success_rate"] == 0.5
-        assert result["successful_tasks"] == 2
-        assert result["failed_tasks"] == 2
+        
+        assert result['success_rate'] == 0.5
+        assert result['successful_count'] == 2
+        assert result['total_count'] == 4
+        assert result['failed_count'] == 2
 
 
 class TestStepEfficiencyCalculator:
-    """Tests for StepEfficiencyCalculator."""
+    """Tests for the StepEfficiencyCalculator class."""
     
     def test_empty_results(self):
-        """Test calculation with empty results."""
+        """Test calculation with empty results list."""
         calculator = StepEfficiencyCalculator()
         result = calculator.calculate([])
-        assert result["mean_efficiency"] == 0.0
-        assert result["total_tasks"] == 0
+        
+        assert result['step_efficiency'] == 0.0
+        assert result['avg_steps_taken'] == 0.0
+        assert result['avg_max_steps'] == 0.0
+        assert result['successful_count'] == 0
     
-    def test_perfect_efficiency(self):
-        """Test calculation when all tasks have perfect efficiency."""
+    def test_no_successful_tasks(self):
+        """Test calculation when no tasks succeed."""
         results = [
-            TaskResult("t1", True, 5, 5, "model"),
-            TaskResult("t2", True, 3, 3, "model")
+            TaskResult(task_id=f"task_{i}", model_name="test", success=False,
+                     steps_taken=10, max_steps=10)
+            for i in range(3)
         ]
+        
         calculator = StepEfficiencyCalculator()
         result = calculator.calculate(results)
-        assert result["mean_efficiency"] == 1.0
+        
+        assert result['step_efficiency'] == 0.0
+        assert result['successful_count'] == 0
     
-    def test_zero_efficiency(self):
-        """Test calculation when steps taken is zero (failed tasks)."""
+    def test_all_successful_same_steps(self):
+        """Test calculation when all tasks succeed with same steps."""
         results = [
-            TaskResult("t1", False, 0, 5, "model"),
-            TaskResult("t2", False, 0, 3, "model")
+            TaskResult(task_id=f"task_{i}", model_name="test", success=True,
+                     steps_taken=5, max_steps=10)
+            for i in range(3)
         ]
+        
         calculator = StepEfficiencyCalculator()
         result = calculator.calculate(results)
-        assert result["mean_efficiency"] == 0.0
+        
+        assert result['step_efficiency'] == 0.5  # 5/10
+        assert result['avg_steps_taken'] == 5.0
+        assert result['avg_max_steps'] == 10.0
+        assert result['successful_count'] == 3
     
-    def test_partial_efficiency(self):
-        """Test calculation with partial efficiency."""
+    def test_successful_tasks_different_steps(self):
+        """Test calculation with successful tasks taking different steps."""
         results = [
-            TaskResult("t1", True, 10, 5, "model"),  # 0.5 efficiency
-            TaskResult("t2", True, 6, 3, "model")    # 0.5 efficiency
+            TaskResult(task_id="task_1", model_name="test", success=True,
+                     steps_taken=2, max_steps=10),
+            TaskResult(task_id="task_2", model_name="test", success=True,
+                     steps_taken=4, max_steps=10),
+            TaskResult(task_id="task_3", model_name="test", success=True,
+                     steps_taken=6, max_steps=10),
         ]
+        
         calculator = StepEfficiencyCalculator()
         result = calculator.calculate(results)
-        assert result["mean_efficiency"] == 0.5
-    
-    def test_mixed_efficiency(self):
-        """Test calculation with mixed efficiencies."""
-        results = [
-            TaskResult("t1", True, 5, 5, "model"),   # 1.0
-            TaskResult("t2", True, 10, 5, "model"),  # 0.5
-            TaskResult("t3", True, 15, 5, "model")   # 0.333...
-        ]
-        calculator = StepEfficiencyCalculator()
-        result = calculator.calculate(results)
-        expected = (1.0 + 0.5 + (5/15)) / 3
-        assert abs(result["mean_efficiency"] - expected) < 1e-6
-        assert result["min_efficiency"] == 5/15
-        assert result["max_efficiency"] == 1.0
+        
+        # Average steps = (2+4+6)/3 = 4
+        # Efficiency = 4/10 = 0.4
+        assert result['step_efficiency'] == 0.4
+        assert result['avg_steps_taken'] == 4.0
+        assert result['successful_count'] == 3
 
 
 class TestMetricsReporter:
-    """Tests for MetricsReporter."""
+    """Tests for the MetricsReporter class."""
+    
+    def test_add_calculator(self):
+        """Test adding calculators to the reporter."""
+        reporter = MetricsReporter()
+        success_calc = SuccessRateCalculator()
+        efficiency_calc = StepEfficiencyCalculator()
+        
+        reporter.add_calculator('success_rate', success_calc)
+        reporter.add_calculator('step_efficiency', efficiency_calc)
+        
+        assert 'success_rate' in reporter.calculators
+        assert 'step_efficiency' in reporter.calculators
     
     def test_generate_report(self):
         """Test generating a full report."""
         results = [
-            TaskResult("t1", True, 5, 5, "model"),
-            TaskResult("t2", False, 0, 5, "model")
+            TaskResult(task_id="task_1", model_name="test", success=True,
+                     steps_taken=5, max_steps=10),
+            TaskResult(task_id="task_2", model_name="test", success=False,
+                     steps_taken=10, max_steps=10),
         ]
-        reporter = MetricsReporter()
-        report = reporter.report(results)
-        
-        assert report["total_tasks"] == 2
-        assert "success_rate" in report["metrics"]
-        assert "step_efficiency" in report["metrics"]
-        assert report["metrics"]["success_rate"]["success_rate"] == 0.5
-    
-    def test_add_custom_calculator(self):
-        """Test adding a custom calculator."""
-        from utils.metrics import MetricCalculator
-        
-        class DummyCalculator(MetricCalculator):
-            def calculate(self, results):
-                return {"dummy": 42}
         
         reporter = MetricsReporter()
-        reporter.add_calculator("dummy_metric", DummyCalculator())
+        reporter.add_calculator('success_rate', SuccessRateCalculator())
+        reporter.add_calculator('step_efficiency', StepEfficiencyCalculator())
+        reporter.set_results(results)
         
-        results = [TaskResult("t1", True, 5, 5, "model")]
-        report = reporter.report(results)
+        report = reporter.generate_report()
         
-        assert "dummy_metric" in report["metrics"]
-        assert report["metrics"]["dummy_metric"]["dummy"] == 42
+        assert 'total_tasks' in report
+        assert 'metrics' in report
+        assert 'success_rate' in report['metrics']
+        assert 'step_efficiency' in report['metrics']
+        assert report['total_tasks'] == 2
 
 
 class TestConvenienceFunctions:
     """Tests for convenience functions."""
     
     def test_compute_success_rate(self):
-        """Test compute_success_rate function."""
+        """Test the compute_success_rate convenience function."""
         results = [
-            TaskResult("t1", True, 5, 5, "model"),
-            TaskResult("t2", False, 0, 5, "model")
+            TaskResult(task_id="task_1", model_name="test", success=True,
+                     steps_taken=5, max_steps=10),
+            TaskResult(task_id="task_2", model_name="test", success=False,
+                     steps_taken=10, max_steps=10),
         ]
+        
         rate = compute_success_rate(results)
         assert rate == 0.5
     
     def test_compute_step_efficiency(self):
-        """Test compute_step_efficiency function."""
+        """Test the compute_step_efficiency convenience function."""
         results = [
-            TaskResult("t1", True, 10, 5, "model"),
-            TaskResult("t2", True, 10, 5, "model")
+            TaskResult(task_id="task_1", model_name="test", success=True,
+                     steps_taken=5, max_steps=10),
+            TaskResult(task_id="task_2", model_name="test", success=True,
+                     steps_taken=5, max_steps=10),
         ]
+        
         efficiency = compute_step_efficiency(results)
         assert efficiency == 0.5

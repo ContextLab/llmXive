@@ -4,30 +4,45 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the Python 3.11 project structure and validate dependencies.
-    This script ensures the directory structure exists and checks for the
-    presence of the requirements.txt file.
+    Create the project directory structure and initial files as per T001.
     """
-    project_root = Path(__file__).parent
-    requirements_path = project_root / "requirements.txt"
-
-    # Ensure directory structure exists
+    project_root = Path(__file__).resolve().parent
+    base_path = project_root / "projects" / "PROJ-930-llmxive-follow-up-extending-mobileforge"
+    
+    # Ensure base path exists
+    base_path.mkdir(parents=True, exist_ok=True)
+    
+    # Define directories to create
     dirs = [
-        "data/raw", "data/processed", "data/evaluation",
-        "models", "utils", "tests/unit", "tests/integration"
+        "code/data/raw",
+        "code/data/processed",
+        "code/data/evaluation",
+        "code/models",
+        "code/utils",
+        "code/tests/unit",
+        "code/tests/integration"
     ]
+    
     for d in dirs:
-        (project_root / d).mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified directory: {project_root / d}")
-
-    # Verify requirements.txt exists
-    if not requirements_path.exists():
-        print(f"Error: requirements.txt not found at {requirements_path}")
-        sys.exit(1)
-
-    print("Project initialization complete.")
-    print("Dependencies to install: torch, transformers, datasets, pandas, scikit-learn, pytest, statsmodels")
-    return 0
+        dir_path = base_path / d
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    # Define files to create (touch)
+    files = [
+        "code/requirements.txt",
+        "code/README.md"
+    ]
+    
+    for f in files:
+        file_path = base_path / f
+        if not file_path.exists():
+            file_path.touch()
+            print(f"Created file: {file_path}")
+        else:
+            print(f"File already exists: {file_path}")
+    
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1465,3 +1465,216 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T16:54:51Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset on Hugging Face identifier mobileforge
+  claim_id: c_cc9fc880
+  context: Fetch real data from verified Hugging Face source (datasets.load_dataset("mobileforge")).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_on_Hugging_Face_identifier_mobileforge
+  kind: entity_fact
+  raw_text: The MobileForge dataset is available on Hugging Face under the identifier
+    'mobileforge'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:40:35Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: mobileforge dataset available on Hugging Face
+  claim_id: c_b67f021b
+  context: Fetch real data from verified Hugging Face source (datasets.load_dataset('mobileforge')).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mobileforge_dataset_available_on_Hugging_Face
+  kind: entity_fact
+  raw_text: The mobileforge dataset is available on Hugging Face under the name 'mobileforge'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:44:14Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 2
+  canonical: androidworld dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_8630ba40
+  context: Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset('androidworld').
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: The androidworld dataset is available at DOI:10.48550/arXiv.2405.14793
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:47:33Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 2
+  canonical: androidworld dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_dbb9d49a
+  context: Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: The androidworld dataset is associated with DOI:10.48550/arXiv.2405.14793
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:48:21Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: mobileforge dataset on Hugging Face
+  claim_id: c_39a0a7dd
+  context: Fetch real data from verified Hugging Face source (datasets.load_dataset("mobileforge")).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mobileforge_dataset_on_Hugging_Face
+  kind: entity_fact
+  raw_text: The androidworld dataset is available on Hugging Face under the identifier
+    'mobileforge'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:48:41Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: androidworld dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_af8694b2
+  context: 'Implement code/data/evaluation/: First step: Read state/validated_n.json
+    to retrieve N. Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset(''androidworld'').'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset('androidworld').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:52:32Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training job completes in 6 hours or less on ubuntu-22.04
+  claim_id: c_211da890
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, Final loss converges, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:52:46Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training memory usage is 7GB or less
+  claim_id: c_a202b9e8
+  context: "Implement code/models/train_distilled.py: Data loading with streaming/chunking\
+    \ to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_memory_usage_is_7GB_or_less
+  kind: entity_fact
+  raw_text: "Training must fit \u22647GB RAM constraint."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:53:18Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Power analysis assumes baseline probability of 0.5
+  claim_id: c_31b5d7ae
+  context: 'Implement utils/power_analysis.py script: Define function calculate_required_n(effect_size=0.2,
+    alpha=0.05, power=0.8) -> dict which returns {''validated_n'': int, ''effect_size'':
+    float, ''power'': float, ''baseline_p0'': 0.5}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis function returns baseline_p0 of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:53:45Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.2, alpha 0.05, power 0.8
+  claim_id: c_76cd4eb2
+  context: 'Implement utils/power_analysis.py script: Define function calculate_required_n(effect_size=0.2,
+    alpha=0.05, power=0.8) -> dict...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses effect_size of 0.2, alpha of 0.05, and power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:56:23Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps Levenshtein distances 0, 1, 2, 3
+  claim_id: c_4d81a2a7
+  context: 'Implement code/models/eval.py: Sensitivity sweep logic for ''inconsistency
+    tolerance'' thresholds across the specific range of Levenshtein distances [0,
+    1, 2, 3] as mandated by FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity sweep logic covers Levenshtein distances [0, 1, 2, 3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:56:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: androidworld dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_328ebb23
+  context: 'Implement code/data/evaluation/: First step: Read state/validated_n.json
+    to retrieve N. Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: Load N tasks from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T11:58:12Z'

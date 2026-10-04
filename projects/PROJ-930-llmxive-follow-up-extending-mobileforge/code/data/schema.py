@@ -6,69 +6,101 @@ from datetime import datetime
 
 @dataclass
 class ExtractionDataset:
-    """Schema for extracted (UI_state, Corrective_Hint, Action) triples."""
-    triples: List[Dict[str, Any]] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    
-    def save(self, path: Path) -> None:
-        """Save dataset to JSON/Parquet."""
-        data = {
-            "triples": self.triples,
-            "metadata": self.metadata,
-            "created_at": self.created_at
-        }
-        with open(path, 'w') as f:
-            json.dump(data, f, indent=2)
-    
-    @classmethod
-    def load(cls, path: Path) -> 'ExtractionDataset':
-        """Load dataset from file."""
-        with open(path, 'r') as f:
-            data = json.load(f)
-        instance = cls()
-        instance.triples = data.get("triples", [])
-        instance.metadata = data.get("metadata", {})
-        instance.created_at = data.get("created_at", "")
-        return instance
-
-@dataclass
-class DistilledModel:
-    """Schema for distilled model artifacts."""
-    model_id: str
-    config: Dict[str, Any]
-    weights_path: Path
-    training_metrics: Dict[str, float] = field(default_factory=dict)
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    
-    def save_metadata(self, path: Path) -> None:
-        """Save model metadata."""
-        data = {
-            "model_id": self.model_id,
-            "config": self.config,
-            "weights_path": str(self.weights_path),
-            "training_metrics": self.training_metrics,
-            "created_at": self.created_at
-        }
-        with open(path, 'w') as f:
-            json.dump(data, f, indent=2)
-
-@dataclass
-class EvaluationResult:
-    """Schema for evaluation results."""
-    task_id: str
-    model_id: str
-    success: bool
-    steps: int
-    metrics: Dict[str, float] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    """Represents the extracted dataset of (UI_state, Hint, Action) triples."""
+    path: Path
+    count: int
+    created_at: datetime = field(default_factory=datetime.now)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "task_id": self.task_id,
-            "model_id": self.model_id,
-            "success": self.success,
-            "steps": self.steps,
-            "metrics": self.metrics,
-            "timestamp": self.timestamp
+            "path": str(self.path),
+            "count": self.count,
+            "created_at": self.created_at.isoformat()
         }
+    
+    def save_metadata(self) -> None:
+        """Saves the dataset metadata to a JSON file alongside the dataset."""
+        metadata_path = self.path.with_suffix(self.path.suffix + '.meta.json')
+        with open(metadata_path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
+    
+    @classmethod
+    def load_metadata(cls, metadata_path: Path) -> 'ExtractionDataset':
+        """Loads dataset metadata from a JSON file."""
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        return cls(
+            path=Path(data['path']),
+            count=data['count'],
+            created_at=datetime.fromisoformat(data['created_at'])
+        )
+
+@dataclass
+class DistilledModel:
+    """Represents the trained distilled model."""
+    path: Path
+    config: Dict[str, Any]
+    weights_hash: Optional[str] = None
+    created_at: datetime = field(default_factory=datetime.now)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "path": str(self.path),
+            "config": self.config,
+            "weights_hash": self.weights_hash,
+            "created_at": self.created_at.isoformat()
+        }
+    
+    def save_metadata(self) -> None:
+        """Saves the model metadata to a JSON file alongside the model weights."""
+        metadata_path = self.path.with_suffix('.meta.json')
+        with open(metadata_path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
+    
+    @classmethod
+    def load_metadata(cls, metadata_path: Path) -> 'DistilledModel':
+        """Loads model metadata from a JSON file."""
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        return cls(
+            path=Path(data['path']),
+            config=data['config'],
+            weights_hash=data.get('weights_hash'),
+            created_at=datetime.fromisoformat(data['created_at'])
+        )
+
+@dataclass
+class EvaluationResult:
+    """Represents the result of an evaluation run."""
+    model_path: Path
+    dataset_path: Path
+    metrics: Dict[str, float]
+    p_value: Optional[float] = None
+    created_at: datetime = field(default_factory=datetime.now)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "model_path": str(self.model_path),
+            "dataset_path": str(self.dataset_path),
+            "metrics": self.metrics,
+            "p_value": self.p_value,
+            "created_at": self.created_at.isoformat()
+        }
+    
+    def save_report(self, output_path: Path) -> None:
+        """Saves the evaluation result as a JSON report."""
+        with open(output_path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
+    
+    @classmethod
+    def load_report(cls, report_path: Path) -> 'EvaluationResult':
+        """Loads an evaluation result from a JSON report file."""
+        with open(report_path, 'r') as f:
+            data = json.load(f)
+        return cls(
+            model_path=Path(data['model_path']),
+            dataset_path=Path(data['dataset_path']),
+            metrics=data['metrics'],
+            p_value=data.get('p_value'),
+            created_at=datetime.fromisoformat(data['created_at'])
+        )

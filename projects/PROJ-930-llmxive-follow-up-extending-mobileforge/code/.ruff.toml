@@ -1,42 +1,24 @@
-# Ruff Configuration for llmXive MobileForge Follow-up
-# Enforces PEP 8 compliance, import sorting, and code quality checks
+# Ruff configuration for llmXive project
+line-length = 88
+target-version = "py311"
 
 [lint]
-# Enable a comprehensive set of rules
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort (import sorting)
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade (modern Python syntax)
-  "N",  # pep8-naming
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
-
-# Ignore specific rules that are too strict for this research context
 ignore = [
-  "E501", # Line too long (handled by Black)
-  "B008", # Do not perform function call in argument defaults (common in dataclasses)
-  "C408", # Unnecessary dict/list/tuple call (often used for clarity in config)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
-
-# Allow unused variables that start with underscore (common in method signatures)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.isort]
-# Ensure consistent import ordering
-known-first-party = ["data", "utils", "models", "tests", "setup_project", "setup_state"]
-force-single-line = false
-lines-after-imports = 2
-order-by-type = true
-force-sort-within-sections = false
-no-lines-before = ["future", "standard-library", "third-party"]
+known-first-party = ["utils", "data", "models", "tests"]
 
 [format]
-# Configuration for Ruff's formatter (if used as Black replacement)
-# We primarily use Black, but this ensures consistency if `ruff format` is run
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
-skip-magic-trailing-comma = false
+line-length = 88
