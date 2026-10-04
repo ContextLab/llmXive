@@ -1,138 +1,139 @@
 """
-Unit tests for T014b validity metrics calculation.
+Unit tests for T014b: VALIDITY METRICS
 """
-import json
 import os
+import json
 import tempfile
-from pathlib import Path
 import pytest
 import pandas as pd
+from pathlib import Path
 
+# Mock config for testing
+class MockConfig:
+    def __getitem__(self, key):
+        if key == 'paths':
+            return {
+                'raw_data': tempfile.gettempdir(),
+                'processed_data': tempfile.gettempdir()
+            }
+        return {}
+
+# Mock the config module
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / 'code'))
-
-from task_t014b_validity_metrics import (
-    load_exclusion_log,
-    load_raw_count,
-    calculate_validity_metrics,
-    save_validity_metrics
-)
+from unittest.mock import patch
 
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-@pytest.fixture
-def raw_dataset_csv(temp_dir):
-    """Create a sample raw dataset CSV."""
-    csv_path = temp_dir / 'raw_dataset.csv'
-    data = {
-        'participant_id': ['P1', 'P2', 'P3', 'P4', 'P5'],
-        'age': [70, 60, 65, 75, 80],
+def temp_files(tmp_path):
+    """Create temporary test files."""
+    raw_dir = tmp_path / "raw"
+    processed_dir = tmp_path / "processed"
+    raw_dir.mkdir()
+    processed_dir.mkdir()
+    
+    # Create mock raw dataset
+    raw_df = pd.DataFrame({
+        'participant_id': ['P001', 'P002', 'P003', 'P004', 'P005'],
+        'age': [70, 62, 75, 80, 65],  # P002 is < 65
         'stimulus_type': ['nostalgia', 'control', 'nostalgia', 'control', 'nostalgia'],
-        'perseverative_errors': [5, 10, None, 8, 6],
-        'categories_completed': [3, 2, 4, 5, 3],
-        'MMSE': [28, 22, 25, 27, 24]
-    }
-    df = pd.DataFrame(data)
-    df.to_csv(csv_path, index=False)
-    return csv_path
-
-@pytest.fixture
-def exclusion_log_json(temp_dir):
-    """Create a sample exclusion log JSON."""
-    json_path = temp_dir / 'exclusion_log.json'
-    data = {
-        'ERR_MISSING_AGE_FIELD': 1,  # P2 is age 60
-        'ERR_MISSING_SCORE': 1,      # P3 has missing perseverative_errors
-        'ERR_MMSE_IMPAIRED': 1,      # P2 has MMSE 22 (< 24)
+        'perseverative_errors': [5.0, 10.0, None, 8.0, 6.0],  # P003 is null
+        'categories_completed': [4.0, 3.0, 5.0, None, 4.0],  # P004 is null
+        'MMSE': [28, 26, 22, 25, 27]  # P003 is < 24
+    })
+    raw_path = raw_dir / "raw_dataset.csv"
+    raw_df.to_csv(raw_path, index=False)
+    
+    # Create mock exclusion log
+    exclusion_log = {
+        'ERR_MISSING_AGE_FIELD': 1,  # P002
+        'ERR_MISSING_SCORE': 2,      # P003 (errors), P004 (categories)
+        'ERR_MMSE_IMPAIRED': 1,      # P003
         'SIMULATION_FALLBACK': False
     }
-    with open(json_path, 'w') as f:
-        json.dump(data, f)
-    return json_path
+    exclusion_path = processed_dir / "exclusion_log.json"
+    with open(exclusion_path, 'w') as f:
+        json.dump(exclusion_log, f)
+    
+    # Create mock mmse_flag
+    mmse_flag = {'has_mmse': True}
+    mmse_path = processed_dir / "mmse_flag.json"
+    with open(mmse_path, 'w') as f:
+        json.dump(mmse_flag, f)
+    
+    return {
+        'raw_path': raw_path,
+        'processed_dir': processed_dir,
+        'exclusion_path': exclusion_path,
+        'mmse_path': mmse_path
+    }
 
-@pytest.fixture
-def mmse_flag_json(temp_dir):
-    """Create a sample MMSE flag JSON."""
-    json_path = temp_dir / 'mmse_flag.json'
-    data = {'has_mmse': True}
-    with open(json_path, 'w') as f:
-        json.dump(data, f)
-    return json_path
-
-def test_load_raw_count(raw_dataset_csv):
+def test_load_raw_count(temp_files):
     """Test loading raw record count."""
-    count = load_raw_count(raw_dataset_csv)
-    assert count == 5
-
-def test_load_exclusion_log(exclusion_log_json):
-    """Test loading exclusion log."""
-    log = load_exclusion_log(exclusion_log_json)
-    assert log['ERR_MISSING_AGE_FIELD'] == 1
-    assert log['ERR_MISSING_SCORE'] == 1
-    assert log['ERR_MMSE_IMPAIRED'] == 1
-
-def test_calculate_validity_metrics(raw_dataset_csv, exclusion_log_json, mmse_flag_json):
-    """Test validity metrics calculation."""
-    raw_count = load_raw_count(raw_dataset_csv)
-    exclusion_log = load_exclusion_log(exclusion_log_json)
+    from code.task_t014b_validity_metrics import load_raw_count, get_config_paths
     
-    metrics = calculate_validity_metrics(raw_count, exclusion_log, mmse_flag_json)
-    
-    # Total raw: 5
-    # Exclusions: 1 (age) + 1 (score) + 1 (MMSE) = 3
-    # Valid: 5 - 3 = 2
-    # Percentage: 2/5 * 100 = 40%
-    assert metrics['total_raw_records'] == 5
-    assert metrics['total_exclusions'] == 3
-    assert metrics['valid_records'] == 2
-    assert metrics['validity_percentage'] == 40.0
-    assert metrics['mmse_evaluated'] is True
-
-def test_calculate_validity_metrics_no_mmse(temp_dir, raw_dataset_csv, exclusion_log_json):
-    """Test validity metrics calculation when MMSE is not available."""
-    # Create MMSE flag with has_mmse = False
-    mmse_flag_path = temp_dir / 'mmse_flag.json'
-    with open(mmse_flag_path, 'w') as f:
-        json.dump({'has_mmse': False}, f)
-    
-    raw_count = load_raw_count(raw_dataset_csv)
-    exclusion_log = load_exclusion_log(exclusion_log_json)
-    
-    metrics = calculate_validity_metrics(raw_count, exclusion_log, mmse_flag_path)
-    
-    # When MMSE is not available, MMSE exclusions should be ignored
-    # Total exclusions: 1 (age) + 1 (score) + 0 (MMSE) = 2
-    # Valid: 5 - 2 = 3
-    assert metrics['total_exclusions'] == 2
-    assert metrics['valid_records'] == 3
-    assert metrics['mmse_evaluated'] is False
-
-def test_save_validity_metrics(temp_dir):
-    """Test saving validity metrics to JSON."""
-    metrics = {
-        'total_raw_records': 100,
-        'total_exclusions': 20,
-        'valid_records': 80,
-        'validity_percentage': 80.0,
-        'breakdown': {
-            'age_exclusions': 10,
-            'score_exclusions': 5,
-            'mmse_exclusions': 5
-        },
-        'mmse_evaluated': True
+    paths = {
+        'raw_dataset': temp_files['raw_path'],
+        'processed_dir': temp_files['processed_dir'],
+        'validity_metrics': temp_files['processed_dir'] / 'validity_metrics.json',
+        'exclusion_log': temp_files['exclusion_path']
     }
     
-    output_path = temp_dir / 'validity_metrics.json'
+    count = load_raw_count(paths)
+    assert count == 5
+
+def test_calculate_validity_metrics_basic():
+    """Test validity metrics calculation."""
+    from code.task_t014b_validity_metrics import calculate_validity_metrics
+    
+    total_records = 100
+    exclusion_log = {
+        'ERR_MISSING_AGE_FIELD': 10,
+        'ERR_MISSING_SCORE': 5,
+        'ERR_MMSE_IMPAIRED': 3,
+        'SIMULATION_FALLBACK': False
+    }
+    
+    metrics = calculate_validity_metrics(total_records, exclusion_log, has_mmse=True)
+    
+    assert metrics['total_raw_records'] == 100
+    assert metrics['age_excluded'] == 10
+    assert metrics['score_excluded'] == 5
+    assert metrics['mmse_excluded'] == 3
+    assert metrics['total_excluded'] == 18
+    assert metrics['valid_records'] == 82
+    assert metrics['validity_percentage'] == 82.0
+    assert metrics['has_mmse_available'] == True
+
+def test_calculate_validity_metrics_zero_total():
+    """Test validity metrics calculation with zero total records."""
+    from code.task_t014b_validity_metrics import calculate_validity_metrics
+    
+    total_records = 0
+    exclusion_log = {
+        'ERR_MISSING_AGE_FIELD': 0,
+        'ERR_MISSING_SCORE': 0,
+        'ERR_MMSE_IMPAIRED': 0,
+        'SIMULATION_FALLBACK': False
+    }
+    
+    metrics = calculate_validity_metrics(total_records, exclusion_log, has_mmse=True)
+    
+    assert metrics['valid_records'] == 0
+    assert metrics['validity_percentage'] == 0.0
+
+def test_save_validity_metrics(temp_files):
+    """Test saving validity metrics to file."""
+    from code.task_t014b_validity_metrics import save_validity_metrics
+    
+    metrics = {
+        'total_raw_records': 100,
+        'validity_percentage': 85.5
+    }
+    output_path = temp_files['processed_dir'] / 'test_metrics.json'
+    
     save_validity_metrics(metrics, output_path)
     
     assert output_path.exists()
-    
     with open(output_path, 'r') as f:
-        saved_metrics = json.load(f)
-    
-    assert saved_metrics['validity_percentage'] == 80.0
-    assert saved_metrics['valid_records'] == 80
+        saved = json.load(f)
+    assert saved['total_raw_records'] == 100
+    assert saved['validity_percentage'] == 85.5

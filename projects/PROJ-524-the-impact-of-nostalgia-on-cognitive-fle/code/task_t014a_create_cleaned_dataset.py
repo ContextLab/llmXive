@@ -1,19 +1,19 @@
 """
 Task T014a: Generate Cleaned Dataset
 
-Reads the intermediate cleaned dataset (produced by T012e) and creates
-the final cleaned dataset by selecting specific columns and saving to
-the designated output path.
+Reads the intermediate cleaned dataset produced by T012e, selects specific columns
+required for downstream analysis, and writes the final cleaned dataset.
 
-Columns to include:
+Columns selected:
 - participant_id
-- stimulus_type (nostalgia/control)
+- stimulus_type
 - perseverative_errors
 - categories_completed
 - age
 
 Output: data/processed/final_cleaned_dataset.csv
 """
+
 import os
 import json
 import logging
@@ -28,148 +28,129 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_dataset.csv"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "final_cleaned_dataset.csv"
-EXCLUSION_LOG_PATH = PROJECT_ROOT / "data" / "processed" / "exclusion_log.json"
-MMSE_FLAG_PATH = PROJECT_ROOT / "data" / "processed" / "mmse_flag.json"
+def get_config_paths() -> Dict[str, Path]:
+    """
+    Construct paths based on project structure.
+    Assumes execution from project root or code directory.
+    """
+    base_dir = Path(__file__).resolve().parent.parent
+    processed_dir = base_dir / "data" / "processed"
+    return {
+        "input_path": processed_dir / "cleaned_dataset.csv",
+        "output_path": processed_dir / "final_cleaned_dataset.csv",
+        "mmse_flag_path": processed_dir / "mmse_flag.json"
+    }
 
-# Required columns for the final dataset
-REQUIRED_COLUMNS = [
-    'participant_id',
-    'stimulus_type',
-    'perseverative_errors',
-    'categories_completed',
-    'age'
-]
+def load_exclusion_log(paths: Dict[str, Path]) -> Optional[Dict[str, Any]]:
+    """Load exclusion log if it exists."""
+    log_path = paths["input_path"].parent / "exclusion_log.json"
+    if log_path.exists():
+        try:
+            with open(log_path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load exclusion log: {e}")
+    return None
 
-def load_exclusion_log() -> Optional[Dict[str, Any]]:
-    """Load the exclusion log if it exists."""
-    if not EXCLUSION_LOG_PATH.exists():
-        logger.warning(f"Exclusion log not found at {EXCLUSION_LOG_PATH}. Proceeding without it.")
-        return None
-    
-    try:
-        with open(EXCLUSION_LOG_PATH, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load exclusion log: {e}")
-        return None
+def load_mmse_flag(paths: Dict[str, Path]) -> bool:
+    """Load MMSE flag to confirm data handling context."""
+    flag_path = paths["mmse_flag_path"]
+    if flag_path.exists():
+        try:
+            with open(flag_path, 'r') as f:
+                data = json.load(f)
+                return data.get("has_mmse", False)
+        except Exception as e:
+            logger.warning(f"Could not load MMSE flag: {e}")
+    return False
 
-def load_mmse_flag() -> bool:
-    """Load the MMSE flag to determine if MMSE data was present."""
-    if not MMSE_FLAG_PATH.exists():
-        logger.warning(f"MMSE flag not found at {MMSE_FLAG_PATH}. Assuming MMSE was not present.")
-        return False
-    
-    try:
-        with open(MMSE_FLAG_PATH, 'r') as f:
-            data = json.load(f)
-            return data.get('has_mmse', False)
-    except Exception as e:
-        logger.error(f"Failed to load MMSE flag: {e}")
-        return False
-
-def load_intermediate_dataset() -> pd.DataFrame:
-    """Load the intermediate cleaned dataset."""
-    if not INPUT_PATH.exists():
+def load_intermediate_dataset(paths: Dict[str, Path]) -> pd.DataFrame:
+    """
+    Load the cleaned dataset from T012e.
+    Raises FileNotFoundError if the file does not exist.
+    """
+    input_path = paths["input_path"]
+    if not input_path.exists():
         raise FileNotFoundError(
-            f"Input file not found: {INPUT_PATH}. "
-            "Ensure T012e has been completed successfully."
+            f"Input file not found: {input_path}. "
+            "Ensure T012e (MMSE Exclusion) has completed successfully."
         )
     
-    logger.info(f"Loading intermediate dataset from {INPUT_PATH}")
-    df = pd.read_csv(INPUT_PATH)
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
+    logger.info(f"Loading intermediate dataset from {input_path}")
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} records.")
     return df
 
-def create_cleaned_dataset(df: pd.DataFrame) -> pd.DataFrame:
+def create_cleaned_dataset(df: pd.DataFrame, required_columns: list) -> pd.DataFrame:
     """
-    Create the final cleaned dataset by selecting required columns.
-    
-    Args:
-        df: The intermediate cleaned dataset
-        
-    Returns:
-        DataFrame with only the required columns
+    Select the required columns for the final dataset.
+    Validates that all required columns are present.
     """
-    # Check if all required columns exist
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
         raise ValueError(
             f"Missing required columns in input dataset: {missing_cols}. "
             f"Available columns: {list(df.columns)}"
         )
     
-    # Select only the required columns
-    final_df = df[REQUIRED_COLUMNS].copy()
+    logger.info(f"Selecting columns: {required_columns}")
+    final_df = df[required_columns].copy()
     
-    # Log data types for verification
-    logger.info(f"Final dataset dtypes:\n{final_df.dtypes}")
-    
-    # Log basic statistics
-    logger.info(f"Final dataset shape: {final_df.shape}")
-    logger.info(f"Stimulus type distribution:\n{final_df['stimulus_type'].value_counts()}")
+    # Ensure data types are consistent if necessary
+    # e.g., ensure numeric columns are float
+    numeric_cols = ['perseverative_errors', 'categories_completed', 'age']
+    for col in numeric_cols:
+        if col in final_df.columns:
+            final_df[col] = pd.to_numeric(final_df[col], errors='coerce')
     
     return final_df
 
 def save_cleaned_dataset(df: pd.DataFrame, output_path: Path) -> None:
     """Save the final cleaned dataset to CSV."""
-    try:
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save to CSV
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved final cleaned dataset to {output_path}")
-        logger.info(f"Output file size: {output_path.stat().st_size} bytes")
-        
-    except Exception as e:
-        logger.error(f"Failed to save cleaned dataset: {e}")
-        raise
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Saving final cleaned dataset to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} records to {output_path}")
 
-def main():
+def main() -> int:
     """Main entry point for T014a."""
-    logger.info("Starting T014a: Generate Cleaned Dataset")
+    logger.info("Starting Task T014a: Generate Cleaned Dataset")
     
     try:
-        # Load intermediate dataset
-        df = load_intermediate_dataset()
+        paths = get_config_paths()
+        required_columns = [
+            'participant_id', 
+            'stimulus_type', 
+            'perseverative_errors', 
+            'categories_completed', 
+            'age'
+        ]
         
-        # Create final cleaned dataset
-        final_df = create_cleaned_dataset(df)
+        # Load intermediate data
+        df = load_intermediate_dataset(paths)
         
-        # Save the final dataset
-        save_cleaned_dataset(final_df, OUTPUT_PATH)
+        # Load context (optional but good for logging)
+        exclusion_log = load_exclusion_log(paths)
+        has_mmse = load_mmse_flag(paths)
+        logger.info(f"MMSE Flag (has_mmse): {has_mmse}")
         
-        # Verify the output
-        if OUTPUT_PATH.exists():
-            final_df_verify = pd.read_csv(OUTPUT_PATH)
-            logger.info(f"Verification: Output contains {len(final_df_verify)} records")
-            logger.info(f"Verification: Columns = {list(final_df_verify.columns)}")
-            
-            # Check for nulls in critical columns
-            null_counts = final_df_verify[REQUIRED_COLUMNS].isnull().sum()
-            if null_counts.any():
-                logger.warning(f"Null values found in output:\n{null_counts[null_counts > 0]}")
-            else:
-                logger.info("Verification: No null values in required columns")
-            
-            logger.info("T014a completed successfully!")
-            return 0
-        else:
-            logger.error("Output file was not created despite no exceptions")
-            return 1
-            
+        # Create final dataset
+        final_df = create_cleaned_dataset(df, required_columns)
+        
+        # Save output
+        save_cleaned_dataset(final_df, paths["output_path"])
+        
+        logger.info("Task T014a completed successfully.")
+        return 0
+        
     except FileNotFoundError as e:
-        logger.error(f"Input file error: {e}")
+        logger.error(f"File not found: {e}")
         return 1
     except ValueError as e:
-        logger.error(f"Data validation error: {e}")
+        logger.error(f"Validation error: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
+        logger.error(f"Unexpected error during T014a: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":

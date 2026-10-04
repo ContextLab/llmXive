@@ -5,34 +5,41 @@ from pathlib import Path
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 from config import get_config, ensure_dirs
 
-def create_contracts_directory():
+def create_contracts_directory(base_dir: Path) -> bool:
     """
-    Create the contracts/ directory structure if it does not exist.
-    This task sets up the foundation for schema validation files.
+    Create the contracts/ directory structure if it doesn't exist.
+    Returns True if successful, False otherwise.
     """
-    config = get_config()
-    contracts_dir = config.get("contracts_dir", "contracts")
-    
+    contracts_dir = base_dir / "contracts"
     try:
-        ensure_dirs([contracts_dir])
-        log_info(f"Contracts directory created/verified at: {contracts_dir}")
+        contracts_dir.mkdir(parents=True, exist_ok=True)
+        log_info(f"Created contracts directory: {contracts_dir}")
         return True
-    except Exception as e:
+    except OSError as e:
         log_error(f"Failed to create contracts directory: {e}")
         return False
 
 def main():
-    """Entry point for T007."""
+    """
+    Main entry point for T007: Setup contracts directory structure.
+    """
+    # Setup logging
     logger = setup_logging()
-    log_info(f"Starting T007: Setup contracts directory structure at {get_timestamp()}")
     
-    success = create_contracts_directory()
+    # Get configuration
+    config = get_config()
+    base_dir = config.get("base_dir", Path("."))
+    
+    log_info("Starting T007: Setup contracts directory structure")
+    
+    # Create contracts directory
+    success = create_contracts_directory(base_dir)
     
     if success:
-        log_info("T007 completed successfully.")
+        log_info("T007 completed successfully")
         return 0
     else:
-        log_error("T007 failed.")
+        log_error("T007 failed")
         return 1
 
 if __name__ == "__main__":

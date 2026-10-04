@@ -1,119 +1,137 @@
-version: "1.0"
-spec_reference: "specs/001-nostalgia-cognitive-fle/spec.md"
-description: "Data model for the impact of nostalgia on cognitive flexibility in aging adults."
+version: "1.0.0"
+title: "Data Model: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults"
+description: >
+  Defines the core entities and schema for the WCST (Wisconsin Card Sorting Test)
+  and Nostalgia Stimuli dataset used in this research project.
+  Based on Spec Section 5 Data Model.
+
 entities:
   Participant:
-    description: "Represents an individual aging adult (age >= 65) participating in the study."
+    description: >
+      Represents an aging adult participant in the study (age >= 65).
+      Contains demographic information and cognitive assessment scores.
     fields:
       - name: participant_id
         type: string
-        description: "Unique identifier for the participant."
+        description: Unique identifier for the participant.
         required: true
+        format: "PART-{YYYY}-{NNNN}"
       - name: age
         type: integer
-        description: "Age of the participant in years."
+        description: Age of the participant in years.
         required: true
         constraints:
-          min: 65
-      - name: group
+          minimum: 65
+          maximum: 95
+      - name: stimulus_type
         type: string
-        description: "Experimental group assignment."
+        description: Type of stimulus presented to the participant.
         required: true
         enum:
-          - nostalgia
-          - control
-      - name: mmse_score
-        type: integer
-        description: "Mini-Mental State Examination score. Optional; used for exclusion if < 24."
+          - "nostalgia"
+          - "control"
+      - name: perseverative_errors
+        type: float
+        description: Number of perseverative errors made during the WCST task.
+        required: true
+        constraints:
+          minimum: 0.0
+      - name: categories_completed
+        type: float
+        description: Number of categories successfully completed during the WCST task.
+        required: true
+        constraints:
+          minimum: 0.0
+          maximum: 6.0
+      - name: MMSE
+        type: float
+        description: Mini-Mental State Examination score (optional).
         required: false
         constraints:
-          min: 0
-          max: 30
+          minimum: 0.0
+          maximum: 30.0
+        notes: >
+          If present, participants with MMSE < 24 are typically excluded
+          from the primary analysis to ensure cognitive integrity.
 
   Stimulus:
-    description: "Represents the experimental stimulus (audio/text) presented to the participant."
+    description: >
+      Represents a specific nostalgia or control stimulus item used in the experiment.
     fields:
       - name: stimulus_id
         type: string
-        description: "Unique identifier for the stimulus."
+        description: Unique identifier for the stimulus.
         required: true
       - name: stimulus_type
         type: string
-        description: "Type of stimulus (nostalgia-inducing or neutral control)."
+        description: Category of the stimulus.
         required: true
         enum:
-          - nostalgia
-          - control
+          - "nostalgia"
+          - "control"
       - name: content_path
         type: string
-        description: "Relative path to the stimulus file in data/stimuli/."
+        description: Relative path to the stimulus file (audio/video/text).
         required: true
-      - name: checksum
-        type: string
-        description: "SHA-256 checksum of the stimulus file for integrity verification."
-        required: true
+      - name: duration_seconds
+        type: float
+        description: Duration of the stimulus in seconds.
+        required: false
 
   Metric:
-    description: "Cognitive flexibility performance metrics derived from the WCST."
+    description: >
+      Aggregated performance metrics derived from the WCST task for a participant.
+      This entity links back to the Participant but represents the derived statistical outcome.
     fields:
+      - name: metric_id
+        type: string
+        description: Unique identifier for the metric record.
+        required: true
       - name: participant_id
         type: string
-        description: "Foreign key linking to Participant."
+        description: Foreign key reference to Participant.
         required: true
-      - name: stimulus_id
-        type: string
-        description: "Foreign key linking to Stimulus."
-        required: true
-      - name: perseverative_errors
-        type: integer
-        description: "Number of perseverative errors made by the participant."
-        required: true
-        constraints:
-          min: 0
-      - name: categories_completed
-        type: integer
-        description: "Number of categories successfully completed."
-        required: true
-        constraints:
-          min: 0
       - name: total_tries
         type: integer
-        description: "Total number of trials attempted."
+        description: Total number of trials in the session.
+        required: true
+      - name: correct_responses
+        type: integer
+        description: Total number of correct responses.
+        required: true
+      - name: non_perseverative_errors
+        type: integer
+        description: Number of non-perseverative errors.
+        required: true
+      - name: conceptual_level_score
+        type: float
+        description: Calculated conceptual level score.
         required: false
-        constraints:
-          min: 0
 
 relationships:
-  - type: one-to-many
+  - name: Participant_Performs_Metric
     source: Participant
     target: Metric
-    on: participant_id
-  - type: one-to-many
-    source: Stimulus
-    target: Metric
-    on: stimulus_id
+    type: one-to-one
+    description: Each participant produces one primary metric record.
+  - name: Participant_Exposed_To_Stimulus
+    source: Participant
+    target: Stimulus
+    type: many-to-one
+    description: Multiple participants may be exposed to the same stimulus.
 
 validation_rules:
-  - rule: "participant_age_check"
-    description: "Ensure all participants are 65 years or older."
-    entity: Participant
-    field: age
-    operator: ">="
-    value: 65
-  - rule: "mmse_exclusion"
-    description: "Exclude participants with MMSE < 24 if MMSE data is available."
-    entity: Participant
-    field: mmse_score
-    condition: "if present and not null, then value >= 24"
-  - rule: "metric_completeness"
-    description: "Ensure primary metrics are not null."
-    entity: Metric
-    fields:
-      - perseverative_errors
-      - categories_completed
-    condition: "not null"
+  - name: age_requirement
+    description: All participants must be 65 years or older.
+    condition: "age >= 65"
+  - name: mmse_threshold
+    description: If MMSE is present, it must be between 0 and 30.
+    condition: "MMSE is null or (0 <= MMSE <= 30)"
+  - name: score_bounds
+    description: WCST scores must be non-negative.
+    condition: "perseverative_errors >= 0 AND categories_completed >= 0"
 
-schema_metadata:
-  generated_by: "T020b Data Model Generator"
-  timestamp: "auto-generated-at-runtime"
-  version_control: "git"
+metadata:
+  created_by: "llmXive Pipeline"
+  based_on: "Spec Section 5 Data Model"
+  last_updated: "2023-10-27"

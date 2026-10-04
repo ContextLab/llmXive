@@ -9,164 +9,135 @@ from config import get_config, get_mmse_threshold
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 
 # Configure logging
-setup_logging()
 logger = logging.getLogger(__name__)
 
-def load_score_filtered_dataset() -> pd.DataFrame:
-    """
-    Loads the dataset filtered by age and score (T012b output).
-    """
+def get_config_paths() -> Dict[str, Path]:
+    """Get file paths from config."""
     config = get_config()
-    input_path = config['paths']['processed'] / 'cleaned_score_filtered.csv'
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {input_path}. "
-                                "Ensure T012b has been completed successfully.")
-    
-    logger.info(f"Loading score filtered dataset from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} records from score filtered dataset")
-    return df
+    return {
+        "score_filtered": Path(config["data_processed"]) / "cleaned_score_filtered.csv",
+        "mmse_flag": Path(config["data_processed"]) / "mmse_flag.json",
+        "exclusion_counts": Path(config["data_processed"]) / "exclusion_counts.json",
+        "cleaned_dataset": Path(config["data_processed"]) / "cleaned_dataset.csv",
+        "cleaned_dataset_no_mmse": Path(config["data_processed"]) / "cleaned_dataset_no_mmse.csv",
+    }
 
-def load_mmse_flag() -> bool:
-    """
-    Reads the MMSE flag produced by T012d.
-    Returns True if MMSE column exists and has non-null values, False otherwise.
-    """
-    config = get_config()
-    flag_path = config['paths']['processed'] / 'mmse_flag.json'
-    
-    if not flag_path.exists():
-        raise FileNotFoundError(f"MMSE flag file not found: {flag_path}. "
-                                "Ensure T012d has been completed successfully.")
-    
-    with open(flag_path, 'r') as f:
+def load_score_filtered_dataset(path: Path) -> pd.DataFrame:
+    """Load the score-filtered dataset."""
+    if not path.exists():
+        raise FileNotFoundError(f"Score filtered dataset not found at {path}")
+    log_info(logger, f"Loading score filtered dataset from {path}")
+    return pd.read_csv(path)
+
+def load_mmse_flag(path: Path) -> bool:
+    """Load the MMSE flag from JSON."""
+    if not path.exists():
+        raise FileNotFoundError(f"MMSE flag file not found at {path}")
+    log_info(logger, f"Loading MMSE flag from {path}")
+    with open(path, 'r') as f:
         data = json.load(f)
-    
-    has_mmse = data.get('has_mmse', False)
-    logger.info(f"Read MMSE flag: has_mmse={has_mmse}")
-    return has_mmse
+    return data.get("has_mmse", False)
 
-def filter_mmse(df: pd.DataFrame, threshold: int = 24) -> pd.DataFrame:
-    """
-    Filters the dataframe for MMSE >= threshold.
-    If 'MMSE' column is missing, returns the dataframe unchanged (should not happen if has_mmse=True).
-    """
-    if 'MMSE' not in df.columns:
-        log_warning("MMSE column missing in dataframe during filtering, returning unfiltered data.")
+def filter_mmse(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
+    """Filter dataset by MMSE >= threshold."""
+    if "MMSE" not in df.columns:
+        log_warning(logger, "MMSE column not found in dataset, returning full dataset")
         return df
     
-    original_count = len(df)
-    filtered_df = df[df['MMSE'] >= threshold].copy()
-    excluded_count = original_count - len(filtered_df)
-    
-    log_info(f"Filtered MMSE >= {threshold}: kept {len(filtered_df)}, excluded {excluded_count}")
-    return filtered_df, excluded_count
+    initial_count = len(df)
+    filtered_df = df[df["MMSE"] >= threshold].copy()
+    final_count = len(filtered_df)
+    excluded_count = initial_count - final_count
 
-def save_cleaned_dataset(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Saves the final cleaned dataset (with MMSE exclusion if applicable).
-    """
-    df.to_csv(output_path, index=False)
-    log_info(f"Saved cleaned dataset to {output_path} with {len(df)} records")
-
-def save_no_mmse_dataset(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Saves the dataset without MMSE exclusion (for robustness analysis).
-    This is a copy of the score-filtered dataset.
-    """
-    df.to_csv(output_path, index=False)
-    log_info(f"Saved no-MMSE dataset to {output_path} with {len(df)} records")
-
-def update_exclusion_counts(exclusion_counts: Dict[str, Any], key: str, count: int) -> Dict[str, Any]:
-    """
-    Updates the exclusion counts dictionary.
-    """
-    exclusion_counts[key] = count
-    return exclusion_counts
-
-def save_exclusion_counts(exclusion_counts: Dict[str, Any], output_path: Path) -> None:
-    """
-    Saves the exclusion counts to a JSON file.
-    """
-    with open(output_path, 'w') as f:
-        json.dump(exclusion_counts, f, indent=2)
-    log_info(f"Saved exclusion counts to {output_path}")
-
-def main():
-    """
-    T012e: MMSE EXCLUSION AND ROBUSTNESS PREP
-    
-    Logic:
-    1. Read has_mmse from data/processed/mmse_flag.json (T012d output).
-    2. Load data/processed/cleaned_score_filtered.csv (T012b output).
-    3. If has_mmse is True:
-       - Filter for MMSE >= 24 -> data/processed/cleaned_dataset.csv (Primary)
-    4. If has_mmse is False:
-       - Copy score_filtered -> data/processed/cleaned_dataset.csv (Primary)
-    5. ALWAYS: Copy score_filtered -> data/processed/cleaned_dataset_no_mmse.csv (Robustness)
-    6. Update and save exclusion_counts.json.
-    """
-    logger.info("Starting T012e: MMSE Exclusion and Robustness Prep")
-    config = get_config()
-    mmse_threshold = get_mmse_threshold()
-    
-    # 1. Load MMSE Flag
-    try:
-        has_mmse = load_mmse_flag()
-    except FileNotFoundError as e:
-        log_error(str(e))
-        raise
-
-    # 2. Load Score Filtered Dataset
-    try:
-        df_score_filtered = load_score_filtered_dataset()
-    except FileNotFoundError as e:
-        log_error(str(e))
-        raise
-
-    # Initialize exclusion counts (load existing if possible, else start fresh)
-    exclusion_counts_path = config['paths']['processed'] / 'exclusion_counts.json'
-    exclusion_counts = {}
-    if exclusion_counts_path.exists():
-        try:
-            with open(exclusion_counts_path, 'r') as f:
-                exclusion_counts = json.load(f)
-        except json.JSONDecodeError:
-            exclusion_counts = {}
-
-    # 3. Process based on has_mmse flag
-    if has_mmse:
-        log_info("MMSE data present. Applying MMSE >= 24 filter.")
-        df_primary, mmse_excluded_count = filter_mmse(df_score_filtered, mmse_threshold)
-        
-        # Save Primary Dataset (with MMSE)
-        primary_path = config['paths']['processed'] / 'cleaned_dataset.csv'
-        save_cleaned_dataset(df_primary, primary_path)
-        
-        # Update exclusion counts
-        exclusion_counts['ERR_MMSE_IMPAIRED'] = mmse_excluded_count
+    if excluded_count > 0:
+        log_info(logger, f"Filtered {excluded_count} records with MMSE < {threshold}")
     else:
-        log_info("MMSE data not present or all null. Skipping MMSE filter.")
-        df_primary = df_score_filtered.copy()
+        log_info(logger, f"No records excluded based on MMSE threshold {threshold}")
+    
+    return filtered_df
+
+def save_cleaned_dataset(df: pd.DataFrame, path: Path) -> None:
+    """Save the primary cleaned dataset."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    log_info(logger, f"Saved primary cleaned dataset to {path} ({len(df)} records)")
+
+def save_no_mmse_dataset(df: pd.DataFrame, path: Path) -> None:
+    """Save the dataset without MMSE filtering (for robustness checks)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    log_info(logger, f"Saved no-MMSE dataset to {path} ({len(df)} records)")
+
+def update_exclusion_counts(
+    current_counts: Dict[str, Any], 
+    mmse_excluded_count: int
+) -> Dict[str, Any]:
+    """Update exclusion counts with MMSE exclusion data."""
+    if mmse_excluded_count > 0:
+        current_counts["ERR_MMSE_IMPAIRED"] = mmse_excluded_count
+    else:
+        current_counts["ERR_MMSE_IMPAIRED"] = 0
+    return current_counts
+
+def save_exclusion_counts(counts: Dict[str, Any], path: Path) -> None:
+    """Save exclusion counts to JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(counts, f, indent=2)
+    log_info(logger, f"Updated exclusion counts at {path}")
+
+def load_exclusion_counts(path: Path) -> Dict[str, Any]:
+    """Load existing exclusion counts."""
+    if not path.exists():
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def main() -> None:
+    """Main execution for T012e: MMSE Exclusion and Robustness Prep."""
+    setup_logging()
+    log_info(logger, "Starting T012e: MMSE Exclusion and Robustness Prep")
+
+    paths = get_config_paths()
+    
+    try:
+        # Load input data
+        df_score_filtered = load_score_filtered_dataset(paths["score_filtered"])
+        has_mmse = load_mmse_flag(paths["mmse_flag"])
         
-        # Save Primary Dataset (same as score filtered)
-        primary_path = config['paths']['processed'] / 'cleaned_dataset.csv'
-        save_cleaned_dataset(df_primary, primary_path)
+        # Load existing exclusion counts
+        exclusion_counts = load_exclusion_counts(paths["exclusion_counts"])
         
-        # No MMSE exclusion to record
-        exclusion_counts['ERR_MMSE_IMPAIRED'] = 0
+        # Get MMSE threshold from config
+        mmse_threshold = get_mmse_threshold()
+        
+        mmse_excluded_count = 0
 
-    # 4. ALWAYS Generate Robustness Dataset (copy of score filtered)
-    robustness_path = config['paths']['processed'] / 'cleaned_dataset_no_mmse.csv'
-    save_no_mmse_dataset(df_score_filtered, robustness_path)
-
-    # 5. Save Updated Exclusion Counts
-    save_exclusion_counts(exclusion_counts, exclusion_counts_path)
-
-    logger.info("T012e completed successfully.")
-    return 0
+        if has_mmse:
+            log_info(logger, "MMSE data is present. Filtering for MMSE >= 24.")
+            df_primary = filter_mmse(df_score_filtered, mmse_threshold)
+            mmse_excluded_count = len(df_score_filtered) - len(df_primary)
+            save_cleaned_dataset(df_primary, paths["cleaned_dataset"])
+        else:
+            log_info(logger, "MMSE data is NOT present. Copying score-filtered dataset as primary.")
+            save_cleaned_dataset(df_score_filtered, paths["cleaned_dataset"])
+        
+        # Always generate the no-MMSE dataset for robustness checks
+        log_info(logger, "Generating cleaned_dataset_no_mmse.csv for robustness analysis.")
+        save_no_mmse_dataset(df_score_filtered, paths["cleaned_dataset_no_mmse"])
+        
+        # Update and save exclusion counts
+        exclusion_counts = update_exclusion_counts(exclusion_counts, mmse_excluded_count)
+        save_exclusion_counts(exclusion_counts, paths["exclusion_counts"])
+        
+        log_info(logger, "T012e completed successfully.")
+        
+    except FileNotFoundError as e:
+        log_error(logger, f"Required input file missing: {e}")
+        raise
+    except Exception as e:
+        log_error(logger, f"Error during T012e execution: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

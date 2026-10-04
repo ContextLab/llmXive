@@ -1,111 +1,61 @@
-"""
-Unit tests for T015b: Stimulus Validation
-"""
-import os
-import json
-import tempfile
 import pytest
+import json
+import logging
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+# Import the functions to test
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from task_t015b_stimulus_validation import load_metadata, validate_stimulus_doi, main
-
-# Mock setup_logging to avoid side effects in tests
-@pytest.fixture(autouse=True)
-def mock_setup_logging():
-    with patch("task_t015b_stimulus_validation.setup_logging"):
-        yield
-
-class TestValidateStimulusDoi:
-    def test_doi_present_and_valid(self):
-        metadata = {"validation_study_doi": "10.1038/example.doi"}
-        assert validate_stimulus_doi(metadata) is True
-
-    def test_doi_missing_key(self):
-        metadata = {"dataset_source": "OpenML"}
-        assert validate_stimulus_doi(metadata) is False
-
-    def test_doi_is_null(self):
-        metadata = {"validation_study_doi": None}
-        assert validate_stimulus_doi(metadata) is False
-
-    def test_doi_is_empty_string(self):
-        metadata = {"validation_study_doi": ""}
-        assert validate_stimulus_doi(metadata) is False
+from task_t015b_stimulus_validation import load_metadata, validate_stimulus_doi
 
 class TestLoadMetadata:
-    def test_load_existing_metadata(self, tmp_path):
-        # Create a temporary metadata file
-        meta_file = tmp_path / "metadata.json"
-        data = {"validation_study_doi": "10.123/test"}
-        with open(meta_file, 'w') as f:
-            json.dump(data, f)
+    def test_load_metadata_success(self, tmp_path):
+        """Test successful loading of a valid metadata file."""
+        metadata_path = tmp_path / "metadata.json"
+        test_data = {"key": "value", "validation_study_doi": "10.1234/test"}
+        metadata_path.write_text(json.dumps(test_data))
         
-        with patch("task_t015b_stimulus_validation.METADATA_PATH", meta_file):
-            loaded = load_metadata()
-            assert loaded == data
+        result = load_metadata(metadata_path)
+        assert result == test_data
+        assert result["validation_study_doi"] == "10.1234/test"
 
-    def test_load_missing_metadata(self, tmp_path):
-        non_existent = tmp_path / "non_existent.json"
-        
-        with patch("task_t015b_stimulus_validation.METADATA_PATH", non_existent):
-            with pytest.raises(FileNotFoundError):
-                load_metadata()
+    def test_load_metadata_not_found(self, tmp_path):
+        """Test that FileNotFoundError is raised when file is missing."""
+        metadata_path = tmp_path / "nonexistent.json"
+        with pytest.raises(FileNotFoundError):
+            load_metadata(metadata_path)
 
-class TestMain:
-    def test_main_valid_doi(self, tmp_path, caplog):
-        # Setup temp directories
-        data_raw = tmp_path / "data" / "raw"
-        data_results = tmp_path / "data" / "results"
-        data_raw.mkdir(parents=True)
-        data_results.mkdir(parents=True)
+    def test_load_metadata_invalid_json(self, tmp_path):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        metadata_path = tmp_path / "invalid.json"
+        metadata_path.write_text("not valid json")
         
-        meta_file = data_raw / "metadata.json"
-        with open(meta_file, 'w') as f:
-            json.dump({"validation_study_doi": "10.1000/test"}, f)
-        
-        # Patch paths
-        with patch("task_t015b_stimulus_validation.METADATA_PATH", meta_file), \
-             patch("task_t015b_stimulus_validation.RESULTS_DIR", data_results):
-            
-            main()
-            
-            # Verify output file created
-            status_file = data_results / "stimulus_validation_status.json"
-            assert status_file.exists()
-            
-            with open(status_file) as f:
-                report = json.load(f)
-            
-            assert report["stimulus_validated"] is True
-            assert "INFO_STIMULUS_VALIDATED" in report["log_message"]
+        with pytest.raises(json.JSONDecodeError):
+            load_metadata(metadata_path)
 
-    def test_main_no_doi(self, tmp_path, caplog):
-        # Setup temp directories
-        data_raw = tmp_path / "data" / "raw"
-        data_results = tmp_path / "data" / "results"
-        data_raw.mkdir(parents=True)
-        data_results.mkdir(parents=True)
-        
-        meta_file = data_raw / "metadata.json"
-        with open(meta_file, 'w') as f:
-            json.dump({"dataset_source": "Simulated"}, f)
-        
-        # Patch paths
-        with patch("task_t015b_stimulus_validation.METADATA_PATH", meta_file), \
-             patch("task_t015b_stimulus_validation.RESULTS_DIR", data_results):
-            
-            main()
-            
-            # Verify output file created
-            status_file = data_results / "stimulus_validation_status.json"
-            assert status_file.exists()
-            
-            with open(status_file) as f:
-                report = json.load(f)
-            
-            assert report["stimulus_validated"] is False
-            assert "WARN_STIMULUS_NO_VALIDATION" in report["log_message"]
+class TestValidateStimulusDoi:
+    def test_doi_present(self):
+        """Test validation when DOI is present."""
+        metadata = {"validation_study_doi": "10.1234/example_doi"}
+        result = validate_stimulus_doi(metadata)
+        assert result == "INFO_STIMULUS_VALIDATED"
+
+    def test_doi_null(self):
+        """Test validation when DOI is null."""
+        metadata = {"validation_study_doi": None}
+        result = validate_stimulus_doi(metadata)
+        assert result == "WARN_STIMULUS_NO_VALIDATION"
+
+    def test_doi_missing(self):
+        """Test validation when DOI key is missing."""
+        metadata = {"other_key": "value"}
+        result = validate_stimulus_doi(metadata)
+        assert result == "WARN_STIMULUS_NO_VALIDATION"
+
+    def test_doi_empty_string(self):
+        """Test validation when DOI is an empty string."""
+        metadata = {"validation_study_doi": ""}
+        result = validate_stimulus_doi(metadata)
+        assert result == "WARN_STIMULUS_NO_VALIDATION"

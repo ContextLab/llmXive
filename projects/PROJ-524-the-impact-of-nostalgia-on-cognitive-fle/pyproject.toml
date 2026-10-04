@@ -1,26 +1,65 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-nostalgia-cognitive-fle"
+name = "nostalgia-cognitive-flexibility"
 version = "0.1.0"
-description = "The Impact of Nostalgia on Cognitive Flexibility in Aging Adults"
-requires-python = ">=3.9"
+description = "Analysis of nostalgia's impact on cognitive flexibility in aging adults"
+readme = "README.md"
+requires-python = ">=3.8"
 dependencies = [
-    "pandas",
-    "scipy",
-    "statsmodels",
-    "numpy",
-    "pyyaml",
-    "openml",
-    "datasets",
-    "requests",
-    "pytest",
-    "black",
-    "ruff",
+    "pandas>=2.0.3",
+    "scipy>=1.11.4",
+    "statsmodels>=0.14.1",
+    "numpy>=1.24.3",
+    "pyyaml>=6.0.1",
+    "openml>=0.13.1",
+    "datasets>=2.14.6",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "black>=23.11.0",
+    "ruff>=0.1.6",
 ]
 
 [tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.ruff]
+line-length = 88
+target-version = "py38"
+lint.select = ["E", "F", "W", "I"]
+lint.ignore = []
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

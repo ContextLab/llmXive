@@ -1,39 +1,48 @@
 import os
+import tempfile
 import pytest
 from pathlib import Path
-from code.setup_contracts import create_contracts_directory
+
+# Mock config for testing
 from code.config import get_config
+from code.setup_contracts import create_contracts_directory
+
 
 def test_create_contracts_directory_exists():
-    """Verify that create_contracts_directory creates the contracts folder."""
-    config = get_config()
-    contracts_dir = Path(config.get("contracts_dir", "contracts"))
-    
-    # Ensure it doesn't exist before (optional, but good for idempotency check)
-    if contracts_dir.exists():
-        # If it exists, the function should still return True
-        result = create_contracts_directory()
-        assert result is True
-        assert contracts_dir.is_dir()
-    else:
-        result = create_contracts_directory()
-        assert result is True
-        assert contracts_dir.is_dir()
-        # Cleanup for test isolation if needed, though usually we leave it
-        # os.rmdir(contracts_dir)
+    """
+    Test that create_contracts_directory creates the directory if it doesn't exist
+    and returns True if it already exists.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        contracts_path = Path(tmpdir) / "contracts"
+        
+        # Mock config to use our temp directory
+        config = {
+            "contracts_dir": str(contracts_path)
+        }
 
-def test_contracts_dir_is_writable():
-    """Verify the contracts directory is writable."""
-    config = get_config()
-    contracts_dir = Path(config.get("contracts_dir", "contracts"))
-    
-    assert contracts_dir.is_dir()
-    
-    # Try to create a temp file to verify write permissions
-    test_file = contracts_dir / ".write_test"
-    try:
-        test_file.touch()
-        assert test_file.exists()
-        test_file.unlink()
-    except Exception as e:
-        pytest.fail(f"Contracts directory is not writable: {e}")
+        # First call should create it
+        result = create_contracts_directory(config)
+        assert result is True
+        assert contracts_path.exists()
+        assert contracts_path.is_dir()
+
+        # Second call should succeed (directory already exists)
+        result = create_contracts_directory(config)
+        assert result is True
+
+def test_create_contracts_directory_permissions():
+    """
+    Test behavior when directory creation fails due to permissions (mocked).
+    Since we can't easily mock OS permissions in a portable way, we test
+    that the function handles the path correctly.
+    """
+    # This test verifies the logic flow; actual permission errors are hard to trigger
+    # in a test environment without root/special setup.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        contracts_path = Path(tmpdir) / "contracts"
+        config = {"contracts_dir": str(contracts_path)}
+        
+        # Should succeed
+        assert create_contracts_directory(config) is True
+        assert contracts_path.exists()

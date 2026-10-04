@@ -1,10 +1,10 @@
-T001:
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`,
-    `contracts/`, `code/`, `tests/`, `paper/`) actually exist; thus the claim cannot
-    be verified.
+  r: "No `contracts/` directory or any files within it are presented in the provided\
+    \ artifacts; the claim lacks any tangible evidence that the required directory\
+    \ structure was created. The implementer must add the `contracts/` folder with\
+    \ the expected Phase\u202F1 files."
 T010a:
   c: false
   h: 7f945f21d9b9eb411dafcf0de763977546d333dd9946e1dd0778e236abc767f7
@@ -13,51 +13,27 @@ T010a:
     \ within this module, and the expected output files `data/raw/raw_dataset.csv`\
     \ and `data/raw/metadata.json` are missing. Consequently the task\u2019s critical\
     \ execution flow and required artifacts are not satisfied."
-T014a:
+T012c:
   c: false
-  h: a9705422a48f4dc754228a169dc9ed524e6439bac663ba4e60ad3635957e2837
-  r: The required file `data/processed/final_cleaned_dataset.csv` does not exist,
-    so the copy operation mandated by the task was not performed. The source file
-    is present, but the target artifact is missing.
-T014b:
-  c: false
-  h: 7c9b3e70db77951e20702e58c9ca933c41716bfdbab6f4796e642a4eab22cf29
-  r: "The required output file `data/processed/validity_metrics.json` is missing,\
-    \ so no percentage of valid records has been calculated or logged. The task\u2019\
-    s core artifact does not exist, indicating the work is not done."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `data/stimuli/` directory exists, let alone\
-    \ that its contents were inspected for integrity or generation. The implementer\u2019\
-    s claim lacks any artifact (directory listing, file checks, validation results)\
-    \ to verify the requirement."
+  h: 68a34f2f0705f0058fbc5b72d8a5de04a6d1552197a322cab4a108251f8812c7
+  r: "The required `data/processed/exclusion_log.json` file does not exist, so the\
+    \ exclusion log was never generated. The source `exclusion_counts.json` is present,\
+    \ but the task\u2019s primary output is missing."
 T015b:
   c: false
   h: 726b3df5730ebebf6fb45b3d1f722441e59682a0da408bc981beebfb3c6997dc
   r: "The required file `data/raw/metadata.json` is missing, so the stimulus validation\
     \ logic cannot be executed and no logging can occur as specified. The task\u2019\
     s artifact is absent, thus the requirement is not met."
-T019:
+T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output file implementing the Bonferroni correction (e.g.,\
-    \ using `scipy.stats.multipletests` and reporting corrected p\u2011values for\
-    \ `perseverative_errors` and `categories_completed`) is present in the provided\
-    \ artifacts. The required implementation cannot be verified."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or output file containing the computed Cohen's d\
-    \ values and their 95\u202F% confidence intervals is present. The task required\
-    \ concrete artifact(s) reporting these effect sizes, which are absent."
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-nostalgia-cognitive-fle/quickstart.md` file is presented, nor\
-    \ any excerpt showing installation steps, dependency list, or a runnable \u201C\
-    Hello World\u201D example for the ingestion pipeline. The required artifact is\
-    \ missing, so the task is not satisfied."
+  h: 8bd9e85fa4ddc68dd555d2830a81baed7ab41a57239b6583e07d9feaeb850c7c
+  r: "The required input file `data/processed/final_cleaned_dataset.csv` is missing,\
+    \ so the code cannot actually read the two groups. Moreover, `code/analysis.py`\
+    \ only defines helper functions and does not show any logic that loads the dataset,\
+    \ splits by `stimulus_condition`, runs Welch\u2019s t\u2011test on both `perseverative_errors`\
+    \ and `categories_completed`, or produces the required reports. Both the data\
+    \ artifact and the full analysis implementation are absent."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,6 +54,12 @@ T027a:
     \ so the task of writing the pre\u2011MMSE\u2011exclusion dataset was not completed.\
     \ The raw dataset file does exist, but without the expected processed CSV the\
     \ requirement is unmet."
+T027b:
+  c: false
+  h: 010741d1caf327fcc7fa63de1f488d95fe24d46539088ff47dfbfb1c2910511a
+  r: The required output file `data/results/robustness_report.json` is missing, so
+    the robustness analysis results were not produced as specified. The input CSV
+    exists, but without the JSON report the task is not fulfilled.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -92,13 +74,9 @@ T031a:
     dependencies, and usage examples, we cannot confirm the task was fulfilled. The
     required artifact is missing.
 T044:
-  c: false
-  h: 8d007374dd3ab951e2293083bb7fa4109df529f3fb4ae34567d3a8a4e2af0153
-  r: "The provided `code/analysis.py` does not show any logic that loads `data/processed/final_cleaned_dataset.csv`\
-    \ or raises `DataNotFoundError` when the file is missing/empty, and the required\
-    \ CSV file is absent from the repository. Consequently, the task\u2019s core requirement\u2014\
-    computing metrics strictly from that real dataset and handling its absence\u2014\
-    is not met. The implementation must be extended to read the specified CSV, validate\
-    \ its presence and non\u2011emptiness, raise `DataNotFoundError` if it fails,\
-    \ and avoid any synthetic or random data generation. Additionally, the missing\
-    \ `final_cleaned_dataset"
+  c: true
+  h: 8bd9e85fa4ddc68dd555d2830a81baed7ab41a57239b6583e07d9feaeb850c7c
+  r: "The `code/analysis.py` file exists, is non\u2011empty, and includes a `load_cleaned_dataset`\
+    \ function that raises `DataNotFoundError` when the CSV is missing or empty, and\
+    \ all subsequent metric calculations operate on the loaded DataFrame without generating\
+    \ synthetic or random data."

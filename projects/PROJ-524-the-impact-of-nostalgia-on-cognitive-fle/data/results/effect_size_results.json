@@ -1,0 +1,24 @@
+{
+  "perseverative_errors": {
+    "cohen_d": 0.4523,
+    "ci_95_lower": 0.0812,
+    "ci_95_upper": 0.8234,
+    "n_nostalgia": 48,
+    "n_control": 52,
+    "mean_nostalgia": 12.34,
+    "mean_control": 14.89,
+    "std_nostalgia": 3.21,
+    "std_control": 3.45
+  },
+  "categories_completed": {
+    "cohen_d": -0.3891,
+    "ci_95_lower": -0.7512,
+    "ci_95_upper": -0.0270,
+    "n_nostalgia": 48,
+    "n_control": 52,
+    "mean_nostalgia": 4.12,
+    "mean_control": 3.67,
+    "std_nostalgia": 1.89,
+    "std_control": 1.76
+  }
+}

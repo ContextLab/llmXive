@@ -1,0 +1,3 @@
+Prompt 1: "Think of a time when you felt a deep sense of nostalgia..."
+Prompt 2: "Recall a specific memory from your childhood that makes you smile..."
+# Placeholder content. Real stimuli would be fetched from a canonical source.

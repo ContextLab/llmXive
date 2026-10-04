@@ -2,68 +2,69 @@ import os
 import json
 import hashlib
 import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Optional, Dict, Any
 
-logger = logging.getLogger(__name__)
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
+    """
+    Sets up logging configuration for the project.
+    
+    Args:
+        level: Logging level (default: INFO)
+        
+    Returns:
+        Logger instance
+    """
+    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=level, format=log_format)
+    return logging.getLogger(__name__)
 
-
-def setup_logging(level: int = logging.INFO) -> None:
-    """Configure logging for the project."""
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('data/results/execution_log.log', mode='a')
-        ]
-    )
-
+def get_timestamp() -> str:
+    """Returns current timestamp in ISO format."""
+    return datetime.now().isoformat()
 
 def calculate_checksum(file_path: str) -> str:
-    """Calculate SHA-256 checksum of a file."""
+    """
+    Calculates SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Hex digest of the checksum
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+def log_info(msg: str, logger: Optional[logging.Logger] = None):
+    """Logs an info message."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    logger.info(msg)
 
-def get_timestamp() -> str:
-    """Return current timestamp in ISO format."""
-    return datetime.now().isoformat()
+def log_warning(msg: str, logger: Optional[logging.Logger] = None):
+    """Logs a warning message."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    logger.warning(msg)
 
-
-def load_json(file_path: str) -> Dict[str, Any]:
-    """Load JSON file with error handling."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
+def log_error(msg: str, logger: Optional[logging.Logger] = None):
+    """Logs an error message."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    logger.error(msg)
 
 def save_json(data: Dict[str, Any], file_path: str) -> None:
-    """Save dictionary to JSON file."""
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, default=str)
+    """Saves a dictionary to a JSON file."""
+    Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
-
-def log_info(message: str) -> None:
-    """Log info message."""
-    logger.info(message)
-
-
-def log_warning(message: str) -> None:
-    """Log warning message."""
-    logger.warning(message)
-
-
-def log_error(message: str) -> None:
-    """Log error message."""
-    logger.error(message)
+def load_json(file_path: str) -> Dict[str, Any]:
+    """Loads a dictionary from a JSON file."""
+    with open(file_path, 'r') as f:
+        return json.load(f)

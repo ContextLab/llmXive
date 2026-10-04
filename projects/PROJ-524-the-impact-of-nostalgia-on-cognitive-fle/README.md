@@ -1,125 +1,136 @@
 # The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
-Automated research pipeline for analyzing the relationship between nostalgia stimuli and cognitive flexibility metrics (WCST) in adults aged 65+.
+## Overview
+
+This project investigates the relationship between nostalgia induction and cognitive flexibility in aging adults (65+). The analysis uses data from the Wisconsin Card Sorting Test (WCST) and related executive function measures.
+
+## Installation
+
+### Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+
+### Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd PROJ-524-the-impact-of-nostalgia-on-cognitive-fle
+```
+
+2. Create a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Verify installation:
+```bash
+python -c "import pandas; import scipy; import statsmodels; print('All dependencies installed successfully')"
+```
+
+## Quick Start
+
+### Running the Ingestion Pipeline
+
+The ingestion pipeline fetches data, validates it, and produces a cleaned dataset ready for analysis.
+
+```bash
+# Run the full ingestion pipeline
+python code/run_ingestion.py
+```
+
+This will:
+1. Fetch real data from the specified source (or fall back to simulation if unavailable)
+2. Validate the data against the schema
+3. Filter by age (≥65) and score requirements
+4. Generate cleaned datasets and exclusion logs
+
+Output files will be written to:
+- `data/raw/` - Raw downloaded data
+- `data/processed/` - Cleaned and filtered datasets
+- `contracts/` - Schema definitions
+
+### Running the Analysis Pipeline
+
+Once the cleaned dataset is ready, run the statistical analysis:
+
+```bash
+python code/analysis.py
+```
+
+This will:
+1. Perform Welch's t-tests between nostalgia and control groups
+2. Calculate effect sizes (Cohen's d)
+3. Apply Bonferroni correction
+4. Conduct power analysis
+5. Generate sensitivity analysis
+6. Output results to `data/results/`
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest tests/unit/
+pytest tests/integration/
+pytest tests/contract/
+```
 
 ## Project Structure
 
 ```
-.
-├── code/ # Python implementation modules
-│ ├── analysis.py # Statistical analysis (Welch's t-test, effect sizes)
+PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/
+├── code/ # Source code
+│ ├── ingestion/ # Data ingestion modules
+│ ├── analysis.py # Statistical analysis
 │ ├── config.py # Configuration management
-│ ├── ingestion.py # Data fetching and preprocessing
-│ ├── utils.py # Utility functions (logging, checksums)
+│ ├── utils.py # Utility functions
 │ └──... # Task-specific scripts
-├── data/
-│ ├── raw/ # Raw fetched datasets
-│ ├── processed/ # Cleaned and filtered datasets
-│ ├── results/ # Statistical reports and outputs
-│ └── stimuli/ # Audio stimuli files
+├── data/ # Data storage
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Cleaned datasets
+│ ├── results/ # Analysis outputs
+│ └── stimuli/ # Stimulus materials
 ├── contracts/ # Data schemas
-├── tests/ # Unit and integration tests
-├── paper/ # Generated research paper
-└── specs/ # Project specifications
+├── tests/ # Test suite
+│ ├── unit/ # Unit tests
+│ ├── integration/ # Integration tests
+│ └── contract/ # Schema validation tests
+├── specs/ # Project specifications
+├── paper/ # Generated paper drafts
+├── state/ # Pipeline state tracking
+├── requirements.txt # Python dependencies
+└── README.md # This file
 ```
-
-## Prerequisites
-
-- Python 3.9+
-- pip
-
-## Installation
-
-1. **Clone the repository**
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
-
-2. **Install dependencies**
- ```bash
- pip install -r requirements.txt
- ```
-
- The `requirements.txt` includes:
- - `pandas`, `numpy`, `scipy`, `statsmodels` (data analysis)
- - `datasets`, `openml` (data fetching)
- - `pyyaml`, `requests` (configuration and networking)
- - `pytest`, `black`, `ruff` (testing and linting)
-
-3. **Verify setup**
- ```bash
- python -m pytest tests/unit/ -v
- ```
-
-## Usage
-
-### Quick Start
-
-Run the full pipeline to ingest data, clean it, and perform statistical analysis:
-
-```bash
-python code/main.py
-```
-
-This script will:
-1. Fetch data from the canonical source (or fallback to simulation if unreachable).
-2. Validate and filter the dataset (age ≥ 65, score validity, optional MMSE).
-3. Run Welch's t-tests and calculate effect sizes.
-4. Generate `data/results/statistical_report.json`.
-
-### Running Specific Tasks
-
-- **Data Ingestion**:
- ```bash
- python code/ingestion.py
- ```
- Produces `data/raw/raw_dataset.csv` and `data/processed/cleaned_dataset.csv`.
-
-- **Statistical Analysis**:
- ```bash
- python code/analysis.py
- ```
- Requires `data/processed/cleaned_dataset.csv` to exist. Outputs `data/results/statistical_report.json`.
-
-- **Sensitivity Analysis**:
- ```bash
- python code/task_t028_sensitivity_report.py
- ```
-
-### Output Artifacts
-
-After successful execution, check these files:
-
-- `data/processed/cleaned_dataset.csv`: Final analysis-ready dataset.
-- `data/results/statistical_report.json`: P-values, effect sizes, power analysis.
-- `data/results/sensitivity_report.json`: Robustness check results.
-- `paper/001_results.md`: Generated research summary.
 
 ## Configuration
 
-Environment variables (optional):
-- `DATA_SOURCE_URL`: Override canonical data source.
-- `MMSE_THRESHOLD`: Default 24 for cognitive impairment cutoff.
+The project uses environment variables for configuration:
 
-## Testing
+- `PROJECT_ROOT`: Base directory for the project (default: current directory)
+- `DATA_SOURCE`: Data source URL or identifier (default: from plan.md)
+- `LOG_LEVEL`: Logging verbosity (default: INFO)
 
-Run the full test suite:
+Set these before running scripts:
 ```bash
-pytest tests/ -v
+export PROJECT_ROOT=/path/to/project
+export LOG_LEVEL=DEBUG
+python code/run_ingestion.py
 ```
-
-Run specific test categories:
-- Unit tests: `pytest tests/unit/`
-- Integration tests: `pytest tests/integration/`
-- Contract tests: `pytest tests/contract/`
-
-## Contributing
-
-1. Ensure code passes `black` and `ruff` checks.
-2. Add tests for new features.
-3. Update `README.md` if adding new CLI commands.
 
 ## License
 
-MIT License. See LICENSE file for details.
+This project is for research purposes. See LICENSE file for details.
+
+## Contributing
+
+Please read the contributing guidelines before submitting pull requests.

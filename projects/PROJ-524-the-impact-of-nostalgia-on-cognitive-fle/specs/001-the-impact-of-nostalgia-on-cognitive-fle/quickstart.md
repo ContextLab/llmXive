@@ -1,19 +1,19 @@
-# Quick Start Guide: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
+# Quick Start Guide: The Impact of Nostalgia on Cognitive Flexibility
 
-This guide provides installation instructions and a "Hello World" example to run the data ingestion pipeline on a sample dataset.
+This guide provides instructions to set up the environment and run the ingestion pipeline for the "Impact of Nostalgia on Cognitive Flexibility in Aging Adults" project.
 
 ## Prerequisites
 
 - Python 3.9 or higher
-- pip (Python package installer)
-- A Unix-like environment (Linux/macOS) or WSL on Windows
+- `pip` package manager
+- Git (for cloning the repository)
 
 ## Installation
 
 1. **Clone the repository** (if not already done):
  ```bash
  git clone <repository-url>
- cd PROJ-524-the-impact-of-nostalgia-on-cognitive-fle
+ cd <project-directory>
  ```
 
 2. **Create a virtual environment** (recommended):
@@ -23,97 +23,68 @@ This guide provides installation instructions and a "Hello World" example to run
  ```
 
 3. **Install dependencies**:
- Ensure you have the `requirements.txt` file populated with the necessary packages.
+ Ensure you are in the project root directory.
  ```bash
  pip install -r requirements.txt
  ```
+ *Note: `requirements.txt` includes pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests, pytest, black, and ruff.*
 
- *Note: The `requirements.txt` should include: pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests, pytest, black, ruff.*
-
-4. **Verify directory structure**:
- Ensure the following directories exist. If not, run the setup script:
+4. **Verify installation**:
+ Ensure all required Python packages are installed:
  ```bash
- python code/setup_dirs.py
+ python -c "import pandas; import scipy; import statsmodels; print('Dependencies OK')"
  ```
- Expected directories:
- - `data/raw/`
- - `data/processed/`
- - `data/results/`
- - `data/stimuli/`
- - `contracts/`
- - `code/`
- - `tests/`
- - `paper/`
 
 ## Running the Ingestion Pipeline (Hello World)
 
-This example demonstrates how to run the ingestion pipeline. The pipeline will attempt to fetch real data from the canonical source (OpenML or HuggingFace). If real data is unavailable, it will fall back to generating simulation data as per the project's Methodological Simulation protocol.
+This project is designed to ingest real-world data or fall back to a methodological simulation if real data is unavailable.
 
-### Step 1: Run the Orchestration Script
+### Step 1: Ensure Directory Structure
+The pipeline expects specific directories. Run the setup script to create them:
+```bash
+python code/setup_dirs.py
+```
+*This creates `data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`, `contracts/`, `code/`, `tests/`, and `paper/`.*
 
-Execute the main pipeline script:
+### Step 2: Run the Orchestration Script
+Execute the main pipeline to fetch data (or generate simulation data), validate, and clean the dataset.
 
 ```bash
 python code/main.py
 ```
 
-**What this does:**
-1. Attempts to fetch real data from the configured source.
-2. If real data fetch fails, it triggers the simulation fallback (`code/task_t010d_generate_simulation.py`).
-3. Validates the schema of the raw data.
-4. Filters and cleans the data (age >= 65, score validation).
-5. Generates the final cleaned dataset and exclusion logs.
+**Expected Behavior:**
+- The script attempts to fetch real data from the configured source (OpenML/HuggingFace).
+- If real data fetch fails, it automatically triggers `generate_simulation_data()` to create a valid synthetic dataset for testing purposes.
+- It filters for participants aged ≥ 65.
+- It validates cognitive metrics (Perseverative Errors, Categories Completed).
+- It generates a `cleaned_dataset.csv` in `data/processed/`.
 
-### Step 2: Verify Output
+### Step 3: Verify Outputs
+After successful execution, check the following files:
 
-After the script completes successfully, verify the generated artifacts in the `data/` directory:
+1. **Raw Data**: `data/raw/raw_dataset.csv` (or simulation equivalent)
+2. **Cleaned Data**: `data/processed/cleaned_dataset.csv`
+3. **Exclusion Log**: `data/processed/exclusion_log.json` (details on filtering steps)
+4. **Metadata**: `data/raw/metadata.json` (includes source info and simulation flags)
 
-- **Raw Data**: `data/raw/raw_dataset.csv` (or `data/raw/metadata.json` if simulation mode)
-- **Processed Data**:
- - `data/processed/cleaned_age_filtered.csv`
- - `data/processed/cleaned_score_filtered.csv`
- - `data/processed/cleaned_dataset.csv` (Primary)
- - `data/processed/cleaned_dataset_no_mmse.csv` (Robustness)
- - `data/processed/final_cleaned_dataset.csv`
-- **Logs & Metadata**:
- - `data/raw/metadata.json`
- - `data/processed/exclusion_counts.json`
- - `data/processed/exclusion_log.json`
- - `data/processed/mmse_flag.json`
-
-### Expected Console Output
-
-You should see log messages indicating the pipeline stages:
-```text
-INFO: Fetching data...
-INFO: Data fetched successfully.
-INFO: Validating schema...
-INFO: Schema valid.
-INFO: Filtering by age...
-INFO: Filtering by score...
-INFO: Processing MMSE flags...
-INFO: Pipeline completed successfully.
-```
-
-If real data is unavailable, you will see:
-```text
-INFO: Real data fetch failed. Falling back to simulation.
-INFO: Generating synthetic WCST data...
-INFO: Simulation data saved to data/raw/raw_dataset.csv
+```bash
+# Example: View the first few lines of the cleaned dataset
+head data/processed/cleaned_dataset.csv
 ```
 
 ## Next Steps
 
-- **Statistical Analysis**: Once the ingestion pipeline is complete, proceed to User Story 2 to run the statistical analysis (`code/analysis.py`).
-- **Sensitivity Analysis**: Run User Story 3 for robustness checks.
-- **Report Generation**: Review the generated reports in `data/results/`.
+Once the ingestion pipeline is verified, proceed to **User Story 2 (Statistical Analysis)**:
+
+```bash
+python code/analysis.py
+```
+
+This will run Welch's t-tests, calculate effect sizes, and generate the `statistical_report.json` in `data/results/`.
 
 ## Troubleshooting
 
-- **Missing Dependencies**: If you encounter `ModuleNotFoundError`, ensure all packages in `requirements.txt` are installed.
-- **Data Fetch Errors**: If the pipeline fails to fetch real data and simulation is not desired, check your internet connection and the canonical source configuration in `code/config.py`.
-- **Schema Validation Errors**: Ensure the input data (or simulation output) matches the schema defined in `contracts/dataset.schema.yaml`.
-
-## Support
-
-For issues or questions, refer to the project's `README.md` or open an issue in the repository.
+- **Import Errors**: Ensure you are using the virtual environment activated in Step 2.
+- **Missing Directories**: Run `python code/setup_dirs.py` again.
+- **Data Fetch Failures**: The pipeline is designed to handle this by generating simulation data. Check `data/raw/metadata.json` for the `simulation_mode` flag. If you require strictly real data, ensure network access to the configured data source is available.

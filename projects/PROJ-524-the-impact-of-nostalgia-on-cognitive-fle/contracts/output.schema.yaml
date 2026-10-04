@@ -1,113 +1,85 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the statistical analysis output report."
+$schema: http://json-schema.org/draft-07/schema#
+title: NostalgiaCognitiveFlexibilityAnalysisReport
+description: Schema for the statistical analysis output report.
 type: object
-required:
-  - metadata
-  - statistical_results
-  - power_analysis
-  - sensitivity_analysis
 properties:
-  metadata:
+  meta:
     type: object
-    description: "Run metadata and configuration."
     properties:
-      timestamp:
+      generated_at:
         type: string
         format: date-time
-      dataset_source:
+      version:
         type: string
-      total_records:
-        type: integer
-      excluded_records:
-        type: object
-        properties:
-          age_filter:
-            type: integer
-          score_filter:
-            type: integer
-          mmse_filter:
-            type: integer
-    required:
-      - timestamp
-      - dataset_source
-      - total_records
-  statistical_results:
+      source_file:
+        type: string
+  descriptive_statistics:
     type: object
-    description: "Results of Welch's t-tests and effect sizes."
     properties:
-      perseverative_errors:
+      nostalgia:
         type: object
         properties:
-          t_statistic:
+          n:
+            type: integer
+          mean_perseverative_errors:
             type: number
-          p_value:
+          mean_categories_completed:
             type: number
-          p_value_bonferroni:
+          std_perseverative_errors:
             type: number
-          cohens_d:
+          std_categories_completed:
             type: number
-          ci_95_lower:
-            type: number
-          ci_95_upper:
-            type: number
-          significant:
-            type: boolean
-        required:
-          - t_statistic
-          - p_value
-          - cohens_d
-      categories_completed:
+      control:
         type: object
         properties:
-          t_statistic:
+          n:
+            type: integer
+          mean_perseverative_errors:
             type: number
-          p_value:
+          mean_categories_completed:
             type: number
-          p_value_bonferroni:
+          std_perseverative_errors:
             type: number
-          cohens_d:
+          std_categories_completed:
             type: number
-          ci_95_lower:
-            type: number
-          ci_95_upper:
-            type: number
-          significant:
-            type: boolean
-        required:
-          - t_statistic
-          - p_value
-          - cohens_d
-    required:
-      - perseverative_errors
-      - categories_completed
+  statistical_tests:
+    type: array
+    items:
+      type: object
+      properties:
+        metric:
+          type: string
+        test_type:
+          type: string
+        statistic:
+          type: number
+        p_value:
+          type: number
+        p_value_corrected:
+          type: number
+        effect_size:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
   power_analysis:
     type: object
-    description: "Statistical power and MDES results."
     properties:
-      perseverative_errors:
-        type: object
-        properties:
-          achieved_power:
-            type: number
-          mdes:
-            type: number
-      categories_completed:
-        type: object
-        properties:
-          achieved_power:
-            type: number
-          mdes:
-            type: number
+      achieved_power:
+        type: number
+      min_detectable_effect_size:
+        type: number
   sensitivity_analysis:
     type: object
-    description: "Sensitivity to threshold changes."
     properties:
       thresholds_tested:
         type: array
         items:
           type: number
-      borderline_flag:
+      significance_stability:
         type: boolean
-      is_sensitive_to_threshold:
-        type: boolean
+required:
+- meta
+- descriptive_statistics
+- statistical_tests
