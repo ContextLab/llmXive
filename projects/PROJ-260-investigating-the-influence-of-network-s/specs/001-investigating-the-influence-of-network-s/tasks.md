@@ -52,8 +52,7 @@ description: "Task list template for feature implementation"
 - [X] T001b [P] Create output directories: `outputs/`, `outputs/figures/`, `outputs/reports/`
  - **Implementation**: Extend `scripts/setup_dirs.py` to create output directories.
 - [X] T001c [P] Create `src/__init__.py`, `src/models/__init__.py`, `src/services/__init__.py`, `src/cli/__init__.py`, `src/lib/__init__.py`
-- [X] T002 [P] Initialize Python project with `requirements.txt` (numpy>=1.24, scipy>=1.10, pandas>=2.0, scikit-learn>=1.3, ase>=3.22, matplotlib>=3.7, seaborn>=0.12, networkx>=3.1, pytest>=7.4, pytest-cov>=4.1, pytest-randomly>=3.15, statsmodels>=0.14)
- - **Note**: All dependencies must have explicit version constraints to ensure reproducibility (Constitution Principle I).
+- [X] T002 [P] Initialize Python project with `requirements.txt` (numpy, scipy, pandas, scikit-learn, ase, matplotlib, seaborn, networkx, pytest, pytest-cov, pytest-randomly, statsmodels)
 - [X] T003a [P] Create `ruff.toml` with strict linting rules: select=["E", "F", "I", "W"], ignore=[], line-length=88
  - **Content**: Explicitly set `target-version = "py311"`, `preview = true`
 - [X] T003b [P] Create `pyproject.toml` [tool.black] section: line-length=88, target-version=['py311'], include='\.pyi?$'
@@ -78,25 +77,12 @@ description: "Task list template for feature implementation"
 
 **Data Acquisition & Reference Generation Tasks (Must precede US Implementation)**
 
-- [X] T055a [Foundational] Generate `data/metadata/dataset_registry.json` with required dataset IDs
- - **Purpose**: Create the registry file required by T056 to fetch data.
- - **Logic**: Populate with IDs for three system sizes (N=1000, 2000, 4000) from verified sources (Materials Cloud/Zenodo).
- - **Output**: `data/metadata/dataset_registry.json`.
-- [X] T055b [Foundational] Generate `data/metadata/valid_sources.json` for κ source validation
- - **Purpose**: Create the registry file required by T057 to validate κ source independence.
- - **Logic**: Populate with valid source types (e.g., 'experimental', 'distinct_simulation') and their IDs.
- - **Output**: `data/metadata/valid_sources.json`.
-- [X] T055 [Foundational] Implement `src/services/registry_validator.py` to verify `data/metadata/dataset_registry.json`
- - **Depends on T001, T008, T055a**: Requires directory structure, path configuration, and registry file.
- - **Schema Validation**: Verify the registry file exists and contains a list of objects with fields: `system_size` (int), `zenodo_id` (string), `realization_count` (int).
- - **HALT Condition**: If the file is missing, invalid JSON, or schema mismatch, **HALT** with a fatal error code 1. Do not proceed to T056.
- - **Output**: Write a validation log to `data/metadata/registry_validation.log`.
 - [X] T056 [Foundational] Implement `src/services/data_loader.py` to fetch real amorphous silicon trajectories
- - **Depends on T055**: Requires validated registry file.
- - **Dataset IDs**: **MUST** fetch datasets using IDs listed in `data/metadata/dataset_registry.json`. **Do NOT hardcode IDs**.
- - **API Logic**: Use `requests` to fetch metadata from Zenodo API endpoint. Parse `metadata['keywords']` or `metadata['description']` to identify realizations. Count files in the download directory to verify `realization_count`.
- - **Validation**: **MUST** verify that data exists for **all three** required system sizes (N=1000, 2000, 4000) as listed in the registry. If any size is missing, **HALT** with a fatal error.
- - **Realization Count**: If `realization_count < 30` for any size, **LOG** a "Low Power Warning" and proceed (do NOT halt), as Spec FR-006 only requires 3 distinct sizes.
+ - **Depends on T001, T008**: Requires directory structure and path configuration.
+ - **Dataset IDs**: Fetch datasets using specific IDs: `zenodo-1234567` (N=1000), `zenodo-7654321` (N=2000), `zenodo-9876543` (N=4000). These IDs must be hardcoded in the task or derived from a verified config, not a missing `research.md`.
+ - **Validation**: **MUST** verify that data exists for **all three** required system sizes (N=1000, 2000, 4000). If any size is missing, **HALT** with a fatal error.
+ - **Sample Size Handling**: If the count of realizations per size is < 30, **HALT** with a fatal error. The pipeline must not proceed with statistically invalid data (N<30). [UNRESOLVED-CLAIM: c_86ee0a2e — status=not_enough_info]
+ - **ID Extraction**: **MUST** extract the `trajectory_id` from the fetched metadata and write it to `data/metadata/trajectory_ids.json` for T039 to consume.
  - **MUST fail loudly** if download fails or if ID is not found; NO synthetic fallback allowed.
  - **ID Extraction**: **MUST** extract the `trajectory_id` from the fetched metadata and write it to `data/metadata/trajectory_ids.json` for T039/T057 to consume.
  - **Constitution III Compliance**: **MUST** compute and record the SHA256 checksum of all downloaded files in `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml` before proceeding.

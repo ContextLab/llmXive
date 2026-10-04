@@ -2,74 +2,57 @@ import os
 import sys
 from pathlib import Path
 
+# Project root relative to this script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directories required by T001a (data structure)
+DATA_DIRS = [
+    "data/raw",
+    "data/derived",
+    "data/derived/topology",
+    "data/derived/vdos",
+    "data/derived/reference",
+    "data/derived/correlation",
+    "data/metadata",
+]
+
+# Directories required by T001b (output structure)
+OUTPUT_DIRS = [
+    "outputs",
+    "outputs/figures",
+    "outputs/reports",
+]
+
 def create_directories():
     """
-    Creates all required data and output directories for the project.
-    This function implements T001a and T001b.
-    
-    Data directories (T001a):
-      - data/raw/
-      - data/derived/
-      - data/derived/topology/
-      - data/derived/vdos/
-      - data/derived/reference/
-      - data/derived/correlation/
-      - data/metadata/
-      
-    Output directories (T001b):
-      - outputs/
-      - outputs/figures/
-      - outputs/reports/
+    Creates all required data and output directories defined in T001a and T001b.
+    This function is idempotent (safe to run multiple times).
     """
-    # Define the project root (assuming scripts/ is at code/scripts/)
-    project_root = Path(__file__).resolve().parent.parent
-    
-    # Define all required directories
-    data_dirs = [
-        "data/raw",
-        "data/derived",
-        "data/derived/topology",
-        "data/derived/vdos",
-        "data/derived/reference",
-        "data/derived/correlation",
-        "data/metadata",
-    ]
-    
-    output_dirs = [
-        "outputs",
-        "outputs/figures",
-        "outputs/reports",
-    ]
-    
-    all_dirs = [project_root / d for d in data_dirs + output_dirs]
-    
+    all_dirs = DATA_DIRS + OUTPUT_DIRS
     created_count = 0
+
     for dir_path in all_dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
+        full_path = PROJECT_ROOT / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-            print(f"Created directory: {dir_path}")
+            print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nTotal directories created: {created_count}")
-    print(f"Total directories checked: {len(all_dirs)}")
-    
-    # Verify all directories exist
-    missing_dirs = [d for d in all_dirs if not d.exists()]
-    if missing_dirs:
-        print(f"\nERROR: The following directories could not be created:")
-        for d in missing_dirs:
-            print(f"  - {d}")
-        return False
-    
-    print("\nAll required directories are present.")
-    return True
+            # Optional: verify it's actually a directory
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+
+    print(f"Directory setup complete. {created_count} new directories created.")
+    return created_count
 
 def main():
-    """Main entry point for the script."""
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    """Entry point for the script."""
+    try:
+        create_directories()
+    except Exception as e:
+        print(f"Error during directory creation: {e}", file=sys.stderr)
+        sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

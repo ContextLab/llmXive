@@ -1,1 +1,3 @@
-# llmXive Project - Contract Tests Package
+"""
+Contract tests for schema and interface validation.
+"""

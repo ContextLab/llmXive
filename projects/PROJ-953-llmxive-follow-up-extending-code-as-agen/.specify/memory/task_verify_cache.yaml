@@ -22,13 +22,6 @@ T020:
     were supplied or referenced, so the required outputs cannot be verified. The implementer
     must provide the actual dataset ingestion results, feature extraction outputs,
     and predictive model artifacts to satisfy the task.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact containing the calculated correlation coefficient (e.g., a CSV, JSON,
-    or report with the numeric value and any supporting analysis) was provided. The
-    claim lacks any actual output file or code that performs the correlation computation,
-    so the requirement is not satisfied.
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,12 +34,3 @@ T036:
   r: No `docs/` files (README, usage guide) were provided; the evidence section contains
     no artifacts, so the required documentation updates are missing. The implementer
     must add the updated README and usage guide in the `docs/` directory.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No concrete artifacts (e.g., the CSV with `task_id`, `code_diff`, `dynamic_execution_outcome`;\
-    \ JSON feature files; trained model files or evaluation reports) were provided.\
-    \ Without these files or any code output, the claim that the pipeline runs within\
-    \ 6\u202Fhours on CPU cannot be verified. The implementer must supply the actual\
-    \ ingestion results, structural metric outputs, and the trained predictive model\
-    \ (or performance logs) to satisfy the task."

@@ -1,115 +1,67 @@
-# Usage Guide: llmXive Pipeline
+# Usage Guide: Interpreting Results and Decision Boundaries
 
-This guide details how to run the pipeline, interpret the results, and understand the decision boundaries.
+This guide explains how to run the pipeline, interpret the generated artifacts, and understand the decision boundary logic.
 
 ## Running the Pipeline
 
-The pipeline is designed to be run sequentially. Each stage produces artifacts that are consumed by the next.
+The pipeline is designed to be run sequentially. Each step produces artifacts required by the next.
 
-### 1. Ingestion (`ingest.py`)
+1. **Ingestion**: `code/scripts/ingest.py`
+2. **Feature Extraction**: `code/scripts/extract_features.py`
+3. **Feature Finalization**: `code/scripts/generate_features.py`
+4. **Model Training**: `code/scripts/train_model.py`
 
-**Purpose**: Fetch real data from HuggingFace and parse task definitions.
+## Interpreting Ground Truth (`data/processed/ground_truth.csv`)
 
-**Command**:
-```bash
-python code/scripts/ingest.py
-```
+This CSV contains the foundational data for the project.
 
-**Key Behaviors**:
-- Fetches `swe-bench` and `agent-bench` subsets.
-- Parses `code_diff` and `original_code`.
-- **Strict Mode**: If the fetch fails, the process aborts. No synthetic data is created.
+- **`task_id`**: Unique identifier for the task.
+- **`code_diff`**: The code changes associated with the task.
+- **`dynamic_execution_outcome`**: The result of running the task in a full environment.
+ - **`Pass`**: Tests passed.
+ - **`Fail`**: Tests failed.
+ - **`Timeout/Fail`**: The task exceeded the time limit. *Note: These are treated as failures for safety.*
+ - **`Unparseable`**: The code could not be parsed by `tree-sitter`. These rows are retained but excluded from feature extraction.
 
-**Output**: `data/processed/ground_truth.csv`
+## Understanding Structural Metrics
 
-### 2. Baseline Execution (`baseline_runner.py`)
+The `features.csv` file contains calculated metrics for each task:
 
-**Purpose**: Determine the ground truth by running the code in a sandboxed environment.
+- **`lines_of_code`**: Basic size metric.
+- **`cyclomatic_complexity`**: Measured using `radon`. Indicates branching complexity.
+- **`dependency_depth`**: Depth of the import/dependency graph.
+- **`semantic_complexity_score`**: A derived score based on AST node types (if available).
+- **Fallback Logic**: If semantic nodes are missing, the system falls back to `lines_of_code` as a proxy, ensuring no data is lost.
 
-**Command**:
-```bash
-python code/scripts/baseline_runner.py
-```
+## The Decision Boundary
 
-**Key Behaviors**:
-- Creates a temporary virtual environment for each task.
-- Installs dependencies listed in the task.
-- Runs the test suite with a timeout (default 600s).
-- **Timeout Handling**: If a task exceeds the timeout, the outcome is recorded as "Timeout/Fail".
-- **GPU Constraint**: The script checks for CUDA. If found, it raises an exception to enforce CPU-only execution.
+The core output of the project is the decision boundary, found in `data/processed/threshold_sweep.json` and `data/processed/model_report.json`.
 
-**Output**: Updates `ground_truth.csv` with `dynamic_execution_outcome`.
+### How it Works
+The model predicts the probability that a task needs dynamic execution. By setting a threshold (e.g., 0.05), we can classify tasks as "Safe to Skip" or "Need Dynamic".
 
-### 3. Feature Extraction (`extract_features.py`)
+### Sensitivity Analysis
+The `threshold_sweep.json` file contains a sweep of thresholds and their corresponding False Negative Rates (FNR).
+- **FNR**: The rate at which the model incorrectly predicts "Safe to Skip" for a task that actually needs execution.
+- **Safety Constraint**: The pipeline flags the model as **unsafe** if the minimum achievable FNR is > 0.1%.
 
-**Purpose**: Convert code into structural metrics.
+### Interpreting the Report
+In `model_report.json`:
+- **`framing`**: Always set to `"associational"` to reflect that the model learns correlations, not causation.
+- **`unsafe`**: A boolean flag. If `true`, do not use the model for production skipping.
+- **`correlation_coefficient`**: The strength of the relationship between structural features and execution necessity.
 
-**Command**:
-```bash
-python code/scripts/extract_features.py
-```
+## Example Workflow
 
-**Key Behaviors**:
-- Filters out "Unparseable" tasks (those that failed tree-sitter parsing).
-- Calculates `semantic_complexity_score` if semantic nodes are present.
-- Falls back to `lines_of_code`, `cyclomatic_complexity`, and `dependency_depth` if semantic nodes are missing.
-- Serializes dependency graphs to `data/graphs/{task_id}.json`.
+1. **Run Training**:
+ ```bash
+ python code/scripts/train_model.py
+ ```
+2. **Check Safety**:
+ Open `data/processed/model_report.json`. If `"unsafe": true`, the current structural features are insufficient to safely skip dynamic execution with the required confidence.
+3. **Analyze Correlations**:
+ Look at the `correlation_coefficient` to understand which features are driving the predictions. High complexity tasks are more likely to need dynamic execution.
 
-**Output**: `data/processed/features.csv`
+## GPU Constraints
 
-### 4. Model Training (`train_model.py`)
-
-**Purpose**: Train a classifier to predict execution necessity.
-
-**Command**:
-```bash
-python code/scripts/train_model.py
-```
-
-**Key Behaviors**:
-- Splits data into train/validation sets (fixed seed).
-- Trains Logistic Regression and Random Forest models (CPU-only).
-- Performs a threshold sweep to analyze False Negative Rates (FNR).
-- Flags the model as "unsafe" if the minimum achievable FNR > 0.1%.
-
-**Output**: `models/`, `data/processed/threshold_sweep.json`, `data/processed/model_report.json`
-
-## Interpreting Results
-
-### Ground Truth CSV
-Columns:
-- `task_id`: Unique identifier.
-- `code_diff`: The code change to be applied.
-- `dynamic_execution_outcome`: One of "Pass", "Fail", "Timeout/Fail", or "Unparseable".
-
-### Features CSV
-Contains structural metrics for each task.
-- `semantic_complexity_score`: Derived from AST node counts (optional).
-- `lines_of_code`: Fallback metric.
-- `cyclomatic_complexity`: Measure of control flow complexity.
-- `dependency_depth`: Depth of the dependency graph.
-
-### Model Report (`model_report.json`)
-- `framing`: Set to "associational" to indicate the nature of the prediction.
-- `correlation_coefficient`: Numeric value indicating feature correlation with execution necessity.
-- `unsafe`: Boolean flag. `True` if FNR > 0.1%.
-- `thresholds`: List of evaluated thresholds and their corresponding FNRs.
-
-## Understanding the Decision Boundary
-
-The pipeline identifies a threshold on the model's output probability (or score) below which a task is considered "safe" to skip dynamic execution.
-
-- **Low FNR Requirement**: To ensure safety, the False Negative Rate (predicting "Pass" when the task actually "Fails") must be ≤ 0.1%.
-- **Trade-off**: A stricter threshold (lower probability for "Pass") reduces FNR but increases False Positives (skipping fewer tasks).
-- **Safety Flag**: If no threshold achieves FNR ≤ 0.1%, the model is marked "unsafe", indicating that structural features alone are insufficient to reliably predict execution outcomes for this dataset.
-
-## Advanced Usage
-
-### Custom Configuration
-Modify environment variables or configuration files to change paths or timeouts. See `code/config/loader.py` for details.
-
-### Parallel Execution
-While the pipeline stages are sequential, individual tasks within `baseline_runner.py` and `extract_features.py` can be parallelized. Ensure your environment has sufficient resources.
-
-### Logging
-Check `data/logs/` for runtime profiles and execution logs.
+The `baseline_runner` explicitly verifies that no GPU is used. If you see an error regarding CUDA, ensure your environment is CPU-only. This is a safety constraint to ensure reproducibility and cost control.

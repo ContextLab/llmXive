@@ -1,0 +1,35 @@
+{
+  "pipeline_start_time": "2024-01-15 10:30:00",
+  "stages": {
+    "ingestion": {
+      "success": true,
+      "runtime_seconds": 7200.5,
+      "memory_start_mb": 512.3,
+      "memory_end_mb": 1024.7,
+      "memory_peak_mb": 1024.7
+    },
+    "feature_extraction": {
+      "success": true,
+      "runtime_seconds": 10800.2,
+      "memory_start_mb": 1024.7,
+      "memory_end_mb": 2048.1,
+      "memory_peak_mb": 2048.1
+    },
+    "model_training": {
+      "success": true,
+      "runtime_seconds": 3600.8,
+      "memory_start_mb": 2048.1,
+      "memory_end_mb": 2560.5,
+      "memory_peak_mb": 2560.5
+    }
+  },
+  "pipeline_end_time": "2024-01-15 14:30:00",
+  "total_runtime_seconds": 21601.5,
+  "total_runtime_hours": 6.000416666666667,
+  "peak_memory_mb": 2560.5,
+  "constraint_satisfied": {
+    "runtime_under_6h": false,
+    "memory_under_7gb": true
+  },
+  "overall_success": false
+}

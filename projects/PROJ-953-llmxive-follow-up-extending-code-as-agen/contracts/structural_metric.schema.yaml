@@ -1,56 +1,34 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Structural Metric Schema"
-description: "Schema for validating structural metrics extracted from code artifacts."
+# Structural Metric Schema
+# This schema defines the structure for structural metric artifacts.
+# It enforces that 'lines_of_code' (and other fallback metrics) are required,
+# while 'semantic_complexity_score' is optional (used when semantic nodes are present).
 type: object
-required:
-  - task_id
-  - metrics
 properties:
   task_id:
     type: string
-    description: "Unique identifier for the task (e.g., T004)."
-    pattern: "^T\\d{3}$"
-  metrics:
-    type: object
-    required:
-      - dependency_depth
-      - cyclomatic_complexity
-    properties:
-      dependency_depth:
-        type: integer
-        minimum: 0
-        description: "Maximum depth of the dependency graph."
-      cyclomatic_complexity:
-        type: integer
-        minimum: 1
-        description: "Cyclomatic complexity of the code."
-      semantic_complexity_score:
-        type: number
-        minimum: 0
-        description: "Semantic complexity score (optional, may be null if fallback metrics used)."
-        nullable: true
-      lines_of_code:
-        type: integer
-        minimum: 0
-        description: "Number of lines of code (fallback metric)."
-      fallback_metrics_used:
-        type: boolean
-        description: "Whether fallback metrics were used instead of semantic metrics."
-        default: false
-      parsed_successfully:
-        type: boolean
-        description: "Whether the code was successfully parsed."
-      error_message:
-        type: string
-        description: "Error message if parsing failed."
-        nullable: true
-    additionalProperties: false
-  graph_file_path:
-    type: string
-    description: "Path to the serialized dependency graph JSON file."
-    nullable: true
-  extraction_timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of metric extraction."
-additionalProperties: false
+    description: Unique identifier for the task
+  dependency_depth:
+    type: integer
+    description: Maximum depth of the dependency graph
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic complexity metric (McCabe)
+  semantic_complexity_score:
+    type: number
+    format: float
+    description: Semantic complexity score derived from AST nodes. Optional; may be null if semantic analysis fails.
+  lines_of_code:
+    type: integer
+    description: Lines of code (fallback metric). REQUIRED when semantic nodes are missing.
+  node_count:
+    type: integer
+    description: Total number of AST nodes (optional)
+  function_count:
+    type: integer
+    description: Number of functions detected (optional)
+required:
+  - task_id
+  - dependency_depth
+  - cyclomatic_complexity
+  - lines_of_code
+additionalProperties: true
