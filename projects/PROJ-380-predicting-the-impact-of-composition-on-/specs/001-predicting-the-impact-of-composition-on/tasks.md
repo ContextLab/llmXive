@@ -62,7 +62,7 @@
 - [ ] T008 Create `contracts/model_output.schema.yaml` defining the ModelPerformance schema
 - [ ] T009 Setup `data/` directory structure (`raw/`, `processed/`, `artifacts/`)
 - [X] T010 [P] Implement `code/__init__.py` and basic logging configuration
-- [ ] T011 [US1] Implement `code/data/synthetic_generator.py` to generate a Synthetic BMG Dataset based on verified literature parameters (Inoue et al. 2003, Miracle 2006) for common BMG families (Zr-based, Pd-based, Mg-based). **Logic**: Use specific ranges: atomic radii within a moderate interval, electronegativity 1.6-2.4, shear modulus 30-80 GPa. [UNRESOLVED-CLAIM: c_7f4d6003 — status=not_enough_info] Generate data with a fixed `random_state=42 `. Output to `data/raw/synthetic_bmg_seed.csv`. Invoke `utils/provenance.py` (T006) to record checksums immediately after generation. **Dependency**: Must run strictly after T006 completes.
+- [ ] T011 [US1] Implement `code/data/synthetic_generator.py` to generate a Synthetic BMG Dataset based on verified literature parameters (Inoue et al. 2003, Miracle 2006) for common BMG families (Zr-based, Pd-based, Mg-based). **Logic**: Use specific ranges: atomic radii within a moderate interval, electronegativity 1.6-2.4, shear modulus 30-80 GPa [UNRESOLVED-CLAIM: c_14c76e86 — status=not_enough_info]. Generate data with a fixed `random_state=42 `. Output to `data/raw/synthetic_bmg_seed.csv`. Invoke `utils/provenance.py` (T006) to record checksums immediately after generation. **Dependency**: Must run strictly after T006 completes.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,11 +84,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `code/data/ingest.py` to load data. **Logic**: First, attempt to fetch data from the Materials Project API using the configured API key. If the fetch fails (e.g., API unavailable or no BMG data), fall back to reading `data/raw/synthetic_bmg_seed.csv`. Validate schema against `contracts/bmg_entry.schema.yaml`. Invoke `utils/provenance.py` (T006) to record checksums. <!-- FAILED: unspecified -->
+- [ ] T016 [US1] Implement `code/data/ingest.py` to load data. **Logic**: First, attempt to fetch data from the Materials Project API using the configured API key. If the fetch fails (e.g., API unavailable or no BMG data), fall back to reading `data/raw/synthetic_bmg_seed.csv`. Validate schema against `contracts/bmg_entry.schema.yaml`. Invoke `utils/provenance.py` (T006) to record checksums. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T017 [US1] Implement `code/data/clean.py` to filter for "bulk metallic glass" phase and standardize units (FR-002, FR-003)
 - [X] T018 [US1] Implement `code/data/features.py` to calculate δ, ΔHmix, VEC, and electronegativity difference using `mendeleev` (FR-003)
 - [X] T019 [US1] Calculate VIF in `code/data/features.py`. **Logic**: Calculate VIF for each descriptor. {{claim:c_68ab6cc0}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) If < 2 features remain, flag for PCA (variance threshold > 95%). Output a list of retained features. **Note**: Do NOT implement Ridge fallback here; that belongs in T025.
-- [ ] T020 [US1] Implement `code/data/split.py` to perform hybrid stratified train/test split by alloy family (FR-004). **Logic**: Define 'small' families as those with <10 samples. [UNRESOLVED-CLAIM: c_6b74dffa — status=not_enough_info] For families with >=10 samples, use Leave-One-Family-Out (LOFO). For families with <10 samples, use GroupKFold (k=5) to ensure they are included in the validation set. Do NOT exclude any families.
+- [X] T020 [US1] Implement `code/data/split.py` to perform hybrid stratified train/test split by alloy family (FR-004). **Logic**: Define 'small' families as those with <10 samples [UNRESOLVED-CLAIM: c_9394b05f — status=not_enough_info]. For families with >=10 samples, use Leave-One-Family-Out (LOFO). For families with <10 samples, use GroupKFold (k=5) to ensure they are included in the validation set. Do NOT exclude any families.
 - [X] T021 [US1] Add validation to ensure no missing values in target variable after cleaning and filtering
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,13 +105,13 @@
 
 - [X] T022 [P] [US2] Unit test for grid search limit (≤50 combinations) in `tests/unit/test_train.py`
 - [X] T023 [P] [US2] Unit test for hybrid LOFO/GroupKFold split logic in `tests/unit/test_split.py`
-- [ ] T024 [US2] Integration test for model evaluation and statistical comparison in `tests/integration/test_model_eval.py`
+- [X] T024 [US2] Integration test for model evaluation and statistical comparison in `tests/integration/test_model_eval.py`
 
 ### Implementation for User Story 2
 
 - [X] T025 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting (FR-005). **Logic**: If VIF > 5 is detected from T019, apply Ridge Regression as a fallback to handle collinearity.
 - [X] T026 [US2] Implement grid search with 5-fold CV and ≤50 combinations limit in `code/models/train.py` (FR-006, Plan Constraints)
-- [ ] T027 [US2] Implement statistical comparison for model evaluation (FR-007). **Logic**: Perform Shapiro-Wilk test on residuals. If p < 0.05 (non-normal), use Wilcoxon Signed-Rank Test. Otherwise, use Corrected Resampled t-test OR Paired Permutation Test (choose one based on dataset size).
+- [ ] T027 [US2] Implement statistical comparison for model evaluation (FR-007). **Logic**: Perform Shapiro-Wilk test on residuals [UNRESOLVED-CLAIM: c_89ae3534 — status=not_enough_info]. If p < 0.05 (non-normal), use Wilcoxon Signed-Rank Test. Otherwise, use Corrected Resampled t-test OR Paired Permutation Test (choose one based on dataset size).
 - [X] T028 [US2] Implement LOFO cross-validation and GroupKFold for small families in `code/models/evaluate.py` (FR-008)
 - [ ] T029 [US2] Generate `artifacts/model_report.json` containing keys: `metrics: {R2 (float), MAE (float), RMSE (float)}`, `hyperparameters: {...}`, `statistical_test: {method (string), p_value (float), confidence_interval (list[float])}`. **Schema**: Must match `contracts/model_output.schema.yaml` (FR-007). **Dependency**: Must run strictly after T027 and T026.
 - [X] T030 [US2] Implement hybrid Leave-One-Family-Out (LOFO) for large families and GroupKFold for small families in `code/models/evaluate.py` (FR-008, Plan: Complexity Tracking). **Logic**: Re-use the splitter logic defined in T020.
@@ -152,7 +152,7 @@
 
 - [ ] T041 [P] Update `README.md` at repository root. **Content**: Add usage instructions for `make all` and a section explaining the synthetic data fallback mechanism.
 - [ ] T042 Code cleanup and refactoring of `code/` modules
-- [ ] T043 Verify pipeline completes within 6 hours on CPU-only runner (Plan: Performance Goals)
+- [ ] T043 Verify pipeline completes within 6 hours on CPU-only runner [UNRESOLVED-CLAIM: c_64ce3fe2 — status=not_enough_info] (Plan: Performance Goals)
 - [ ] T044 [P] Run full pipeline end-to-end via `make all` and validate `artifacts/` against contracts
 - [ ] T045 [P] Run quickstart.md validation if available
 

@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-07/schema#
 title: BMGEntry
 description: |
   Schema for a single Bulk Metallic Glass (BMG) entry.
-  Defines the structure for source metadata, elemental composition,
+  Defines the structure for source information, elemental composition,
   and the target shear modulus property.
 type: object
 required:
@@ -12,28 +12,29 @@ required:
 properties:
   source:
     type: object
-    description: Metadata regarding the origin of this data point.
+    description: Metadata regarding the origin of the data point.
     required:
       - database
-      - identifier
+      - id
       - reference
     properties:
       database:
         type: string
-        description: Name of the source database (e.g., 'Materials Project', 'Literature').
+        description: Name of the database or literature source (e.g., "MaterialsProject", "Inoue2003").
         minLength: 1
-      identifier:
+      id:
         type: string
-        description: Unique ID within the source database.
+        description: Unique identifier within the source database.
         minLength: 1
       reference:
         type: string
-        description: Citation string or URL for the data source.
+        description: Full citation or URL to the source paper/report.
         minLength: 1
-      retrieved_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of data retrieval.
+      year:
+        type: integer
+        description: Year of publication or data generation.
+        minimum: 1900
+        maximum: 2100
         nullable: true
 
   composition:
@@ -46,24 +47,19 @@ properties:
       elements:
         type: object
         description: |
-          Map of element symbol to concentration.
-          Keys are chemical symbols (e.g., 'Zr', 'Cu'), values are numbers.
-        patternProperties:
-          "^[A-Z][a-z]?$":
-            type: number
-            minimum: 0
-        additionalProperties: false
+          Map of element symbols to their values.
+          Keys must be valid chemical symbols (e.g., "Zr", "Cu").
+          Values depend on the units specified.
+        additionalProperties:
+          type: number
+          minimum: 0
       units:
         type: string
-        description: Unit of concentration.
+        description: Unit of the composition values.
         enum:
           - at%
           - wt%
-        default: at%
-      alloy_family:
-        type: string
-        description: Primary alloy family classification (e.g., 'Zr-based').
-        nullable: true
+        default: "at%"
 
   modulus:
     type: object
@@ -78,14 +74,22 @@ properties:
         minimum: 0
       unit:
         type: string
-        description: Unit of the modulus.
+        description: Unit of the shear modulus.
         enum:
           - GPa
           - MPa
-        default: GPa
-      method:
+        default: "GPa"
+
+  metadata:
+    type: object
+    description: Optional additional metadata.
+    properties:
+      processing_date:
         type: string
-        description: Measurement or calculation method (e.g., 'Resonant Ultrasound', 'Nanoindentation').
-        nullable: true
+        format: date-time
+        description: ISO 8601 timestamp of when the record was processed.
+      notes:
+        type: string
+        description: Free-form notes about the data point.
 
 additionalProperties: false

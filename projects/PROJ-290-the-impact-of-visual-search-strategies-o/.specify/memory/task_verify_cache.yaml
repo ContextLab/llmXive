@@ -1,11 +1,10 @@
 T012:
   c: false
-  h: 696e0d701d85f8edd1f49a17c4ea382c8a9ff2e2a6cf2583c33176f4ef75675b
-  r: "The repository lacks the required `data/validation_report.json` file, and the\
-    \ provided `code/data/validate.py` only contains a partial ROI\u2011fallback function\
-    \ \u2013 it does not perform the full checks for `gaze_coordinates`, `response_times`,\
-    \ `emotion_labels`, and `roi_annotations`, nor does it write a JSON report or\
-    \ halt on missing critical variables as specified."
+  h: 3e72600f3f02f0847d4d95f6b9b5bf4338df466f78aab90c58ea1c8f0609e4e1
+  r: "The repository contains a partially shown `code/data/validate.py`, but the file\
+    \ is truncated and does not demonstrate writing `data/validation_report.json`\
+    \ or halting on missing critical variables. Moreover, the required `data/validation_report.json`\
+    \ file is absent. The task\u2019s core output is therefore missing."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,14 +27,45 @@ T015:
     required structure and checksum records exist. The task therefore remains unfulfilled.
 T020:
   c: false
-  h: 1907e1d8569eed2a25569ed055b069cc098d5ba7f9e518b847705f5a67c51ad1
-  r: The `classification.py` script defines the ratio calculation and logs a warning,
-    but it never writes the resulting DataFrame to `data/processed/features.csv`,
-    and that CSV file is absent from the repository. Consequently the required artifact
-    (the updated features CSV) is missing.
+  h: 547466fc29497e508fcb4e3adf15b3d864910c6a5af3b44cfdc286f134e2434a
+  r: "The provided `classification.py` defines the ratio calculation and logs a warning,\
+    \ but it never writes the resulting DataFrame to `data/processed/features.csv`,\
+    \ and that CSV file is missing from the repository. The task\u2019s requirement\
+    \ to append the computed ratio to that file is therefore not fulfilled."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing the implementation of\
+    \ the required warning logic (silhouette <\u202F0.25 or cluster size <\u202F5\
+    \ triggers a warning and switches to descriptive statistics only). Without an\
+    \ artifact to inspect, we cannot confirm the feature exists or works as specified.\
+    \ The missing implementation must be added and the relevant file(s) supplied."
+T029a:
+  c: false
+  h: 0ebb1f5e005e1b5829b0f99b09307cf79e0928040dcf568862e5e13cc6e9fe2f
+  r: The provided `code/analysis/lmm.py` is truncated and does not contain a complete
+    implementation for fitting the LMM with detection time and continuous fixation
+    ratio, asserting convergence, or writing `results/lmm_continuous.csv`. Moreover,
+    the required output file `results/lmm_continuous.csv` is absent. The task therefore
+    remains unfinished.
+T029b:
+  c: false
+  h: c9d22e444926b0334ab24eb133c1206ddadb81569b198499c3aad099e6468bd8
+  r: "The provided `code/analysis/lmm.py` is truncated, contains placeholder comments,\
+    \ and even has a syntax error (`return pd.DataFram`). It never defines the required\
+    \ model fitting with detection time and processing\u2011strategy fixed effect,\
+    \ nor does it write `results/lmm_cluster.csv`. The expected output file is absent.\
+    \ The task therefore remains unfinished."
 T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided that `hash_artifacts.py` was executed, nor that a `state/`
     directory containing updated hash files exists; the required artifact (the updated
     hashes) is missing.
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides only a textual description of the project and user stories;
+    there is no evidence that `hash_artifacts.py` was executed, nor any `state/` directory
+    containing updated hash files as required by task T037b. The necessary artifact
+    (the hash manifest) is missing.

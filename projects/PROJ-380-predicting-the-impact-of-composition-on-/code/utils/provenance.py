@@ -1,3 +1,10 @@
+"""
+Provenance tracking module for llmXive pipeline.
+
+Implements Constitution Principle V: Full checksum generation and state recording.
+Provides functions to compute SHA-256 hashes of artifacts and record them
+in a state YAML file for reproducibility and auditability.
+"""
 import hashlib
 import os
 import yaml
@@ -5,183 +12,285 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from utils.config import get_paths, ensure_directories
-from utils.logging_config import get_logger
+from utils.config import get_paths
 
-logger = get_logger(__name__)
 
 def ensure_state_directory() -> Path:
-    """Ensures the state directory exists and returns its path."""
+    """
+    Ensure the state directory exists.
+    
+    Returns:
+        Path to the state directory.
+    """
     paths = get_paths()
-    ensure_directories(paths)
-    return paths["state"]
+    state_dir = paths.get("state_dir", Path("state"))
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
+
 
 def get_provenance_state_file() -> Path:
-    """Returns the path to the main provenance state YAML file."""
+    """
+    Get the path to the main provenance state file.
+    
+    Returns:
+        Path to the state YAML file.
+    """
     state_dir = ensure_state_directory()
     return state_dir / "provenance.yaml"
 
-def compute_file_checksum(file_path: Path) -> str:
+
+def compute_file_checksum(file_path: str | Path) -> str:
     """
-    Computes the SHA-256 checksum of a file.
+    Compute SHA-256 checksum of a file.
     
     Args:
         file_path: Path to the file to hash.
         
     Returns:
         Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the path is not a file.
     """
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    if not file_path.is_file():
+        raise ValueError(f"Path is not a file: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         # Read in chunks to handle large files
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    
     return sha256_hash.hexdigest()
 
-def load_existing_state() -> Dict[str, Any]:
-    """
-    Loads the existing provenance state if it exists, otherwise returns an empty structure.
-    
-    Returns:
-        Dictionary containing the state data.
-    """
-    state_file = get_provenance_state_file()
-    if state_file.exists():
-        try:
-            with open(state_file, 'r', encoding='utf-8') as f:
-                return yaml.safe_load(f) or {"artifacts": []}
-        except Exception as e:
-            logger.warning(f"Could not load existing state file: {e}. Starting fresh.")
-    return {"artifacts": []}
 
-def save_state(state: Dict[str, Any]) -> None:
+def load_existing_state(state_file: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Saves the state dictionary to the provenance YAML file.
+    Load existing provenance state from YAML file.
     
     Args:
-        state: The state dictionary to save.
-    """
-    state_file = get_provenance_state_file()
-    with open(state_file, 'w', encoding='utf-8') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-    logger.info(f"Provenance state saved to {state_file}")
-
-def record_artifact(file_path: Path, state_file: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Records an artifact in the provenance state.
-    
-    Args:
-        file_path: Path to the artifact file.
-        state_file: Optional path to the state file (uses default if None).
+        state_file: Optional path to state file. If None, uses default.
         
     Returns:
-        The recorded artifact entry.
+        Dictionary containing the state, or empty structure if file doesn't exist.
+    """
+    if state_file is None:
+        state_file = get_provenance_state_file()
+    
+    if not state_file.exists():
+        return {
+            "version": "1.0",
+            "created_at": datetime.utcnow().isoformat(),
+            "artifacts": []
+        }
+    
+    with open(state_file, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {
+            "version": "1.0",
+            "created_at": datetime.utcnow().isoformat(),
+            "artifacts": []
+        }
+
+
+def save_state(state: Dict[str, Any], state_file: Optional[Path] = None) -> None:
+    """
+    Save provenance state to YAML file.
+    
+    Args:
+        state: Dictionary containing the state to save.
+        state_file: Optional path to state file. If None, uses default.
+    """
+    if state_file is None:
+        state_file = get_provenance_state_file()
+    
+    # Ensure directory exists
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(state_file, "w", encoding="utf-8") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+
+def record_artifact(file_path: str | Path, state_file: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Record an artifact in the provenance state.
+    
+    Computes SHA-256 checksum and adds an entry to the state YAML file.
+    
+    Args:
+        file_path: Path to the artifact file to record.
+        state_file: Optional path to state file. If None, uses default.
+        
+    Returns:
+        The artifact entry that was added to the state.
         
     Raises:
         FileNotFoundError: If the file does not exist.
     """
     file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"Artifact file not found: {file_path}")
-
     if state_file is None:
         state_file = get_provenance_state_file()
-
-    state = load_existing_state()
     
+    # Load existing state
+    state = load_existing_state(state_file)
+    
+    # Compute checksum
     checksum = compute_file_checksum(file_path)
-    entry = {
+    
+    # Create artifact entry
+    artifact_entry = {
         "path": str(file_path),
         "checksum": checksum,
-        "timestamp": datetime.now().isoformat(),
-        "type": "generated" # Default type, could be extended
+        "algorithm": "sha256",
+        "recorded_at": datetime.utcnow().isoformat(),
+        "size_bytes": file_path.stat().st_size
     }
-
-    # Check if already recorded to avoid duplicates
-    found = False
-    for i, existing in enumerate(state["artifacts"]):
-        if existing["path"] == str(file_path):
-            state["artifacts"][i] = entry
-            found = True
+    
+    # Add to artifacts list
+    if "artifacts" not in state:
+        state["artifacts"] = []
+    
+    # Check for duplicates and update if exists
+    existing_idx = None
+    for idx, art in enumerate(state["artifacts"]):
+        if art.get("path") == str(file_path):
+            existing_idx = idx
             break
     
-    if not found:
-        state["artifacts"].append(entry)
+    if existing_idx is not None:
+        state["artifacts"][existing_idx] = artifact_entry
+    else:
+        state["artifacts"].append(artifact_entry)
+    
+    # Update creation timestamp if this is the first entry
+    if len(state["artifacts"]) == 1 and "created_at" not in state:
+        state["created_at"] = artifact_entry["recorded_at"]
+    
+    # Save updated state
+    save_state(state, state_file)
+    
+    return artifact_entry
 
-    save_state(state)
-    logger.info(f"Recorded artifact: {file_path} (SHA-256: {checksum})")
-    return entry
 
-def verify_artifact(file_path: Path) -> bool:
+def verify_artifact(file_path: str | Path, state_file: Optional[Path] = None) -> bool:
     """
-    Verifies an artifact's checksum against the recorded state.
+    Verify an artifact's checksum against the recorded state.
     
     Args:
-        file_path: Path to the artifact file.
+        file_path: Path to the artifact file to verify.
+        state_file: Optional path to state file. If None, uses default.
         
     Returns:
         True if checksum matches, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the file or state file does not exist.
     """
     file_path = Path(file_path)
-    state = load_existing_state()
+    if state_file is None:
+        state_file = get_provenance_state_file()
     
+    if not state_file.exists():
+        raise FileNotFoundError(f"State file not found: {state_file}")
+    
+    state = load_existing_state(state_file)
     current_checksum = compute_file_checksum(file_path)
     
-    for entry in state["artifacts"]:
-        if entry["path"] == str(file_path):
-            if entry["checksum"] == current_checksum:
-                logger.info(f"Verification passed for {file_path}")
-                return True
-            else:
-                logger.warning(f"Verification FAILED for {file_path}. Checksum mismatch.")
-                return False
+    for artifact in state.get("artifacts", []):
+        if artifact.get("path") == str(file_path):
+            recorded_checksum = artifact.get("checksum")
+            return current_checksum == recorded_checksum
     
-    logger.warning(f"No record found for {file_path} in provenance state.")
+    # File not found in state
     return False
 
-def list_artifacts() -> List[Dict[str, Any]]:
+
+def list_artifacts(state_file: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Lists all recorded artifacts.
+    List all recorded artifacts from the state file.
     
+    Args:
+        state_file: Optional path to state file. If None, uses default.
+        
     Returns:
         List of artifact entries.
     """
-    state = load_existing_state()
+    if state_file is None:
+        state_file = get_provenance_state_file()
+    
+    if not state_file.exists():
+        return []
+    
+    state = load_existing_state(state_file)
     return state.get("artifacts", [])
 
-def main():
-    """CLI entry point for provenance utilities."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Provenance Management")
-    subparsers = parser.add_subparsers(dest="command", help="Commands")
 
+def main() -> None:
+    """
+    Command-line interface for provenance operations.
+    
+    Usage examples:
+        python -m utils.provenance record path/to/file.txt
+        python -m utils.provenance verify path/to/file.txt
+        python -m utils.provenance list
+    """
+    import sys
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Provenance tracking CLI")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    
     # Record command
     record_parser = subparsers.add_parser("record", help="Record an artifact")
-    record_parser.add_argument("file", type=Path, help="Path to the file to record")
-
+    record_parser.add_argument("file_path", help="Path to the file to record")
+    
     # Verify command
     verify_parser = subparsers.add_parser("verify", help="Verify an artifact")
-    verify_parser.add_argument("file", type=Path, help="Path to the file to verify")
-
+    verify_parser.add_argument("file_path", help="Path to the file to verify")
+    
     # List command
-    subparsers.add_parser("list", help="List all artifacts")
-
+    list_parser = subparsers.add_parser("list", help="List all recorded artifacts")
+    
     args = parser.parse_args()
-
+    
     if args.command == "record":
         try:
-            record_artifact(args.file)
+            entry = record_artifact(args.file_path)
+            print(f"Recorded: {entry['path']}")
+            print(f"Checksum: {entry['checksum']}")
+            print(f"Size: {entry['size_bytes']} bytes")
         except FileNotFoundError as e:
-            print(f"Error: {e}")
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    
     elif args.command == "verify":
-        result = verify_artifact(args.file)
-        print(f"Verification result: {'PASS' if result else 'FAIL'}")
+        try:
+            is_valid = verify_artifact(args.file_path)
+            if is_valid:
+                print(f"Verification PASSED: {args.file_path}")
+            else:
+                print(f"Verification FAILED: {args.file_path}")
+                sys.exit(1)
+        except FileNotFoundError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    
     elif args.command == "list":
         artifacts = list_artifacts()
-        for art in artifacts:
-            print(f"{art['path']}: {art['checksum']}")
+        if not artifacts:
+            print("No artifacts recorded.")
+        else:
+            print(f"Recorded artifacts ({len(artifacts)}):")
+            for art in artifacts:
+                print(f"  - {art['path']} ({art['checksum'][:16]}...)")
+    
     else:
         parser.print_help()
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -106,11 +106,11 @@
 - [ ] T019 [US2] Save extracted features to `data/processed/features.csv`
 - [ ] T020 [US2] Implement `code/features/classification.py` to calculate **continuous ratio** of eye-to-mouth fixation time (Primary Predictor); append to `data/processed/features.csv`; if mean ratio is <= 0, log a warning and proceed with descriptive statistics only (no assertion failure).
 - [X] T021 [US2] Implement k-means clustering (k=2) in `code/features/classification.py` with silhouette score calculation (FR-004)
-- [~] T022 [US2] Implement warning logic: if silhouette < 0.25 or cluster size < 5, log warning and proceed with descriptive stats only
+- [ ] T022 [US2] Implement warning logic: if silhouette < 0.25 or cluster size < 5, log warning and proceed with descriptive stats only
 - [X] T023a [US2] [Plan-2.3] [FR-010] Implement **Bootstrap Stability Check** in `code/features/classification.py`: repeat clustering on multiple bootstrap samples (e.g., 100 iterations) to assess label stability; output stability metrics. This replaces k-fold CV which is invalid for unsupervised clustering.
 - [X] T024a [US2] Implement VIF calculation for predictor pairs; flag VIF ≥5 in `code/utils/diagnostics.py` (FR-005)
 - [ ] T024b [US2] Implement k-means clustering for k=2 and k=3 specifically to generate labels for sensitivity analysis; output `data/processed/labels_k2.csv` and `data/processed/labels_k3.csv`.
-- [~] T037b [US2] Run `hash_artifacts.py` to update `state/` with hashes after T019, T024a, T024b, T023a (Features & Labels)
+- [ ] T037b [US2] Run `hash_artifacts.py` to update `state/` with hashes after T019, T024a, T024b, T023a (Features & Labels)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,8 +129,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T029a [US3] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **continuous fixation ratio** as fixed effect (Primary Analysis per Plan); output `results/lmm_continuous.csv`; assert model.converged. **If model fails to converge (max_iter=500), immediately fall back to a simpler linear model using the SAME predictor (Continuous Ratio).**
-- [~] T029b [US3] [Descriptive Only] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **processing strategy (derived cluster label from T023a)** as fixed effect; **WARNING: This is Exploratory/Descriptive Only and NOT for primary inference due to circularity risks per Plan.** Output `results/lmm_cluster.csv`; assert model.converged. <!-- FAILED: unspecified -->
+- [ ] T029a [US3] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **continuous fixation ratio** as fixed effect (Primary Analysis per Plan); output `results/lmm_continuous.csv`; assert model.converged. **If model fails to converge (max_iter=500), immediately fall back to a simpler linear model using the SAME predictor (Continuous Ratio).**
+- [ ] T029b [US3] [Descriptive Only] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **processing strategy (derived cluster label from T023a)** as fixed effect; **WARNING: This is Exploratory/Descriptive Only and NOT for primary inference due to circularity risks per Plan.** Output `results/lmm_cluster.csv`; assert model.converged. <!-- FAILED: unspecified -->
 - [~] T030 [US3] Implement Permutation Test in `code/analysis/lmm.py`: permute detection times **1000 times** to establish null distribution; use same data prep as T029a; output `results/permutation_test.json`.
 - [X] T031 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) at α=0.05 in `code/analysis/power.py` (FR-007)
 - [X] T032 [US3] Implement a priori power analysis based on effect size d=0.5, **target power=0.80, alpha=0.05, two-tailed test** in `code/analysis/power.py`
@@ -149,9 +149,9 @@
 **Purpose**: Improvements that affect multiple user stories and final validation.
 
 - [X] T035 [P] Implement `code/validation/reference_validator.py` to validate citations against primary sources (Title overlap ≥0.7)
-- [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b.
+- [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b. <!-- ATOMIZE: requested -->
 - [ ] T039 Create `results/figures/` directory and generate plots: `results/figures/fixation_dist.png`, `results/figures/model_coeffs.png`, `results/figures/power_curve.png`.
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end pipeline execution succeeds within 6 hours
+- [~] T040 Run `quickstart.md` validation to ensure end-to-end pipeline execution succeeds within 6 hours <!-- FAILED: unspecified -->
 
 ---
 

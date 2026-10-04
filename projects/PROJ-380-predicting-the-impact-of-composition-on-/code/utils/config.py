@@ -4,82 +4,89 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import numpy as np
 
-# Project root is assumed to be the parent of the 'code' directory
-# or explicitly set via environment variable.
-_PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).resolve().parents[2]))
+# Project Root (assumed to be the parent of the 'code' directory)
+# If run as a script, __file__ is code/utils/config.py
+# If imported, we try to locate the project root dynamically.
+_CURRENT_FILE = Path(__file__).resolve()
+PROJECT_ROOT = _CURRENT_FILE.parent.parent.parent
+
+# Constants for directory structure
+DIRS: Dict[str, Path] = {
+    "code": PROJECT_ROOT / "code",
+    "data": PROJECT_ROOT / "data",
+    "tests": PROJECT_ROOT / "tests",
+    "docs": PROJECT_ROOT / "docs",
+    "state": PROJECT_ROOT / "state",
+    "artifacts": PROJECT_ROOT / "artifacts",
+    "contracts": PROJECT_ROOT / "contracts",
+    "raw": PROJECT_ROOT / "data" / "raw",
+    "processed": PROJECT_ROOT / "data" / "processed",
+    "figures": PROJECT_ROOT / "figures",
+}
+
+# Default Random Seed
+DEFAULT_SEED = 42
+
 
 def get_paths() -> Dict[str, Path]:
     """
-    Returns a dictionary of key paths relative to the project root.
+    Returns a dictionary of absolute paths to key project directories.
+    """
+    return DIRS.copy()
+
+
+def ensure_directories() -> None:
+    """
+    Creates all required project directories if they do not exist.
+    """
+    for path in DIRS.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def set_random_seed(seed: Optional[int] = None) -> int:
+    """
+    Sets the random seed for reproducibility across Python, NumPy, and random modules.
+    
+    Args:
+        seed: The seed value. If None, uses DEFAULT_SEED (42).
     
     Returns:
-        Dict mapping logical keys to absolute Path objects.
+        The seed value that was set.
     """
-    base = _PROJECT_ROOT
-    return {
-        "root": base,
-        "code": base / "code",
-        "data": base / "data",
-        "data_raw": base / "data" / "raw",
-        "data_processed": base / "data" / "processed",
-        "data_artifacts": base / "data" / "artifacts",
-        "tests": base / "tests",
-        "docs": base / "docs",
-        "state": base / "state",
-        "artifacts": base / "artifacts",
-        "contracts": base / "contracts"
-    }
-
-def ensure_directories(paths: Optional[Dict[str, Path]] = None) -> None:
-    """
-    Ensures that all required directories exist.
+    if seed is None:
+        seed = DEFAULT_SEED
     
-    Args:
-        paths: Optional dictionary of paths. If None, uses get_paths().
-    """
-    if paths is None:
-        paths = get_paths()
-    
-    # Define directories to ensure
-    dirs_to_create = [
-        paths["data_raw"],
-        paths["data_processed"],
-        paths["data_artifacts"],
-        paths["state"],
-        paths["artifacts"],
-        paths["contracts"]
-    ]
-    
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-def set_random_seed(seed: int = 42) -> None:
-    """
-    Sets random seeds for reproducibility across libraries.
-    
-    Args:
-        seed: Integer seed value.
-    """
     random.seed(seed)
     np.random.seed(seed)
-    if hasattr(os, 'seed'):
-        os.seed(seed)
-
-def main():
-    """CLI entry point for config utilities."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Project Configuration Utilities")
-    parser.add_argument("--ensure-dirs", action="store_true", help="Ensure all directories exist")
-    parser.add_argument("--set-seed", type=int, default=42, help="Set random seed")
-    args = parser.parse_args()
-
-    if args.ensure_dirs:
-        ensure_directories()
-        print("Directories ensured.")
     
-    if args.set_seed:
-        set_random_seed(args.set_seed)
-        print(f"Random seed set to {args.set_seed}.")
+    # Note: If using torch/tensorflow, seeds would be set here too,
+    # but per constraints we are on CPU-only and standard libraries.
+    
+    return seed
+
+
+def main() -> None:
+    """
+    CLI entry point for configuration setup.
+    Creates directories and prints the active configuration.
+    """
+    print("Initializing project configuration...")
+    
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Set seed
+    seed = set_random_seed()
+    print(f"Random seed set to: {seed}")
+    
+    # Print paths
+    paths = get_paths()
+    print("\nProject Paths:")
+    for name, path in paths.items():
+        print(f"  {name}: {path}")
+    
+    print("\nConfiguration initialized successfully.")
+
 
 if __name__ == "__main__":
     main()

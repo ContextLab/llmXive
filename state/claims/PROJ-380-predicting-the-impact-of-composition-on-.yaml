@@ -383,3 +383,518 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T10:55:05Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'synthetic BMG data parameters: electronegativity 1.6-2.4, shear modulus
+    30-80 GPa'
+  claim_id: c_6f80cda3
+  context: 'Implement code/data/synthetic_generator.py to generate a Synthetic BMG
+    Dataset based on verified literature parameters (Inoue et al. 2003, Miracle 2006)
+    for common BMG families (Zr-based, Pd-based, Mg-based). Logic: Use specific ranges...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:20:49Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: synthetic BMG dataset generation uses random_state=42
+  claim_id: c_dd348599
+  context: Implement code/data/synthetic_generator.py... Generate data with a fixed
+    random_state=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data with a fixed random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:21:16Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'hybrid splitting strategy: LOFO for >=10 samples, GroupKFold k=5 for
+    <10 samples'
+  claim_id: c_a0abc7f5
+  context: 'Implement code/data/split.py to perform hybrid stratified train/test split
+    by alloy family. Logic: Define ''small'' families as those with <10 samples. For
+    families with >=10 samples, use Leave-One-Family-Out (LOFO). For families with
+    <10 samples, use GroupKFold (k=5)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For families with >=10 samples, use Leave-One-Family-Out (LOFO). For families
+    with <10 samples, use GroupKFold (k=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:21:33Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'model training grid search: 5-fold CV, <=50 combinations'
+  claim_id: c_3a4300e8
+  context: Implement grid search with 5-fold CV and <=50 combinations limit in code/models/train.py...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform grid search with 5-fold CV and <=50 combinations limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:22:15Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'visualization: partial dependence plots for top 3 features'
+  claim_id: c_5d83e127
+  context: Implement code/viz/plots.py to generate partial dependence plots for top
+    3 features (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate partial dependence plots for top 3 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:22:46Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'pipeline performance: completes within 6 hours on CPU-only runner'
+  claim_id: c_eaeb03d3
+  context: 'Verify pipeline completes within 6 hours on CPU-only runner (Plan: Performance
+    Goals)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:23:13Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Synthetic BMG dataset ranges: electronegativity 1.6-2.4, shear modulus
+    30-80 GPa'
+  claim_id: c_233d2fce
+  context: 'Logic: Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa. Generate data with a fixed random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:23:46Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Synthetic BMG dataset generated with random_state=42
+  claim_id: c_50ea2fbf
+  context: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa. Generate data with a fixed random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data with a fixed random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:23:46Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Synthetic BMG parameters based on Inoue et al. 2003 and Miracle 2006
+  claim_id: c_2eb404ad
+  context: Implement code/data/synthetic_generator.py to generate a Synthetic BMG
+    Dataset based on verified literature parameters (Inoue et al. 2003, Miracle 2006)
+    for common BMG families (Zr-based, Pd-based, Mg-based).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Based on verified literature parameters (Inoue et al. 2003, Miracle 2006)
+    for common BMG families (Zr-based, Pd-based, Mg-based).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:24:03Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Small alloy families defined as having fewer than 10 samples
+  claim_id: c_9a15e5ed
+  context: 'Logic: Define ''small'' families as those with <10 samples. For families
+    with >=10 samples, use Leave-One-Family-Out (LOFO).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_alloy_families_defined_as_having_fewer_than_10_samples
+  kind: magnitude
+  raw_text: Define 'small' families as those with <10 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:24:24Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: GroupKFold with k=5 used for alloy families with fewer than 10 samples
+  claim_id: c_af8b57bd
+  context: For families with >=10 samples, use Leave-One-Family-Out (LOFO). For families
+    with <10 samples, use GroupKFold (k=5) to ensure they are included in the validation
+    set.
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/GroupKFold_with_k%3D5_used_for_alloy_families_with_fewer_than
+  kind: magnitude
+  raw_text: For families with <10 samples, use GroupKFold (k=5) to ensure they are
+    included in the validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T08:24:50Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Grid search limited to 50 combinations with 5-fold cross-validation
+  claim_id: c_93d2abfb
+  context: "Implement grid search with 5-fold CV and \u226450 combinations limit in\
+    \ code/models/train.py (FR-006, Plan Constraints)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement grid search with 5-fold CV and \u226450 combinations limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:25:06Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Visualization filename format includes SHA-256 hash of model_report.json
+  claim_id: c_e829bc6b
+  context: 'Logic: Filename format: plot_{feature}_{seed}_{report_hash}.png, where
+    report_hash is the SHA-256 hash of the file content of artifacts/model_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Filename format: plot_{feature}_{seed}_{report_hash}.png, where report_hash
+    is the SHA-256 hash of the file content of artifacts/model_report.json.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:25:23Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time verified to be within 6 hours on CPU-only runner
+  claim_id: c_bab61ea1
+  context: 'Verify pipeline completes within 6 hours on CPU-only runner (Plan: Performance
+    Goals)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:25:23Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Synthetic BMG dataset generated with random_state 42
+  claim_id: c_88c5e6f8
+  context: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa. Generate data with a fixed random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data with a fixed random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:25:58Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Synthetic BMG parameters: electronegativity 1.6-2.4, shear modulus 30-80
+    GPa'
+  claim_id: c_e936dd6d
+  context: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: atomic radii within a moderate interval, electronegativity 1.6-2.4, shear
+    modulus 30-80 GPa
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:23Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Splitting strategy: LOFO for families >=10 samples, GroupKFold k=5 for
+    families <10 samples'
+  claim_id: c_d74bd289
+  context: Define 'small' families as those with <10 samples. For families with >=10
+    samples, use Leave-One-Family-Out (LOFO). For families with <10 samples, use GroupKFold
+    (k=5) to ensure they are included in the validation set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Families with >=10 samples, use Leave-One-Family-Out (LOFO). For families
+    with <10 samples, use GroupKFold (k=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:23Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Grid search configured with 5-fold CV and limit of 50 combinations
+  claim_id: c_d80156d9
+  context: "Implement grid search with 5-fold CV and \u226450 combinations limit in\
+    \ code/models/train.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform grid search with 5-fold CV and \u226450 combinations limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:38Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Partial dependence plots generated for top 3 features
+  claim_id: c_a653ca48
+  context: Implement code/viz/plots.py to generate partial dependence plots for top
+    3 features
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate partial dependence plots for top 3 features
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:39Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'Pipeline completion time target: 6 hours on CPU-only runner'
+  claim_id: c_256a910d
+  context: 'Verify pipeline completes within 6 hours on CPU-only runner (Plan: Performance
+    Goals)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:39Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'BMG synthetic generation parameters: shear modulus 30-80 GPa'
+  claim_id: c_1b467204
+  context: 'Generate a Synthetic BMG Dataset based on verified literature parameters
+    (Inoue et al. 2003, Miracle 2006) for common BMG families (Zr-based, Pd-based,
+    Mg-based). Logic: Use specific ranges: atomic radii within a moderate interval,
+    electronegativity 1.6-2.4, shear modulus 30-80 GPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:26:39Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: synthetic bmg dataset generated with random state 42
+  claim_id: c_c8878be2
+  context: Generate data with a fixed `random_state=42 `. Output to `data/raw/synthetic_bmg_seed.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data with a fixed random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:17Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 'synthetic bmg parameters: electronegativity 1.6-2.4 shear modulus 30-80
+    GPa'
+  claim_id: c_14c76e86
+  context: '**Logic**: Use specific ranges: atomic radii within a moderate interval,
+    electronegativity 1.6-2.4, shear modulus 30-80 GPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use specific ranges: atomic radii within a moderate interval, electronegativity
+    1.6-2.4, shear modulus 30-80 GPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:18Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: synthetic bmg parameters based on Inoue et al. 2003 and Miracle 2006
+  claim_id: c_44e42475
+  context: Implement `code/data/synthetic_generator.py` to generate a Synthetic BMG
+    Dataset based on verified literature parameters (Inoue et al. 2003, Miracle 2006)
+    for common BMG families.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Based on verified literature parameters (Inoue et al. 2003, Miracle 2006)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:35Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: small alloy families defined as having fewer than 10 samples
+  claim_id: c_9394b05f
+  context: '**Logic**: Define ''small'' families as those with <10 samples. For families
+    with >=10 samples, use Leave-One-Family-Out (LOFO).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_alloy_families_defined_as_having_fewer_than_10_samples
+  kind: magnitude
+  raw_text: Define 'small' families as those with <10 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:36Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: GroupKFold with k=5 used for small alloy families
+  claim_id: c_88fe2768
+  context: For families with <10 samples, use GroupKFold (k=5) to ensure they are
+    included in the validation set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use GroupKFold (k=5) to ensure they are included in the validation set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:50Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: grid search limited to 50 combinations
+  claim_id: c_cb03cf44
+  context: "Implement grid search with 5-fold CV and \u226450 combinations limit in\
+    \ `code/models/train.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform grid search with \u226450 combinations limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:29:50Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test used on residuals for normality check
+  claim_id: c_89ae3534
+  context: '**Logic**: Perform Shapiro-Wilk test on residuals. If p < 0.05 (non-normal),
+    use Wilcoxon Signed-Rank Test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_used_on_residuals_for_normality_check
+  kind: entity_fact
+  raw_text: Perform Shapiro-Wilk test on residuals
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:30:14Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: partial dependence plots generated for top 3 features
+  claim_id: c_4546cb0b
+  context: Implement `code/viz/plots.py` to generate partial dependence plots for
+    top 3 features (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate partial dependence plots for top 3 features
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:30:14Z'
+- artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: pipeline completion time target is 6 hours on CPU-only runner
+  claim_id: c_64ce3fe2
+  context: 'Verify pipeline completes within 6 hours on CPU-only runner (Plan: Performance
+    Goals)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T08:30:14Z'

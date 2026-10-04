@@ -8,229 +8,197 @@ from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-from config import get_config
 from utils.logging import get_logger
+from config import get_config
 
-# Constants
-MISSING_THRESHOLD = 0.20  # Exclude if >20% missing gaze data
+def get_logger_wrapper(func):
+    """Decorator to add logger to function context."""
+    def wrapper(*args, **kwargs):
+        logger = get_logger(func.__module__)
+        return func(logger, *args, **kwargs)
+    return wrapper
 
-
-def get_logger_wrapper():
-    """Wrapper to get logger for this module."""
-    return get_logger(__name__)
-
-
-def calculate_missing_ratio(gaze_data: pd.Series) -> float:
+@get_logger_wrapper
+def calculate_missing_ratio(
+    logger: logging.Logger,
+    participant_data: pd.DataFrame,
+    gaze_column: str = "gaze_coordinates"
+) -> float:
     """
-    Calculate the ratio of missing (NaN) gaze data points.
+    Calculate the ratio of missing gaze data for a single participant's record.
     
     Args:
-        gaze_data: Series containing gaze coordinates or fixation data.
+        logger: Logger instance.
+        participant_data: DataFrame containing gaze records for one participant.
+        gaze_column: Name of the column containing gaze coordinates.
         
     Returns:
-        Float between 0.0 and 1.0 representing the proportion of missing data.
+        float: Ratio of missing values (0.0 to 1.0).
     """
-    if gaze_data is None or len(gaze_data) == 0:
+    if participant_data.empty:
+        logger.warning("Participant data is empty. Returning 1.0 missing ratio.")
         return 1.0
     
-    missing_count = gaze_data.isna().sum()
-    total_count = len(gaze_data)
+    # Check if the column exists
+    if gaze_column not in participant_data.columns:
+        logger.error(f"Column '{gaze_column}' not found in participant data.")
+        return 1.0
+    
+    # Count non-null entries
+    non_null_count = participant_data[gaze_column].notna().sum()
+    total_count = len(participant_data)
     
     if total_count == 0:
         return 1.0
         
-    return float(missing_count / total_count)
+    missing_ratio = 1.0 - (non_null_count / total_count)
+    return missing_ratio
 
-
+@get_logger_wrapper
 def evaluate_participant_exclusion(
-    df: pd.DataFrame,
-    gaze_columns: List[str],
-    participant_col: str = 'participant_id',
-    threshold: float = MISSING_THRESHOLD
+    logger: logging.Logger,
+    data_path: Path,
+    exclusion_threshold: float = 0.20,
+    gaze_column: str = "gaze_coordinates"
 ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
     Evaluate participants for exclusion based on missing gaze data ratio.
     
+    Excludes participants where the ratio of missing gaze data exceeds the threshold.
+    
     Args:
-        df: DataFrame containing participant data.
-        gaze_columns: List of column names representing gaze data points.
-        participant_col: Name of the column identifying participants.
-        threshold: Maximum allowed missing ratio (default 0.20).
+        logger: Logger instance.
+        data_path: Path to the processed features CSV.
+        exclusion_threshold: Maximum allowed ratio of missing data (default 0.20).
+        gaze_column: Column name to check for missing values.
         
     Returns:
-        Tuple of (filtered_df, exclusion_stats)
+        Tuple containing:
+            - Filtered DataFrame with excluded participants removed.
+            - Dictionary with exclusion statistics.
     """
-    logger = get_logger_wrapper()
+    logger.info(f"Loading data from {data_path}")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+        
+    df = pd.read_csv(data_path)
     
     if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty result.")
-        return df, {
-            'total_participants': 0,
-            'excluded_count': 0,
-            'kept_count': 0,
-            'exclusion_rate': 0.0,
-            'threshold': threshold,
-            'excluded_participants': []
-        }
+        logger.warning("Input DataFrame is empty.")
+        return df, {"excluded_count": 0, "total_count": 0, "exclusion_rate": 0.0}
     
-    # Calculate missing ratio per participant
-    missing_ratios = []
-    participant_ids = df[participant_col].unique()
-    exclusion_details = {}
+    # Ensure participant_id column exists
+    if "participant_id" not in df.columns:
+        # If no participant_id, assume each row is a participant or fail
+        # Based on typical eye-tracking structure, we group by a unique ID.
+        # If the data is already aggregated per participant in rows, we check the row directly.
+        # Assuming 'participant_id' is present as per data-model.md requirements for US1.
+        logger.error("Missing 'participant_id' column in features data.")
+        raise ValueError("Data must contain 'participant_id' column for exclusion logic.")
     
-    for pid in participant_ids:
-        participant_data = df[df[participant_col] == pid]
-        
-        # Aggregate missing data across all gaze columns for this participant
-        all_gaze_values = pd.concat([participant_data[col] for col in gaze_columns if col in participant_data.columns], ignore_index=True)
-        
-        ratio = calculate_missing_ratio(all_gaze_values)
-        missing_ratios.append(ratio)
-        
-        exclusion_details[pid] = {
-            'missing_ratio': ratio,
-            'excluded': ratio > threshold
-        }
+    # Group by participant to calculate missing ratio per participant
+    # We assume the data is in long format (multiple rows per participant)
+    # or wide format where we need to aggregate.
+    # Standard approach: Calculate missing ratio per participant_id group.
     
-    # Determine which participants to keep
-    excluded_pids = [pid for pid, details in exclusion_details.items() if details['excluded']]
-    kept_pids = [pid for pid, details in exclusion_details.items() if not details['excluded']]
+    participant_stats = []
     
-    # Filter DataFrame
-    filtered_df = df[df[participant_col].isin(kept_pids)].reset_index(drop=True)
+    for pid, group in df.groupby("participant_id"):
+        missing_ratio = calculate_missing_ratio(logger, group, gaze_column)
+        participant_stats.append({
+            "participant_id": pid,
+            "missing_ratio": missing_ratio,
+            "total_records": len(group)
+        })
     
-    # Calculate statistics
-    total_count = len(participant_ids)
-    excluded_count = len(excluded_pids)
-    kept_count = len(kept_pids)
-    exclusion_rate = excluded_count / total_count if total_count > 0 else 0.0
+    stats_df = pd.DataFrame(participant_stats)
     
-    stats = {
-        'total_participants': total_count,
-        'excluded_count': excluded_count,
-        'kept_count': kept_count,
-        'exclusion_rate': exclusion_rate,
-        'threshold': threshold,
-        'excluded_participants': excluded_pids,
-        'details': exclusion_details
+    # Identify excluded participants
+    excluded_mask = stats_df["missing_ratio"] > exclusion_threshold
+    excluded_participants = stats_df.loc[excluded_mask, "participant_id"].tolist()
+    included_participants = stats_df.loc[~excluded_mask, "participant_id"].tolist()
+    
+    logger.info(f"Total participants: {len(stats_df)}")
+    logger.info(f"Excluded participants (>{exclusion_threshold*100}% missing): {len(excluded_participants)}")
+    logger.info(f"Included participants: {len(included_participants)}")
+    
+    if excluded_participants:
+        logger.warning(f"Excluding participants: {excluded_participants}")
+    
+    # Filter the main dataframe
+    filtered_df = df[df["participant_id"].isin(included_participants)].reset_index(drop=True)
+    
+    exclusion_rate = len(excluded_participants) / len(stats_df) if len(stats_df) > 0 else 0.0
+    
+    stats_summary = {
+        "total_participants": len(stats_df),
+        "excluded_count": len(excluded_participants),
+        "included_count": len(included_participants),
+        "exclusion_rate": exclusion_rate,
+        "threshold_used": exclusion_threshold,
+        "excluded_ids": excluded_participants,
+        "included_ids": included_participants
     }
     
-    logger.info(f"Participant Exclusion Summary:")
-    logger.info(f"  Total participants: {total_count}")
-    logger.info(f"  Excluded (>{threshold*100}% missing): {excluded_count}")
-    logger.info(f"  Kept: {kept_count}")
-    logger.info(f"  Exclusion rate: {exclusion_rate:.2%}")
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluded participants: {excluded_pids}")
-    
-    return filtered_df, stats
+    return filtered_df, stats_summary
 
-
+@get_logger_wrapper
 def run_exclusion_pipeline(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    stats_path: Optional[str] = None
-) -> Dict[str, Any]:
+    logger: logging.Logger,
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    stats_output_path: Optional[Path] = None,
+    exclusion_threshold: float = 0.20
+) -> None:
     """
-    Run the participant exclusion pipeline on the raw dataset.
+    Main entry point for the participant exclusion pipeline.
     
-    Args:
-        input_path: Path to input dataset (defaults to data/raw/processed_data.csv).
-        output_path: Path to save filtered dataset (defaults to data/processed/filtered_data.csv).
-        stats_path: Path to save exclusion statistics (defaults to data/processed/exclusion_stats.json).
-        
-    Returns:
-        Dictionary containing exclusion statistics.
+    Reads processed features, applies exclusion logic, saves cleaned data and stats.
     """
-    logger = get_logger_wrapper()
     config = get_config()
     
-    # Resolve paths
     if input_path is None:
-        input_path = str(config.DATA_PROCESSED_DIR / "raw_data_cleaned.csv")
+        input_path = config.PROCESSED_FEATURES_PATH
     if output_path is None:
-        output_path = str(config.DATA_PROCESSED_DIR / "filtered_data.csv")
-    if stats_path is None:
-        stats_path = str(config.DATA_PROCESSED_DIR / "exclusion_stats.json")
-    
-    # Ensure output directories exist
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(stats_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Loading data from: {input_path}")
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                              "Please ensure data download and validation steps are complete.")
-    
-    # Load data
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load input data: {e}")
-    
-    if df.empty:
-        logger.warning("Input data is empty.")
-        return {
-            'total_participants': 0,
-            'excluded_count': 0,
-            'kept_count': 0,
-            'exclusion_rate': 0.0,
-            'threshold': MISSING_THRESHOLD,
-            'excluded_participants': [],
-            'error': 'Empty input data'
-        }
-    
-    # Identify gaze columns (columns containing 'gaze' or 'fixation' in name, or numeric columns with NaN)
-    # Common gaze column patterns in eye-tracking data
-    gaze_candidates = [col for col in df.columns if any(keyword in col.lower() for keyword in ['gaze', 'fixation', 'x', 'y', 'px', 'py', 'coord'])]
-    
-    # If no specific gaze columns found, assume all numeric columns are relevant
-    if not gaze_candidates:
-        gaze_candidates = [col for col in df.select_dtypes(include=[np.number]).columns]
-    
-    # Fallback to all columns if still empty (unlikely)
-    if not gaze_candidates:
-        gaze_candidates = list(df.columns)
-        logger.warning(f"No specific gaze columns detected. Using all columns for missing data calculation: {gaze_candidates}")
-    
-    logger.info(f"Checking missing data in columns: {gaze_candidates}")
-    
-    # Run exclusion logic
-    filtered_df, stats = evaluate_participant_exclusion(
-        df=df,
-        gaze_columns=gaze_candidates,
-        participant_col='participant_id',
-        threshold=MISSING_THRESHOLD
-    )
-    
-    # Save filtered data
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered data saved to: {output_path}")
-    
-    # Save statistics
-    with open(stats_path, 'w') as f:
-        json.dump(stats, f, indent=2, default=str)
-    logger.info(f"Exclusion statistics saved to: {stats_path}")
-    
-    return stats
-
-
-def main():
-    """Main entry point for the exclusion script."""
-    logger = get_logger_wrapper()
-    logger.info("Starting participant exclusion pipeline...")
+        output_path = config.PROCESSED_FEATURES_PATH.with_name("features_cleaned.csv")
+    if stats_output_path is None:
+        stats_output_path = config.PROCESSED_FEATURES_PATH.with_name("exclusion_stats.json")
+        
+    logger.info(f"Starting exclusion pipeline for {input_path}")
     
     try:
-        stats = run_exclusion_pipeline()
-        logger.info("Participant exclusion pipeline completed successfully.")
-        logger.info(f"Final exclusion rate: {stats['exclusion_rate']:.2%}")
-        return 0
+        cleaned_df, stats = evaluate_participant_exclusion(
+            logger, 
+            input_path, 
+            exclusion_threshold=exclusion_threshold
+        )
+        
+        # Save cleaned data
+        logger.info(f"Saving cleaned data to {output_path}")
+        cleaned_df.to_csv(output_path, index=False)
+        
+        # Save statistics
+        logger.info(f"Saving exclusion stats to {stats_output_path}")
+        with open(stats_output_path, 'w') as f:
+            json.dump(stats, f, indent=2)
+        
+        logger.info(f"Exclusion pipeline complete. Exclusion rate: {stats['exclusion_rate']:.2%}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
-        raise
+        sys.exit(1)
 
+def main():
+    """CLI entry point."""
+    setup_logging()
+    logger = get_logger(__name__)
+    run_exclusion_pipeline(logger)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Ensure logging is set up before running main
+    from utils.logging import setup_logging
+    setup_logging()
+    main()

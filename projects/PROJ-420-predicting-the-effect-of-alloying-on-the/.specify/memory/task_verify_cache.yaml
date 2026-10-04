@@ -17,28 +17,6 @@ T014:
     the required `data/logs/exclusion_log.txt` does not exist. The implementer must
     complete the function with the exact inference logic and ensure the correct log
     entries are written.
-T015c:
-  c: false
-  h: ecd6b90ac34332fe48e82df71ed923acefd78e495efdf159ff4617dc51a90990
-  r: "The repository lacks the required output file `data/processed/alloys_clean.parquet`,\
-    \ and the provided `clean.py` snippet does not show any logic that writes a parquet\
-    \ file, checks the row count against the 50\u2011row threshold, logs an error,\
-    \ or calls `sys.exit(1)`. Consequently the task\u2019s serialization and validation\
-    \ requirements are not met."
-T016:
-  c: false
-  h: 5403ed77d2e25fdb6d0fd9dea86594f3faa24edc8026f1318f466e7dfcce3e4e
-  r: "The `code/data/clean.py` file shows no implementation of an exclusion\u2011\
-    logging utility (no function that writes to `data/logs/exclusion_log.txt`), and\
-    \ the required `data/logs/exclusion_log.txt` file does not exist. Consequently\
-    \ the task\u2019s required artifact and behavior are missing."
-T019:
-  c: false
-  h: 379e5372bba0e1b08f039f2066b2c4e4595b1ae490d88706ab28f09ff22bbf89
-  r: "The repository lacks the required `data/processed/alloys_ilr.parquet` file,\
-    \ and the shown portion of `code/data/clean.py` does not contain any implementation\
-    \ that applies `compositional.ilr` to the specified elements or writes the transformed\
-    \ data to that path. Consequently the task\u2019s core requirement is not satisfied."
 T021b:
   c: false
   h: 8b9a790577cc4282f877776dc687b0ad98c3b8bc106e924e3bfecab2705d3044
@@ -66,24 +44,17 @@ T025:
     \ add the test\u2011set evaluation, log the MAE, and generate the two result files."
 T027a:
   c: false
-  h: 6144de8a0b6a8066452fb3076e50f6076c2dec56fa225f58ea774288cbcef3e3
-  r: The `code/analysis.py` file contains a partial implementation of permutation
-    importance but does not include code to save the results to `results/feature_importance.json`,
-    and the file is truncated. The required output file `results/feature_importance.json`
-    and the schema file `specs/001-predict-poissons-ratio/contracts/feature_importance.schema.yaml`
-    are both missing. The task therefore remains unfinished.
-T028:
-  c: false
-  h: 7d78ee32dbcdf7d300e738604ee452b0f5d145f1e5517076fc17b830dbf75344
-  r: The provided `code/analysis.py` contains loading and SHAP importance logic but
-    no implementation of variance inflation factor (VIF) calculation, and the required
-    `data/processed/alloys_ilr.parquet` file is absent. Both the core functionality
-    and the necessary input data are missing.
+  h: 4b6ab59aefaa7289465f18291ad86d48b604c3b3d1ba04a1685dd2e740dbfa1d
+  r: "The required model file (`models/rf_model.pkl`), ILR\u2011transformed data (`data/processed/alloys_ilr.parquet`),\
+    \ and output JSON (`results/feature_importance.json`) are all missing. Moreover,\
+    \ the `aggregate_ilr_to_element` function in `code/analysis.py` uses a simplistic\
+    \ one\u2011to\u2011one mapping instead of the specified weighted sum over ILR\
+    \ coordinates, so the implementation does not meet the described algorithm."
 T029:
   c: false
-  h: 23094fad1671b21d3c210a8dc34e355bdf6f29bfa496eb45bac98e36d3a3f112
-  r: "The provided `code/analysis.py` does not contain any logic that ranks the top\
-    \ two feature importances, computes the required ratio, or writes a `results/feature_importance_summary.json`\
-    \ file with the specified fields. Moreover, the expected output file `results/feature_importance_summary.json`\
-    \ is absent from the repository. The task\u2019s core requirements are therefore\
-    \ unmet."
+  h: e27ef9d201f9d0d4c27c1a97d35ab571ec8c4111ece27545c6f6d9afcf83583d
+  r: "The repository lacks `results/feature_importance.json` (the required input)\
+    \ and does not contain `results/feature_importance_summary.json`. Moreover, the\
+    \ shown `code/analysis.py` is truncated and does not implement the ranking/comparison\
+    \ logic or write the summary JSON. The task\u2019s required artifacts and functionality\
+    \ are therefore missing."

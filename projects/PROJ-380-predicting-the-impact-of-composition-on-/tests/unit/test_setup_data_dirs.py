@@ -1,81 +1,68 @@
-"""
-Unit tests for the data directory setup functionality (T009).
-Verifies that the required directory structure is created correctly.
-"""
 import os
+import tempfile
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
-
-# Import the function to test
-# We need to mock the config paths for testing in isolation
 import sys
-from unittest.mock import patch, MagicMock
 
-from setup_data_dirs import setup_data_structure, main
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from setup_data_dirs import setup_data_structure
 
-class TestSetupDataDirs:
-    """Tests for the data directory setup."""
+class TestDataDirectorySetup:
+    """Tests for the data directory structure setup functionality."""
 
-    def test_directories_created(self, tmp_path):
-        """Verify that raw, processed, and artifacts directories are created."""
-        # Mock the get_paths function to return our temp directory
-        mock_paths = {
-            'data_root': str(tmp_path)
-        }
+    def test_creates_data_root_if_missing(self, tmp_path):
+        """Test that the data root directory is created if it doesn't exist."""
+        data_root = tmp_path / "data"
+        
+        result = setup_data_structure(base_dir=tmp_path)
+        
+        assert result is True
+        assert data_root.exists()
+        assert data_root.is_dir()
 
-        with patch('setup_data_dirs.get_paths', return_value=mock_paths):
-            # Run the setup function
-            setup_data_structure()
+    def test_creates_all_subdirectories(self, tmp_path):
+        """Test that raw, processed, and artifacts subdirectories are created."""
+        result = setup_data_structure(base_dir=tmp_path)
+        
+        assert result is True
+        
+        data_root = tmp_path / "data"
+        sub_dirs = ["raw", "processed", "artifacts"]
+        
+        for sub_dir in sub_dirs:
+            target_path = data_root / sub_dir
+            assert target_path.exists()
+            assert target_path.is_dir()
 
-            # Verify the directories exist
-            assert (tmp_path / 'raw').exists(), "raw directory not created"
-            assert (tmp_path / 'processed').exists(), "processed directory not created"
-            assert (tmp_path / 'artifacts').exists(), "artifacts directory not created"
+    def test_idempotent_when_directories_exist(self, tmp_path):
+        """Test that the function handles existing directories gracefully."""
+        # Pre-create the structure
+        data_root = tmp_path / "data"
+        data_root.mkdir()
+        (data_root / "raw").mkdir()
+        (data_root / "processed").mkdir()
+        (data_root / "artifacts").mkdir()
+        
+        # Run setup again
+        result = setup_data_structure(base_dir=tmp_path)
+        
+        assert result is True
+        # All directories should still exist
+        assert (data_root / "raw").exists()
+        assert (data_root / "processed").exists()
+        assert (data_root / "artifacts").exists()
 
-    def test_gitkeep_files_created(self, tmp_path):
-        """Verify that .gitkeep files are created in each subdirectory."""
-        mock_paths = {
-            'data_root': str(tmp_path)
-        }
-
-        with patch('setup_data_dirs.get_paths', return_value=mock_paths):
-            setup_data_structure()
-
-            # Verify .gitkeep files exist
-            assert (tmp_path / 'raw' / '.gitkeep').exists(), ".gitkeep not created in raw"
-            assert (tmp_path / 'processed' / '.gitkeep').exists(), ".gitkeep not created in processed"
-            assert (tmp_path / 'artifacts' / '.gitkeep').exists(), ".gitkeep not created in artifacts"
-
-    def test_main_function_success(self, tmp_path):
-        """Verify that the main function runs without error."""
-        mock_paths = {
-            'data_root': str(tmp_path)
-        }
-
-        with patch('setup_data_dirs.get_paths', return_value=mock_paths):
-            # This should not raise an exception
-            main()
-
-            # Verify directories were created
-            assert (tmp_path / 'raw').exists()
-            assert (tmp_path / 'processed').exists()
-            assert (tmp_path / 'artifacts').exists()
-
-    def test_idempotency(self, tmp_path):
-        """Verify that running the setup twice doesn't cause errors."""
-        mock_paths = {
-            'data_root': str(tmp_path)
-        }
-
-        with patch('setup_data_dirs.get_paths', return_value=mock_paths):
-            # Run twice
-            setup_data_structure()
-            setup_data_structure()
-
-            # Verify directories still exist
-            assert (tmp_path / 'raw').exists()
-            assert (tmp_path / 'processed').exists()
-            assert (tmp_path / 'artifacts').exists()
+    def test_creates_parent_directories(self, tmp_path):
+        """Test that parent directories are created if necessary."""
+        # Create a nested structure where data is deep
+        nested_base = tmp_path / "project" / "src"
+        
+        result = setup_data_structure(base_dir=nested_base)
+        
+        assert result is True
+        assert (nested_base / "data").exists()
+        assert (nested_base / "data" / "raw").exists()
+        assert (nested_base / "data" / "processed").exists()
+        assert (nested_base / "data" / "artifacts").exists()

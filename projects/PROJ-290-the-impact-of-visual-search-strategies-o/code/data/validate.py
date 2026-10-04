@@ -5,220 +5,296 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-# Import from sibling modules using exact names from API surface
+import pandas as pd
+import numpy as np
+
 from utils.logging import get_logger
 from config import get_config
-from features.extraction import get_roi_annotations_fallback, define_generic_roi_grid
 
-# --- Configuration & Setup ---
-CONFIG = get_config()
-logger = get_logger(__name__)
+def get_logger_wrapper(logger_name: str = "validate") -> logging.Logger:
+    """Get a logger instance for this module."""
+    return get_logger(logger_name)
 
-# --- Core Logic: ROI Fallback ---
-def apply_roi_fallback(
-    df: Any,
-    logger: logging.Logger,
-    config: Dict[str, Any]
-) -> Tuple[Any, bool]:
+def check_variable_presence(df: pd.DataFrame, required_vars: List[str]) -> Tuple[bool, List[str]]:
     """
-    Applies a Generic ROI Fallback (3x3 grid) if 'roi_annotations' are missing or empty.
-    
-    This function checks if the 'roi_annotations' column exists and contains data.
-    If missing or effectively empty, it generates a standard 3x3 grid definition
-    and assigns it to the records, returning the modified dataframe and a status flag.
+    Check if all required variables are present in the DataFrame columns.
     
     Args:
-        df: The pandas DataFrame containing raw or processed data.
-        logger: The logging instance.
-        config: Configuration dictionary (unused directly but passed for consistency).
+        df: DataFrame to check
+        required_vars: List of required column names
         
     Returns:
-        Tuple[DataFrame, bool]: The potentially modified DataFrame and a boolean 
-        indicating if fallback was applied (True) or if annotations already existed (False).
+        Tuple of (all_present, list_of_missing_vars)
     """
-    if df is None:
-        logger.error("Input DataFrame is None. Cannot apply ROI fallback.")
-        return df, False
-
-    # Check if column exists
-    if 'roi_annotations' not in df.columns:
-        logger.info("Column 'roi_annotations' not found in DataFrame. Applying Generic ROI Fallback.")
-        fallback_grid = define_generic_roi_grid()
-        
-        # Assign the grid definition to every row
-        # We assume the grid is a standard dictionary/list structure representing the 3x3 layout
-        df['roi_annotations'] = [fallback_grid] * len(df)
-        
-        logger.info(f"Applied Generic ROI Fallback (3x3 grid) to {len(df)} records.")
-        return df, True
-
-    # Check if the column exists but contains NaN/None values
-    if df['roi_annotations'].isna().all():
-        logger.info("Column 'roi_annotations' exists but is entirely empty (NaN). Applying Generic ROI Fallback.")
-        fallback_grid = define_generic_roi_grid()
-        df['roi_annotations'] = [fallback_grid] * len(df)
-        logger.info(f"Applied Generic ROI Fallback (3x3 grid) to {len(df)} records (replaced NaN).")
-        return df, True
+    logger = get_logger("validate")
+    missing = [var for var in required_vars if var not in df.columns]
+    all_present = len(missing) == 0
     
-    # Check if there is any valid data in the column
-    valid_count = df['roi_annotations'].notna().sum()
-    if valid_count == 0:
-        logger.info("Column 'roi_annotations' exists but contains no valid data. Applying Generic ROI Fallback.")
-        fallback_grid = define_generic_roi_grid()
-        df['roi_annotations'] = [fallback_grid] * len(df)
-        logger.info(f"Applied Generic ROI Fallback (3x3 grid) to {len(df)} records.")
-        return df, True
+    if not all_present:
+        logger.warning(f"Missing required variables: {missing}")
+    else:
+        logger.info("All required variables present")
+        
+    return all_present, missing
 
-    # If we reach here, valid ROI annotations exist
-    logger.info(f"ROI annotations found ({valid_count} valid records). No fallback needed.")
-    return df, False
-
-# --- Validation Logic ---
-def check_variable_presence(df: Any, required_vars: List[str]) -> Dict[str, bool]:
+def validate_data_content(df: pd.DataFrame, required_vars: List[str]) -> Dict[str, Any]:
     """
-    Checks if required variables are present in the DataFrame.
+    Validate that the data contains non-empty values for required variables.
     
     Args:
-        df: The DataFrame to check.
-        required_vars: List of column names to check.
+        df: DataFrame to validate
+        required_vars: List of required column names
         
     Returns:
-        Dict mapping variable name to boolean (True if present).
+        Dictionary with validation results
     """
-    if df is None:
-        return {var: False for var in required_vars}
-    
-    return {var: var in df.columns for var in required_vars}
-
-def validate_data_content(df: Any, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Validates the content of the dataset, specifically checking for critical variables.
-    If critical variables are missing, it attempts to apply fallbacks (like ROI) 
-    and then re-evaluates.
-    
-    Args:
-        df: The DataFrame to validate.
-        config: Configuration dictionary.
-        
-    Returns:
-        Dict containing validation status, missing variables, and fallback info.
-    """
-    critical_vars = ['gaze_coordinates', 'response_times', 'emotion_labels']
-    # roi_annotations is special: missing is okay if fallback can be applied
-    optional_vars = ['roi_annotations']
-    
-    all_vars = critical_vars + optional_vars
-    presence = check_variable_presence(df, all_vars)
-    
-    missing_critical = [var for var, present in presence.items() if var in critical_vars and not present]
-    missing_optional = [var for var, present in presence.items() if var in optional_vars and not present]
-    
-    result = {
-        "status": "pending",
-        "missing_variables": missing_critical + missing_optional,
-        "critical_missing": missing_critical,
-        "fallback_applied": False,
-        "fallback_type": None
+    logger = get_logger("validate")
+    results = {
+        "total_rows": len(df),
+        "variables_checked": required_vars,
+        "valid_records": 0,
+        "invalid_records": 0,
+        "missing_data": {}
     }
     
-    # If critical vars are missing, we halt (but first check if we can fix ROI)
-    if missing_critical:
-        result["status"] = "failed"
-        return result
-    
-    # Handle optional ROI annotations: apply fallback if missing
-    if 'roi_annotations' in missing_optional:
-        logger.warning("ROI annotations missing. Attempting Generic ROI Fallback (3x3 grid).")
-        df, applied = apply_roi_fallback(df, logger, config)
-        if applied:
-            result["fallback_applied"] = True
-            result["fallback_type"] = "generic_3x3_grid"
-            result["missing_variables"].remove('roi_annotations')
-            result["status"] = "success"
-        else:
-            result["status"] = "failed"
-            result["missing_variables"].append('roi_annotations') # Ensure it's in the list
-    else:
-        result["status"] = "success"
+    valid_count = 0
+    for idx, row in df.iterrows():
+        is_valid = True
+        for var in required_vars:
+            if var not in row or pd.isna(row[var]):
+                is_valid = False
+                if var not in results["missing_data"]:
+                    results["missing_data"][var] = 0
+                results["missing_data"][var] += 1
         
-    return result
+        if is_valid:
+            valid_count += 1
+        else:
+            results["invalid_records"] += 1
+    
+    results["valid_records"] = valid_count
+    logger.info(f"Valid records: {valid_count}/{len(df)}")
+    
+    return results
 
-def write_validation_report(report: Dict[str, Any], output_path: Path) -> None:
+def define_generic_roi_grid(image_width: int = 64, image_height: int = 64) -> Dict[str, Tuple[int, int, int, int]]:
     """
-    Writes the validation report to a JSON file.
+    Define a 3x3 grid of ROIs for face images.
     
     Args:
-        report: The validation report dictionary.
-        output_path: Path to the output JSON file.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Validation report written to {output_path}")
-
-def validate_dataset(df: Any, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Main entry point for dataset validation.
-    
-    1. Checks for critical variables.
-    2. Applies ROI fallback if necessary.
-    3. Writes the report.
-    4. Halts if critical variables are still missing.
-    
-    Args:
-        df: The dataset DataFrame.
-        config: Configuration dictionary.
+        image_width: Width of the face image
+        image_height: Height of the face image
         
     Returns:
-        The final validation report.
+        Dictionary mapping ROI names to (x, y, width, height) tuples
     """
-    logger.info("Starting dataset validation...")
+    logger = get_logger("validate")
     
-    # Perform validation logic
-    report = validate_data_content(df, config)
+    cell_width = image_width // 3
+    cell_height = image_height // 3
     
-    # Write report to data/validation_report.json
-    output_path = Path(CONFIG.data_dir) / "validation_report.json"
-    write_validation_report(report, output_path)
+    roi_grid = {
+        "top_left": (0, 0, cell_width, cell_height),
+        "top_center": (cell_width, 0, cell_width, cell_height),
+        "top_right": (2 * cell_width, 0, cell_width, cell_height),
+        "middle_left": (0, cell_height, cell_width, cell_height),
+        "middle_center": (cell_width, cell_height, cell_width, cell_height),
+        "middle_right": (2 * cell_width, cell_height, cell_width, cell_height),
+        "bottom_left": (0, 2 * cell_height, cell_width, cell_height),
+        "bottom_center": (cell_width, 2 * cell_height, cell_width, cell_height),
+        "bottom_right": (2 * cell_width, 2 * cell_height, cell_width, cell_height),
+    }
     
-    # Halt if critical variables are missing
-    if report["status"] == "failed":
-        error_msg = f"CRITICAL VALIDATION FAILED: Missing required variables: {report['critical_missing']}. Halting execution."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info("Validation successful.")
-    return report
+    logger.info(f"Generated 3x3 ROI grid for {image_width}x{image_height} image")
+    return roi_grid
 
-def main() -> None:
+def apply_roi_fallback(df: pd.DataFrame, image_width: int = 64, image_height: int = 64) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Main execution function for the validation script.
-    Loads data (simulated or real path), validates, and reports.
-    """
-    logger.info("Running data validation pipeline...")
+    Apply Generic ROI Fallback (3x3 grid) if roi_annotations are missing.
     
-    # In a real pipeline, this would load the downloaded dataset
-    # For this task implementation, we assume df is passed or loaded from a standard location
-    # Since we are implementing the logic, we define the structure here.
-    # In the actual pipeline, this is called by the orchestrator or a runner script.
+    This function checks if 'roi_annotations' column is missing or empty,
+    and if so, generates a default 3x3 grid annotation for each record.
     
-    config = CONFIG
-    # Placeholder for data loading - in real execution, this comes from download.py
-    # df = load_raw_data() 
-    
-    # Example usage of the logic (if run standalone for testing):
-    # This block ensures the logic is executable if a test DataFrame is provided
-    try:
-        # We expect the orchestrator to pass the data, but if run as __main__,
-        # we might need to mock or load. For T013, the core is the function logic.
-        # If this script is run directly without data, it should exit gracefully 
-        # or load a test case if one exists.
+    Args:
+        df: DataFrame containing gaze data
+        image_width: Width of face images (default 64)
+        image_height: Height of face images (default 64)
         
-        # Since T013 is purely about the logic implementation, we ensure the functions
-        # are defined and callable. The actual invocation happens in the pipeline.
-        pass
+    Returns:
+        Tuple of (modified_df, fallback_info)
+    """
+    logger = get_logger("validate")
+    fallback_info = {
+        "applied": False,
+        "grid_type": "3x3",
+        "image_dimensions": (image_width, image_height),
+        "records_modified": 0,
+        "reason": ""
+    }
+    
+    # Check if roi_annotations column exists
+    if "roi_annotations" not in df.columns:
+        logger.info("roi_annotations column missing - applying 3x3 grid fallback")
+        fallback_info["reason"] = "Column 'roi_annotations' does not exist"
+        fallback_info["applied"] = True
+        
+        # Generate grid for all records
+        grid = define_generic_roi_grid(image_width, image_height)
+        fallback_annotations = [grid for _ in range(len(df))]
+        df["roi_annotations"] = fallback_annotations
+        fallback_info["records_modified"] = len(df)
+        
+    else:
+        # Check if roi_annotations are empty/None for any records
+        empty_mask = df["roi_annotations"].isna() | (df["roi_annotations"].apply(lambda x: x is None or (isinstance(x, dict) and len(x) == 0)))
+        empty_count = empty_mask.sum()
+        
+        if empty_count > 0:
+            logger.info(f"Found {empty_count} records with empty roi_annotations - applying 3x3 grid fallback")
+            fallback_info["reason"] = f"{empty_count} records had missing/empty roi_annotations"
+            fallback_info["applied"] = True
+            
+            grid = define_generic_roi_grid(image_width, image_height)
+            
+            # Apply fallback only to records with empty annotations
+            def apply_fallback_if_empty(annotations):
+                if pd.isna(annotations) or annotations is None or (isinstance(annotations, dict) and len(annotations) == 0):
+                    return grid
+                return annotations
+            
+            df.loc[empty_mask, "roi_annotations"] = df.loc[empty_mask, "roi_annotations"].apply(apply_fallback_if_empty)
+            fallback_info["records_modified"] = int(empty_count)
+        else:
+            logger.info("All records have valid roi_annotations - no fallback needed")
+    
+    return df, fallback_info
+
+def write_validation_report(
+    output_path: str,
+    status: str,
+    missing_vars: List[str],
+    data_content: Dict[str, Any],
+    roi_fallback_info: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Write validation report to JSON file.
+    
+    Args:
+        output_path: Path to output JSON file
+        status: Overall validation status ('PASS', 'FAIL', 'WARN')
+        missing_vars: List of missing variable names
+        data_content: Data content validation results
+        roi_fallback_info: Information about ROI fallback application
+    """
+    logger = get_logger("validate")
+    
+    report = {
+        "status": status,
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "missing_variables": missing_vars,
+        "data_content": data_content,
+        "roi_fallback_applied": roi_fallback_info["applied"] if roi_fallback_info else False,
+        "roi_fallback_details": roi_fallback_info if roi_fallback_info else None
+    }
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2, default=str)
+    
+    logger.info(f"Validation report written to {output_path}")
+
+def validate_dataset(
+    df: pd.DataFrame,
+    required_vars: List[str],
+    output_path: str = "data/validation_report.json",
+    image_width: int = 64,
+    image_height: int = 64
+) -> bool:
+    """
+    Main validation function that checks variables, applies ROI fallback if needed,
+    and writes the validation report.
+    
+    Args:
+        df: DataFrame to validate
+        required_vars: List of required variable names
+        output_path: Path for the validation report
+        image_width: Width of face images
+        image_height: Height of face images
+        
+    Returns:
+        True if validation passes (critical vars present), False otherwise
+    """
+    logger = get_logger("validate")
+    
+    # Check variable presence
+    all_present, missing_vars = check_variable_presence(df, required_vars)
+    
+    # Critical variables that must be present
+    critical_vars = ["gaze_coordinates", "response_times", "emotion_labels"]
+    critical_missing = [v for v in missing_vars if v in critical_vars]
+    
+    if critical_missing:
+        logger.error(f"CRITICAL: Missing required variables: {critical_missing}")
+        write_validation_report(
+            output_path=output_path,
+            status="FAIL",
+            missing_vars=missing_vars,
+            data_content={},
+            roi_fallback_info=None
+        )
+        return False
+    
+    # Validate data content
+    data_content = validate_data_content(df, required_vars)
+    
+    # Apply ROI fallback if roi_annotations is missing or partially empty
+    roi_fallback_info = None
+    if "roi_annotations" in required_vars:
+        df, roi_fallback_info = apply_roi_fallback(df, image_width, image_height)
+    
+    # Determine final status
+    if missing_vars:
+        status = "WARN"
+    else:
+        status = "PASS"
+    
+    write_validation_report(
+        output_path=output_path,
+        status=status,
+        missing_vars=missing_vars,
+        data_content=data_content,
+        roi_fallback_info=roi_fallback_info
+    )
+    
+    logger.info(f"Validation complete: {status}")
+    return True
+
+def main():
+    """Main entry point for standalone execution."""
+    logger = get_logger("validate")
+    config = get_config()
+    
+    # Example usage - in real execution, data would be loaded from download.py
+    logger.info("Running dataset validation with ROI fallback logic")
+    
+    # This would typically be called from the pipeline after download
+    # For testing, we can create a minimal example
+    try:
+        # Check if raw data exists
+        raw_data_path = Path(config.DATA_RAW_DIR) / "dataset.csv"
+        if raw_data_path.exists():
+            df = pd.read_csv(raw_data_path)
+            required_vars = ["gaze_coordinates", "response_times", "emotion_labels", "roi_annotations"]
+            success = validate_dataset(df, required_vars, output_path="data/validation_report.json")
+            if not success:
+                sys.exit(1)
+        else:
+            logger.info("No raw data found - validation skipped (expected if download not run)")
     except Exception as e:
-        logger.error(f"Validation pipeline failed: {e}")
+        logger.error(f"Validation failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
