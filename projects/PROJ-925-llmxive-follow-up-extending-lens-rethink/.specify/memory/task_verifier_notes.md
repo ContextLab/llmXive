@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T003** — The repository contains a `pyproject.toml` with Black configuration, but the required `.ruff.toml` file is missing, so the linting configuration is not fully provided. The task’s requirement is not completely satisfied.
+- **T009** — The `download.py` script is only partially shown (truncated) and does not contain a runnable entry‑point that actually invokes the streaming download, nor does it guarantee creation of `data/raw/pick-a-pic.parquet` (the file is missing). Consequently the required dataset file is not materialized, so the task’s core requirement is unmet.
+- **T010** — The `code/data/download.py` file defines a `compute_sha256` helper but the truncated implementation never shows it being called to compute a hash or to write the result into the project YAML. The YAML still contains a placeholder hash and zero file size, and the required `data/raw/pick-a-pic.parquet` file is missing entirely. Consequently the checksumming logic is not fully implemented and the state file is not updated with real hash information.
+- **T015** — The repository does not contain a `compute_syntactic_depth` implementation in `code/features.py` (the shown file ends before such a function and no definition is present). Additionally, the required log file `data/logs/exclusions.log` is absent, so exclusions cannot be recorded as specified. Both core artifacts are missing.
+- **T015b** — declared artifact(s) missing/empty/invalid: data/logs/exclusions.log, data/processed/exclusion_summary.json
+- **T018c** — declared artifact(s) missing/empty/invalid: data/processed/features.csv, data/processed/features_train.csv, data/processed/features_held_out.csv

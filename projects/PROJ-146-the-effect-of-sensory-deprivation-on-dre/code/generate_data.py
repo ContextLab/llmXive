@@ -5,195 +5,164 @@ import pandas as pd
 from datetime import datetime
 import logging
 
-# Configure logging to use the project's standard setup
-try:
-    from logging_config import setup_logging
-    logger = setup_logging(__name__)
-except ImportError:
-    # Fallback if logging_config is not yet available or imported differently
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+# Import setup_logging from sibling module
+from logging_config import setup_logging
 
 def load_protocol(protocol_path: str = "data/protocols/protocol.yaml") -> dict:
-    """
-    Loads the simulation protocol from the YAML file.
-    
-    Args:
-        protocol_path: Path to the protocol.yaml file.
-        
-    Returns:
-        Dictionary containing protocol parameters.
-        
-    Raises:
-        FileNotFoundError: If the protocol file does not exist.
-        yaml.YAMLError: If the file is not valid YAML.
-    """
-    if not os.path.exists(protocol_path):
-        raise FileNotFoundError(f"Protocol file not found at {protocol_path}")
-    
-    with open(protocol_path, 'r') as f:
-        protocol = yaml.safe_load(f)
-    
-    logger.info(f"Loaded protocol from {protocol_path}")
-    return protocol
+    """Load simulation parameters from the protocol YAML file."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading protocol from {protocol_path}")
+    try:
+        with open(protocol_path, 'r') as f:
+            protocol = yaml.safe_load(f)
+        logger.info(f"Protocol loaded successfully: N={protocol.get('N', 'N/A')}")
+        return protocol
+    except FileNotFoundError:
+        logger.error(f"Protocol file not found at {protocol_path}")
+        raise
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing protocol YAML: {e}")
+        raise
 
-def generate_participant_data(
-    n_participants: int,
-    effect_size: float,
-    seed: int,
-    icc: float = 0.3
-) -> pd.DataFrame:
+def generate_participant_data(protocol: dict, seed: int = 42) -> pd.DataFrame:
     """
-    Generates synthetic data for a single participant group based on effect size.
-    
-    This function simulates dream recall (binary) and bizarreness (1-7) scores
-    under a specific sensory deprivation condition defined by the effect size.
+    Generate synthetic participant data based on protocol parameters.
     
     Args:
-        n_participants: Number of participants to generate.
-        effect_size: Cohen's d value for the simulated effect.
+        protocol: Dictionary containing simulation parameters.
         seed: Random seed for reproducibility.
-        icc: Intraclass correlation coefficient for random effects.
         
     Returns:
-        DataFrame with columns: participant_id, condition_label, recall, bizarreness, 
-                                random_effect_recall, random_effect_bizarreness
+        DataFrame with simulated dream recall and bizarreness data.
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Generating synthetic data with seed={seed}, N={protocol['N']}")
+    
     np.random.seed(seed)
+    n = protocol['N']
+    effect_sizes = protocol.get('effect_sizes', [0.5, 0.0, -0.2])
+    icc = protocol.get('ICC', 0.3)
     
-    # Generate random effects for participants (simulating repeated measures or 
-    # individual baselines if we were doing longitudinal, here treated as individual 
-    # variation in baseline)
-    # For a cross-sectional simulation with N participants, we treat each row as 
-    # a participant's aggregate or single observation, but we add a random effect 
-    # component to simulate the ICC structure if we were grouping. 
-    # Since this is a simulation of N=200 participants total across conditions,
-    # we will assign participants to conditions.
+    # Generate participant IDs
+    participant_ids = np.repeat(np.arange(n // 3), 3) # 3 measurements per participant
     
-    # However, the task implies generating datasets for 3 scenarios. 
-    # We will generate N participants for EACH scenario (3 datasets).
-    # Each dataset will have the effect_size applied to the condition.
+    # Generate conditions (stratified by effect size scenarios)
+    conditions = np.array(['strict', 'moderate', 'partial'] * (n // 3))
     
-    # Generate IDs
-    participant_ids = [f"P{str(i).zfill(3)}" for i in range(1, n_participants + 1)]
+    # Simulate random intercepts (participant-level variation)
+    random_intercepts = np.random.normal(0, np.sqrt(icc), size=n // 3)
+    random_intercepts_expanded = np.repeat(random_intercepts, 3)
     
-    # Random intercepts for recall and bizarreness
-    # Variance decomposition: Total variance = 1 (for simplicity in binary probit) or 1 for linear
-    # ICC = Var_random / (Var_random + Var_residual)
-    # We assume Var_residual = 1 for standardization
-    var_random = icc / (1 - icc) if icc < 1 else 1.0
-    std_random = np.sqrt(var_random)
+    # Base probabilities for dream recall
+    base_recall_prob = 0.5
     
-    random_effect_recall = np.random.normal(0, std_random, n_participants)
-    random_effect_bizarreness = np.random.normal(0, std_random, n_participants)
+    # Apply effect sizes to recall probability
+    recall_probs = []
+    for i, cond in enumerate(conditions):
+        idx = i % 3
+        effect = effect_sizes[idx]
+        # Logistic transformation
+        logit = np.log(base_recall_prob / (1 - base_recall_prob)) + effect + random_intercepts_expanded[i]
+        prob = 1 / (1 + np.exp(-logit))
+        recall_probs.append(prob)
     
-    # Baseline parameters (intercepts)
-    # For recall (binary): Logit model. Baseline probability ~ 0.5 -> intercept ~ 0
-    baseline_recall_logit = 0.0
-    # For bizarreness (1-7): Linear. Baseline ~ 4 (midpoint)
-    baseline_bizarreness = 4.0
+    recall_probs = np.array(recall_probs)
+    recall = np.random.binomial(1, recall_probs)
     
-    # Apply effect size
-    # For recall: effect_size is in log-odds units (approx) or we convert to probability shift
-    # For simplicity in simulation, we add effect_size to the logit
-    recall_logit = baseline_recall_logit + random_effect_recall + effect_size
-    # Convert to probability
-    recall_prob = 1 / (1 + np.exp(-recall_logit))
-    # Generate binary recall
-    recall = np.random.binomial(1, recall_prob, n_participants)
-    
-    # For bizarreness: Linear model
-    # effect_size is in standard deviation units. We scale by the residual std (1)
-    bizarreness_score = baseline_bizarreness + random_effect_bizarreness + effect_size * 1.0
-    # Add residual noise
-    bizarreness_score += np.random.normal(0, 1, n_participants)
-    # Clip to 1-7 and round
-    bizarreness = np.clip(np.round(bizarreness_score), 1, 7).astype(int)
+    # Simulate bizarreness scores (1-7 scale)
+    # Base mean shifted by condition
+    condition_means = {'strict': 5.0, 'moderate': 4.0, 'partial': 3.0}
+    bizarreness_base = np.array([condition_means[c] for c in conditions])
+    bizarreness_noise = np.random.normal(0, 1.0, size=n)
+    bizarreness = np.clip(bizarreness_base + bizarreness_noise + random_intercepts_expanded, 1, 7).astype(int)
     
     df = pd.DataFrame({
         'participant_id': participant_ids,
+        'condition': conditions,
         'recall': recall,
-        'bizarreness': bizarreness
+        'bizarreness': bizarreness,
+        'timestamp': datetime.now().isoformat()
     })
+    
+    logger.info(f"Generated data shape: {df.shape}")
+    logger.info(f"Recall distribution: {df['recall'].value_counts().to_dict()}")
+    logger.info(f"Bizarreness distribution: {df['bizarreness'].value_counts().to_dict()}")
     
     return df
 
-def generate_synthetic_datasets(
-    protocol: dict,
-    output_dir: str = "data/synthetic/"
-) -> list:
+def generate_synthetic_datasets(protocol: dict, output_dir: str = "data/synthetic/", seed: int = 42) -> list:
     """
-    Generates synthetic datasets for all effect size scenarios defined in the protocol.
+    Generate synthetic datasets for all scenarios defined in the protocol.
     
     Args:
-        protocol: Dictionary containing study parameters.
-        output_dir: Directory to save the generated CSV files.
+        protocol: Protocol dictionary.
+        output_dir: Directory to save generated datasets.
+        seed: Base random seed.
         
     Returns:
-        List of paths to the generated files.
+        List of paths to generated files.
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting synthetic data generation to {output_dir}")
+    
     os.makedirs(output_dir, exist_ok=True)
-    
-    n_participants = protocol['study']['n_participants']
-    seed = protocol['study']['seed']
-    icc = protocol['statistical']['intraclass_correlation']
-    effect_sizes = protocol['effect_sizes']
-    
     generated_files = []
     
-    # Define the mapping from effect size name to a condition label for the dataset
-    # The task asks for 3 scenarios. We will create one file per scenario.
-    scenario_mapping = {
-        'moderate_positive': 'positive_effect',
-        'null': 'null_effect',
-        'moderate_negative': 'negative_effect'
-    }
+    effect_sizes = protocol.get('effect_sizes', [0.5, 0.0, -0.2])
+    scenario_labels = ['positive_effect', 'null_effect', 'negative_effect']
     
-    for scenario in effect_sizes:
-        name = scenario['name']
-        value = scenario['value']
+    for i, (effect, label) in enumerate(zip(effect_sizes, scenario_labels)):
+        # Create a temporary protocol override for this scenario
+        scenario_protocol = protocol.copy()
+        scenario_protocol['effect_sizes'] = [effect]
         
-        logger.info(f"Generating dataset for scenario: {name} (d={value})")
+        # Generate data with a specific seed for this scenario
+        scenario_seed = seed + i
+        df = generate_participant_data(scenario_protocol, seed=scenario_seed)
         
-        # Generate data
-        df = generate_participant_data(
-            n_participants=n_participants,
-            effect_size=value,
-            seed=seed,
-            icc=icc
-        )
+        # Add scenario metadata
+        df['scenario'] = label
+        df['effect_size'] = effect
+        df['simulation_seed'] = scenario_seed
+        df['is_synthetic'] = True
         
-        # Add metadata columns
-        df['scenario'] = name
-        df['effect_size'] = value
-        df['data_source'] = "Simulation-based"
-        df['generation_timestamp'] = datetime.now().isoformat()
-        
-        # Save to CSV
-        filename = f"synthetic_{name}_n{n_participants}.csv"
+        # Save file
+        filename = f"synthetic_{label}_seed{scenario_seed}.csv"
         filepath = os.path.join(output_dir, filename)
         df.to_csv(filepath, index=False)
         
+        logger.info(f"Saved synthetic dataset: {filepath}")
         generated_files.append(filepath)
-        logger.info(f"Saved synthetic data to {filepath}")
-        
+    
+    logger.info(f"Completed generation of {len(generated_files)} synthetic datasets")
     return generated_files
 
 def main():
-    """
-    Main entry point for the data generation script.
-    """
-    protocol_path = "data/protocols/protocol.yaml"
-    output_dir = "data/synthetic/"
+    """Main entry point for data generation."""
+    logger = setup_logging(log_level=logging.INFO, log_file="logs/generate_data.log")
+    logger.info("=== Starting Synthetic Data Generation ===")
     
     try:
-        protocol = load_protocol(protocol_path)
-        files = generate_synthetic_datasets(protocol, output_dir)
-        logger.info(f"Successfully generated {len(files)} synthetic datasets.")
-        for f in files:
-            print(f"Generated: {f}")
+        # Load protocol
+        protocol = load_protocol("data/protocols/protocol.yaml")
+        
+        # Log generation parameters
+        logger.info(f"Generation Parameters:")
+        logger.info(f"  - Sample Size (N): {protocol['N']}")
+        logger.info(f"  - Effect Sizes: {protocol['effect_sizes']}")
+        logger.info(f"  - ICC: {protocol['ICC']}")
+        logger.info(f"  - Strict Threshold Label: {protocol['strict_threshold_label']}")
+        logger.info(f"  - Moderate Threshold Label: {protocol['moderate_threshold_label']}")
+        logger.info(f"  - Partial Threshold Label: {protocol['partial_threshold_label']}")
+        
+        # Generate datasets
+        files = generate_synthetic_datasets(protocol, seed=42)
+        
+        logger.info("=== Data Generation Complete ===")
+        logger.info(f"Generated files: {files}")
+        
     except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
+        logger.error(f"Data generation failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

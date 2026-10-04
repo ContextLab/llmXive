@@ -1,27 +1,32 @@
+"""
+Setup script to create the raw and processed data directories.
+This script ensures the directory structure required for storing
+raw residue data and processed statistical results exists.
+"""
 import os
 from pathlib import Path
 
+
 def setup_data_directories():
     """
-    Create the required data directory structure:
-    - data/raw/
-    - data/processed/
-
-    Returns:
-        dict: Paths to the created directories for verification/logging.
+    Creates the 'data/raw' and 'data/processed' directories if they do not exist.
+    Prints confirmation messages for each created directory.
     """
     base_path = Path("data")
-    raw_dir = base_path / "raw"
-    processed_dir = base_path / "processed"
+    raw_path = base_path / "raw"
+    processed_path = base_path / "processed"
 
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    directories = [raw_path, processed_path]
 
-    return {
-        "raw": str(raw_dir),
-        "processed": str(processed_dir)
-    }
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+        else:
+            print(f"Directory already exists: {directory}")
+
+    return True
+
 
 if __name__ == "__main__":
-    paths = setup_data_directories()
-    print(f"Created directories: {paths}")
+    setup_data_directories()

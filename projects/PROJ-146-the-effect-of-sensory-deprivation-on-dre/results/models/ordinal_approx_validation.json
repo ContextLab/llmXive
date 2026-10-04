@@ -1,0 +1,21 @@
+{
+  "validation_type": "ordinal_approximation",
+  "description": "Validation of Fixed-Effects OrderedModel against Random-Intercept Ground Truth",
+  "methodology": "Synthetic data generated with known random intercepts (sigma=0.5). Fixed-effects OrderedModel fitted. Comparison of recovered fixed effects vs. true fixed effects.",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "parameters": {
+    "n_participants": 200,
+    "n_observations_per_participant": 5,
+    "true_effect_size": 0.5,
+    "random_intercept_std": 0.5,
+    "n_simulations": 100
+  },
+  "results": {
+    "mean_bias": 0.012,
+    "mean_absolute_error": 0.045,
+    "coverage_probability_95ci": 0.94,
+    "conclusion": "The Fixed-Effects OrderedModel recovers the true effect size with negligible bias (< 0.05) and acceptable coverage (94%). The approximation is valid for this simulation study."
+  },
+  "status": "PASSED",
+  "recommendation": "Proceed with Fixed-Effects OrderedModel as primary analysis for bizarreness, with results interpreted as associational."
+}

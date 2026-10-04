@@ -1,50 +1,30 @@
-# Simulation Protocol for Sensory Deprivation Study
-# Generated for PROJ-146
-# This file defines the machine-readable parameters for the simulation study.
+# Protocol for Sensory Deprivation Simulation Study
+# T005: Defines simulation parameters and EXACT machine-readable values for thresholds
 
-study:
-  name: "The Effect of Sensory Deprivation on Dream Recall and Bizarreness"
-  version: "1.0.0"
-  n_participants: 200
+# Simulation Parameters
+simulation:
+  N: 200
   seed: 42
+  effect_sizes:
+    - "moderate positive"
+    - "null"
+    - "moderate negative"
+  ICC: 0.3
 
-# Threshold Labels (FR-004 Compliance)
-# These exact strings must be used in the 'condition' column of processed data.
-thresholds:
-  strict:
-    label: "strict (complete isolation)"
-    description: "Complete sensory deprivation conditions"
-  moderate:
-    label: "moderate (partial sensory reduction)"
-    description: "Partial sensory reduction conditions"
-  partial:
-    label: "partial (minimal sensory reduction)"
-    description: "Minimal sensory reduction / control conditions"
+# Threshold Definitions (FR-004 Compliance)
+# These exact strings must be used in the 'condition' column
+strict_threshold_label: "strict (complete isolation)"
+moderate_threshold_label: "moderate (partial sensory reduction)"
+partial_threshold_label: "partial (minimal sensory reduction)"
 
-# Effect Sizes (Cohen's d) for Synthetic Generation
-# Used to simulate three ground truth scenarios:
-# 1. Moderate positive effect (d = 0.5)
-# 2. Null effect (d = 0.0)
-# 3. Moderate negative effect (d = -0.2)
-effect_sizes:
-  - name: "moderate_positive"
-    value: 0.5
-    description: "Deprivation increases recall/bizarreness"
-  - name: "null"
-    value: 0.0
-    description: "No effect of deprivation"
-  - name: "moderate_negative"
-    value: -0.2
-    description: "Deprivation decreases recall/bizarreness"
-
-# Statistical Parameters
-statistical:
-  intraclass_correlation: 0.3
-  recall_distribution: "binary"
-  bizarreness_distribution: "ordinal_1_to_7"
+# Data Generation Parameters
+data_generation:
+  recall_probability_base: 0.5
+  bizarreness_range: [1, 7]
+  deprivation_intensity_scale: [0.0, 1.0]
 
 # Output Configuration
 output:
-  synthetic_dir: "data/synthetic/"
-  processed_dir: "data/processed/"
-  models_dir: "results/models/"
+  processed_dir: "data/processed"
+  synthetic_dir: "data/synthetic"
+  raw_dir: "data/raw"

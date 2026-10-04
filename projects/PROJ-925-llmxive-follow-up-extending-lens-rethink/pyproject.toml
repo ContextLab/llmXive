@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-follow-up-extending-lens-rethink"
 version = "0.1.0"
-description = "Extending Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
-requires-python = ">=3.9"
+description = "Follow-up research extending 'Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo'"
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
     "xgboost",
     "scikit-learn",
@@ -20,9 +21,17 @@ dependencies = [
     "torch",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
 [tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
+line-length = 88
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -35,57 +44,26 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | node_modules
+    | venv
+    | data
+    | results
+    | archive
 )/
 '''
 
 [tool.ruff]
-line-length = 100
-target-version = "py39"
-extend-exclude = [
-    "__pycache__",
-    "*.pyc",
-    ".git",
-    ".venv",
-    "venv",
-    "env",
-    ".mypy_cache",
-    ".tox",
-    "build",
-    "dist",
-    "data",
-    "results",
-    "archive",
-    "state"
-]
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # complex structure (allow for now in research code)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"code/data/download.py" = ["B028"] # stacklevel in logging (optional)
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# This section is redundant if .ruff.toml exists, but kept for compatibility
+# if a user runs `ruff check` without a config file in the current directory.
+# The .ruff.toml file takes precedence.
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+exclude = ["code.tests*"]

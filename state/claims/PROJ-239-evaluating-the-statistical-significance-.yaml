@@ -6109,3 +6109,376 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-19T01:17:00Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: memory footprint estimation based on clusters, observations, and data
+    structure size normalized to MB
+  claim_id: c_4153fb09
+  context: Dynamic Down-Sampling Loop description in task T027 regarding memory constraints
+    and down-sampling logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_estimation_based_on_clusters,_observations,
+  kind: entity_fact
+  raw_text: The memory footprint will be estimated based on the product of the number
+    of clusters, observations per cluster, and a factor representing the size of the
+    data structure per observation, normalized to megabytes. This calculation supports
+    the research question regarding the scalability of the clustering method. The
+    approach aligns with established computational complexity analyses ().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:48:47Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: memory footprint estimation formula for scalability research
+  claim_id: c_cee9e802
+  context: Task T027 describes dynamic down-sampling logic where memory is estimated
+    using a specific formula before entering a retry loop.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_estimation_formula_for_scalability_research
+  kind: entity_fact
+  raw_text: The memory footprint will be estimated based on the product of the number
+    of clusters, observations per cluster, and a factor representing the size of the
+    data structure per observation, normalized to megabytes. This calculation supports
+    the research question regarding the scalability of the clustering method. The
+    approach aligns with established computational complexity analyses ().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:49:19Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Python dependencies pinned to numpy 1.26.0, scipy 1.12.0, statsmodels
+    0.14.1, pandas 2.2.0, pytest 7.4.0, pyyaml 6.0.1
+  claim_id: c_f9f6d918
+  context: 'Task T002 Initialize Python project with dependencies. Deliverable: Create
+    projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt with
+    exact pins.'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The project uses exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1,
+    pandas==2.2.0, pytest==7.4.0, pyyaml==6.0.1.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:50:35Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Memory limit set to 7GB
+  claim_id: c_13577e27
+  context: Task T027... If estimated_mb > 7000 (targeting the 7GB limit), enter a
+    retry loop... 7GB is the spec limit (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation enforces a memory limit of 7GB (7000 MB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:50:57Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Time limit set to 6 hours
+  claim_id: c_52511d06
+  context: Task T027... If total elapsed time > 6 hours (21600 seconds), raise RuntimeError.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation enforces a time limit of 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:51:22Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Minimum cluster count is 50
+  claim_id: c_f367d255
+  context: 'Task T027... CRITICAL: If n_clusters would drop below 50 (the minimum
+    required for cluster-robust validity per plan.md), raise RuntimeError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation requires a minimum of 50 clusters for cluster-robust validity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:51:47Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default cluster mean size is 12.5
+  claim_id: c_0cbca188
+  context: Task T004... DEFAULT_N_CLUSTERS = 100, CLUSTER_MEAN_SIZE = 12.5... Task
+    T010... Default values are cluster_mean=12.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default cluster mean size is 12.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:52:13Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default cluster standard deviation size is 8.2
+  claim_id: c_0abcc896
+  context: Task T004... CLUSTER_MEAN_SIZE = 12.5, CLUSTER_STD_SIZE = 8.2... Task T010...
+    Default values are cluster_mean=12.5, cluster_std=8.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default cluster standard deviation size is 8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:52:35Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default number of clusters is 100
+  claim_id: c_e6796a6b
+  context: Task T004... Define constants... DEFAULT_N_CLUSTERS = 100.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of clusters is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:52:53Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default seed is 42
+  claim_id: c_a591278c
+  context: Task T004... Define constants... DEFAULT_SEED = 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:53:22Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default iteration count is 1000
+  claim_id: c_240a69ad
+  context: Task T004... Define constants... DEFAULT_ITERATIONS = 1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default iteration count is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:53:41Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: ICC range values are 0.0, 0.1, 0.2, 0.3, 0.4, 0.5
+  claim_id: c_24bfdb46
+  context: Task T004... Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ICC range includes values 0.0, 0.1, 0.2, 0.3, 0.4, 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:54:05Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: ICC step size is 0.1
+  claim_id: c_95aaa261
+  context: Task T004... Define constants... ICC_STEP = 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ICC step size is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:54:22Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default alpha levels are 0.01, 0.05, 0.10
+  claim_id: c_4d9e31bd
+  context: Task T023... If not provided, defaults to [0.01, 0.05, 0.10].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default alpha levels are 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:55:00Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Confidence intervals computed using Clopper-Pearson method
+  claim_id: c_094a0a67
+  context: Task T013... computes empirical Type I error rates and 95 % confidence
+    intervals using the Clopper-Pearson (Exact) method.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'The basis for the profile probability estimation for Y-STR analysis
+        is the counting method. The application of a confidence interval accounts
+        for database size and sampling variation.  The Y haplotype frequency (p) is
+        calculated using the p = x/N formula, where x is equal to the number of times
+        the haplotype is observed in a database containing N number of haplotypes.
+        For example, if a haplotype has been observed twice in a database of N = 2000,
+        the frequency of that haplotype will be: 2/2000 = 0.001.  Reporting a Y haplotype
+        frequency, without a confidence interval, is acceptable but provides a factual
+        statement regarding observations of only a Y haplotype in the database.  An
+        upper confidence limit for the probability of the Y haplotype in the population
+        should be calculated using the method described by Clopper and Pearson (1934).
+        This uses the binomial distribution for the probabilities of counts, including
+        zero or other small numbers that are found for Y haplotypes.'
+      source_id: Y-STR
+      url: https://en.wikipedia.org/wiki/Y-STR
+      value: Clopper and Pearson (1934)
+    filled: true
+  kind: entity_fact
+  raw_text: The confidence intervals are computed using the Clopper-Pearson (Exact)
+    method.
+  resolved_value: Clopper and Pearson (1934)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:55:13Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation test uses 1000 permutations
+  claim_id: c_a6bb35f1
+  context: Task T018... Function run_block_permutation(..., n_permutations=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block permutation test uses 1000 permutations by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:55:34Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: CLI requires at least 3 alpha levels
+  claim_id: c_e82fea18
+  context: "Task T022... asserts that the generated final_report.csv contains rows\
+    \ for \u03B1 = 0.01, \u03B1 = 0.05, \u03B1 = 0.10... verify that if a custom --alpha-list\
+    \ with fewer than 3 levels is provided... raises a ValueError."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CLI_requires_at_least_3_alpha_levels
+  kind: magnitude
+  raw_text: The CI validation check requires at least 3 alpha levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:55:57Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Memory safety factor is 5
+  claim_id: c_3dbce39d
+  context: Task T027... with a 5x safety factor for multiple arrays and object overhead.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory safety factor for estimation is 5x.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:56:20Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Matplotlib figure size x6 inches, DPI 300
+  claim_id: c_42c0138e
+  context: Task T026... Figure size must be x6 inches, DPI 300.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The matplotlib figure size is x6 inches with DPI 300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:56:39Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Cluster sizes generated using log-normal distribution
+  claim_id: c_fd1072ca
+  context: Task T010... Generates cluster sizes dynamically using a log-normal distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cluster_sizes_generated_using_log-normal_distribution
+  kind: entity_fact
+  raw_text: The data generator uses a log-normal distribution for cluster sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:57:12Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Random intercept model Y_ij = mu + u_i + e_ij
+  claim_id: c_1e480e46
+  context: Task T010... using a random intercept model Y_ij = mu + u_i + e_ij.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_intercept_model_Y_ij_=_mu_+_u_i_+_e_ij
+  kind: entity_fact
+  raw_text: The random intercept model is Y_ij = mu + u_i + e_ij.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:57:45Z'

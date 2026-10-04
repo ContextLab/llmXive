@@ -1,3 +1,6 @@
+"""
+Main entry point for running the analysis pipeline.
+"""
 import os
 import sys
 import argparse
@@ -5,48 +8,36 @@ import logging
 import random
 import numpy as np
 
-# Import from sieve module
-from sieve import run_sieve_analysis, pin_random_seed, ResidueDataset, StatisticalResult
+from config import load_config, parse_cli_args, create_argument_parser
+from sieve import run_sieve_analysis, pin_random_seed
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def pin_orchestration_seed(seed: int):
-    """Pin all random seeds for the orchestration."""
-    pin_random_seed(seed)
+def pin_orchestration_seed(config: dict) -> None:
+    """Pin all random seeds for deterministic execution."""
+    seed = config.get('seed', 42)
     random.seed(seed)
     np.random.seed(seed)
+    logger.info(f"Seeds pinned to {seed}")
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Run totient residue analysis')
-    parser.add_argument('--N', type=int, default=1000000, help='Range limit N')
-    parser.add_argument('--primes', type=int, nargs='+', default=[3, 5, 7, 11], help='Primes to analyze')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--memory-limit-mb', type=int, default=6000, help='Memory limit in MB')
-    parser.add_argument('--memory-check-interval', type=int, default=10000, help='Memory check interval')
+    parser = create_argument_parser()
     return parser.parse_args()
 
-def main():
+def main() -> None:
     """Main entry point."""
-    args = parse_args()
+    config = parse_cli_args()
+    pin_orchestration_seed(config)
     
-    config = {
-        'N': args.N,
-        'primes': args.primes,
-        'memory_limit_mb': args.memory_limit_mb,
-        'seed': args.seed,
-        'memory_check_interval': args.memory_check_interval
-    }
+    logger.info(f"Starting analysis with N={config['N']}, primes={config['primes']}")
     
-    pin_orchestration_seed(args.seed)
-    
-    logger.info(f"Running analysis with config: {config}")
-    
-    run_sieve_analysis(args.N, args.primes, config)
+    run_sieve_analysis(
+        N=config['N'],
+        primes=config['primes'],
+        memory_limit_mb=config['memory_limit_mb']
+    )
     
     logger.info("Analysis complete.")
 

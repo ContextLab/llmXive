@@ -3,137 +3,165 @@ import sys
 import logging
 import pandas as pd
 import numpy as np
-
 from logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def validate_recall_binary(df: pd.DataFrame) -> bool:
+def validate_recall_binary(df: pd.DataFrame) -> tuple[bool, list[str]]:
     """
-    Validates that the 'recall' column contains only 0 or 1.
-    Returns True if valid, False otherwise.
+    Validates that the 'recall' column contains only binary values (0 or 1).
+    
+    Args:
+        df: The dataframe to validate.
+        
+    Returns:
+        A tuple of (is_valid, list_of_errors).
     """
+    errors = []
     if 'recall' not in df.columns:
-        logger.error("Column 'recall' not found in dataframe.")
-        return False
-
-    unique_values = set(df['recall'].dropna().unique())
-    valid_values = {0, 1, 0.0, 1.0}
+        errors.append("Column 'recall' is missing from the dataframe.")
+        return False, errors
     
-    if not unique_values.issubset(valid_values):
-        invalid = unique_values - valid_values
-        logger.error(f"Invalid values found in 'recall': {invalid}. Expected only 0 or 1.")
-        return False
+    recall_series = df['recall']
     
-    # Ensure dtype is appropriate (int or float representing 0/1)
-    if not np.issubdtype(df['recall'].dtype, np.number):
-        logger.warning(f"'recall' column is not numeric, attempting conversion.")
-        try:
-            df['recall'] = pd.to_numeric(df['recall'], errors='raise')
-        except ValueError:
-            logger.error("Failed to convert 'recall' to numeric.")
-            return False
+    # Check for non-numeric types
+    if not pd.api.types.is_numeric_dtype(recall_series):
+        errors.append(f"Column 'recall' is not numeric. Dtype: {recall_series.dtype}")
+        return False, errors
+    
+    # Check for nulls
+    if recall_series.isna().any():
+        null_count = recall_series.isna().sum()
+        errors.append(f"Column 'recall' contains {null_count} null values.")
+    
+    # Check for values outside {0, 1}
+    unique_values = set(recall_series.dropna().unique())
+    allowed_values = {0, 1, 0.0, 1.0} # Handle potential float vs int representation
+    
+    invalid_values = unique_values - allowed_values
+    if invalid_values:
+        errors.append(f"Column 'recall' contains invalid values: {invalid_values}. Expected only 0 or 1.")
+        return False, errors
+    
+    # Ensure strictly 0 or 1 (cast to int for final check if needed, but set comparison above covers logic)
+    # If the column is float64 with 0.0 and 1.0, it's logically binary.
+    # We accept 0, 1, 0.0, 1.0.
+    
+    return True, errors
 
-    return True
-
-def validate_bizarreness_range(df: pd.DataFrame) -> bool:
+def validate_bizarreness_range(df: pd.DataFrame) -> tuple[bool, list[str]]:
     """
     Validates that the 'bizarreness' column contains integers between 1 and 7 inclusive.
-    Returns True if valid, False otherwise.
+    
+    Args:
+        df: The dataframe to validate.
+        
+    Returns:
+        A tuple of (is_valid, list_of_errors).
     """
+    errors = []
     if 'bizarreness' not in df.columns:
-        logger.error("Column 'bizarreness' not found in dataframe.")
-        return False
+        errors.append("Column 'bizarreness' is missing from the dataframe.")
+        return False, errors
+    
+    bizarreness_series = df['bizarreness']
+    
+    # Check for nulls
+    if bizarreness_series.isna().any():
+        null_count = bizarreness_series.isna().sum()
+        errors.append(f"Column 'bizarreness' contains {null_count} null values.")
+    
+    # Check for non-integer types (or floats that are effectively integers)
+    # We allow int64, int32, float64 (if values are whole numbers)
+    if not pd.api.types.is_numeric_dtype(bizarreness_series):
+        errors.append(f"Column 'bizarreness' is not numeric. Dtype: {bizarreness_series.dtype}")
+        return False, errors
+    
+    # Check for non-integer values if dtype is float
+    if pd.api.types.is_float_dtype(bizarreness_series):
+        non_integer_mask = ~bizarreness_series.is_integer()
+        if non_integer_mask.any():
+            errors.append(f"Column 'bizarreness' contains non-integer values.")
+            return False, errors
+    
+    # Check range [1, 7]
+    valid_mask = (bizarreness_series >= 1) & (bizarreness_series <= 7)
+    invalid_count = (~valid_mask).sum()
+    
+    if invalid_count > 0:
+        invalid_values = bizarreness_series[~valid_mask].unique()
+        errors.append(f"Column 'bizarreness' contains {invalid_count} values outside range [1, 7]. Found: {invalid_values}")
+        return False, errors
+        
+    return True, errors
 
-    # Check for NaNs
-    if df['bizarreness'].isna().any():
-        logger.error("NaN values found in 'bizarreness' column.")
-        return False
-
-    unique_values = set(df['bizarreness'].unique())
-    valid_values = set(range(1, 8)) # 1 to 7 inclusive
-
-    if not unique_values.issubset(valid_values):
-        invalid = unique_values - valid_values
-        logger.error(f"Invalid values found in 'bizarreness': {invalid}. Expected integers 1-7.")
-        return False
-
-    # Ensure it's treated as integer-like
-    if not np.issubdtype(df['bizarreness'].dtype, np.integer) and not np.issubdtype(df['bizarreness'].dtype, np.floating):
-       logger.warning(f"'bizarreness' column is not numeric, attempting conversion.")
-       try:
-           df['bizarreness'] = pd.to_numeric(df['bizarreness'], errors='raise')
-       except ValueError:
-           logger.error("Failed to convert 'bizarreness' to numeric.")
-           return False
-
-    return True
-
-def run_validation(input_path: str, output_path: str = None) -> bool:
+def run_validation(df: pd.DataFrame, source_name: str = "unknown") -> bool:
     """
-    Loads a dataframe from input_path, validates 'recall' and 'bizarreness',
-    and optionally saves a cleaned/validated version to output_path.
-    Returns True if validation passes, False otherwise.
+    Runs all validations on the dataframe. Logs results and returns overall success status.
+    
+    Args:
+        df: The dataframe to validate.
+        source_name: Identifier for the source of the data (for logging).
+        
+    Returns:
+        True if all validations pass, False otherwise.
     """
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        return False
-
-    logger.info(f"Loading data from {input_path} for validation...")
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load CSV: {e}")
-        return False
-
-    logger.info(f"Loaded {len(df)} rows.")
-
-    recall_valid = validate_recall_binary(df)
-    bizarreness_valid = validate_bizarreness_range(df)
-
-    if recall_valid and bizarreness_valid:
-        logger.info("Validation PASSED: recall is binary (0/1) and bizarreness is integer 1-7.")
-        if output_path:
-            # Ensure directory exists
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            df.to_csv(output_path, index=False)
-            logger.info(f"Validated data saved to {output_path}")
-        return True
+    logger.info(f"Running validation on data from source: {source_name}")
+    all_valid = True
+    
+    # Validate Recall
+    recall_valid, recall_errors = validate_recall_binary(df)
+    if not recall_valid:
+        all_valid = False
+        for err in recall_errors:
+            logger.error(f"[Recall Validation] {err}")
     else:
-        logger.error("Validation FAILED.")
-        return False
+        logger.info("[Recall Validation] Passed: Values are binary (0/1).")
+        
+    # Validate Bizarreness
+    bizarreness_valid, bizarreness_errors = validate_bizarreness_range(df)
+    if not bizarreness_valid:
+        all_valid = False
+        for err in bizarreness_errors:
+            logger.error(f"[Bizarreness Validation] {err}")
+    else:
+        logger.info("[Bizarreness Validation] Passed: Values are integers 1-7.")
+        
+    if all_valid:
+        logger.info(f"Validation SUCCESS for {source_name}.")
+    else:
+        logger.error(f"Validation FAILED for {source_name}. See errors above.")
+        
+    return all_valid
 
 def main():
+    """
+    Entry point for standalone execution.
+    Expects a CSV file path as the first argument.
+    """
     setup_logging()
     
-    # Default paths based on project structure
-    # This script is intended to be run on processed data files
-    # We look for the processed files generated by T017
-    processed_dir = "data/processed"
+    if len(sys.argv) < 2:
+        logger.error("Usage: python validate_data.py <path_to_csv>")
+        sys.exit(1)
+        
+    csv_path = sys.argv[1]
     
-    # Define the files we expect to validate (from T017)
-    target_files = [
-        "data_threshold_strict.csv",
-        "data_threshold_moderate.csv",
-        "data_threshold_partial.csv"
-    ]
-
-    all_passed = True
-
-    for fname in target_files:
-        input_path = os.path.join(processed_dir, fname)
-        if os.path.exists(input_path):
-            logger.info(f"Validating {fname}...")
-            if not run_validation(input_path):
-                all_passed = False
-        else:
-            logger.warning(f"File not found, skipping: {input_path}")
-
-    if all_passed:
-        logger.info("All validation checks passed.")
-        sys.exit(0)
-    else:
-        logger.error("One or more validation checks failed.")
+    if not os.path.exists(csv_path):
+        logger.error(f"File not found: {csv_path}")
+        sys.exit(1)
+        
+    try:
+        df = pd.read_csv(csv_path)
+        logger.info(f"Loaded {len(df)} rows from {csv_path}")
+        
+        success = run_validation(df, source_name=os.path.basename(csv_path))
+        
+        if not success:
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.exception(f"Error processing file: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

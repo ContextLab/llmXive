@@ -1,21 +1,60 @@
 [lint]
 select = [
     "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "W",  # pycodestyle warnings
 ]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in pydantic/dataclasses)
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "results",
+    "archive"
 ]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Ignore unused imports in init files
+# Ignore import sorting in __init__.py files
+"__init__.py" = ["E402", "F401"]
+# Ignore specific rules in test files if needed
+"code/tests/*.py" = ["S101"]
 
 [format]
+# Enable Black-compatible formatting
 quote-style = "double"
 indent-style = "space"
+skip-magic-trailing-comma = false
 line-ending = "auto"

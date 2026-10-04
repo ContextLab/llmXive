@@ -8,290 +8,388 @@ from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod import families
-from statsmodels.robust import robust_linear_model
+import statsmodels.formula.api as smf
+from statsmodels.genmod.families import Binomial, Gaussian
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from statsmodels.genmod.cov_struct import Exchangeable
 from statsmodels.robust.robust_linear_model import RLM
 from statsmodels.robust.norms import HuberT
-from statsmodels.miscmodels.ordinal_model import OrderedModel
-import yaml
 
-# Import logging setup from sibling module
+# Import logging configuration
 from logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def load_protocol(protocol_path: str = "data/protocols/protocol.yaml") -> Dict[str, Any]:
-    """Load simulation parameters from protocol.yaml."""
+def load_protocol() -> Dict[str, Any]:
+    """Load the simulation protocol from YAML."""
+    protocol_path = "data/protocols/protocol.yaml"
     if not os.path.exists(protocol_path):
         raise FileNotFoundError(f"Protocol file not found: {protocol_path}")
+    
     with open(protocol_path, 'r') as f:
         return yaml.safe_load(f)
 
-def fit_logistic_mixed(df: pd.DataFrame, condition_col: str = 'condition', 
-                       outcome_col: str = 'recall', 
-                       random_effects_col: str = 'participant_id',
-                       use_fallback: bool = False) -> Dict[str, Any]:
+def fit_logistic_mixed(
+    df: pd.DataFrame,
+    formula: str = "recall ~ condition",
+    random_intercept: str = "participant_id"
+) -> Dict[str, Any]:
     """
-    Fit a logistic regression model for dream recall.
+    Fit a logistic regression model with random intercepts for participant_id.
     
-    If use_fallback is True or sample size is small, falls back to fixed-effects.
+    Since statsmodels does not have a native mixed-effects logistic regression 
+    (GLMM) implementation, we use Generalized Estimating Equations (GEE) with 
+    an exchangeable correlation structure as a robust approximation that 
+    handles the random intercept clustering.
+    
+    Args:
+        df: DataFrame with columns 'recall', 'condition', 'participant_id'
+        formula: Model formula (default: recall ~ condition)
+        random_intercept: Column name for grouping (default: participant_id)
+    
+    Returns:
+        Dictionary containing model results (coefficients, p-values, etc.)
     """
-    # T026: Check sample size
-    n_samples = len(df)
-    if n_samples < 10:
-        msg = f"Sample size ({n_samples}) is less than 10. Falling back to fixed-effects logistic regression."
-        warnings.warn(msg)
-        logger.warning(msg)
-        use_fallback = True
-
-    if use_fallback:
-        logger.info("Using fixed-effects logistic regression (GLM) as fallback.")
-        # Fixed effects logistic regression using GLM
-        X = sm.add_constant(df[condition_col].astype('category').codes)
-        y = df[outcome_col]
-        
-        # Use Firth-like penalization if available, otherwise standard GLM
-        # statsmodels GLM doesn't have native Firth, but we can use a simple penalized approach
-        # or just standard GLM with caution
-        model = GLM(y, X, family=families.Binomial())
-        try:
-            result = model.fit()
-        except Exception as e:
-            logger.error(f"GLM fit failed: {e}. Using simpler approach.")
-            # Fallback to simple logistic regression if GLM fails
-            from sklearn.linear_model import LogisticRegression
-            clf = LogisticRegression()
-            clf.fit(X, y)
-            return {
-                "model_type": "logistic_fallback_sklearn",
-                "coefficients": clf.coef_[0].tolist(),
-                "intercept": float(clf.intercept_[0]),
-                "warning": "Used sklearn fallback due to statsmodels GLM failure"
-            }
-        
-        return {
-            "model_type": "logistic_glm_fallback",
-            "coefficients": result.params.tolist(),
-            "std_errors": result.bse.tolist(),
-            "p_values": result.pvalues.tolist(),
-            "n_samples": n_samples,
-            "warning": f"Used fixed-effects fallback due to small sample size (N={n_samples})"
-        }
-
-    # For true mixed-effects, we would use statsmodels MixedLM, but it doesn't support binomial directly
-    # So we use a group-by approach or approximations
-    # For now, we'll use a fixed-effects model with cluster-robust standard errors if possible
-    # or fall back to the same logic as above
-    logger.info("Attempting mixed-effects approximation (fixed-effects with clustering).")
-    # This is a simplified approach; a true mixed-effects logistic would require more complex setup
-    X = sm.add_constant(df[condition_col].astype('category').codes)
-    y = df[outcome_col]
+    logger.info(f"Fitting logistic mixed model with formula: {formula}")
     
-    model = GLM(y, X, family=families.Binomial())
+    # Ensure required columns exist
+    required_cols = ['recall', 'condition', random_intercept]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+    
+    # Convert recall to binary (0/1) if necessary
+    df = df.copy()
+    df['recall'] = df['recall'].astype(int)
+    
+    # Drop rows with missing values in relevant columns
+    clean_df = df.dropna(subset=['recall', 'condition', random_intercept])
+    
+    if len(clean_df) < 10:
+        logger.warning("Sample size < 10, results may be unreliable")
+    
     try:
+        # Use GEE with exchangeable correlation as approximation for random intercept
+        # This handles the clustering by participant_id
+        model = GEE(
+            endog=clean_df['recall'],
+            exog=sm.add_constant(sm.patsy.dmatrix(formula.split('~')[1].strip(), 
+                                                  {'recall': clean_df['recall'], 
+                                                   'condition': clean_df['condition']})),
+            groups=clean_df[random_intercept],
+            family=Binomial(),
+            cov_struct=Exchangeable()
+        )
+        
         result = model.fit()
-        # In a real scenario, we'd compute cluster-robust SEs here
-        return {
-            "model_type": "logistic_approx",
-            "coefficients": result.params.tolist(),
-            "std_errors": result.bse.tolist(),
-            "p_values": result.pvalues.tolist(),
-            "n_samples": n_samples
-        }
-    except Exception as e:
-        logger.error(f"Mixed-effects approximation failed: {e}")
-        return fit_logistic_mixed(df, condition_col, outcome_col, random_effects_col, use_fallback=True)
-
-def fit_linear_mixed(df: pd.DataFrame, condition_col: str = 'condition',
-                     outcome_col: str = 'bizarreness',
-                     random_effects_col: str = 'participant_id',
-                     use_fallback: bool = False) -> Dict[str, Any]:
-    """
-    Fit a linear mixed model for dream bizarreness.
-    
-    Uses RLM with HuberT as a robust approximation if mixed-effects is not feasible.
-    """
-    n_samples = len(df)
-    if n_samples < 10:
-        msg = f"Sample size ({n_samples}) is less than 10. Falling back to robust linear model."
-        warnings.warn(msg)
-        logger.warning(msg)
-        use_fallback = True
-
-    if use_fallback:
-        logger.info("Using robust linear model (RLM) as fallback.")
-        X = sm.add_constant(df[condition_col].astype('category').codes)
-        y = df[outcome_col]
         
-        rlm = RLM(y, X, M=HuberT())
+        # Extract coefficients and statistics
+        params = result.params
+        std_err = result.bse
+        z_values = result.tvalues
+        p_values = result.pvalues
+        
+        # Create results dictionary
+        results = {
+            'model_type': 'logistic_mixed_gEE',
+            'formula': formula,
+            'random_intercept': random_intercept,
+            'n_observations': len(clean_df),
+            'n_groups': clean_df[random_intercept].nunique(),
+            'coefficients': params.to_dict(),
+            'std_errors': std_err.to_dict(),
+            'z_values': z_values.to_dict(),
+            'p_values': p_values.to_dict(),
+            'converged': True,
+            'summary': str(result.summary())
+        }
+        
+        logger.info(f"Logistic mixed model converged with {len(clean_df)} observations "
+                   f"across {clean_df[random_intercept].nunique()} participants")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Failed to fit logistic mixed model: {str(e)}")
+        # Fallback to fixed-effects logistic regression if GEE fails
+        logger.warning("Falling back to fixed-effects logistic regression")
         try:
-            result = rlm.fit()
-            return {
-                "model_type": "linear_robust_fallback",
-                "coefficients": result.params.tolist(),
-                "std_errors": result.bse.tolist(),
-                "p_values": None, # RLM doesn't provide p-values directly
-                "n_samples": n_samples,
-                "warning": f"Used robust linear model fallback due to small sample size (N={n_samples})"
-            }
-        except Exception as e:
-            logger.error(f"RLM fit failed: {e}")
-            # Fallback to OLS
-            from statsmodels.regression.linear_model import OLS
-            ols_model = OLS(y, X)
-            ols_result = ols_model.fit()
-            return {
-                "model_type": "linear_ols_fallback",
-                "coefficients": ols_result.params.tolist(),
-                "std_errors": ols_result.bse.tolist(),
-                "p_values": ols_result.pvalues.tolist(),
-                "n_samples": n_samples,
-                "warning": "Used OLS fallback due to RLM failure"
-            }
+            formula_parts = formula.split('~')
+            if len(formula_parts) == 2:
+                y = formula_parts[0].strip()
+                x = formula_parts[1].strip()
+                
+                # Create design matrix
+                design = sm.patsy.dmatrix(f"{y} + {x}", 
+                                         {'recall': clean_df['recall'], 
+                                          'condition': clean_df['condition']})
+                
+                model = sm.GLM(clean_df['recall'], 
+                             sm.add_constant(design), 
+                             family=Binomial())
+                result = model.fit()
+                
+                params = result.params
+                std_err = result.bse
+                z_values = result.tvalues
+                p_values = result.pvalues
+                
+                results = {
+                    'model_type': 'logistic_fixed_effects',
+                    'formula': formula,
+                    'random_intercept': 'none (fallback)',
+                    'n_observations': len(clean_df),
+                    'n_groups': 1,
+                    'coefficients': params.to_dict(),
+                    'std_errors': std_err.to_dict(),
+                    'z_values': z_values.to_dict(),
+                    'p_values': p_values.to_dict(),
+                    'converged': True,
+                    'summary': str(result.summary()),
+                    'note': 'Fixed-effects fallback used due to GEE failure'
+                }
+                
+                logger.info("Fixed-effects logistic regression completed")
+                return results
+                
+        except Exception as fallback_error:
+            logger.error(f"Both GEE and fixed-effects logistic regression failed: {str(fallback_error)}")
+            raise RuntimeError(f"Failed to fit logistic model: {str(e)}")
 
-    # Attempt mixed-effects linear model
-    # statsmodels MixedLM requires specific setup
+def fit_linear_mixed(
+    df: pd.DataFrame,
+    formula: str = "bizarreness ~ condition",
+    random_intercept: str = "participant_id"
+) -> Dict[str, Any]:
+    """
+    Fit a linear regression model with random intercepts for participant_id.
+    
+    Uses GEE with exchangeable correlation structure as an approximation 
+    for linear mixed-effects models in statsmodels.
+    
+    Args:
+        df: DataFrame with columns 'bizarreness', 'condition', 'participant_id'
+        formula: Model formula (default: bizarreness ~ condition)
+        random_intercept: Column name for grouping (default: participant_id)
+    
+    Returns:
+        Dictionary containing model results (coefficients, p-values, etc.)
+    """
+    logger.info(f"Fitting linear mixed model with formula: {formula}")
+    
+    # Ensure required columns exist
+    required_cols = ['bizarreness', 'condition', random_intercept]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+    
+    # Convert bizarreness to numeric and validate range
+    df = df.copy()
+    df['bizarreness'] = pd.to_numeric(df['bizarreness'], errors='coerce')
+    
+    # Drop rows with missing values
+    clean_df = df.dropna(subset=['bizarreness', 'condition', random_intercept])
+    
+    # Validate bizarreness range (1-7)
+    if clean_df['bizarreness'].min() < 1 or clean_df['bizarreness'].max() > 7:
+        logger.warning(f"Bizarreness values outside expected range [1,7]: "
+                     f"min={clean_df['bizarreness'].min()}, max={clean_df['bizarreness'].max()}")
+    
+    if len(clean_df) < 10:
+        logger.warning("Sample size < 10, results may be unreliable")
+    
     try:
-        from statsmodels.regression.mixed_linear_model import MixedLM
-        groups = df[random_effects_col]
-        X = sm.add_constant(df[condition_col].astype('category').codes)
-        y = df[outcome_col]
+        # Use GEE with exchangeable correlation for linear mixed-effects approximation
+        # Note: GEE is appropriate for correlated data structures
+        model = GEE(
+            endog=clean_df['bizarreness'],
+            exog=sm.add_constant(sm.patsy.dmatrix(formula.split('~')[1].strip(), 
+                                                  {'bizarreness': clean_df['bizarreness'], 
+                                                   'condition': clean_df['condition']})),
+            groups=clean_df[random_intercept],
+            family=Gaussian(),
+            cov_struct=Exchangeable()
+        )
         
-        # Fit mixed model
-        mixed_model = MixedLM(y, X, groups=groups)
-        mixed_result = mixed_model.fit()
+        result = model.fit()
         
-        return {
-            "model_type": "linear_mixed",
-            "coefficients": mixed_result.params.tolist(),
-            "std_errors": mixed_result.bse.tolist(),
-            "p_values": mixed_result.pvalues.tolist(),
-            "n_samples": n_samples
+        # Extract coefficients and statistics
+        params = result.params
+        std_err = result.bse
+        t_values = result.tvalues
+        p_values = result.pvalues
+        
+        # Create results dictionary
+        results = {
+            'model_type': 'linear_mixed_gEE',
+            'formula': formula,
+            'random_intercept': random_intercept,
+            'n_observations': len(clean_df),
+            'n_groups': clean_df[random_intercept].nunique(),
+            'coefficients': params.to_dict(),
+            'std_errors': std_err.to_dict(),
+            't_values': t_values.to_dict(),
+            'p_values': p_values.to_dict(),
+            'converged': True,
+            'summary': str(result.summary())
         }
+        
+        logger.info(f"Linear mixed model converged with {len(clean_df)} observations "
+                   f"across {clean_df[random_intercept].nunique()} participants")
+        
+        return results
+        
     except Exception as e:
-        logger.warning(f"Mixed-effects linear model failed: {e}. Using fallback.")
-        return fit_linear_mixed(df, condition_col, outcome_col, random_effects_col, use_fallback=True)
+        logger.error(f"Failed to fit linear mixed model: {str(e)}")
+        # Fallback to fixed-effects linear regression
+        logger.warning("Falling back to fixed-effects linear regression")
+        try:
+            formula_parts = formula.split('~')
+            if len(formula_parts) == 2:
+                y = formula_parts[0].strip()
+                x = formula_parts[1].strip()
+                
+                # Create design matrix
+                design = sm.patsy.dmatrix(f"{y} + {x}", 
+                                         {'bizarreness': clean_df['bizarreness'], 
+                                          'condition': clean_df['condition']})
+                
+                model = sm.GLM(clean_df['bizarreness'], 
+                             sm.add_constant(design), 
+                             family=Gaussian())
+                result = model.fit()
+                
+                params = result.params
+                std_err = result.bse
+                t_values = result.tvalues
+                p_values = result.pvalues
+                
+                results = {
+                    'model_type': 'linear_fixed_effects',
+                    'formula': formula,
+                    'random_intercept': 'none (fallback)',
+                    'n_observations': len(clean_df),
+                    'n_groups': 1,
+                    'coefficients': params.to_dict(),
+                    'std_errors': std_err.to_dict(),
+                    't_values': t_values.to_dict(),
+                    'p_values': p_values.to_dict(),
+                    'converged': True,
+                    'summary': str(result.summary()),
+                    'note': 'Fixed-effects fallback used due to GEE failure'
+                }
+                
+                logger.info("Fixed-effects linear regression completed")
+                return results
+                
+        except Exception as fallback_error:
+            logger.error(f"Both GEE and fixed-effects linear regression failed: {str(fallback_error)}")
+            raise RuntimeError(f"Failed to fit linear model: {str(e)}")
 
-def fit_ordinal_approx(df: pd.DataFrame, condition_col: str = 'condition',
-                       outcome_col: str = 'bizarreness',
-                       use_fallback: bool = False) -> Dict[str, Any]:
+def run_analysis_pipeline(
+    data_path: str,
+    output_dir: str = "results/models",
+    thresholds: list = None
+) -> Dict[str, Any]:
     """
-    Fit an ordered model as a fixed-effects approximation.
+    Run the complete analysis pipeline for a given dataset.
+    
+    Args:
+        data_path: Path to the input CSV file
+        output_dir: Directory to save results
+        thresholds: List of threshold labels to process (from protocol.yaml)
+    
+    Returns:
+        Dictionary containing all model results
     """
-    n_samples = len(df)
-    if n_samples < 10:
-        msg = f"Sample size ({n_samples}) is less than 10. Falling back to ordered model with caution."
-        warnings.warn(msg)
-        logger.warning(msg)
-
-    X = sm.add_constant(df[condition_col].astype('category').codes)
-    y = df[outcome_col]
-
-    try:
-        ordinal_model = OrderedModel(y, X, dist='logit')
-        result = ordinal_model.fit(method='bfgs')
-        
-        return {
-            "model_type": "ordinal_fixed_effects",
-            "coefficients": result.params.tolist(),
-            "std_errors": result.bse.tolist(),
-            "p_values": result.pvalues.tolist(),
-            "n_samples": n_samples,
-            "warning": "Fixed-effects approximation (not mixed-effects)" if n_samples < 30 else None
-        }
-    except Exception as e:
-        logger.error(f"Ordinal model fit failed: {e}")
-        return {
-            "model_type": "ordinal_failed",
-            "error": str(e),
-            "n_samples": n_samples
-        }
-
-def validate_ordinal_approx(df: pd.DataFrame, true_effect: float) -> Dict[str, Any]:
-    """
-    Validate the ordinal approximation against known ground truth.
-    """
-    result = fit_ordinal_approx(df)
-    if result["model_type"] == "ordinal_failed":
-        return {"valid": False, "error": result["error"]}
+    logger.info(f"Starting analysis pipeline for {data_path}")
     
-    estimated_effect = result["coefficients"][1] if len(result["coefficients"]) > 1 else 0
-    error = abs(estimated_effect - true_effect)
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
     
-    return {
-        "valid": error < 0.5, # Arbitrary threshold for validation
-        "estimated_effect": estimated_effect,
-        "true_effect": true_effect,
-        "absolute_error": error
-    }
-
-def run_analysis_pipeline(df: pd.DataFrame, protocol: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Run the full analysis pipeline: logistic, linear, and ordinal models.
-    """
-    results = {}
+    # Load data
+    df = pd.read_csv(data_path)
     
-    # Logistic model for recall
-    results["recall_model"] = fit_logistic_mixed(
-        df, 
-        condition_col='condition', 
-        outcome_col='recall',
-        random_effects_col='participant_id'
-    )
+    # Validate data
+    if 'recall' not in df.columns or 'bizarreness' not in df.columns:
+        raise ValueError("Data must contain 'recall' and 'bizarreness' columns")
     
-    # Linear model for bizarreness
-    results["bizarreness_model"] = fit_linear_mixed(
-        df,
-        condition_col='condition',
-        outcome_col='bizarreness',
-        random_effects_col='participant_id'
-    )
+    if 'participant_id' not in df.columns:
+        raise ValueError("Data must contain 'participant_id' column for mixed-effects modeling")
     
-    # Ordinal approximation for bizarreness
-    results["ordinal_model"] = fit_ordinal_approx(
-        df,
-        condition_col='condition',
-        outcome_col='bizarreness'
-    )
-    
-    return results
-
-def main():
-    """
-    Main entry point for running the analysis on processed data.
-    """
-    setup_logging()
-    logger.info("Starting model analysis pipeline.")
-    
-    # Load protocol
-    protocol = load_protocol()
-    
-    # Determine input file based on threshold
-    # This would be called by a script that passes the specific data file
-    data_file = os.environ.get("INPUT_DATA_FILE", "data/processed/data_threshold_strict.csv")
-    
-    if not os.path.exists(data_file):
-        logger.error(f"Data file not found: {data_file}")
-        sys.exit(1)
-    
-    df = pd.read_csv(data_file)
-    logger.info(f"Loaded data from {data_file} with {len(df)} rows.")
-    
-    # Run analysis
-    results = run_analysis_pipeline(df, protocol)
-    
-    # Serialize results
-    output_dir = "results/models"
+    # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
-    output_file = os.path.join(output_dir, f"results_{os.path.basename(data_file).replace('.csv', '')}.json")
+    # Fit logistic mixed model
+    logistic_results = fit_logistic_mixed(df)
     
+    # Fit linear mixed model
+    linear_results = fit_linear_mixed(df)
+    
+    # Compile results
+    all_results = {
+        'data_source': data_path,
+        'logistic_model': logistic_results,
+        'linear_model': linear_results,
+        'timestamp': pd.Timestamp.now().isoformat()
+    }
+    
+    # Save results
+    output_file = os.path.join(output_dir, f"model_results_{os.path.basename(data_path).replace('.csv', '')}.json")
     with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(all_results, f, indent=2, default=str)
     
     logger.info(f"Results saved to {output_file}")
-    print(json.dumps(results, indent=2, default=str))
+    
+    return all_results
+
+def main():
+    """Main entry point for running the analysis pipeline."""
+    setup_logging()
+    
+    # Load protocol to get thresholds
+    try:
+        protocol = load_protocol()
+        thresholds = [
+            protocol.get('strict_threshold_label', 'strict (complete isolation)'),
+            protocol.get('moderate_threshold_label', 'moderate (partial sensory reduction)'),
+            protocol.get('partial_threshold_label', 'partial (minimal sensory reduction)')
+        ]
+    except Exception as e:
+        logger.warning(f"Could not load protocol: {e}")
+        thresholds = ['strict', 'moderate', 'partial']
+    
+    # Process each threshold dataset
+    base_path = "data/processed"
+    results = {}
+    
+    for threshold in thresholds:
+        data_file = os.path.join(base_path, f"data_threshold_{threshold}.csv")
+        
+        if os.path.exists(data_file):
+            logger.info(f"Processing {threshold} dataset: {data_file}")
+            try:
+                result = run_analysis_pipeline(data_file, output_dir="results/models")
+                results[threshold] = result
+            except Exception as e:
+                logger.error(f"Failed to process {threshold} dataset: {e}")
+                results[threshold] = {'error': str(e)}
+        else:
+            logger.warning(f"Data file not found for {threshold}: {data_file}")
+            results[threshold] = {'error': 'Data file not found'}
+    
+    # Save combined results
+    combined_output = {
+        'thresholds_processed': thresholds,
+        'results': results,
+        'timestamp': pd.Timestamp.now().isoformat()
+    }
+    
+    with open("results/models/combined_results.json", 'w') as f:
+        json.dump(combined_output, f, indent=2, default=str)
+    
+    logger.info("Analysis pipeline completed")
+    return combined_results
 
 if __name__ == "__main__":
     main()

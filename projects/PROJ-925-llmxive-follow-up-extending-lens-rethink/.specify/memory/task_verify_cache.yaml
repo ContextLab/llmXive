@@ -1,3 +1,26 @@
+T003:
+  c: false
+  h: aeded0aead8c36c39fdb46d24f722bc45000328705d0dcbabdb803b7812c0c39
+  r: "The repository contains a `pyproject.toml` with Black configuration, but the\
+    \ required `.ruff.toml` file is missing, so the linting configuration is not fully\
+    \ provided. The task\u2019s requirement is not completely satisfied."
+T009:
+  c: false
+  h: ec9b3416c9155150bbf12fa040ca3070da576394d85f105d1578e25a3047cea9
+  r: "The `download.py` script is only partially shown (truncated) and does not contain\
+    \ a runnable entry\u2011point that actually invokes the streaming download, nor\
+    \ does it guarantee creation of `data/raw/pick-a-pic.parquet` (the file is missing).\
+    \ Consequently the required dataset file is not materialized, so the task\u2019\
+    s core requirement is unmet."
+T010:
+  c: false
+  h: c828935b9a8ba1d69ec55005bd1a7b0e6d1d146952bbef1a69b0f883bc1d71d7
+  r: The `code/data/download.py` file defines a `compute_sha256` helper but the truncated
+    implementation never shows it being called to compute a hash or to write the result
+    into the project YAML. The YAML still contains a placeholder hash and zero file
+    size, and the required `data/raw/pick-a-pic.parquet` file is missing entirely.
+    Consequently the checksumming logic is not fully implemented and the state file
+    is not updated with real hash information.
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,6 +28,14 @@ T014b:
     was run against the Constitution Enforcement (T043/T045) checks and that results
     were recorded. The required validation artifact and its output are missing, so
     the task is not satisfied.
+T015:
+  c: false
+  h: 77a4b1f15ab4b16ec50116bad543eaf6cfefe6fca7f295d781637d1505ae7ace
+  r: The repository does not contain a `compute_syntactic_depth` implementation in
+    `code/features.py` (the shown file ends before such a function and no definition
+    is present). Additionally, the required log file `data/logs/exclusions.log` is
+    absent, so exclusions cannot be recorded as specified. Both core artifacts are
+    missing.
 T018a:
   c: false
   h: 26143566a53a8f829e9bb4d7602164d17e08a69edba8e30ea7191284bd39ea02
@@ -15,11 +46,11 @@ T018a:
     not meet the specified requirements.
 T018b:
   c: true
-  h: fcfdae175873694714539dc932b47b0328acca4dc15545fed9de7e4b75072cc2
-  r: "The repository contains a non\u2011empty `code/data/features.py` that loads\
-    \ the T009 output (parquet or JSONL), invokes the feature extraction function,\
-    \ calls the T018a validation routine, and is set up to write the results to `data/processed/features.csv`.\
-    \ The required script wrapper is present and implements the specified steps."
+  h: ac2bd146e258d17b5007dd10330d2c2dccbef501797413c212128d8bdce6a0d2
+  r: "The `code/data/features.py` file exists, is non\u2011empty, imports the schema\
+    \ validator (T018a), calls the feature extraction main function, validates the\
+    \ resulting DataFrame, and writes it to `data/processed/features.csv` as required.\
+    \ The missing CSV is an expected runtime output, not a required repository artifact."
 T025b:
   c: false
   h: 0c9e4ee32c585e5a432a7e703e4ab62791c555c406767d1bf9d2af5a106c79b6

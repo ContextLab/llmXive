@@ -842,3 +842,222 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T13:03:58Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: BERT inference timeout threshold is 5 seconds
+  claim_id: c_f3ef9cb0
+  context: 'T014a [S] [US1] Implement def compute_linguistic_uncertainty_proxy...
+    Explicitly apply natural logarithm to perplexity... Requirement: Explicitly separate
+    two error paths: 1) Timeout (FR-001): If calculation exceeds a predefined time
+    threshold (5 seconds)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If calculation exceeds a predefined time threshold (5 seconds), exclude
+    sample, log caption_id with reason 'TIMEOUT_EXCEEDED'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:36:41Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: BERT inference failure exclusion logic logs BERT_FAILURE reason
+  claim_id: c_4a2a0dca
+  context: 'T014a [S] [US1]... 2) Inference Failure (FR-012): If BERT model loading
+    or inference fails... catch exception, log caption_id with reason ''BERT_FAILURE''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BERT_inference_failure_exclusion_logic_logs_BERT_FAILURE_rea
+  kind: entity_fact
+  raw_text: If BERT model loading or inference fails... catch exception, log caption_id
+    with reason 'BERT_FAILURE', and exclude the row.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:37:01Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Short captions excluded from training matrix and logged
+  claim_id: c_296a7492
+  context: 'T015 [S] [US1] Implement def compute_syntactic_depth... Requirement: If
+    the caption is too short to compute a meaningful dependency tree depth (e.g.,
+    single words), EXCLUDE the sample...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Short_captions_excluded_from_training_matrix_and_logged
+  kind: entity_fact
+  raw_text: If the caption is too short to compute a meaningful dependency tree depth
+    (e.g., single words), EXCLUDE the sample from the training matrix and log the
+    exclusion reason with the specific caption ID.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:37:25Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Zero target variance raises ValueError with specific message
+  claim_id: c_f44c9e8c
+  context: 'T025a [US2]... 2) Check for zero variance in target variable... 3) If
+    variance is 0, raise a ValueError with the exact message ''Target not learnable:
+    zero variance detected''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If variance is 0, raise a ValueError with the exact message ''Target
+    not learnable: zero variance detected'' and halt execution.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:37:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: XGBoost training uses 5-fold cross-validation with quantile-based stratification
+  claim_id: c_919044fe
+  context: T029a [S] [US3] Implement def train_xgboost... (CPU only, k=5 fold CV with
+    quantile-based stratification for regression target, FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train model with k=5 fold CV with quantile-based stratification for regression
+    target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:39:28Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Permutation significance test uses 1000 shuffles
+  claim_id: c_9a68745f
+  context: 'T030 [S] [US3]... Requirement: This must be a specific ''permutation-based
+    significance test'' involving N=1,000 shuffles...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation-based significance test involving N=1,000 shuffles to generate
+    a null distribution, followed by p-value calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:39:45Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction controls FDR at 0.05
+  claim_id: c_fa18a8c0
+  context: 'T030 [S] [US3]... Requirement: Use Benjamini-Hochberg correction to control
+    FDR <= 0.05 (per FR-006).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Use Benjamini-Hochberg correction to control FDR <= 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:40:10Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Label permutation test enforces 1000 iterations
+  claim_id: c_ceaf2494
+  context: 'T031 [S] [US3]... Requirement: Enforce a fixed iteration count of N=1,000
+    by default with pinned seeds...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a fixed iteration count of N=1,000 by default with pinned seeds
+    to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:41:05Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Significance threshold sweep uses alpha values 0.01, 0.05, and 0.1
+  claim_id: c_fd0b8a9f
+  context: T033 [S] [US3]... 3) Perform a significance threshold sweep (alpha) over
+    {0.01, 0.05, 0.1} as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a significance threshold sweep (alpha) over {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:41:24Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis default seeds are 42, 123, 456, 789, 101112
+  claim_id: c_f03ea438
+  context: 'T033 [S] [US3]... 1) Accept a parameterized list of seeds... Default:
+    Use seeds [42, 123, 456, 789, 101112].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default seeds for sensitivity analysis are [42, 123, 456, 789, 101112].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:41:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Construct validity warning triggered if correlation is below 0.3
+  claim_id: c_5e8727f0
+  context: 'T050 [S] [US1]... Requirement: If correlation coefficient is < 0.3, log
+    a warning and flag construct validity risk in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation coefficient is < 0.3, log a warning and flag construct
+    validity risk in the final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:41:52Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: CPU-only torch is a required dependency for BERT inference
+  claim_id: c_fedf857d
+  context: 'T002 [P] Initialize a Python project... Note: torch (CPU-only version)
+    is a REQUIRED dependency for CPU-only BERT inference in T014a...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_torch_is_a_required_dependency_for_BERT_inference
+  kind: entity_fact
+  raw_text: torch (CPU-only version) is a REQUIRED dependency for CPU-only BERT inference.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:42:16Z'

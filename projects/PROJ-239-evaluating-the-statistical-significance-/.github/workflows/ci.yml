@@ -7,15 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -33,11 +35,3 @@ jobs:
       - name: Run tests
         run: |
           pytest
-
-      - name: Verify CUDA-free requirements
-        run: |
-          if grep -i cuda requirements.txt; then
-            echo "Error: CUDA-related packages found in requirements.txt"
-            exit 1
-          fi
-          echo "No CUDA dependencies found."

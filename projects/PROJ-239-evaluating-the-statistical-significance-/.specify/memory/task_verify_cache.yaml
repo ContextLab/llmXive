@@ -1,6 +1,6 @@
-T025:
+T007:
   c: false
-  h: 1eb037f6b7ece623923513f9b3f96b99ec6a26ddf68859de9e3fa6667fdbac2d
-  r: The required output file `data/derived/final_report.csv` does not exist, and
-    the input files `data/derived/baseline_results.csv` and `data/derived/robustResults.csv`
-    are also missing, so the script cannot be run to produce the final report.
+  h: bbc3040f0763132134053d2e99a815cadd6571e22d6191bc6c26787080e0337b
+  r: The required `.github/workflows/ci.yml` file is missing from the repository,
+    so the CI configuration deliverable is not present. Consequently the verification
+    script cannot be run, and the task is not satisfied.

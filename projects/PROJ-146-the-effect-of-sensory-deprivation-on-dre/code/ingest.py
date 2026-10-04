@@ -3,184 +3,178 @@ import sys
 import logging
 import pandas as pd
 import yaml
+from datetime import datetime
 from logging_config import setup_logging
 
-def check_sensory_deprivation_tags(df, column='condition'):
+# Import from sibling modules
+from generate_data import generate_synthetic_datasets, load_protocol
+
+def check_sensory_deprivation_tags(df: pd.DataFrame, column: str = 'condition') -> bool:
     """
-    Check if the 'condition' column contains sensory deprivation tags.
+    Check if the dataframe contains sensory deprivation tags in the specified column.
     
     Args:
         df: Input DataFrame.
-        column: Name of the column to check.
-    
+        column: Column name to check.
+        
     Returns:
-        Boolean indicating if sensory deprivation tags are found.
+        True if tags are found, False otherwise.
     """
+    logger = logging.getLogger(__name__)
     if column not in df.columns:
+        logger.warning(f"Column '{column}' not found in dataframe")
         return False
     
-    # Convert to string and check for keywords
-    condition_str = df[column].astype(str).str.lower()
-    keywords = ['sensory_deprivation', 'deprivation', 'isolation', 'sensory reduction']
+    # Check for sensory deprivation related strings
+    tags = ['sensory_deprivation', 'deprivation', 'strict', 'moderate', 'partial']
+    found = any(df[column].astype(str).str.contains(tag, case=False, na=False).any() for tag in tags)
     
-    for keyword in keywords:
-        if condition_str.str.contains(keyword, na=False).any():
-            return True
-    
-    return False
+    if found:
+        logger.info(f"Found sensory deprivation tags in column '{column}'")
+    else:
+        logger.info(f"No sensory deprivation tags found in column '{column}'")
+        
+    return found
 
-def validate_required_columns(df):
+def validate_required_columns(df: pd.DataFrame) -> bool:
     """
-    Validate that the DataFrame contains required columns.
+    Validate that the dataframe contains required columns.
     
     Args:
         df: Input DataFrame.
-    
+        
     Returns:
-        Boolean indicating if all required columns are present.
+        True if all required columns are present, False otherwise.
     """
+    logger = logging.getLogger(__name__)
     required_cols = ['condition', 'recall', 'bizarreness', 'participant_id']
     missing = [col for col in required_cols if col not in df.columns]
-    return len(missing) == 0, missing
+    
+    if missing:
+        logger.error(f"Missing required columns: {missing}")
+        return False
+    
+    logger.info("All required columns present")
+    return True
 
-def ingest_csv(filepath):
+def ingest_csv(filepath: str) -> pd.DataFrame:
     """
-    Ingest a CSV file into a DataFrame.
+    Ingest a CSV file and validate its structure.
     
     Args:
         filepath: Path to the CSV file.
-    
+        
     Returns:
-        DataFrame containing the ingested data.
+        Validated DataFrame.
     """
     logger = logging.getLogger(__name__)
-    logger.info(f"Ingesting data from {filepath}")
+    logger.info(f"Ingesting CSV: {filepath}")
     
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    logger.info(f"Successfully ingested {len(df)} rows from {filepath}")
-    return df
+    try:
+        df = pd.read_csv(filepath)
+        logger.info(f"Loaded {len(df)} rows from {filepath}")
+        
+        if not validate_required_columns(df):
+            raise ValueError(f"Invalid CSV structure in {filepath}")
+        
+        # Mark as real data
+        df['is_synthetic'] = False
+        df['ingestion_source'] = 'real_csv'
+        df['ingestion_timestamp'] = datetime.now().isoformat()
+        
+        return df
+        
+    except Exception as e:
+        logger.error(f"Failed to ingest {filepath}: {e}")
+        raise
 
-def auto_generate_data(protocol_path, output_path):
+def auto_generate_data(protocol: dict, output_dir: str = "data/synthetic/") -> pd.DataFrame:
     """
-    Trigger synthetic data generation if real data is not found.
+    Automatically generate synthetic data if real data is not suitable.
     
     Args:
-        protocol_path: Path to protocol.yaml.
-        output_path: Path where generated data should be saved.
-    
+        protocol: Protocol dictionary.
+        output_dir: Directory for synthetic data.
+        
     Returns:
-        DataFrame containing the generated synthetic data.
+        Generated DataFrame.
     """
     logger = logging.getLogger(__name__)
-    logger.warning("No real data found with sensory deprivation tags. "
-                   "Triggering synthetic data generation.")
+    logger.warning("No suitable real data found. Triggering synthetic data generation.")
     
-    # Import here to avoid circular dependency if needed, 
-    # but in this structure we can call the function directly
-    from generate_data import generate_synthetic_datasets
+    # Log generation parameters
+    logger.info(f"Generating synthetic data with parameters:")
+    logger.info(f"  - N: {protocol['N']}")
+    logger.info(f"  - Effect Sizes: {protocol['effect_sizes']}")
     
-    df = generate_synthetic_datasets(protocol_path, output_path)
-    logger.info(f"Synthetic data generated and saved to {output_path}")
+    files = generate_synthetic_datasets(protocol, output_dir=output_dir, seed=42)
+    
+    # Load the first generated file (or combine if needed)
+    # For this implementation, we load the 'positive_effect' scenario as default
+    default_file = [f for f in files if 'positive_effect' in f][0]
+    df = ingest_csv(default_file)
+    df['ingestion_source'] = 'synthetic_auto'
+    
+    logger.info(f"Synthetic data generated and ingested from {default_file}")
     return df
 
-def run_ingestion(data_dir, protocol_path, output_dir):
+def run_ingestion(input_path: str = None, protocol_path: str = "data/protocols/protocol.yaml") -> pd.DataFrame:
     """
-    Main ingestion logic: scan for real data, validate, or generate synthetic.
+    Main ingestion pipeline: check for real data, fall back to synthetic if needed.
     
     Args:
-        data_dir: Directory containing raw data files.
-        protocol_path: Path to protocol.yaml.
-        output_dir: Directory to save processed/ingested data.
-    
+        input_path: Optional path to real CSV data.
+        protocol_path: Path to protocol YAML.
+        
     Returns:
-        DataFrame containing the final ingested dataset.
+        Processed DataFrame.
     """
     logger = logging.getLogger(__name__)
-    logger.info("Starting data ingestion process.")
+    logger.info("=== Starting Data Ingestion Pipeline ===")
     
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    # Load protocol
+    protocol = load_protocol(protocol_path)
     
-    # Scan for CSV files
-    csv_files = [f for f in os.listdir(data_dir) if f.endswith('.csv')]
+    if input_path and os.path.exists(input_path):
+        logger.info(f"Attempting to ingest real data from: {input_path}")
+        df = ingest_csv(input_path)
+        
+        # Check for sensory deprivation tags
+        if not check_sensory_deprivation_tags(df):
+            logger.warning("Real data lacks sensory deprivation tags. Falling back to synthetic.")
+            df = auto_generate_data(protocol)
+        else:
+            logger.info("Real data validated with sensory deprivation tags.")
+    else:
+        logger.info(f"No input path provided or file not found at {input_path}. Generating synthetic data.")
+        df = auto_generate_data(protocol)
     
-    if not csv_files:
-        logger.info(f"No CSV files found in {data_dir}. Generating synthetic data.")
-        return auto_generate_data(protocol_path, output_dir)
+    logger.info(f"Ingestion complete. Final dataset shape: {df.shape}")
+    logger.info(f"Ingestion source: {df['ingestion_source'].iloc[0]}")
+    logger.info("=== Data Ingestion Pipeline Complete ===")
     
-    final_dfs = []
-    found_real_data = False
-    
-    for csv_file in csv_files:
-        filepath = os.path.join(data_dir, csv_file)
-        try:
-            df = ingest_csv(filepath)
-            
-            # Check for sensory deprivation tags
-            has_tags = check_sensory_deprivation_tags(df)
-            is_valid, missing = validate_required_columns(df)
-            
-            if has_tags and is_valid:
-                logger.info(f"Real data found in {csv_file} with valid structure.")
-                df['data_source'] = 'real'
-                final_dfs.append(df)
-                found_real_data = True
-            else:
-                if not is_valid:
-                    logger.warning(f"File {csv_file} missing columns: {missing}. Skipping.")
-                else:
-                    logger.info(f"File {csv_file} does not contain sensory deprivation tags. Skipping.")
-                    
-        except Exception as e:
-            logger.error(f"Error ingesting {csv_file}: {str(e)}")
-            continue
-    
-    if not found_real_data:
-        logger.warning("No valid real data found. Generating synthetic data.")
-        return auto_generate_data(protocol_path, output_dir)
-    
-    # Combine all valid real data
-    combined_df = pd.concat(final_dfs, ignore_index=True)
-    logger.info(f"Ingestion complete. Total rows: {len(combined_df)}")
-    
-    return combined_df
+    return df
 
 def main():
     """Main entry point for ingestion."""
-    # Setup logging
-    log_dir = "logs"
-    os.makedirs(log_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(log_dir, f"ingest_{timestamp}.log")
-    setup_logging(log_file=log_file)
-    
-    logger = logging.getLogger(__name__)
-    logger.info("Starting data ingestion pipeline.")
-    
-    # Paths
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_dir = os.path.join(project_root, "data", "raw")
-    protocol_path = os.path.join(project_root, "data", "protocols", "protocol.yaml")
-    output_dir = os.path.join(project_root, "data", "processed")
-    
-    # Create raw data dir if it doesn't exist (for safety if empty)
-    os.makedirs(data_dir, exist_ok=True)
+    logger = setup_logging(log_level=logging.INFO, log_file="logs/ingest.log")
+    logger.info("=== Starting Data Ingestion ===")
     
     try:
-        df = run_ingestion(data_dir, protocol_path, output_dir)
+        # Run ingestion (no input path specified, will generate synthetic)
+        df = run_ingestion(input_path=None)
         
-        # Save ingested data
-        output_file = os.path.join(output_dir, "ingested_data.csv")
-        df.to_csv(output_file, index=False)
-        logger.info(f"Saved ingested data to {output_file}")
+        # Log summary
+        logger.info(f"Dataset summary:")
+        logger.info(f"  - Total rows: {len(df)}")
+        logger.info(f"  - Unique participants: {df['participant_id'].nunique()}")
+        logger.info(f"  - Conditions: {df['condition'].unique().tolist()}")
+        logger.info(f"  - Source: {df['ingestion_source'].iloc[0]}")
+        logger.info(f"  - Is Synthetic: {df['is_synthetic'].iloc[0]}")
         
     except Exception as e:
-        logger.error(f"Ingestion failed: {str(e)}")
+        logger.error(f"Ingestion failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
-    from datetime import datetime
     main()

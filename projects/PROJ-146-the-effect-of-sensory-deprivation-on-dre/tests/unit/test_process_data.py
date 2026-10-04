@@ -1,67 +1,93 @@
-import os
-import tempfile
 import pytest
 import pandas as pd
+import os
+import tempfile
 import yaml
+from code.process_data import derive_condition_column, save_processed_data, load_protocol
 
-# Import the functions to test
-from code.process_data import (
-    load_protocol, 
-    derive_condition_column, 
-    process_data_for_threshold,
-    main
-)
-
-@pytest.fixture
-def sample_protocol():
-    return {
-        'strict_threshold_label': 'strict (complete isolation)',
-        'moderate_threshold_label': 'moderate (partial sensory reduction)',
-        'partial_threshold_label': 'partial (minimal sensory reduction)',
-        'N': 200
+def test_derive_condition_column_strict():
+    """Test that condition column is derived correctly with strict thresholds."""
+    # Create a mock protocol
+    protocol = {
+        'strict_threshold_label': "strict (complete isolation)",
+        'moderate_threshold_label': "moderate (partial sensory reduction)",
+        'partial_threshold_label': "partial (minimal sensory reduction)",
+        'strict_threshold_value': 80,
+        'moderate_threshold_value': 50
     }
-
-@pytest.fixture
-def sample_df():
-    return pd.DataFrame({
-        'participant_id': [1, 2, 3],
-        'recall': [1, 0, 1],
-        'bizarreness': [5, 3, 6],
-        'deprivation_intensity': [0.9, 0.5, 0.2]
+    
+    # Create a mock dataframe
+    df = pd.DataFrame({
+        'deprivation_intensity': [90, 60, 30, 85, 40]
     })
+    
+    # Derive condition
+    result = derive_condition_column(df, protocol)
+    
+    # Check that 'condition' column exists
+    assert 'condition' in result.columns
+    
+    # Check the values
+    expected_conditions = [
+        "strict (complete isolation)",
+        "moderate (partial sensory reduction)",
+        "partial (minimal sensory reduction)",
+        "strict (complete isolation)",
+        "moderate (partial sensory reduction)"
+    ]
+    
+    assert list(result['condition']) == expected_conditions
 
-def test_derive_condition_column(sample_df):
-    """Test that the condition column is correctly set to the label."""
-    label = "strict (complete isolation)"
-    result_df = derive_condition_column(sample_df, label)
+def test_derive_condition_column_missing_intensity():
+    """Test that derive_condition_column raises an error if intensity column is missing."""
+    protocol = {
+        'strict_threshold_label': "strict",
+        'moderate_threshold_label': "moderate",
+        'partial_threshold_label': "partial",
+        'strict_threshold_value': 80,
+        'moderate_threshold_value': 50
+    }
     
-    assert 'condition' in result_df.columns
-    assert all(result_df['condition'] == label)
+    df = pd.DataFrame({
+        'other_column': [1, 2, 3]
+    })
+    
+    with pytest.raises(ValueError, match="missing 'deprivation_intensity' column"):
+        derive_condition_column(df, protocol)
 
-def test_process_data_for_threshold(sample_df, sample_protocol, tmp_path):
-    """Test the full processing pipeline for a single threshold."""
-    input_path = tmp_path / "input.csv"
-    output_path = tmp_path / "output.csv"
+def test_save_processed_data():
+    """Test that save_processed_data creates a CSV file."""
+    df = pd.DataFrame({
+        'col1': [1, 2, 3],
+        'col2': ['a', 'b', 'c']
+    })
     
-    sample_df.to_csv(input_path, index=False)
-    
-    label = sample_protocol['strict_threshold_label']
-    
-    process_data_for_threshold(
-        input_data_path=str(input_path),
-        output_path=str(output_path),
-        threshold_label=label,
-        protocol=sample_protocol
-    )
-    
-    assert os.path.exists(output_path)
-    result_df = pd.read_csv(output_path)
-    
-    assert 'condition' in result_df.columns
-    assert all(result_df['condition'] == label)
-    assert len(result_df) == len(sample_df)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test.csv')
+        save_processed_data(df, output_path)
+        
+        assert os.path.exists(output_path)
+        
+        # Read back and check
+        saved_df = pd.read_csv(output_path)
+        assert len(saved_df) == 3
+        assert list(saved_df.columns) == ['col1', 'col2']
 
-def test_load_protocol_missing_file():
-    """Test that load_protocol raises error for missing file."""
-    with pytest.raises(FileNotFoundError):
-        load_protocol("non_existent_path.yaml")
+def test_load_protocol():
+    """Test that load_protocol loads the protocol correctly."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        protocol_path = os.path.join(tmpdir, 'protocol.yaml')
+        protocol_data = {
+            'strict_threshold_label': "strict",
+            'moderate_threshold_label': "moderate",
+            'partial_threshold_label': "partial"
+        }
+        
+        with open(protocol_path, 'w') as f:
+            yaml.dump(protocol_data, f)
+        
+        protocol = load_protocol(protocol_path)
+        
+        assert protocol['strict_threshold_label'] == "strict"
+        assert protocol['moderate_threshold_label'] == "moderate"
+        assert protocol['partial_threshold_label'] == "partial"
