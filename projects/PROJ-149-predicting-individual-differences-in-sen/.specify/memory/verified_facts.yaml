@@ -1,14 +1,20 @@
-60|applied during eeg filter hz notch preprocessing:
-  quote: It is important to be able to distinguish artifacts from genuine brain activity
-    in order to prevent incorrect interpretations of EEG data. General approaches
-    for the removal of artifacts from the data are, prevention, rejection and cancellation.
-    The goal of any approach is to develop methodology capable of identifying and
-    removing artifacts without affecting the quality of the EEG signal. As artifact
-    sources are quite different the majority of researchers focus on developing algorithms
-    that will identify and remove a single type of noise in the signal. Simple filtering
-    using a notch filter is commonly employed to reject components with a 50/60 Hz
-    frequency. However such simple filters are not an appropriate choice for dealing
-    with all artifacts, as for some, their frequencies will overlap with the EEG frequencies.
-  source_id: Electroencephalography
-  url: https://en.wikipedia.org/wiki/Electroencephalography
-  value: 50/60 Hz
+'|alpha analysi level power use':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.05'
+'|analysi power statistical target':
+  quote: "Indeed, although there are no formal standards for power, many researchers\
+    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
+    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
+    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
+    \ require much higher levels of power. Medical tests may be designed to minimise\
+    \ the number of false negatives (type II errors) produced by loosening the threshold\
+    \ of significance, raising the risk of obtaining a false positive (a type I error).\
+    \ The rationale is that it is better to tell a healthy patient \"we may have found\
+    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
+    \ well.\""
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.80'

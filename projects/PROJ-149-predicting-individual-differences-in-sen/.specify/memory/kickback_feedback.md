@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008c` (rejected 1x): declared artifact(s) missing/empty/invalid: code/00_feasibility_report.py
-- `T035a` (rejected 1x): The required artifact `data/processed/features.csv` does not exist, so there is no schema to validate. Without the file, the task cannot be considered fulfilled.
+- `T023` (rejected 1x): No code, notebook, or output implementing a post‑hoc power analysis with `statsmodels` is present; the evidence lacks any artifact that performs or reports such an analysis. The required deliverable is missing.
+- `T021` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/correlations_corrected.csv
 
 ## Required change
 

@@ -6,12 +6,6 @@ T010:
     \ writes the required `.fif` files. Moreover, the required `data/interim/exclusion_log.csv`\
     \ (and the `.fif` output directories) are absent from the repository. The task\u2019\
     s output artifacts are therefore missing or incomplete."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, or output implementing a post\u2011hoc power analysis with\
-    \ `statsmodels` is present; the evidence lacks any artifact that performs or reports\
-    \ such an analysis. The required deliverable is missing."
 T031c:
   c: false
   h: 0b6c8bebab7409c390a95dccfb296212af6fa9f61c7e4b2bed3d23ac8e3c97ca
@@ -27,6 +21,13 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
+T035a:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` is missing entirely, so\
+    \ there is no schema to validate. Without the file, the task cannot be considered\
+    \ fulfilled. The implementer must provide the CSV file (non\u2011empty) and perform\
+    \ the schema validation as specified."
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

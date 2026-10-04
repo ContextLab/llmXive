@@ -3008,43 +3008,6 @@
   updated_at: '2026-09-03T06:28:47Z'
 - artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
   attempts: 1
-  canonical: RT outliers defined as < 100ms or > 2000ms
-  claim_id: c_9d4ca626
-  context: Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms) BEFORE calculating
-    the median.
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/RT_outliers_defined_as_%3C_100ms_or_%3E_2000ms
-  kind: magnitude
-  raw_text: RT outliers are defined as reaction times less than 100ms or greater than
-    2000ms.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-03T06:29:23Z'
-- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  attempts: 1
-  canonical: Retain participants with >= 70% trials remaining
-  claim_id: c_918bbcc2
-  context: "Retain participants with \u2265 70 % trials remaining."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Retain_participants_with_%3E=_70%25_trials_remaining
-  kind: magnitude
-  raw_text: Participants are retained only if at least 70% of trials remain after
-    outlier exclusion.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-03T06:30:11Z'
-- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  attempts: 1
   canonical: 'EEG bands: delta, theta, alpha, low-beta, high-beta, gamma'
   claim_id: c_fd7e9ca3
   context: Aggregate power into canonical bands (delta, theta, alpha, low-beta, high-beta,
@@ -3657,3 +3620,710 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T01:16:12Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: EEG data source is PhysioNet EEG Motor Movement/Imagery Dataset
+  claim_id: c_be240699
+  context: Create code/01_download_eeg_data.py to fetch the PhysioNet EEG Motor Movement/Imagery
+    Dataset.
+  evidence:
+    entailment_evidence: EEG data source is PhysioNet EEG Motor Movement/Imagery Data
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/EEG_data_source_is_PhysioNet_EEG_Motor_Movement/Imagery_Data
+  kind: entity_fact
+  raw_text: The PhysioNet EEG Motor Movement/Imagery Dataset is the source for the
+    EEG data.
+  resolved_value: EEG data source is PhysioNet EEG Motor Movement/Imagery Dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T09:35:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if max continuous segment < 5 minutes
+  claim_id: c_29131c4c
+  context: Retain ONLY participants who have at least ONE single continuous segment
+    >= 5 minutes. Do NOT sum segments.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_max_continuous_segment_%3C_5_minutes
+  kind: magnitude
+  raw_text: Participants are excluded if they do not have at least one continuous
+    segment of 5 minutes or more.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:36:25Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if channels_rejected_ratio > 0.30
+  claim_id: c_fd3515c3
+  context: Exclude participants if channels_rejected_ratio > 0.30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants are excluded if the channel rejection ratio exceeds 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:36:51Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants retained if >= 70% trials remain
+  claim_id: c_47d109c2
+  context: "Retain participants with \u2265 70 % trials remaining."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_retained_if_%3E=_70%25_trials_remain
+  kind: magnitude
+  raw_text: Participants are retained only if at least 70% of trials remain after
+    outlier exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:37:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PSD frequency range is 1 Hz to 40 Hz
+  claim_id: c_ced2a21b
+  context: 'Parameters: fmin=1, fmax=40.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The frequency range for PSD computation is 1 Hz to 40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:38:58Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction divides 0.05 by 6
+  claim_id: c_31a8e9be
+  context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083). Logic: Divide\
+    \ 0.05 by 6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction divides the alpha level of 0.05 by 6 bands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:39:15Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test performs 10000 shuffles
+  claim_id: c_162d5212
+  context: 'For each of 10000 shuffles: Shuffle labels. Apply the stored split indices.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test performs 10,000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:39:39Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Power analysis targets power of 0.80
+  claim_id: c_79213f9b
+  context: Call statsmodels.stats.power.FTestPower.solve_power(effect_size=..., alpha=0.05,
+    power=0.80, nobs=None).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis targets a statistical power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T09:39:49Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha of 0.05
+  claim_id: c_b93236eb
+  context: Call statsmodels.stats.power.FTestPower.solve_power(..., alpha=0.05, power=0.80,
+    ...).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T09:39:57Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps p-values to 0.10 in 0.01 steps
+  claim_id: c_10e0bdee
+  context: Sweeps p-value threshold across a range of low to moderate significance
+    levels (to 0.10, step 0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps p-value thresholds from low levels up
+    to 0.10 in steps of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:40:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Hard abort if estimated RAM > 7GB
+  claim_id: c_53e2900a
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hard_abort_if_estimated_RAM_%3E_7GB
+  kind: entity_fact
+  raw_text: The feasibility measurement script triggers a hard abort if estimated
+    RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:42:34Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Hard abort if estimated runtime > 6 hours
+  claim_id: c_bab01071
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility measurement script triggers a hard abort if estimated
+    runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:43:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness sensitivity analysis sweeps p-value thresholds
+  claim_id: c_5b1a52c2
+  context: Sweep p-value threshold across a range of conventional significance levels
+    in fine-grained increments.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_sensitivity_analysis_sweeps_p-value_thresholds
+  kind: entity_fact
+  raw_text: The sensitivity analysis for robustness checks sweeps p-value thresholds
+    in fine-grained increments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:44:24Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness R2 delta threshold is 0.05
+  claim_id: c_9137d886
+  context: 'Mandatory: Check if abs(robustness_r2 - primary_r2) < 0.05. If not, flag
+    in output.'
+  evidence:
+    entailment_evidence: Robustness R2 delta threshold is 0.05
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Robustness_R2_delta_threshold_is_0.05
+  kind: magnitude
+  raw_text: "The robustness model comparison flags a significant difference if the\
+    \ absolute R\xB2 delta is not less than 0.05."
+  resolved_value: Robustness R2 delta threshold is 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T09:44:27Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha is 0.05 divided by 6
+  claim_id: c_2086f673
+  context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083). Flag significant\
+    \ results and write data/processed/correlations_corrected.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction divides the alpha value of 0.05 by 6 for the
+    6 frequency bands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:46:07Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 shuffles
+  claim_id: c_875ac3a2
+  context: 'For each of 10000 shuffles: 1. Shuffle labels. 2. Apply the stored split
+    indices...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test performs 10,000 shuffles of the median_rt labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:46:23Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis effect size calculated for R-squared 0.10
+  claim_id: c_e41783fa
+  context: "Calculate effect_size (Cohen's f = sqrt(0.10 / (1-0.10))) corresponding\
+    \ to R\xB2=0.10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The post-hoc power analysis calculates the effect size for an R-squared
+    of 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:46:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps p-value to 0.10 with step 0.01
+  claim_id: c_cef80997
+  context: Sweeps p-value threshold across a range of low to moderate significance
+    levels (to 0.10, step 0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the p-value threshold to 0.10 with a step
+    of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:47:19Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Feasibility check aborts if RAM usage exceeds 7GB
+  claim_id: c_de9beabb
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feasibility_check_aborts_if_RAM_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: The feasibility check aborts if estimated RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:47:56Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Feasibility check aborts if runtime exceeds 6 hours
+  claim_id: c_90a7689e
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility check aborts if estimated runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:48:18Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary analysis overlap is 0.5
+  claim_id: c_25378751
+  context: The OVERLAP value of 0.5 is the baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses an overlap of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:49:01Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if less than 70 percent trials remain
+  claim_id: c_810df975
+  context: "Retain participants with \u2265 70 % trials remaining."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_less_than_70_percent_trials_remain
+  kind: magnitude
+  raw_text: Participants are excluded if they have fewer than 70% trials remaining
+    after outlier removal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:49:36Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Outliers are RT less than 100ms or greater than 2000ms
+  claim_id: c_32b8bfb0
+  context: Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms) BEFORE calculating
+    the median.
+  evidence:
+    entailment_evidence: Outliers are RT less than 100ms or greater than 2000ms
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Outliers_are_RT_less_than_100ms_or_greater_than_2000ms
+  kind: magnitude
+  raw_text: Outliers are defined as reaction times less than 100ms or greater than
+    2000ms.
+  resolved_value: Outliers are RT less than 100ms or greater than 2000ms
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T09:49:38Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Channels rejected if variance exceeds 3 standard deviations
+  claim_id: c_74937ecb
+  context: Reject channels with variance (microvolts squared) > 3 SD from the session
+    mean (per participant recording file).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Channels_rejected_if_variance_exceeds_3_standard_deviations
+  kind: magnitude
+  raw_text: Channels are rejected if their variance is greater than 3 standard deviations
+    from the session mean.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:50:10Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if channel rejection ratio exceeds 0.30
+  claim_id: c_f7ec78f2
+  context: Exclude participants if channels_rejected_ratio > 0.30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_channel_rejection_ratio_exceeds_0.3
+  kind: magnitude
+  raw_text: Participants are excluded if the channels rejected ratio is greater than
+    0.30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:50:54Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 2
+  canonical: Robustness check window size is 2 seconds
+  claim_id: c_49cb5666
+  context: 'Write a JSON file to data/interim/robustness_window_params.json containing
+    {"window_size": 2}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check uses a window size of 2 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:50:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness check flags if R-squared delta is 0.05 or greater
+  claim_id: c_52b6f8f5
+  context: Check if abs(robustness_r2 - primary_r2) < 0.05. If not, flag in output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_check_flags_if_R-squared_delta_is_0.05_or_greater
+  kind: magnitude
+  raw_text: The robustness check flags a result if the absolute difference in R-squared
+    between runs is greater than or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:51:53Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary analysis requires 5 minute continuous segment
+  claim_id: c_4a583c81
+  context: Retain ONLY participants who have at least ONE single continuous segment
+    >= 5 minutes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_requires_5_minute_continuous_segment
+  kind: magnitude
+  raw_text: The primary analysis requires a continuous segment of at least 5 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:52:35Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 3
+  canonical: RT outliers defined as < 100ms or > 2000ms
+  claim_id: c_9d4ca626
+  context: Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms) BEFORE calculating
+    the median.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RT_outliers_defined_as_%3C_100ms_or_%3E_2000ms
+  kind: magnitude
+  raw_text: RT outliers are defined as reaction times less than 100ms or greater than
+    2000ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:53:32Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 2
+  canonical: Retain participants with >= 70% trials remaining
+  claim_id: c_918bbcc2
+  context: "Retain participants with \u2265 70 % trials remaining."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retain_participants_with_%3E=_70%25_trials_remaining
+  kind: magnitude
+  raw_text: Participants are retained only if at least 70% of trials remain after
+    outlier exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:53:33Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 3
+  canonical: Primary analysis window size is 4 seconds
+  claim_id: c_d0f07c79
+  context: The WINDOW_SIZE is FIXED at 4 for the primary analysis per Spec FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses a window size of 4 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:53:33Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary analysis overlap is 0.5
+  claim_id: c_1fa9b0fb
+  context: 'Overlap: Use config.OVERLAP (0.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses a 0.5 overlap factor for PSD extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:53:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PSD frequency range 1 Hz to 40 Hz
+  claim_id: c_f5e0cdae
+  context: 'Parameters: fmin=1, fmax=40, n_fft=4*sfreq'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PSD extraction uses a frequency range from 1 Hz to 40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:54:14Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Channel rejection threshold is > 3 SD from session mean
+  claim_id: c_cfb6642f
+  context: Reject channels with variance (microvolts squared) > 3 SD from the session
+    mean.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Channel_rejection_threshold_is_%3E_3_SD_from_session_mean
+  kind: magnitude
+  raw_text: Channels are rejected if variance is greater than 3 standard deviations
+    from the session mean.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:54:42Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.0083 for 6 bands
+  claim_id: c_79defcfc
+  context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083). Logic: Divide\
+    \ 0.05 by 6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction divides alpha 0.05 by 6 bands to get a threshold
+    of 0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:54:54Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 shuffles
+  claim_id: c_37669222
+  context: "For each of 10000 shuffles: Shuffle labels... Compute R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test performs 10,000 shuffles to generate a null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:55:18Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Power analysis assumes alpha 0.05 and power 0.80
+  claim_id: c_96f58611
+  context: Call statsmodels.stats.power.FTestPower.solve_power(effect_size=..., alpha=0.05,
+    power=0.80, nobs=None)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Post-hoc power analysis assumes a significance level (alpha) of 0.05 and
+    power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:55:48Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Feasibility halt condition is RAM > 7GB
+  claim_id: c_ff1424d8
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feasibility_halt_condition_is_RAM_%3E_7GB
+  kind: entity_fact
+  raw_text: The feasibility check halts if estimated RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:56:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Feasibility halt condition is runtime > 6 hours
+  claim_id: c_9aa95030
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility check halts if estimated runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:56:40Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness window check uses 2 seconds
+  claim_id: c_1aba8a02
+  context: 'Write a JSON file to data/interim/robustness_window_params.json containing
+    {"window_size": 2}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check for window size uses a 2-second window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T09:56:40Z'
