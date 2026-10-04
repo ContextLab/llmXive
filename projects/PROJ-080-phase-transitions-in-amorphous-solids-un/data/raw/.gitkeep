@@ -1,0 +1,2 @@
+# This directory stores raw trajectory data (HDF5, Parquet, or downloaded shards)
+# Do not commit large files to git.

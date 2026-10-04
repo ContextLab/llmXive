@@ -26,6 +26,10 @@ def stream_hdf5(path: str, chunk_size: int = 1000) -> Iterator[pd.DataFrame]:
 
     Yields:
         Pandas DataFrames containing chunks of data.
+    
+    Raises:
+        FileNotFoundError: If the HDF5 file does not exist.
+        ValueError: If the HDF5 file is empty or has no datasets.
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"HDF5 file not found: {path}")
@@ -67,6 +71,10 @@ def stream_parquet(path: str, chunk_size: int = 1000) -> Iterator[pd.DataFrame]:
 
     Yields:
         Pandas DataFrames containing chunks of data.
+    
+    Raises:
+        FileNotFoundError: If the Parquet file does not exist.
+        ImportError: If pyarrow is not installed.
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"Parquet file not found: {path}")
@@ -109,5 +117,42 @@ def save_json_output(data: Dict, path: str):
         data: Dictionary to save.
         path: Output file path.
     """
+    os.makedirs(os.path.dirname(path) if os.path.dirname(path) else '.', exist_ok=True)
     with open(path, 'w') as f:
         json.dump(data, f, indent=2)
+
+def verify_data(path: str, file_type: str = 'hdf5') -> bool:
+    """
+    Verify the existence and basic integrity of a data file.
+
+    Args:
+        path: Path to the data file.
+        file_type: Type of file ('hdf5' or 'parquet').
+
+    Returns:
+        True if the file exists and is readable.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file type is unsupported or the file is corrupted.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Data file not found: {path}")
+    
+    if file_type == 'hdf5':
+        try:
+            with h5py.File(path, 'r') as f:
+                if len(f.keys()) == 0:
+                    raise ValueError("HDF5 file is empty.")
+        except Exception as e:
+            raise ValueError(f"Corrupted or invalid HDF5 file: {e}")
+    elif file_type == 'parquet':
+        try:
+            import pyarrow.parquet as pq
+            pq.ParquetFile(path)
+        except Exception as e:
+            raise ValueError(f"Corrupted or invalid Parquet file: {e}")
+    else:
+        raise ValueError(f"Unsupported file type: {file_type}")
+    
+    return True

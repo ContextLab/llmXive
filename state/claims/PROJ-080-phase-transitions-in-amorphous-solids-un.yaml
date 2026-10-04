@@ -1,0 +1,807 @@
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset materials-science/amorphous-silicon-shear-trajectories
+    used as data source
+  claim_id: c_680164ea
+  context: Setup environment configuration for dataset source verification (HuggingFace
+    materials-science/amorphous-silicon-shear-trajectories) including verified URL
+    and checksum validation logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_materials-science/amorphous-silicon-shea
+  kind: entity_fact
+  raw_text: The HuggingFace dataset 'materials-science/amorphous-silicon-shear-trajectories'
+    is used as the real data source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:04:54Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Memory usage limit 1GB per chunk
+  claim_id: c_956594e8
+  context: The chunk size must be calculated dynamically to ensure memory usage <
+    1GB per chunk, or use a fixed number of timesteps if static estimation is preferred.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_1GB_per_chunk
+  kind: entity_fact
+  raw_text: Memory usage must stay under 1GB per chunk.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:06:13Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Falk-Langer D2_min calculation per particle
+  claim_id: c_f8c9c6fc
+  context: Implement Falk-Langer D2_min calculation loop for every particle (FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Falk-Langer_D2_min_calculation_per_particle
+  kind: entity_fact
+  raw_text: The Falk-Langer D2_min calculation is used for every particle.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:06:35Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Significant stress drop threshold 5% decrease
+  claim_id: c_0cc0a3bc
+  context: MUST identify the first significant stress drop (>5% decrease) and halt
+    detection after this point.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_stress_drop_threshold_5%25_decrease
+  kind: magnitude
+  raw_text: A significant stress drop is defined as a decrease greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:07:22Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: K-means clustering k=3 for shear band aggregation
+  claim_id: c_4e58a156
+  context: Aggregate D2_min values to shear bands using k-means clustering (k=3, seed=42)
+    and write data/processed/shear_band_stats.csv
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Shear band aggregation uses k-means clustering with k=3.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T20:07:22Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Permutation Test for brittle vs ductile D2_min comparison
+  claim_id: c_5723e3fc
+  context: Perform a Permutation Test to compare brittle vs. ductile distributions
+    of shear-band mean D2_min values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_Test_for_brittle_vs_ductile_D2_min_comparison
+  kind: entity_fact
+  raw_text: A Permutation Test is used to compare brittle vs. ductile distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:07:39Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Minimum sample size 30 for statistical power
+  claim_id: c_605fad96
+  context: "Check sample size (N \u2265 30). If < 30, halt and report Power Limitation\
+    \ warning."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_30_for_statistical_power
+  kind: magnitude
+  raw_text: Sample size N must be at least 30 to avoid power limitation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:08:28Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Significance alpha threshold 0.05
+  claim_id: c_81925a73
+  context: This task MUST explicitly compare the corrected p-value against the alpha=0.05
+    threshold and write a pass/fail determination to the report.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The alpha threshold for significance is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T20:08:37Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Validation set split test_size 0.2
+  claim_id: c_8446f00e
+  context: Use sklearn.model_selection.train_test_split with test_size=0.2, random_state=42,
+    and stratify=y.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation set split uses a test_size of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:08:55Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Threshold sweep range derived from Author et al. 2023
+  claim_id: c_96ae55d1
+  context: The method involves calculating a lower bound as the maximum of zero and
+    the threshold minus a small margin, and an upper bound as the threshold plus the
+    same margin. (Author et al., 2023;).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep range includes lower, threshold, and upper bounds
+    based on a citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:08:55Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Maximum pipeline runtime 6 hours
+  claim_id: c_8a560026
+  context: "Must verify runtime is \u2264 6 hours as per SC-004."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_pipeline_runtime_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:09:27Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Maximum pipeline memory usage 7GB
+  claim_id: c_c155b368
+  context: "Must verify memory is \u2264 7GB as per SC-005."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_pipeline_memory_usage_7GB
+  kind: magnitude
+  raw_text: The pipeline peak memory usage must be less than or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:09:41Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Memory usage per chunk less than 1GB
+  claim_id: c_b6c57aa8
+  context: 'T009 [P] [US1] **DATA STREAMING IMPLEMENTATION**: Implement streaming
+    logic in `code/data_loader.py` to process trajectories in chunks. **Constraint**:
+    Must explicitly state the streaming strategy (chunk size, split selection) in
+    the code comments. The chunk size must be calculated dynamically to ensure memory
+    usage < 1GB per chunk, or use a fixed number of timesteps if static estimation
+    is preferred.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_per_chunk_less_than_1GB
+  kind: magnitude
+  raw_text: The chunk size must be calculated dynamically to ensure memory usage <
+    1GB per chunk.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:11:42Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: First significant stress drop defined as greater than 5% decrease
+  claim_id: c_794aa53c
+  context: 'T016b [US1] Implement `code/preprocess.py`: Implement drop detection over
+    timesteps to identify yielding onset (FR-002). **Constraint**: MUST identify the
+    *first* significant stress drop (>5% decrease) and halt detection after this point.
+    Do not detect multiple events.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/First_significant_stress_drop_defined_as_greater_than_5%25_dec
+  kind: magnitude
+  raw_text: The implementation MUST identify the *first* significant stress drop (>5%
+    decrease) and halt detection after this point.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T20:12:02Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: K-means clustering with k=3 and seed=42 for shear band aggregation
+  claim_id: c_d96d2e25
+  context: 'T021b [US1] **SHEAR BAND AGGREGATION**: Aggregate $D^2_{min}$ values to
+    shear bands using k-means clustering (k=3, seed=42) and write `data/processed/shear_band_stats.csv`
+    with columns `shear_band_id`, `mean_D2_min`, `particle_count`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Aggregate $D^2_{min}$ values to shear bands using k-means clustering (k=3,
+    seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:12:18Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Fixed k=3 for clustering operations
+  claim_id: c_7bc3d66e
+  context: 'T025 [US2] Aggregate $D^2_{min}$ values to shear bands using **k-means
+    clustering**. **Algorithm**: Use a FIXED `k=3` for all clustering operations to
+    ensure determinism (Constitution Principle VII). Do NOT use the Elbow Method.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a FIXED `k=3` for all clustering operations to ensure determinism
+    (Constitution Principle VII).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:13:49Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for reproducibility
+  claim_id: c_fba487af
+  context: 'T025 [US2] Aggregate $D^2_{min}$ values to shear bands using **k-means
+    clustering**. **Algorithm**: Use a FIXED `k=3` for all clustering operations to
+    ensure determinism (Constitution Principle VII). Do NOT use the Elbow Method.
+    **Constraint**: Use `SEED = 42` from `utils.py` for reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `SEED = 42` from `utils.py` for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:14:16Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Sample size threshold of 30 for power limitation warning
+  claim_id: c_f3419552
+  context: "T027 [US2] Check sample size (N \u2265 30). If < 30, halt and report \"\
+    Power Limitation\" warning (US2 Acceptance)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check sample size (N \u2265 30). If < 30, halt and report \"Power Limitation\"\
+    \ warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:14:16Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied only if multiple tests count > 1
+  claim_id: c_9e7aee1e
+  context: 'T028 [US2] **MANDATORY ENFORCEMENT**: **Enforce** Bonferroni correction
+    (FR-005) to the Permutation Test p-values **ONLY IF** `multiple_tests` is true
+    (from T028a). **Logic**: The system MUST apply the correction only when the count
+    > 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_only_if_multiple_tests_count_%3E
+  kind: magnitude
+  raw_text: The system MUST apply the Bonferroni correction only when the count of
+    hypothesis tests is greater than 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:15:19Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Significance threshold of alpha=0.05
+  claim_id: c_6ecfa4f2
+  context: 'T029 [US2] Generate output artifacts: `data/processed/permutation_test_results.json`
+    (statistic, p-value), `data/processed/histograms.png` (overlay of distributions),
+    and `data/processed/significance_report.json` (final p-value vs alpha=0.05 pass/fail).
+    **Dependency**: T028. **Note**: This task MUST explicitly compare the corrected
+    p-value against the alpha=0.05 threshold and write a pass/fail determination to
+    the report, satisfying SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST explicitly compare the corrected p-value against the alpha=0.05
+    threshold and write a pass/fail determination to the report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:15:40Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Threshold derived by maximizing F-score on training set
+  claim_id: c_cd53b048
+  context: 'T032a [US3] **MANDATORY**: Derive the base threshold value from US1/US2
+    outputs **AND** perform a hold-out split on the dataset to create a validation
+    set. **Algorithm**: Select the D_min value that maximizes F-score on the **training
+    set ONLY**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_derived_by_maximizing_F-score_on_training_set
+  kind: entity_fact
+  raw_text: Select the D_min value that maximizes F-score on the training set ONLY.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:16:05Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: Train-test split with 0.2 test size and random state 42
+  claim_id: c_2e2bf6c8
+  context: 'T032a [US3] **MANDATORY**: Derive the base threshold value from US1/US2
+    outputs **AND** perform a hold-out split on the dataset to create a validation
+    set. **Algorithm**: Select the D_min value that maximizes F-score on the **training
+    set ONLY**. **Constraint**: Once derived, the threshold value MUST be **frozen**
+    and stored before any access to the validation set to prevent data leakage. **Split
+    Method**: Use `sklearn.model_selection.train_test_split` with `test_size=0.2`,
+    `random_state=42`, and `stratify=y` (where y is the brittle/ductile label).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `sklearn.model_selection.train_test_split` with `test_size=0.2`, `random_state=42`,
+    and `stratify=y`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:16:24Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 2
+  canonical: HuggingFace dataset materials-science/amorphous-silicon-shear-trajectories
+  claim_id: c_6576ede5
+  context: Setup environment configuration for dataset source verification (HuggingFace
+    materials-science/amorphous-silicon-shear-trajectories) including verified URL
+    and checksum validation logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_materials-science/amorphous-silicon-shea
+  kind: entity_fact
+  raw_text: The dataset source is HuggingFace materials-science/amorphous-silicon-shear-trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:19:29Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: k-means clustering uses fixed k=3
+  claim_id: c_35018528
+  context: 'Aggregate D^2_min values to shear bands using k-means clustering. Algorithm:
+    Use a FIXED k=3 for all clustering operations to ensure determinism (Constitution
+    Principle VII).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a fixed k=3 for k-means clustering to ensure determinism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:20:49Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: random seed set to 42
+  claim_id: c_d99f72e6
+  context: Use SEED = 42 from utils.py for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed used for reproducibility is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:21:12Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: streaming memory usage limit 1GB per chunk
+  claim_id: c_e42bdd16
+  context: The chunk size must be calculated dynamically to ensure memory usage <
+    1GB per chunk, or use a fixed number of timesteps if static estimation is preferred.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_memory_usage_limit_1GB_per_chunk
+  kind: magnitude
+  raw_text: The streaming logic must ensure memory usage is less than 1GB per chunk.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:21:42Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: stress drop threshold 5% decrease
+  claim_id: c_618212be
+  context: MUST identify the first significant stress drop (>5% decrease) and halt
+    detection after this point.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stress_drop_threshold_5%25_decrease
+  kind: magnitude
+  raw_text: The stress drop detection identifies the first significant stress drop
+    defined as a greater than 5% decrease.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:22:35Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: particle count limit 100000
+  claim_id: c_67d59c8b
+  context: 'MUST enforce FR-006: Check particle count; if > 100k, raise an explicit
+    ValueError and exit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline halts if the particle count exceeds 100,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:23:09Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: validation split test size 0.2
+  claim_id: c_66b35cea
+  context: Use sklearn.model_selection.train_test_split with test_size=0.2, random_state=42,
+    and stratify=y.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation set split uses a test size of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:23:09Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: significance threshold alpha 0.05
+  claim_id: c_9e9d1908
+  context: This task MUST explicitly compare the corrected p-value against the alpha=0.05
+    threshold and write a pass/fail determination to the report.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold (alpha) for the statistical test is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T20:23:20Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: minimum sample size 30
+  claim_id: c_5d66fc15
+  context: "Check sample size (N \u2265 30). If < 30, halt and report Power Limitation\
+    \ warning."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_30
+  kind: magnitude
+  raw_text: The pipeline requires a sample size of at least 30 to avoid power limitation
+    warnings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:24:05Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: maximum runtime 6 hours
+  claim_id: c_c300a4e1
+  context: "Must verify runtime is \u2264 6 hours as per SC-004."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum allowed runtime for the full pipeline on a GitHub Actions
+    runner is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:24:25Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: maximum memory usage 7GB
+  claim_id: c_e36046e4
+  context: "Must verify memory is \u2264 7GB as per SC-005."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_memory_usage_7GB
+  kind: entity_fact
+  raw_text: The maximum allowed memory usage for the full pipeline on a GitHub Actions
+    runner is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:24:47Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: checksum algorithm SHA-256
+  claim_id: c_a3dabf7e
+  context: Implement a checksum verification step that compares the downloaded/generated
+    file hash against the known value stored in state/artifact_hashes.yaml using the
+    SHA-256 algorithm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The checksum algorithm used for data verification is SHA-256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:25:11Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: citation Author et al. 2023 threshold margin
+  claim_id: c_4531030c
+  context: The method involves calculating a lower bound as the maximum of zero and
+    the threshold minus a small margin, and an upper bound as the threshold plus the
+    same margin. (Author et al., 2023;).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A citation from Author et al., 2023 is referenced regarding threshold
+    margin calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:25:26Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: streaming memory limit of 1GB per chunk
+  claim_id: c_9506283b
+  context: T009 constraint states the chunk size must be calculated dynamically to
+    ensure memory usage < 1GB per chunk.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_memory_limit_of_1GB_per_chunk
+  kind: magnitude
+  raw_text: The streaming strategy must ensure memory usage is less than 1GB per chunk.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:28:46Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: particle count threshold of 100000 triggers ValueError
+  claim_id: c_9fccc3f9
+  context: 'T015a constraint enforces FR-006: Check particle count; if > 100k, raise
+    an explicit ValueError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Particle_count_threshold_of_100000_triggers_ValueError
+  kind: magnitude
+  raw_text: If particle count is greater than 100,000, the system must raise a ValueError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:29:19Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: stress drop detection threshold of 5%
+  claim_id: c_a5218f33
+  context: T016b constraint states the system MUST identify the first significant
+    stress drop (>5% decrease).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stress_drop_detection_threshold_of_5%25
+  kind: magnitude
+  raw_text: The system must identify the first significant stress drop defined as
+    a decrease greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:30:06Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: k-means clustering with fixed k of 3
+  claim_id: c_c7e3c8f0
+  context: 'T025 algorithm constraint: Use a FIXED k=3 for all clustering operations
+    to ensure determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K-means clustering must use a fixed k=3 for all clustering operations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:31:28Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: minimum sample size of 30 for statistical power
+  claim_id: c_61c11257
+  context: "T027 constraint: Check sample size (N \u2265 30). If < 30, halt and report\
+    \ 'Power Limitation' warning."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_of_30_for_statistical_power
+  kind: magnitude
+  raw_text: The sample size must be at least 30 to avoid a Power Limitation warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:32:15Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: validation set test size of 0.2
+  claim_id: c_7966740d
+  context: T032a split method uses sklearn.model_selection.train_test_split with test_size=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation set split uses a test size of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:32:15Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: dataset source materials-science/amorphous-silicon-shear-trajectories
+    on HuggingFace
+  claim_id: c_343c53e9
+  context: T005 and T008 specify the dataset source for verification and loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_materials-science/amorphous-silicon-shear-tra
+  kind: entity_fact
+  raw_text: The dataset source is HuggingFace materials-science/amorphous-silicon-shear-trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:32:17Z'
+- artifact_path: projects/PROJ-080-phase-transitions-in-amorphous-solids-un/specs/001-phase-transitions-in-amorphous-solids-un/tasks.md
+  attempts: 1
+  canonical: checksum validation using SHA-256 algorithm
+  claim_id: c_5514902f
+  context: T011 constraint states the system compares the downloaded/generated file
+    hash against the known value using the SHA-256 algorithm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The checksum validation algorithm is SHA-256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T20:32:45Z'
