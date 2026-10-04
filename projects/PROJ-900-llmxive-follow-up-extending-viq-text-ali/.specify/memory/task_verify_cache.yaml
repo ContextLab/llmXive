@@ -1,11 +1,11 @@
-T012:
+T006b:
   c: false
-  h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
-  r: "The repository contains a `code/train.py` file, but it is truncated and does\
-    \ not show a complete training loop, the required VQ\u2011VAE + InfoNCE loss computation,\
-    \ or code that saves `data/results/codebook_v0.pth`. Moreover, the checkpoint\
-    \ file `data/results/codebook_v0.pth` is absent. Consequently the deliverable\
-    \ requirements are not met."
+  h: e98c7e2d6ebb109ab0a02d64429f947352b91d11fca093a72e0c52f8ac6b33b1
+  r: "The repository contains the required `code/handle_hypothesis_failure.py`, but\
+    \ the two mandated output files `data/results/pivot_plan.md` and `data/results/failure_analysis.md`\
+    \ are absent; the script does not create them automatically. The task\u2019s core\
+    \ deliverable of generating these documents before pipeline termination is therefore\
+    \ not satisfied."
 T014:
   c: false
   h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
@@ -13,6 +13,15 @@ T014:
     remainder) does not include any logic that saves a checkpoint to `data/results/codebook_v0.pth`.
     Moreover, the expected checkpoint file `data/results/codebook_v0.pth` is absent
     from the disk. Both the required artifact and the saving implementation are missing.
+T019:
+  c: false
+  h: ce157c4a63e88047520558177d3519b13453ba6abe47c51867969999f43ddc20
+  r: "The repository lacks the required `data/results/codebook_v0.pth` checkpoint\
+    \ and the output files `data/results/embeddings_high_res.h5` and the PNG ground\u2011\
+    truth images. Moreover, `code/eval_high_res.py` is truncated, only processes a\
+    \ limited subset of ImageNet (no COCO data), does not actually write embeddings\
+    \ to an H5 file nor save the native 1024\xD71024 images with the prescribed naming\
+    \ scheme. These essential artifacts and full functionality are missing."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,3 +30,41 @@ T022:
     \ output `{spearman_r, p_value, method}` produced from a pandas DataFrame. The\
     \ claim lacks the actual code file and example output, so the task requirements\
     \ are not met."
+T026:
+  c: false
+  h: 387c4c13eea9ccca7a5b7de80455a7316b2706c29f3b2908a5bc8d23ac25e657
+  r: "The required data file `data/results/embeddings_high_res.h5` does not exist,\
+    \ so the script cannot load the high\u2011resolution visual embeddings as the\
+    \ task demands. Additionally, the provided `eval_semantic.py` is truncated and\
+    \ does not clearly show the computation of CLIP text embeddings for captions.\
+    \ The missing embedding file must be generated (by T019) and present for the task\
+    \ to be complete."
+T028:
+  c: false
+  h: 6f11d531b4b358f56f41db5552043904347dd74d5897552e138c00a4cae7c9af
+  r: "The repository lacks the required `data/results/semantic_baseline.json` and\
+    \ the output `data/results/semantic_diff.json`. Moreover, `code/analysis.py` implements\
+    \ a correlation analysis script unrelated to computing the percentage difference\
+    \ between high\u2011res and baseline semantic similarity scores. The task\u2019\
+    s core functionality and output file are therefore missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No verification script, log, or execution output is provided; the claim that
+    `spec.md` was checked for the required amendments cannot be confirmed from the
+    available artifacts. The required script and its successful run output are missing.
+T036b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `plan.md` file or `decisions/003-plan-spec-alignment.md` note was\
+    \ provided; without these artifacts we cannot confirm that the reference to \u201C\
+    SC-005\u201D was removed as required. The implementer must supply the modified\
+    \ plan document or decision record showing the change."
+T036c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt does not contain the exact required text blocks (\u201C\
+    Native 1024x1024 ground truth used per Decision Record\u202F002\u201D and \u201C\
+    Paired t\u2011test or Wilcoxon signed\u2011rank test used per Decision Record\u202F\
+    002\u201D), nor is there any shown evidence of an updated `spec.md` file. Without\
+    \ the actual updated document, the deliverable is missing."

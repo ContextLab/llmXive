@@ -1,29 +1,16 @@
-# Decision Record 002: Native Ground Truth & Paired Statistical Tests
+# Decision Record 002: Native Ground Truth and Statistical Test Amendment
 
 ## Status
 Accepted
 
 ## Context
-The original specification contained two scientifically unsound requirements:
-1. **FR-004**: Required the use of "upsampled ground truth" (interpolating low-res images to match high-res dimensions) as the baseline for fidelity measurement. This approach introduces artificial smoothing and fails to represent the true high-frequency information present in native high-resolution images, leading to biased metric calculations (PSNR/SSIM).
-2. **SC-005**: Specified a "one-sample t-test" for comparing reconstruction errors. A one-sample test compares a sample mean against a known constant, which is inappropriate for comparing two related measurements (low-res vs. high-res reconstructions of the *same* image).
+The initial specification (Draft) proposed using upsampled low-resolution images as ground truth for high-resolution fidelity measurement (FR-004) and a one-sample t-test (SC-005) for statistical validation.
 
 ## Decision
-1. **Native Ground Truth**: All fidelity metrics (PSNR, SSIM) will be calculated by comparing the model's reconstruction against the **native 1024x1024 ground truth** image, not an upsampled version of the low-resolution input. This ensures the metrics reflect the true loss of information due to the quantization and resolution shift process.
-
-2. **Paired Statistical Tests**: The statistical analysis comparing texture complexity and reconstruction error will utilize **paired t-tests** (if normality assumptions hold) or **Wilcoxon signed-rank tests** (if assumptions fail). This correctly models the dependency between the two measurements taken on the same sample.
+1. **Ground Truth**: We will use **native 1024x1024 ground truth** images available in the ImageNet-1K and COCO datasets, rather than upscaling low-resolution inputs. This provides a scientifically accurate baseline for high-resolution reconstruction quality.
+2. **Statistical Test**: We will replace the one-sample t-test with a **Paired t-test** (if normality assumptions hold) or **Wilcoxon signed-rank test** (if non-normal) to compare texture complexity against reconstruction error. This correctly models the paired nature of the data (same image, different complexity metrics).
 
 ## Consequences
-- **Positive**:
- - Metrics are scientifically valid and reflect true image fidelity.
- - Statistical tests correctly handle the paired nature of the data, increasing the power and validity of the hypothesis testing.
- - Aligns the implementation with rigorous scientific standards.
-
-- **Negative**:
- - Requires access to the original high-resolution images in the dataset, which is available for ImageNet-1K and COCO but necessitates the exclusion of any dataset where only low-res versions are available.
- - The analysis pipeline must be updated to handle paired data structures instead of independent samples.
-
-## References
-- Plan.md: "FR-004 (upsampled baseline) and SC-005 (one-sample t-test) are amended per Decision Record 002."
-- T021: Metric aggregation script calculates against native ground truth.
-- T022: Correlation analysis script implements Shapiro-Wilk and paired tests.
+- **Positive**: Increases scientific rigor; ensures fidelity metrics are not confounded by interpolation artifacts from upsampling.
+- **Positive**: The statistical test now correctly addresses the hypothesis regarding the relationship between texture and error.
+- **Alignment**: This decision amends **FR-004** and **SC-004** (replacing SC-005) in the specification.

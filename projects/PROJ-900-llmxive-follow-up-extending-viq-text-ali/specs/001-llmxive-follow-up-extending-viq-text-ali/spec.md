@@ -1,64 +1,58 @@
 # Specification: ViQ Resolution Invariance Study
 
 ## 1. Introduction
-This document specifies the requirements for the ViQ (Visual Quantized) resolution invariance study. The goal is to evaluate whether a visual quantization model trained on low-resolution images can maintain semantic alignment and acceptable fidelity when processing high-resolution inputs without retraining.
+
+This document defines the requirements for the "ViQ: Text-Aligned Visual Quantized Representations at Any Resolution" study. It outlines the functional requirements, scope constraints, and statistical analysis plans required to validate the hypothesis that ViQ representations maintain semantic alignment across resolutions.
 
 ## 2. Functional Requirements
 
-### FR-001: Low-Resolution Training
-The system must be able to train a VQ-VAE codebook using low-resolution (64x64) images from the COCO dataset on CPU-only hardware within a 6-hour time limit.
+### FR-001: Codebook Training
+The system must train a VQ-VAE codebook using low-resolution (64x64) COCO images.
 
 ### FR-002: High-Resolution Inference
-The system must be able to process high-resolution (1024x1024) images from ImageNet-1K and COCO using the trained low-resolution codebook without resizing the input images.
+The system must process 1024x1024 images using the trained codebook to measure reconstruction fidelity.
 
-### FR-003: Dataset Scope
-**AMENDED PER DECISION RECORD 001**: The system must utilize the ImageNet-1K (validation split) and COCO (train split) datasets for evaluation.
-- **Exclusion**: The ChestX-ray14 dataset is explicitly **excluded** from this project due to lack of verified programmatic access and CI compatibility risks.
-- The system must fail loudly if the specified datasets cannot be accessed.
+### FR-003: Dataset Exclusion (Amended)
+The ChestX-ray14 dataset is explicitly excluded from this study to maintain domain consistency with natural images (COCO/ImageNet).
+**Amendment per Decision Record 001**: ChestX-ray14 is excluded from all data loading and analysis steps.
+**Amendment per Decision Record 002**: This exclusion is confirmed as a deviation from the initial draft scope, ensuring the study focuses solely on natural image resolution invariance.
 
-### FR-004: Fidelity Measurement
-**AMENDED PER DECISION RECORD 002**: The system must calculate reconstruction fidelity metrics (PSNR, SSIM) by comparing the model's output against the **native 1024x1024 ground truth** images.
-- **Correction**: The requirement to use "upsampled ground truth" is rejected. Comparisons must be made against the original high-resolution source to ensure scientific validity.
+### FR-004: Ground Truth Resolution (Amended)
+The study requires ground truth images at the target inference resolution.
+**Amendment per Decision Record 002**: The system shall use **native 1024x1024 ground truth** images for fidelity measurement, deviating from the original upsampled baseline approach. This ensures that fidelity metrics (PSNR/SSIM) reflect actual reconstruction quality at high resolution rather than interpolated artifacts.
 
-### FR-005: Semantic Alignment
-The system must compute the cosine similarity between projected high-resolution visual embeddings and frozen CLIP text embeddings to verify semantic stability.
+## 3. Scope Constraints
 
-## 3. Statistical & Analysis Requirements
+### US-2: High-Resolution Fidelity Evaluation
+Evaluate reconstruction quality on high-resolution images.
+**Constraint**: As per Decision Record 001, ChestX-ray14 is excluded from US-2. Only COCO and ImageNet-1K validation sets are used.
+**Constraint**: As per Decision Record 002, fidelity is measured against native 1024x1024 ground truth.
 
-### SC-001: Texture Complexity
-The system must calculate texture complexity using the variance of the Laplacian operator on grayscale images.
+## 4. Statistical Analysis Plan
 
-### SC-002: Correlation Analysis
-The system must compute the Spearman rank correlation between texture complexity and reconstruction error (PSNR).
+### SC-001: Correlation Analysis
+Calculate Spearman correlation between texture complexity and reconstruction error.
 
-### SC-003: Normality Testing
-Before parametric testing, the system must perform a Shapiro-Wilk test on the error distribution.
+### SC-002: Normality Testing
+Perform Shapiro-Wilk test to determine distribution of errors.
 
-### SC-004: Hypothesis Testing
-**AMENDED PER DECISION RECORD 002**: The system must perform a **paired t-test** if the error distribution is normal (p > 0.05), or a **Wilcoxon signed-rank test** if it is not.
-- **Correction**: The requirement for a "one-sample t-test" (SC-005 in original draft) is rejected as it is statistically inappropriate for paired data.
+### SC-003: Test Selection
+Select statistical test based on normality results.
 
-## 4. User Stories
+### SC-004: Statistical Significance Testing (Amended)
+The study shall determine if reconstruction error significantly correlates with texture complexity.
+**Amendment per Decision Record 002**: The analysis shall use a **Paired t-test or Wilcoxon signed-rank test** (depending on normality) to compare error distributions, replacing the previously drafted one-sample t-test (SC-005) which was deemed scientifically unsound for this specific hypothesis.
 
-### US-1: Low-Resolution Training
-As a researcher, I want to train the codebook on 64x64 COCO images so that I can establish a baseline quantization model on CPU.
-- **Acceptance Criteria**: Codebook converges; checkpoint saved to `data/results/codebook_v0.pth`.
+## 5. Decision Records
 
-### US-2: High-Resolution Evaluation
-As a researcher, I want to evaluate the model on 1024x1024 images from ImageNet and COCO so that I can measure fidelity degradation.
-- **Acceptance Criteria**: Metrics calculated against **native ground truth**; ChestX-ray14 **excluded** per FR-003.
-- **Note**: This story is restricted to natural images (ImageNet, COCO).
+The following decision records document deviations from the initial draft specification:
 
-### US-3: Semantic Stability
-As a researcher, I want to compare high-res and low-res semantic similarities so that I can verify the model's resolution invariance.
-- **Acceptance Criteria**: Difference in similarity scores computed and logged.
+- **DR-001**: Exclusion of ChestX-ray14 dataset (Domain Consistency).
+- **DR-002**: Use of native 1024x1024 ground truth and adoption of paired t-test/Wilcoxon for statistical analysis.
 
-## 5. Non-Functional Requirements
-- **Reproducibility**: All random seeds must be fixed; data sources must be verified.
-- **Performance**: Training must complete within 6 hours on CPU.
-- **Data Integrity**: Raw data checksums must be verified (T040).
-- **Fail Loudly**: Scripts must raise errors if real data fetch fails; no synthetic fallbacks.
+## 6. Deliverables
 
-## 6. Decision Records
-- [001-chestx14-exclusion.md](decisions/001-chestx14-exclusion.md): Exclusion of ChestX-ray14.
-- [002-native-ground-truth-test.md](decisions/002-native-ground-truth-test.md): Adoption of native ground truth and paired tests.
+- Trained codebook checkpoint (`data/results/codebook_v0.pth`)
+- High-resolution embeddings (`data/results/embeddings_high_res.h5`)
+- Fidelity metrics report (`data/results/fidelity_metrics.json`)
+- Statistical analysis report (`data/results/analysis_results.json`)

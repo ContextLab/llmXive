@@ -1733,3 +1733,403 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T12:54:18Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 0
+  canonical: SSIM calculation uses window size of 11
+  claim_id: c_b9988a49
+  context: Calculate SSIM using skimage.metrics.structural_similarity with window_size=11
+    on native 1024x1024 images.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In order to evaluate the image quality, this formula is usually applied\
+        \ only on luma, although it may also be applied on color (e.g., RGB) values\
+        \ or chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal\
+        \ value between -1 and 1, where 1 indicates perfect similarity, 0 indicates\
+        \ no similarity, and -1 indicates perfect anti-correlation. For an image,\
+        \ it is typically calculated using a sliding Gaussian window of size 11\xD7\
+        11 or a block window of size 8\xD78. The window can be displaced pixel-by-pixel\
+        \ on the image to create an SSIM quality map of the image. In the case of\
+        \ video quality assessment, the authors propose to use only a subgroup of\
+        \ the possible windows to reduce the complexity of the calculation."
+      source_id: Structural similarity index measure
+      url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+      value: "11\xD711"
+    filled: true
+  kind: numeric
+  raw_text: SSIM window_size=11
+  resolved_value: "11\xD711"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:03:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_a23d38a4
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:03:30Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: transformers version 4.36.0
+  claim_id: c_eea0f209
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.36.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:03:51Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_31f3a225
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:04:20Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_5471a743
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:04:45Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.8.0
+  claim_id: c_bd55057b
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:05:15Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0
+  claim_id: c_e0791b18
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:05:36Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.0
+  claim_id: c_3763786d
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:05:59Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.0
+  claim_id: c_3b12f103
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.7.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:06:20Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: scipy version 1.10.0
+  claim_id: c_d7cfd27e
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:06:39Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: psutil version 2.3.0
+  claim_id: c_15e23620
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil==2.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:06:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: VQ loss weight set to 1.0
+  claim_id: c_21f2a96e
+  context: Implement CPU-only training loop with frozen ViQ encoder and VQ-VAE loss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VQ loss weight = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:07:13Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: InfoNCE temperature set to 0.07
+  claim_id: c_a4ed2b01
+  context: Implement CPU-only training loop with frozen ViQ encoder and VQ-VAE loss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: InfoNCE temperature = 0.07
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:07:39Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training stops if elapsed time exceeds 5.5 hours
+  claim_id: c_246e1ac3
+  context: 'Completion Criteria: Reached max_steps OR elapsed_time > 5.5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Training completion criteria: elapsed_time > 5.5 hours'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:07:40Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Paired t-test used if Shapiro-Wilk p-value is greater than 0.05
+  claim_id: c_b86992c8
+  context: Perform Shapiro-Wilk test on error distribution; if p > 0.05 use paired
+    t-test, else use Wilcoxon signed-rank test.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Shapiro-Wilk test p-value > 0.05 determines use of paired t-test
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:07:40Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training time limit is 6 hours on CPU hardware
+  claim_id: c_bec7bb59
+  context: 'Compute Constraint: Training MUST complete within 6 hours on CPU; if not,
+    reduce sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training MUST complete within 6 hours on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:08:14Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Python 3.11 project dependencies: torch 2.1.0+cpu, transformers 4.36.0,
+    datasets 2.14.0, scikit-learn 1.3.0, opencv-python-headless 4.8.0, numpy 1.24.0,
+    pandas 2.0.0, matplotlib 3.7.0, scipy 1.10.0, psutil 2.3.0'
+  claim_id: c_a3bbdd8d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002 Initialize Python
+    3.11 project...'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt pinning exact versions:
+    torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0, scikit-learn==1.3.0,
+    opencv-python-headless==4.8.0, numpy==1.24.0, pandas==2.0.0, matplotlib==3.7.0,
+    scipy==1.10.0, psutil==2.3.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T19:14:10Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training loop fits 64x64 images within 7GB RAM
+  claim_id: c_6e857242
+  context: 'Phase 3: User Story 1 - T013 Implement dataset sampling strategy... to
+    fit 64x64 images within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_fits_64x64_images_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The system must dynamically adjust batch size to fit 64x64 images within
+    7GB RAM, logging peak RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:14:41Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: CPU training loop completion time limit 6 hours
+  claim_id: c_3c5a138d
+  context: 'Phase 3: User Story 1 - T012... Completion Criteria: Reached max_steps
+    OR elapsed_time > 5.5 hours... training loop approaches the 6-hour limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training loop must complete within 6 hours on CPU, with a critical warning
+    logged if elapsed time exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:15:05Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ChestX-ray14 dataset excluded from scope
+  claim_id: c_ad0d4118
+  context: 'Phase 2: Foundational - T005... explicitly exclude ChestX-ray14 per Decision
+    Record 001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project excludes the ChestX-ray14 dataset per Decision Record 001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:15:22Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Texture complexity measured by normalized variance of Laplacian
+  claim_id: c_6e66961a
+  context: 'Phase 4: User Story 2 - T020 Implement texture complexity calculation...
+    Variance of Lapacus (cv2.Laplacian) on grayscale, normalized by the number of
+    pixels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Texture_complexity_measured_by_normalized_variance_of_Laplac
+  kind: entity_fact
+  raw_text: Correlation analysis uses the variance of the Laplacian (cv2.Laplacian)
+    normalized by the number of pixels to measure texture complexity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:15:54Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SSIM calculation window size 11
+  claim_id: c_a0184d41
+  context: 'Phase 4: User Story 2 - T021... calculate PSNR... and SSIM using skimage.metrics.structural_similarity
+    with window_size=11...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SSIM is calculated using skimage.metrics.structural_similarity with a
+    window size of 11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:16:25Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Spearman correlation calculated using scipy.stats.spearmanr
+  claim_id: c_1ef7fc47
+  context: 'Phase 4: User Story 2 - T022... Implement correlation analysis script...
+    using scipy.stats.spearmanr (SC-002)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_calculated_using_scipy.stats.spearmanr
+  kind: entity_fact
+  raw_text: The system uses scipy.stats.spearmanr for correlation analysis between
+    texture complexity and reconstruction error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T19:17:02Z'
