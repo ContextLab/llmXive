@@ -1,189 +1,202 @@
-"""
-Data Acquisition and Simulation Fallback Module.
-
-This module handles the primary download of meta-analyses from Cochrane/Campbell
-and implements the fallback mechanism to generate synthetic data based on
-Ioannidis et al. (2008) parameters if the primary acquisition fails or yields
-insufficient data.
-"""
-
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import numpy as np
-import requests
-from requests.exceptions import RequestException
 
-# Local imports matching provided API surface
-from utils.exceptions import DataAcquisitionError
+# Import from project utilities
 from utils.seeds import SeedManager
-from config import is_simulation_mode, get_config
+from utils.exceptions import DataAcquisitionError
+from config import is_simulation_mode, is_real_mode, get_config
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants from Ioannidis et al. (2008)
+# Simulation Parameters based on Ioannidis et al. (2008)
 IOANNIDIS_PARAMS = {
     "tau_squared": 0.04,
     "mean_effect": 0.3,
     "bias": 0.1,
-    "study_count_range": [3, 50]
+    "study_count_range": [3, 50],
+    "seed": 42
 }
 
 def generate_synthetic_meta_analysis(
-    meta_id: int,
+    meta_id: str,
     study_count: int,
-    seed: int,
-    params: Dict[str, float]
+    tau_squared: float = 0.04,
+    mean_effect: float = 0.3,
+    bias: float = 0.1,
+    seed: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
-    Generate synthetic study data for a single meta-analysis.
-
+    Generates a synthetic meta-analysis dataset based on Ioannidis et al. (2008) parameters.
+    
     Args:
-        meta_id: Unique identifier for the meta-analysis.
-        study_count: Number of studies (k) in this meta-analysis.
+        meta_id: Unique identifier for this meta-analysis.
+        study_count: Number of studies in the meta-analysis.
+        tau_squared: Between-study variance.
+        mean_effect: True underlying effect size.
+        bias: Systematic bias to introduce.
         seed: Random seed for reproducibility.
-        params: Dictionary containing simulation parameters (tau^2, mean_effect, bias).
-
+        
     Returns:
-        List of dictionaries, each representing a study with 'effect_size' and 'se'.
+        List of dictionaries containing 'effect_size' and 'se' for each study.
     """
-    rng = np.random.default_rng(seed)
-    tau2 = params["tau_squared"]
-    mu = params["mean_effect"] + params["bias"]  # Apply bias to true mean
-    tau = np.sqrt(tau2)
-
+    if seed is not None:
+        np.random.seed(seed)
+    
+    # True effect size for this meta-analysis (drawn from distribution around mean)
+    true_effect = np.random.normal(mean_effect, np.sqrt(tau_squared))
+    
     studies = []
     for i in range(study_count):
-        # True effect for this study (Random Effects model)
-        theta_i = rng.normal(loc=mu, scale=tau)
-
-        # Generate sample size for this study (random between 20 and 200)
-        n_i = rng.integers(20, 201)
-
-        # Standard error calculation (simplified for continuous outcome)
-        # SE = sqrt(1/n1 + 1/n2) approx sqrt(2/n) for balanced
-        se_i = np.sqrt(2.0 / n_i)
-
-        # Observed effect = True effect + Sampling Error
-        # Sampling error ~ N(0, SE^2)
-        observed_effect = rng.normal(loc=theta_i, scale=se_i)
-
+        # Generate study-level effect size
+        # Effect = True Effect + Bias + Between-Study Variance + Sampling Error
+        between_study_error = np.random.normal(0, np.sqrt(tau_squared))
+        
+        # Sampling error variance (SE^2) - typically decreases with study size
+        # Simulate study sizes between 20 and 500
+        study_n = np.random.randint(20, 500)
+        se = np.sqrt(1/study_n + 0.01)  # Add small constant to avoid zero variance
+        
+        # Observed effect = True effect + Bias + Random noise
+        observed_effect = true_effect + bias + np.random.normal(0, se)
+        
         studies.append({
-            "meta_id": meta_id,
-            "study_index": i,
+            "study_id": f"{meta_id}_study_{i+1}",
             "effect_size": float(observed_effect),
-            "se": float(se_i),
-            "n": int(n_i)
+            "se": float(se),
+            "n": int(study_n)
         })
-
+    
     return studies
 
 def save_synthetic_data(
-    all_studies: List[Dict[str, Any]],
-    output_dir: Path,
-    params: Dict[str, Any]
-) -> None:
+    data_dir: Path,
+    params: Dict[str, Any],
+    num_meta_analyses: int = 50
+) -> List[Path]:
     """
-    Save synthetic data to JSON files.
-
+    Generates and saves synthetic meta-analysis data files.
+    
     Args:
-        all_studies: List of all generated study records.
-        output_dir: Directory to save files.
-        params: Parameters used for generation.
+        data_dir: Directory to save the generated data.
+        params: Simulation parameters.
+        num_meta_analyses: Number of meta-analyses to generate.
+        
+    Returns:
+        List of paths to generated data files.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+    data_dir.mkdir(parents=True, exist_ok=True)
+    generated_files = []
+    
     # Save parameters
-    params_path = output_dir / "simulation_params.json"
-    with open(params_path, "w") as f:
+    params_path = data_dir / "simulation_params.json"
+    with open(params_path, 'w') as f:
         json.dump(params, f, indent=2)
     logger.info(f"Saved simulation parameters to {params_path}")
-
-    # Save data
-    data_path = output_dir / "synthetic_meta_analyses.json"
-    with open(data_path, "w") as f:
-        json.dump(all_studies, f, indent=2)
-    logger.info(f"Saved synthetic data to {data_path}")
-
-def run_simulation_fallback(target_count: int = 50) -> None:
-    """
-    Generate synthetic meta-analyses as a fallback when real data acquisition fails.
-
-    This function creates a corpus of synthetic meta-analyses using parameters
-    derived from Ioannidis et al. (2008) to satisfy the minimum corpus requirement
-    (SC-001: >= 50 meta-analyses).
-
-    Args:
-        target_count: Target number of meta-analyses to generate.
-    """
-    logger.info("Initiating simulation fallback mode.")
-    logger.info(f"Using Ioannidis parameters: {IOANNIDIS_PARAMS}")
-
-    # Ensure output directory exists
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Initialize SeedManager
-    seed_manager = SeedManager()
     
-    all_studies = []
-    current_seed = seed_manager.get_next_seed()
-
     # Generate meta-analyses
-    for i in range(target_count):
-        # Random study count between 3 and 50
-        k = np.random.default_rng(current_seed + 1).integers(
-            IOANNIDIS_PARAMS["study_count_range"][0],
-            IOANNIDIS_PARAMS["study_count_range"][1] + 1
+    for i in range(num_meta_analyses):
+        meta_id = f"sim_meta_{i+1:03d}"
+        
+        # Random study count within range
+        study_count = np.random.randint(
+            params["study_count_range"][0],
+            params["study_count_range"][1] + 1
         )
         
+        # Generate synthetic data
         studies = generate_synthetic_meta_analysis(
-            meta_id=i,
-            study_count=k,
-            seed=current_seed,
-            params=IOANNIDIS_PARAMS
+            meta_id=meta_id,
+            study_count=study_count,
+            tau_squared=params["tau_squared"],
+            mean_effect=params["mean_effect"],
+            bias=params["bias"],
+            seed=params["seed"] + i
         )
         
-        all_studies.extend(studies)
-        current_seed = seed_manager.get_next_seed()
+        # Save to CSV
+        file_path = data_dir / f"{meta_id}.csv"
+        with open(file_path, 'w') as f:
+            # Write header
+            f.write("study_id,effect_size,se,n\n")
+            # Write data
+            for study in studies:
+                f.write(f"{study['study_id']},{study['effect_size']:.6f},{study['se']:.6f},{study['n']}\n")
         
-        if (i + 1) % 10 == 0:
-            logger.info(f"Generated {i + 1} synthetic meta-analyses...")
-
-    # Save results
-    save_synthetic_data(all_studies, output_dir, IOANNIDIS_PARAMS)
+        generated_files.append(file_path)
+        logger.info(f"Generated {meta_id} with {study_count} studies")
     
-    logger.info(f"Simulation complete. Generated {len(all_studies)} studies across {target_count} meta-analyses.")
-    logger.info("Output files written to data/raw/")
+    logger.info(f"Generated {num_meta_analyses} synthetic meta-analyses")
+    return generated_files
+
+def run_simulation_fallback(
+    data_dir: Path,
+    params: Optional[Dict[str, Any]] = None,
+    num_meta_analyses: int = 50
+) -> bool:
+    """
+    Executes the simulation fallback when real data acquisition fails.
+    
+    Args:
+        data_dir: Directory to save generated data.
+        params: Optional custom parameters (uses Ioannidis defaults if None).
+        num_meta_analyses: Number of meta-analyses to generate.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    try:
+        logger.info("Starting simulation fallback...")
+        
+        # Use default parameters if not provided
+        if params is None:
+            params = IOANNIDIS_PARAMS.copy()
+        
+        # Ensure seed is set
+        if "seed" not in params:
+            params["seed"] = 42
+        
+        # Generate and save data
+        generated_files = save_synthetic_data(data_dir, params, num_meta_analyses)
+        
+        if not generated_files:
+            raise DataAcquisitionError("No synthetic data files were generated.")
+        
+        logger.info(f"Simulation fallback completed successfully. Generated {len(generated_files)} files.")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Simulation fallback failed: {str(e)}")
+        raise DataAcquisitionError(f"Simulation fallback failed: {str(e)}")
 
 def main():
-    """
-    Entry point for the download module.
-    
-    This function checks the configuration mode. If in simulation mode
-    (or if real mode is forced but fails), it triggers the synthetic data generation.
-    """
+    """Main entry point for synthetic data generation."""
+    # Get configuration
     config = get_config()
     
-    if is_simulation_mode():
-        logger.info("Configuration indicates Simulation Mode.")
-        run_simulation_fallback(target_count=50)
+    # Determine data directory
+    data_root = Path(config.get("data_root", "data"))
+    raw_dir = data_root / "raw"
+    
+    # Check if we should run simulation
+    if is_real_mode():
+        logger.warning("Real mode is enabled. Skipping simulation fallback.")
+        return
+    
+    logger.info("Running simulation fallback as real data acquisition failed.")
+    
+    # Run simulation
+    success = run_simulation_fallback(raw_dir)
+    
+    if success:
+        logger.info("Simulation fallback completed successfully.")
     else:
-        logger.info("Configuration indicates Real Mode. Attempting real data acquisition...")
-        # In a full implementation, this would call the real download logic.
-        # For this task (T019), we focus on the fallback path.
-        # If T012/T012a logic determined real mode failed, this function is called.
-        # We simulate the failure trigger here for completeness if explicitly requested.
-        logger.warning("Real data acquisition path not implemented in this task context. "
-                     "Assuming trigger from T012a failure.")
-        run_simulation_fallback(target_count=50)
+        logger.error("Simulation fallback failed.")
+        raise DataAcquisitionError("Simulation fallback failed to generate data.")
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,3 @@
-"""
-fMRIPrep Docker Runner
-
-Executes fMRIPrep preprocessing within a Docker container with CPU and memory constraints.
-Reads configuration from src/config/settings.py and environment variables from src/config/env.py.
-"""
 import os
 import subprocess
 import sys
@@ -11,8 +5,8 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from src.config.settings import get_config
 from src.config.env import get_data_dir
+from src.config.settings import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -22,179 +16,198 @@ class FMRIPrepRunnerError(Exception):
 
 def get_fmriprep_config() -> Dict[str, Any]:
     """
-    Retrieve fMRIPrep specific configuration from settings.
+    Retrieve fMRIPrep-specific configuration from the global settings.
     
     Returns:
-        Dict containing thread and memory constraints.
+        Dict containing thread and memory configuration settings.
     """
     config = get_config()
+    
+    # Extract preprocessing parameters which should contain resource constraints
     preprocessing_params = config.get('preprocessing_params', {})
     
-    # Extract thread/memory limits from config or defaults
-    # These are expected to be set in the main config for resource management
+    # Default resource constraints if not specified
+    # These are CPU-limited settings suitable for CI/CD environments
     return {
-        'omp_num_threads': int(os.getenv('OMP_NUM_THREADS', '4')),
-        'nprocs': int(os.getenv('NPROCS', '4')),
-        'mem_mb': int(os.getenv('MEM_MB', '4000')),
-        'output_dir': str(get_data_dir() / 'processed' / 'fmriprep'),
-        'work_dir': str(get_data_dir() / 'processed' / 'fmriprep' / 'work'),
-        'participant_label': None,  # Can be overridden
+        'omp_num_threads': preprocessing_params.get('omp_num_threads', 2),
+        'mem_mb': preprocessing_params.get('mem_mb', 2048),
+        'nprocs': preprocessing_params.get('nprocs', 2),
+        'use_plugin': preprocessing_params.get('use_plugin', 'single'),
+        'plugin_args': preprocessing_params.get('plugin_args', {})
     }
 
 def build_fmriprep_command(
-    dataset_dir: str,
-    output_dir: str,
-    work_dir: str,
-    participant_label: Optional[List[str]] = None,
+    dataset_path: Path,
+    output_dir: Path,
+    participant_label: Optional[str] = None,
     skip_bids_validation: bool = False
 ) -> List[str]:
     """
-    Construct the Docker run command for fMRIPrep.
+    Build the fMRIPrep Docker command with appropriate thread and memory settings.
     
     Args:
-        dataset_dir: Path to the BIDS dataset directory.
-        output_dir: Path to the output directory.
-        work_dir: Path to the working directory.
-        participant_label: Optional list of participant labels to process.
-        skip_bids_validation: If True, skip BIDS validation.
+        dataset_path: Path to the BIDS dataset directory
+        output_dir: Path to the output directory
+        participant_label: Optional single participant label to process
+        skip_bids_validation: Whether to skip BIDS validation
         
     Returns:
-        List of command arguments for subprocess.
+        List of command arguments for subprocess
     """
+    if not dataset_path.exists():
+        raise FMRIPrepRunnerError(f"Dataset path does not exist: {dataset_path}")
+        
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     config = get_fmriprep_config()
     
+    # Build the command list
     cmd = [
-        'docker', 'run', '--rm',
-        '-e', f'OMP_NUM_THREADS={config["omp_num_threads"]}',
-        '-e', f'NPROCS={config["nprocs"]}',
-        '-e', f'MEM_MB={config["mem_mb"]}',
-        '-v', f'{dataset_dir}:/data:ro',
-        '-v', f'{output_dir}:/out',
-        '-v', f'{work_dir}:/work',
-        'nipreps/fmriprep:latest',
-        '/data', '/out', 'participant',
-        '--participant-label', ','.join(participant_label) if participant_label else '',
-        '--output-spaces', 'MNI152NLin2009cAsym',
-        '--fs-license-file', '/opt/freesurfer/license.txt',
+        "docker", "run", "--rm",
+        "-v", f"{dataset_path}:/data:ro",
+        "-v", f"{output_dir}:/output",
+        "-v", "/tmp:/tmp",
+        "-e", f"OMP_NUM_THREADS={config['omp_num_threads']}",
+        "-e", f"MEM_MB={config['mem_mb']}",
+        "--ulimit", f"memlock={config['mem_mb']}M",
+        "--ulimit", f"as={config['mem_mb']}M",
+        "--workdir", "/tmp",
+        "nipreps/fmriprep:23.1.3",
+        "/data",
+        "/output",
+        "participant",
+        f"--participant-label={participant_label}" if participant_label else "",
+        "--nthreads", str(config['omp_num_threads']),
+        "--mem-mb", str(config['mem_mb']),
+        "--omp-nthreads", str(config['omp_num_threads']),
+        "-w", "/tmp/work",
+        "--fs-no-reconall",
+        "--use-syn-sdc",
+        "--ignore", "fieldmaps"
     ]
     
-    if config['omp_num_threads'] > 0:
-        cmd.extend(['--nthreads', str(config['omp_num_threads'])])
-    if config['mem_mb'] > 0:
-        cmd.extend(['--mem-mb', str(config['mem_mb'])])
-        
     if skip_bids_validation:
-        cmd.append('--skip-bids-validation')
+        cmd.append("--skip-bids-validation")
         
-    # Remove empty participant label argument if not provided
-    if '--participant-label' in cmd and cmd[cmd.index('--participant-label') + 1] == '':
-        cmd.pop(cmd.index('--participant-label') + 1)
-        cmd.pop(cmd.index('--participant-label'))
-        
+    # Filter out empty strings
+    cmd = [arg for arg in cmd if arg]
+    
+    logger.info(f"Built fMRIPrep command: {' '.join(cmd[:5])} ...")
     return cmd
 
 def run_fmriprep(
-    dataset_dir: Optional[str] = None,
-    participant_label: Optional[List[str]] = None,
+    dataset_id: str,
+    participant_label: Optional[str] = None,
     skip_bids_validation: bool = False
 ) -> subprocess.CompletedProcess:
     """
-    Run fMRIPrep via Docker.
+    Execute fMRIPrep preprocessing for a dataset using Docker.
+    
+    This function:
+    1. Resolves dataset paths from environment configuration
+    2. Builds the Docker command with CPU-limited settings
+    3. Executes the preprocessing pipeline
+    4. Logs progress and handles errors
     
     Args:
-        dataset_dir: Path to BIDS dataset. Defaults to data/raw/bids.
-        participant_label: List of subject IDs to process.
-        skip_bids_validation: Skip BIDS validation check.
+        dataset_id: The OpenNeuro dataset identifier (e.g., 'ds000001')
+        participant_label: Optional single participant to process
+        skip_bids_validation: Whether to skip BIDS validation checks
         
     Returns:
-        CompletedProcess instance with result details.
+        CompletedProcess instance with return code and output
         
     Raises:
-        FMRIPrepRunnerError: If Docker is not available or command fails.
+        FMRIPrepRunnerError: If Docker is not available or command fails
     """
-    if dataset_dir is None:
-        data_root = get_data_dir()
-        dataset_dir = str(data_root / 'raw' / 'bids')
+    data_dir = get_data_dir()
+    raw_dir = Path(data_dir) / "raw"
+    processed_dir = Path(data_dir) / "processed"
+    
+    dataset_path = raw_dir / dataset_id
+    output_dir = processed_dir / dataset_id / "fmriprep"
+    
+    if not dataset_path.exists():
+        raise FMRIPrepRunnerError(
+            f"Dataset not found at {dataset_path}. "
+            f"Please run download_datasets.py first."
+        )
         
-    if not os.path.exists(dataset_dir):
-        raise FMRIPrepRunnerError(f"Dataset directory not found: {dataset_dir}")
-        
-    config = get_fmriprep_config()
-    output_dir = config['output_dir']
-    work_dir = config['work_dir']
-    
-    # Ensure directories exist
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(work_dir, exist_ok=True)
-    
-    cmd = build_fmriprep_command(
-        dataset_dir=dataset_dir,
-        output_dir=output_dir,
-        work_dir=work_dir,
-        participant_label=participant_label,
-        skip_bids_validation=skip_bids_validation
-    )
-    
-    logger.info(f"Running fMRIPrep with command: {' '.join(cmd)}")
-    
     try:
+        cmd = build_fmriprep_command(
+            dataset_path=dataset_path,
+            output_dir=output_dir,
+            participant_label=participant_label,
+            skip_bids_validation=skip_bids_validation
+        )
+        
+        logger.info(f"Starting fMRIPrep for {dataset_id}...")
+        logger.debug(f"Command: {' '.join(cmd)}")
+        
+        # Execute the command
         result = subprocess.run(
             cmd,
-            check=True,
             capture_output=True,
-            text=True
+            text=True,
+            timeout=7200,  # 2 hour timeout for CI environments
+            check=False
         )
+        
+        if result.returncode != 0:
+            logger.error(f"fMRIPrep failed for {dataset_id}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
+            raise FMRIPrepRunnerError(
+                f"fMRIPrep failed with return code {result.returncode}. "
+                f"Check logs for details."
+            )
+            
+        logger.info(f"fMRIPrep completed successfully for {dataset_id}")
         return result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"fMRIPrep failed with return code {e.returncode}")
-        logger.error(f"STDOUT: {e.stdout}")
-        logger.error(f"STDERR: {e.stderr}")
-        raise FMRIPrepRunnerError(f"fMRIPrep execution failed: {e.stderr}")
+        
     except FileNotFoundError:
-        raise FMRIPrepRunnerError("Docker executable not found. Please ensure Docker is installed and running.")
+        raise FMRIPrepRunnerError(
+            "Docker executable not found. Please ensure Docker is installed and running."
+        )
+    except subprocess.TimeoutExpired:
+        raise FMRIPrepRunnerError(
+            f"fMRIPrep timed out after 2 hours for {dataset_id}. "
+            "Consider increasing timeout or reducing dataset size."
+        )
 
 def main():
-    """Entry point for running fMRIPrep from command line."""
-    import argparse
+    """
+    Main entry point for running fMRIPrep preprocessing.
     
-    parser = argparse.ArgumentParser(description="Run fMRIPrep preprocessing pipeline")
-    parser.add_argument(
-        '--dataset-dir',
-        type=str,
-        default=None,
-        help="Path to BIDS dataset directory (default: data/raw/bids)"
-    )
-    parser.add_argument(
-        '--participant-label',
-        type=str,
-        nargs='+',
-        default=None,
-        help="List of participant labels to process"
-    )
-    parser.add_argument(
-        '--skip-bids-validation',
-        action='store_true',
-        help="Skip BIDS validation"
-    )
-    
-    args = parser.parse_args()
-    
+    Expects dataset_id as a command-line argument.
+    If no argument is provided, processes all downloaded datasets.
+    """
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
+    if len(sys.argv) < 2:
+        logger.info("Usage: python fmriprep_runner.py <dataset_id> [participant_label]")
+        logger.info("Example: python fmriprep_runner.py ds000001 sub-01")
+        sys.exit(1)
+        
+    dataset_id = sys.argv[1]
+    participant_label = sys.argv[2] if len(sys.argv) > 2 else None
+    
     try:
-        result = run_fmriprep(
-            dataset_dir=args.dataset_dir,
-            participant_label=args.participant_label,
-            skip_bids_validation=args.skip_bids_validation
+        run_fmriprep(
+            dataset_id=dataset_id,
+            participant_label=participant_label,
+            skip_bids_validation=False
         )
-        logger.info("fMRIPrep completed successfully")
-        print(result.stdout)
+        logger.info("Preprocessing pipeline completed successfully.")
     except FMRIPrepRunnerError as e:
-        logger.error(str(e))
+        logger.error(f"Preprocessing failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

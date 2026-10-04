@@ -1,8 +1,8 @@
 """
-Integration tests for the llmXive research pipeline.
+Integration tests for the llmXive automated science pipeline.
 
-These tests verify the interaction between multiple components
-(simulation, generation, evaluation) to ensure the full pipeline
-functions correctly.
+This module contains tests that verify the interaction between multiple
+components of the system, ensuring that data flows correctly from
+simulation through generation to evaluation and analysis.
 """
 pass

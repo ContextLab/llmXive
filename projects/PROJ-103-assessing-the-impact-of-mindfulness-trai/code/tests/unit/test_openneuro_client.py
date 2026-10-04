@@ -1,11 +1,5 @@
 """
-Unit tests for OpenNeuro API client.
-
-Tests cover:
-- Client creation and API key handling
-- list_datasets method
-- get_dataset_info method
-- Error handling
+Unit tests for the OpenNeuro API client.
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
@@ -14,151 +8,142 @@ from src.datasets.openneuro_client import (
     OpenNeuroClientError,
     create_client
 )
+from src.config.env import get_openneuro_api_key
 
 
 @pytest.fixture
 def mock_response():
     """Mock response object for requests."""
-    response = Mock()
-    response.raise_for_status = Mock()
-    response.json = Mock(return_value={"data": {}})
+    response = MagicMock()
+    response.status_code = 200
+    response.json.return_value = {
+        "data": {
+            "datasets": [
+                {
+                    "id": "ds000001",
+                    "label": "Test Dataset",
+                    "description": "A test dataset for mindfulness research",
+                    "created": "2023-01-01T00:00:00Z",
+                    "uploader": {"id": "1", "name": "Test User", "orcid": "0000-0000-0000-0000"},
+                    "permissions": {"users": [], "public": True},
+                    "snapshot": {
+                        "id": "1.0.0",
+                        "created": "2023-01-02T00:00:00Z",
+                        "tags": ["1.0.0"],
+                        "description": "Initial snapshot",
+                        "summary": {
+                            "subjects": ["sub-01", "sub-02"],
+                            "modalities": ["fMRI"],
+                            "totalSubjects": 2,
+                            "secondaryModalities": []
+                        }
+                    }
+                }
+            ]
+        }
+    }
     return response
 
 
 @pytest.fixture
 def client():
-    """Fixture providing an OpenNeuroClient with mocked API key."""
-    with patch("src.datasets.openneuro_client.get_openneuro_api_key", return_value="test_key"):
-        return OpenNeuroClient(api_key="test_key")
+    """Create a client with a mocked API key."""
+    with patch('src.datasets.openneuro_client.get_openneuro_api_key', return_value='test-key'):
+        return OpenNeuroClient()
 
 
 class TestCreateClient:
-    """Tests for the create_client factory function."""
-    
     def test_create_client_with_key(self):
-        """Test client creation with explicit API key."""
-        client = create_client(api_key="explicit_key")
-        assert client.api_key == "explicit_key"
-    
+        """Test creating client with explicit API key."""
+        client = create_client(api_key="explicit-key")
+        assert client.api_key == "explicit-key"
+
     def test_create_client_from_env(self):
-        """Test client creation retrieves key from environment."""
-        with patch("src.datasets.openneuro_client.get_openneuro_api_key", return_value="env_key"):
+        """Test creating client loads key from environment."""
+        with patch('src.datasets.openneuro_client.get_openneuro_api_key', return_value="env-key"):
             client = create_client()
-            assert client.api_key == "env_key"
-    
-    def test_create_client_no_key(self):
-        """Test client creation fails when no key available."""
-        with patch("src.datasets.openneuro_client.get_openneuro_api_key", return_value=None):
-            with pytest.raises(OpenNeuroClientError) as exc_info:
-                create_client()
-            assert "API key is required" in str(exc_info.value)
+            assert client.api_key == "env-key"
 
 
 class TestOpenNeuroClient:
-    """Tests for OpenNeuroClient methods."""
-    
-    def test_client_initialization(self, client):
-        """Test client initializes with correct headers."""
-        assert client.api_key == "test_key"
-        assert client.session.headers["Authorization"] == "Bearer test_key"
-        assert client.session.headers["Content-Type"] == "application/json"
-    
-    def test_list_datasets_success(self, client, mock_response):
-        """Test successful list_datasets call."""
-        mock_data = {
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_list_datasets_success(self, mock_post, mock_response, client):
+        """Test successful dataset listing."""
+        mock_post.return_value = mock_response
+
+        datasets = client.list_datasets(limit=10)
+
+        assert len(datasets) == 1
+        assert datasets[0]["id"] == "ds000001"
+        assert datasets[0]["label"] == "Test Dataset"
+        mock_post.assert_called_once()
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_list_datasets_with_filter(self, mock_post, mock_response, client):
+        """Test listing with specific dataset ID filter."""
+        mock_post.return_value = mock_response
+
+        datasets = client.list_datasets(dataset_id="ds000001")
+
+        assert len(datasets) == 1
+        call_args = mock_post.call_args
+        assert call_args[1]["json"]["variables"]["datasetId"] == "ds000001"
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_get_dataset_info_success(self, mock_post, mock_response, client):
+        """Test retrieving specific dataset info."""
+        # Modify response for single dataset query
+        mock_response.json.return_value = {
             "data": {
-                "datasets": [
-                    {"id": "ds000001", "label": "Dataset 1", "created": "2023-01-01"},
-                    {"id": "ds000002", "label": "Dataset 2", "created": "2023-01-02"}
-                ]
+                "dataset": mock_response.json.return_value["data"]["datasets"][0]
             }
         }
-        mock_response.json = Mock(return_value=mock_data)
-        
-        with patch.object(client.session, "post", return_value=mock_response):
-            result = client.list_datasets(limit=10)
-        
-        assert "datasets" in result
-        assert len(result["datasets"]) == 2
-        assert result["datasets"][0]["id"] == "ds000001"
-    
-    def test_list_datasets_with_filters(self, client, mock_response):
-        """Test list_datasets with dataset_id and order filters."""
-        mock_data = {"data": {"datasets": []}}
-        mock_response.json = Mock(return_value=mock_data)
-        
-        with patch.object(client.session, "post", return_value=mock_response) as mock_post:
-            client.list_datasets(limit=5, dataset_id="ds000001", order="modified")
-        
-        # Verify query variables were passed correctly
-        call_args = mock_post.call_args[1]["json"]
-        assert call_args["variables"]["limit"] == 5
-        assert call_args["variables"]["datasetId"] == "ds000001"
-        assert call_args["variables"]["order"] == "modified"
-    
-    def test_list_datasets_api_error(self, client, mock_response):
-        """Test list_datasets handles API errors."""
-        mock_response.json = Mock(return_value={
-            "errors": [{"message": "Invalid query"}]
-        })
-        
-        with patch.object(client.session, "post", return_value=mock_response):
-            with pytest.raises(OpenNeuroClientError) as exc_info:
-                client.list_datasets()
-            assert "API Error" in str(exc_info.value)
-    
-    def test_list_datasets_request_error(self, client):
-        """Test list_datasets handles request exceptions."""
-        with patch.object(client.session, "post", side_effect=Exception("Network error")):
-            with pytest.raises(OpenNeuroClientError) as exc_info:
-                client.list_datasets()
-            assert "Request failed" in str(exc_info.value)
-    
-    def test_get_dataset_info_success(self, client, mock_response):
-        """Test successful get_dataset_info call."""
-        mock_data = {
-            "data": {
-                "dataset": {
-                    "id": "ds000001",
-                    "label": "Test Dataset",
-                    "created": "2023-01-01",
-                    "description": {
-                        "Name": "Test Dataset",
-                        "Authors": ["Author 1"]
-                    },
-                    "summary": {
-                        "modalities": ["fMRI"],
-                        "subjectCount": 10
-                    }
-                }
-            }
+        mock_post.return_value = mock_response
+
+        info = client.get_dataset_info("ds000001")
+
+        assert info["id"] == "ds000001"
+        assert "latestSnapshot" in info
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_get_dataset_not_found(self, mock_post, client):
+        """Test handling of non-existent dataset."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": {"dataset": None}}
+        mock_post.return_value = mock_response
+
+        with pytest.raises(OpenNeuroClientError, match="not found"):
+            client.get_dataset_info("nonexistent")
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_network_error(self, mock_post, client):
+        """Test handling of network errors."""
+        mock_post.side_effect = Exception("Network failure")
+
+        with pytest.raises(OpenNeuroClientError, match="Network error"):
+            client.list_datasets()
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_api_error(self, mock_post, client):
+        """Test handling of GraphQL API errors."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "errors": [{"message": "Field 'invalid' doesn't exist"}]
         }
-        mock_response.json = Mock(return_value=mock_data)
-        
-        with patch.object(client.session, "post", return_value=mock_response):
-            result = client.get_dataset_info("ds000001")
-        
-        assert result["id"] == "ds000001"
-        assert result["label"] == "Test Dataset"
-        assert result["description"]["Name"] == "Test Dataset"
-        assert result["summary"]["subjectCount"] == 10
-    
-    def test_get_dataset_info_not_found(self, client, mock_response):
-        """Test get_dataset_info handles missing dataset."""
-        mock_response.json = Mock(return_value={"data": {"dataset": None}})
-        
-        with patch.object(client.session, "post", return_value=mock_response):
-            with pytest.raises(OpenNeuroClientError) as exc_info:
-                client.get_dataset_info("nonexistent")
-            assert "not found" in str(exc_info.value)
-    
-    def test_get_dataset_info_api_error(self, client, mock_response):
-        """Test get_dataset_info handles API errors."""
-        mock_response.json = Mock(return_value={
-            "errors": [{"message": "Dataset not found"}]
-        })
-        
-        with patch.object(client.session, "post", return_value=mock_response):
-            with pytest.raises(OpenNeuroClientError) as exc_info:
-                client.get_dataset_info("ds000001")
-            assert "API Error" in str(exc_info.value)
+        mock_post.return_value = mock_response
+
+        with pytest.raises(OpenNeuroClientError, match="GraphQL API error"):
+            client.list_datasets()
+
+    @patch('src.datasets.openneuro_client.requests.Session.post')
+    def test_json_parse_error(self, mock_post, client):
+        """Test handling of JSON parsing errors."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = ValueError("Invalid JSON")
+        mock_post.return_value = mock_response
+
+        with pytest.raises(OpenNeuroClientError, match="Failed to parse"):
+            client.list_datasets()

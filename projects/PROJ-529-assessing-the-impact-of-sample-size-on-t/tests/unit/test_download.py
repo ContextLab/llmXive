@@ -1,192 +1,170 @@
-"""
-Unit tests for the download module (T019).
-
-Tests synthetic data generation and parameter handling.
-"""
-import json
 import os
+import json
 import tempfile
+from pathlib import Path
 import pytest
 import numpy as np
-from unittest.mock import patch, MagicMock
 
-from code.download import (
-    generate_synthetic_meta_analyses,
-    save_simulation_parameters,
+# Import the functions to test
+from download import (
+    generate_synthetic_meta_analysis,
     save_synthetic_data,
-    run_fallback_simulation,
-    IOANNIDIS_PARAMS,
-    DataAcquisitionError
+    run_simulation_fallback,
+    IOANNIDIS_PARAMS
 )
+from utils.exceptions import DataAcquisitionError
 
-class TestSyntheticDataGeneration:
-    """Tests for synthetic data generation logic."""
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    def test_generate_correct_number_of_meta_analyses(self):
-        """Test that the correct number of meta-analyses are generated."""
-        num_meta = 10
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=num_meta, seed=42)
+class TestGenerateSyntheticMetaAnalysis:
+    def test_generate_synthetic_meta_analysis_basic(self):
+        """Test basic generation of synthetic meta-analysis."""
+        studies = generate_synthetic_meta_analysis(
+            meta_id="test_001",
+            study_count=10,
+            tau_squared=0.04,
+            mean_effect=0.3,
+            bias=0.1,
+            seed=42
+        )
         
-        assert len(meta_analyses) == num_meta
-
-    def test_generate_studies_within_range(self):
-        """Test that study counts are within specified range."""
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=5, seed=42)
+        assert len(studies) == 10
+        assert all("study_id" in s for s in studies)
+        assert all("effect_size" in s for s in studies)
+        assert all("se" in s for s in studies)
+        assert all("n" in s for s in studies)
         
-        for meta in meta_analyses:
-            k = meta["num_studies"]
-            assert 3 <= k <= 50, f"Study count {k} out of range [3, 50]"
-
-    def test_effect_sizes_have_reasonable_variance(self):
-        """Test that generated effect sizes have reasonable variance."""
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=10, seed=42)
+        # Check that effect sizes are reasonable
+        effect_sizes = [s["effect_size"] for s in studies]
+        assert all(isinstance(e, float) for e in effect_sizes)
         
-        all_effects = []
-        for meta in meta_analyses:
-            effects = [s["effect_size"] for s in meta["studies"]]
-            all_effects.extend(effects)
+        # Check that SEs are positive
+        ses = [s["se"] for s in studies]
+        assert all(se > 0 for se in ses)
+
+    def test_generate_synthetic_meta_analysis_reproducibility(self):
+        """Test that same seed produces same results."""
+        studies1 = generate_synthetic_meta_analysis(
+            meta_id="test_001",
+            study_count=10,
+            seed=42
+        )
         
-        assert len(all_effects) > 0
-        mean_effect = np.mean(all_effects)
-        std_effect = np.std(all_effects)
+        studies2 = generate_synthetic_meta_analysis(
+            meta_id="test_001",
+            study_count=10,
+            seed=42
+        )
         
-        # Mean should be around 0.4 (0.3 + 0.1 bias)
-        assert 0.3 < mean_effect < 0.5, f"Mean effect {mean_effect} outside expected range"
-        # Std should be > 0 due to tau^2 + sampling error
-        assert std_effect > 0.1, f"Std effect {std_effect} too small"
+        assert studies1 == studies2
 
-    def test_se_values_are_positive(self):
-        """Test that all standard errors are positive."""
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=5, seed=42)
-        
-        for meta in meta_analyses:
-            for study in meta["studies"]:
-                assert study["se"] > 0, f"SE {study['se']} is not positive"
-
-    def test_sample_sizes_are_reasonable(self):
-        """Test that sample sizes are within expected range."""
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=5, seed=42)
-        
-        for meta in meta_analyses:
-            for study in meta["studies"]:
-                assert 50 <= study["sample_size"] <= 1000, \
-                    f"Sample size {study['sample_size']} out of range [50, 1000]"
-
-    def test_events_less_than_or_equal_to_total(self):
-        """Test that event counts do not exceed total sample size."""
-        meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=5, seed=42)
-        
-        for meta in meta_analyses:
-            for study in meta["studies"]:
-                assert study["n_events"] <= study["n_total"], \
-                    f"Events {study['n_events']} exceeds total {study['n_total']}"
-
-class TestParameterSaving:
-    """Tests for parameter saving functionality."""
-
-    def test_save_parameters_creates_valid_json(self):
-        """Test that parameters are saved as valid JSON."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            params_path = os.path.join(tmpdir, "params.json")
-            save_simulation_parameters(IOANNIDIS_PARAMS, params_path)
-            
-            assert os.path.exists(params_path)
-            
-            with open(params_path, 'r') as f:
-                loaded_params = json.load(f)
-            
-            assert loaded_params == IOANNIDIS_PARAMS
-
-    def test_save_parameters_creates_directory(self):
-        """Test that missing directories are created."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            nested_path = os.path.join(tmpdir, "nested", "dir", "params.json")
-            save_simulation_parameters(IOANNIDIS_PARAMS, nested_path)
-            
-            assert os.path.exists(nested_path)
-
-class TestSyntheticDataSaving:
-    """Tests for synthetic data saving functionality."""
-
-    def test_save_creates_individual_files(self):
-        """Test that each meta-analysis is saved to a separate file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=3, seed=42)
-            save_synthetic_data(meta_analyses, tmpdir)
-            
-            files = os.listdir(tmpdir)
-            assert len(files) == 3
-            assert all(f.endswith('.json') for f in files)
-
-    def test_save_files_contain_valid_data(self):
-        """Test that saved files contain valid meta-analysis data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            meta_analyses = generate_synthetic_meta_analyses(num_meta_analyses=2, seed=42)
-            save_synthetic_data(meta_analyses, tmpdir)
-            
-            for meta in meta_analyses:
-                filepath = os.path.join(tmpdir, f"{meta['meta_id']}.json")
-                assert os.path.exists(filepath)
-                
-                with open(filepath, 'r') as f:
-                    loaded = json.load(f)
-                
-                assert loaded["meta_id"] == meta["meta_id"]
-                assert loaded["num_studies"] == meta["num_studies"]
-                assert len(loaded["studies"]) == meta["num_studies"]
-
-class TestFallbackSimulation:
-    """Tests for the fallback simulation process."""
-
-    def test_run_fallback_creates_all_outputs(self):
-        """Test that fallback simulation creates all required outputs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            params_path = run_fallback_simulation(
-                num_meta_analyses=5,
-                params=IOANNIDIS_PARAMS,
-                output_dir=tmpdir
+    def test_generate_synthetic_meta_analysis_study_count_range(self):
+        """Test that study count matches requested number."""
+        for count in [3, 10, 50]:
+            studies = generate_synthetic_meta_analysis(
+                meta_id="test_001",
+                study_count=count,
+                seed=42
             )
-            
-            # Check params file
-            assert os.path.exists(params_path)
-            assert params_path.endswith("simulation_params.json")
-            
-            # Check data files
-            files = os.listdir(tmpdir)
-            json_files = [f for f in files if f.endswith('.json') and f != 'simulation_params.json']
-            assert len(json_files) == 5
+            assert len(studies) == count
 
-    def test_run_fallback_uses_correct_parameters(self):
-        """Test that fallback simulation uses the provided parameters."""
-        custom_params = IOANNIDIS_PARAMS.copy()
-        custom_params["mean_effect"] = 0.5
-        custom_params["tau_sq"] = 0.1
+class TestSaveSyntheticData:
+    def test_save_synthetic_data_creates_files(self, temp_data_dir):
+        """Test that save_synthetic_data creates the expected files."""
+        params = IOANNIDIS_PARAMS.copy()
+        params["seed"] = 42
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            params_path = run_fallback_simulation(
-                num_meta_analyses=3,
-                params=custom_params,
-                output_dir=tmpdir
-            )
-            
-            with open(params_path, 'r') as f:
-                saved_params = json.load(f)
-            
-            assert saved_params["mean_effect"] == 0.5
-            assert saved_params["tau_sq"] == 0.1
-
-class TestDataAcquisitionErrorHandling:
-    """Tests for error handling in data acquisition."""
-
-    def test_data_acquisition_error_is_raised(self):
-        """Test that DataAcquisitionError is raised for failed fetches."""
-        with pytest.raises(DataAcquisitionError):
-            raise DataAcquisitionError("Test error message")
-
-    def test_error_message_is_preserved(self):
-        """Test that error messages are preserved."""
-        error_msg = "Cochrane API unavailable"
-        with pytest.raises(DataAcquisitionError) as exc_info:
-            raise DataAcquisitionError(error_msg)
+        files = save_synthetic_data(
+            data_dir=temp_data_dir,
+            params=params,
+            num_meta_analyses=3
+        )
         
-        assert str(exc_info.value) == error_msg
+        assert len(files) == 3
+        
+        # Check that parameter file exists
+        params_file = temp_data_dir / "simulation_params.json"
+        assert params_file.exists()
+        
+        # Check that data files exist
+        for i in range(1, 4):
+            data_file = temp_data_dir / f"sim_meta_{i:03d}.csv"
+            assert data_file.exists()
+
+    def test_save_synthetic_data_content(self, temp_data_dir):
+        """Test that saved data files have correct content."""
+        params = IOANNIDIS_PARAMS.copy()
+        params["seed"] = 42
+        
+        save_synthetic_data(
+            data_dir=temp_data_dir,
+            params=params,
+            num_meta_analyses=1
+        )
+        
+        # Read the first data file
+        data_file = temp_data_dir / "sim_meta_001.csv"
+        with open(data_file, 'r') as f:
+            lines = f.readlines()
+        
+        # Check header
+        assert lines[0].strip() == "study_id,effect_size,se,n"
+        
+        # Check that we have the right number of data rows
+        assert len(lines) == 51  # 1 header + 50 data rows
+
+    def test_save_synthetic_data_parameters(self, temp_data_dir):
+        """Test that parameters are saved correctly."""
+        params = IOANNIDIS_PARAMS.copy()
+        params["seed"] = 42
+        
+        save_synthetic_data(
+            data_dir=temp_data_dir,
+            params=params,
+            num_meta_analyses=1
+        )
+        
+        # Read the parameters file
+        params_file = temp_data_dir / "simulation_params.json"
+        with open(params_file, 'r') as f:
+            saved_params = json.load(f)
+        
+        assert saved_params == params
+
+class TestRunSimulationFallback:
+    def test_run_simulation_fallback_success(self, temp_data_dir):
+        """Test that run_simulation_fallback succeeds."""
+        params = IOANNIDIS_PARAMS.copy()
+        params["seed"] = 42
+        
+        success = run_simulation_fallback(
+            data_dir=temp_data_dir,
+            params=params,
+            num_meta_analyses=3
+        )
+        
+        assert success is True
+        
+        # Verify files were created
+        assert (temp_data_dir / "simulation_params.json").exists()
+        assert (temp_data_dir / "sim_meta_001.csv").exists()
+        assert (temp_data_dir / "sim_meta_002.csv").exists()
+        assert (temp_data_dir / "sim_meta_003.csv").exists()
+
+    def test_run_simulation_fallback_default_params(self, temp_data_dir):
+        """Test that run_simulation_fallback works with default params."""
+        success = run_simulation_fallback(
+            data_dir=temp_data_dir,
+            num_meta_analyses=2
+        )
+        
+        assert success is True
+        
+        # Verify files were created
+        assert (temp_data_dir / "simulation_params.json").exists()
+        assert (temp_data_dir / "sim_meta_001.csv").exists()
+        assert (temp_data_dir / "sim_meta_002.csv").exists()

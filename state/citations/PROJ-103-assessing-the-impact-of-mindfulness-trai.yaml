@@ -1,4 +1,4 @@
-- artifact_hash: 7fb128ba13ccf4ca60ebbfe306d8129e57d00af695c70385f2818dcb03113b6a
+- artifact_hash: caf7d41101a889dcca7e3fb2d40ad59fd0e225d93f9ef94dbe12cb770c9e23bf
   artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://openneuro.org/datasets
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets
-  verified_at: '2026-09-30T03:34:44.844001Z'
+  verified_at: '2026-10-04T14:17:01.122219Z'

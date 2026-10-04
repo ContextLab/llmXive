@@ -3,9 +3,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
 from config import is_real_mode, is_simulation_mode, get_config
-from utils.exceptions import DataAcquisitionError
 
 # Configure logging
 logging.basicConfig(
@@ -14,119 +12,129 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-MIN_CORPUS_SIZE = 50  # SC-001 requirement
-
-def count_meta_analyses(data_dir: Path) -> int:
+def count_meta_analyses(raw_data_dir: Path) -> int:
     """
     Count the number of valid meta-analysis files in the raw data directory.
     
     Args:
-        data_dir: Path to the directory containing raw meta-analysis data files.
+        raw_data_dir: Path to the data/raw directory containing downloaded files
         
     Returns:
-        Integer count of valid meta-analysis files.
+        int: Count of valid meta-analysis files
     """
-    if not data_dir.exists():
-        logger.warning(f"Data directory does not exist: {data_dir}")
+    if not raw_data_dir.exists():
+        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
         return 0
     
     count = 0
-    valid_extensions = {'.json', '.csv', '.parquet'}
+    # Look for common data file extensions
+    valid_extensions = {'.csv', '.json', '.parquet', '.tsv'}
     
-    for file_path in data_dir.iterdir():
+    for file_path in raw_data_dir.iterdir():
         if file_path.is_file() and file_path.suffix.lower() in valid_extensions:
-            # Skip simulation params file if it exists
+            # Skip simulation params file if it exists (it's metadata, not data)
             if file_path.name == 'simulation_params.json':
                 continue
             
-            # Basic validation: check if file is non-empty
+            # Basic validation: check if file is not empty
             if file_path.stat().st_size > 0:
                 count += 1
-                logger.debug(f"Found valid meta-analysis file: {file_path.name}")
+                logger.info(f"Found valid meta-analysis file: {file_path.name}")
+            else:
+                logger.warning(f"Skipping empty file: {file_path.name}")
     
-    logger.info(f"Total meta-analyses found in {data_dir}: {count}")
     return count
 
 def write_report(report_path: Path, mode: str, count: int) -> None:
     """
-    Write the validation report to the specified output path.
+    Write the success rate report to JSON.
     
     Args:
-        report_path: Path to the output JSON report file.
-        mode: Either "real" or "simulation" indicating the data source mode.
-        count: The number of meta-analyses counted.
+        report_path: Path to the output report file
+        mode: 'real' or 'simulation'
+        count: Number of meta-analyses processed
     """
-    report_dir = report_path.parent
-    report_dir.mkdir(parents=True, exist_ok=True)
-    
     report_data = {
         "mode": mode,
         "count": count,
-        "target": MIN_CORPUS_SIZE,
-        "meets_requirement": count >= MIN_CORPUS_SIZE,
-        "timestamp": str(Path(report_path).parent.parent.name)  # Simple timestamp placeholder
+        "target": 50,
+        "meets_requirement": count >= 50
     }
     
-    with open(report_path, 'w', encoding='utf-8') as f:
+    # Ensure output directory exists
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(report_path, 'w') as f:
         json.dump(report_data, f, indent=2)
     
     logger.info(f"Report written to {report_path}")
 
 def main() -> None:
     """
-    Main entry point for the corpus validation task (T012a).
+    Main entry point for corpus validation.
     
-    Logic:
-    1. Determine if we are in real or simulation mode.
-    2. If real mode, count files in data/raw/.
-    3. If count < 50, log CRITICAL warning, switch to simulation mode, trigger T019.
-    4. If count >= 50, log success.
-    5. Write result to data/output/success_rate_report.json.
+    This function:
+    1. Counts meta-analyses in the raw data directory
+    2. Validates against SC-001 (>=50 requirement)
+    3. Logs appropriate warnings or success messages
+    4. Writes the result to data/output/success_rate_report.json
+    5. Triggers simulation fallback if count < 50
     """
     config = get_config()
     raw_data_dir = Path(config.get('raw_data_dir', 'data/raw'))
-    output_report_path = Path(config.get('output_dir', 'data/output')) / 'success_rate_report.json'
+    output_dir = Path(config.get('output_dir', 'data/output'))
+    report_path = output_dir / 'success_rate_report.json'
     
-    logger.info("Starting corpus validation (T012a)...")
+    logger.info(f"Validating corpus in {raw_data_dir}")
     
-    current_mode = "real" if is_real_mode() else "simulation"
-    effective_count = 0
+    count = count_meta_analyses(raw_data_dir)
     
-    if current_mode == "real":
-        effective_count = count_meta_analyses(raw_data_dir)
-        
-        if effective_count < MIN_CORPUS_SIZE:
+    # Determine mode and log appropriate message
+    if is_real_mode():
+        if count >= 50:
+            logger.info(f"SUCCESS: Found {count} meta-analyses (>= 50 target). Proceeding with real data.")
+            mode = "real"
+        else:
             logger.critical(
                 f"Primary data requirement (FR-001) not met. "
-                f"Found {effective_count} meta-analyses, required {MIN_CORPUS_SIZE}. "
-                f"Switching to Simulation Mode."
+                f"Found {count} meta-analyses, need >= 50. "
+                "Switching to Simulation Mode."
             )
-            # Trigger simulation fallback path (T019)
-            # We call the fallback function from download.py
+            mode = "simulation"
+            # Trigger simulation fallback by calling the download module
+            try:
+                from download import run_simulation_fallback
+                logger.info("Triggering simulation fallback (T019)...")
+                run_simulation_fallback()
+            except ImportError:
+                logger.error("Could not import run_simulation_fallback from download.py")
+            except Exception as e:
+                logger.error(f"Simulation fallback failed: {e}")
+    elif is_simulation_mode():
+        logger.info(f"Simulation mode active. Count: {count}")
+        mode = "simulation"
+    else:
+        # Default to real mode if not explicitly configured
+        if count >= 50:
+            logger.info(f"SUCCESS: Found {count} meta-analyses (>= 50 target).")
+            mode = "real"
+        else:
+            logger.critical(
+                f"Primary data requirement (FR-001) not met. "
+                f"Found {count} meta-analyses, need >= 50. "
+                "Switching to Simulation Mode."
+            )
+            mode = "simulation"
             try:
                 from download import run_simulation_fallback
                 run_simulation_fallback()
-                current_mode = "simulation"
-                # Re-count after simulation generation
-                effective_count = count_meta_analyses(raw_data_dir)
             except Exception as e:
-                logger.error(f"Failed to trigger simulation fallback: {e}")
-                raise DataAcquisitionError(f"Failed to acquire real data and simulation fallback failed: {e}")
-        else:
-            logger.info(f"Success: Found {effective_count} meta-analyses (>= {MIN_CORPUS_SIZE}). Proceeding to T016.")
-    else:
-        # Already in simulation mode
-        logger.info("Running in simulation mode. Counting generated data...")
-        effective_count = count_meta_analyses(raw_data_dir)
+                logger.error(f"Simulation fallback failed: {e}")
     
     # Write the report
-    write_report(output_report_path, current_mode, effective_count)
+    write_report(report_path, mode, count)
     
-    if effective_count < MIN_CORPUS_SIZE and current_mode == "simulation":
-        logger.warning(
-            f"Even in simulation mode, count ({effective_count}) is below target ({MIN_CORPUS_SIZE}). "
-            f"Proceeding with available data but results may be limited."
-        )
+    logger.info(f"Validation complete. Mode: {mode}, Count: {count}")
 
 if __name__ == "__main__":
     main()

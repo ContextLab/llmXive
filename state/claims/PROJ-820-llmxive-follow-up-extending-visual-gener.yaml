@@ -531,3 +531,284 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T01:34:17Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Switch to Fisher's Exact Test if cell counts are less than 5
+  claim_id: c_9afdb43c
+  context: 'Phase 5: User Story 3. T029b [US3] Implement Statistical Test Switching
+    Logic: Read the power_analysis_report.json and check expected cell counts. If
+    cell counts < 5, switch to Fisher''s Exact Test; otherwise, use two-proportion
+    z-test.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Fisher's_Exact_Test_if_cell_counts_are_less_than_5
+  kind: magnitude
+  raw_text: T029b Switch to Fisher's Exact Test if cell counts < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:28:12Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Power analysis verification threshold is greater than or equal to 0.8
+  claim_id: c_8a41f25c
+  context: "Phase 5: User Story 3. T029a [US3] [Depends on T029] Implement Power Verification:\
+    \ Verify that the calculated power (\u22650.8) is achieved."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_verification_threshold_is_greater_than_or_equ
+  kind: magnitude
+  raw_text: "T029a Verify that the calculated power (\u22650.8) is achieved."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:28:35Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n is identified by Wikidata Q117453145
+  claim_id: c_dbc68d3f
+  context: Task T026 specifies loading the YOLOv8n model and cites its Wikidata identifier.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_is_identified_by_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:15Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Dataset scope is 100 scene descriptions
+  claim_id: c_3e4df256
+  context: Task T011 defines the dataset creation scope as a curated set of 100 scenes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a curated set of 100 scene descriptions (N=100 scope)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Violation thresholds are IoU < 0.5 or Y-offset > 5px
+  claim_id: c_ff204d8e
+  context: Task T026 defines the criteria for detecting physics violations in generated
+    images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare against physics JSON ground truth... IoU < 0.5 or Y-offset > 5px
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Object confidence violation threshold is 0.7
+  claim_id: c_514463ba
+  context: Task T027 sets the default violation condition based on object confidence
+    scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to violation if object confidence < 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters are effect size 0.2, alpha 0.05, power 0.8
+  claim_id: c_fd9b8500
+  context: Task T029 specifies the parameters for the statistical power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:35:22Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used when cell counts are less than 5
+  claim_id: c_6eb6c3bb
+  context: Task T029b defines the condition for switching statistical tests based
+    on cell counts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_used_when_cell_counts_are_less_than_5
+  kind: magnitude
+  raw_text: If cell counts < 5, switch to Fisher's Exact Test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:35:50Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n identified by Wikidata Q117453145
+  claim_id: c_7830a4ac
+  context: Task T026 implementation details for the evaluation detector.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_identified_by_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:36:13Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: curated set of 100 scene descriptions
+  claim_id: c_403fa1a1
+  context: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a curated set of 100 scene descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:37:35Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n Wikidata Q117453145
+  claim_id: c_bda8af95
+  context: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)),
+    detect objects...
+  evidence:
+    entailment_evidence: YOLOv8n Wikidata Q117453145 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: YOLOv8n is identified by Wikidata Q117453145.
+  resolved_value: YOLOv8n Wikidata Q117453145
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T14:37:37Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: contradiction rate threshold 5 percent
+  claim_id: c_ae0ac394
+  context: '...calculate contradiction rate percentage, and verify it is < 5% (SC-004);
+    if rate > 5%, flag the study...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Contradiction_rate_threshold_5_percent
+  kind: magnitude
+  raw_text: The system flags a study if the contradiction rate is greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:38:27Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis effect size 0.2 alpha 0.05 power 0.8
+  claim_id: c_5a184fb4
+  context: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+    and output power_analysis_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an effect size of 0.2, alpha of 0.05, and a power
+    target of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:38:56Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher Exact Test switch if cell counts less than 5
+  claim_id: c_68f34b13
+  context: If cell counts < 5, switch to Fisher's Exact Test; otherwise, use two-proportion
+    z-test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher_Exact_Test_switch_if_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: The system switches to Fisher's Exact Test if expected cell counts are
+    less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:39:22Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: violation default if confidence less than 0.7
+  claim_id: c_3e4792f7
+  context: Count floating objects/interpenetration; default to violation if object
+    confidence < 0.7 (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Violation_default_if_confidence_less_than_0.7
+  kind: magnitude
+  raw_text: The system defaults to a violation if object confidence is less than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:40:00Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: IoU less than 0.5 or Y-offset greater than 5px
+  claim_id: c_becb8768
+  context: '...compare against physics_constraints/{scene_id}.json (relative to 512x512
+    output, IoU < 0.5 or Y-offset > 5px).'
+  evidence:
+    candidates:
+    - - Y-offset greater than
+      - 5.0
+    - - IoU less than
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/IoU_less_than_0.5_or_Y-offset_greater_than_5px
+  kind: magnitude
+  raw_text: The system uses an IoU threshold of less than 0.5 or Y-offset greater
+    than 5px to compare bounding boxes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T14:40:40Z'

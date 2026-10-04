@@ -15,6 +15,12 @@ T001b:
     \ add a `.gitignore` file containing appropriate entries (e.g., `__pycache__/`,\
     \ `*.pyc`, `*.pyo`, `*.pyd`, `env/`, `venv/`, `*.ipynb_checkpoints`, `data/`,\
     \ `*.csv`, `*.h5`, etc.)."
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no `.flake8` file in the provided artifacts, nor any content showing\
+    \ the required `max-line-length = 88` and `extend-ignore = E203, W503` settings.\
+    \ The task\u2019s deliverable is missing."
 T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

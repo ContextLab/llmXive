@@ -1,272 +1,284 @@
+"""
+Dataset design verification module for User Story 1.
+
+Verifies that downloaded datasets contain the required mindfulness intervention
+metadata and scan structure (pre/post resting-state scans).
+"""
 import re
 import os
 import json
+import logging
 from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
 from dataclasses import dataclass
-import logging
 
 from src.config.env import get_data_dir
 
 logger = logging.getLogger(__name__)
 
+
 class DesignVerificationError(Exception):
-    """Raised when dataset design verification fails."""
+    """Raised when design verification fails or data is missing."""
     pass
+
 
 @dataclass
 class DesignMetadata:
-    """Container for verified design metadata fields."""
+    """Container for verified design metadata."""
     pre_scan_count: int
     post_scan_count: int
     intervention_type: str
     scan_type: str
+    dataset_id: str
+    is_valid: bool
+    validation_errors: List[str]
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "dataset_id": self.dataset_id,
             "pre_scan_count": self.pre_scan_count,
             "post_scan_count": self.post_scan_count,
             "intervention_type": self.intervention_type,
-            "scan_type": self.scan_type
+            "scan_type": self.scan_type,
+            "is_valid": self.is_valid,
+            "validation_errors": self.validation_errors
         }
 
-    def __str__(self) -> str:
-        return (
-            f"DesignMetadata(pre_scan_count={self.pre_scan_count}, "
-            f"post_scan_count={self.post_scan_count}, "
-            f"intervention_type='{self.intervention_type}', "
-            f"scan_type='{self.scan_type}')"
-        )
 
-def validate_metadata_fields(
-    dataset_info: Dict[str, Any]
-) -> Tuple[bool, Optional[DesignMetadata], List[str]]:
+def validate_metadata_fields(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate that required metadata fields exist and are of correct type.
+    Validate that all required metadata fields are present and non-empty.
+
+    Required fields:
+    - pre_scan_count: int > 0
+    - post_scan_count: int > 0
+    - intervention_type: str matching mindfulness regex
+    - scan_type: str matching 'rs-fMRI' or 'resting'
 
     Args:
-        dataset_info: Dictionary containing dataset metadata.
+        metadata: Dictionary containing dataset metadata.
 
     Returns:
-        Tuple of (is_valid, DesignMetadata object or None, list of error messages)
+        Tuple of (is_valid, list_of_errors)
     """
     errors = []
-    
-    # Check for required fields
-    required_fields = ['pre_scan_count', 'post_scan_count', 'intervention_type', 'scan_type']
+    required_fields = ["pre_scan_count", "post_scan_count", "intervention_type", "scan_type"]
+
+    # Check presence of required fields
     for field in required_fields:
-        if field not in dataset_info:
+        if field not in metadata:
             errors.append(f"Missing required field: {field}")
-    
-    if errors:
-        return False, None, errors
-
-    # Validate types
-    if not isinstance(dataset_info['pre_scan_count'], int):
-        errors.append(f"pre_scan_count must be int, got {type(dataset_info['pre_scan_count']).__name__}")
-    if not isinstance(dataset_info['post_scan_count'], int):
-        errors.append(f"post_scan_count must be int, got {type(dataset_info['post_scan_count']).__name__}")
-    if not isinstance(dataset_info['intervention_type'], str):
-        errors.append(f"intervention_type must be str, got {type(dataset_info['intervention_type']).__name__}")
-    if not isinstance(dataset_info['scan_type'], str):
-        errors.append(f"scan_type must be str, got {type(dataset_info['scan_type']).__name__}")
 
     if errors:
-        return False, None, errors
+        return False, errors
 
-    metadata = DesignMetadata(
-        pre_scan_count=dataset_info['pre_scan_count'],
-        post_scan_count=dataset_info['post_scan_count'],
-        intervention_type=dataset_info['intervention_type'],
-        scan_type=dataset_info['scan_type']
-    )
-    
-    return True, metadata, []
+    # Validate pre_scan_count
+    try:
+        pre_count = int(metadata["pre_scan_count"])
+        if pre_count <= 0:
+            errors.append(f"pre_scan_count must be > 0, got {pre_count}")
+    except (ValueError, TypeError):
+        errors.append(f"pre_scan_count must be an integer, got {type(metadata['pre_scan_count']).__name__}")
 
-def validate_design_logic(metadata: DesignMetadata) -> Tuple[bool, List[str]]:
-    """
-    Validate design logic rules:
-    - pre_scan_count > 0 AND post_scan_count > 0
-    - intervention_type matches regex 'mindfulness|MBSR|MBC' (case-insensitive)
-    - scan_type equals 'rs-fMRI' or 'resting'
+    # Validate post_scan_count
+    try:
+        post_count = int(metadata["post_scan_count"])
+        if post_count <= 0:
+            errors.append(f"post_scan_count must be > 0, got {post_count}")
+    except (ValueError, TypeError):
+        errors.append(f"post_scan_count must be an integer, got {type(metadata['post_scan_count']).__name__}")
 
-    Args:
-        metadata: DesignMetadata object to validate.
-
-    Returns:
-        Tuple of (is_valid, list of error messages)
-    """
-    errors = []
-
-    # Check scan counts
-    if metadata.pre_scan_count <= 0:
-        errors.append(f"pre_scan_count must be > 0, got {metadata.pre_scan_count}")
-    if metadata.post_scan_count <= 0:
-        errors.append(f"post_scan_count must be > 0, got {metadata.post_scan_count}")
-
-    # Check intervention type regex
-    mindfulness_pattern = re.compile(r'mindfulness|mbsr|mbc', re.IGNORECASE)
-    if not mindfulness_pattern.search(metadata.intervention_type):
+    # Validate intervention_type (case-insensitive regex)
+    intervention_pattern = re.compile(r"^(mindfulness|MBSR|MBC)$", re.IGNORECASE)
+    intervention = str(metadata["intervention_type"]).strip()
+    if not intervention_pattern.match(intervention):
         errors.append(
-            f"intervention_type '{metadata.intervention_type}' does not match "
-            r"pattern 'mindfulness|MBSR|MBC' (case-insensitive)"
+            f"intervention_type must match 'mindfulness|MBSR|MBC' (case-insensitive), "
+            f"got '{intervention}'"
         )
 
-    # Check scan type
-    valid_scan_types = ['rs-fMRI', 'resting']
-    if metadata.scan_type not in valid_scan_types:
+    # Validate scan_type
+    scan_types_allowed = {"rs-fMRI", "resting"}
+    scan_type = str(metadata["scan_type"]).strip()
+    if scan_type not in scan_types_allowed:
         errors.append(
-            f"scan_type '{metadata.scan_type}' must be one of {valid_scan_types}"
+            f"scan_type must be one of {scan_types_allowed}, got '{scan_type}'"
         )
 
     return len(errors) == 0, errors
 
-def verify_dataset_design(dataset_info: Dict[str, Any]) -> Tuple[bool, Optional[DesignMetadata], List[str]]:
+
+def validate_design_logic(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Verify a single dataset's design meets requirements.
+    Validate the logical consistency of the design.
+
+    Checks:
+    - pre_scan_count > 0 AND post_scan_count > 0
+    - intervention_type matches regex
+    - scan_type is valid
 
     Args:
-        dataset_info: Dictionary containing dataset metadata.
+        metadata: Dictionary containing dataset metadata.
 
     Returns:
-        Tuple of (is_valid, DesignMetadata object or None, list of all errors)
+        Tuple of (is_valid, list_of_errors)
     """
-    # Step 1: Validate metadata fields
-    field_valid, metadata, field_errors = validate_metadata_fields(dataset_info)
-    if not field_valid:
-        return False, None, field_errors
+    # Reuse field validation logic
+    is_valid, errors = validate_metadata_fields(metadata)
 
-    # Step 2: Validate design logic
-    logic_valid, logic_errors = validate_design_logic(metadata)
-    if not logic_valid:
-        return False, metadata, logic_errors
+    # Additional logical checks if field validation passed
+    if is_valid:
+        pre_count = int(metadata["pre_scan_count"])
+        post_count = int(metadata["post_scan_count"])
 
-    return True, metadata, []
+        if pre_count == 0 or post_count == 0:
+            errors.append("Design requires both pre and post scans (counts > 0)")
+            is_valid = False
 
-def verify_all_datasets(
-    datasets_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+    return is_valid, errors
+
+
+def verify_dataset_design(dataset_id: str, metadata_path: Optional[Path] = None) -> DesignMetadata:
     """
-    Verify design for all downloaded datasets.
+    Verify a single dataset's design against requirements.
 
-    Searches for design.json files in the data directory structure.
-    Expected structure: data/raw/<dataset_id>/design.json
+    Looks for a design.json file in the dataset directory or accepts a direct path.
 
     Args:
-        datasets_dir: Optional base directory for datasets. Defaults to data/raw/ from env.
+        dataset_id: The OpenNeuro dataset ID (e.g., 'ds000001').
+        metadata_path: Optional explicit path to the design metadata JSON file.
 
     Returns:
-        Dictionary with verification results:
-        {
-            "total_datasets": int,
-            "verified_datasets": List[Dict],
-            "failed_datasets": List[Dict],
-            "summary": Dict
-        }
+        DesignMetadata object with verification results.
     """
-    if datasets_dir is None:
-        data_root = get_data_dir()
-        datasets_dir = Path(data_root) / "raw"
-    
-    if not datasets_dir.exists():
-        raise DesignVerificationError(f"Datasets directory does not exist: {datasets_dir}")
+    data_dir = Path(get_data_dir())
+    dataset_dir = data_dir / "raw" / dataset_id
 
-    results = {
-        "total_datasets": 0,
-        "verified_datasets": [],
-        "failed_datasets": [],
-        "summary": {
-            "verified_count": 0,
-            "failed_count": 0
-        }
-    }
+    # Determine metadata file path
+    if metadata_path and metadata_path.exists():
+        meta_file = metadata_path
+    else:
+        # Standard location: data/raw/{dataset_id}/design.json
+        meta_file = dataset_dir / "design.json"
+        if not meta_file.exists():
+            # Fallback: check for dataset_description.json if design.json missing
+            # but for this task, we strictly require design.json per spec
+            logger.warning(f"Design metadata file not found at {meta_file}")
+            return DesignMetadata(
+                pre_scan_count=0,
+                post_scan_count=0,
+                intervention_type="",
+                scan_type="",
+                dataset_id=dataset_id,
+                is_valid=False,
+                validation_errors=[f"Design metadata file not found: {meta_file}"]
+            )
 
-    # Find all design.json files
-    design_files = list(datasets_dir.rglob("design.json"))
-    
-    if not design_files:
-        logger.warning(f"No design.json files found in {datasets_dir}")
-        return results
+    try:
+        with open(meta_file, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
+    except json.JSONDecodeError as e:
+        return DesignMetadata(
+            pre_scan_count=0,
+            post_scan_count=0,
+            intervention_type="",
+            scan_type="",
+            dataset_id=dataset_id,
+            is_valid=False,
+            validation_errors=[f"Invalid JSON in design file: {e}"]
+        )
+    except Exception as e:
+        return DesignMetadata(
+            pre_scan_count=0,
+            post_scan_count=0,
+            intervention_type="",
+            scan_type="",
+            dataset_id=dataset_id,
+            is_valid=False,
+            validation_errors=[f"Error reading design file: {e}"]
+        )
 
-    for design_file in design_files:
-        results["total_datasets"] += 1
-        dataset_id = design_file.parent.name
-        
-        try:
-            with open(design_file, 'r') as f:
-                dataset_info = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            error_msg = f"Failed to read design.json: {str(e)}"
-            results["failed_datasets"].append({
-                "dataset_id": dataset_id,
-                "file_path": str(design_file),
-                "error": error_msg
-            })
-            results["summary"]["failed_count"] += 1
-            logger.error(f"[{dataset_id}] {error_msg}")
-            continue
+    # Perform validation
+    is_valid, errors = validate_design_logic(metadata)
 
-        is_valid, metadata, errors = verify_dataset_design(dataset_info)
-        
-        if is_valid:
-            results["verified_datasets"].append({
-                "dataset_id": dataset_id,
-                "file_path": str(design_file),
-                "metadata": metadata.to_dict()
-            })
-            results["summary"]["verified_count"] += 1
-            logger.info(f"[{dataset_id}] Design verification passed: {metadata}")
+    return DesignMetadata(
+        pre_scan_count=int(metadata.get("pre_scan_count", 0)),
+        post_scan_count=int(metadata.get("post_scan_count", 0)),
+        intervention_type=str(metadata.get("intervention_type", "")),
+        scan_type=str(metadata.get("scan_type", "")),
+        dataset_id=dataset_id,
+        is_valid=is_valid,
+        validation_errors=errors
+    )
+
+
+def verify_all_datasets(dataset_ids: Optional[List[str]] = None) -> List[DesignMetadata]:
+    """
+    Verify design for all available datasets or a specific list.
+
+    Args:
+        dataset_ids: Optional list of dataset IDs to verify. If None, scans
+                     the data/raw directory for all datasets.
+
+    Returns:
+        List of DesignMetadata objects for each dataset.
+    """
+    data_dir = Path(get_data_dir())
+    raw_dir = data_dir / "raw"
+
+    if not raw_dir.exists():
+        logger.warning(f"Raw data directory not found: {raw_dir}")
+        return []
+
+    if dataset_ids is None:
+        # Discover all datasets in data/raw
+        dataset_ids = [d.name for d in raw_dir.iterdir() if d.is_dir()]
+
+    results = []
+    for ds_id in dataset_ids:
+        logger.info(f"Verifying design for dataset: {ds_id}")
+        result = verify_dataset_design(ds_id)
+        results.append(result)
+        if result.is_valid:
+            logger.info(f"  -> VALID: {ds_id} ({result.intervention_type}, {result.scan_type})")
         else:
-            results["failed_datasets"].append({
-                "dataset_id": dataset_id,
-                "file_path": str(design_file),
-                "metadata": metadata.to_dict() if metadata else None,
-                "errors": errors
-            })
-            results["summary"]["failed_count"] += 1
-            logger.error(f"[{dataset_id}] Design verification failed: {errors}")
+            logger.warning(f"  -> INVALID: {ds_id} - {result.validation_errors}")
 
     return results
 
-def main() -> int:
-    """
-    Main entry point for dataset design verification.
-    
-    Reads design.json files from data/raw/, validates them,
-    and writes verification results to data/results/design_verification.json.
 
-    Returns:
-        Exit code (0 for success, 1 for failures)
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+def main():
+    """Main entry point for design verification."""
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting dataset design verification...")
 
-    try:
-        results = verify_all_datasets()
-        
-        # Write results to output file
-        data_root = get_data_dir()
-        output_dir = Path(data_root) / "results"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        output_file = output_dir / "design_verification.json"
-        
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Verification results written to {output_file}")
-        logger.info(f"Total: {results['total_datasets']}, "
-                   f"Verified: {results['summary']['verified_count']}, "
-                   f"Failed: {results['summary']['failed_count']}")
-        
-        # Return non-zero if any failures
-        return 1 if results["summary"]["failed_count"] > 0 else 0
-        
-    except Exception as e:
-        logger.error(f"Verification failed with error: {str(e)}")
-        return 1
+    results = verify_all_datasets()
+
+    if not results:
+        logger.warning("No datasets found to verify.")
+        return
+
+    valid_count = sum(1 for r in results if r.is_valid)
+    total_count = len(results)
+
+    logger.info(f"Verification complete: {valid_count}/{total_count} datasets valid.")
+
+    # Output summary
+    for r in results:
+        status = "PASS" if r.is_valid else "FAIL"
+        print(f"[{status}] {r.dataset_id}: "
+              f"pre={r.pre_scan_count}, post={r.post_scan_count}, "
+              f"intv={r.intervention_type}, scan={r.scan_type}")
+        if not r.is_valid:
+            for err in r.validation_errors:
+                print(f"      Error: {err}")
+
+    # Exit with error if any verification failed
+    if valid_count != total_count:
+        raise DesignVerificationError(
+            f"Design verification failed for {total_count - valid_count} dataset(s)."
+        )
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

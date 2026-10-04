@@ -1,76 +1,52 @@
 """
-Contract Test for Model Output Schema (T017)
+Contract tests for model output schema validation.
 
-Validates that model training outputs strictly adhere to the schema
-defined in contracts/output.schema.yaml.
-
-This test ensures:
-1. All required fields are present.
-2. Data types match the specification.
-3. Enum values are valid.
-4. Nested structures (metrics, feature_importance) are correct.
+Validates that model evaluation artifacts conform to the schema defined
+in contracts/output.schema.yaml.
 """
-import pytest
-import json
+
 import os
-from datetime import datetime
-from typing import Dict, Any
+import json
 import yaml
+import pytest
+from pathlib import Path
+from typing import Dict, Any
 
-# Path constants relative to project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-SCHEMA_PATH = os.path.join(PROJECT_ROOT, "contracts", "output.schema.yaml")
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-# Sample valid output data to test against the schema
-# In a real integration scenario, this would be the actual output from src/models/train.py
-SAMPLE_MODEL_OUTPUT = {
-    "model_name": "xgboost_yield_strength_v1",
-    "model_type": "XGBoost",
-    "metrics": {
-        "r2": 0.8542,
-        "mse": 125.34,
-        "rmse": 11.19,
-        "mae": 8.45
-    },
-    "feature_importance": [
-        {"feature": "Carbon_Content", "importance": 0.45},
-        {"feature": "Manganese_Content", "importance": 0.22},
-        {"feature": "Cooling_Rate_Holding_Time_Interact", "importance": 0.15},
-        {"feature": "C_Cooling_Rate_Interact", "importance": 0.08}
-    ],
-    "interaction_p_values": [
-        {"interaction_term": "Cooling_Rate_Holding_Time_Interact", "p_value": 0.003, "is_significant": True},
-        {"interaction_term": "C_Cooling_Rate_Interact", "p_value": 0.042, "is_significant": True},
-        {"interaction_term": "Cr_Ni_Ratio", "p_value": 0.15, "is_significant": False}
-    ],
-    "shap_summary_path": "data/results/shap_summary_plots/model_xgboost_shap_summary.png",
-    "timestamp": datetime.utcnow().isoformat() + "Z"
-}
+SCHEMA_PATH = PROJECT_ROOT / "contracts" / "output.schema.yaml"
+RESULTS_DIR = PROJECT_ROOT / "data" / "results"
 
 def load_schema() -> Dict[str, Any]:
-    """Load the JSON/YAML schema from the contracts directory."""
-    if not os.path.exists(SCHEMA_PATH):
-        pytest.fail(f"Schema file not found at {SCHEMA_PATH}. Ensure T001/T017 created contracts/structure.")
+    """Load the JSON schema from the contracts directory."""
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema file not found at {SCHEMA_PATH}")
+    
     with open(SCHEMA_PATH, "r") as f:
         return yaml.safe_load(f)
 
-def validate_type(value: Any, expected_type: str) -> bool:
-    """Helper to validate Python types against schema type strings."""
-    if expected_type == "string":
+def validate_type(value: Any, schema_type: str) -> bool:
+    """Validate a value against a JSON schema type."""
+    if schema_type == "string":
         return isinstance(value, str)
-    if expected_type == "number":
-        return isinstance(value, (int, float))
-    if expected_type == "boolean":
+    elif schema_type == "number":
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    elif schema_type == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    elif schema_type == "boolean":
         return isinstance(value, bool)
-    if expected_type == "array":
+    elif schema_type == "array":
         return isinstance(value, list)
-    if expected_type == "object":
+    elif schema_type == "object":
         return isinstance(value, dict)
+    elif schema_type == "null":
+        return value is None
     return False
 
-def validate_object(obj: Dict[str, Any], schema: Dict[str, Any], path: str = "") -> list:
+def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any], path: str = "") -> list:
     """
-    Recursive validator for the schema structure.
+    Recursively validate data against a JSON schema.
     Returns a list of error messages.
     """
     errors = []
@@ -78,106 +54,190 @@ def validate_object(obj: Dict[str, Any], schema: Dict[str, Any], path: str = "")
     # Check required fields
     if "required" in schema:
         for field in schema["required"]:
-            if field not in obj:
+            if field not in data:
                 errors.append(f"Missing required field: {path}.{field}")
     
     # Validate properties
     if "properties" in schema:
-        for key, value in obj.items():
+        for key, value in data.items():
             if key in schema["properties"]:
                 prop_schema = schema["properties"][key]
-                prop_path = f"{path}.{key}" if path else key
+                current_path = f"{path}.{key}" if path else key
                 
-                # Type check
+                # Check type
                 if "type" in prop_schema:
                     if not validate_type(value, prop_schema["type"]):
-                        errors.append(f"Type mismatch at {prop_path}: expected {prop_schema['type']}, got {type(value).__name__}")
-                    
-                    # Enum check
-                    if prop_schema["type"] == "string" and "enum" in prop_schema:
-                        if value not in prop_schema["enum"]:
-                            errors.append(f"Invalid enum value at {prop_path}: {value} not in {prop_schema['enum']}")
-                    
-                    # Nested object check
-                    if prop_schema["type"] == "object":
-                        errors.extend(validate_object(value, prop_schema, prop_path))
-                    
-                    # Array item check
-                    if prop_schema["type"] == "array" and "items" in prop_schema:
-                        if isinstance(value, list):
-                            for i, item in enumerate(value):
-                                item_path = f"{prop_path}[{i}]"
-                                errors.extend(validate_object(item, prop_schema["items"], item_path))
-            else:
-                # Optional fields are allowed, but if we want to be strict about unknown fields:
-                # errors.append(f"Unknown field at {path}.{key}")
-                pass
+                        errors.append(f"Type mismatch at {current_path}: expected {prop_schema['type']}, got {type(value).__name__}")
+                        continue
+                
+                # Check enum
+                if "enum" in prop_schema:
+                    if value not in prop_schema["enum"]:
+                        errors.append(f"Invalid value at {current_path}: {value} not in {prop_schema['enum']}")
+                
+                # Check pattern (regex)
+                if "pattern" in prop_schema and isinstance(value, str):
+                    import re
+                    if not re.match(prop_schema["pattern"], value):
+                        errors.append(f"Pattern mismatch at {current_path}: {value} does not match {prop_schema['pattern']}")
+                
+                # Check minimum/maximum
+                if "minimum" in prop_schema and isinstance(value, (int, float)):
+                    if value < prop_schema["minimum"]:
+                        errors.append(f"Value at {current_path} ({value}) is below minimum ({prop_schema['minimum']})")
+                if "maximum" in prop_schema and isinstance(value, (int, float)):
+                    if value > prop_schema["maximum"]:
+                        errors.append(f"Value at {current_path} ({value}) is above maximum ({prop_schema['maximum']})")
+                
+                # Recurse for objects
+                if prop_schema["type"] == "object" and isinstance(value, dict):
+                    errors.extend(validate_against_schema(value, prop_schema, current_path))
+                
+                # Recurse for arrays
+                if prop_schema["type"] == "array" and isinstance(value, list):
+                    if "items" in prop_schema:
+                        item_schema = prop_schema["items"]
+                        for idx, item in enumerate(value):
+                            if item_schema["type"] == "object" and isinstance(item, dict):
+                                errors.extend(validate_against_schema(item, item_schema, f"{current_path}[{idx}]"))
+                            elif "type" in item_schema:
+                                if not validate_type(item, item_schema["type"]):
+                                    errors.append(f"Array item type mismatch at {current_path}[{idx}]: expected {item_schema['type']}, got {type(item).__name__}")
+                
+                # Additional properties for metrics
+                if prop_schema.get("additionalProperties") and isinstance(value, dict):
+                    if isinstance(prop_schema["additionalProperties"], dict):
+                        for sub_key, sub_val in value.items():
+                            sub_schema = prop_schema["additionalProperties"]
+                            sub_path = f"{current_path}.{sub_key}"
+                            if "type" in sub_schema:
+                                if not validate_type(sub_val, sub_schema["type"]):
+                                    errors.append(f"Additional property type mismatch at {sub_path}: expected {sub_schema['type']}, got {type(sub_val).__name__}")
     
     return errors
 
-class TestModelOutputSchema:
-    """Contract tests for model output validation."""
+@pytest.fixture
+def schema():
+    """Load the schema once for all tests."""
+    return load_schema()
 
-    def test_schema_file_exists(self):
-        """Ensure the schema definition file exists."""
-        assert os.path.exists(SCHEMA_PATH), "contracts/output.schema.yaml must exist"
+@pytest.fixture
+def sample_model_output():
+    """Generate a sample model output that should pass validation."""
+    return {
+        "model_name": "xgboost_yield_v1",
+        "model_type": "XGBoost",
+        "metrics": {
+            "r2": 0.85,
+            "rmse": 12.4,
+            "mae": 9.8,
+            "cv_scores": [0.82, 0.84, 0.86],
+            "cv_mean": 0.84,
+            "cv_std": 0.02
+        },
+        "feature_importance": [
+            {"feature_name": "C", "importance_score": 0.25, "rank": 1},
+            {"feature_name": "Mn", "importance_score": 0.18, "rank": 2},
+            {"feature_name": "CoolingRate", "importance_score": 0.15, "rank": 3}
+        ],
+        "shap_summary": {
+            "mean_abs_shap": {"C": 0.45, "Mn": 0.32, "CoolingRate": 0.28},
+            "top_features": ["C", "Mn", "CoolingRate"],
+            "plot_path": "data/results/shap_summary_plots/model_xgboost_shap_summary.png"
+        },
+        "permutation_test": {
+            "interaction_terms": ["C_x_CoolingRate", "Cr_x_Ni"],
+            "p_values": {"C_x_CoolingRate": 0.003, "Cr_x_Ni": 0.042},
+            "is_significant": {"C_x_CoolingRate": True, "Cr_x_Ni": True},
+            "fdr_corrected": True
+        },
+        "hyperparameters": {
+            "max_depth": 6,
+            "learning_rate": 0.1,
+            "n_estimators": 100
+        },
+        "training_config": {
+            "cv_folds": 3,
+            "random_seed": 42,
+            "cv_strategy": "KFold"
+        },
+        "timestamp": "2023-10-27T10:00:00Z",
+        "data_checksum": "a" * 64,
+        "version": "1.0.0"
+    }
 
-    def test_schema_is_valid_yaml(self):
-        """Ensure the schema file is valid YAML."""
-        try:
-            load_schema()
-        except yaml.YAMLError as e:
-            pytest.fail(f"Invalid YAML in schema file: {e}")
+def test_schema_file_exists():
+    """Test that the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file missing at {SCHEMA_PATH}"
 
-    def test_sample_output_validates_against_schema(self):
-        """
-        Verify that a properly constructed model output object
-        passes validation against the schema.
-        """
-        schema = load_schema()
-        errors = validate_object(SAMPLE_MODEL_OUTPUT, schema)
-        
-        assert len(errors) == 0, f"Sample output failed schema validation:\n" + "\n".join(errors)
+def test_schema_is_valid_yaml():
+    """Test that the schema file is valid YAML."""
+    try:
+        with open(SCHEMA_PATH, "r") as f:
+            yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        pytest.fail(f"Invalid YAML in schema: {e}")
 
-    def test_missing_required_field_fails(self):
-        """Ensure validation catches missing required fields."""
-        schema = load_schema()
-        invalid_output = SAMPLE_MODEL_OUTPUT.copy()
-        del invalid_output["model_name"]  # Remove required field
-        
-        errors = validate_object(invalid_output, schema)
-        assert any("Missing required field" in err and "model_name" in err for err in errors), \
-            "Validation should fail for missing 'model_name'"
+def test_model_output_schema_validation(schema, sample_model_output):
+    """Test that a valid model output passes schema validation."""
+    errors = validate_against_schema(sample_model_output, schema)
+    assert len(errors) == 0, f"Schema validation failed: {errors}"
 
-    def test_invalid_enum_value_fails(self):
-        """Ensure validation catches invalid model types."""
-        schema = load_schema()
-        invalid_output = SAMPLE_MODEL_OUTPUT.copy()
-        invalid_output["model_type"] = "InvalidModelType"
-        
-        errors = validate_object(invalid_output, schema)
-        assert any("Invalid enum value" in err for err in errors), \
-            "Validation should fail for invalid 'model_type' enum"
+def test_missing_required_fields(schema):
+    """Test that missing required fields are detected."""
+    incomplete_output = {
+        "model_name": "test_model",
+        "model_type": "GAM"
+        # Missing metrics, feature_importance, etc.
+    }
+    errors = validate_against_schema(incomplete_output, schema)
+    assert len(errors) > 0
+    assert any("Missing required field" in e for e in errors)
 
-    def test_wrong_data_type_fails(self):
-        """Ensure validation catches type mismatches."""
-        schema = load_schema()
-        invalid_output = SAMPLE_MODEL_OUTPUT.copy()
-        invalid_output["metrics"]["r2"] = "not_a_number"  # Should be number
-        
-        errors = validate_object(invalid_output, schema)
-        assert any("Type mismatch" in err and "r2" in err for err in errors), \
-            "Validation should fail for non-numeric 'r2'"
+def test_invalid_model_type(schema):
+    """Test that invalid model types are detected."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["model_type"] = "InvalidModel"
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("Invalid value at model_type" in e for e in errors)
 
-    def test_feature_importance_structure(self):
-        """Ensure feature importance list items have correct structure."""
-        schema = load_schema()
-        invalid_output = SAMPLE_MODEL_OUTPUT.copy()
-        invalid_output["feature_importance"] = [
-            {"feature": "C", "importance": 0.5},
-            {"importance": 0.2}  # Missing 'feature'
-        ]
-        
-        errors = validate_object(invalid_output, schema)
-        assert any("Missing required field" in err and "feature" in err for err in errors), \
-            "Validation should fail for missing 'feature' in importance list"
+def test_invalid_metric_range(schema):
+    """Test that metrics outside valid ranges are detected."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["metrics"]["r2"] = 1.5  # R2 cannot be > 1
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("above maximum" in e for e in errors)
+
+def test_invalid_plot_path_pattern(schema):
+    """Test that invalid plot paths are detected."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["shap_summary"]["plot_path"] = "invalid/path.txt"
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("Pattern mismatch" in e for e in errors)
+
+def test_checksum_format(schema):
+    """Test that checksums must be valid SHA256 hex strings."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["data_checksum"] = "not-a-valid-checksum"
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("Pattern mismatch" in e for e in errors)
+
+def test_p_values_range(schema):
+    """Test that p-values must be between 0 and 1."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["permutation_test"]["p_values"]["bad_term"] = 1.5
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("above maximum" in e for e in errors)
+
+def test_cv_scores_array(schema):
+    """Test that cv_scores must be an array of numbers."""
+    invalid_output = sample_model_output.copy()
+    invalid_output["metrics"]["cv_scores"] = "not_an_array"
+    
+    errors = validate_against_schema(invalid_output, schema)
+    assert any("Type mismatch at metrics.cv_scores" in e for e in errors)

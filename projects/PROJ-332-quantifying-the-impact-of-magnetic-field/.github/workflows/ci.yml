@@ -4,6 +4,7 @@ jobs:
   run-analysis:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    fail-on-error: true
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python

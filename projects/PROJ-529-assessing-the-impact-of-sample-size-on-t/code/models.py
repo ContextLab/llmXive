@@ -1,3 +1,11 @@
+"""
+code/models.py
+
+Implements Fixed Effects (FE) and Random Effects (RE) meta-analysis models.
+Primary Output: Writes results to data/processed/stability_metrics.csv.
+Logic: Uses DerSimonian-Laird (DL) for k >= 10 and REML for k < 10 per FR-003.
+"""
+
 from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass, field
 import numpy as np
@@ -6,10 +14,16 @@ from pathlib import Path
 import logging
 import json
 
-# Import existing utilities from the project API surface
-from utils.exceptions import handle_variance_issues, NegativeVarianceError, ConvergenceError
+# Import config for thresholds if needed, though logic is hardcoded per task spec
+# Import utils for error handling
+from utils.exceptions import (
+    ZeroVarianceError,
+    NegativeVarianceError,
+    ConvergenceError,
+    handle_variance_issues,
+    validate_variance_bounds
+)
 from utils.seeds import SeedManager
-from config import get_config
 
 # Configure logging
 logging.basicConfig(
@@ -21,365 +35,372 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Study:
     """Represents a single study within a meta-analysis."""
+    meta_id: str
+    study_id: str
     effect_size: float
     se: float
-    variance: float = field(init=False)
-    weight: float = field(init=False)
-    meta_id: str = ""
+    n: Optional[int] = None
 
     def __post_init__(self):
-        # Handle variance calculation with error handling
-        try:
-            self.variance = self.se ** 2
-            if self.variance < 0:
-                raise NegativeVarianceError(f"Negative variance calculated for study: {self.effect_size}")
-            if self.variance == 0:
-                # Handle zero variance as per T008
-                logger.warning("Zero variance detected. Applying small epsilon.")
-                self.variance = 1e-8
-        except Exception as e:
-            logger.error(f"Variance calculation error: {e}")
-            raise
-
-        self.weight = 1.0 / self.variance if self.variance > 0 else 0.0
+        # Basic validation
+        if self.se <= 0:
+            raise ZeroVarianceError(f"Study {self.study_id} has non-positive SE: {self.se}")
+        if self.effect_size != self.effect_size:  # NaN check
+            raise ValueError(f"Study {self.study_id} has NaN effect size.")
 
 @dataclass
 class Subsample:
     """Represents a bootstrap subsample of studies."""
-    studies: List[Study]
+    meta_id: str
     k: int
     seed: int
-    estimator_type: str = "REML"
-    pooled_effect: float = 0.0
-    pooled_se: float = 0.0
-    ci_lower: float = 0.0
-    ci_upper: float = 0.0
+    studies: List[Study] = field(default_factory=list)
+
+    def get_effect_sizes(self) -> np.ndarray:
+        return np.array([s.effect_size for s in self.studies])
+
+    def get_variances(self) -> np.ndarray:
+        # Variance = SE^2
+        return np.array([s.se ** 2 for s in self.studies])
+
+    def get_n_studies(self) -> int:
+        return len(self.studies)
 
 @dataclass
 class MetaAnalysis:
-    """Container for a full meta-analysis."""
+    """Container for a full meta-analysis dataset."""
     meta_id: str
-    studies: List[Study]
-    subsamples: List[Subsample] = field(default_factory=list)
-    full_sample_effect: float = 0.0
-    full_sample_se: float = 0.0
+    studies: List[Study] = field(default_factory=list)
+    full_sample_effect: Optional[float] = None
+    full_sample_se: Optional[float] = None
+
+    def __post_init__(self):
+        if not self.studies:
+            raise ValueError("MetaAnalysis must have at least one study.")
 
 @dataclass
 class StabilityMetric:
-    """Resulting metric from stability analysis."""
+    """Result of a model fit on a subsample."""
     meta_id: str
     k: int
-    model_type: str
-    sd_effects: float
-    coverage_rate: float
-    sensitivity_variation: float = 0.0
+    seed: int
+    model_type: str  # 'FE', 'RE_DL', 'RE_REML'
+    pooled_effect: float
+    pooled_se: float
+    ci_lower: float
+    ci_upper: float
+    is_primary: bool  # True if matches the k>=10 DL / k<10 REML rule
 
-def fit_meta_analysis_model(studies: List[Study], estimator: str = "REML") -> Tuple[float, float]:
+def _fit_fixed_effects(
+    effects: np.ndarray,
+    variances: np.ndarray
+) -> Tuple[float, float]:
     """
-    Fits a meta-analysis model to a list of studies.
-    
-    Args:
-        studies: List of Study objects
-        estimator: 'REML' or 'DL' (DerSimonian-Laird)
-        
-    Returns:
-        Tuple of (pooled_effect, pooled_se)
-        
-    Raises:
-        ConvergenceError: If the model fails to converge
-        NegativeVarianceError: If variance estimates are invalid
+    Fits a Fixed Effects model using inverse-variance weighting.
+    Returns (pooled_effect, pooled_se).
     """
-    if not studies:
-        raise ValueError("No studies provided for modeling")
-    
-    if len(studies) < 2:
-        logger.warning("Less than 2 studies provided. Cannot estimate tau^2 reliably.")
-        # Fallback to fixed effects if k < 2
-        estimator = "FE"
-    
-    n = len(studies)
-    w_i = np.array([s.weight for s in studies])
-    y_i = np.array([s.effect_size for s in studies])
-    v_i = np.array([s.variance for s in studies])
-    
-    if np.any(w_i == 0):
-        logger.warning("Zero weights detected. Replacing with small value.")
-        w_i[w_i == 0] = 1e-8
-    
-    # Fixed Effects Model
-    if estimator == "FE":
-        pooled_effect = np.sum(w_i * y_i) / np.sum(w_i)
-        pooled_se = np.sqrt(1.0 / np.sum(w_i))
-        return pooled_effect, pooled_se
-    
-    # Random Effects Models
-    # 1. Calculate Q statistic
-    if np.sum(w_i) == 0:
-        raise ConvergenceError("Sum of weights is zero. Cannot calculate Q.")
-        
-    w_bar = np.sum(w_i) / n
-    # Simplified Q calculation for initial check
-    # Q = Sum(w_i * (y_i - pooled_FE)^2)
-    pooled_fe = np.sum(w_i * y_i) / np.sum(w_i)
-    q_stat = np.sum(w_i * (y_i - pooled_fe) ** 2)
-    
-    tau_sq = 0.0
-    
-    if estimator == "DL":
-        # DerSimonian-Laird estimator
-        if n > 1:
-            c = np.sum(w_i) - (np.sum(w_i ** 2) / np.sum(w_i))
-            if c > 0:
-                tau_sq = max(0, (q_stat - (n - 1)) / c)
-            else:
-                tau_sq = 0.0
-        else:
-            tau_sq = 0.0
-            
-    elif estimator == "REML":
-        # Restricted Maximum Likelihood (Iterative)
-        # Simplified REML implementation for robustness
-        # In a full implementation, this would use scipy.optimize
-        # Here we use an iterative approach similar to ML
-        
-        max_iter = 100
-        tol = 1e-4
-        tau_sq_old = 0.0
-        
-        for _ in range(max_iter):
-            # Update weights with tau^2
-            w_re = 1.0 / (v_i + tau_sq_old)
-            w_re[w_re < 0] = 0 # Safety clamp
-            
-            if np.sum(w_re) == 0:
-                break
-                
-            mu = np.sum(w_re * y_i) / np.sum(w_re)
-            
-            # Update tau^2
-            # REML equation: Sum(w_re^2 * (y_i - mu)^2) / Sum(w_re^2) - 1/Sum(w_re) ... simplified
-            # Using a standard iterative REML approximation
-            numerator = np.sum(w_re * (y_i - mu) ** 2) - np.sum(1.0 / (v_i + tau_sq_old))
-            denominator = np.sum(w_re ** 2) / np.sum(w_re) # Simplified denominator
-            
-            if denominator > 0:
-                tau_sq_new = max(0, numerator / denominator)
-            else:
-                tau_sq_new = 0.0
-            
-            if abs(tau_sq_new - tau_sq_old) < tol:
-                break
-            tau_sq_old = tau_sq_new
-        
-        tau_sq = tau_sq_old
-    
-    # Final calculation with tau^2
-    w_re = 1.0 / (v_i + tau_sq)
-    w_re[w_re < 0] = 0
-    
-    if np.sum(w_re) == 0:
-        raise ConvergenceError("Weights sum to zero after REML/DL adjustment.")
-        
-    pooled_effect = np.sum(w_re * y_i) / np.sum(w_re)
-    pooled_se = np.sqrt(1.0 / np.sum(w_re))
-    
+    if len(effects) == 0:
+        raise ValueError("Cannot fit FE model with 0 studies.")
+
+    weights = 1.0 / variances
+    pooled_effect = np.sum(weights * effects) / np.sum(weights)
+    pooled_se = np.sqrt(1.0 / np.sum(weights))
+
     return pooled_effect, pooled_se
 
-def run_modeling_pipeline(subsamples: List[Subsample], full_sample_effect: float, full_sample_se: float, k_values: List[int], estimator_type: str = "REML", sensitivity_perturbation: float = 0.0) -> List[StabilityMetric]:
+def _fit_random_effects_dl(
+    effects: np.ndarray,
+    variances: np.ndarray
+) -> Tuple[float, float]:
     """
-    Runs the modeling pipeline for a set of subsamples.
-    
-    Args:
-        subsamples: List of Subsample objects
-        full_sample_effect: The reference full-sample pooled effect
-        full_sample_se: The reference full-sample SE
-        k_values: List of k values to aggregate
-        estimator_type: 'REML' or 'DL'
-        sensitivity_perturbation: Optional perturbation value for sensitivity analysis (FR-009)
-        
-    Returns:
-        List of StabilityMetric objects
+    Fits a Random Effects model using DerSimonian-Laird (DL) estimator for tau^2.
+    Returns (pooled_effect, pooled_se).
     """
-    metrics = []
+    if len(effects) < 2:
+        raise ValueError("Cannot fit RE model with < 2 studies for DL estimation.")
+
+    weights_inv_var = 1.0 / variances
+    sum_w = np.sum(weights_inv_var)
+    sum_w_sq = np.sum(weights_inv_var ** 2)
+
+    # Q statistic
+    Q = np.sum(weights_inv_var * (effects - np.sum(weights_inv_var * effects) / sum_w) ** 2)
+    C = sum_w - (sum_w_sq / sum_w)
+
+    # Tau^2 estimation
+    tau_sq = max(0.0, (Q - (len(effects) - 1)) / C)
+
+    # New weights
+    new_variances = variances + tau_sq
+    new_weights = 1.0 / new_variances
+    new_sum_w = np.sum(new_weights)
+
+    pooled_effect = np.sum(new_weights * effects) / new_sum_w
+    pooled_se = np.sqrt(1.0 / new_sum_w)
+
+    return pooled_effect, pooled_se
+
+def _fit_random_effects_reml(
+    effects: np.ndarray,
+    variances: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Fits a Random Effects model using Restricted Maximum Likelihood (REML).
+    Uses a simple Newton-Raphson or optimization approach since statsmodels
+    might be overkill or unavailable in strict environments, but we aim for
+    standard implementation.
     
-    # Group subsamples by k
-    subsamples_by_k = {}
-    for sub in subsamples:
-        if sub.k not in subsamples_by_k:
-            subsamples_by_k[sub.k] = []
-        subsamples_by_k[sub.k].append(sub)
+    Simplified REML implementation for robustness without heavy dependencies if possible,
+    or fallback to a known robust estimator if REML is strictly required.
+    Given the constraint to use 'real' code and standard libs, we implement
+    a standard iterative REML solver.
+    """
+    if len(effects) < 2:
+        raise ValueError("Cannot fit RE model with < 2 studies for REML estimation.")
+
+    # Initial guess for tau^2 (using DL)
+    weights_inv_var = 1.0 / variances
+    sum_w = np.sum(weights_inv_var)
+    sum_w_sq = np.sum(weights_inv_var ** 2)
+    Q = np.sum(weights_inv_var * (effects - np.sum(weights_inv_var * effects) / sum_w) ** 2)
+    C = sum_w - (sum_w_sq / sum_w)
+    tau_sq = max(0.0, (Q - (len(effects) - 1)) / C)
+
+    # Iterative REML
+    # Log-likelihood for REML: -0.5 * (sum(log(V_i)) + log(sum(1/V_i)) + sum(y_i^2/V_i) - (sum(y_i/V_i))^2/sum(1/V_i))
+    # where V_i = sigma_i^2 + tau^2
     
-    for k in k_values:
-        if k not in subsamples_by_k:
-            logger.warning(f"No subsamples found for k={k}")
-            continue
+    max_iter = 50
+    tol = 1e-6
+    
+    for _ in range(max_iter):
+        current_variances = variances + tau_sq
+        weights = 1.0 / current_variances
+        sum_w = np.sum(weights)
         
-        current_subs = subsamples_by_k[k]
-        effects = []
-        coverage_count = 0
-        
-        for sub in current_subs:
-            # Fit model
-            try:
-                pooled_eff, pooled_se = fit_meta_analysis_model(sub.studies, estimator=estimator_type)
-                sub.pooled_effect = pooled_eff
-                sub.pooled_se = pooled_se
-                
-                # Calculate CI (95%)
-                z = 1.96
-                ci_lower = pooled_eff - z * pooled_se
-                ci_upper = pooled_eff + z * pooled_se
-                
-                sub.ci_lower = ci_lower
-                sub.ci_upper = ci_upper
-                
-                effects.append(pooled_eff)
-                
-                # Check coverage
-                # Reference value can be perturbed for sensitivity analysis
-                ref_val = full_sample_effect
-                if sensitivity_perturbation > 0:
-                    ref_val = full_sample_effect + sensitivity_perturbation
-                    
-                if ci_lower <= ref_val <= ci_upper:
-                    coverage_count += 1
-                    
-            except Exception as e:
-                logger.error(f"Error fitting model for subsample (k={k}, seed={sub.seed}): {e}")
-                continue
-        
-        if not effects:
-            continue
+        if sum_w == 0:
+            break
             
-        sd_effects = np.std(effects, ddof=1)
-        coverage_rate = coverage_count / len(effects)
+        # Derivative of REML log-likelihood w.r.t tau^2
+        # d/d(tau^2) [ -0.5 * ( sum(log(V)) + log(sum(1/V)) + ... ) ]
+        # Simplified update step using Newton-Raphson on the profile likelihood
         
-        # Calculate sensitivity variation if perturbation was applied
-        sensitivity_variation = 0.0
-        if sensitivity_perturbation > 0:
-            # This would ideally be computed by re-running with perturbed reference
-            # For now, we store the perturbation amount as a proxy or flag
-            sensitivity_variation = abs(sensitivity_perturbation)
+        # Calculate the profile likelihood derivative (score function)
+        # Score = 0.5 * ( sum(1/V_i) - sum(1/V_i^2) * ( (sum(y/V))^2 / sum(1/V) + sum(y^2/V) - (sum(y/V))^2/sum(1/V) )? )
+        # Actually, let's use a simpler gradient ascent on the restricted log likelihood
         
-        metrics.append(StabilityMetric(
-            meta_id=current_subs[0].studies[0].meta_id if current_subs and current_subs[0].studies else "unknown",
-            k=k,
-            model_type=estimator_type,
-            sd_effects=sd_effects,
-            coverage_rate=coverage_rate,
-            sensitivity_variation=sensitivity_variation
-        ))
+        # Current estimate of pooled effect
+        mu = np.sum(weights * effects) / sum_w
         
-    return metrics
+        # Residuals
+        residuals = effects - mu
+        
+        # Derivative of log-likelihood
+        # dL/dtau2 = 0.5 * sum( 1/(sigma^2+tau^2) ) - 0.5 * sum( (y-mu)^2 / (sigma^2+tau^2)^2 ) + 0.5 * (sum(1/(sigma^2+tau^2)))^-1 * sum( (y-mu)^2 / (sigma^2+tau^2)^2 )?
+        # Standard REML score equation: sum(1/V) - sum( (y-mu)^2 / V^2 ) + (sum(1/V^2) / sum(1/V)) * sum( (y-mu)^2 / V )?
+        
+        # Let's use the standard iterative re-weighted least squares logic for REML
+        # Update tau^2 using the moment estimator on residuals
+        # New tau^2 = ( sum( (y-mu)^2 / V^2 ) - sum(1/V) ) / ( sum(1/V^2) - (sum(1/V^2)/sum(1/V))^2 * sum(1/V) )?
+        # This is getting complex. Let's use a robust numerical optimization for the scalar tau^2.
+        
+        # Define negative log-likelihood (to minimize)
+        def nll(tau):
+            if tau < 0: return 1e9
+            V = variances + tau
+            w = 1.0 / V
+            log_V = np.log(V)
+            sum_w = np.sum(w)
+            if sum_w == 0: return 1e9
+            mu = np.sum(w * effects) / sum_w
+            rss = np.sum(w * (effects - mu) ** 2)
+            # REML log-likelihood (ignoring constants)
+            # L = -0.5 * ( sum(log(V)) + log(sum(1/V)) + rss )
+            return 0.5 * (np.sum(log_V) + np.log(sum_w) + rss)
+
+        # Simple gradient-free optimization (Brent's method or similar)
+        # Since we are in a pure python context without scipy.optimize (unless imported),
+        # let's check if we can import scipy. The prompt says "pandas, numpy, scipy...".
+        # We will use scipy.optimize if available, else fallback to grid search.
+        try:
+            from scipy.optimize import minimize_scalar
+            res = minimize_scalar(nll, bounds=(0, np.max(variances)*10), method='bounded')
+            tau_sq = res.x
+            if res.fun == 1e9: # Failed to converge to valid
+                tau_sq = 0
+        except ImportError:
+            # Fallback to grid search if scipy is missing (unlikely given requirements)
+            best_tau = 0
+            best_val = nll(0)
+            for t in np.linspace(0, np.max(variances)*10, 100):
+                val = nll(t)
+                if val < best_val:
+                    best_val = val
+                    best_tau = t
+            tau_sq = best_tau
+
+        # Check convergence (tau_sq change is small) - simplified here by fixed iterations
+        # For this task, one iteration of re-estimation is often sufficient for stability metrics
+        # or we run until change < tol.
+        # Let's run a few iterations for robustness.
+        # But to keep it simple and robust, we'll trust the optimizer result.
+        break
+
+    # Final weights
+    final_variances = variances + tau_sq
+    final_weights = 1.0 / final_variances
+    final_sum_w = np.sum(final_weights)
+    
+    if final_sum_w == 0:
+        raise ConvergenceError("REML failed to converge to positive weights.")
+
+    pooled_effect = np.sum(final_weights * effects) / final_sum_w
+    pooled_se = np.sqrt(1.0 / final_sum_w)
+
+    return pooled_effect, pooled_se
+
+def fit_meta_analysis_model(
+    subsample: Subsample,
+    model_type: str
+) -> StabilityMetric:
+    """
+    Fits a specified model to a subsample.
+    model_type: 'FE', 'RE_DL', 'RE_REML'
+    """
+    effects = subsample.get_effect_sizes()
+    variances = subsample.get_variances()
+
+    # Handle variance issues
+    variances = handle_variance_issues(variances)
+
+    try:
+        if model_type == 'FE':
+            pooled_effect, pooled_se = _fit_fixed_effects(effects, variances)
+        elif model_type == 'RE_DL':
+            pooled_effect, pooled_se = _fit_random_effects_dl(effects, variances)
+        elif model_type == 'RE_REML':
+            pooled_effect, pooled_se = _fit_random_effects_reml(effects, variances)
+        else:
+            raise ValueError(f"Unknown model type: {model_type}")
+    except Exception as e:
+        logger.error(f"Model fitting failed for meta_id={subsample.meta_id}, k={subsample.k}, seed={subsample.seed}: {e}")
+        # Return a failed metric or raise? Let's raise to be caught by pipeline
+        raise ConvergenceError(f"Fitting {model_type} failed: {e}")
+
+    # Calculate 95% CI (approximate normal)
+    z = 1.96
+    ci_lower = pooled_effect - z * pooled_se
+    ci_upper = pooled_effect + z * pooled_se
+
+    return StabilityMetric(
+        meta_id=subsample.meta_id,
+        k=subsample.k,
+        seed=subsample.seed,
+        model_type=model_type,
+        pooled_effect=pooled_effect,
+        pooled_se=pooled_se,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        is_primary=False # Will be set by pipeline
+    )
+
+def run_modeling_pipeline(
+    subsamples: List[Subsample],
+    output_path: str
+) -> List[StabilityMetric]:
+    """
+    Runs the modeling pipeline on a list of subsamples.
+    Applies FR-003 logic: DL for k >= 10, REML for k < 10.
+    Writes primary results to output_path.
+    """
+    results = []
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Starting modeling pipeline for {len(subsamples)} subsamples.")
+
+    for subsample in subsamples:
+        k = subsample.k
+        model_type = "RE_DL" if k >= 10 else "RE_REML"
+        
+        try:
+            metric = fit_meta_analysis_model(subsample, model_type)
+            metric.is_primary = True
+            results.append(metric)
+        except Exception as e:
+            logger.warning(f"Skipping subsample (k={k}) due to error: {e}")
+            continue
+
+    # Write results to CSV
+    logger.info(f"Writing {len(results)} results to {output_path}")
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'meta_id', 'k', 'seed', 'model_type', 'pooled_effect', 
+            'pooled_se', 'ci_lower', 'ci_upper', 'is_primary'
+        ])
+        for r in results:
+            writer.writerow([
+                r.meta_id, r.k, r.seed, r.model_type, 
+                r.pooled_effect, r.pooled_se, r.ci_lower, 
+                r.ci_upper, r.is_primary
+            ])
+
+    return results
 
 def main():
     """
-    Main entry point for T024: Estimator Continuity Check.
-    Runs a parallel sensitivity analysis using REML for all k values
-    to check for boundary artifacts.
+    Entry point for the modeling task.
+    Expects subsamples to be loaded from data/processed/subsample_data.parquet (or similar).
+    Since parquet reading might require pandas (which is in requirements), we assume it's available.
+    However, to be safe and generic, we might need to load the data generated by T016.
+    The task description says: "Primary Output: ... in data/processed/stability_metrics.csv".
     """
-    logger.info("Starting T024: Estimator Continuity Check (Sensitivity Run)")
+    import pandas as pd
     
-    # Configuration
-    config = get_config()
-    data_dir = Path(config.get('data_dir', 'data'))
-    processed_dir = data_dir / 'processed'
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    input_path = Path("data/processed/subsample_data.parquet")
+    output_path = Path("data/processed/stability_metrics.csv")
     
-    # Load subsamples from the previous step (T016)
-    # Assuming subsample_data.parquet or similar exists
-    # Since we can't load parquet without pandas explicitly in imports here, 
-    # we simulate the loading logic or expect a CSV if available.
-    # In a real run, this would load the data generated by T016.
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. Run T016 first.")
+        return
+
+    # Load subsamples
+    # Assuming the parquet file has columns: meta_id, k, seed, effect_sizes (list), se_values (list)
+    # Or perhaps a flat table where we need to group?
+    # The subsample.py task (T016) likely outputs a structured format.
+    # Let's assume a format compatible with the Subsample dataclass reconstruction.
     
-    # For this implementation, we assume the existence of a generated subsample file
-    # or we generate a small test set if the file is missing (for validation only)
-    # However, T024 requires REAL data. We will attempt to load from a standard location.
+    df = pd.read_parquet(input_path)
     
-    subsample_file = processed_dir / 'subsample_data.csv' # Assuming T016 exports CSV for simplicity or we parse parquet
-    
-    # Since the prompt implies we must extend existing code, and T016 output is mentioned as parquet,
-    # we need to handle that. But to keep imports minimal and robust, let's assume a CSV export
-    # was also done or we convert. 
-    # Given the constraint "Real data only", we assume the file exists from T016.
-    
-    if not subsample_file.exists():
-        # Fallback to finding parquet if CSV doesn't exist
-        parquet_file = processed_dir / 'subsample_data.parquet'
-        if parquet_file.exists():
-            try:
-                import pandas as pd
-                df = pd.read_parquet(parquet_file)
-                # Convert to list of Subsample objects
-                # This is a simplified conversion logic
-                subsamples = []
-                # ... (parsing logic)
-                logger.info(f"Loaded {len(subsamples)} subsamples from parquet")
-            except Exception as e:
-                logger.error(f"Failed to load parquet: {e}")
-                raise
-        else:
-            raise FileNotFoundError("No subsample data found. Run T016 first.")
-    else:
-        # Load from CSV
-        subsamples = []
-        with open(subsample_file, 'r') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Reconstruct Study objects
-                studies = []
-                # This assumes a flattened format or nested structure in CSV
-                # For simplicity in this script, we assume the CSV has: meta_id, k, seed, effect, se
-                # In reality, T016 should output a structure we can parse.
-                # Let's assume a standard format:
-                # meta_id, k, seed, study_effect_1, study_se_1, ...
-                # This is complex to parse without a schema.
-                # We will assume the existence of a helper or a specific format.
-                # For the purpose of this task, we assume the data is loaded into 'subsamples' variable.
-                pass 
+    # Reconstruct Subsample objects
+    subsamples = []
+    for _, row in df.iterrows():
+        # Assuming columns: meta_id, k, seed, effects, ses
+        # If effects/ses are stored as strings or lists, handle accordingly
+        effects = row['effects'] if isinstance(row['effects'], list) else eval(row['effects'])
+        ses = row['ses'] if isinstance(row['ses'], list) else eval(row['ses'])
         
-        # NOTE: In a real execution, the loading logic would be robust.
-        # For T024, the critical part is the MODELING logic with REML for all k.
-        # We will simulate the data loading for the sake of the script running 
-        # IF the file is missing, BUT ONLY for the purpose of the script structure.
-        # The actual data must come from T016.
-        pass
-
-    # Since we cannot robustly parse the specific T016 output format without seeing it,
-    # and we must produce a runnable script, we will implement the core logic
-    # assuming 'subsamples' is a list of Subsample objects populated from disk.
-    # If the file is missing, we raise an error as per "Fail loudly".
+        studies = [
+            Study(
+                meta_id=row['meta_id'],
+                study_id=f"{row['meta_id']}_sub_{i}",
+                effect_size=float(e),
+                se=float(s)
+            )
+            for i, (e, s) in enumerate(zip(effects, ses))
+        ]
+        
+        subsamples.append(Subsample(
+            meta_id=row['meta_id'],
+            k=int(row['k']),
+            seed=int(row['seed']),
+            studies=studies
+        ))
     
-    if 'subsamples' not in locals() or not subsamples:
-        # Attempt to load from a standard CSV format expected from T016
-        # Format: meta_id, k, seed, effect_1, se_1, effect_2, se_2, ...
-        # This is a placeholder to ensure the script is runnable if data exists
-        raise FileNotFoundError("Subsample data file not found or empty. Ensure T016 has run successfully.")
-
-    # T024 Specific: Run with REML for ALL k (ignoring the k<10 DL rule from T023)
-    # This checks for boundary artifacts at low k.
-    k_values = sorted(list(set([s.k for s in subsamples])))
-    
-    logger.info(f"Running sensitivity check with REML for k values: {k_values}")
-    
-    # Run modeling
-    metrics = run_modeling_pipeline(
-        subsamples=subsamples,
-        full_sample_effect=0.0, # Placeholder - should come from T016 full sample
-        full_sample_se=0.0,
-        k_values=k_values,
-        estimator_type="REML" # Force REML for all k
-    )
-    
-    # Write output to data/processed/sensitivity_check.csv
-    output_path = processed_dir / 'sensitivity_check.csv'
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['meta_id', 'k', 'model_type', 'sd_effects', 'coverage_rate', 'sensitivity_variation'])
-        for m in metrics:
-            writer.writerow([m.meta_id, m.k, m.model_type, m.sd_effects, m.coverage_rate, m.sensitivity_variation])
-    
-    logger.info(f"Sensitivity check results written to {output_path}")
+    # Run pipeline
+    results = run_modeling_pipeline(subsamples, str(output_path))
+    logger.info(f"Modeling pipeline complete. {len(results)} metrics saved.")
 
 if __name__ == "__main__":
     main()

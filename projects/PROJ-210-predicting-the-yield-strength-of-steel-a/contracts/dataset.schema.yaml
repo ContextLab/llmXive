@@ -1,55 +1,62 @@
 # Dataset Schema for Steel Yield Strength Prediction
-# This schema defines the required structure for the processed dataset
-# used in User Story 1 (Data Ingestion and Preprocessing).
-
-required_columns:
-  - yield_strength_mpa
-  - carbon_pct
-  - manganese_pct
-  - chromium_pct
-  - nickel_pct
-  - molybdenum_pct
-  - heat_treatment_temp_c
-  - cooling_rate_c_per_min
-  - holding_time_min
-  - heat_treatment_type
-  - c_mn_ratio
-  - cr_ni_ratio
-  - cooling_rate_x_holding_time
-  - c_x_cooling_rate
-  - orthogonalized_cx_cr
-  - orthogonalized_cx_ni
-
-target_column: yield_strength_mpa
-
-column_types:
-  yield_strength_mpa: numeric
-  carbon_pct: numeric
-  manganese_pct: numeric
-  chromium_pct: numeric
-  nickel_pct: numeric
-  molybdenum_pct: numeric
-  heat_treatment_temp_c: numeric
-  cooling_rate_c_per_min: numeric
-  holding_time_min: numeric
-  heat_treatment_type: string
-  c_mn_ratio: numeric
-  cr_ni_ratio: numeric
-  cooling_rate_x_holding_time: numeric
-  c_x_cooling_rate: numeric
-  orthogonalized_cx_cr: numeric
-  orthogonalized_cx_ni: numeric
-
-interaction_columns:
-  - c_mn_ratio
-  - cr_ni_ratio
-  - cooling_rate_x_holding_time
-  - c_x_cooling_rate
-  - orthogonalized_cx_cr
-  - orthogonalized_cx_ni
-
-description: |
-  This schema ensures that the ingestion pipeline produces a dataset with
-  all necessary composition, thermal, and derived features for model training.
-  It validates that no null values exist in the target variable and that
-  derived features (ratios, interactions, orthogonalized interactions) are present.
+# Validates the output of the ingestion pipeline (US1)
+type: object
+required:
+  - composition_columns
+  - thermal_columns
+  - target_column
+  - derived_columns
+properties:
+  composition_columns:
+    type: array
+    description: List of elemental composition column names (percentage or fraction)
+    items:
+      type: string
+    minItems: 1
+    example: ["Carbon", "Manganese", "Chromium", "Nickel", "Silicon", "Sulfur", "Phosphorus"]
+  
+  thermal_columns:
+    type: array
+    description: List of normalized thermal parameter column names
+    items:
+      type: string
+    minItems: 1
+    example: ["Normalized_Austenitizing_Temp", "Normalized_Cooling_Rate", "Normalized_Holding_Time"]
+  
+  target_column:
+    type: string
+    description: Name of the target variable column
+    const: "Yield_Strength_MPa"
+  
+  derived_columns:
+    type: array
+    description: List of derived feature column names (ratios, interactions, orthogonalized terms)
+    items:
+      type: string
+    minItems: 1
+    example: ["C_Mn_Ratio", "Cr_Ni_Ratio", "CoolingRate_x_HoldingTime", "C_x_CoolingRate", "Ortho_CoolingRate_x_HoldingTime"]
+  
+  one_hot_columns:
+    type: array
+    description: List of one-hot encoded heat treatment type columns
+    items:
+      type: string
+    minItems: 0
+    example: ["HT_Air_Cooled", "HT_Oil_Quenched", "HT_Furnace_Cooled"]
+  
+  metadata:
+    type: object
+    description: Optional metadata about the dataset
+    properties:
+      source:
+        type: string
+      row_count:
+        type: integer
+        minimum: 0
+      column_count:
+        type: integer
+        minimum: 0
+      missing_target_count:
+        type: integer
+        minimum: 0
+additionalProperties: true

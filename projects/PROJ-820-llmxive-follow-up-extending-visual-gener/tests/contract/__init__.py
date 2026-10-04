@@ -1,4 +1,7 @@
 """
-Contract tests for llmXive pipeline.
-Validates JSON artifacts against defined schemas in specs/001-llmxive-followup/contracts.
+Contract tests for llmXive follow-up project.
+
+This module contains tests that validate JSON schemas and API contracts
+defined in the specs/001-llmxive-followup/contracts/ directory.
 """
+pass

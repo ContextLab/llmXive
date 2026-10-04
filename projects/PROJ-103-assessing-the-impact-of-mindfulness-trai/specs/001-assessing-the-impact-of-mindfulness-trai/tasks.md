@@ -57,9 +57,9 @@
 - [X] T004 [P] Setup Docker configuration for fMRIPrep container at docker/fmriprep.Dockerfile with CPU-limited settings defining thread and memory constraints.
 - [X] T006 [P] Setup logging infrastructure at src/utils/logging.py with JSON format logging and QC report template (HTML with motion summary, SNR, temporal SNR metrics)
 - [X] T007 [P] Create base configuration management at src/config/settings.py with required config items: dataset_paths (dict with raw/processed/result keys as strings), preprocessing_params (dict with motion_correction=bool, slice_timing=bool, normalization=bool, smoothing_mm=int, bandpass_range=tuple[float, float]), atlas_choice (str: 'AAL' per Constitution Principle VI), motion_thresholds (dict with translation_mm=float, rotation_deg=float), statistical_thresholds (dict with nbs_t=float, nbs_alpha=float, power_target=float), all with Python type hints and JSON-serializable format
-- [X] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with seed value 42 for numpy, random, torch modules; verification criteria: deterministic output on re-run
+- [X] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with seed value 42 for numpy, random, torch modules [UNRESOLVED-CLAIM: c_a459a89c — status=not_enough_info]; verification criteria: deterministic output on re-run
 - [X] T009 [P] Setup environment variable management for dataset API keys at src/config/env.py with env vars (OPENNEURO_API_KEY, DATA_DIR) and validation rules (required, non-empty)
-- [X] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target) for methods output <!-- SKIPPED: non-mapping output -->
+- [X] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target [UNRESOLVED-CLAIM: c_7256edab — status=not_enough_info]) for methods output <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,7 +82,7 @@
 - [ ] T012 [US1] Implement dataset design verification to confirm pre/post resting-state scans with mindfulness metadata at src/datasets/verify_design.py with required metadata fields (pre_scan_count:int, post_scan_count:int, intervention_type:str, scan_type:str) and verification logic (pre_scan_count > 0 AND post_scan_count > 0 AND intervention_type matches regex 'mindfulness|MBSR|MBC' case-insensitive, scan_type equals 'rs-fMRI' or 'resting')
 - [ ] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings
 - [ ] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and 6 rigid-body motion parameters
-- [ ] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) at src/preprocessing/motion_filter.py
+- [ ] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) [UNRESOLVED-CLAIM: c_722162a9 — status=not_enough_info] at src/preprocessing/motion_filter.py
 - [ ] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI152 normalization, 6mm smoothing, bandpass) at src/preprocessing/nilearn_fallback.py as independent alternative to T013 (not dependent on T013 completion)
 - [ ] T017 [US1] Create fMRIPrep HTML report parser for quality control at src/preprocessing/qc_parser.py with QC metrics (motion summary, SNR, temporal SNR) and output format (JSON summary + HTML report path)
 - [ ] T018 [US1] Implement dataset-variable fit verification (pre/post scans, DMN node coordinates) and document results per FR-008 at src/datasets/verify_variables.py
@@ -108,10 +108,10 @@
 - [ ] T022 [US2] Create time series extraction from MNI152 normalized BOLD images at src/analysis/extract_timeseries.py with extraction method (mean time series from ROI mask) and output format (numpy array per subject)
 - [ ] T023 [US2] Implement Pearson correlation matrix computation between all DMN node pairs at src/analysis/correlation_matrix.py
 - [ ] T024 [US2] Create Fisher z-transformation with AR(1) prewhitening at src/analysis/fisher_z_transform.py
-- [ ] T025 [US2] Implement permutation testing (10,000 iterations) as alternative to AR(1) at src/analysis/permutation_test.py
+- [ ] T025 [US2] Implement Permutation testing uses 10,000 iterations. [UNRESOLVED-CLAIM: c_66ec0106 — status=not_enough_info] as alternative to AR(1) at src/analysis/permutation_test.py
 - [ ] T026 [US2] Create paired t-test for pre vs. post connectivity across subjects at src/analysis/paired_tests.py
-- [ ] T027 [US2] Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen's d at src/analysis/effect_sizes.py
-- [ ] T028 [US2] Implement Network-Based Statistic (NBS) correction with primary threshold t≥3.1 and component-wise family-wise error correction at α=0.05 at src/analysis/nbs_correction.py
+- [ ] T027 [US2] Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen's d [UNRESOLVED-CLAIM: c_2e12113f — status=not_enough_info] at src/analysis/effect_sizes.py
+- [ ] T028 [US2] Implement Network-Based Statistic (NBS) correction with primary threshold t≥3.1 and component-wise family-wise error correction at α=0.05 [UNRESOLVED-CLAIM: c_5821f4c2 — status=not_enough_info] at src/analysis/nbs_correction.py
 - [ ] T030 [US2] Create associational framing validator to prevent causal claims in output reports per FR-009 at src/utils/associational_framing.py
 - [ ] T031 [US2] Implement sensitivity analysis for motion thresholds across varying magnitudes at src/analysis/motion_sensitivity.py
 - [ ] T032 [US2] Create results summary table generator with effect sizes and p-values at src/analysis/results_summary.py with table format (CSV with columns: connection, effect_size, ci_lower, ci_upper, p_value)
@@ -122,7 +122,7 @@
 
 ## Phase 5: User Story 3 - Cross-Dataset Meta-Analysis (Priority: P3)
 
-**Goal**: Perform random-effects meta-analysis across ≥3 datasets with heterogeneity assessment
+**Goal**: Perform random-effects meta-analysis across ≥3 datasets [UNRESOLVED-CLAIM: c_2c32a74c — status=not_enough_info] with heterogeneity assessment
 
 **Independent Test**: Can be fully tested by running the meta-analysis script on ≥3 datasets with computed effect sizes and verifying that pooled effect size, confidence interval, and heterogeneity metrics are output in forest plot format
 
@@ -136,7 +136,7 @@
 - [ ] T033 [US3] Create R metafor package integration wrapper at src/analysis/metafor_wrapper.R
 - [ ] T034 [US3] Implement random-effects meta-analysis across datasets at src/analysis/meta_analysis.py
 - [ ] T035 [US3] Create I² heterogeneity statistic calculation at src/analysis/heterogeneity.py
-- [ ] T036 [US3] Implement leave-one-out sensitivity analysis for I² > 50% at src/analysis/sensitivity_analysis.py
+- [ ] T036 [US3] Implement leave-one-out sensitivity analysis for I² > 50% [UNRESOLVED-CLAIM: c_da9b4aa2 — status=not_enough_info] at src/analysis/sensitivity_analysis.py
 - [ ] T037 [US3] Create forest plot generator for pooled effect sizes at src/analysis/forest_plots.py with plot library (matplotlib/seaborn) and output format (PNG at publication-quality resolution, PDF for publication)
 - [ ] T039 [US3] Create Q-test for heterogeneity significance at src/analysis/q_test.py
 
@@ -150,7 +150,7 @@
 
 - [ ] T040 [P] Documentation updates at docs/methods.md with specific content sections (power analysis methodology, motion exclusion rates, dataset counts, preprocessing params)
 - [ ] T041 [P] Code cleanup and refactoring across src/analysis/*.py files to remove duplicate imports and add type hints (function signatures, return types)
-- [ ] T042 Performance optimization for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2 cores for 10 subjects
+- [ ] T042 Performance optimization for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2 cores for 10 subjects [UNRESOLVED-CLAIM: c_3166be26 — status=not_enough_info]
 - [ ] T045 Security hardening for API key handling at src/config/env.py with.env file validation and key rotation
 - [ ] T047 Create final report template with associational framing and dataset gap documentation at docs/final_report.md
 - [ ] T046 Run quickstart.md validation to ensure all FRs are addressed and generate docs/fr_traceability.md mapping each FR to implementation location

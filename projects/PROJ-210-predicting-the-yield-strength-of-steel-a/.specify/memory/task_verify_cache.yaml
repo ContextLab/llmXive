@@ -15,12 +15,10 @@ T009:
     the test implementation and the referenced schema artifact are absent/incomplete.
 T010:
   c: false
-  h: 34d58e0b4bf10784e850cc0f18153dabcccd7f59ed72de74a9ca13d308c8664d
-  r: "The integration test file exists, but it relies on `contracts/dataset.schema.yaml`,\
-    \ which is absent, so the test cannot perform the required schema validation.\
-    \ Additionally, the test code is truncated (e.g., unfinished type\u2011check logic),\
-    \ indicating it is not a complete, functional artifact. The missing schema file\
-    \ must be added (and the test code completed) for the task to be satisfied."
+  h: fcfdfbbf5f4258e877612ac0800d8b99abe0c267e10681f69a4a7ee33075d000
+  r: "The integration test file exists, but the required schema file `contracts/dataset.schema.yaml`\
+    \ is missing, so the test cannot perform the intended validation against the contract.\
+    \ Without the schema, the task\u2019s core requirement is not satisfied."
 T011:
   c: false
   h: ce69a25b1810bcaf206402f71ec1e7f869b5383d015ad83db31a110f438d469d
@@ -29,11 +27,20 @@ T011:
     \ deliverable is absent."
 T017:
   c: false
-  h: 5a96135b6f350b0476555e19c344326e2f4fe1be7a38450b4b66e77f245014eb
-  r: The test file `tests/contract/test_model_output.py` exists, but the required
-    schema file `contracts/output.schema.yaml` is missing, so the test cannot actually
-    validate the model output against the contract. The missing schema must be added
-    for the task to be complete.
+  h: b4a29eb90d4d928d0be68cdd57b9516edeaa475da010986ae761a5ad0261b092
+  r: The test file `tests/contract/test_model_output.py` is present, but the required
+    schema file `contracts/output.schema.yaml` does not exist, so the test cannot
+    actually validate any model output against the contract. The missing schema artifact
+    must be added for the task to be complete.
+T027:
+  c: false
+  h: 83500574247d4e18360f924c030d27c305c93e7926104de112e3cd0143cce09f
+  r: "The `tests/contract/test_sensitivity_report.py` file is present, but the required\
+    \ schema file `contracts/output.schema.yaml` is missing, causing the test to fail\
+    \ at load time. Additionally, the test code is truncated and contains a syntax\
+    \ error (`elif key not in schema.ge`), so even with a schema it would not run\
+    \ correctly. The task\u2019s requirement of a functional contract test against\
+    \ the schema is therefore not met."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

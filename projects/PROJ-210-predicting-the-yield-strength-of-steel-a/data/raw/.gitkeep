@@ -1,2 +1,2 @@
-# This directory contains raw data files
-# Data ingestion scripts will populate this directory
+# Raw data directory placeholder
+# This directory stores unmodified data fetched from external sources (NIST, Materials Project, etc.)

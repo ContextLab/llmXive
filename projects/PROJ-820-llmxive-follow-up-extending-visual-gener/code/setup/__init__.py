@@ -1,1 +1,1 @@
-# Setup package
+"""Setup package initialization."""

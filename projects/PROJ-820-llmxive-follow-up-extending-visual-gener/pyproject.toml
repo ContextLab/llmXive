@@ -1,0 +1,44 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = 'code/|tests/|specs/'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-followup"
+version = "0.1.0"
+description = "Visual Generation in the New Era: An Evolution from Atomic Mapping"
+requires-python = ">=3.11"
+dependencies = [
+    "pymunk>=6.0.0",
+    "diffusers>=0.24.0",
+    "torch>=2.0.0",
+    "ultralytics>=8.0.0",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]

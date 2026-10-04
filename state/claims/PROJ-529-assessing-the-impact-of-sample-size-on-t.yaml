@@ -1737,25 +1737,6 @@
   status: not_enough_info
   updated_at: '2026-08-22T06:23:43Z'
 - artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
-  attempts: 2
-  canonical: Identify minimum k where coverage rate stabilizes within 2% of nominal
-    target
-  claim_id: c_3e19542b
-  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
-    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
-    (SC-003, FR-007).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
-    nominal target.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T06:23:44Z'
-- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
   attempts: 0
   canonical: 'Simulation parameters from Ioannidis et al. 2008: tau-squared 0.04,
     mean effect 0.3, bias 0.1, study count range 3 to 50'
@@ -1926,3 +1907,323 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T06:26:38Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Simulation parameters from Ioannidis et al. 2008: tau^2=0.04, mean_effect=0.3,
+    bias=0.1, study_count_range=[3, 50]'
+  claim_id: c_faf9bb8b
+  context: 'Implement parameter generation and synthetic data generation in code/download.py
+    as a fallback triggered ONLY if T012/T012a confirm failure. Parameters: Use values
+    from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect = 0.3, bias = 0.1, study_count_range
+    = [3, 50].'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T14:17:22Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 0
+  canonical: 'Ioannidis et al. 2008 parameters: tau^2=0.04, mean_effect=0.3, bias=0.1,
+    study_count_range=[3, 50]'
+  claim_id: c_f8920c6d
+  context: 'T019 [US1] Implement parameter generation and synthetic data generation
+    in code/download.py as a fallback triggered ONLY if T012/T012a confirm failure.
+    Parameters: Use values from Ioannidis et al. (2008)...'
+  evidence:
+    asserted: '2008.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'Use values from Ioannidis et al. (2008): tau^2 = 0.04, mean_effect =
+    0.3, bias = 0.1, study_count_range = [3, 50].'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T14:19:25Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'GAM parameters: cubic basis with k=3 smoothing'
+  claim_id: c_a24b3a32
+  context: 'T031 [US3] Implement code/analysis.py to fit a Generalized Additive Model
+    (GAM)... Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:21:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Coverage rate stability threshold of +/-2% from nominal target
+  claim_id: c_7bf0d040
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:21:11Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'Performance requirement: full bootstrap analysis completes within 6
+    hours on 2 CPU cores'
+  claim_id: c_34248431
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:21:27Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples for each sample size k
+  claim_id: c_cb72fec0
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:24:20Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Use cubic basis with 3 smoothing knots for GAM
+  claim_id: c_216bb427
+  context: 'T031 [US3] Implement code/analysis.py to fit a Generalized Additive Model
+    (GAM) (Primary Method per FR-006) to stability metrics. Target Variable: stability
+    SD (y-axis) vs study count k (x-axis). Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:24:20Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 3
+  canonical: Identify minimum k where coverage rate stabilizes within 2% of nominal
+    target
+  claim_id: c_3e19542b
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:24:20Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis runs within 6 hours on 2 CPU cores
+  claim_id: c_f514a4a2
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:24:21Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'Performance target: 6 hours on 2 CPU cores for full bootstrap analysis'
+  claim_id: c_3cc64713
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:25:26Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate up to 100 bootstrap subsamples per k
+  claim_id: c_0a5b28ae
+  context: Implement code/subsample.py to generate up to 100 bootstrap subsamples
+    for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:25:42Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: GAM cubic basis with 3 smoothing parameters
+  claim_id: c_f22e800d
+  context: 'Implement code/analysis.py to fit a Generalized Additive Model (GAM) (Primary
+    Method per FR-006) to stability metrics. Target Variable: stability SD (y-axis)
+    vs study count k (x-axis). Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:25:43Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Stability threshold for coverage rate within 2% of nominal target
+  claim_id: c_a9d7fb1c
+  context: "Implement code/analysis.py to identify minimum k where coverage rate stabilizes\
+    \ within \xB12% of the nominal target read from code/config.py (T009a) (SC-003,\
+    \ FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Identify minimum k where coverage rate stabilizes within \xB12% of the\
+    \ nominal target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:25:43Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Full bootstrap analysis runtime under 6 hours on 2 CPU cores
+  claim_id: c_b96c695f
+  context: 'Performance optimization: Ensure full bootstrap analysis runs within 6
+    hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:25:43Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: Generate 100 bootstrap subsamples per k value
+  claim_id: c_301da9e3
+  context: T016 [US1] Implement code/subsample.py to generate up to 100 bootstrap
+    subsamples for each k (3 to N), logging seeds and handling k < 3 edge cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 100 bootstrap subsamples for each k (3 to N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:26:35Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'GAM configuration: cubic basis with k=3 smoothing'
+  claim_id: c_0324f305
+  context: 'T031 [US3] Implement code/analysis.py to fit a Generalized Additive Model
+    (GAM) (Primary Method per FR-006) to stability metrics. Target Variable: stability
+    SD (y-axis) vs study count k (x-axis). Parameters: Use cubic basis with k=3 smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use cubic basis with k=3 smoothing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:26:35Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'Coverage stability threshold: within 2% of nominal target'
+  claim_id: c_6599b7ab
+  context: T034 [US3] Implement code/analysis.py to identify minimum k where coverage
+    rate stabilizes within +/-2% of the nominal target read from code/config.py (T009a)
+    (SC-003, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify minimum k where coverage rate stabilizes within +/-2% of the
+    nominal target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:26:36Z'
+- artifact_path: projects/PROJ-529-assessing-the-impact-of-sample-size-on-t/specs/001-assessing-the-impact-of-sample-size-on-t/tasks.md
+  attempts: 1
+  canonical: 'Performance target: 6 hours on 2 CPU cores'
+  claim_id: c_572bdb86
+  context: 'T040 Performance optimization: Ensure full bootstrap analysis runs within
+    6 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full bootstrap analysis runs within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:26:36Z'
