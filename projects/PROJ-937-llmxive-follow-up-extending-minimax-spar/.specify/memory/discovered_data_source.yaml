@@ -1,0 +1,16 @@
+status: none
+intent: RULER Needle In A Haystack dataset download python package dataset
+required_fields:
+- block_id
+- block_text
+- token_ids
+- block_start_position
+- block_end_position
+- entropy_score
+- gradient_magnitude
+- recency_timestamp
+- selection_score
+- label
+cache_key: 303c643c5d6711b102944b5dc84dabc59bbfd6b5d337acf4e8ef6ef00583746c
+searched_at: '2026-10-04T14:27:19.147857+00:00'
+retry_count: 1

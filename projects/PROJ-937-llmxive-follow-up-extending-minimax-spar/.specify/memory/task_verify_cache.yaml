@@ -21,3 +21,18 @@ T025:
     \ of exclusion counts for corrupted or missing \u201Cneedle\u201D strings in the\
     \ RULER dataset. The artifact is missing entirely, so the task\u2019s requirement\
     \ is not satisfied."
+T045:
+  c: false
+  h: acab421ee0dd5868d4b9f191404e7e341a51514f5c92837d2526948003af72dc
+  r: 'The `code/main.py` file does not contain a `verify_needle_presence(sample: dict)
+    -> bool` implementation (it only imports a similarly named function from another
+    module). Additionally, the required `results/benchmark_report.json` file is absent,
+    so the exclusion count cannot be updated. Both required artifacts are missing.'
+T046:
+  c: false
+  h: 7a90d2a0c2980e9341837ba1168ef611d3a960f6f7630aacf787a879b88663fe
+  r: "The provided `code/eval/statistical.py` contains statistical test utilities\
+    \ but lacks any implementation of a \u201CSample Representativeness\u201D check\
+    \ or code that writes a `sampling_method` field. Moreover, the required `results/benchmark_report.json`\
+    \ file is absent, so the documentation of rows processed and sampling method cannot\
+    \ be verified. The task\u2019s core deliverables are missing."

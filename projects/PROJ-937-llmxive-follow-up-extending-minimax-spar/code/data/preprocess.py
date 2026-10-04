@@ -1,209 +1,199 @@
-"""
-Preprocessing utilities for the llmXive pipeline.
-Handles context chunking, memory monitoring, and batch reduction strategies.
-"""
 import os
 import sys
 import gc
 import logging
 import resource
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Generator, Tuple
+from typing import List, Optional, Tuple, Dict, Any, Generator
 from dataclasses import dataclass, field
+import psutil
 
-# Local imports based on project API surface
-from utils.logger import get_logger_for_task, log_resource_usage
+from utils.config import Config
+from utils.logger import get_logger_for_task
 
+# Configure logger
 logger = get_logger_for_task("T007d")
 
 @dataclass
 class PreprocessConfig:
-    """Configuration for preprocessing operations."""
-    max_context_tokens: int = 4096
-    initial_batch_size: int = 32
-    min_batch_size: int = 1
+    """Configuration for preprocessing memory checks and reductions."""
     memory_threshold_gb: float = 6.5
-    reduction_factor: float = 0.5
+    max_reduction_attempts: int = 3
+    min_batch_size: int = 1
+    chunk_size: int = 512
+    context_reduction_factor: float = 0.5
 
 def get_available_memory_gb() -> float:
-    """
-    Returns the available system memory in GB.
-    Uses resource module for POSIX or psutil if available (fallback to resource).
-    """
-    try:
-        # Try psutil first if available (often used in T040)
-        import psutil
+    """Get available system memory in GB."""
+    if sys.platform == "win32":
+        # Windows specific
         mem = psutil.virtual_memory()
         return mem.available / (1024 ** 3)
-    except ImportError:
-        # Fallback to resource module (POSIX)
+    else:
+        # Unix-like systems
         try:
-            # Get soft limit; if unlimited, estimate based on system
-            soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-            if soft == resource.RLIM_INFINITY:
-                # Estimate from total memory if limit is unlimited
-                total_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 # MB
-                return max(1.0, total_mem * 0.8) # Heuristic
-            return soft / (1024 ** 3)
-        except Exception:
-            logger.warning("Could not determine available memory via resource module. Returning 1.0 GB default.")
-            return 1.0
+            # Try to get available memory from /proc/meminfo if available
+            with open('/proc/meminfo', 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    if line.startswith('MemAvailable:'):
+                        return float(line.split()[1]) / (1024 * 1024)  # Convert KB to GB
+        except (FileNotFoundError, IndexError, ValueError):
+            pass
+        
+        # Fallback to psutil
+        mem = psutil.virtual_memory()
+        return mem.available / (1024 ** 3)
 
 def get_used_memory_gb() -> float:
-    """
-    Returns the currently used memory by the process in GB.
-    """
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 ** 3)
-    except ImportError:
-        try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            # ru_maxrss is in KB on Linux, MB on macOS
-            # Normalize to GB
-            if sys.platform == 'darwin':
-                return usage.ru_maxrss / (1024 ** 2)
-            else:
-                return usage.ru_maxrss / (1024 ** 3)
-        except Exception:
-            logger.warning("Could not determine used memory. Returning 0.0 GB default.")
-            return 0.0
+    """Get currently used system memory in GB."""
+    mem = psutil.virtual_memory()
+    return mem.used / (1024 ** 3)
 
 def check_memory_usage() -> bool:
     """
-    Checks if current memory usage exceeds the configured threshold (6.5 GB).
-    Returns True if usage > 6.5 GB (memory pressure detected).
+    Check if current memory usage exceeds the threshold.
+    
+    Returns:
+        True if memory usage > threshold, False otherwise.
     """
     used_gb = get_used_memory_gb()
-    threshold = 6.5
-    is_over = used_gb > threshold
-    if is_over:
-        logger.warning(f"Memory usage ({used_gb:.2f} GB) exceeds threshold ({threshold} GB).")
-    else:
-        logger.debug(f"Memory usage ({used_gb:.2f} GB) is within threshold ({threshold} GB).")
-    return is_over
-
-def reduce_context_window(config: PreprocessConfig) -> bool:
-    """
-    Attempts to reduce the context window size to alleviate memory pressure.
-    Returns True if reduction was successful and new size > 0.
-    """
-    if config.max_context_tokens <= 0:
-        return False
-    
-    new_size = max(1, int(config.max_context_tokens * config.reduction_factor))
-    if new_size < config.max_context_tokens:
-        old_size = config.max_context_tokens
-        config.max_context_tokens = new_size
-        logger.info(f"Reduced context window from {old_size} to {new_size} tokens.")
-        gc.collect()
+    config = PreprocessConfig()
+    if used_gb > config.memory_threshold_gb:
+        logger.warning(
+            f"Memory usage {used_gb:.2f}GB exceeds threshold {config.memory_threshold_gb}GB"
+        )
         return True
     return False
 
-def reduce_batch_size(batch_size: int) -> int:
+def split_context(context: str, chunk_size: int = 512) -> Generator[str, None, None]:
     """
-    Reduces the batch size by half.
-    Returns the new batch size.
-    """
-    if batch_size <= 1:
-        return 1
-    new_size = max(1, batch_size // 2)
-    if new_size < batch_size:
-        logger.info(f"Reduced batch size from {batch_size} to {new_size}.")
-        gc.collect()
-    return new_size
-
-def exit_on_memory_exceeded(config: PreprocessConfig, current_batch_size: int) -> None:
-    """
-    Checks if memory is exceeded. If so, attempts to reduce context window
-    and then batch size. If both reduction modes fail (context cannot be reduced
-    further or batch size is already at minimum), raises a RuntimeError.
-    
-    This function implements the exit logic for T007d.
+    Split a context string into chunks of specified size.
     
     Args:
-        config: The PreprocessConfig object to modify.
-        current_batch_size: The current batch size being used.
-        
-    Raises:
-        RuntimeError: If memory constraints cannot be resolved by reduction.
-    """
-    if not check_memory_usage():
-        return
-
-    logger.error("Memory constraint exceeded. Attempting recovery strategies...")
-
-    # Strategy 1: Reduce Context Window
-    context_reduced = reduce_context_window(config)
-    
-    # Check memory again after context reduction
-    if not check_memory_usage():
-        logger.info("Context reduction resolved memory pressure.")
-        return
-
-    # Strategy 2: Reduce Batch Size
-    new_batch_size = reduce_batch_size(current_batch_size)
-    if new_batch_size < current_batch_size:
-        # Check memory again after batch reduction
-        if not check_memory_usage():
-            logger.info("Batch size reduction resolved memory pressure.")
-            return
-    
-    # If we are here, both strategies failed to resolve the issue
-    # or we couldn't reduce further (e.g., batch size already 1, context already min)
-    logger.critical("All memory reduction strategies failed. Exiting.")
-    raise RuntimeError("Memory constraint exceeded")
-
-def split_context(context: str, chunk_size: int) -> Generator[str, None, None]:
-    """
-    Splits a long context string into chunks of approximately chunk_size.
-    Yields chunks of text.
-    
-    Args:
-        context: The input text string.
-        chunk_size: The approximate number of tokens/characters per chunk.
+        context: The input context string.
+        chunk_size: Maximum size of each chunk.
         
     Yields:
-        String chunks.
+        Chunks of the context string.
     """
     if not context:
         return
     
-    # Simple character-based splitting for now, could be token-based if tokenizer available
-    # Assuming chunk_size refers to characters for this generic utility unless specified
-    # If token-based logic is required, it should use a specific tokenizer.
-    # For this task, we implement a robust string splitter.
-    
     start = 0
     while start < len(context):
-        end = start + chunk_size
+        end = min(start + chunk_size, len(context))
         yield context[start:end]
         start = end
 
-def main():
+def reduce_batch_size(batch: List[Any], target_size: Optional[int] = None) -> List[Any]:
     """
-    Main entry point for testing the preprocessing logic.
+    Reduce batch size if memory pressure is detected.
+    
+    Args:
+        batch: The input batch list.
+        target_size: Optional target batch size. If None, reduces by half.
+        
+    Returns:
+        Reduced batch list.
     """
-    logging.basicConfig(level=logging.INFO)
+    if not batch:
+        return batch
+    
     config = PreprocessConfig()
+    current_size = len(batch)
     
-    # Simulate a scenario where memory is high
-    # In a real scenario, this would be triggered by actual load
-    logger.info("Testing memory reduction logic...")
+    if target_size is None:
+        target_size = max(config.min_batch_size, current_size // 2)
     
-    # This is a unit test simulation; in real execution, 
-    # exit_on_memory_exceeded would be called within the data loading loop.
-    try:
-        # Force a memory check (will likely pass on a clean run)
-        # To test the failure path, one would need to artificially inflate memory
-        # or run on a constrained machine.
-        # We demonstrate the call signature here.
-        exit_on_memory_exceeded(config, 32)
-        logger.info("Memory check passed or reduced successfully.")
-    except RuntimeError as e:
-        logger.error(f"Memory constraint error caught: {e}")
-        sys.exit(1)
+    target_size = max(config.min_batch_size, min(target_size, current_size))
+    
+    if target_size < current_size:
+        logger.info(f"Reducing batch size from {current_size} to {target_size}")
+        return batch[:target_size]
+    
+    return batch
+
+def reduce_context_window(context: str, factor: float = 0.5) -> str:
+    """
+    Reduce context window size by a given factor.
+    
+    Args:
+        context: The input context string.
+        factor: Reduction factor (0.0 to 1.0). 0.5 means keep first 50%.
+        
+    Returns:
+        Reduced context string.
+    """
+    config = PreprocessConfig()
+    if factor <= 0.0 or factor > 1.0:
+        factor = config.context_reduction_factor
+    
+    new_length = int(len(context) * factor)
+    if new_length == 0:
+        new_length = 1
+    
+    logger.info(f"Reducing context window from {len(context)} to {new_length} tokens")
+    return context[:new_length]
+
+def exit_on_memory_exceeded() -> None:
+    """
+    Raise RuntimeError if all memory reduction strategies have been exhausted.
+    
+    This function is called after attempting to reduce batch size and context window.
+    If memory pressure persists after all reduction attempts, it raises a RuntimeError
+    to prevent OOM crashes and signal that the task cannot proceed within constraints.
+    
+    Raises:
+        RuntimeError: Always raised with message "Memory constraint exceeded"
+    """
+    config = PreprocessConfig()
+    used_gb = get_used_memory_gb()
+    available_gb = get_available_memory_gb()
+    
+    logger.critical(
+        f"Memory constraint exceeded: Used {used_gb:.2f}GB, Available {available_gb:.2f}GB, "
+        f"Threshold {config.memory_threshold_gb}GB"
+    )
+    logger.critical(
+        "All reduction strategies (batch size reduction, context window reduction) have been exhausted. "
+        "Cannot proceed within memory constraints."
+    )
+    
+    raise RuntimeError("Memory constraint exceeded")
+
+def main() -> None:
+    """
+    Main function to demonstrate memory checking and reduction logic.
+    This is primarily for testing and validation of the memory guard mechanisms.
+    """
+    logger.info("Starting memory check demonstration")
+    
+    # Test memory checking
+    logger.info(f"Current memory usage: {get_used_memory_gb():.2f}GB")
+    logger.info(f"Available memory: {get_available_memory_gb():.2f}GB")
+    
+    if check_memory_usage():
+        logger.warning("Memory pressure detected, attempting reductions...")
+        
+        # Simulate batch reduction
+        test_batch = list(range(1000))
+        reduced_batch = reduce_batch_size(test_batch)
+        logger.info(f"Batch reduced from {len(test_batch)} to {len(reduced_batch)}")
+        
+        # Simulate context reduction
+        test_context = "A" * 10000
+        reduced_context = reduce_context_window(test_context)
+        logger.info(f"Context reduced from {len(test_context)} to {len(reduced_context)}")
+        
+        # If still over threshold, exit
+        if check_memory_usage():
+            logger.error("Memory still exceeded after reductions, exiting...")
+            exit_on_memory_exceeded()
+    else:
+        logger.info("Memory usage within acceptable limits")
+    
+    logger.info("Memory check demonstration completed successfully")
 
 if __name__ == "__main__":
     main()

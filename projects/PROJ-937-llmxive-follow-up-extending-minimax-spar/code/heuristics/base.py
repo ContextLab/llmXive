@@ -1,132 +1,154 @@
 """
-Base abstract class for HeuristicSelector.
-
-This module defines the abstract interface that all heuristic
-implementations must follow for attention block selection.
+Base abstract class for Heuristic Selector.
+Defines the interface for heuristic-based attention block selection.
 """
-
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
+import logging
+from dataclasses import dataclass, field
+
+from utils.logger import get_logger_for_task
+
+logger = get_logger_for_task(__name__)
+
+
+@dataclass
+class HeuristicConfig:
+    """Configuration for heuristic selection."""
+    top_k: int = 4
+    entropy_weight: float = 1.0
+    gradient_weight: float = 1.0
+    recency_weight: float = 1.0
+    fallback_threshold: float = 1e-6
+    device: str = "cpu"
+
 
 class HeuristicSelector(ABC):
     """
-    Abstract base class for attention block selection heuristics.
-    
-    All heuristic implementations must inherit from this class
-    and implement the core selection logic.
-    
-    Attributes:
-        name: The name of the heuristic implementation.
-        config: Configuration dictionary for the heuristic.
-        logger: Optional logger instance.
+    Abstract base class for heuristic-based attention block selection.
+
+    This class defines the interface for selecting attention blocks based on
+    various heuristics (entropy, gradient magnitude, recency bias).
     """
-    
-    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
+
+    def __init__(self, config: Optional[HeuristicConfig] = None):
         """
-        Initialize the heuristic selector.
-        
+        Initialize the HeuristicSelector.
+
         Args:
-            name: Name of the heuristic.
-            config: Optional configuration dictionary.
+            config: HeuristicConfig instance. If None, uses default config.
         """
-        self.name = name
-        self.config = config or {}
-        self.logger = None
-        
-    def set_logger(self, logger):
-        """Set the logger for this heuristic."""
+        self.config = config or HeuristicConfig()
         self.logger = logger
-        
+        self._scores: Dict[str, np.ndarray] = {}
+
     @abstractmethod
     def compute_scores(
-        self, 
-        attention_logits: np.ndarray, 
-        **kwargs
-    ) -> np.ndarray:
+        self,
+        attention_logits: np.ndarray,
+        block_positions: np.ndarray,
+        **kwargs: Any
+    ) -> Dict[str, np.ndarray]:
         """
-        Compute selection scores for attention blocks.
-        
-        This is the core abstract method that all heuristics must implement.
-        The scores determine which blocks should be kept or pruned.
-        
+        Compute heuristic scores for each attention block.
+
         Args:
-            attention_logits: Attention logits tensor of shape 
-                              (batch_size, num_heads, seq_len, seq_len) or 
-                              (num_heads, seq_len, seq_len) for a single batch.
-            **kwargs: Additional keyword arguments specific to the heuristic.
-        
+            attention_logits: Attention logits from the model.
+            block_positions: Positions of attention blocks.
+            **kwargs: Additional arguments for specific heuristics.
+
         Returns:
-            numpy.ndarray: Selection scores of shape (batch_size, num_blocks) or 
-                           (num_blocks) for a single batch. Higher scores indicate
-                           blocks that should be kept.
-        
-        Raises:
-            NotImplementedError: If not implemented by subclass.
+            Dictionary mapping heuristic names to score arrays.
         """
-        raise NotImplementedError("Subclasses must implement compute_scores")
-    
+        pass
+
     @abstractmethod
     def select_blocks(
-        self, 
-        scores: np.ndarray, 
-        k: int, 
-        **kwargs
+        self,
+        scores: Dict[str, np.ndarray],
+        k: Optional[int] = None
+    ) -> List[int]:
+        """
+        Select top-k blocks based on heuristic scores.
+
+        Args:
+            scores: Dictionary of heuristic scores.
+            k: Number of blocks to select. If None, uses config.top_k.
+
+        Returns:
+            List of indices of selected blocks.
+        """
+        pass
+
+    def aggregate_scores(
+        self,
+        scores: Dict[str, np.ndarray],
+        weights: Optional[Dict[str, float]] = None
     ) -> np.ndarray:
         """
-        Select the top-k blocks based on computed scores.
-        
+        Aggregate multiple heuristic scores into a single score.
+
         Args:
-            scores: Selection scores from compute_scores().
-            k: Number of blocks to select.
-            **kwargs: Additional keyword arguments.
-        
+            scores: Dictionary of heuristic scores.
+            weights: Optional dictionary of weights for each heuristic.
+                    If None, uses config weights.
+
         Returns:
-            numpy.ndarray: Boolean mask or indices of selected blocks.
-        
-        Raises:
-            NotImplementedError: If not implemented by subclass.
+            Aggregated score array.
         """
-        raise NotImplementedError("Subclasses must implement select_blocks")
-    
-    def get_config(self) -> Dict[str, Any]:
+        if not scores:
+            raise ValueError("No scores provided for aggregation")
+
+        if weights is None:
+            weights = {
+                "entropy": self.config.entropy_weight,
+                "gradient": self.config.gradient_weight,
+                "recency": self.config.recency_weight,
+            }
+
+        aggregated = np.zeros_like(list(scores.values())[0])
+        total_weight = 0.0
+
+        for name, score in scores.items():
+            if name in weights:
+                weight = weights[name]
+                # Normalize score to [0, 1] range before weighting
+                if score.max() > score.min():
+                    normalized = (score - score.min()) / (score.max() - score.min())
+                else:
+                    normalized = np.zeros_like(score)
+                aggregated += weight * normalized
+                total_weight += weight
+
+        if total_weight > 0:
+            aggregated /= total_weight
+
+        return aggregated
+
+    def is_fallback_needed(
+        self,
+        scores: Dict[str, np.ndarray]
+    ) -> bool:
         """
-        Get the current configuration of the heuristic.
-        
-        Returns:
-            Dictionary of configuration parameters.
-        """
-        return self.config.copy()
-    
-    def update_config(self, **kwargs):
-        """
-        Update the configuration of the heuristic.
-        
+        Check if fallback selection is needed (all scores near zero).
+
         Args:
-            **kwargs: Configuration parameters to update.
-        """
-        self.config.update(kwargs)
-    
-    def validate_input(self, attention_logits: np.ndarray) -> bool:
-        """
-        Validate that the input attention logits have the expected shape.
-        
-        Args:
-            attention_logits: Input attention logits.
-        
+            scores: Dictionary of heuristic scores.
+
         Returns:
-            bool: True if input is valid, False otherwise.
+            True if fallback is needed, False otherwise.
         """
-        if attention_logits is None:
-            return False
-        if not isinstance(attention_logits, np.ndarray):
-            return False
-        if attention_logits.ndim < 3:
-            return False
+        threshold = self.config.fallback_threshold
+        for name, score in scores.items():
+            if np.any(np.abs(score) > threshold):
+                return False
         return True
-    
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name})"
-    
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name}, config={self.config})"
+
+    def get_scores(self) -> Dict[str, np.ndarray]:
+        """Get the computed scores."""
+        return self._scores.copy()
+
+    def set_scores(self, scores: Dict[str, np.ndarray]) -> None:
+        """Set the computed scores."""
+        self._scores = scores.copy()

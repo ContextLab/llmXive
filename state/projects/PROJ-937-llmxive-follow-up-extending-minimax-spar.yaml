@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T09:50:50.463903Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-937-llmxive-follow-up-extending-minimax-spar
-last_run_id: d5665fff-ff5b-4f04-8d86-4e19f598bed7
+last_run_id: 1a51eaa1-ca64-4469-8e16-1b473d7709ed
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar
 title: 'llmXive follow-up: extending "MiniMax Sparse Attention"'
-updated_at: '2026-09-30T09:47:59.040882Z'
+updated_at: '2026-10-04T14:08:37.961601Z'

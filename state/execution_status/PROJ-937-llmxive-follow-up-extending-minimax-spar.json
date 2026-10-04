@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-937-llmxive-follow-up-extending-minimax-spar",
+  "ok": false,
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/models/mini_max_wrapper.py: self-declared fabricated metric \u2014 \u201c\u2026r implementation that returns dummy scores.         In a full implement\u2026\u201d; code/data/ruler_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Optional import yaml  # Mock dataset for MVP if real download\u2026\u201d; code/data/ruler_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026For this MVP, returns a mock dataset if real download is not\u2026\u201d; 3 command(s) failed: python code/main.py --action download (rc=1); python code/main.py --action run --heuristic all --threshold 0.05 (rc=1); python code/main.py --action analyze (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --action download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py\", line 16, in <module>\n    from data.loader import download_and_verify_ruler, verify_ruler_data_integrity\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py\", line 12, in <module>\n    from .preprocess import (\nImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runner/work/llmXive/llmXive/proje",
+    "python code/main.py --action run --heuristic all --threshold 0.05 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py\", line 16, in <module>\n    from data.loader import download_and_verify_ruler, verify_ruler_data_integrity\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py\", line 12, in <module>\n    from .preprocess import (\nImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runne",
+    "python code/main.py --action analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py\", line 16, in <module>\n    from data.loader import download_and_verify_ruler, verify_ruler_data_integrity\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py\", line 12, in <module>\n    from .preprocess import (\nImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runner/work/llmXive/llmXive/projec"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-04T14:26:25Z"
+}
