@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://json-schema.org/draft-07/schema
   verified_at: '2026-07-12T01:53:51.346740Z'
-- artifact_hash: 216400a030c7df1086edeec221804016818c09f4665528388f43cad5d0a7544b
+- artifact_hash: 0831b36c4c78bb87a576638209bafc6a1b198545daff38845b6468a8d7758bf2
   artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://arxiv.org/abs/1505.06549
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1505.06549
-  verified_at: '2026-10-02T11:55:02.157456Z'
+  verified_at: '2026-10-04T14:40:46.375310Z'

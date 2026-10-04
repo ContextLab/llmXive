@@ -1,38 +1,21 @@
-"""
-setup_data_directories.py
--------------------------
-
-This module provides utilities to create the required data directory
-hierarchy for the project. It defines a small helper ``ensure_directory``
-that creates a directory (including any missing parents) and a ``main``
-entry‑point that creates the four top‑level data sub‑folders:
-
-- ``data/stimuli/``
-- ``data/processed/``
-- ``data/measurements/``
-- ``data/raw/``
-
-The script is deliberately simple: it can be executed directly
-(``python code/setup_data_directories.py``) or imported by the test suite.
-"""
-
 import os
 from pathlib import Path
 from typing import Union
 
 def ensure_directory(path: Union[str, Path]) -> Path:
     """
-    Ensure that the directory ``path`` exists.
+    Ensure that a directory exists at the given path.
+    If the directory (or any of its parents) does not exist, it is created.
 
     Parameters
     ----------
     path : Union[str, Path]
-        The directory to create.
+        The directory path to ensure.
 
     Returns
     -------
     Path
-        The ``Path`` object for the created (or already existing) directory.
+        The Path object representing the ensured directory.
     """
     dir_path = Path(path)
     dir_path.mkdir(parents=True, exist_ok=True)
@@ -40,24 +23,23 @@ def ensure_directory(path: Union[str, Path]) -> Path:
 
 def main() -> None:
     """
-    Create the required data directories under the project root.
-    The function is idempotent – calling it multiple times will not raise
-    errors and will leave the directory tree intact.
+    Create the required data directory structure for the project:
+    - data/stimuli/
+    - data/processed/
+    - data/measurements/
+    - data/raw/
+    
+    The function determines the project root relative to this file's location
+    and creates each subdirectory under the root's `data/` folder.
     """
-    project_root = Path.cwd()
+    # Determine the project root (assumes this file is located in <project_root>/code/)
+    project_root = Path(__file__).resolve().parent.parent
+
     data_root = project_root / "data"
+    subdirectories = ["stimuli", "processed", "measurements", "raw"]
 
-    # List of sub‑directories that must exist under ``data/``
-    subdirs = [
-        "stimuli",
-        "processed",
-        "measurements",
-        "raw",
-    ]
-
-    for sub in subdirs:
-        ensure_directory(data_root / sub)
+    for subdir in subdirectories:
+        ensure_directory(data_root / subdir)
 
 if __name__ == "__main__":
-    # When executed as a script, simply run the creation routine.
     main()

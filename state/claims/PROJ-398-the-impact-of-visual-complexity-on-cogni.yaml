@@ -1069,3 +1069,624 @@
   source_type: external
   status: verified
   updated_at: '2026-10-02T11:35:48Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Downloads first 500 items from HuggingFace video-conference-backgrounds
+    dataset
+  claim_id: c_2b987876
+  context: 'Phase 2, T014a: One-time Setup: Fetch and Archive Real Stimuli'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the HuggingFace video-conference-backgrounds
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T13:56:26Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit cohort of 20 participants for visual complexity rating
+  claim_id: c_c3b5a677
+  context: Phase 3, User Story 0 Goal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T13:57:08Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Process 10 images at 1080p within 30 seconds on GitHub Actions free-tier
+  claim_id: c_af6caafa
+  context: 'Phase 4, T061: Performance Test for Metric Extraction'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that processing 10 images at 1080p completes within 30 seconds
+    on the GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T13:58:54Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage below 2048MB
+  claim_id: c_09267044
+  context: 'Phase 4, T061: Performance Test for Metric Extraction'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_below_2048MB
+  kind: entity_fact
+  raw_text: Peak RAM usage stays below 2048MB (2GB).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:05:26Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Benchmark executed on GitHub Actions free-tier runner with 2-core CPU
+    and 7 GB RAM
+  claim_id: c_ab21adec
+  context: 'Phase 4, T066: Hardware Profile Documentation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance benchmark is executed on the GitHub Actions free-tier
+    runner (2-core CPU, 7 GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:06:47Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Expected peak RSS is 1.8GB with 2GB limit
+  claim_id: c_c5985d80
+  context: 'Phase 4, T067: RAM Limit Details'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Document RAM limit of 2GB, expected peak RSS \u2264 1.8GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:06:50Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Flag predictors with VIF greater than 5
+  claim_id: c_b857b6b5
+  context: 'Phase 7, T038: Implement VIF calculation'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Flag any predictor with VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:07:07Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Sweep alpha thresholds 0.01, 0.05, and 0.1
+  claim_id: c_b3cbee39
+  context: 'Phase 7, T041: Implement sensitivity analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep alpha thresholds explicitly hardcoded as {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:07:09Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Determine stability conclusion based on SD less than 0.05
+  claim_id: c_387a2d64
+  context: 'Phase 7, T041: Implement sensitivity analysis'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Determine_stability_conclusion_based_on_SD_less_than_0.05
+  kind: magnitude
+  raw_text: Determine interpretive conclusion based on the SD threshold (SD < 0.05).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:07:21Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: 'Citation included: arxiv.org/abs/1505.06549'
+  claim_id: c_581fc12d
+  context: 'Phase 7, T042d: FWER vs Alpha Comparison & Report'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Include citation to https://arxiv.org/abs/1505.06549.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:07:25Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit 20 participants for pilot study
+  claim_id: c_4827fcb8
+  context: 'Goal: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity to validate automated metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:10:23Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Download first 500 items from video-conference-backgrounds dataset
+  claim_id: c_016106e4
+  context: "T014a \u2026 downloads the first 500 items from the HuggingFace `video-conference-backgrounds`\
+    \ dataset, verifies dataset authenticity via checksums against a known manifest."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a one\u2011time setup script that downloads the first 500 items\
+    \ from the HuggingFace `video-conference-backgrounds` dataset, verifies checksums,\
+    \ and stores them locally."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:10:54Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Process 10 1080p images within 30 seconds on GitHub Actions free tier
+  claim_id: c_fe8ad8d5
+  context: "T061 Performance Test for Metric Extraction: Verify that processing 10\
+    \ images at 1080p completes within 30\u202Fseconds on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30\u202Fseconds on the\
+    \ GitHub Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:11:17Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: "Peak RAM usage \u2264 2048 MB"
+  claim_id: c_0249c6b5
+  context: "T061 Performance Test for Metric Extraction: Verify that peak RAM usage\
+    \ stays below 2048\u202FMB (2\u202FGB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage stays below 2048\u202FMB (2\u202FGB) during metric extraction\
+    \ on the GitHub Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:11:33Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from video-conference-backgrounds dataset
+  claim_id: c_0a684895
+  context: "Phase 2 task T014a describes a one\u2011time setup script that fetches\
+    \ and archives the first 500 items from the HuggingFace video\u2011conference\u2011\
+    backgrounds dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "It downloads the first 500 items from the HuggingFace `video-conference-backgrounds`\
+    \ dataset, verifies dataset authenticity via checksums against a known manifest,\
+    \ computes SHA\u2011256 checksums, and stores them in `data/stimuli/raw/`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:12:29Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process 10 images at 1080p within 30 seconds on GitHub Actions free-tier
+    runner
+  claim_id: c_cbf4e7c2
+  context: "Task T061 specifies a performance test that verifies processing 10 images\
+    \ at 1080p finishes in under 30 seconds on the GitHub Actions free\u2011tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30\u202Fseconds on the\
+    \ GitHub Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:12:29Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: peak RAM usage below 2048 MB on GitHub Actions free-tier runner
+  claim_id: c_16a5060b
+  context: "Task T061 also requires that the metric extraction pipeline\u2019s peak\
+    \ resident set size remains under 2048\u202FMB on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage stays below 2048\u202FMB (2\u202FGB) on the GitHub Actions\
+    \ free\u2011tier runner during metric extraction."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:12:29Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: small cohort of 20 participants
+  claim_id: c_b832246e
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:13:10Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from dataset
+  claim_id: c_6078f9d7
+  context: Implement src/metrics/fetch_and_archive.py as a one-time setup script that
+    downloads the first 500 items from the HuggingFace `video-conference-backgrounds`
+    dataset, verifies dataset authenticity via checksums...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the HuggingFace `video-conference-backgrounds`
+    dataset, verifies dataset authenticity via checksums against a known manifest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:13:33Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process 10 images at 1080p within 30 seconds
+  claim_id: c_fe02f876
+  context: "Performance Test for Metric Extraction: Verify that processing 10 images\
+    \ at 1080p completes within 30\u202Fseconds on the GitHub Actions free\u2011tier\
+    \ runner and that peak RAM usage stays below 2048MB (2\u202FGB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that processing 10 images at 1080p completes within 30\u202Fseconds\
+    \ on the GitHub Actions free\u2011tier runner and that peak RAM usage stays below\
+    \ 2048MB (2\u202FGB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:13:55Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: peak RAM usage below 2048 MB
+  claim_id: c_3baa0837
+  context: "Performance Test for Metric Extraction: ... peak RAM usage stays below\
+    \ 2048MB (2\u202FGB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RAM usage stays below 2048MB (2\u202FGB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:13:55Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: expected peak RSS at most 1.8 GB
+  claim_id: c_9733355b
+  context: "Hardware Profile Documentation records that the performance benchmark\
+    \ is executed on the GitHub Actions free\u2011tier runner (2\u2011core CPU, 7\u202F\
+    GB RAM) and that expected peak RSS \u2264 1.8GB, with profiling methodology documented."
+  evidence:
+    entailment_evidence: Expected peak RSS at most 1.8 GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Expected_peak_RSS_at_most_1.8_GB
+  kind: magnitude
+  raw_text: "expected peak RSS \u2264 1.8GB, with profiling methodology documented."
+  resolved_value: expected peak RSS at most 1.8 GB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T14:13:57Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process 10 1080p images under 30 seconds and RAM below 2048MB
+  claim_id: c_b444f2e1
+  context: "Performance test: Verify that processing 10 images at 1080p completes\
+    \ within 30\u202Fseconds on the GitHub Actions free\u2011tier runner and that\
+    \ peak RAM usage stays below 2048\u202FMB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30 seconds on the GitHub\
+    \ Actions free\u2011tier runner and peak RAM usage stays below 2048\u202FMB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:14:54Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: 10 images at 1080p processed under 30 seconds with RAM usage below 2048MB
+    on GitHub Actions free tier
+  claim_id: c_b01a280a
+  context: "Performance Test for Metric Extraction: Verify that processing 10 images\
+    \ at 1080p completes within 30 seconds on the GitHub Actions free\u2011tier runner\
+    \ and that peak RAM usage stays below 2048MB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30 seconds on the GitHub\
+    \ Actions free\u2011tier runner and peak RAM usage stays below 2048MB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:15:45Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from HuggingFace video-conference-backgrounds
+    dataset
+  claim_id: c_50cbc402
+  context: Implement `src/metrics/fetch_and_archive.py` as a one-time setup script
+    that downloads the first 500 items from the HuggingFace `video-conference-backgrounds`
+    dataset and stores them locally.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "It downloads the first 500 items from the HuggingFace `video-conference-backgrounds`\
+    \ dataset, verifies dataset authenticity via checksums against a known manifest,\
+    \ computes SHA\u2011256 checksums, and stores them in `data/stimuli/raw/`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:12Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process 10 images at 1080p within 30 seconds on GitHub Actions free-tier
+    runner
+  claim_id: c_7925c3c6
+  context: "Performance test to verify that processing 10 images at 1080p completes\
+    \ within 30\u202Fseconds on the GitHub Actions free\u2011tier runner and that\
+    \ peak RAM usage stays below 2048MB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that processing 10 images at 1080p completes within 30\u202Fseconds\
+    \ on the GitHub Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:12Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: peak RAM usage below 2048 MB
+  claim_id: c_44dbd344
+  context: "Performance test to verify that processing 10 images at 1080p completes\
+    \ within 30\u202Fseconds on the GitHub Actions free\u2011tier runner and that\
+    \ peak RAM usage stays below 2048MB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage stays below 2048MB (2\u202FGB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:13Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: first 500 items from HuggingFace video-conference-backgrounds dataset
+  claim_id: c_a7a2ef91
+  context: 'Phase 2, Task T014a: one-time setup script that downloads the first 500
+    items from the HuggingFace video-conference-backgrounds dataset, verifies authenticity
+    via checksums, and stores them locally.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the HuggingFace `video-conference-backgrounds`
+    dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:41Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants
+  claim_id: c_c83ba6d8
+  context: 'Phase 3, User Story 0: Goal is to recruit a small cohort (n=20) to rate
+    background images for perceived visual complexity to validate automated metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:41Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 images at 1080p completes within 30 seconds on GitHub Actions
+    free-tier runner
+  claim_id: c_eddbc237
+  context: "Phase 4, Task T061: Performance Test for Metric Extraction verifies that\
+    \ processing 10 images at 1080p completes within 30\u202Fseconds on the GitHub\
+    \ Actions free\u2011tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "processing 10 images at 1080p completes within 30 seconds on the GitHub\
+    \ Actions free\u2011tier runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:41Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: peak RAM usage below 2048 MB
+  claim_id: c_daee567e
+  context: "Phase 4, Task T061: The same performance test also asserts that peak RAM\
+    \ usage stays below 2048\u202FMB (2\u202FGB) on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RAM usage stays below 2048MB (2\u202FGB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:41Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: performance benchmark executed on GitHub Actions free-tier runner with
+    2-core CPU and 7 GB RAM
+  claim_id: c_c4d6501f
+  context: "Phase 4, Task T066: Hardware Profile Documentation records that the performance\
+    \ benchmark is executed on the GitHub Actions free\u2011tier runner (2\u2011core\
+    \ CPU, 7\u202FGB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "the performance benchmark is executed on the GitHub Actions free\u2011\
+    tier runner (2\u2011core CPU, 7\u202FGB RAM)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:16:41Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: downloaded first 500 items from HuggingFace video-conference-backgrounds
+    dataset
+  claim_id: c_82672daf
+  context: Phase 2 task T014a describes a one-time setup script that downloads the
+    first 500 items from the HuggingFace video-conference-backgrounds dataset and
+    verifies checksums.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads the first 500 items from the HuggingFace video-conference-backgrounds
+    dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:17:33Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 1080p images completes within 30 seconds and uses less
+    than 2048 MB RAM on GitHub Actions free-tier runner
+  claim_id: c_7da402c6
+  context: "Performance test T061 asserts that processing 10 images at 1080p must\
+    \ finish within 30 seconds and keep peak RAM under 2048\u202FMB on the GitHub\
+    \ Actions free\u2011tier runner."
+  evidence:
+    candidates:
+    - - Processing 10
+      - 1080.0
+    - - Donate Create account Log in Processing
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Processing_10_1080p_images_completes_within_30_seconds_and_u
+  kind: magnitude
+  raw_text: "processing 10 images at 1080p completes within 30 seconds on the GitHub\
+    \ Actions free\u2011tier runner and peak RAM usage stays below 2048MB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T14:17:35Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier runner has 2 CPU cores and 7 GB RAM
+  claim_id: c_65ac177d
+  context: "Task T061 notes that the performance benchmark is executed on the GitHub\
+    \ Actions free\u2011tier runner (2\u2011core CPU, 7\u202FGB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GitHub Actions free\u2011tier runner provides 2\u2011core CPU and 7\u202F\
+    GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:17:59Z'

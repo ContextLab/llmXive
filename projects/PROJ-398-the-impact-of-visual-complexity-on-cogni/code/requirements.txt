@@ -7,5 +7,5 @@ numpy
 pillow
 requests
 streamlit
-psutil
-# End of requirements.txt
+ruff
+black

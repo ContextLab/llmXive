@@ -1,127 +1,148 @@
 """
-Tests for src/metrics/load_stimuli.py
+Tests for src.metrics.load_stimuli module.
 """
-import os
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
+
 import numpy as np
 from PIL import Image
 
 from src.metrics.load_stimuli import (
-    load_stimuli_from_archive,
+    StimuliLoaderError,
     get_stimuli_metadata,
-    StimuliLoaderError
+    load_stimuli_from_archive
 )
 from src.lib.utils import compute_file_checksum
 
+
 @pytest.fixture
 def temp_archive_environment():
-    """Create a temporary directory with valid stimuli and manifest."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
+    """Create a temporary directory structure simulating a valid stimuli archive."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        archive_path = Path(tmpdir)
         
-        # Create dummy images
-        img1_path = tmp_path / "img1.png"
-        img2_path = tmp_path / "img2.jpg"
+        # Create dummy images and manifest
+        filenames = ["img_001.jpg", "img_002.jpg", "img_003.png"]
+        manifest_entries = []
         
-        img1 = Image.new('RGB', (100, 100), color='red')
-        img1.save(img1_path)
-        
-        img2 = Image.new('RGB', (100, 100), color='blue')
-        img2.save(img2_path)
-        
-        # Calculate checksums
-        checksum1 = compute_file_checksum(img1_path)
-        checksum2 = compute_file_checksum(img2_path)
-        
-        # Create manifest
-        manifest = {
-            "img1.png": checksum1,
-            "img2.jpg": checksum2,
-            "readme.txt": "dummy" # Non-image file to be ignored
-        }
-        
-        manifest_path = tmp_path / "manifest.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
+        for fname in filenames:
+            img_path = archive_path / fname
+            # Create a simple RGB image
+            img = Image.new('RGB', (100, 100), color=(73, 109, 137))
+            img.save(img_path)
             
-        yield tmp_path
+            checksum = compute_file_checksum(img_path)
+            manifest_entries.append({
+                "filename": fname,
+                "sha256": checksum
+            })
+        
+        # Write manifest
+        manifest_path = archive_path / "manifest.json"
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest_entries, f)
+            
+        yield archive_path, manifest_entries
+
 
 def test_load_from_archive_success(temp_archive_environment):
-    """Test successful loading of stimuli from a valid archive."""
-    data = load_stimuli_from_archive(temp_archive_environment)
+    """Test successful loading of images from archive."""
+    archive_path, manifest_entries = temp_archive_environment
     
-    assert len(data) == 2
-    filenames = [item[0] for item in data]
-    assert "img1.png" in filenames
-    assert "img2.jpg" in filenames
+    images, metadata = load_stimuli_from_archive(archive_path)
     
-    # Check image data
-    for fname, array, checksum in data:
-        assert isinstance(array, np.ndarray)
-        assert array.shape == (100, 100, 3)
-        assert len(checksum) == 64 # SHA-256 hex length
+    assert len(images) == len(manifest_entries)
+    assert len(metadata) == len(manifest_entries)
+    
+    for i, meta in enumerate(metadata):
+        assert "filename" in meta
+        assert "sha256" in meta
+        assert meta["filename"] == manifest_entries[i]["filename"]
+        assert meta["sha256"] == manifest_entries[i]["sha256"]
+        assert images[i].size == (100, 100)
+
 
 def test_load_with_max_images(temp_archive_environment):
-    """Test loading with a limit on the number of images."""
-    data = load_stimuli_from_archive(temp_archive_environment, max_images=1)
+    """Test loading a limited number of images."""
+    archive_path, manifest_entries = temp_archive_environment
     
-    assert len(data) == 1
-    # Verify ordering is deterministic (sorted)
-    assert data[0][0] == "img1.png"
+    images, metadata = load_stimuli_from_archive(archive_path, max_images=2)
+    
+    assert len(images) == 2
+    assert len(metadata) == 2
+
 
 def test_load_missing_archive():
-    """Test that loading from a non-existent directory raises an error."""
-    with pytest.raises(StimuliLoaderError) as exc_info:
-        load_stimuli_from_archive(Path("/nonexistent/path"))
-    assert "Archive directory does not exist" in str(exc_info.value)
+    """Test that missing archive directory raises error."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fake_path = Path(tmpdir) / "non_existent"
+        
+        with pytest.raises(StimuliLoaderError, match="does not exist"):
+            load_stimuli_from_archive(fake_path)
+
 
 def test_load_missing_manifest(temp_archive_environment):
-    """Test that loading without a manifest raises an error."""
-    # Remove manifest
-    manifest_path = temp_archive_environment / "manifest.json"
-    manifest_path.unlink()
+    """Test that missing manifest file raises error."""
+    archive_path, _ = temp_archive_environment
     
-    with pytest.raises(StimuliLoaderError) as exc_info:
-        load_stimuli_from_archive(temp_archive_environment)
-    assert "Manifest file not found" in str(exc_info.value)
+    # Remove manifest
+    (archive_path / "manifest.json").unlink()
+    
+    with pytest.raises(StimuliLoaderError, match="Manifest file not found"):
+        load_stimuli_from_archive(archive_path)
+
 
 def test_get_stimuli_metadata(temp_archive_environment):
-    """Test extracting metadata from manifest."""
-    meta = get_stimuli_metadata(temp_archive_environment)
-    assert "img1.png" in meta
-    assert "img2.jpg" in meta
-    assert "readme.txt" in meta # Manifest contains it, filtering happens in loader
+    """Test metadata extraction from manifest."""
+    archive_path, expected_entries = temp_archive_environment
+    
+    metadata = get_stimuli_metadata(archive_path)
+    
+    assert len(metadata) == len(expected_entries)
+    assert metadata[0]["filename"] == expected_entries[0]["filename"]
+    assert metadata[0]["sha256"] == expected_entries[0]["sha256"]
+
 
 def test_invalid_image_file(temp_archive_environment):
-    """Test handling of a file that is in manifest but not a valid image."""
-    # Add a dummy file to manifest but not create it
-    manifest_path = temp_archive_environment / "manifest.json"
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
+    """Test handling of a corrupted/invalid image file."""
+    archive_path, manifest_entries = temp_archive_environment
     
-    manifest["fake_image.png"] = "0" * 64 # Fake checksum
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f)
+    # Corrupt one image file
+      # Corrupt one image file
+    corrupt_path = archive_path / manifest_entries[0]["filename"]
+    corrupt_path.write_text("not an image")
+    
+    # Recalculate checksum to match the corrupted content so manifest validation passes checksum-wise
+    # but image loading fails
+    new_checksum = compute_file_checksum(corrupt_path)
+    manifest_entries[0]["sha256"] = new_checksum
+    
+    # Update manifest
+    with open(archive_path / "manifest.json", 'w') as f:
+        json.dump(manifest_entries, f)
         
-    with pytest.raises(StimuliLoaderError) as exc_info:
-        load_stimuli_from_archive(temp_archive_environment)
-    assert "Stimulus file missing" in str(exc_info.value)
+    with pytest.raises(StimuliLoaderError, match="Failed to load image"):
+        load_stimuli_from_archive(archive_path)
+
 
 def test_checksum_mismatch(temp_archive_environment):
-    """Test that a checksum mismatch raises an error."""
-    # Corrupt the checksum in the manifest
-    manifest_path = temp_archive_environment / "manifest.json"
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
+    """Test that checksum mismatch raises error."""
+    archive_path, manifest_entries = temp_archive_environment
     
-    manifest["img1.png"] = "0" * 64 # Wrong checksum
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f)
+    # Modify an image file after checksum was recorded
+    img_path = archive_path / manifest_entries[0]["filename"]
+    original_content = img_path.read_bytes()
+    
+    # Write different content
+    img_path.write_bytes(b"corrupted content")
+    
+    # Manifest still has old checksum
+    with pytest.raises(StimuliLoaderError, match="Checksum mismatch"):
+        load_stimuli_from_archive(archive_path)
         
-    with pytest.raises(StimuliLoaderError) as exc_info:
-        load_stimuli_from_archive(temp_archive_environment)
-    assert "Checksum mismatch" in str(exc_info.value)
+    # Restore (though temp dir will be cleaned up anyway)
+    img_path.write_bytes(original_content)

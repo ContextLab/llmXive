@@ -153,7 +153,7 @@ The system must orchestrate the collection of real human data to test the hypoth
 - **SC-002**: The system outputs a p-value for the correlation coefficient between visual complexity and NASA-TLX scores; the study concludes whether the relationship between visual complexity and cognitive load exists based on this data (See US-3, US-4).
 - **SC-003**: The reaction-time difference between high-complexity and low-complexity conditions is measured against the baseline reaction time (defined as the mean reaction time during the baseline condition for the same participant) to quantify the cognitive load impact (See US-2, FR-002b).
 - **SC-004**: The system MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) and report adjusted p-values, ensuring the procedure controls FWER at the nominal alpha level (0.05) as verified by the null-simulation in FR-007 (See US-3, FR-007).
-- **SC-005**: The stability of the effect size is measured across the sensitivity analysis sweep (alpha thresholds {0.01, 0.05, 0.1}) by calculating the standard deviation of effect sizes to confirm robustness of the finding (See US-3, FR-005b).
+- **SC-005**: The stability of the effect size is measured across the sensitivity analysis sweep (alpha thresholds spanning a range of significance levels) by calculating the standard deviation of effect sizes to confirm robustness of the finding (See US-3, FR-005b).
 
 ## Assumptions
 

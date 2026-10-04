@@ -1,94 +1,94 @@
 """
 create_code_structure.py
 
-Utility script to create the required code directory hierarchy for the project.
-It ensures the following directories exist (relative to the project root):
-  - src/
-    - lib/
-    - metrics/
-    - experiment/
-    - analysis/
-  - tests/
+This module provides utilities to create the required source code directory
+structure for the project. It is used by the test suite (tests/test_structure.py)
+to verify that the expected directories exist.
 
-For each Python package directory an empty ``__init__.py`` file is created so
-that the directories are importable as packages.
+Functions
+----------
+ensure_directory(path: Path) -> None
+    Creates a directory (including parent directories) if it does not already exist.
 
-The script is used by the test suite (see ``tests/test_structure.py``) via the
-``main`` function. It can also be executed directly::
+create_init_file(dir_path: Path) -> None
+    Creates an empty ``__init__.py`` file inside ``dir_path`` to make the directory
+    a Python package. If the file already exists, it is left untouched.
 
-    python code/create_code_structure.py
+main() -> None
+    Creates the top‑level ``src`` sub‑packages (lib, metrics, experiment, analysis)
+    and the top‑level ``tests`` directory. Each ``src/*`` directory receives an
+    ``__init__.py`` file.
 """
 
 import os
 from pathlib import Path
 from typing import List
 
-__all__ = ["ensure_directory", "create_init_file", "main"]
-
-def ensure_directory(dir_path: Path) -> None:
+def ensure_directory(path: Path) -> None:
     """
-    Ensure a directory exists.
+    Ensure that ``path`` exists as a directory.
+
+    Parameters
+    ----------
+    path: Path
+        The directory path to create.
+    """
+    # ``parents=True`` creates any missing parent directories.
+    # ``exist_ok=True`` makes the operation idempotent.
+    path.mkdir(parents=True, exist_ok=True)
+
+def create_init_file(dir_path: Path) -> None:
+    """
+    Create an ``__init__.py`` file in ``dir_path`` if it does not already exist.
 
     Parameters
     ----------
     dir_path: Path
-        The directory to create. Parents are created as needed.
+        The directory in which to create the ``__init__.py`` file.
     """
-    dir_path.mkdir(parents=True, exist_ok=True)
-
-def create_init_file(package_dir: Path) -> None:
-    """
-    Create an empty ``__init__.py`` file in ``package_dir`` if it does not already exist.
-
-    Parameters
-    ----------
-    package_dir: Path
-        The directory that should become a Python package.
-    """
-    init_path = package_dir / "__init__.py"
-    if not init_path.exists():
-        # Touch the file – it will be empty but marks the directory as a package.
-        init_path.touch()
-
-def _project_root() -> Path:
-    """
-    Resolve the project root directory. This file lives under ``code/`` so the
-    project root is two levels up from this file.
-    """
-    return Path(__file__).resolve().parents[1]
+    init_file = dir_path / "__init__.py"
+    if not init_file.exists():
+        init_file.touch()
 
 def main() -> None:
     """
-    Create the required directory hierarchy and ``__init__.py`` files.
+    Create the required code directory structure:
+
+    - src/lib/
+    - src/metrics/
+    - src/experiment/
+    - src/analysis/
+    - tests/
     """
-    root = _project_root()
+    # Resolve the project root (the directory that contains the ``code`` folder).
+    # This file lives in ``code/create_code_structure.py``; the project root is its
+    # grand‑parent directory.
+    project_root = Path(__file__).resolve().parents[1]
 
-    # Define the package directories that need to exist.
-    src_dir = root / "src"
-    package_subdirs: List[Path] = [
-        src_dir / "lib",
-        src_dir / "metrics",
-        src_dir / "experiment",
-        src_dir / "analysis",
+    # Define the directories relative to the project root.
+    src_subdirs: List[Path] = [
+        project_root / "src" / "lib",
+        project_root / "src" / "metrics",
+        project_root / "src" / "experiment",
+        project_root / "src" / "analysis",
     ]
+    test_dir = project_root / "tests"
 
-    # Create each package directory and its __init__.py.
-    for pkg_dir in package_subdirs:
-        ensure_directory(pkg_dir)
-        create_init_file(pkg_dir)
+    # Create each src sub‑directory and its ``__init__.py``.
+    for subdir in src_subdirs:
+        ensure_directory(subdir)
+        create_init_file(subdir)
 
-    # Ensure the top‑level ``src`` package also has an ``__init__.py``.
-    ensure_directory(src_dir)
-    create_init_file(src_dir)
+    # Create the top‑level tests directory (also a package for consistency).
+    ensure_directory(test_dir)
+    create_init_file(test_dir)
 
-    # Ensure the tests directory exists (it is not a package, but we keep it for consistency).
-    tests_dir = root / "tests"
-    ensure_directory(tests_dir)
-
-    # Optionally, create a placeholder ``__init__.py`` in tests so that
-    # imports from tests work in some environments. This is harmless.
-    create_init_file(tests_dir)
+    # Optionally, create the top‑level ``src`` package ``__init__.py`` if it does
+    # not already exist. This makes ``src`` importable as a package.
+    src_root = project_root / "src"
+    ensure_directory(src_root)
+    create_init_file(src_root)
 
 if __name__ == "__main__":
-    # When executed as a script, run the creation routine.
+    # When executed directly, run the directory‑creation routine.
     main()

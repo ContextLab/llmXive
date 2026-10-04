@@ -1,7 +1,33 @@
-# Ruff configuration
-# See https://beta.ruff.rs/docs/configuration/ for details
-[tool.ruff]
+# Ruff configuration for llmXive project
 line-length = 88
-select = ["E", "F", "W", "C90"]
-ignore = []
-target-version = "py311"
+indent-width = 4
+
+[lint]
+# Enable Pyflakes (`F`), Pyupgrade (`UP`), isort (`I`), and pycodestyle (`E`, `W`)
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults
+]
+
+# Exclude common generated directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    "venv",
+    ".venv",
+]
+
+[lint.isort]
+known-first-party = ["src", "tests", "code"]
+force-single-line = true
