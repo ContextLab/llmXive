@@ -1,2 +1,2 @@
-# This directory is for raw data downloads.
-# HCP data will be fetched here by the loader scripts.
+# This directory contains all data artifacts (raw, processed, logs).
+# Created by T001: Project directory structure setup.

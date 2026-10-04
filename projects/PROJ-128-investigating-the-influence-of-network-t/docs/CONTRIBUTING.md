@@ -1,67 +1,124 @@
-# Contributing to PROJ-128
+# Contributing to llmXive Network Topology
 
-Thank you for your interest in contributing to this research project! This document outlines the guidelines for contributing.
+Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
 
 ## Code of Conduct
 
-- Be respectful and constructive in all interactions.
-- Focus on scientific rigor and reproducibility.
-- Avoid scope creep; adhere strictly to FR-001 through FR-008.
+- Be respectful and inclusive
+- Provide constructive feedback
+- Focus on what is best for the community
 
-## How to Contribute
+## Getting Started
 
-### Reporting Issues
+1. **Fork the repository**
+2. **Clone your fork**:
+ ```bash
+ git clone
+ cd llmXive-network-topology
+ ```
+3. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ ```
+4. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ pip install pytest black flake8 # Development tools
+ ```
 
-- Use the issue tracker to report bugs or suggest features.
-- Provide clear reproduction steps for bugs.
-- Link to relevant documentation or literature for feature requests.
+## Development Workflow
 
-### Submitting Changes
+1. **Create a feature branch**:
+ ```bash
+ git checkout -b feature/your-feature-name
+ ```
+2. **Make your changes**
+3. **Run tests**:
+ ```bash
+ pytest tests/
+ ```
+4. **Format code**:
+ ```bash
+ black code/
+ flake8 code/
+ ```
+5. **Commit your changes**:
+ ```bash
+ git commit -m "Add: description of your changes"
+ ```
+6. **Push to your fork**:
+ ```bash
+ git push origin feature/your-feature-name
+ ```
+7. **Open a pull request**
 
-1. Fork the repository.
-2. Create a feature branch from `main`.
-3. Implement your changes with tests.
-4. Ensure all existing tests pass.
-5. Submit a pull request.
+## Pull Request Guidelines
 
-## Development Guidelines
+### Before Submitting
 
-### Code Style
+- [ ] Code follows the project's style guidelines
+- [ ] Tests pass locally
+- [ ] Documentation is updated (if applicable)
+- [ ] No new warnings or errors
+- [ ] Associational language compliance verified (for reports)
 
-- Follow PEP 8 guidelines.
-- Use `black` for formatting and `flake8` for linting.
-- Type hints are encouraged.
+### Pull Request Description
 
-### Testing
+Include:
+- Clear description of changes
+- Related issue numbers (if applicable)
+- Testing performed
+- Any breaking changes
 
-- Write unit tests for new functionality.
-- Ensure integration tests pass before merging.
-- Avoid synthetic data; use real HCP data for validation.
+## Coding Standards
+
+### Python Style
+
+- Follow [PEP 8](https://pep8.org/)
+- Use type hints where possible
+- Write docstrings for all functions
+- Keep functions focused and small
 
 ### Documentation
 
-- Update `README.md` and `docs/` for significant changes.
-- Include docstrings for all public functions.
-- Document configuration parameters in `config.py`.
+- Update `docs/` when adding features
+- Include examples in docstrings
+- Keep README and quickstart up to date
 
-### Data Integrity
+### Testing
 
-- **Never fabricate data**: All metrics must come from real HCP data.
-- **Fail loudly**: If data loading fails, raise an error rather than falling back to synthetic data.
-- **Reproducibility**: Ensure scripts produce consistent results with fixed seeds.
+- Write tests for new features
+- Maintain test coverage
+- Tests should fail first (TDD approach)
 
-### Scope Adherence
+## Associational Language Compliance
 
-- Only implement features explicitly mandated by FR-001 through FR-008.
-- Do not add unapproved sensitivity analyses (e.g., tractography confidence).
-- Maintain "associational" framing in all reports.
+When modifying reports or documentation:
+- Avoid causal language (predict, cause, drive, determine)
+- Use associational terms (associated with, correlates with)
+- Run `python code/reports/audit_associational_language.py` to verify
+
+## Data Integrity
+
+- Never fabricate data or results
+- Always use real HCP data from OpenNeuro
+- If real data is unavailable, let the loader fail loudly
+- Document any data limitations honestly
 
 ## Review Process
 
-- All pull requests require at least one reviewer approval.
-- CI/CD checks must pass (tests, linting, validation).
-- Documentation updates are required for significant changes.
+1. Automated checks run on PR
+2. Maintainers review code and tests
+3. Feedback provided and addressed
+4. PR merged after approval
 
 ## Questions?
 
-Open an issue for any questions or clarifications.
+- Check existing issues
+- Read the documentation in `docs/`
+- Open a new issue for questions
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.

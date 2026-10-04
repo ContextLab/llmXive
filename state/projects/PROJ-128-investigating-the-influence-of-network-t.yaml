@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-128-investigating-the-influence-of-network-t
-last_run_id: 8a616ad1-f41b-414a-849d-5d051ea5c72a
+last_run_id: 9446db2a-8cd1-4a23-942e-f806e94b71b8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t
 title: Investigating the Influence of Network Topology on Spontaneous Brain Activity
   Patterns
-updated_at: '2026-09-30T12:41:57.838148Z'
+updated_at: '2026-10-04T18:06:55.461430Z'

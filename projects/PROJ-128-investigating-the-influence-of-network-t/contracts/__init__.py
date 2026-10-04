@@ -1,2 +1,5 @@
-# Contracts package marker
-# Contains schema definitions for data validation.
+"""
+Contracts package for llmXive project.
+
+This directory contains schema definitions and API contracts.
+"""

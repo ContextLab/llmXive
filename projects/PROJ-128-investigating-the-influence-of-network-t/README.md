@@ -1,57 +1,111 @@
-# Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
+# llmXive: Network Topology and Brain Activity Patterns
 
-**Project ID**: PROJ-128
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-This research project investigates the relationship between structural brain network topology (derived from diffusion MRI) and dynamic functional brain activity patterns (derived from fMRI). We employ a rigorous Leave-One-Out (LOO) K-Means clustering approach to ensure statistical independence between structural and functional metric calculations.
+This project investigates the **associational relationship** between topological properties of structural brain networks (derived from diffusion MRI) and dynamic functional states (derived from fMRI).
 
-## Research Question
+**Important**: This study is **associational** in nature. We do not claim causal relationships.
 
-Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns in spontaneous brain activity?
+## Quick Links
 
-## Key Highlights
+- [Quickstart Guide](docs/quickstart.md) - Get started in 5 minutes
+- [Documentation](docs/) - Full documentation
+- [API Reference](docs/api.md) - Developer API (if applicable)
+- [Contributing](#contributing) - How to contribute
 
-- **MVP Status**: User Story 1 (Compute Structural and Dynamic Graph Metrics) is fully implemented and tested.
-- **Statistical Rigor**: LOO K-Means ensures independence; FDR correction controls for multiple comparisons.
-- **Robustness**: Sensitivity analysis validates findings against parameter variations.
-- **Associational Framing**: All results are explicitly framed as associational, not causal.
-- **CPU-Optimized**: Designed for environments without GPU access.
-
-## Quick Start
+## Installation
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd llmXive-network-topology
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
+```
 
-# Run the full pipeline
+## Usage
+
+### Run the Full Pipeline
+
+```bash
+# Setup directories
+python code/setup_directory_structure.py
+
+# Run main pipeline
 python code/main.py
 
-# Validate results
-python code/validate_quickstart.py
+# Generate final report
+python code/reports/generate_report.py
+
+# Validate report
+python code/reports/validate_report.py
 ```
+
+### Run Tests
+
+```bash
+pytest tests/
+```
+
+## Key Features
+
+- **Structural Graph Metrics**: Global efficiency, clustering, modularity
+- **Dynamic Functional States**: Sliding-window analysis, LOO K-Means
+- **Structure-Function Correlation**: Pearson/Spearman with FDR correction
+- **Robustness Analysis**: Window length, density, and tractography sensitivity
+- **Associational Language Compliance**: Automated checking for causal language
+
+## Data
+
+This project uses real HCP data from OpenNeuro. No synthetic data is used.
+
+## Methodological Notes
+
+- **Leave-One-Out (LOO)**: Ensures statistical independence in centroid generation
+- **Associational Framing**: All findings described as correlations, not causation
+- **Tractography Sensitivity**: Addresses false-positive concerns (Yeh et al., 2018)
 
 ## Project Structure
 
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data
-- `tests/`: Unit and integration tests
-- `contracts/`: Data schemas
-- `docs/`: Documentation
+```
+.
+├── code/ # Source code
+├── data/ # Data storage
+├── contracts/ # Schema definitions
+├── tests/ # Test suite
+├── docs/ # Documentation
+├── requirements.txt # Dependencies
+└── README.md # This file
+```
 
-## Documentation
+## Contributing
 
-Detailed documentation is available in [`docs/README.md`](docs/README.md).
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes
+4. Run tests
+5. Submit a pull request
 
-## Status
-
-- [x] Phase 1: Setup
-- [x] Phase 2: Foundational
-- [x] Phase 3: User Story 1 (MVP)
-- [x] Phase 4: User Story 2
-- [x] Phase 5: User Story 3
-- [x] Phase N: Polish & Documentation (T050)
+See [docs/quickstart.md](docs/quickstart.md) for detailed development setup.
 
 ## License
 
-MIT License
+MIT License - see LICENSE file for details
+
+## Acknowledgments
+
+- HCP Consortium for open data
+- Reviewer `john-von-neumann-simulated` for tractography sensitivity feedback
+- llmXive automated science pipeline
+
+## Contact
+
+For questions, open an issue or contact the maintainers.

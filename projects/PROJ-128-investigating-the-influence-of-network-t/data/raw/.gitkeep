@@ -1,2 +1,2 @@
-# This directory is for raw data downloads (e.g., HCP OpenNeuro data)
-# Data should be placed here before processing
+# Raw data from external sources (e.g., HCP OpenNeuro downloads).
+# Created by T001.

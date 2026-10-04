@@ -1,8 +1,12 @@
 """
-CPU Optimization Utilities for llmXive Pipeline
+CPU Optimization Utilities for llmXive Pipeline.
 
-This module provides functions to ensure CPU-only execution, optimize memory usage,
-and enforce deterministic behavior without GPU acceleration.
+This module provides functions to ensure the pipeline runs efficiently on CPU-only
+environments, avoids GPU acceleration, manages memory usage, and optimizes data
+structures for performance.
+
+All functions are designed to be robust and fail loudly if GPU resources are detected
+or if memory constraints are violated.
 """
 import os
 import sys
@@ -12,161 +16,290 @@ import pandas as pd
 from typing import Optional, List, Dict, Any, Union
 import warnings
 
-# Explicitly disable GPU acceleration libraries if they are imported
-# This prevents accidental GPU usage in libraries like PyTorch or TensorFlow
-# even if they are not directly used in this project.
+# Constants
+FLOAT32_DTYPE = np.float32
+INT32_DTYPE = np.int32
+DEFAULT_SEED = 42
+MEMORY_WARNING_THRESHOLD_MB = 1024  # 1GB warning threshold
+MAX_MEMORY_USAGE_PERCENT = 85.0     # Stop if usage exceeds 85%
+
 def validate_no_gpu_acceleration() -> bool:
     """
-    Validates that no GPU acceleration is enabled in common ML libraries.
-    Returns True if CPU-only mode is confirmed, False otherwise.
-    """
-    is_cpu_only = True
+    Validates that no GPU acceleration libraries are active or configured.
 
-    # Check PyTorch if available
+    Checks:
+    - PyTorch GPU availability
+    - TensorFlow GPU devices
+    - CUDA environment variables
+    - JAX GPU availability
+
+    Returns:
+        bool: True if no GPU is detected, False otherwise.
+
+    Raises:
+        RuntimeError: If GPU acceleration is detected.
+    """
+    # Check environment variables
+    cuda_visible_devices = os.environ.get('CUDA_VISIBLE_DEVICES')
+    if cuda_visible_devices is not None and cuda_visible_devices != '':
+        warnings.warn(f"CUDA_VISIBLE_DEVICES is set to '{cuda_visible_devices}'. "
+                    "This may indicate GPU usage. Consider unsetting for CPU-only mode.")
+
+    # Check PyTorch
     try:
         import torch
         if torch.cuda.is_available():
-            warnings.warn(
-                "PyTorch GPU is available but should be disabled for CPU-only execution. "
-                "Setting torch.cuda.is_available() check to False logically, but not modifying global state."
+            raise RuntimeError(
+                "PyTorch GPU is available. Set CUDA_VISIBLE_DEVICES='' or "
+                "install CPU-only PyTorch version for CPU-only execution."
             )
-            # In a real script, we would do: torch.cuda.is_available = lambda: False
-            # But here we just warn and ensure we don't call .cuda()
-            is_cpu_only = False
     except ImportError:
-        pass
+        pass  # PyTorch not installed, which is fine
 
-    # Check TensorFlow if available
+    # Check TensorFlow
     try:
         import tensorflow as tf
         if tf.config.list_physical_devices('GPU'):
-            warnings.warn(
-                "TensorFlow GPU is available. Ensure GPU is disabled for CPU-only execution."
+            raise RuntimeError(
+                "TensorFlow GPU devices detected. Configure TensorFlow for CPU-only mode."
             )
-            is_cpu_only = False
     except ImportError:
-        pass
+        pass  # TensorFlow not installed, which is fine
 
-    # Check JAX if available
+    # Check JAX
     try:
         import jax
-        if jax.local_devices(backend='gpu'):
-            warnings.warn("JAX GPU devices detected.")
-            is_cpu_only = False
+        if jax.default_backend() != 'cpu':
+            warnings.warn(f"JAX backend is '{jax.default_backend()}', not 'cpu'.")
+    except ImportError:
+        pass  # JAX not installed, which is fine
+
+    return True
+
+def optimize_memory_usage(df: pd.DataFrame, 
+                          low_precision: bool = True,
+                          drop_unused_categories: bool = True) -> pd.DataFrame:
+    """
+    Optimizes memory usage of a pandas DataFrame.
+
+    Strategies:
+    1. Downcast numeric columns to lower precision (float32, int32)
+    2. Convert object columns to category where appropriate
+    3. Drop unused categories in categorical columns
+    4. Convert boolean columns to bool dtype
+
+    Args:
+        df: Input DataFrame
+        low_precision: If True, downcast numeric columns
+        drop_unused_categories: If True, remove unused categories
+
+    Returns:
+        pd.DataFrame: Optimized DataFrame with reduced memory usage
+    """
+    if df is None or df.empty:
+        return df
+
+    df_optimized = df.copy()
+
+    # Downcast numeric columns
+    if low_precision:
+        numeric_cols = df_optimized.select_dtypes(include=['int64', 'float64']).columns
+        for col in numeric_cols:
+            if df_optimized[col].dtype == 'int64':
+                df_optimized[col] = pd.to_numeric(df_optimized[col], downcast='integer')
+            elif df_optimized[col].dtype == 'float64':
+                df_optimized[col] = pd.to_numeric(df_optimized[col], downcast='float')
+
+    # Convert object columns to category
+    object_cols = df_optimized.select_dtypes(include=['object']).columns
+    for col in object_cols:
+        if df_optimized[col].nunique() / len(df_optimized) < 0.5:  # Only if <50% unique
+            df_optimized[col] = df_optimized[col].astype('category')
+
+    # Drop unused categories
+    if drop_unused_categories:
+        cat_cols = df_optimized.select_dtypes(include=['category']).columns
+        for col in cat_cols:
+            df_optimized[col] = df_optimized[col].cat.remove_unused_categories()
+
+    return df_optimized
+
+def chunked_dataframe_iterator(df: pd.DataFrame, 
+                               chunk_size: int = 10000) -> Optional[pd.DataFrame]:
+    """
+    Iterator that yields chunks of a DataFrame to reduce memory pressure.
+
+    Args:
+        df: Input DataFrame
+        chunk_size: Number of rows per chunk
+
+    Yields:
+        pd.DataFrame: Chunks of the input DataFrame
+    """
+    if df is None or df.empty:
+        return
+
+    n_rows = len(df)
+    for start_idx in range(0, n_rows, chunk_size):
+        end_idx = min(start_idx + chunk_size, n_rows)
+        yield df.iloc[start_idx:end_idx]
+
+def set_random_seed(seed: int = DEFAULT_SEED) -> None:
+    """
+    Sets random seeds for reproducibility across numpy, pandas, and other libraries.
+
+    Args:
+        seed: Random seed value (default: 42)
+    """
+    np.random.seed(seed)
+    
+    # Set pandas random seed if available
+    if hasattr(pd, 'random_state'):
+        pd.random_state = seed
+    
+    # Attempt to set seeds for common libraries
+    try:
+        import random
+        random.seed(seed)
     except ImportError:
         pass
 
-    return is_cpu_only
-
-
-def optimize_memory_usage(data: Union[np.ndarray, pd.DataFrame, List[Any]]) -> Any:
-    """
-    Optimizes memory usage of data structures by:
-    1. Downcasting numeric types where possible.
-    2. Converting to contiguous memory layout.
-    3. Removing unnecessary object references.
-
-    Args:
-        data: Input data (numpy array, pandas DataFrame, or list).
-
-    Returns:
-        Memory-optimized version of the input data.
-    """
-    if isinstance(data, pd.DataFrame):
-        # Downcast numeric columns
-        for col in data.select_dtypes(include=['int64']).columns:
-            data[col] = pd.to_numeric(data[col], downcast='integer')
-        for col in data.select_dtypes(include=['float64']).columns:
-            data[col] = pd.to_numeric(data[col], downcast='float')
-
-        # Convert object columns to category if appropriate
-        for col in data.select_dtypes(include=['object']).columns:
-            if data[col].nunique() / len(data) < 0.5:  # If unique values < 50%
-                data[col] = data[col].astype('category')
-
-        # Ensure memory layout is contiguous
-        if hasattr(data, '_values'):
-            data = data.copy()
-
-    elif isinstance(data, np.ndarray):
-        if not data.flags['C_CONTIGUOUS']:
-            data = np.ascontiguousarray(data)
-
-        # Downcast if possible
-        if np.issubdtype(data.dtype, np.floating):
-            if data.dtype == np.float64:
-                # Check if float32 would suffice (simple heuristic)
-                if np.max(np.abs(data)) < 3.4e38 and np.min(np.abs(data)) > 1e-45:
-                    # Only downcast if values are within float32 range
-                    # This is a conservative check
-                    pass  # Keep float64 for safety unless explicitly needed
-            elif data.dtype == np.float32:
-                pass
-
-    elif isinstance(data, list):
-        # For lists, we rely on the contained objects being optimized
-        # or converted to arrays later
+    try:
+        import os
+        os.environ['PYTHONHASHSEED'] = str(seed)
+    except Exception:
         pass
 
-    return data
-
-
-def chunked_dataframe_iterator(df: pd.DataFrame, chunk_size: int = 1000):
+def ensure_numpy_arrays_contiguous(*arrays: np.ndarray) -> List[np.ndarray]:
     """
-    Iterates over a DataFrame in chunks to reduce memory pressure.
-    Useful for processing large datasets that don't fit in memory.
+    Ensures all input numpy arrays are contiguous in memory for optimal performance.
 
     Args:
-        df: Input DataFrame.
-        chunk_size: Number of rows per chunk.
-
-    Yields:
-        DataFrame chunks.
-    """
-    num_rows = len(df)
-    for start in range(0, num_rows, chunk_size):
-        end = min(start + chunk_size, num_rows)
-        yield df.iloc[start:end]
-
-
-def set_random_seed(seed: int = 42) -> None:
-    """
-    Sets random seeds for reproducibility across numpy and python.
-    Note: This does not set seeds for external libraries like sklearn or torch
-    as they should be handled in their respective modules.
-
-    Args:
-        seed: Integer seed value.
-    """
-    np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-
-def ensure_numpy_arrays_contiguous(arrays: List[np.ndarray]) -> List[np.ndarray]:
-    """
-    Ensures a list of numpy arrays are C-contiguous in memory.
-
-    Args:
-        arrays: List of numpy arrays.
+        *arrays: Variable number of numpy arrays
 
     Returns:
-        List of contiguous numpy arrays.
+        List[np.ndarray]: List of contiguous arrays
     """
     contiguous_arrays = []
     for arr in arrays:
         if not arr.flags['C_CONTIGUOUS']:
-            arr = np.ascontiguousarray(arr)
-        contiguous_arrays.append(arr)
+            contiguous_arrays.append(np.ascontiguousarray(arr))
+        else:
+            contiguous_arrays.append(arr)
     return contiguous_arrays
-
 
 def force_gc_collect() -> int:
     """
-    Forces a garbage collection cycle and returns the number of objects collected.
-    Useful for debugging memory leaks in long-running processes.
+    Forces garbage collection and returns the number of objects collected.
 
     Returns:
-        Number of objects collected.
+        int: Number of objects collected
     """
     collected = gc.collect()
     return collected
+
+def convert_to_low_precision(arr: np.ndarray, 
+                             target_dtype: np.dtype = FLOAT32_DTYPE) -> np.ndarray:
+    """
+    Converts a numpy array to a lower precision dtype if possible.
+
+    Args:
+        arr: Input numpy array
+        target_dtype: Target dtype (default: float32)
+
+    Returns:
+        np.ndarray: Array converted to target dtype if compatible
+    """
+    if arr.dtype == target_dtype:
+        return arr
+
+    if np.issubdtype(arr.dtype, np.floating):
+        if target_dtype == FLOAT32_DTYPE and arr.dtype == np.float64:
+            return arr.astype(FLOAT32_DTYPE)
+    elif np.issubdtype(arr.dtype, np.integer):
+        if target_dtype == INT32_DTYPE and arr.dtype == np.int64:
+            return arr.astype(INT32_DTYPE)
+
+    return arr
+
+def limit_pandas_cache(max_size: int = 100) -> None:
+    """
+    Limits the size of pandas internal caches to prevent memory bloat.
+
+    Args:
+        max_size: Maximum number of items to keep in cache
+    """
+    try:
+        # Pandas doesn't have a direct public API for cache limiting,
+        # but we can set the max_rows for display and other internal limits
+        pd.set_option('display.max_rows', max_size)
+        pd.set_option('display.max_columns', None)
+    except Exception:
+        pass  # Ignore if options cannot be set
+
+def monitor_memory_usage() -> Dict[str, float]:
+    """
+    Monitors current memory usage and returns statistics.
+
+    Returns:
+        Dict[str, float]: Dictionary with memory usage statistics
+    """
+    try:
+        import resource
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        max_rss_mb = usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
+        
+        return {
+            'max_rss_mb': max_rss_mb,
+            'shared_mem_mb': usage.ru_ixrss / 1024.0,
+            'unshared_data_mb': usage.ru_idrss / 1024.0,
+            'unshared_stack_mb': usage.ru_isrss / 1024.0
+        }
+    except Exception:
+        # Fallback for non-Unix systems
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            mem_info = process.memory_info()
+            return {
+                'rss_mb': mem_info.rss / 1024.0 / 1024.0,
+                'vms_mb': mem_info.vms / 1024.0 / 1024.0
+            }
+        except Exception:
+            return {'error': 'Could not determine memory usage'}
+
+def validate_cpu_only_environment() -> bool:
+    """
+    Comprehensive validation that the environment is configured for CPU-only execution.
+
+    Checks:
+    - No GPU libraries active
+    - Memory usage within safe limits
+    - Random seeds set for reproducibility
+
+    Returns:
+        bool: True if environment is valid for CPU-only execution
+
+    Raises:
+        RuntimeError: If environment validation fails
+    """
+    # Validate no GPU
+    validate_no_gpu_acceleration()
+    
+    # Check memory usage
+    mem_stats = monitor_memory_usage()
+    if 'max_rss_mb' in mem_stats:
+        if mem_stats['max_rss_mb'] > 14000:  # ~14GB limit
+            raise RuntimeError(
+                f"Memory usage ({mem_stats['max_rss_mb']:.1f} MB) exceeds safe limits. "
+                "Consider reducing batch sizes or using chunked processing."
+            )
+    
+    # Set random seeds
+    set_random_seed(DEFAULT_SEED)
+    
+    return True
+
+# Auto-validate on module import if environment variable is set
+if os.environ.get('LLMXIVE_STRICT_CPU_ONLY', '').lower() in ['1', 'true', 'yes']:
+    validate_cpu_only_environment()

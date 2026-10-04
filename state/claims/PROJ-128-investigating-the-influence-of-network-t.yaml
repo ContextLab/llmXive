@@ -352,3 +352,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T17:08:53Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/tasks.md
+  attempts: 1
+  canonical: Diffusion MRI tractography has a substantial false-positive rate according
+    to Yeh et al., 2018
+  claim_id: c_7e4f00a4
+  context: Phase 6 context regarding reviewer concerns about tractography false-positive
+    rates and potential for noise to drive spurious correlations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial (Yeh et al., 2018).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:53:00Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/tasks.md
+  attempts: 2
+  canonical: diffusion MRI tractography has substantial false-positive rate
+  claim_id: c_4e401032
+  context: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial. The validation previously passed without addressing
+    this confound.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_MRI_tractography_has_substantial_false-positive_ra
+  kind: entity_fact
+  raw_text: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:56:52Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/tasks.md
+  attempts: 1
+  canonical: Phase 6 implements mandatory sensitivity analysis for tractography confidence
+    thresholds
+  claim_id: c_50dbc70d
+  context: This phase implements a mandatory sensitivity analysis varying tractography
+    confidence thresholds to ensure topological measures are robust to edge-weight
+    noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phase 6 implements a mandatory sensitivity analysis varying tractography
+    confidence thresholds to ensure topological measures are robust to edge-weight
+    noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:57:48Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/tasks.md
+  attempts: 1
+  canonical: Diffusion MRI tractography false-positive rate substantial (Yeh et al.,
+    2018)
+  claim_id: c_2607af4f
+  context: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial. This phase implements a mandatory sensitivity analysis
+    varying tractography confidence thresholds to ensure topological measures are
+    robust to edge-weight noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Diffusion MRI tractography has a false-positive rate that can be substantial,
+    as noted by Yeh et al., 2018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:59:44Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/README.md
+  attempts: 1
+  canonical: Yeh et al. 2018 addressed false-positive rates in diffusion MRI tractography
+  claim_id: c_86395701
+  context: Addresses false-positive rates in diffusion MRI tractography (Yeh et al.,
+    2018) - Varies tractography confidence thresholds to assess robustness
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Addresses false-positive rates in diffusion MRI tractography (Yeh et al.,
+    2018)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:02:19Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/REVISION_NOTES.md
+  attempts: 1
+  canonical: Diffusion MRI tractography has substantial false-positive rates
+  claim_id: c_849a3a8f
+  context: Methodological Rationale section discussing the need to account for false-positive
+    rates to avoid artifacts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_MRI_tractography_has_substantial_false-positive_ra
+  kind: entity_fact
+  raw_text: Diffusion MRI tractography is known to have substantial false-positive
+    rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:04:14Z'
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/tasks.md
+  attempts: 1
+  canonical: diffusion MRI tractography false-positive rate substantial Yeh et al.
+    2018
+  claim_id: c_3aeaa2ad
+  context: 'Context: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial. The validation previously passed without addressing
+    this confound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reviewer noted that diffusion MRI tractography has a false-positive
+    rate that can be substantial (Yeh et al., 2018).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T18:04:16Z'

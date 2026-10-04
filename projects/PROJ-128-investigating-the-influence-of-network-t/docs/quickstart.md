@@ -1,111 +1,160 @@
-# Quickstart Guide: Investigating the Influence of Network Topology on Spontaneous Brain Activity
+# Quickstart Guide
 
-This guide provides step-by-step instructions to set up the environment, fetch real data, and run the full pipeline end-to-end.
+## Overview
+
+This guide walks you through setting up and running the full pipeline for investigating the influence of network topology on spontaneous brain activity patterns.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package manager)
-- At least 14 GB of free disk space (for raw and processed HCP data)
-- At least 8 GB of RAM (CPU-only execution)
-- A stable internet connection (to download HCP data from OpenNeuro)
+- Python 3.9+
+- pip
+- ~14 GB disk space for data
+- ~7 GB RAM for processing
 
-## 1. Environment Setup
+## Step 1: Environment Setup
 
-### Clone and Navigate
+1. **Clone the repository** (if applicable)
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Step 2: Directory Structure
+
+Run the setup script to create the required directories:
 ```bash
-cd PROJ-128-investigating-the-influence-of-network-t
+python code/setup_directory_structure.py
 ```
 
-### Create Virtual Environment
+This creates:
+- `data/raw/` - For raw HCP data
+- `data/processed/` - For processed metrics
+- `data/logs/` - For execution logs
+- `contracts/` - For schema files
+
+## Step 3: Fetch Data
+
+The pipeline uses real HCP data from OpenNeuro. Data is fetched programmatically at runtime by the loader modules.
+
+**Note**: The first run will download the data. Ensure you have sufficient disk space (~14 GB).
+
+To manually verify data availability:
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+python code/preprocess/loader.py --verify
 ```
 
-### Install Dependencies
-Install all required packages defined in `requirements.txt`:
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+## Step 4: Run the Pipeline
 
-*Note: This installs `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `statsmodels`, `scipy`, `pyyaml`, and `datasets`.*
-
-## 2. Data Acquisition
-
-The pipeline requires real HCP (Human Connectome Project) data. We fetch this programmatically from OpenNeuro using the `datasets` library (Hugging Face).
-
-The pipeline expects data in `data/raw/hcp/`. The scripts below will automatically download the necessary dMRI and fMRI files if they are missing.
-
-**Manual Download (Optional):**
-If you prefer to download manually, ensure the directory structure matches:
-- `data/raw/hcp/sub-<ID>/func/sub-<ID>_task-rest_bold.nii.gz`
-- `data/raw/hcp/sub-<ID>/dwi/sub-<ID>_dwi.nii.gz`
-- `data/raw/hcp/sub-<ID>/dwi/sub-<ID>_dwi.bval`
-- `data/raw/hcp/sub-<ID>/dwi/sub-<ID>_dwi.bvec`
-
-## 3. Running the Pipeline
-
-The main entry point is `code/main.py`. It orchestrates:
-1. Structural graph metric calculation (global efficiency, clustering, modularity).
-2. Dynamic functional state extraction (LOO K-Means).
-3. Correlation analysis.
-4. Report generation.
-
-### Execute the Full Pipeline
+Execute the main pipeline:
 ```bash
 python code/main.py
 ```
 
-**What this does:**
-- Loads real HCP data from `data/raw/hcp/`.
-- Preprocesses dMRI/fMRI.
-- Computes structural metrics with density sensitivity analysis.
-- Computes dynamic metrics using Leave-One-Out K-Means.
-- Runs correlation analysis with FDR correction.
-- Generates `data/processed/structural_metrics.csv`, `data/processed/dynamic_metrics.csv`, `data/processed/correlation_results.csv`, and `data/reports/final_report.json`.
-- Logs exclusions to `data/logs/exclusion_log.json`.
+This will:
+1. Load raw HCP data
+2. Preprocess structural and functional data
+3. Compute graph metrics (structural)
+4. Extract dynamic states (functional)
+5. Perform correlation analysis
+6. Run sensitivity analyses
+7. Generate logs and intermediate outputs
 
-**Expected Duration:** ~30-60 minutes on a standard CPU (depending on cohort size and RAM).
+**Expected runtime**: 30-60 minutes depending on cohort size and hardware.
 
-### Run Validation Script (Optional)
-To verify the pipeline produced all expected artifacts:
+## Step 5: Generate Final Report
+
+After the pipeline completes, generate the final report:
 ```bash
-python code/validate_quickstart.py
+python code/reports/generate_report.py
 ```
 
-## 4. Output Artifacts
+This produces:
+- `data/processed/final_report.json` - Comprehensive results
+- `data/processed/sensitivity_comparison.csv` - Window length sensitivity
+- `data/processed/structural_density_sensitivity.csv` - Density sensitivity
+- `data/processed/tractography_sensitivity_metrics.csv` - Tractography noise analysis
+- `data/processed/tractography_correlation_sensitivity.csv` - Correlation sensitivity to tractography confidence
 
-After successful execution, verify the following files exist:
+## Step 6: Validate Report
 
-- **Processed Metrics:**
- - `data/processed/structural_metrics.csv`
- - `data/processed/dynamic_metrics.csv`
- - `data/processed/correlation_results.csv`
- - `data/processed/structural_density_sensitivity.csv`
- - `data/processed/sensitivity_comparison.csv`
+Validate the report against the schema:
+```bash
+python code/reports/validate_report.py
+```
 
-- **Reports & Logs:**
- - `data/reports/final_report.json`
- - `data/logs/exclusion_log.json`
- - `data/processed/completeness_report.json`
+Check for associational language compliance:
+```bash
+python code/reports/audit_associational_language.py
+```
 
-## 5. Troubleshooting
+## Step 7: Run Tests (Optional)
 
-### "No module named 'nilearn'"
-Ensure you activated the virtual environment and ran `pip install -r requirements.txt`.
+Run the test suite to verify correctness:
+```bash
+pytest tests/
+```
 
-### "Data not found"
-The pipeline attempts to download data automatically. If this fails, check your internet connection or manually download the HCP 1200 release subset from OpenNeuro and place it in `data/raw/hcp/`.
+Key tests:
+- LOO independence constraint (`tests/unit/test_functional.py::test_loo_independence`)
+- Normality testing (`tests/unit/test_correlation.py::test_normality_check`)
+- FDR correction (`tests/unit/test_correlation.py::test_benjamini_hochberg`)
+- Tractography thresholding (`tests/unit/test_tractography.py`)
 
-### "Out of Memory"
-The pipeline is optimized for CPU and low memory usage. If you encounter memory errors, try reducing the `WINDOW_LENGTH_BASELINE` in `code/config.py` or processing a smaller subset of subjects.
+## Output Files
 
-## 6. Next Steps
+### Processed Data
+- `data/processed/structural_metrics.csv` - Graph metrics per subject
+- `data/processed/dynamic_metrics.csv` - Dynamic state metrics per subject
+- `data/processed/correlation_results.csv` - Structure-function correlations
+- `data/processed/completeness_report.json` - Data completeness summary
+- `data/processed/loo_centroids_all_subjects.npz` - LOO centroids
 
-- Review the generated `data/reports/final_report.json` for associational language compliance.
-- Inspect `data/processed/sensitivity_comparison.csv` to verify robustness to window length (20 TR vs 30 TR).
-- Check `data/processed/structural_density_sensitivity.csv` for graph density stability.
+### Logs
+- `data/logs/exclusion_log.json` - Excluded subjects and reasons
+- `data/logs/execution_log.json` - Pipeline execution details
 
-For detailed API documentation, refer to the docstrings in the `code/` modules.
+### Reports
+- `data/processed/final_report.json` - Final comprehensive report
+- `data/processed/sensitivity_comparison.csv` - Window length sensitivity
+- `data/processed/structural_density_sensitivity.csv` - Density sensitivity
+- `data/processed/tractography_sensitivity_metrics.csv` - Tractography noise metrics
+- `data/processed/tractography_correlation_sensitivity.csv` - Correlation sensitivity
+
+## Troubleshooting
+
+### Data Fetching Errors
+- Ensure internet connection is available
+- Check that OpenNeuro is accessible
+- Verify disk space is sufficient
+
+### Memory Errors
+- Reduce cohort size or use chunked processing
+- Ensure `code/utils/cpu_optimization.py` is being used
+- Close other memory-intensive applications
+
+### Convergence Failures
+- Check `data/logs/exclusion_log.json` for excluded subjects
+- Verify data quality in `data/raw/`
+- Adjust `DENSITY_THRESHOLD` if too strict
+
+### Tractography Sensitivity
+- If findings vanish at high confidence thresholds, see `final_report.json` for explicit warnings about potential tractography artifacts
+
+## Next Steps
+
+- Review `final_report.json` for key findings
+- Examine sensitivity analyses for robustness
+- Validate "associational" language compliance
+- Share results with the research team
+
+## Support
+
+For issues, refer to:
+- Project documentation in `docs/`
+- Code comments in `code/`
+- Test examples in `tests/`

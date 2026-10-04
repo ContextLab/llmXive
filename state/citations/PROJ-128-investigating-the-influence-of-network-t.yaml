@@ -21,3 +21,124 @@
   verification_status: verified
   verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
   verified_at: '2026-07-08T05:42:56.136255Z'
+- artifact_hash: 2746829cb7eef9c1c504dd00ecf48c4000e876399d04ff5ee263822b5933c03f
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![Python 3.9+'
+  fetched_title: 'python: 3.9+'
+  kind: url
+  value: https://img.shields.io/badge/python-3.9+-blue.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/python-3.9+-blue.svg
+  verified_at: '2026-10-04T18:02:57.736876Z'
+- artifact_hash: 2746829cb7eef9c1c504dd00ecf48c4000e876399d04ff5ee263822b5933c03f
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-10-04T18:02:57.736876Z'
+- artifact_hash: 2746829cb7eef9c1c504dd00ecf48c4000e876399d04ff5ee263822b5933c03f
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Download Python | Python.org
+  kind: url
+  value: https://www.python.org/downloads/
+  verification_status: pending
+  verified_against_url: https://www.python.org/downloads/
+  verified_at: '2026-10-04T18:02:57.736876Z'
+- artifact_hash: 2746829cb7eef9c1c504dd00ecf48c4000e876399d04ff5ee263822b5933c03f
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/README.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: The MIT License &#8211; Open Source Initiative
+  kind: url
+  value: https://opensource.org/licenses/MIT
+  verification_status: pending
+  verified_against_url: https://opensource.org/license/MIT
+  verified_at: '2026-10-04T18:02:57.736876Z'
+- artifact_hash: 08bf399f7baf2f6e4d65e135105d22e9210673c404a5fbe8e8d91f1c424ed175
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CHANGELOG.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-10-04T18:03:01.895768Z'
+- artifact_hash: 08bf399f7baf2f6e4d65e135105d22e9210673c404a5fbe8e8d91f1c424ed175
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CHANGELOG.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-10-04T18:03:01.895768Z'
+- artifact_hash: 08bf399f7baf2f6e4d65e135105d22e9210673c404a5fbe8e8d91f1c424ed175
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CHANGELOG.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/network-topology/compare/v1.0.0...HEAD
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/network-topology/compare/v1.0.0...HEAD
+  verified_at: '2026-10-04T18:03:01.895768Z'
+- artifact_hash: 08bf399f7baf2f6e4d65e135105d22e9210673c404a5fbe8e8d91f1c424ed175
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CHANGELOG.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/network-topology/releases/tag/v1.0.0
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/network-topology/releases/tag/v1.0.0
+  verified_at: '2026-10-04T18:03:01.895768Z'
+- artifact_hash: 08bf399f7baf2f6e4d65e135105d22e9210673c404a5fbe8e8d91f1c424ed175
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CHANGELOG.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/network-topology/releases/tag/v0.1.0
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/network-topology/releases/tag/v0.1.0
+  verified_at: '2026-10-04T18:03:01.895768Z'
+- artifact_hash: 9f726582f94e55a4b042c960589f1c69006492f909f18fc1f9eadeb3054e20dc
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CONTRIBUTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: PEP 8
+  fetched_title: 'PEP 8: The Style Guide for Python Code'
+  kind: url
+  value: https://pep8.org/
+  verification_status: verified
+  verified_against_url: https://pep8.org/
+  verified_at: '2026-10-04T18:03:03.768243Z'
+- artifact_hash: 9f726582f94e55a4b042c960589f1c69006492f909f18fc1f9eadeb3054e20dc
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/CONTRIBUTING.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-username/llmXive-network-topology.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-username/llmXive-network-topology
+  verified_at: '2026-10-04T18:03:03.768243Z'

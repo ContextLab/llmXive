@@ -1,3 +1,10 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/`, `data/`, `contracts/`, or `tests/` directories\
+    \ (or any files within them) was provided; without a directory listing or files,\
+    \ we cannot confirm the project structure was created. The implementer must supply\
+    \ proof that these folders exist and are non\u2011empty."
 T003:
   c: true
   h: 28c454cdacd165956cb464c39c1810707fcff6a8b3bd70843187afd768f04105
@@ -42,12 +49,26 @@ T028:
     \ satisfied. The next implementer must add the edge\u2011case handling logic,\
     \ a test confirming the behavior, and an example output demonstrating the explicit\
     \ statement."
-T051:
+T042:
+  c: false
+  h: ee8403bb5d3d4d3121a5ed88c8ab5bd9d027df7eae0381285513555b4d3c8ab9
+  r: The provided `structural.py` ends abruptly and shows no loop iterating over the
+    confidence thresholds, and the alternative script `tractography_sensitivity.py`
+    is completely missing. Consequently the required execution loop for tractography
+    confidence thresholding is not present.
+T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, diff, or documentation was provided showing that any cleanup or refactoring
-    was performed, nor any evidence that GPU calls were removed. Without tangible
-    artifacts, the claim cannot be verified.
+  r: "No script file was provided in `code/analysis/`; there is no evidence that a\
+    \ script re\u2011running the US2 correlation analysis across tractography confidence\
+    \ thresholds was created, nor any output or description of its behavior. The required\
+    \ artifact is missing."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or updated `README.md` file was provided; the evidence contains
+    only the feature specification and no actual documentation artifacts, so the required
+    documentation updates are missing.
 T052:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,10 +76,3 @@ T052:
     output files, or a report confirming reproducibility) is present, and no artifacts
     demonstrating that the pipeline was executed and validated are provided. The implementer
     therefore has not satisfied the task requirement.
-T053:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No review document, checklist, or any artifact demonstrating a final assessment\
-    \ of the generated reports for \u201Cassociational\u201D language compliance and\
-    \ scope adherence is present. The implementer provided only the original feature\
-    \ specification; there is no evidence of a completed T053 review."

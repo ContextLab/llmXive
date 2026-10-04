@@ -4,7 +4,7 @@ Defines paths, seeds, and hyperparameters as per T004b and T001.
 """
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 # Project Root
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -32,10 +32,9 @@ K_MEANS_K = 5  # Number of clusters for K-Means state extraction
 DENSITY_THRESHOLD_BASELINE = 0.15  # Baseline density (15% of edges retained)
 DENSITY_THRESHOLD_VARIATIONS = [0.10, 0.15, 0.20]  # Sensitivity analysis levels
 
-# Tractography Confidence Parameters
-TRACTOGRAPHY_CONFIDENCE_MIN = 0.0
-TRACTOGRAPHY_CONFIDENCE_MAX = 1.0
-TRACTOGRAPHY_CONFIDENCE_STEPS = 5
+# Tractography Confidence Parameters (T041)
+# Defined range for sensitivity analysis on tractography confidence thresholds
+TRACTOGRAPHY_CONFIDENCE_THRESHOLDS = [0.0, 0.2, 0.4, 0.6, 0.8]
 
 # Random Seeds for reproducibility
 RANDOM_SEED = 42
@@ -71,9 +70,10 @@ def get_config_dict() -> Dict[str, Any]:
         "k_means_k": K_MEANS_K,
         "density_threshold_baseline": DENSITY_THRESHOLD_BASELINE,
         "density_threshold_variations": DENSITY_THRESHOLD_VARIATIONS,
-        "tractography_confidence_min": TRACTOGRAPHY_CONFIDENCE_MIN,
-        "tractography_confidence_max": TRACTOGRAPHY_CONFIDENCE_MAX,
-        "tractography_confidence_steps": TRACTOGRAPHY_CONFIDENCE_STEPS,
+        "tractography_confidence_min": 0.0,
+        "tractography_confidence_max": 1.0,
+        "tractography_confidence_steps": 5,
+        "tractography_confidence_thresholds": TRACTOGRAPHY_CONFIDENCE_THRESHOLDS,
         "random_seed": RANDOM_SEED,
         "paths": {
             "root": str(PROJECT_ROOT),

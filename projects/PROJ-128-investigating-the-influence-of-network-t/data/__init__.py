@@ -1,2 +1,5 @@
-# Data directory marker
-# This directory will contain raw, processed, and log files.
+"""
+Data package for llmXive project.
+
+This directory contains all data files: raw, processed, logs, and figures.
+"""

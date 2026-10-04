@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required `code/`, `data/`, `contracts/`, or `tests/` directories is provided; the claim lacks any artifact confirming the directory structure was created.
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T051` (rejected 1x): No code, diff, or documentation was provided showing that any cleanup or refactoring was performed, nor any evidence that GPU calls were removed. Without tangible artifacts, the claim cannot be verified.
+- `T053` (rejected 1x): No review document, checklist, or any artifact demonstrating a final assessment of the generated reports for “associational” language compliance and scope adherence is present. The implementer provided only the original feature specification; there is no evidence of a completed T053 review.
 
 ## Required change
 

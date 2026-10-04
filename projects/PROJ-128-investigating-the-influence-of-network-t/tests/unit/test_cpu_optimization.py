@@ -1,5 +1,8 @@
 """
 Unit tests for CPU optimization utilities.
+
+These tests verify that the optimization functions work correctly and
+that the pipeline properly enforces CPU-only execution.
 """
 import os
 import sys
@@ -8,104 +11,211 @@ import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
-
+# Import the module under test
 from utils.cpu_optimization import (
     validate_no_gpu_acceleration,
     optimize_memory_usage,
+    chunked_dataframe_iterator,
     set_random_seed,
     ensure_numpy_arrays_contiguous,
     force_gc_collect,
-    chunked_dataframe_iterator
+    convert_to_low_precision,
+    limit_pandas_cache,
+    monitor_memory_usage,
+    validate_cpu_only_environment
 )
 
+class TestValidateNoGPU:
+    """Tests for GPU validation functions."""
 
-class TestValidateNoGpu:
-    def test_validate_no_gpu_acceleration_no_imports(self):
-        """Test when no GPU libraries are installed."""
-        # Mock the absence of torch, tensorflow, jax
-        with patch.dict(sys.modules, {
-            'torch': None,
-            'tensorflow': None,
-            'jax': None
-        }, clear=False):
-            # This will raise ImportError in the function, which is caught
-            # and returns True (CPU only)
+    def test_validate_no_gpu_with_no_gpu(self):
+        """Test that validation passes when no GPU is available."""
+        with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': ''}):
             result = validate_no_gpu_acceleration()
             assert result is True
 
+    def test_validate_no_gpu_with_cuda_env(self):
+        """Test that warning is issued when CUDA_VISIBLE_DEVICES is set."""
+        with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': '0'}):
+            with pytest.warns(UserWarning, match="CUDA_VISIBLE_DEVICES is set"):
+                validate_no_gpu_acceleration()
+
+    @patch('utils.cpu_optimization.torch')
+    def test_validate_no_gpu_with_pytorch_gpu(self, mock_torch):
+        """Test that error is raised when PyTorch GPU is available."""
+        mock_torch.cuda.is_available.return_value = True
+        
+        with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': ''}):
+            with pytest.raises(RuntimeError, match="PyTorch GPU is available"):
+                validate_no_gpu_acceleration()
+
+    @patch('utils.cpu_optimization.tf')
+    def test_validate_no_gpu_with_tensorflow_gpu(self, mock_tf):
+        """Test that error is raised when TensorFlow GPU is available."""
+        mock_tf.config.list_physical_devices.return_value = ['GPU']
+        
+        with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': ''}):
+            with pytest.raises(RuntimeError, match="TensorFlow GPU devices detected"):
+                validate_no_gpu_acceleration()
 
 class TestOptimizeMemoryUsage:
-    def test_optimize_memory_usage_dataframe(self):
-        """Test memory optimization on a DataFrame."""
+    """Tests for memory optimization functions."""
+
+    def test_optimize_memory_usage_downcast(self):
+        """Test that numeric columns are downcast correctly."""
         df = pd.DataFrame({
             'int_col': [1, 2, 3, 4, 5],
-            'float_col': [1.1, 2.2, 3.3, 4.4, 5.5],
-            'object_col': ['a', 'b', 'c', 'd', 'e']
+            'float_col': [1.0, 2.0, 3.0, 4.0, 5.0]
         })
+        
+        optimized = optimize_memory_usage(df, low_precision=True)
+        
+        # Check that columns are downcast
+        assert optimized['int_col'].dtype in ['int8', 'int16', 'int32']
+        assert optimized['float_col'].dtype in ['float32']
 
-        optimized_df = optimize_memory_usage(df)
+    def test_optimize_memory_usage_category(self):
+        """Test that low-cardinality object columns are converted to category."""
+        df = pd.DataFrame({
+            'low_cardinality': ['a', 'b', 'a', 'b', 'a'],
+            'high_cardinality': ['x1', 'x2', 'x3', 'x4', 'x5']
+        })
+        
+        optimized = optimize_memory_usage(df, low_precision=True)
+        
+        # Check that low-cardinality column is category
+        assert optimized['low_cardinality'].dtype.name == 'category'
 
-        # Check that downcasting happened
-        assert optimized_df['int_col'].dtype in ['int8', 'int16', 'int32', 'int64']
-        # Float64 might stay if values are large, but we check it's a numeric type
-        assert np.issubdtype(optimized_df['float_col'].dtype, np.floating)
+    def test_optimize_memory_usage_empty_df(self):
+        """Test that empty DataFrame is handled correctly."""
+        df = pd.DataFrame()
+        optimized = optimize_memory_usage(df)
+        assert optimized.empty
 
-    def test_optimize_memory_usage_numpy_array(self):
-        """Test memory optimization on a numpy array."""
-        arr = np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64)
-        # Make it non-contiguous
-        arr = arr.T
-
-        optimized_arr = optimize_memory_usage(arr)
-
-        assert optimized_arr.flags['C_CONTIGUOUS']
-        assert optimized_arr.dtype == arr.dtype
-
-
-class TestSetRandomSeed:
-    def test_set_random_seed(self):
-        """Test that random seed is set."""
-        set_random_seed(123)
-        assert np.random.get_state()[1][0] == 123
-
-
-class TestEnsureContiguous:
-    def test_ensure_contiguous(self):
-        """Test ensuring arrays are contiguous."""
-        arr1 = np.array([[1.0, 2.0], [3.0, 4.0]]).T  # Non-contiguous
-        arr2 = np.array([[5.0, 6.0], [7.0, 8.0]])    # Contiguous
-
-        result = ensure_numpy_arrays_contiguous([arr1, arr2])
-
-        assert result[0].flags['C_CONTIGUOUS']
-        assert result[1].flags['C_CONTIGUOUS']
-
-
-class TestForceGcCollect:
-    def test_force_gc_collect(self):
-        """Test garbage collection."""
-        result = force_gc_collect()
-        assert isinstance(result, int)
-        assert result >= 0
-
+    def test_optimize_memory_usage_none_input(self):
+        """Test that None input is handled correctly."""
+        result = optimize_memory_usage(None)
+        assert result is None
 
 class TestChunkedIterator:
-    def test_chunked_dataframe_iterator(self):
-        """Test chunked iteration over a DataFrame."""
-        df = pd.DataFrame({'a': range(10), 'b': range(10, 20)})
+    """Tests for chunked dataframe iteration."""
 
-        chunks = list(chunked_dataframe_iterator(df, chunk_size=3))
+    def test_chunked_iterator_basic(self):
+        """Test basic chunked iteration."""
+        df = pd.DataFrame({'col': range(25)})
+        
+        chunks = list(chunked_dataframe_iterator(df, chunk_size=10))
+        
+        assert len(chunks) == 3  # 25 rows / 10 = 3 chunks
+        assert len(chunks[0]) == 10
+        assert len(chunks[1]) == 10
+        assert len(chunks[2]) == 5
 
-        assert len(chunks) == 4  # 10 / 3 -> 4 chunks
-        assert len(chunks[0]) == 3
-        assert len(chunks[1]) == 3
-        assert len(chunks[2]) == 3
-        assert len(chunks[3]) == 1
+    def test_chunked_iterator_empty(self):
+        """Test chunked iteration with empty DataFrame."""
+        df = pd.DataFrame()
+        chunks = list(chunked_dataframe_iterator(df))
+        assert len(chunks) == 0
 
-        # Check data integrity
-        pd.testing.assert_frame_equal(
-            pd.concat(chunks).reset_index(drop=True),
-            df.reset_index(drop=True)
-        )
+    def test_chunked_iterator_none(self):
+        """Test chunked iteration with None input."""
+        result = list(chunked_dataframe_iterator(None))
+        assert len(result) == 0
+
+class TestRandomSeed:
+    """Tests for random seed setting."""
+
+    def test_set_random_seed(self):
+        """Test that random seeds are set correctly."""
+        set_random_seed(42)
+        
+        # Verify numpy seed
+        assert np.random.get_state()[1][0] == 42
+
+    def test_set_random_seed_default(self):
+        """Test that default seed is 42."""
+        set_random_seed()
+        
+        # Verify numpy seed
+        assert np.random.get_state()[1][0] == 42
+
+class TestEnsureContiguous:
+    """Tests for ensuring numpy array contiguity."""
+
+    def test_ensure_contiguous_already_contiguous(self):
+        """Test that already contiguous arrays are not modified."""
+        arr = np.array([1, 2, 3, 4, 5])
+        assert arr.flags['C_CONTIGUOUS']
+        
+        result = ensure_numpy_arrays_contiguous(arr)
+        assert result[0].flags['C_CONTIGUOUS']
+
+    def test_ensure_contiguous_non_contiguous(self):
+        """Test that non-contiguous arrays are made contiguous."""
+        arr = np.array([[1, 2, 3], [4, 5, 6]]).T  # Non-contiguous
+        assert not arr.flags['C_CONTIGUOUS']
+        
+        result = ensure_numpy_arrays_contiguous(arr)
+        assert result[0].flags['C_CONTIGUOUS']
+
+class TestConvertLowPrecision:
+    """Tests for low precision conversion."""
+
+    def test_convert_float64_to_float32(self):
+        """Test conversion from float64 to float32."""
+        arr = np.array([1.0, 2.0, 3.0], dtype=np.float64)
+        
+        result = convert_to_low_precision(arr)
+        
+        assert result.dtype == np.float32
+
+    def test_convert_int64_to_int32(self):
+        """Test conversion from int64 to int32."""
+        arr = np.array([1, 2, 3], dtype=np.int64)
+        
+        result = convert_to_low_precision(arr)
+        
+        assert result.dtype == np.int32
+
+    def test_convert_already_correct_dtype(self):
+        """Test that arrays with correct dtype are not modified."""
+        arr = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+        
+        result = convert_to_low_precision(arr)
+        
+        assert result.dtype == np.float32
+        assert result is arr  # Should return same object
+
+class TestMemoryMonitoring:
+    """Tests for memory monitoring functions."""
+
+    def test_monitor_memory_usage(self):
+        """Test that memory usage monitoring returns valid data."""
+        mem_stats = monitor_memory_usage()
+        
+        assert isinstance(mem_stats, dict)
+        assert len(mem_stats) > 0
+
+    def test_force_gc_collect(self):
+        """Test that garbage collection returns a count."""
+        count = force_gc_collect()
+        assert isinstance(count, int)
+        assert count >= 0
+
+class TestValidateCPUOnlyEnvironment:
+    """Tests for comprehensive CPU environment validation."""
+
+    def test_validate_cpu_only_success(self):
+        """Test that validation passes in CPU-only environment."""
+        with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': ''}):
+            result = validate_cpu_only_environment()
+            assert result is True
+
+    def test_validate_cpu_only_memory_limit(self):
+        """Test that validation fails when memory usage is too high."""
+        with patch('utils.cpu_optimization.monitor_memory_usage') as mock_mem:
+            mock_mem.return_value = {'max_rss_mb': 15000}  # Over 14GB limit
+            
+            with patch.dict(os.environ, {'CUDA_VISIBLE_DEVICES': ''}):
+                with pytest.raises(RuntimeError, match="Memory usage"):
+                    validate_cpu_only_environment()
