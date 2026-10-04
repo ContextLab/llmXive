@@ -1,10 +1,3 @@
-"""
-Proposal Generation Module (US2)
-
-Implements pattern-guided and baseline proposal generation with batch processing
-to stay within 7 GB RAM limits.
-"""
-
 import json
 import logging
 import sys
@@ -12,250 +5,172 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Generator, Iterator
 
-# Import from existing API surface
-from utils.config import set_seed, get_model_config
-from utils.memory_optimizer import enforce_memory_limit, force_garbage_collection, get_current_memory_mb
-from utils.error_handling import ValidationError
+# Import from local utils
 from utils.logging_config import get_logger
+from utils.memory_optimizer import memory_safe_iterator, force_garbage_collection
+from utils.error_handling import DesignViolationError
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-BATCH_SIZE_DEFAULT = 5
-RESULTS_DIR = Path("data/results")
-PROCESSED_CORPUS_PATH = Path("data/processed/corpus.jsonl")
-PATTERN_MAP_PATH = Path("data/processed/pattern_map.json")
-POWER_CONFIG_PATH = Path("data/results/power_analysis_config.json")
-OUTPUT_PROPOSALS_PATH = Path("data/results/generated_proposals.jsonl")
-
-# Setup logging
 logger = get_logger("proposal_generation")
 
-def load_processed_corpus(path: Path = PROCESSED_CORPUS_PATH) -> Iterator[Dict[str, Any]]:
+# Constants
+PROPOSALS_INPUT_PATH = Path("data/processed/corpus.jsonl")
+PATTERNS_INPUT_PATH = Path("data/results/pattern_map.json")
+POWER_CONFIG_PATH = Path("data/results/power_analysis_config.json")
+OUTPUT_PATH = Path("data/results/generated_proposals.jsonl")
+
+def load_processed_corpus() -> Generator[Dict[str, Any], None, None]:
     """
-    Generator-based loader for processed corpus to avoid loading entire dataset into memory.
-    Yields one record at a time.
+    Generator-based loader for processed corpus.
+    Yields one record at a time to stay within memory limits.
     """
-    if not path.exists():
-        raise FileNotFoundError(f"Processed corpus not found at {path}")
+    if not PROPOSALS_INPUT_PATH.exists():
+        raise FileNotFoundError(f"Corpus file not found: {PROPOSALS_INPUT_PATH}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
+    with open(PROPOSALS_INPUT_PATH, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             try:
-                yield json.loads(line)
+                record = json.loads(line)
+                yield record
             except json.JSONDecodeError as e:
-                logger.warning(f"Skipping malformed JSON line: {e}")
+                logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
                 continue
 
-def load_pattern_map(path: Path = PATTERN_MAP_PATH) -> Dict[str, Any]:
-    """
-    Load the pattern map (small enough to fit in memory).
-    """
-    if not path.exists():
-        raise FileNotFoundError(f"Pattern map not found at {path}")
+def load_pattern_map() -> Dict[str, Any]:
+    """Load the pattern map (usually small enough to fit in memory)."""
+    if not PATTERNS_INPUT_PATH.exists():
+        raise FileNotFoundError(f"Pattern map not found: {PATTERNS_INPUT_PATH}")
     
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(PATTERNS_INPUT_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_power_analysis_config(path: Path = POWER_CONFIG_PATH) -> Dict[str, Any]:
+def load_power_analysis_config() -> int:
     """
-    Load power analysis configuration.
+    Load 'n' from power analysis config.
+    Returns the target number of pairs.
     """
-    if not path.exists():
-        raise FileNotFoundError(f"Power analysis config not found at {path}")
+    if not POWER_CONFIG_PATH.exists():
+        raise FileNotFoundError(f"Power analysis config not found: {POWER_CONFIG_PATH}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    with open(POWER_CONFIG_PATH, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+    
+    if 'n' not in config:
+        raise ValueError("Power analysis config missing 'n' field")
+    
+    return int(config['n'])
 
-def generate_proposal_text(
-    problem_statement: str,
-    pattern: Optional[Dict[str, Any]] = None,
-    mode: str = "pattern_guided"
-) -> str:
+def generate_proposal_text(problem_statement: str, patterns: Optional[List[Dict]] = None, mode: str = "baseline") -> str:
     """
-    Generate a single proposal text.
+    Generates a proposal text based on the problem statement.
     
     Args:
-        problem_statement: The non-ML problem statement.
-        pattern: Optional pattern card for pattern-guided generation.
-        mode: Either "pattern_guided" or "baseline".
+        problem_statement: The text of the problem.
+        patterns: Optional list of pattern cards to guide generation.
+        mode: Either 'pattern-guided' or 'baseline'.
     
     Returns:
-        Generated proposal text.
+        A string representing the generated proposal.
     """
-    if mode == "pattern_guided":
-        if not pattern:
-            raise ValueError("Pattern-guided mode requires a pattern card.")
-        pattern_id = pattern.get("id", "unknown")
-        pattern_summary = pattern.get("summary", "No summary available")
-        key_components = pattern.get("key_components", [])
-        
-        # Construct prompt for pattern-guided generation
-        prompt = f"""
-        Problem Statement: {problem_statement}
-        
-        Pattern ID: {pattern_id}
-        Pattern Summary: {pattern_summary}
-        Key Components: {', '.join(key_components) if key_components else 'None'}
-        
-        Generate a research proposal that applies the above pattern to solve the problem.
-        """
-    else:  # baseline
-        prompt = f"""
-        Problem Statement: {problem_statement}
-        
-        Generate a generic research proposal to address this problem without any specific pattern guidance.
-        """
-    
-    # NOTE: In a real implementation, this would call an LLM API.
-    # For this task, we simulate the generation logic to demonstrate the batch structure.
-    # The actual LLM call would be: response = llm_client.generate(prompt)
-    # We return a placeholder that represents the structure of a real generation.
-    # In a real run, this would be the actual text from the model.
-    
-    if mode == "pattern_guided":
-        return f"[PATTERN-GUIDED] Proposal for: {problem_statement[:50]}... (Pattern: {pattern_id})"
+    if mode == "pattern-guided" and patterns:
+        # Simulate pattern-guided generation logic
+        # In a real scenario, this would call an LLM with pattern context
+        pattern_ids = [p.get('id', 'unknown') for p in patterns[:3]]
+        return f"[Pattern-Guided] Proposal for: {problem_statement[:50]}... (Guided by: {', '.join(pattern_ids)})"
     else:
-        return f"[BASELINE] Proposal for: {problem_statement[:50]}..."
+        # Baseline generation
+        return f"[Baseline] Proposal for: {problem_statement[:50]}... (Generic approach)"
 
-def generate_proposals(
-    corpus_iterator: Iterator[Dict[str, Any]],
-    pattern_map: Dict[str, Any],
-    n_pairs: int,
-    batch_size: int = BATCH_SIZE_DEFAULT
-) -> Generator[Dict[str, Any], None, None]:
+def generate_proposals(n_pairs: int) -> Generator[Dict[str, Any], None, None]:
     """
-    Generate proposals in batches, yielding one pair (pattern-guided + baseline) at a time.
-    
-    This generator-based approach ensures we never load the entire dataset into memory.
-    
-    Args:
-        corpus_iterator: Iterator of problem statements from the corpus.
-        pattern_map: Mapping of problem statements to patterns.
-        n_pairs: Number of pairs to generate.
-        batch_size: Number of pairs to process in one batch (for memory efficiency).
-    
-    Yields:
-        Dictionary containing the pair (problem, pattern_proposal, baseline_proposal, metadata).
+    Generator that yields proposal pairs.
+    Yields exactly n_pairs of (pattern-guided, baseline) pairs.
     """
+    corpus_loader = load_processed_corpus()
+    pattern_map = load_pattern_map()
+    
     count = 0
-    current_batch = []
-    
-    for record in corpus_iterator:
+    for record in corpus_loader:
         if count >= n_pairs:
             break
         
-        problem_statement = record.get("abstract", "")
-        if not problem_statement:
+        problem = record.get('abstract', record.get('problem_statement', ''))
+        if not problem:
             continue
+
+        # Retrieve top patterns if available
+        patterns = pattern_map.get('patterns', [])
         
-        # Retrieve pattern
-        pattern = pattern_map.get(problem_statement)
+        # Generate Pattern-Guided Proposal
+        pg_proposal = generate_proposal_text(problem, patterns, mode="pattern-guided")
         
-        # Generate both proposals
-        pattern_proposal = generate_proposal_text(problem_statement, pattern, "pattern_guided")
-        baseline_proposal = generate_proposal_text(problem_statement, None, "baseline")
+        # Generate Baseline Proposal
+        bl_proposal = generate_proposal_text(problem, mode="baseline")
         
-        pair = {
-            "problem_statement": problem_statement,
-            "pattern_guided_proposal": pattern_proposal,
-            "baseline_proposal": baseline_proposal,
-            "metadata": {
-                "source_id": record.get("id", "unknown"),
-                "pattern_id": pattern.get("id") if pattern else None,
-                "generated_at": "2023-10-01"  # Placeholder for real timestamp
+        yield {
+            "pair_id": count,
+            "problem_statement": problem,
+            "pattern_guided": {
+                "text": pg_proposal,
+                "type": "pattern-guided"
+            },
+            "baseline": {
+                "text": bl_proposal,
+                "type": "baseline"
             }
         }
         
-        current_batch.append(pair)
         count += 1
         
-        # Check memory usage before processing next item
-        if get_current_memory_mb() > (MEMORY_LIMIT_GB * 1024):
-            logger.warning("Memory limit approaching, forcing garbage collection.")
+        # Periodic memory cleanup
+        if count % 10 == 0:
             force_garbage_collection()
-        
-        # Yield batch when size is reached
-        if len(current_batch) >= batch_size:
-            for item in current_batch:
-                yield item
-            current_batch = []
-    
-    # Yield remaining items
-    for item in current_batch:
-        yield item
 
-def save_proposals(
-    proposal_iterator: Generator[Dict[str, Any], None, None],
-    output_path: Path = OUTPUT_PROPOSALS_PATH
-) -> int:
+def save_proposals(generator: Generator[Dict[str, Any], None, None], output_path: Path):
     """
-    Save proposals to JSONL file incrementally.
-    
-    Args:
-        proposal_iterator: Iterator of proposal pairs.
-        output_path: Path to output file.
-    
-    Returns:
-        Number of proposals saved.
+    Writes proposals from a generator to a JSONL file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    count = 0
     with open(output_path, 'w', encoding='utf-8') as f:
-        for proposal in proposal_iterator:
-            f.write(json.dumps(proposal) + '\n')
-            count += 1
-            
-            # Periodic memory check
-            if count % 10 == 0:
-                current_mem = get_current_memory_mb()
-                if current_mem > (MEMORY_LIMIT_GB * 1024):
-                    logger.warning(f"Memory usage at {current_mem}MB, approaching limit.")
-                    force_garbage_collection()
+        for item in generator:
+            f.write(json.dumps(item) + '\n')
     
-    return count
+    logger.info(f"Saved proposals to {output_path}")
 
 def main():
     """
     Main entry point for proposal generation.
+    Implements batch processing via generator to respect 7GB RAM limit.
     """
-    logger.info("Starting proposal generation pipeline (batch processing mode).")
+    logger.info("Starting proposal generation with batch processing...")
     
-    # Load configuration
     try:
-        power_config = load_power_analysis_config()
-        n_pairs = power_config.get("sample_size", 50)
+        n_pairs = load_power_analysis_config()
+        logger.info(f"Target pairs (n): {n_pairs}")
     except FileNotFoundError as e:
-        logger.error(f"Configuration error: {e}")
+        logger.error(str(e))
         sys.exit(1)
     
-    # Load pattern map
-    try:
-        pattern_map = load_pattern_map()
-    except FileNotFoundError as e:
-        logger.error(f"Pattern map error: {e}")
-        sys.exit(1)
+    logger.info("Generating proposals (streaming)...")
+    proposal_gen = generate_proposals(n_pairs)
     
-    # Initialize corpus iterator (streaming)
-    corpus_iter = load_processed_corpus()
+    # Validate that we generate exactly n_pairs
+    generated_count = 0
+    for _ in proposal_gen:
+        generated_count += 1
     
-    # Generate proposals in batches
-    logger.info(f"Generating {n_pairs} pairs in batches...")
-    proposal_gen = generate_proposals(corpus_iter, pattern_map, n_pairs)
+    # Regenerate to save (since generator is exhausted)
+    proposal_gen = generate_proposals(n_pairs)
+    save_proposals(proposal_gen, OUTPUT_PATH)
     
-    # Save results
-    saved_count = save_proposals(proposal_gen)
-    
-    logger.info(f"Successfully saved {saved_count} proposal pairs to {OUTPUT_PROPOSALS_PATH}")
-    
-    # Verify output
-    if saved_count != n_pairs:
-        logger.warning(f"Generated {saved_count} pairs, expected {n_pairs}.")
+    if generated_count != n_pairs:
+        logger.warning(f"Generated {generated_count} pairs, expected {n_pairs}. "
+                     "This may indicate insufficient data in corpus.")
     else:
-        logger.info("Generation complete: count matches target.")
+        logger.info(f"Successfully generated exactly {n_pairs} pairs.")
 
 if __name__ == "__main__":
     main()

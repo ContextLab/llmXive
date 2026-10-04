@@ -4,119 +4,90 @@ import hashlib
 import logging
 from typing import Optional, Dict, Any, Tuple, List
 import numpy as np
+import yaml
+from pathlib import Path
 
-# Import torch if available for seed pinning, but handle gracefully if not installed
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
+from utils.logging_config import get_logger
 
-from utils.logging_config import log_model_switch, log_memory_error, log_fallback_success, log_fallback_failure
+logger = get_logger("config")
 
-# Configuration constants for model fallback
-# These are read from environment variables with safe defaults
-DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-FALLBACK_EMBEDDING_MODEL = os.getenv("FALLBACK_EMBEDDING_MODEL", "all-distilroberta-v1")
-DEFAULT_MAX_MEMORY_GB = 7.0
-
-def set_seed(seed: int) -> None:
+def set_seed(seed: int = 42):
     """
-    Set the random seed for reproducibility across Python, NumPy, and PyTorch.
-    
-    Args:
-        seed: A positive integer seed value.
-        
-    Raises:
-        ValueError: If seed is not a positive integer.
+    Sets the random seed for reproducibility across numpy, python random, and torch (if available).
     """
-    if not validate_seed(seed):
-        raise ValueError(f"Seed must be a positive integer, got: {seed}")
-    
-    # Set Python hash seed for reproducibility
+    random.seed(seed)
+    np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     
-    # Set Python's random module seed
-    random.seed(seed)
-    
-    # Set NumPy's random seed
-    np.random.seed(seed)
-    
-    # Set PyTorch's random seed if available
-    if TORCH_AVAILABLE:
+    try:
+        import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)  # If using multi-GPU
-            # Ensure deterministic behavior in CuDNN (optional, can impact performance)
+            torch.cuda.manual_seed_all(seed)
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
+    except ImportError:
+        logger.debug("PyTorch not found, skipping torch seed setting.")
+    
+    logger.info(f"Seed set to {seed}")
 
 def get_environment_hash() -> str:
-    """Get a hash of the current environment configuration."""
+    """
+    Generates a hash of the current environment configuration for reproducibility tracking.
+    """
     env_vars = {
-        'PYTHON_VERSION': os.getenv('PYTHON_VERSION', 'unknown'),
-        'NUM_THREADS': os.getenv('OMP_NUM_THREADS', '1'),
+        "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED", ""),
+        "CUDA_VISIBLE_DEVICES": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
     }
-    env_str = str(sorted(env_vars.items()))
-    return hashlib.sha256(env_str.encode()).hexdigest()[:16]
+    data = json.dumps(env_vars, sort_keys=True)
+    return hashlib.sha256(data.encode()).hexdigest()
 
 def validate_seed(seed: int) -> bool:
-    """Validate that the seed is a positive integer."""
-    return isinstance(seed, int) and seed > 0
+    """
+    Validates that the seed is a non-negative integer.
+    """
+    return isinstance(seed, int) and seed >= 0
 
 def get_model_config() -> Dict[str, Any]:
-    """Get the default model configuration."""
-    # Use environment variable for fallback model if set, otherwise default
-    fallback_model = os.getenv("FALLBACK_EMBEDDING_MODEL", FALLBACK_EMBEDDING_MODEL)
+    """
+    Loads model configuration from data-sources.yaml or a dedicated config file.
+    Returns a dictionary with model settings.
+    """
+    config_path = Path("data-sources.yaml")
+    if not config_path.exists():
+        logger.warning("data-sources.yaml not found. Using defaults.")
+        return {
+            "primary_model": "all-MiniLM-L6-v2",
+            "fallback_model": "paraphrase-MiniLM-L3-v2",
+            "similarity_threshold": 0.5,
+            "top_k_patterns": 3
+        }
     
-    return {
-        "model_name": os.getenv("EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL),
-        "fallback_model_name": fallback_model,
-        "quantized": True,
-        "max_memory_gb": float(os.getenv("MAX_MEMORY_GB", DEFAULT_MAX_MEMORY_GB))
-    }
+    try:
+        with open(config_path, 'r') as f:
+            data = yaml.safe_load(f)
+            # Extract model section if it exists, otherwise return defaults
+            model_config = data.get("model_config", {})
+            # Ensure defaults are present
+            defaults = {
+                "primary_model": "all-MiniLM-L6-v2",
+                "fallback_model": "paraphrase-MiniLM-L3-v2",
+                "similarity_threshold": 0.5,
+                "top_k_patterns": 3
+            }
+            return {**defaults, **model_config}
+    except Exception as e:
+        logger.error(f"Error loading model config: {e}")
+        return {
+            "primary_model": "all-MiniLM-L6-v2",
+            "fallback_model": "paraphrase-MiniLM-L3-v2",
+            "similarity_threshold": 0.5,
+            "top_k_patterns": 3
+        }
 
-def select_model_on_memory_error(
-    original_model: str,
-    required_memory_gb: float,
-    available_memory_gb: float
-) -> Tuple[str, bool]:
+def select_model_on_memory_error(primary_model: str, fallback_model: str) -> str:
     """
-    Select a fallback model if memory constraints are hit.
-    Returns (selected_model, success_flag).
-    
-    This implementation uses the configurable FALLBACK_EMBEDDING_MODEL from config
-    rather than hardcoding specific model names, allowing runtime configuration
-    of the fallback strategy.
+    Selects the fallback model when memory error occurs.
     """
-    logger = logging.getLogger("model_fallback")
-    
-    # Log the memory error
-    log_memory_error(original_model, available_memory_gb, required_memory_gb)
-    
-    # Get the configured fallback model
-    fallback_model = os.getenv("FALLBACK_EMBEDDING_MODEL", FALLBACK_EMBEDDING_MODEL)
-    
-    # Estimate memory requirement for fallback model (simplified heuristic)
-    # In production, this would be based on actual model metadata
-    fallback_memory_estimate = 2.0  # GB for smaller models like all-distilroberta-v1
-    
-    if fallback_memory_estimate <= available_memory_gb:
-        log_model_switch(
-            original_model, 
-            fallback_model, 
-            f"Memory constraint: required {required_memory_gb}GB, available {available_memory_gb}GB"
-        )
-        log_fallback_success(original_model, fallback_model)
-        return fallback_model, True
-    
-    # If no suitable fallback found
-    error_msg = (
-        f"No suitable fallback model found. "
-        f"Original: {original_model} ({required_memory_gb}GB), "
-        f"Fallback: {fallback_model} (estimated {fallback_memory_estimate}GB), "
-        f"Available: {available_memory_gb}GB"
-    )
-    log_fallback_failure(original_model, error_msg)
-    raise MemoryError(error_msg)
+    logger.warning(f"Memory error on {primary_model}. Selecting {fallback_model}.")
+    return fallback_model

@@ -1,10 +1,11 @@
 T011:
   c: false
-  h: 7272d05f58733bb681063d46350bbcbd46b29a1e15f9edc73a22a7528253b3bc
-  r: "The repository lacks the required `data/raw/corpus_raw.jsonl` file, and the\
-    \ provided `code/01_data_acquisition.py` is incomplete (truncated) with no implementation\
-    \ of arXiv queries, DOI list handling, or acceptance\u2011status filtering. Consequently\
-    \ the script does not fulfill the data\u2011acquisition task as specified."
+  h: 1d2c70f4dfb6f4b5e7069a718556a248782aab40093fb1bb23b18a8c7b910e58
+  r: "The `data/raw/corpus_raw.jsonl` file, the required output, does not exist, and\
+    \ the provided `code/01_data_acquisition.py` is truncated and does not contain\
+    \ a complete implementation (e.g., it ends abruptly and never reaches the download,\
+    \ balancing, or write\u2011out logic). Moreover, `data-sources.yaml` lists empty\
+    \ DOI arrays, so non\u2011ML abstracts cannot be fetched as specified."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,13 +46,6 @@ T019:
     fixture nor assert that the `preprocessing_pipeline` raises a `ValueError` or
     filters out empty entries as specified. The fixture file itself is missing. The
     task therefore remains unfinished.
-T024b:
-  c: false
-  h: 9d971df3f48d52468292b21fea0f95d4da213d132c0eb03befbde2650dff4e21
-  r: "The repository lacks `data/results/power_analysis_config.json`, and the shown\
-    \ portion of `code/05_statistical_analysis.py` contains no function that computes\
-    \ a required sample size\u202F`n` and writes it to that JSON file. Consequently\
-    \ the required artifact and functionality are missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -108,11 +102,28 @@ T048:
   r: The required `state/manifest.yaml` file is missing entirely, so no checksum information
     is present to satisfy the update task. The implementer must create the file and
     populate it with the final artifact checksums.
-T059:
+T059a:
   c: false
-  h: a3ef0303f29fa6117c2690b76a72d4699b0a0b9aa86e0de3634702d25d3bf74a
-  r: "The repository contains partially\u2011implemented `04_evaluation_loader.py`\
-    \ and `05_statistical_analysis.py` (both files are truncated and lack the logic\
-    \ to distribute proposals, collect expert ratings, or write the blinded pairs).\
-    \ Crucially, the required output `data/results/ratings_filled.csv` is absent,\
-    \ so the expert evaluation workflow and the expected CSV schema are not satisfied."
+  h: 0500e4cf71f76227d3be0c9a4ff354694d17faea09f843255dd29aa6b80fc0c6
+  r: "The repository contains a partially\u2011implemented `code/04_evaluation_loader.py`,\
+    \ but the required input file `data/results/generated_proposals.jsonl` is absent,\
+    \ and the expected output `data/results/blinded_batches.csv` was never created.\
+    \ Without real proposal data the script cannot generate the blinded CSV, so the\
+    \ task\u2019s core requirement is unmet."
+T059b:
+  c: false
+  h: 46752f94ff10e40b1112d47b0ae870e492ecb2ff3e7a3b2f313a288e6a07c605
+  r: "The repository lacks the required `data/results/ratings_filled.csv` file, and\
+    \ the `code/04_evaluation_loader.py` script does not contain a deterministic mock\u2011\
+    ratings generator that writes this CSV (the file is missing and the code is truncated\
+    \ before any such functionality). Consequently the task\u2019s output artifact\
+    \ is absent."
+T065:
+  c: false
+  h: d382a16bf0ae4bdbaf7bc81bf71d4f0345f442a40334d1b869350b8bbb7bb4c5
+  r: "The provided `code/04_evaluation_loader.py` only contains utilities for loading\
+    \ proposals, blinding them, and generating a CSV template; it lacks any integration\
+    \ with the Prolific (or equivalent) API, no logic to recruit experts, and does\
+    \ not store real response data. Moreover, the required output file `data/results/ratings_raw.csv`\
+    \ is missing. The task\u2019s core requirement\u2014implementing an external expert\
+    \ recruitment pipeline and persisting raw ratings\u2014is not satisfied."
