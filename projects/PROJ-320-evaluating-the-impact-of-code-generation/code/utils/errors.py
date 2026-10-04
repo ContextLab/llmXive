@@ -1,94 +1,67 @@
 """
-Centralized error handling and custom exceptions for the llmXive pipeline.
+Custom error classes for GitHub API interactions and pipeline errors.
 """
 import time
 from typing import Optional, Dict, Any
-from requests.exceptions import RequestException, HTTPError, Timeout, ConnectionError
-
 
 class GitHubAPIError(Exception):
-    """Base class for GitHub API related errors."""
-    def __init__(self, message: str, status_code: Optional[int] = None, response: Optional[Dict[str, Any]] = None):
+    """Base exception for GitHub API errors."""
+    def __init__(self, message: str, status_code: Optional[int] = None):
         super().__init__(message)
+        self.message = message
         self.status_code = status_code
-        self.response = response
-
 
 class RateLimitExceeded(GitHubAPIError):
-    """Raised when GitHub rate limits are exceeded."""
-    def __init__(self, message: str = "GitHub API rate limit exceeded", retry_after: Optional[int] = None):
+    """Exception raised when GitHub rate limit is exceeded."""
+    def __init__(self, message: str, reset_time: Optional[float] = None):
         super().__init__(message)
-        self.retry_after = retry_after
-
+        self.reset_time = reset_time
 
 class AuthError(GitHubAPIError):
-    """Raised when authentication fails."""
+    """Exception raised for authentication failures."""
     pass
-
 
 class ResourceNotFoundError(GitHubAPIError):
-    """Raised when a requested resource (PR, repo) is not found."""
+    """Exception raised when a requested resource is not found."""
     pass
 
-
 class WatchdogTimeoutError(Exception):
-    """Raised when the global watchdog timer expires."""
-    def __init__(self, message: str = "Pipeline execution exceeded maximum allowed time"):
-        super().__init__(message)
+    """Exception raised when execution exceeds the time limit."""
+    pass
 
-
-def handle_github_error(e: Exception, attempt: int = 1, max_retries: int = 3) -> float:
+def handle_github_error(
+    response: Any,
+    default_message: str = "GitHub API error"
+) -> GitHubAPIError:
     """
-    Centralized error handling logic for GitHub API requests.
-    
-    Implements exponential backoff for transient errors and raises 
-    specific exceptions for non-retryable failures.
+    Convert a GitHub API response into the appropriate exception.
     
     Args:
-        e: The caught exception
-        attempt: Current retry attempt number (1-based)
-        max_retries: Maximum number of retries allowed
-    
+        response: The requests.Response object
+        default_message: Default message if status code is unknown
+        
     Returns:
-        float: Seconds to wait before retrying (0 if no retry)
-    
-    Raises:
-        RateLimitExceeded: If rate limit is exceeded
-        GitHubAPIError: For other HTTP errors
-        Exception: Re-raises non-retryable errors
+        The appropriate exception instance
     """
-    if isinstance(e, (Timeout, ConnectionError)):
-        # Transient network error
-        if attempt >= max_retries:
-            raise GitHubAPIError(f"Network error after {max_retries} retries") from e
-        
-        wait_time = (2 ** attempt) + 1
-        return wait_time
+    status_code = response.status_code
+    text = response.text.lower()
     
-    elif isinstance(e, HTTPError):
-        status_code = getattr(e.response, 'status_code', 0) if hasattr(e, 'response') else 0
-        
-        if status_code == 403:
-            # Rate limit
-            retry_after = getattr(e.response, 'headers', {}).get('Retry-After', 60)
-            raise RateLimitExceeded(retry_after=int(retry_after)) from e
-        
-        elif status_code == 401:
-            raise AuthError("Authentication failed", status_code=401) from e
-        
-        elif status_code == 404:
-            raise ResourceNotFoundError("Resource not found", status_code=404) from e
-        
-        elif 500 <= status_code < 600:
-            # Server error - retryable
-            if attempt >= max_retries:
-                raise GitHubAPIError(f"Server error {status_code} after {max_retries} retries") from e
-            wait_time = (2 ** attempt) + 1
-            return wait_time
-        
+    if status_code == 404:
+        return ResourceNotFoundError(f"Resource not found: {response.url}")
+    elif status_code == 403:
+        if "rate limit" in text:
+            reset_time = response.headers.get("X-RateLimit-Reset")
+            return RateLimitExceeded(
+                "GitHub rate limit exceeded",
+                reset_time=float(reset_time) if reset_time else None
+            )
+        elif "bad credentials" in text:
+            return AuthError("Authentication failed")
         else:
-            raise GitHubAPIError(f"HTTP Error {status_code}", status_code=status_code) from e
-    
+            return GitHubAPIError(f"Forbidden: {text}", status_code)
+    elif status_code == 401:
+        return AuthError("Unauthorized")
+    elif status_code >= 500:
+        return GitHubAPIError(f"Server error: {status_code}", status_code)
     else:
-        # Unknown error - re-raise immediately
-        raise e
+        return GitHubAPIError(default_message, status_code)

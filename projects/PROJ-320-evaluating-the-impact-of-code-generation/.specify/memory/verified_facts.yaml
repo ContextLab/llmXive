@@ -1,4 +1,15 @@
-'|determination level significance':
+0.5 0.8|cohen effect greater if interpreted large less medium size small than:
+  quote: A related effect size is r2, the coefficient of determination (also referred
+    to as R2 or "r-squared"), calculated as the square of the Pearson correlation
+    r.  In the case of paired data, this is a measure of the proportion of variance
+    shared by the two variables, and varies from 0 to 1. For example, with an r of
+    0.21 the coefficient of determination is 0.0441, meaning that 4.4% of the variance
+    of either variable is shared with the other variable.  The r2 is always positive,
+    so does not convey the direction of the correlation between the two variables.
+  source_id: Effect size
+  url: https://en.wikipedia.org/wiki/Effect_size
+  value: '0.2'
+'|alpha determination level significance use':
   quote: "The error that a practising statistician would consider the more important\
     \ to avoid (which is a subjective judgment) is called the error of the first kind.\
     \ The first demand of the mathematical theory is to deduce such test criteria\

@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-320-evaluating-the-impact-of-code-generation",
+  "ok": false,
+  "reason": "7 command(s) failed: python code/data/fetch_github.py --output data/raw/prs_raw.json (rc=1); python code/data/classify_prs.py --input data/raw/prs_raw.json --output data/processed/prs_labeled.csv (rc=1); python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv (rc=1); 9 declared deliverable(s) absent: data/audit/error_rate.json; data/processed/complexity_scores.csv; data/processed/gate_status.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/fetch_github.py --output data/raw/prs_raw.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/data/fetch_github.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/data/classify_prs.py --input data/raw/prs_raw.json --output data/processed/prs_labeled.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/data/classify_prs.py\", line 15, in <module>\n    from utils.seeds import set_global_seed, get_seed_manager\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/utils/seeds.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/data/extract_metrics.py --input data/processed/prs_labeled.csv --output data/processed/prs_metrics.csv -> rc=1\n    2026-10-04 17:43:04,125 - __main__ - INFO - Starting PR metrics extraction pipeline (T022)\n2026-10-04 17:43:04,125 - __main__ - INFO - Loading labeled PRs from /home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/processed_prs_labeled\n2026-10-04 17:43:04,125 - __main__ - ERROR - Input file error: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/processed_p",
+    "python code/analysis/statistical_tests.py --input data/processed/prs_metrics.csv --output reports/results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/analysis/statistical_tests.py\", line 10, in <module>\n    from scipy import stats as scipy_stats\nModuleNotFoundError: No module named 'scipy'",
+    "python code/analysis/visualizations.py --input data/processed/prs_metrics.csv --output reports/figures/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/analysis/visualizations.py\", line 13, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/analysis/sensitivity_analysis.py --input data/processed/prs_metrics.csv --output reports/sensitivity_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/analysis/sensitivity_analysis.py\", line 20, in <module>\n    from analysis.statistical_tests import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/analysis/statistical_tests.py\", line 10, in <module>\n    from scipy import stats as scipy_stats\nModuleNotFoundErro",
+    "python code/audit/manual_validation.py --input data/processed/prs_metrics.csv --output data/processed/audit_log.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/audit/manual_validation.py\", line 24, in <module>\n    from utils.seeds import set_global_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-320-evaluating-the-impact-of-code-generation/code/utils/seeds.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-04T17:43:04Z"
+}

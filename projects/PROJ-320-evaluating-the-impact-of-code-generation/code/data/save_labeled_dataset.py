@@ -13,6 +13,7 @@ Dependencies:
 import os
 import csv
 import json
+import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -41,13 +42,13 @@ def load_classified_prs(raw_data_dir: Path) -> List[Dict[str, Any]]:
     
     if not raw_data_dir.exists():
         logger.error(f"Raw data directory does not exist: {raw_data_dir}")
-        return []
+        raise FileNotFoundError(f"Raw data directory does not exist: {raw_data_dir}")
     
     prs = load_prs_from_raw(raw_data_dir)
     
     if not prs:
-        logger.warning("No PRs found in raw data directory. Ensure T013 and T014/015 have run.")
-        return []
+        logger.error("No PRs found in raw data directory. Ensure T013 and T014/015 have run.")
+        raise ValueError("No PRs found in raw data directory. Ensure T013 and T014/015 have run.")
     
     logger.info(f"Loaded {len(prs)} classified PRs from raw data.")
     return prs
@@ -151,7 +152,16 @@ def run_save_labeled_dataset(raw_data_dir: Optional[Path] = None, output_dir: Op
 
 def main():
     """Entry point for the script."""
-    success = run_save_labeled_dataset()
+    parser = argparse.ArgumentParser(description="Save labeled dataset from classified PRs.")
+    parser.add_argument("--input", type=str, default="data/raw", help="Path to raw data directory")
+    parser.add_argument("--output", type=str, default="data/processed/prs_labeled.csv", help="Path to output CSV file")
+    args = parser.parse_args()
+    
+    raw_data_dir = Path(args.input)
+    output_path = Path(args.output)
+    output_dir = output_path.parent
+    
+    success = run_save_labeled_dataset(raw_data_dir=raw_data_dir, output_dir=output_dir)
     if not success:
         exit(1)
 

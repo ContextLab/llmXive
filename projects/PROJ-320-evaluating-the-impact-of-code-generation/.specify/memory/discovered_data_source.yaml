@@ -1,18 +1,18 @@
 status: none
-intent: GitHub pull request dataset GHTorrent Kaggle GitHub PRs python package dataset
+intent: download GHTorrent GitHub pull request dataset python package dataset
 required_fields:
-- pr_id
-- repo_full_name
-- pr_title
-- pr_body
-- author_login
+- repo_name
+- pull_request_number
+- title
+- body
 - created_at
 - merged_at
+- closed_at
+- author_login
+- author_association
+- merge_commit_sha
 - additions
 - deletions
-- changed_files
-- commit_messages
-- labels
-cache_key: 8537e7e92cf316bf5d1e8e6b19303c8361f09fe893acb72d4eea655837d6d128
-searched_at: '2026-08-10T02:53:38.643710+00:00'
+cache_key: 9040c48e503403819f2d2fd687e1f5d9370414ea36cbb748f6c43e18ede52107
+searched_at: '2026-10-04T17:43:46.052811+00:00'
 retry_count: 1

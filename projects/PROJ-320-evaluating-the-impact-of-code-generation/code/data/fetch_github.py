@@ -1,5 +1,6 @@
 """
-GitHub PR Fetching Module with centralized session management and error handling.
+T013: Implement fetch_github.py to fetch up to 200 PRs from prioritized list,
+handling pagination, API backoff, and saving raw JSON payloads to data/raw/ with SHA-256 checksums.
 """
 import os
 import time
@@ -8,198 +9,331 @@ import hashlib
 import signal
 import sys
 import logging
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 import requests
-from requests.exceptions import RequestException
 
 from utils.config import get_repo_list, get_api_settings, get_path
 from utils.logging import get_logger, setup_logging
+from utils.errors import GitHubAPIError, RateLimitExceeded, AuthError, ResourceNotFoundError, WatchdogTimeoutError, handle_github_error
 from utils.checksum import calculate_checksum
-from utils.errors import handle_github_error, RateLimitExceeded, WatchdogTimeoutError
 
-# Global session for connection pooling
-_SESSION: Optional[requests.Session] = None
-_WATCHDOG_START_TIME: Optional[float] = None
-_MAX_RUNTIME_SECONDS: int = 3600  # 1 hour default limit
-
-
-def get_session() -> requests.Session:
-    """Get or create the shared HTTP session."""
-    global _SESSION
-    if _SESSION is None:
-        _SESSION = requests.Session()
-        _SESSION.headers.update({'Accept': 'application/vnd.github.v3+json'})
-    return _SESSION
-
+# Watchdog global state
+_watchdog_start_time = None
+_watchdog_timeout_seconds = 300  # 5 minutes max execution
+_watchdog_signal_active = False
 
 def watchdog_handler(signum, frame):
-    """Signal handler for watchdog timeout."""
-    raise WatchdogTimeoutError(f"Pipeline exceeded { _MAX_RUNTIME_SECONDS } seconds")
+    """Handle watchdog timeout signal."""
+    raise WatchdogTimeoutError(f"Execution exceeded time limit of {_watchdog_timeout_seconds} seconds.")
 
-
-def setup_watchdog(timeout_seconds: int = 3600):
-    """Set up the global watchdog timer."""
-    global _MAX_RUNTIME_SECONDS
-    _MAX_RUNTIME_SECONDS = timeout_seconds
-    _WATCHDOG_START_TIME = time.time()
-    signal.signal(signal.SIGALRM, watchdog_handler)
-    signal.alarm(_MAX_RUNTIME_SECONDS)
-
+def setup_watchdog(timeout_seconds: int = 300):
+    """Setup the execution watchdog timer."""
+    global _watchdog_timeout_seconds, _watchdog_start_time, _watchdog_signal_active
+    _watchdog_timeout_seconds = timeout_seconds
+    _watchdog_start_time = time.time()
+    _watchdog_signal_active = True
+    
+    # Only set signal handlers on Unix-like systems
+    if hasattr(signal, 'SIGALRM'):
+        signal.signal(signal.SIGALRM, watchdog_handler)
+        signal.alarm(timeout_seconds)
+    else:
+        # Fallback for Windows: check manually in the loop
+        pass
 
 def check_watchdog():
-    """Check if the watchdog has timed out."""
-    if _WATCHDOG_START_TIME is None:
+    """Check if watchdog timeout has been reached."""
+    global _watchdog_start_time, _watchdog_signal_active
+    if not _watchdog_signal_active:
         return
-    elapsed = time.time() - _WATCHDOG_START_TIME
-    if elapsed > _MAX_RUNTIME_SECONDS:
-        signal.alarm(0)  # Disable alarm
-        raise WatchdogTimeoutError(f"Pipeline exceeded {_MAX_RUNTIME_SECONDS} seconds")
+    
+    if hasattr(signal, 'SIGALRM'):
+        return  # Signal handler will raise if timeout reached
+    
+    # Manual check for Windows
+    if time.time() - _watchdog_start_time > _watchdog_timeout_seconds:
+        raise WatchdogTimeoutError(f"Execution exceeded time limit of {_watchdog_timeout_seconds} seconds.")
 
+def get_session(retries: int = 5, backoff_factor: float = 0.5) -> requests.Session:
+    """Create a requests session with retry logic."""
+    session = requests.Session()
+    adapter = requests.adapters.HTTPAdapter(
+        max_retries=requests.adapters.Retry(
+            total=retries,
+            backoff_factor=backoff_factor,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"]
+        )
+    )
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
 
-def calculate_checksum(data: Dict[str, Any]) -> str:
-    """Calculate SHA-256 checksum for a data payload."""
-    json_str = json.dumps(data, sort_keys=True)
-    return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
+def calculate_checksum(data: bytes) -> str:
+    """Calculate SHA-256 checksum of data."""
+    return hashlib.sha256(data).hexdigest()
 
-
-def fetch_prs_from_repo(repo: str, max_prs: int = 200) -> List[Dict[str, Any]]:
+def fetch_prs_from_repo(
+    repo: str,
+    session: requests.Session,
+    max_prs: int = 200,
+    api_token: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
-    Fetch PRs from a specific GitHub repository using the shared session.
-    
-    Args:
-        repo: Repository in format 'owner/repo'
-        max_prs: Maximum number of PRs to fetch
-    
-    Returns:
-        List of PR dictionaries
+    Fetch PRs from a specific GitHub repository.
+    Handles pagination and rate limiting.
     """
-    session = get_session()
-    api_settings = get_api_settings()
-    base_url = api_settings.get('base_url', 'https://api.github.com')
-    token = api_settings.get('token')
+    base_url = f"https://api.github.com/repos/{repo}/pulls"
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "llmXive-research-bot"
+    }
     
-    if token:
-        session.headers.update({'Authorization': f'token {token}'})
-    
-    url = f"{base_url}/repos/{repo}/pulls"
-    params = {'state': 'all', 'per_page': 100}
+    if api_token:
+        headers["Authorization"] = f"token {api_token}"
     
     all_prs = []
     page = 1
-    max_retries = 3
+    per_page = 100
+    
+    logger = get_logger(__name__)
+    logger.info(f"Fetching PRs from {repo}, page {page}")
     
     while len(all_prs) < max_prs:
-        params['page'] = page
-        attempt = 0
+        check_watchdog()
         
-        while attempt < max_retries:
-            try:
-                check_watchdog()
-                response = session.get(url, params=params)
-                response.raise_for_status()
-                prs = response.json()
-                
-                if not prs:
-                    break
-                
-                all_prs.extend(prs)
-                if len(prs) < 100:
-                    break
-                
-                page += 1
-                break
-                
-            except (RequestException, RateLimitExceeded) as e:
-                attempt += 1
-                wait_time = handle_github_error(e, attempt, max_retries)
-                if wait_time > 0:
-                    logging.getLogger(__name__).warning(f"Retry {attempt}/{max_retries} after {wait_time}s: {e}")
-                    time.sleep(wait_time)
+        params = {
+            "state": "all",
+            "per_page": min(per_page, max_prs - len(all_prs)),
+            "page": page
+        }
+        
+        try:
+            response = session.get(base_url, headers=headers, params=params, timeout=30)
+            
+            if response.status_code == 404:
+                raise ResourceNotFoundError(f"Repository not found: {repo}")
+            elif response.status_code == 403:
+                if "rate limit" in response.text.lower():
+                    raise RateLimitExceeded(f"Rate limit exceeded for {repo}")
+                elif "bad credentials" in response.text.lower():
+                    raise AuthError(f"Authentication failed for {repo}")
                 else:
-                    raise
-            except Exception as e:
-                logging.getLogger(__name__).error(f"Unexpected error fetching PRs: {e}")
-                raise
+                    raise GitHubAPIError(f"GitHub API error (403): {response.text}")
+            elif response.status_code >= 500:
+                raise GitHubAPIError(f"GitHub API server error: {response.status_code}")
+            elif response.status_code != 200:
+                raise GitHubAPIError(f"Unexpected status code: {response.status_code}")
+            
+            prs = response.json()
+            if not prs:
+                break  # No more PRs
+            
+            all_prs.extend(prs)
+            
+            if len(prs) < params["per_page"]:
+                break  # Last page
+            
+            page += 1
+            
+            # Respect rate limits
+            rate_limit_remaining = int(response.headers.get("X-RateLimit-Remaining", 0))
+            if rate_limit_remaining < 10:
+                reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
+                wait_time = max(0, reset_time - int(time.time()) + 5)
+                logger.info(f"Rate limit low, waiting {wait_time}s")
+                time.sleep(wait_time)
+                
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error fetching {repo}: {e}")
+            raise GitHubAPIError(f"Network error: {str(e)}")
     
+    logger.info(f"Fetched {len(all_prs)} PRs from {repo}")
     return all_prs[:max_prs]
 
+def get_next_repo(current_repo: str, repo_list: List[str]) -> Optional[str]:
+    """Get the next repo in the list after the current one."""
+    try:
+        idx = repo_list.index(current_repo)
+        if idx + 1 < len(repo_list):
+            return repo_list[idx + 1]
+    except ValueError:
+        pass
+    return None
 
-def save_prs_to_raw(prs: List[Dict[str, Any]], repo: str):
+def save_prs_to_raw(
+    prs: List[Dict[str, Any]],
+    output_path: Path,
+    source_repo: str
+) -> str:
     """
-    Save fetched PRs to raw data directory with checksums.
-    
-    Args:
-        prs: List of PR dictionaries
-        repo: Repository name
+    Save PRs to a raw JSON file and return the checksum.
     """
-    output_dir = get_path('data/raw')
-    os.makedirs(output_dir, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    filename = f"{repo.replace('/', '_')}_prs.json"
-    filepath = os.path.join(output_dir, filename)
-    
-    checksum = calculate_checksum({'prs': prs})
-    payload = {
-        'repo': repo,
-        'count': len(prs),
-        'checksum': checksum,
-        'fetched_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-        'prs': prs
+    # Prepare data with metadata
+    data = {
+        "source_repo": source_repo,
+        "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "pr_count": len(prs),
+        "prs": prs
     }
     
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(payload, f, indent=2)
+    json_str = json.dumps(data, indent=2, ensure_ascii=False)
+    json_bytes = json_str.encode('utf-8')
     
-    logging.getLogger(__name__).info(f"Saved {len(prs)} PRs to {filepath} (checksum: {checksum[:16]}...)")
+    with open(output_path, 'wb') as f:
+        f.write(json_bytes)
+    
+    checksum = calculate_checksum(json_bytes)
+    
+    # Save checksum manifest
+    manifest_path = output_path.with_suffix('.sha256')
+    manifest_data = {
+        "file": str(output_path),
+        "checksum": checksum,
+        "algorithm": "sha256",
+        "source_repo": source_repo,
+        "pr_count": len(prs)
+    }
+    
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest_data, f, indent=2)
+    
+    return checksum
 
-
-def run_batch_fetch(max_prs_per_repo: int = 200):
+def run_batch_fetch(
+    output_path: Path,
+    max_total_prs: int = 200,
+    timeout_seconds: int = 300
+):
     """
-    Run the fetch pipeline across all configured repositories.
-    
-    Args:
-        max_prs_per_repo: Maximum PRs to fetch per repository
+    Run the batch fetch process across prioritized repos.
     """
-    logger = setup_logging('fetch_github')
-    logger.info("Starting GitHub PR fetch pipeline")
+    logger = get_logger(__name__)
+    logger.info(f"Starting batch fetch for up to {max_total_prs} PRs")
     
-    setup_watchdog()
-    repos = get_repo_list()
-    logger.info(f"Fetching from repos: {repos}")
+    # Setup watchdog
+    setup_watchdog(timeout_seconds)
     
-    total_prs = 0
+    # Get configuration
+    repo_list = get_repo_list()
+    api_settings = get_api_settings()
+    api_token = api_settings.get("token")
     
-    for repo in repos:
-        try:
-            logger.info(f"Fetching from {repo}...")
-            prs = fetch_prs_from_repo(repo, max_prs_per_repo)
-            
-            if not prs:
-                logger.warning(f"No PRs found for {repo}")
-                continue
-            
-            save_prs_to_raw(prs, repo)
-            total_prs += len(prs)
-            
-            # Check watchdog between repos
-            check_watchdog()
-            
-        except WatchdogTimeoutError:
-            logger.critical("Watchdog timeout reached. Stopping pipeline.")
-            break
-        except Exception as e:
-            logger.error(f"Failed to fetch from {repo}: {e}")
-            # Continue to next repo on failure
-            continue
+    if not repo_list:
+        raise RuntimeError("No repositories configured in get_repo_list()")
     
-    logger.info(f"Pipeline complete. Total PRs fetched: {total_prs}")
-
+    session = get_session()
+    all_prs = []
+    current_repo = None
+    
+    try:
+        for repo in repo_list:
+            if len(all_prs) >= max_total_prs:
+                break
+            
+            current_repo = repo
+            remaining = max_total_prs - len(all_prs)
+            
+            logger.info(f"Fetching from {repo} (need {remaining} more)")
+            
+            try:
+                repo_prs = fetch_prs_from_repo(
+                    repo, 
+                    session, 
+                    max_prs=remaining,
+                    api_token=api_token
+                )
+                all_prs.extend(repo_prs)
+                
+                if len(repo_prs) > 0:
+                    # Save intermediate results if we have data
+                    intermediate_path = output_path.parent / f"prs_raw_{repo.replace('/', '_')}.json"
+                    save_prs_to_raw(repo_prs, intermediate_path, repo)
+                    logger.info(f"Saved {len(repo_prs)} PRs from {repo}")
+                
+            except (ResourceNotFoundError, RateLimitExceeded, AuthError) as e:
+                logger.warning(f"Skipping {repo} due to error: {e}")
+                next_repo = get_next_repo(repo, repo_list)
+                if next_repo:
+                    logger.info(f"Switching to next repo: {next_repo}")
+                else:
+                    logger.warning("No more repos to try")
+                    break
+            
+            # Small delay between repos to be nice to API
+            time.sleep(1)
+            
+    except WatchdogTimeoutError:
+        logger.error("Watchdog timeout reached")
+        if not all_prs:
+            raise
+    except Exception as e:
+        logger.error(f"Unexpected error during fetch: {e}")
+        if not all_prs:
+            raise
+    
+    if not all_prs:
+        raise RuntimeError("No PRs were successfully fetched from any repository")
+    
+    # Save final combined dataset
+    logger.info(f"Saving {len(all_prs)} total PRs to {output_path}")
+    checksum = save_prs_to_raw(all_prs, output_path, "combined")
+    
+    logger.info(f"Fetch complete. Checksum: {checksum}")
+    return checksum
 
 def main():
-    """Entry point for the script."""
-    run_batch_fetch()
-
+    """Main entry point for the fetch script."""
+    # Setup logging
+    log_config = setup_logging(script_name="fetch_github")
+    logger = get_logger(__name__)
+    
+    try:
+        # Parse arguments
+        import argparse
+        parser = argparse.ArgumentParser(description="Fetch PRs from GitHub")
+        parser.add_argument(
+            "--output",
+            type=str,
+            default="data/raw/prs_raw.json",
+            help="Output path for raw PR data"
+        )
+        parser.add_argument(
+            "--max-prs",
+            type=int,
+            default=200,
+            help="Maximum number of PRs to fetch"
+        )
+        parser.add_argument(
+            "--timeout",
+            type=int,
+            default=300,
+            help="Watchdog timeout in seconds"
+        )
+        args = parser.parse_args()
+        
+        output_path = Path(args.output)
+        
+        # Run fetch
+        checksum = run_batch_fetch(
+            output_path=output_path,
+            max_total_prs=args.max_prs,
+            timeout_seconds=args.timeout
+        )
+        
+        print(f"Successfully fetched and saved PRs to {output_path}")
+        print(f"Checksum: {checksum}")
+        
+    except KeyboardInterrupt:
+        logger.warning("Fetch interrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        logger.error(f"Fetch failed: {e}")
+        # Re-raise for proper exit code
+        raise
 
 if __name__ == "__main__":
     main()

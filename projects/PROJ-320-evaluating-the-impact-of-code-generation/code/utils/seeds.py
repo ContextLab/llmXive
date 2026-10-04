@@ -1,7 +1,6 @@
 """
-seeds.py
-
-Manages random seeds for reproducibility in sampling and statistical resampling.
+Seed management for reproducible experiments.
+Manages random seeds for all sampling and statistical resampling.
 """
 import random
 import numpy as np
@@ -9,80 +8,54 @@ import os
 from typing import Optional, List, Any
 
 class SeedManager:
-    """Singleton-like manager for global random seeds."""
+    """Manages global random seeds for reproducibility."""
     
-    _instance = None
-    _seed: int = 42
+    def __init__(self, seed: int = 42):
+        self.seed = seed
+        self._set_seeds()
     
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+    def _set_seeds(self):
+        """Sets seeds for random, numpy, and os.environ (if applicable)."""
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+        # Optional: Set PYTHONHASHSEED if needed for hash reproducibility
+        # os.environ['PYTHONHASHSEED'] = str(self.seed)
     
     def set_seed(self, seed: int):
-        """Set the global seed for random and numpy."""
-        self._seed = seed
-        random.seed(seed)
-        np.random.seed(seed)
-        # Optionally set os.environ for other libraries if needed
-        os.environ['PYTHONHASHSEED'] = str(seed)
-    
-    def get_seed(self) -> int:
-        return self._seed
-    
-    def get_random_state(self) -> random.Random:
-        """Get a new Random instance seeded with the global seed."""
-        rng = random.Random(self._seed)
-        return rng
-    
-    def get_numpy_random_state(self) -> np.random.RandomState:
-        """Get a new numpy RandomState seeded with the global seed."""
-        return np.random.RandomState(self._seed)
+        """Updates the global seed."""
+        self.seed = seed
+        self._set_seeds()
+
+_global_seed_manager = SeedManager(42)
 
 def set_global_seed(seed: int = 42):
-    """Set the global seed using the SeedManager."""
-    manager = SeedManager()
-    manager.set_seed(seed)
+    """Sets the global seed for all random number generators."""
+    _global_seed_manager.set_seed(seed)
 
 def get_seed_manager() -> SeedManager:
-    """Get the SeedManager instance."""
-    return SeedManager()
+    """Returns the global seed manager instance."""
+    return _global_seed_manager
 
 def sample_with_seed(data: List[Any], n: int, seed: Optional[int] = None) -> List[Any]:
-    """
-    Sample n items from data using a specific seed.
-    
-    Args:
-        data: List of items to sample from.
-        n: Number of items to sample.
-        seed: Optional seed for reproducibility. If None, uses global seed.
-        
-    Returns:
-        List of sampled items.
-    """
+    """Samples n items from data using a specific seed."""
     if seed is not None:
-        rng = random.Random(seed)
-    else:
-        rng = SeedManager().get_random_state()
-    
-    return rng.sample(data, min(n, len(data)))
+        random.seed(seed)
+    return random.sample(data, n)
 
-def get_random_state() -> random.Random:
-    """Get the current random state."""
-    return SeedManager().get_random_state()
+def get_random_state() -> Any:
+    """Returns the current random state."""
+    return random.getstate()
 
-def set_random_state(seed: int):
-    """Set the random state."""
-    set_global_seed(seed)
+def set_random_state(state: Any):
+    """Sets the random state."""
+    random.setstate(state)
 
 def main():
-    """Test seed management."""
+    """CLI for testing seed functionality."""
+    print(f"Default seed: {_global_seed_manager.seed}")
     set_global_seed(123)
-    print(f"Seed: {get_seed_manager().get_seed()}")
-    print(f"Random sample: {sample_with_seed([1,2,3,4,5], 3)}")
-    # Reset seed
-    set_global_seed(123)
-    print(f"Random sample again: {sample_with_seed([1,2,3,4,5], 3)}")
+    print(f"New seed: {_global_seed_manager.seed}")
+    print(f"Random number: {random.random()}")
 
 if __name__ == "__main__":
     main()

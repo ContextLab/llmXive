@@ -5,14 +5,6 @@ T003:
     \ sections, satisfying the requirement to provide project\u2011specific linting\
     \ and formatting settings (the separate `ruff.toml` and `black.toml` files are\
     \ optional)."
-T017:
-  c: false
-  h: 7825ec78a785cbbded8c3208226c5793236fa83298d7387edb37a1fc2ab02f63
-  r: "The `code/data/save_labeled_dataset.py` file is truncated (ends abruptly at\
-    \ `pr_i`) and does not contain a complete implementation that writes the CSV,\
-    \ and the required output file `data/processed/prs_labeled.csv` is absent. The\
-    \ task\u2019s core artifact \u2013 a functioning script that produces the labeled\
-    \ CSV with the specified columns \u2013 is therefore not present."
 T019a:
   c: false
   h: 55cf842a59b805eeefaa1ae6dd7ac2deee86e325a005638758867ee338bd25ed
@@ -21,13 +13,6 @@ T019a:
     sample calculation, and the file is truncated before the sample\u2011selection,\
     \ checklist, and JSON\u2011logging code. Moreover, the required output file `data/audit/manual_audit_results.json`\
     \ does not exist."
-T019b:
-  c: false
-  h: a9dd1202be58a4c719ef8cef68538c829fde30b6d31287357c85946233ed2daa
-  r: "The `manual_validation.py` file does not contain a concrete error\u2011rate\
-    \ calculation, JSON write, or ValueError raise (the shown code has placeholders\
-    \ and is truncated), and the required output file `data/audit/error_rate.json`\
-    \ is absent. The task\u2019s core artifact is missing."
 T022:
   c: false
   h: 0eb9db584eb640524bf3266b693f4fe062755f44f2efa731e71632823c3ab80b
@@ -49,3 +34,12 @@ T030b:
     \ required test `test_histogram_generation` (which should assert that `reports/figures/histograms.pdf`\
     \ exists) is absent, and the `histograms.pdf` file itself is missing. The task\u2019\
     s specific artifact and test are not present."
+T033a:
+  c: false
+  h: c769f2ec35ca85e2cd1bc4deb68ff8ee98aa94ae4cf0df3270067a952cba6e0e
+  r: "The required dataset `data/processed/prs_labeled.csv` is absent, so the script\
+    \ cannot compute metrics on PR diffs. Moreover, `code/analysis/complexity.py`\
+    \ only defines helper functions (e.g., `calculate_loc`, `calculate_cyclomatic_complexity`)\
+    \ and does not contain code that reads the CSV and applies these calculations\
+    \ to the PR diffs. Both the essential input file and the end\u2011to\u2011end\
+    \ processing logic are missing."
