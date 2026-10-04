@@ -16,9 +16,10 @@ import pytest
 import numpy as np
 
 # Path to the reference data file
+# Adjusted path relative to project root structure: tests/test_reference_validation.py
+# -> tests/data/reference_values.csv
 REFERENCE_FILE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
-    "tests",
     "data",
     "reference_values.csv"
 )

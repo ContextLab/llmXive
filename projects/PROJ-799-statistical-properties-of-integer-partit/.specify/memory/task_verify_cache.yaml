@@ -28,11 +28,10 @@ T009:
     \ is no contract test verifying that `p_{\\mathcal{P}}(n)` matches the reference\
     \ CSV for all n\u202F=\u202F1\u2026100. The reference CSV is present, but without\
     \ the test script the task is not fulfilled."
-T016b:
+T031:
   c: false
-  h: 466f5d63ab5d31ffaaac1f8aa400ac5fd0d5e6678a34c520720a86a04eb81b17
-  r: "The required `data/processed/features.csv` file is missing, so the validation\
-    \ tests cannot run on real data. Moreover, the test suite does not contain a function\
-    \ named `test_features_non_null` as the task explicitly requests; it only provides\
-    \ separate column\u2011specific checks. Both the missing CSV and the absent correctly\u2011\
-    named test mean the task\u2019s requirement is not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No file `generate_partitions.py` with a new docstring is present; the claim\
+    \ provides no code or documentation showing the required explanation of the generating\
+    \ function \\(\\prod_{p\\in\\mathbb{P}}(1+q^{p})\\) and its distinction from \\\
+    (\\prod (1-q^{k})^{-1}\\). The task\u2019s artifact (the updated script) is missing."

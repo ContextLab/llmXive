@@ -31,7 +31,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Note**: Tasks T004 and T005 are independent and can run in parallel.
 
-- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. Use a boolean array for memory optimization. **Output**: Save the list of primes to `data/cache/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000. **Data Hygiene**: Generate SHA-256 checksum of the output file using `hashlib.sha256` and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.primes_sieve` (format: hex string). Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp. **Note**: `data/cache/primes.npy` is a **cache**; it MUST be regenerated on every fresh run if the sieve algorithm changes. Do not treat as a static artifact.
+- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. [UNRESOLVED-CLAIM: c_b721c6b7 — status=not_enough_info] Use a boolean array for memory optimization. **Output**: Save the list of primes to `data/cache/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000. **Data Hygiene**: Generate SHA-256 checksum of the output file using `hashlib.sha256` and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.primes_sieve` (format: hex string). Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp. **Note**: `data/cache/primes.npy` is a **cache**; it MUST be regenerated on every fresh run if the sieve algorithm changes. Do not treat as a static artifact.
 - [X] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
 - [X] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
 - [X] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
@@ -57,7 +57,7 @@
 
 ### Tests for User Story 1
 
-- [X] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`.
+- [X] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`. <!-- FAILED: unspecified -->
 - [X] T010b [P] [US1] Time-budget test: Verify that the DP generation phase completes within 1.25 hours (derived from SC-004 total time budget of 6h minus 1.25h buffer for US2 and US3) in `tests/test_pipeline.py`. **Implementation**: Use `pytest-timeout` decorator to enforce the 1.25-hour limit. Reference SC-004 for total budget context. **Requires T011 completion.** **Fallback Strategy**: If the 1.25h timeout is approached, the script must automatically downsample the range (e.g., to [deferred]) and log a warning to ensure SC-004 (6h total) is met. **Verification**: The test must verify the fallback strategy is triggered and logged correctly if the timeout is breached.
 - [X] T010c [P] [US2] Time-budget test: Verify that the feature engineering and modeling phase (US2) completes within 3.0 hours (derived from SC-004 total 6h minus 1.25h DP and 1.75h buffer for US3) in `tests/test_pipeline.py`.
 - [X] T010d [P] [US3] Time-budget test: Verify that the visualization phase (US3) completes within 0.75 hours (derived from SC-004 total 6h minus 1.25h DP and 3.0h US2) in `tests/test_pipeline.py`.
@@ -73,15 +73,15 @@
  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by **excluding them from the main output and writing them to a separate file `data/raw/partitions_excluded.csv` with columns `n`, `reason_code`**.
  - Calculate $Q_{as}(n)$ using the distinct-partition variant of Meinardus' theorem as defined in the plan.
  - Clamp $Q_{as}(n)$ to a small positive lower bound to prevent log(0).
- - **Generate data for the full range of n values up to 50,000. **
+ - **Generate data for the full range of n values up to 50,000. [UNRESOLVED-CLAIM: c_db6ecfc7 — status=not_enough_info] **
  - **Include `--n-max` argument using `argparse` with a default set to 50000. Log the chosen `n_max` to stdout at runtime.**
  - **Load reference values from `tests/data/reference_values.csv` (produced by T008) for validation during execution, instead of hardcoding.**
  - **Include inline validation logic to exclude rows where `p_P(n) <= 0` or `Q_as(n) <= 0` before any log-residual calculation.**
  - **Export data to `data/raw/partitions_raw.csv` with columns: `n`, `p_P(n)`, `Q_as(n)`.**
  - **Generate SHA-256 checksum of the output file and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.generate_partitions_raw` (format: hex string).**
- - **Verify memory usage < 6.5 GB during execution.**
+ - **Verify memory usage < 6.5 GB during execution. **
  - **Requires T004, T005, T013, T018, T040, T041, T044 to complete.**
-- [X] T031 [US1] Add documentation to `generate_partitions.py`: Add a docstring explaining the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$ and explicitly distinguishing it from the unrestricted partition generating function $\prod (1-q^k)^{-1}$. **Requires T011 to complete.**
+- [ ] T031 [US1] Add documentation to `generate_partitions.py`: Add a docstring explaining the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$ and explicitly distinguishing it from the unrestricted partition generating function $\prod (1-q^k)^{-1}$. **Requires T011 to complete.**
 
 **Checkpoint**: US1 functional. Data generation complete.
 
@@ -115,7 +115,7 @@
  - Save `data/processed/features.csv`.
  - **Verify** that 'distance_to_nearest_prime', 'prime_gap_size', 'sin_log_n', and 'cos_log_n' are present and non-null.
  - **Requires T011 completion.**
-- [X] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'prime_gap_size', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.**
+- [ ] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'prime_gap_size', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.** <!-- FAILED: unspecified -->
 - [X] T017a [US2] Implement `code/regression_model.py` (Full Model):
  - Fit Generalized Additive Model (GAM) using `statsmodels.gam.GLM` with formula `R ~ s(log(n)) + sin(log(n)) + cos(log(n))` for density terms.
  - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005. This requirement applies regardless of whether GAM or Linear Regression is chosen. Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.**
@@ -180,7 +180,7 @@
 - [X] T026 [US3] Implement `code/visualize_results.py`:
  - Generate residual vs. fitted plot to check for homoscedasticity.
  - **Requires T024 completion.**
-- [X] T035 [US3] Implement `code/visualize_results.py`: Generate a specific plot comparing the residual trend $R(n)$ against the local prime gap size. This visualization will explicitly test the hypothesis that prime gaps (the 'holes') drive the deviation from the unrestricted partition asymptotic, as described in the spec's Edge Cases and US2. **Use the 'prime_gap_size' column from `data/processed/features.csv`.** **Requires T024 completion.**
+- [ ] T035 [US3] Implement `code/visualize_results.py`: Generate a specific plot comparing the residual trend $R(n)$ against the local prime gap size. This visualization will explicitly test the hypothesis that prime gaps (the 'holes') drive the deviation from the unrestricted partition asymptotic, as described in the spec's Edge Cases and US2. **Use the 'prime_gap_size' column from `data/processed/features.csv`.** **Requires T024 completion.**
 - [X] T039 [P] [US3] Run Full Pipeline: Implement `code/run_full_pipeline.py` to execute the entire sequence (US1 -> US2 -> US3) in a single run. **Measure and report the total execution time to verify SC-004 (6-hour limit).** **Execute command: `python code/run_full_pipeline.py --n-max <max_sample_limit>`**. **This task replaces the reliance on summing individual phase times.** **Requires T011, T016a, T024, T025, T026, T035, T017d_new, T017e_new completion.**
 
 **Checkpoint**: US3 functional. All visualizations and CV metrics ready.
@@ -316,3 +316,7 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 - **Revision Concern**: T013 dependencies simplified.
 - **Revision Concern**: T039 dependencies updated to include T017d_new and T017e_new.
 - **Revision Concern**: The 'Phase 6' section has been removed to avoid duplication with Phase 2.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T045 Reconcile run-book vs implementation for `code/regression_analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/regression_analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T046 Reconcile run-book vs implementation for `code/validation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/validation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
