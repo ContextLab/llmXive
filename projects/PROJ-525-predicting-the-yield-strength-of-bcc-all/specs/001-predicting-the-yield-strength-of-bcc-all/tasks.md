@@ -63,7 +63,7 @@ Examples of foundational tasks (adjust based on plan.md structure):
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database using canonical DOI resolver (e.g., `doi.org/10.1038/s41597-020-00768-9`) and save to `data/raw/mpea_raw.xlsx`; verify SHA-256 checksum
+- [X] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database using canonical DOI resolver (e.,g., `doi.org/10.1038/s41597-020-00768-9`) and save to `data/raw/mpea_raw.xlsx`; verify SHA-256 checksum
 - [X] T014 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude non-BCC phases and null yield strength
 - [X] T015 [US1] Implement composition normalization in `code/data_ingestion.py` to ensure rows sum to 1.0 with logging
 - [X] T016 [US1] [MANDATORY] Implement logic to average duplicate compositions or select median, logging the method used (US-4 requirement); MUST be executed
@@ -99,7 +99,7 @@ Examples of foundational tasks (adjust based on plan.md structure):
 - [X] T027a [US2] Implement concatenation of ILR-transformed features and scalar descriptors into a single combined feature matrix (runs AFTER T026, T024)
 - [X] T027c [US2] Populate `ilr_transformed_features` in the `CompositionalDescriptor` data class with the output from T026
 - [X] T028 [US2] Implement pre-analysis independence check to detect circular validation between thermodynamic parameters and yield strength (runs BEFORE T029)
-- [X] T029a [US2] [DEPENDS ON T028] Implement Pre-Filter Dimensionality Reduction (PCA) on the combined feature matrix. **Target variance threshold: (95% of variance retained)**. Output: `data/processed/features_pca.csv`. (Source: plan.md Complexity Tracking)
+- [X] T029a [US2] [DEPENDS ON T028] Implement Pre-Filter Dimensionality Reduction (PCA) on the combined feature matrix. **Target variance threshold: (95% of variance retained) **. Output: `data/processed/features_pca.csv`. (Source: plan.md Complexity Tracking)
 - [X] T029b [US2] [DEPENDS ON T029a] Implement Residualization: Regress scalar descriptors against ILR coordinates using `LinearRegression` and extract residuals to mitigate multicollinearity. Output: `data/processed/features_residualized.csv`. (Source: plan.md Complexity Tracking)
 - [X] T029c [US2] [DEPENDS ON T029b] Apply L1 regularization or Recursive Feature Elimination (RFE) on the **residualized features (from T029b)** to select the most predictive subset (FR-003.2). Output: `data/processed/features_selected.csv`.
 - [X] T032 [US2] Save engineered dataset to `data/processed/features_engineered.csv` with full traceability log
@@ -118,7 +118,7 @@ Examples of foundational tasks (adjust based on plan.md structure):
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T033_test [P] [US3] Unit test for stratified split logic in `tests/unit/test_modeling.py`
-- [X] T034_test [P] [US3] Unit test for 5-fold cross-validation implementation in `tests/unit/test_modeling.py`
+- [ ] T034_test [P] [US3] Unit test for 5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold cross-validation implementation in `tests/unit/test_modeling.py`
 - [X] T035_test [P] [US3] Unit test for bootstrap confidence interval calculation in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3
@@ -161,8 +161,8 @@ Examples of foundational tasks (adjust based on plan.md structure):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -228,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-  - Developer A: User Story 1
-  - Developer B: User Story 2
-  - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -253,3 +253,4 @@ With multiple developers:
 - **Note on T023b_test**: Removed hardcoded placeholder values. Expected values must be calculated dynamically from the periodic table data loaded in T023.
 - **Note on T029a**: Updated to specify a concrete variance threshold (0.95) to avoid ambiguity.
 - **Note on T052**: Added to explicitly capture and report total pipeline runtime for SC-004.
+- [ ] T053 [P] [US3] Implement a post-hoc power analysis in `code/modeling.py` to calculate the statistical power of the observed effect size (R²) given the sample size (N) and alpha level (0.05), and log the result to `data/logs/power_analysis.log` to validate the robustness of conclusions for small N.

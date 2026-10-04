@@ -1,3 +1,7 @@
+"""
+Configuration utilities for the project.
+Provides checksum computation, directory management, and configuration loading.
+"""
 import os
 from pathlib import Path
 import hashlib
@@ -5,65 +9,119 @@ import json
 from typing import List, Tuple, Dict, Any
 import random
 
-def compute_file_checksum(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
-def compute_directory_checksum(dir_path: Path) -> str:
-    """Compute a composite checksum for a directory."""
-    hasher = hashlib.sha256()
-    files = sorted([str(f.relative_to(dir_path)) for f in dir_path.rglob("*") if f.is_file()])
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Compute the SHA-256 checksum of a file.
     
-    for rel_path in files:
-        full_path = dir_path / rel_path
-        file_hash = compute_file_checksum(full_path)
-        hasher.update(f"{rel_path}:{file_hash}".encode('utf-8'))
+    Args:
+        file_path: Path to the file to checksum
+        algorithm: Hash algorithm to use (default: sha256)
+    
+    Returns:
+        Hexadecimal string of the checksum
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    hasher = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+def compute_directory_checksum(directory_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Compute a combined checksum for all files in a directory.
+    
+    Args:
+        directory_path: Path to the directory
+        algorithm: Hash algorithm to use
+    
+    Returns:
+        Hexadecimal string of the combined checksum
+    """
+    if not directory_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory_path}")
+    
+    hasher = hashlib.new(algorithm)
+    
+    # Sort files for consistent ordering
+    files = sorted([f for f in directory_path.rglob('*') if f.is_file() and f.name != ".gitkeep"])
+    
+    for file_path in files:
+        rel_path = file_path.relative_to(directory_path)
+        hasher.update(str(rel_path).encode())
+        file_hash = compute_file_checksum(file_path, algorithm)
+        hasher.update(file_hash.encode())
     
     return hasher.hexdigest()
 
 def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
-    """Save checksums to a JSON file."""
+    """
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums: Dictionary mapping file paths to checksums
+        output_path: Path to save the checksums file
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(checksums, f, indent=2)
 
 def load_checksums(input_path: Path) -> Dict[str, str]:
-    """Load checksums from a JSON file."""
+    """
+    Load checksums from a JSON file.
+    
+    Args:
+        input_path: Path to the checksums file
+    
+    Returns:
+        Dictionary mapping file paths to checksums
+    """
     if not input_path.exists():
-        return {}
+        raise FileNotFoundError(f"Checksums file not found: {input_path}")
+    
     with open(input_path, 'r') as f:
         return json.load(f)
 
-def verify_checksums(stored_checksums: Dict[str, str], base_path: Path) -> Tuple[bool, List[str]]:
+def verify_checksums(checksums_file: Path, base_path: Path) -> bool:
     """
-    Verify checksums against current file system state.
-    Returns (is_valid, list_of_failed_files).
+    Verify files against stored checksums.
+    
+    Args:
+        checksums_file: Path to the checksums file
+        base_path: Base path for relative file paths
+    
+    Returns:
+        True if all checksums verify, False otherwise
     """
-    failed_files = []
-    for rel_path, expected_hash in stored_checksums.items():
-        full_path = base_path / rel_path
-        if not full_path.exists():
-            failed_files.append(rel_path)
+    checksums = load_checksums(checksums_file)
+    all_valid = True
+    
+    for rel_path, expected_checksum in checksums.items():
+        file_path = base_path / rel_path
+        if not file_path.exists():
+            print(f"MISSING: {rel_path}")
+            all_valid = False
             continue
         
-        actual_hash = compute_file_checksum(full_path)
-        if actual_hash != expected_hash:
-            failed_files.append(rel_path)
+        actual_checksum = compute_file_checksum(file_path)
+        if actual_checksum != expected_checksum:
+            print(f"INVALID: {rel_path}")
+            print(f"  Expected: {expected_checksum}")
+            print(f"  Actual:   {actual_checksum}")
+            all_valid = False
+        else:
+            print(f"OK: {rel_path}")
     
-    return len(failed_files) == 0, failed_files
+    return all_valid
 
-# Helper to ensure directories exist if needed by other modules
-def ensure_dirs(base_path: Path = None) -> None:
-    """Ensure standard project directories exist."""
-    if base_path is None:
-        base_path = Path.cwd()
+def ensure_dirs(*paths: Path) -> None:
+    """
+    Ensure directories exist, creating them if necessary.
     
-    dirs = [
-        "data/raw", "data/processed", "data/logs",
-        "code", "tests", "reports", "state"
-    ]
-    for d in dirs:
-        (base_path / d).mkdir(parents=True, exist_ok=True)
+    Args:
+        *paths: Variable number of path objects to ensure
+    """
+    for path in paths:
+        path.mkdir(parents=True, exist_ok=True)

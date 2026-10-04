@@ -1,72 +1,57 @@
 """
-Initialization script for T002: Python 3.11 Project Setup.
-
-This script validates the project structure and dependencies.
-It is intended to be run after `pip install -r requirements.txt`.
+Project Initialization Script for T002.
+Verifies Python version and checks for required dependencies.
 """
 import sys
 import subprocess
 import json
 from pathlib import Path
 
+REQUIRED_PACKAGES = [
+    "numpy", "pandas", "scipy", "scikit-learn",
+    "periodictable", "pymatgen", "skbio", "requests", "pyyaml"
+]
+
 def check_python_version():
-    """Ensure Python 3.11 is being used."""
-    version = sys.version_info
-    if version.major != 3 or version.minor != 11:
-        print(f"ERROR: Python 3.11 is required. Found {version.major}.{version.minor}")
+    """Ensure Python 3.11+ is being used."""
+    if sys.version_info < (3, 11):
+        print(f"ERROR: Python 3.11+ is required. Current version: {sys.version}")
         sys.exit(1)
-    print(f"✓ Python version check passed: {version.major}.{version.minor}.{version.micro}")
+    print(f"✓ Python version check passed: {sys.version}")
 
 def check_dependencies():
-    """Verify required packages are installed and importable."""
-    required = [
-        "numpy", "pandas", "scipy", "scikit-learn", 
-        "periodictable", "pymatgen", "skbio", "requests"
-    ]
+    """Verify all required packages are installed."""
     missing = []
-    for pkg in required:
+    for package in REQUIRED_PACKAGES:
         try:
-            __import__(pkg)
-            print(f"✓ {pkg} imported successfully")
+            __import__(package)
+            print(f"✓ {package} found")
         except ImportError:
-            missing.append(pkg)
-            print(f"✗ {pkg} NOT found")
-    
+            missing.append(package)
+            print(f"✗ {package} NOT found")
+
     if missing:
-        print(f"\nERROR: Missing dependencies: {missing}")
+        print(f"\nERROR: Missing dependencies: {', '.join(missing)}")
         print("Run: pip install -r requirements.txt")
         sys.exit(1)
-    print("✓ All core dependencies verified")
+    print("\n✓ All dependencies verified.")
 
 def check_dev_tools():
-    """Verify dev tools (ruff, black, pytest) are available."""
-    tools = ["ruff", "black", "pytest"]
-    missing = []
+    """Check for essential development tools (optional but recommended)."""
+    tools = ["git", "python3"]
     for tool in tools:
         try:
-            subprocess.run([tool, "--version"], capture_output=True, check=True)
-            print(f"✓ {tool} is installed")
+            subprocess.run([tool, "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            print(f"✓ {tool} found")
         except (subprocess.CalledProcessError, FileNotFoundError):
-            missing.append(tool)
-            print(f"✗ {tool} not found")
-    
-    if missing:
-        print(f"\nWARNING: Dev tools missing: {missing}")
-        print("Run: pip install -r requirements.txt (dev extras)")
-    else:
-        print("✓ Dev tools verified")
+            print(f"⚠ {tool} not found in PATH")
 
 def main():
-    print("Initializing PROJ-525 Project Environment...")
-    print("-" * 40)
-    
+    print("=== Project Initialization Check (T002) ===")
     check_python_version()
     check_dependencies()
     check_dev_tools()
-    
-    print("-" * 40)
-    print("Project initialization complete.")
-    print("Next steps: Run 'python code/01_download.py' to fetch data.")
+    print("=== Initialization Check Complete ===")
 
 if __name__ == "__main__":
     main()

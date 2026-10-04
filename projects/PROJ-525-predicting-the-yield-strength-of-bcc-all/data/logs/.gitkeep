@@ -1,1 +1,2 @@
-# Placeholder to ensure directory is tracked by git
+# This file ensures the data/logs directory is tracked by git.
+# Log files (e.g., rejected entries, pipeline runtime) will be stored here.

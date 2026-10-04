@@ -1,1 +1,2 @@
-# Placeholder to ensure directory is tracked by git
+# This file ensures the data/raw directory is tracked by git.
+# Raw data files (e.g., MPEA database) will be downloaded here.

@@ -1,147 +1,132 @@
 import os
-import json
+import sys
 import tempfile
+import json
 from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
+import logging
 
-# We will test the logic by mocking the environment paths
-# since the real paths depend on the project root structure.
+# Add parent directory to path to import code modules
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-@pytest.fixture
-def mock_env_paths(tmp_path):
-    """Fixture to mock environment paths to a temporary directory."""
-    data_root = tmp_path / "data"
-    raw = data_root / "raw"
-    processed = data_root / "processed"
-    logs = data_root / "logs"
-    
-    return {
-        "data": data_root,
-        "raw": raw,
-        "processed": processed,
-        "logs": logs
-    }
+from setup_data_dirs import create_gitkeep, setup_data_directories, generate_checksums, verify_checksums
 
 @pytest.fixture
-def setup_module(mock_env_paths):
-    """Setup the module under test with mocked paths."""
-    with patch('code.setup_data_dirs.get_data_path', return_value=mock_env_paths["data"]), \
-         patch('code.setup_data_dirs.get_raw_data_path', return_value=mock_env_paths["raw"]), \
-         patch('code.setup_data_dirs.get_processed_data_path', return_value=mock_env_paths["processed"]), \
-         patch('code.setup_data_dirs.get_logs_path', return_value=mock_env_paths["logs"]):
-        
-        # Reload the module to pick up the mocked paths if it were already imported
-        # In a real test runner, we might need to use importlib.reload
-        import code.setup_data_dirs
-        import importlib
-        importlib.reload(code.setup_data_dirs)
-        yield code.setup_data_dirs
+def temp_project_root():
+    """Create a temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        root = Path(tmp_dir)
+        # Create the expected structure
+        (root / "data").mkdir()
+        (root / "code").mkdir()
+        yield root
 
-def test_create_gitkeep(setup_module, mock_env_paths):
-    """Test that .gitkeep files are created in specified directories."""
-    target_dir = mock_env_paths["raw"]
+def test_create_gitkeep(temp_project_root):
+    """Test that .gitkeep is created in a directory."""
+    test_dir = temp_project_root / "data" / "raw"
+    test_dir.mkdir()
     
-    # Ensure directory exists
-    target_dir.mkdir(parents=True, exist_ok=True)
+    create_gitkeep(test_dir)
     
-    setup_module.create_gitkeep(target_dir)
-    
-    gitkeep_file = target_dir / ".gitkeep"
-    assert gitkeep_file.exists(), ".gitkeep file should be created"
-    assert gitkeep_file.is_file(), ".gitkeep should be a file"
+    assert (test_dir / ".gitkeep").exists()
 
-def test_setup_data_directories(setup_module, mock_env_paths):
-    """Test that setup_data_directories creates all required directories and .gitkeep files."""
-    setup_module.setup_data_directories()
+def test_create_gitkeep_skips_existing(temp_project_root):
+    """Test that .gitkeep is not recreated if it exists."""
+    test_dir = temp_project_root / "data" / "raw"
+    test_dir.mkdir()
+    gitkeep = test_dir / ".gitkeep"
+    gitkeep.write_text("existing content")
     
-    # Check that all directories exist
-    assert mock_env_paths["data"].exists(), "data directory should exist"
-    assert mock_env_paths["raw"].exists(), "raw directory should exist"
-    assert mock_env_paths["processed"].exists(), "processed directory should exist"
-    assert mock_env_paths["logs"].exists(), "logs directory should exist"
+    create_gitkeep(test_dir)
     
-    # Check for .gitkeep files
-    for dir_path in [mock_env_paths["data"], mock_env_paths["raw"], 
-                     mock_env_paths["processed"], mock_env_paths["logs"]]:
-        gitkeep = dir_path / ".gitkeep"
-        assert gitkeep.exists(), f".gitkeep should exist in {dir_path}"
+    assert gitkeep.exists()
+    assert gitkeep.read_text() == "existing content"
 
-def test_generate_checksums(setup_module, mock_env_paths):
-    """Test that generate_checksums creates a valid checksums.json file."""
-    # Create a dummy file
-    dummy_file = mock_env_paths["raw"] / "test.txt"
-    dummy_file.write_text("test content")
+def test_setup_data_directories(temp_project_root):
+    """Test that all required directories are created with .gitkeep files."""
+    setup_data_directories(temp_project_root)
     
-    setup_module.generate_checksums()
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/logs",
+        "data/figures"
+    ]
     
-    checksum_file = mock_env_paths["data"] / "checksums.json"
-    assert checksum_file.exists(), "checksums.json should be created"
-    
-    with open(checksum_file) as f:
-        checksums = json.load(f)
-    
-    assert "raw/test.txt" in checksums, "Checksum for test.txt should be present"
-    assert checksums["raw/test.txt"], "Checksum value should not be empty"
+    for dir_path in required_dirs:
+        full_path = temp_project_root / dir_path
+        assert full_path.exists(), f"Directory {dir_path} was not created"
+        assert (full_path / ".gitkeep").exists(), f".gitkeep missing in {dir_path}"
 
-def test_verify_checksums_success(setup_module, mock_env_paths):
-    """Test verify_checksums returns True when files are intact."""
-    # Create a dummy file
-    dummy_file = mock_env_paths["raw"] / "verify_test.txt"
-    dummy_file.write_text("verify content")
+def test_generate_checksums_empty(temp_project_root):
+    """Test checksum generation on empty directories."""
+    setup_data_directories(temp_project_root)
+    output_path = temp_project_root / "data" / "checksums.json"
     
-    # Generate checksums first
-    setup_module.generate_checksums()
+    generate_checksums(temp_project_root / "data", output_path)
     
-    # Verify should return True
-    result = setup_module.verify_checksums()
-    assert result is True, "Verification should pass for intact files"
+    assert output_path.exists()
+    with open(output_path) as f:
+        data = json.load(f)
+    # Should be empty or only contain .gitkeep if logic included it (current logic excludes it)
+    assert len(data) == 0
 
-def test_verify_checksums_failure(setup_module, mock_env_paths):
-    """Test verify_checksums returns False when a file is modified."""
-    # Create a dummy file
-    dummy_file = mock_env_paths["raw"] / "tamper_test.txt"
-    dummy_file.write_text("original content")
+def test_generate_checksums_with_files(temp_project_root):
+    """Test checksum generation with actual files."""
+    setup_data_directories(temp_project_root)
     
-    # Generate checksums
-    setup_module.generate_checksums()
+    # Create a test file
+    test_file = temp_project_root / "data" / "raw" / "test.txt"
+    test_file.write_text("test content")
     
-    # Tamper with the file
-    dummy_file.write_text("tampered content")
+    output_path = temp_project_root / "data" / "checksums.json"
+    generate_checksums(temp_project_root / "data", output_path)
     
-    # Verify should return False
-    result = setup_module.verify_checksums()
-    assert result is False, "Verification should fail for tampered files"
+    assert output_path.exists()
+    with open(output_path) as f:
+        data = json.load(f)
+    
+    assert "raw/test.txt" in data
+    assert len(data["raw/test.txt"]) == 64  # SHA-256 hex length
 
-def test_main_success(setup_module, mock_env_paths, capsys):
-    """Test that main() returns 0 on success."""
-    # Create a dummy file so checksums are generated
-    (mock_env_paths["raw"] / "main_test.txt").write_text("test")
+def test_verify_checksums_success(temp_project_root):
+    """Test checksum verification when files match."""
+    setup_data_directories(temp_project_root)
     
-    exit_code = setup_module.main()
+    test_file = temp_project_root / "data" / "raw" / "test.txt"
+    test_file.write_text("test content")
     
-    assert exit_code == 0, "Main should return 0 on success"
-    captured = capsys.readouterr()
-    assert "completed successfully" in captured.out
+    output_path = temp_project_root / "data" / "checksums.json"
+    generate_checksums(temp_project_root / "data", output_path)
+    
+    assert verify_checksums(temp_project_root / "data", output_path) is True
 
-def test_main_failure_on_verify(setup_module, mock_env_paths, capsys):
-    """Test that main() returns 1 if verification fails."""
-    # Create a file and generate checksums
-    dummy_file = mock_env_paths["raw"] / "fail_test.txt"
-    dummy_file.write_text("content")
-    setup_module.generate_checksums()
+def test_verify_checksums_failure(temp_project_root):
+    """Test checksum verification when files are modified."""
+    setup_data_directories(temp_project_root)
     
-    # Tamper the file
-    dummy_file.write_text("tampered")
+    test_file = temp_project_root / "data" / "raw" / "test.txt"
+    test_file.write_text("test content")
     
-    # Mock verify_checksums to return False to simulate failure without needing complex state
-    # Actually, let's just let it run; the tampering above should cause verify_checksums to return False
-    # inside main() if the logic is correct.
+    output_path = temp_project_root / "data" / "checksums.json"
+    generate_checksums(temp_project_root / "data", output_path)
     
-    exit_code = setup_module.main()
+    # Modify file
+    test_file.write_text("modified content")
     
-    # The main function checks the return of verify_checksums
-    # If verify_checksums returns False, main should return 1
-    assert exit_code == 1, "Main should return 1 if verification fails"
-    captured = capsys.readouterr()
-    assert "verification failed" in captured.out.lower() or "failed" in captured.out.lower()
+    assert verify_checksums(temp_project_root / "data", output_path) is False
+
+def test_verify_checksums_missing_file(temp_project_root):
+    """Test checksum verification when a file is missing."""
+    setup_data_directories(temp_project_root)
+    
+    test_file = temp_project_root / "data" / "raw" / "test.txt"
+    test_file.write_text("test content")
+    
+    output_path = temp_project_root / "data" / "checksums.json"
+    generate_checksums(temp_project_root / "data", output_path)
+    
+    # Remove file
+    test_file.unlink()
+    
+    assert verify_checksums(temp_project_root / "data", output_path) is False

@@ -1,1 +1,2 @@
-# Placeholder to ensure directory is tracked by git
+# This file ensures the data/processed directory is tracked by git.
+# Processed data (e.g., filtered BCC alloys, engineered features) will be stored here.

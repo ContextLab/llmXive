@@ -1,1 +1,2 @@
-# Reports directory
+# This file ensures the reports directory is tracked by git.
+# Model comparison reports and analysis outputs will be stored here.

@@ -1,0 +1,2 @@
+# This file ensures the state directory is tracked by git.
+# Pipeline state and traceability YAML files will be stored here.

@@ -1,13 +1,13 @@
-# PROJ-525: Predicting Yield Strength of BCC Alloys
+# Predicting Yield Strength of BCC Alloys
 
-Automated science pipeline for predicting yield strength of Body-Centered Cubic (BCC) alloys.
+This project implements an automated scientific pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using machine learning.
 
 ## Prerequisites
 
 - Python 3.11+
 - pip
 
-## Installation
+## Setup
 
 1. Create a virtual environment:
  ```bash
@@ -17,22 +17,45 @@ Automated science pipeline for predicting yield strength of Body-Centered Cubic 
 
 2. Install dependencies:
  ```bash
- pip install -r requirements.txt
+ pip install -e.
+ pip install -e ".[dev]" # For development tools
  ```
 
-3. Verify installation:
+3. Install pre-commit hooks (optional but recommended):
  ```bash
- python -c "import numpy; import pandas; import scikit_learn; import periodictable; import skbio; import scipy; import requests; print('All dependencies installed successfully.')"
+ pip install pre-commit
+ pre-commit install
  ```
+
+## Linting and Formatting
+
+This project uses `ruff` for linting and `black` for code formatting.
+
+### Check Mode (CI/CD)
+Run the linters to check for issues without modifying files:
+```bash
+python -m code.lint_format check
+```
+
+### Fix Mode (Local Development)
+Automatically fix formatting and linting issues:
+```bash
+python -m code.lint_format fix
+```
+
+Alternatively, use pre-commit hooks:
+```bash
+pre-commit run --all-files
+```
 
 ## Project Structure
 
 - `code/`: Source code modules
-- `data/`: Raw and processed data
+- `data/`: Data storage (raw, processed, logs)
 - `tests/`: Unit and integration tests
-- `reports/`: Generated reports and visualizations
+- `reports/`: Generated reports and metrics
 - `state/`: Pipeline state tracking
 
-## Usage
+## License
 
-Refer to `quickstart.md` for execution instructions.
+MIT License

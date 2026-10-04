@@ -1,147 +1,102 @@
 """
-Utility module for file and directory checksum operations.
-Provides CLI interface for checksum management.
+Checksum utilities for data integrity verification.
+Provides functions for computing and verifying file/directory checksums.
 """
 import sys
 import argparse
 from pathlib import Path
 import json
-
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from config import compute_file_checksum, compute_directory_checksum, save_checksums, load_checksums, verify_checksums
 from utils import setup_logger, PipelineError
 
-logger = setup_logger(__name__)
-
-def compute_checksums_for_directory(directory: Path, output_file: Path = None) -> list:
+def compute_checksums_for_directory(directory_path: Path) -> dict:
     """
-    Compute checksums for all files and subdirectories in a directory.
+    Compute checksums for all files in a directory.
     
     Args:
-        directory: Path to the directory to process
-        output_file: Optional path to save checksums to JSON file
+        directory_path: Path to the directory to checksum
         
     Returns:
-        List of checksum dictionaries
+        Dictionary mapping relative file paths to their SHA-256 checksums
     """
-    if not directory.exists():
-        raise PipelineError(f"Directory does not exist: {directory}")
+    logger = setup_logger("checksum_utils")
+    logger.info(f"Computing checksums for {directory_path}")
     
-    checksums = []
+    if not directory_path.exists():
+        raise PipelineError(f"Directory does not exist: {directory_path}")
     
-    # Process files
-    for item in sorted(directory.rglob("*")):
-        if item.is_file():
-            checksum = compute_file_checksum(item)
-            checksums.append({
-                "path": str(item.relative_to(project_root)),
-                "checksum": checksum,
-                "type": "file"
-            })
-            logger.debug(f"Computed file checksum: {item.name}")
-        elif item.is_dir():
-            # Skip directories with .gitkeep only (empty directories)
-            gitkeep = item / ".gitkeep"
-            if not (item.exists() and not any(f for f in item.iterdir() if f != gitkeep)):
-                checksum = compute_directory_checksum(item)
-                checksums.append({
-                    "path": str(item.relative_to(project_root)),
-                    "checksum": checksum,
-                    "type": "directory"
-                })
-                logger.debug(f"Computed directory checksum: {item.name}")
-    
-    if output_file:
-        save_checksums(checksums, output_file)
-        logger.info(f"Saved {len(checksums)} checksums to {output_file}")
+    checksums = {}
+    for root, dirs, files in os.walk(directory_path):
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        for filename in files:
+            if filename == ".gitkeep":
+                continue
+            filepath = Path(root) / filename
+            try:
+                checksum = compute_file_checksum(filepath)
+                rel_path = filepath.relative_to(directory_path)
+                checksums[str(rel_path)] = checksum
+            except Exception as e:
+                logger.warning(f"Failed to checksum {filepath}: {e}")
     
     return checksums
 
-def verify_all_checksums(checksum_file: Path) -> bool:
+def verify_all_checksums(directory_path: Path, checksum_file: Path) -> bool:
     """
-    Verify all checksums against a stored checksum file.
+    Verify all files in a directory against stored checksums.
     
     Args:
-        checksum_file: Path to the JSON file containing checksums
+        directory_path: Path to the directory to verify
+        checksum_file: Path to the checksums file
         
     Returns:
-        True if all checksums match, False otherwise
+        True if all checksums verify, False otherwise
     """
+    logger = setup_logger("checksum_utils")
+    
     if not checksum_file.exists():
         logger.error(f"Checksum file not found: {checksum_file}")
         return False
     
-    try:
-        results = verify_checksums(checksum_file)
-        all_passed = all(r["valid"] for r in results)
-        
-        for result in results:
-            status = "✓" if result["valid"] else "✗"
-            logger.info(f"{status} {result['path']}: {result['message']}")
-        
-        return all_passed
-    except Exception as e:
-        logger.error(f"Error verifying checksums: {e}")
-        return False
+    logger.info(f"Verifying checksums for {directory_path}")
+    return verify_checksums(checksum_file, directory_path)
 
-def main() -> int:
-    """Main entry point for checksum utility CLI."""
-    parser = argparse.ArgumentParser(
-        description="Data checksum utility for verifying data integrity"
-    )
-    parser.add_argument(
-        "command",
-        choices=["compute", "verify"],
-        help="Command to execute: compute or verify"
-    )
-    parser.add_argument(
-        "-d", "--directory",
-        type=Path,
-        default=project_root / "data",
-        help="Directory to process (default: data/)"
-    )
-    parser.add_argument(
-        "-o", "--output",
-        type=Path,
-        default=project_root / "data" / "checksums.json",
-        help="Output file for checksums (default: data/checksums.json)"
-    )
-    parser.add_argument(
-        "-c", "--checksum-file",
-        type=Path,
-        default=project_root / "data" / "checksums.json",
-        help="Checksum file for verification (default: data/checksums.json)"
-    )
-    parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-
+def main():
+    """
+    Command-line interface for checksum operations.
+    
+    Usage:
+      python checksum_utils.py compute <directory>
+      python checksum_utils.py verify <directory> <checksum_file>
+    """
+    parser = argparse.ArgumentParser(description="Checksum utilities")
+    parser.add_argument("action", choices=["compute", "verify"], help="Action to perform")
+    parser.add_argument("directory", type=Path, help="Target directory")
+    parser.add_argument("--checksum-file", type=Path, help="Checksum file (required for verify)")
+    
     args = parser.parse_args()
-
-    if args.verbose:
-        logger.setLevel("DEBUG")
-
-    try:
-        if args.command == "compute":
-          if not args.directory.exists():
-              logger.error(f"Directory not found: {args.directory}")
-              return 1
-          compute_checksums_for_directory(args.directory, args.output)
-          return 0
-        elif args.command == "verify":
-          success = verify_all_checksums(args.checksum_file)
-          return 0 if success else 1
+    
+    logger = setup_logger("checksum_utils")
+    
+    if args.action == "compute":
+        checksums = compute_checksums_for_directory(args.directory)
+        checksum_file = args.directory / "checksums.json"
+        save_checksums(checksums, checksum_file)
+        logger.info(f"Checksums saved to {checksum_file}")
+        print(json.dumps(checksums, indent=2))
+        
+    elif args.action == "verify":
+        if not args.checksum_file:
+            logger.error("Checksum file required for verify action")
+            sys.exit(1)
+        
+        success = verify_all_checksums(args.directory, args.checksum_file)
+        if success:
+            logger.info("All checksums verified successfully")
+            sys.exit(0)
         else:
-          parser.print_help()
-          return 1
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        return 1
+            logger.error("Checksum verification failed")
+            sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

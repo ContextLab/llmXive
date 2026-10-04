@@ -1,0 +1,20 @@
+# Ruff configuration for PROJ-525
+# Generated for T003: Configure linting (ruff) and formatting (black)
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[lint.isort]
+known-first-party = ["code", "utils", "config", "env_config", "models", "traceability", "checksum_utils", "data_ingestion", "feature_engineering", "modeling", "lint_format", "setup_data_dirs", "init_project"]
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
