@@ -33,7 +33,7 @@ This feature implements a computational pipeline to test the hypothesis that vir
 | **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` trace to `data/artifacts/`. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. `state/` updated on artifact changes. |
 | **VI. Viral Sequence Data Provenance** | **PASS** | `data/manifest.json` explicitly lists NCBI Virus accession IDs and database release date. |
-| **VII. Statistical Validation Rigor** | **PASS** | Plan mandates 1000 permutations (FR-007) and 5-fold CV. **No silent reduction logic allowed.** If runtime exceeds limit, pipeline aborts. |
+| **VII. Statistical Validation Rigor** | **PASS** | Plan mandates permutations (FR-007) and 5-fold CV. **No silent reduction logic allowed.** If runtime exceeds limit, pipeline aborts. |
 
 ## Project Structure
 
@@ -154,7 +154,7 @@ tests/
 
 1.  **T026: Split Data**
     *   **Input**: Aggregated strains.
-    *   **Action**: Strain-level split (80/20), ensure test set >= 5 strains.
+    *   **Action**: Strain-level split (/20), ensure test set >= 5 strains.
     *   **Artifact**: `data/processed/train.csv`, `data/processed/test.csv`.
 2.  **T028: Train Elastic Net**
     *   **Input**: Train set.
@@ -184,7 +184,7 @@ tests/
 ## Statistical Methodology
 
 ### 1. Unit of Analysis: Strain-Level
-The pipeline strictly adheres to FR-016: **Strain-Level Aggregation**. Multiple host samples for the same virus strain are averaged to produce a single ISG-PC1 score per strain. This ensures the unit of analysis is the strain, preventing data leakage and ensuring the test set (>=5 strains) has sufficient power for generalization claims. The pipeline aborts if the final dataset contains fewer than 30 strains (FR-013).
+The pipeline strictly adheres to FR-016: **Strain-Level Aggregation**. Multiple host samples for the same virus strain are averaged to produce a single ISG-PC1 score per strain. This ensures the unit of analysis is the strain, preventing data leakage and ensuring the test set (>=5 strains) has sufficient power for generalization claims. The pipeline aborts if the final dataset contains a limited number of strains (FR-013).
 
 ### 2. Permutation-Calibrated Inference (Resolving Post-Selection Bias)
 To address the "p > n" issue and the invalidity of asymptotic p-values in high-dimensional settings (concerns scientific_soundness-03cf85cd, scientific_soundness-d1f6be74), the plan replaces the "univariate screening" pre-selection step with a **Permutation-Calibrated Inference** strategy:
@@ -211,4 +211,4 @@ The preprocessing phase includes a **Viral Load Control** step. If viral load me
 ### 8. Ortholog Mapping
 Ortholog mapping uses **Ensembl Compara (latest version)
 
-The research question investigates the comparative genomic relationships across vertebrate species. The method employs whole-genome alignments and gene tree reconciliation using the Ensembl Compara pipeline. References: Flicek et al. (2022); Aken et al. (2016).** (FR-015) for non-human/mouse species. The specific version is hardcoded in `src/preprocess.py`.
+The research question investigates the comparative genomic relationships across vertebrate species. The method employs whole-genome alignments and gene tree reconciliation using the Ensembl Compara pipeline. References: Flicek et al. (n.d.); Aken et al. ().** (FR-015) for non-human/mouse species. The specific version is hardcoded in `src/preprocess.py`.
