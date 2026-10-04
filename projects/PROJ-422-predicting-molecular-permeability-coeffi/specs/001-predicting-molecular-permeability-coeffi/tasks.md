@@ -50,7 +50,7 @@
  1. `validation.require_experimental_target: false` (boolean, default **false**) - Allows Proxy Mode for feasibility study (aligns with Plan Phase 0).
  2. `validation.bias_threshold:` (float, default 0.85) - Controls FR-013 bias check.
  3. `validation.retention_threshold:` (float, default 0.95) - Controls FR-011 retention check.
- 4. `validation.The stratification difference threshold will be determined based on established criteria for statistical significance and effect size relevance, without pre-specifying a fixed numerical value.` (float, default 0.05) - Controls FR-003 stratification check.
+ 4. `validation.stratification_threshold:` (float, default 0.05) - Controls FR-003 stratification check.
  5. **Verification**: Run `python generate_config.py && cat config.yaml` to confirm keys and default values.
 
 ---
@@ -88,10 +88,10 @@
  2. **Target Column Inspection**: For each fetched dataset, check for the presence of experimental permeability columns (e.g., `logP_exp`, `permeability_coefficient`) OR calculated logP columns.
  3. **Constraint**: Do NOT raise `RuntimeError` immediately if the first dataset fails. Only raise if *all* verified sources are exhausted or none contain valid SMILES/target pairs.
  4. **Verification**: Log the successful dataset source and the detected target column name.
-- [X] T013b [US1] Implement `code/data/download.py` target validation and Proxy Mode logic: <!-- FAILED: unspecified -->
+- [X] T013b [US1] Implement `code/data/download.py` target validation and Proxy Mode logic:
  1. **Prerequisite**: Depends on T013 completion.
  2. Check if the target column contains **experimental** permeability coefficients.
- 3. **Proxy Mode Logic**: If an experimental target is missing but a calculated `logP` column exists, log a warning: "Experimental target missing. Switching to Proxy Mode: using calculated logP." Set the target variable to `logP`.
+ 3. **Proxy Mode Logic**: If `validation.require_experimental_target` is false (default) OR if an experimental target is missing but a calculated `logP` column exists, log a warning: "Experimental target missing or not required. Switching to Proxy Mode: using calculated logP." Set the target variable to `logP`.
  4. If neither experimental nor calculated logP is found, raise `RuntimeError("No valid target variable found.")`.
  5. **Output Requirement**: Explicitly set a flag `is_proxy_target: true` in the final `results/metrics.json` and `config.yaml` if Proxy Mode is activated, ensuring the research question shift is visible in artifacts.
 - [X] T014a [US1] Implement `code/data/preprocess.py` (Part 1):
@@ -138,7 +138,7 @@
  2. **Constraint**: Enforce CPU-only execution (no CUDA device assignment) to adhere to the free-tier runner constraints.
  3. Implement early stopping logic based on validation loss with patience parameter.
  4. Save model checkpoints to `data/interim/gnn_checkpoint.pt` and `data/interim/rf_checkpoint.pkl` upon completion or early stopping.
- 5. **Logging**: Log training duration and peak memory usage (using `psutil`) to `results/training_log.json`. **Schema**: `{"peak_memory_gb": <float, 2 decimals>}`.
+ 5. **Logging**: Log training duration (`total_training_time`) and peak memory usage (using `psutil`) to `results/training_log.json`. **Schema**: `{"total_training_time_hours": <float>, "peak_memory_gb": <float>}`. Ensure both metrics are also logged to `results/metrics.json`.
 - [ ] T023 [US2] Implement FR-012 (Ablation Study - Training):
  1. **Prerequisite**: Depends on T014b (Graph Features Generation), **T017 (Data Splits)**, and T022 (Training).
  2. Train a Random Forest baseline using **ONLY** the "flattened graph topology features" feature set (produced in T014b at `data/processed/graph_features.csv`).
@@ -154,17 +154,17 @@
  2. Generate a structured JSON artifact `results/metrics.json` containing all metrics per model.
  3. **Crucial**: Generate `results/predictions_errors.json` containing the raw prediction errors for each model to enable T025 and T025b.
  4. Ensure the output schema includes fields for `model_name`, `rmse`, `mae`, `r2`, `training_time`, and `peak_memory_gb`.
-- [ ] T025 [US2] Implement FR-007: Paired t-test on prediction errors between GNN and RF-Baseline.
- 1. **Prerequisite**: Depends on T024 (Evaluation).
+- [ ] T025 [US2] Implement FR-007: Paired t-test on prediction errors between GNN and RF-Ablation.
+ 1. **Prerequisite**: Depends on T023 (Ablation Training) to generate the RF-Ablation model, and T024 (Evaluation) to generate the prediction errors for both GNN and RF-Ablation.
  2. **Precondition**: Verify the target variable type (experimental vs proxy) and log it in the statistical report.
- 3. **Requirement**: Explicitly calculate and log Cohen's d (effect size) and % Confidence Intervals for the mean difference to `results/metrics.json`.
- 4. **Success Criteria Alignment**: This task implements the measurable outcomes defined in SC-002 (Statistical Significance), SC-002b (Effect Size), and SC-002c (Confidence Intervals).
+ 3. **Requirement**: Perform a paired t-test on the prediction errors of the GNN and the **RF-Ablation** model (not the standard RF-Baseline). Explicitly calculate and log Cohen's d (effect size) and 95% Confidence Intervals for the mean difference to `results/metrics.json`.
+ 4. **Success Criteria Alignment**: This task implements the measurable outcomes defined in SC-001 (Performance Gap), SC-002 (Statistical Significance), SC-002b (Effect Size), and SC-002c (Confidence Intervals).
  5. **Constraint**: Use `scipy.stats` for t-test and manual calculation for Cohen's d to ensure reproducibility without heavy dependencies.
 - [ ] T025b [US2] Implement post-hoc power analysis:
  1. **Prerequisite**: Depends on T025 (T-test results) and T024 (specifically `results/predictions_errors.json` for sample size verification).
- 2. **Implementation**: Calculate statistical power using the observed effect size (Cohen's d) and sample size. This is required to interpret SC-002b/c (Effect Size/CI) in the context of sample adequacy.
+ 2. **Implementation**: Calculate statistical power using the observed effect size (Cohen's d) and sample size. This is required to interpret SC-002b/c (Effect Size/CI) in the context of sample adequacy, as mandated by Plan Phase 2, Step 4.
  3. **Output Artifact**: Generate `results/power_analysis.json` containing power value, effect size, sample size, and alpha level.
- 4. Ensure this artifact is explicitly linked to SC-002b/c coverage.
+ 4. Ensure this artifact is explicitly linked to SC-006 coverage.
 - [X] T027 [P] [US2] Write unit tests for `code/models/gnn.py` and `code/models/rf.py` (forward pass, shape checks).
 - [X] T028 [P] [US2] Write integration test in `tests/integration/test_pipeline.py` for full training and evaluation flow.
 
@@ -188,10 +188,10 @@
  1. Apply GNNExplainer to the GNN model.
  2. Identify top influential node-level substructures (e.g., aromatic rings, functional groups) across the test set.
  3. Save the identified substructures and their importance scores to `results/feature_importance_gnn.json`.
-- [ ] T031 [US3] Implement FR-009: Mapping Logic for Comparative Report.
+- [ ] T031 [US3] Implement FR-009: Comparative Feature Report Logic.
  1. **Prerequisites**: Requires model outputs from US2 (T022-T024) to map features to performance context, and feature importance from T029/T030.
  2. **Precondition**: Verify the target variable type and note it in the report context.
- 3. **Mapping Logic**: Compare the rank of SHAP features vs. the rank of GNNExplainer substructures. Identify substructures with high GNNExplainer scores that correspond to low-ranked SHAP descriptors.
+ 3. **Comparison Logic**: Compare the top SHAP features vs. the top GNNExplainer substructures. Identify substructures with high GNNExplainer scores that correspond to low-ranked SHAP descriptors.
  4. **Output**: Prepare data structures for the report.
 - [ ] T031b [US3] Generate Comparative Report (FR-009).
  1. **Prerequisite**: Depends on T031 (Mapping Logic).
@@ -213,13 +213,13 @@
 - [ ] T034a [US1] Documentation: Update `README.md` with "Data Pipeline Usage" section, explicitly detailing how to run the ingestion and preprocessing steps (US1).
 - [ ] T034b [US2] Documentation: Update `README.md` with "Model Training & Evaluation" section, explicitly detailing how to run training and interpret metrics (US2).
 - [ ] T034c [US3] Documentation: Update `README.md` with "Interpretability Analysis" section, explicitly detailing how to generate and read feature importance reports (US3).
-- [ ] T034d [US1, US2, US3] Documentation: Update `results.md` with "Experimental Setup" section, detailing the dataset source, target variable (experimental vs proxy), and split strategy.
-- [ ] T034e [US1, US2, US3] Documentation: Update `results.md` with "Results & Discussion" section, explicitly addressing SC-001 through SC-005 with measured values and power analysis context.
+- [ ] T034d [US1, US2, US3] Documentation: Update `results/ablation_report.md` with "Experimental Setup" section, detailing the dataset source, target variable (experimental vs proxy), and split strategy.
+- [ ] T034e [US1, US2, US3] Documentation: Update `results/comparative_report.md` with "Results & Discussion" section, explicitly addressing SC-001 through SC-006 with measured values and power analysis context.
 - [ ] T035a [P] Run `ruff check --fix code/` to resolve all PEP8/linting violations in the code directory.
 - [ ] T035b [P] Run `black code/` to format all Python files according to project standards.
 - [ ] T036 [P] Run full pipeline end-to-end on CI to verify reproducibility and artifact generation.
 - [ ] T037 Verify `results/metrics.json` contains all required fields (RMSE, MAE, R², p-value, Cohen's d, CI, power, bias_warning, is_proxy_target).
-- [ ] T038 [US2, US3] Verify Success Criteria Alignment: Ensure the final report and `results/metrics.json` explicitly state the measured outcomes against the defined Success Criteria for US2 (SC-001, SC-002, SC-002b, SC-002c, SC-004) and US3 (SC-003).
+- [ ] T038 [US2, US3] Verify Success Criteria Alignment: Ensure the final report and `results/metrics.json` explicitly state the measured outcomes against the defined Success Criteria for US2 (SC-001, SC-002, SC-002b, SC-002c, SC-004, SC-006) and US3 (SC-003).
 
 ---
 
@@ -232,6 +232,7 @@
 - **SC-003**: The interpretability of the GNN is measured by the ability to rank specific topological substructures by GNNExplainer, compared to the ranked standard descriptors from SHAP.
 - **SC-004**: The computational feasibility is measured by the total training time (must be ≤ 6 hours) and peak memory usage (must be ≤ 7 GB) on a CPU-only runner.
 - **SC-005**: The data integrity is measured by the percentage of valid molecules retained after preprocessing.
+- **SC-006**: The statistical power of the study is measured by calculating the post-hoc power based on the observed effect size and sample size, ensuring adequate sample adequacy for the reported findings.
 
 ---
 
@@ -262,7 +263,7 @@
 - **T023 (Ablation Training)**: Depends on **T014b** (Graph Features Generation), **T017** (Data Splits), and **T022** (Training).
 - **T023b (Ablation Reporting)**: Depends on **T023** and **T024**.
 - **T024**: Depends on **T022** (Training) to ensure models are trained before evaluation.
-- **T025**: Depends on **T024** (Evaluation) to ensure prediction errors are available for statistical testing.
+- **T025**: Depends on **T023** (Ablation Training) to generate the RF-Ablation model, and **T024** (Evaluation) to generate the prediction errors for both GNN and RF-Ablation.
 - **T025b**: Depends on **T025** (T-test) and **T024** (prediction errors for sample size).
 - **T031 (Mapping Logic)**: Depends on **T029**, **T030**, and **T024** (Model Evaluation).
 - **T031b (Report Generation)**: Depends on **T031**.
