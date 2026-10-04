@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rotating-bec-stability"
 version = "0.1.0"
-description = "Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions"
+description = "Investigation of the stability of rotating Bose-Einstein Condensates with Dipolar Interactions"
 requires-python = ">=3.9"
 dependencies = [
     "numpy",
@@ -16,34 +16,32 @@ dependencies = [
     "numba",
     "ruff",
     "black",
+    "psutil",
 ]
 
 [tool.black]
-# Black formatting configuration
-line-length = 88
+line-length = 100
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.pytest.ini_options]
-# Pytest configuration
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
 filterwarnings = [
     "ignore::DeprecationWarning",
@@ -51,5 +49,9 @@ filterwarnings = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["simulation*", "analysis*", "statistics*", "viz*", "models*", "utils*", "config*"]
+where = ["code"]
+include = ["simulation*", "analysis*", "statistics*", "viz*", "utils*", "config*", "models*"]
+
+[tool.ruff]
+# Extend the project root ruff config
+extend = ".ruff.toml"

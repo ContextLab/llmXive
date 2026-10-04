@@ -18,31 +18,32 @@ dependencies = [
     "scipy",
     "statsmodels",
     "nolds",
+    "flake8",
+    "black",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v"
+addopts = "-v --strict-markers"
+
+[tool.setuptools.packages.find]
+where = ["code"]

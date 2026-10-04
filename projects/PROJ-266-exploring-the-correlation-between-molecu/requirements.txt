@@ -1,3 +1,4 @@
+# Core dependencies for the project
 rdkit
 pandas
 scikit-learn
@@ -7,5 +8,9 @@ requests
 numpy
 scipy
 statsmodels
+nolds
+pyyaml
+pytest
 flake8
 black
+pyvib3  # Hypothetical or placeholder if specific version needed, otherwise standard

@@ -1,8 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Caco-2 Permeability Dataset Schema
-description: |
-  Schema for the Caco-2 dataset used in the molecular flexibility permeability study.
-  Validated against requirements from T007 and FR-010.
+description: >
+  JSON Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
+  This schema defines the structure for both raw and processed data files,
+  ensuring consistency across the pipeline.
 type: object
 required:
   - smiles
@@ -14,39 +15,56 @@ required:
 properties:
   smiles:
     type: string
-    description: Canonical SMILES string of the molecule.
+    description: >
+      SMILES string representing the molecular structure.
+      Must be a valid canonical SMILES string.
     minLength: 1
   logPapp:
     type: number
-    description: Log of the apparent permeability coefficient (cm/s).
+    description: >
+      Apparent permeability coefficient (Papp) in cm/s, typically
+      expressed as log10(Papp).
+    minimum: -10.0
+    maximum: -4.0
   mw:
     type: number
-    description: Molecular weight in g/mol.
+    description: >
+      Molecular weight of the compound in Daltons (g/mol).
+    minimum: 0.0
   psa:
     type: number
-    description: Polar Surface Area in Å².
+    description: >
+      Polar Surface Area (PSA) in Angstroms squared (Å²).
+    minimum: 0.0
   assay_id:
     type: string
-    description: Unique identifier for the assay from ChEMBL.
+    description: >
+      Unique identifier for the assay from ChEMBL (e.g., CHEMBL12345).
+    pattern: '^CHEMBL[0-9]+$'
   protocol_metadata:
     type: object
-    description: Metadata regarding the assay protocol and conditions.
+    description: >
+      Metadata describing the experimental protocol used for the assay.
+      This object captures the heterogeneity of the data sources.
     required:
       - standard_type
       - heterogeneity_score
     properties:
       standard_type:
         type: string
-        description: The type of standard used (e.g., MEASUREMENT, ESTIMATE).
+        description: >
+          The type of standard measurement used (e.g., MEASUREMENT,
+          CALCULATION, ESTIMATE). Expected values: 'MEASUREMENT'.
+        enum:
+          - MEASUREMENT
+          - CALCULATION
+          - ESTIMATE
       heterogeneity_score:
         type: number
-        description: A normalized score indicating protocol heterogeneity (0.0 to 1.0).
-      lab_id:
-        type: string
-        description: Identifier for the laboratory performing the assay.
-      temperature:
-        type: number
-        description: Temperature in Kelvin.
-      passage:
-        type: integer
-        description: Cell passage number.
+        description: >
+          A numeric score indicating the level of heterogeneity or
+          uncertainty in the protocol. Lower scores indicate higher
+          consistency with standard protocols.
+        minimum: 0.0
+        maximum: 1.0
+additionalProperties: false

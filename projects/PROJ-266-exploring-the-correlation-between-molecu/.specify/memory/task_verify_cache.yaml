@@ -30,12 +30,13 @@ T008a:
     assertions passing.
 T008b:
   c: false
-  h: 3ce19ea0ddb23f61ab3842d23ac7f244b4ee58fcd9c34d96ddffcefc295597f4
-  r: "The provided `code/utils/checksum.py` is truncated (the `scan_and_register_data_files`\
-    \ function ends abruptly) and does not show the logic that computes SHA\u2011\
-    256 checksums for files in `data/` and writes them to `state/pending/checksums.yaml`.\
-    \ Moreover, the required `state/pending/checksums.yaml` file does not exist. The\
-    \ task\u2019s core functionality and output are therefore missing."
+  h: 5d8febb7c51451e414925e46b3820a6961b8fa356ebc4c391a03e4b367c866f7
+  r: "The `code/utils/checksum.py` file is truncated and the `scan_and_register_data_files`\
+    \ function is incomplete, so it never actually computes checksums or writes them.\
+    \ Moreover, the required output file `state/pending/checksums.yaml` does not exist.\
+    \ The task\u2019s core requirement\u2014generating SHA\u2011256 checksums for\
+    \ files in `data/` and writing them to the pending YAML file\u2014is therefore\
+    \ unmet."
 T008d:
   c: true
   h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
@@ -45,35 +46,28 @@ T008d:
     or placeholder artifacts remain.'
 T009:
   c: false
-  h: f23a74305718ef153384256317b1fd7be516c430fdb03b8ea13b9990b0fae785
-  r: The required CSV `data/raw/chembl_raw.csv` does not exist, nor does the generated
-    checksum file `state/pending/checksums.yaml`, and the schema file referenced in
-    the task is missing. Moreover, the provided `retrieval.py` is truncated and does
-    not show the logic for writing the CSV or invoking the checksum utility, so the
-    core requirements are unmet.
+  h: 9962cd300afab99984d333a3c76ce15d6b03bc04e418774c1ebb1cd08496bc92
+  r: "The `code/data/retrieval.py` file is truncated, contains syntax errors (e.g.,\
+    \ undefined variable `assa`), and never writes the required CSV or calls the checksum\
+    \ utility. The expected output file `data/raw/chembl_raw.csv`, the schema file\
+    \ `specs/.../dataset.schema.yaml`, and the checksum file `state/pending/checksums.yaml`\
+    \ are all missing. The task\u2019s core requirements are therefore not satisfied."
 T010:
   c: false
-  h: 03aa5a535ba95c41fa601317d4ec32bbed0b1c06125f546c7e7489ea0c8e6fdd
+  h: a6df4786e788031e31030f409b0677a32263e577035e3360483f31bb137325ba
   r: The repository lacks the required input file `data/raw/chembl_raw.csv`, the output
-    `data/processed/filtered_data.csv`, and the checksum file `state/pending/checksums.yaml`.
-    Moreover, `code/data/preprocessing.py` is truncated and does not contain code
-    that writes the filtered CSV or invokes the checksum utility, so the stated processing
-    and logging steps are not actually performed.
-T013:
+    `data/processed/filtered_data.csv`, and the generated `state/pending/checksums.yaml`.
+    Moreover, the provided `preprocessing.py` is truncated and does not show the saving
+    of filtered data or the invocation of the checksum utility, so the full required
+    behavior is not implemented.
+T012:
   c: false
-  h: 2ed3643d866df72c1121f09b4e40a45098ba68e12eeae95977e2556b1816cb93
-  r: "The `generate_conformers` function in `code/data/conformer_gen.py` is truncated\
-    \ (ends with \u201Cfailed\u201D and lacks the full RDKit conformer generation\
-    \ logic and the code to write the results to `data/processed/conformers.pkl`).\
-    \ Moreover, the required `conformers.pkl` file does not exist. The task\u2019\
-    s core output and complete implementation are missing."
-T015:
-  c: false
-  h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620
-  r: "The `analysis.py` file is truncated and does not implement confounder\u2011\
-    controlled correlations nor write results to `data/processed/correlation_results.csv`\
-    \ (the CSV file is missing). Consequently the required output artifact is absent\
-    \ and the core analysis requirements are not met."
+  h: f8ee792295b89ba5371fd2488e6bccc9b5cba590fa1214b514545911dc411da3
+  r: The `tests/contract/test_dataset.py` file is present, but the required `test_schema_compliance`
+    function is not shown (the file is truncated and no such test is evident). Moreover,
+    the referenced schema file `specs/.../contracts/dataset.schema.yaml` does not
+    exist, violating the verification step that the schema must be present before
+    running the tests. Both the test implementation and the schema file are missing.
 T016:
   c: false
   h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620

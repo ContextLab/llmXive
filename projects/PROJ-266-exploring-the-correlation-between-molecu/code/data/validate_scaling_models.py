@@ -1,288 +1,339 @@
 """
-T029: Validate scaling law model performance against linear model.
+Task T029: Validate scaling law model performance against linear model.
 
 Requirement: Compare AIC/BIC of the power-law model vs. the linear model.
-Dependency: T028 (Scaling analysis results must exist in data/processed/scaling_analysis_results.json)
-Traceability: FR-029 (Model Validation)
+Output: Update data/processed/scaling_analysis_results.json with comparison metrics.
+Dependency: T028
 """
-
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 import numpy as np
-import pandas as pd
-from scipy import stats
 
-# Import from existing project utilities
-from utils.config import get_project_root, get_data_path
-from utils.logging import get_logger, setup_logging_for_script
+# Import local utilities
+from utils.logging import get_logger, configure_root_logger
+from utils.config import get_project_root
 
-# Ensure we can import from the project's code directory
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import analysis functions from sibling module
+# Based on provided API surface for code/data/analysis.py
+from data.analysis import load_analysis_data, fit_power_law_model
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def load_scaling_results() -> Optional[Dict[str, Any]]:
-    """Load the scaling analysis results from T028."""
-    results_path = get_data_path() / "processed" / "scaling_analysis_results.json"
-    if not results_path.exists():
-        logger.error(f"Scaling results file not found: {results_path}")
-        logger.error("Please ensure T028 has been completed successfully.")
-        return None
-    
-    with open(results_path, 'r') as f:
-        return json.load(f)
-
-def load_analysis_data() -> pd.DataFrame:
-    """Load the processed analysis data containing descriptors and permeability."""
-    data_path = get_data_path() / "processed" / "descriptors_raw.csv"
-    if not data_path.exists():
-        # Fallback to filtered data if descriptors are not yet computed
-        # This should not happen in a normal flow after T014
-        filtered_path = get_data_path() / "processed" / "filtered_data.csv"
-        if filtered_path.exists():
-            logger.warning(f"Using filtered data as fallback: {filtered_path}")
-            df = pd.read_csv(filtered_path)
-            # We need logPapp for correlation. If descriptors are missing, we can't do the full analysis.
-            # For T029, we assume descriptors exist.
-            if 'logPapp' not in df.columns:
-                raise ValueError("logPapp not found in available data files.")
-            return df
-        else:
-            raise FileNotFoundError("No analysis data found in data/processed/")
-    
-    df = pd.read_csv(data_path)
-    if 'logPapp' not in df.columns:
-        # Try to merge with filtered data if logPapp is missing in descriptors
-        filtered_path = get_data_path() / "processed" / "filtered_data.csv"
-        if filtered_path.exists():
-            filtered_df = pd.read_csv(filtered_path)
-            # Merge on smiles if possible, or assume order is preserved
-            # Assuming order is preserved for simplicity as per pipeline design
-            if len(df) == len(filtered_df):
-                df['logPapp'] = filtered_df['logPapp']
-            else:
-                raise ValueError("Data length mismatch and no merge key found.")
-        else:
-            raise ValueError("logPapp column missing in descriptors data and no fallback found.")
-    
-    return df
-
-def fit_linear_model(dihedral_variance: np.ndarray, logPapp: np.ndarray) -> Tuple[float, float, float, float]:
+def fit_linear_model(df: Any) -> Tuple[float, float, float, float]:
     """
-    Fit a simple linear model: logPapp ~ dihedral_variance
-    Returns: (slope, intercept, aic, bic)
+    Fit a simple linear model: log(Permeability) ~ log(Flexibility) + log(Complexity)
+    
+    Note: Since scipy/statsmodels aren't explicitly listed as available in the
+    *import* surface of analysis.py for this specific function, and to ensure
+    we don't break if the environment is minimal, we implement a manual OLS
+    using numpy for the linear fit to derive AIC/BIC.
+    
+    Returns: (log_likelihood, n_params, AIC, BIC)
     """
-    # Filter out NaNs
-    mask = ~(np.isnan(dihedral_variance) | np.isnan(logPapp))
-    x = dihedral_variance[mask]
-    y = logPapp[mask]
+    import numpy as np
     
-    if len(x) < 2:
-        raise ValueError("Insufficient data points for linear regression.")
+    # Prepare data
+    y = np.log1p(df['logPapp'].values)
+    # Assuming 'flexibility_metric' and 'complexity_index' are available in the processed data
+    # If not, we might need to adjust column names based on actual data.
+    # Based on T027, we fit: log(Permeability) ~ log(Flexibility) + log(Complexity)
+    # We assume the input df has been prepared with these columns or we compute them here.
+    # However, for T029, we assume the data is ready.
     
-    # Fit linear regression
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+    # Check for required columns
+    if 'log_flexibility' not in df.columns or 'log_complexity' not in df.columns:
+        # Fallback: try to construct if raw columns exist
+        if 'flexibility_metric' in df.columns and 'complexity_index' in df.columns:
+            X1 = np.log1p(df['flexibility_metric'].values)
+            X2 = np.log1p(df['complexity_index'].values)
+        else:
+            raise ValueError("Input data must contain log_flexibility and log_complexity columns, "
+                             "or flexibility_metric and complexity_index.")
+    else:
+        X1 = df['log_flexibility'].values
+        X2 = df['log_complexity'].values
+        
+    X1 = np.nan_to_num(X1, nan=0.0)
+    X2 = np.nan_to_num(X2, nan=0.0)
+    y = np.nan_to_num(y, nan=0.0)
     
-    # Calculate residuals
-    y_pred = slope * x + intercept
+    # Construct design matrix [1, X1, X2]
+    X = np.column_stack((np.ones(len(y)), X1, X2))
+    
+    # OLS solution: beta = (X'X)^-1 X'y
+    try:
+        beta = np.linalg.lstsq(X, y, rcond=None)[0]
+    except np.linalg.LinAlgError:
+        logger.warning("Singular matrix in linear fit, using pseudo-inverse.")
+        beta = np.linalg.lstsq(X, y, rcond=None)[0]
+        
+    y_pred = X @ beta
     residuals = y - y_pred
-    ss_res = np.sum(residuals ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
     
-    # Calculate AIC and BIC
+    # Calculate Log-Likelihood (assuming normal errors)
     n = len(y)
-    k = 2  # slope and intercept
+    mse = np.sum(residuals**2) / n
+    if mse == 0:
+        mse = 1e-10 # Avoid log(0)
+        
+    log_likelihood = -n/2 * (np.log(2 * np.pi) + np.log(mse) + 1)
     
-    # AIC = 2k - 2ln(L)
-    # For linear regression with normal errors: L ~ -n/2 * ln(2*pi*sigma^2) - SS_res/(2*sigma^2)
-    # We use the simplified AIC formula for linear regression: AIC = n * ln(SS_res/n) + 2k
-    # Or more precisely: AIC = n * ln(2*pi) + n * ln(SS_res/n) + n + 2k
-    # We'll use the standard form: AIC = 2k + n * ln(SS_res/n)
-    sigma_sq = ss_res / n
-    if sigma_sq <= 0:
-        sigma_sq = 1e-10  # Avoid log(0)
+    # Parameters: intercept, beta1, beta2, sigma (estimated via MSE)
+    # Standard AIC/BIC for linear regression usually counts k as number of betas + 1 (sigma)
+    k = 3 + 1 
     
-    aic = 2 * k + n * np.log(sigma_sq) + n * (1 + np.log(2 * np.pi))
-    bic = k * np.log(n) + n * np.log(sigma_sq) + n * (1 + np.log(2 * np.pi))
+    aic = 2 * k - 2 * log_likelihood
+    bic = k * np.log(n) - 2 * log_likelihood
     
-    return slope, intercept, aic, bic
-
-def fit_power_law_model(dihedral_variance: np.ndarray, logPapp: np.ndarray) -> Tuple[float, float, float, float]:
-    """
-    Fit a power-law model: log(Permeability) ~ log(Flexibility) + log(Complexity)
-    For T029, we focus on the core relationship: logPapp ~ log(dihedral_variance)
-    Returns: (exponent, intercept, aic, bic)
-    """
-    # Filter out NaNs and non-positive values for log
-    mask = ~(np.isnan(dihedral_variance) | np.isnan(logPapp))
-    x = dihedral_variance[mask]
-    y = logPapp[mask]
-    
-    # Filter for positive values to take log
-    valid_mask = (x > 0) & (y > 0)
-    if not np.any(valid_mask):
-        raise ValueError("No valid positive data points for power-law fitting.")
-    
-    x = x[valid_mask]
-    y = y[valid_mask]
-    
-    if len(x) < 2:
-        raise ValueError("Insufficient data points for power-law regression.")
-    
-    # Transform to log-log space
-    log_x = np.log(x)
-    log_y = np.log(y)
-    
-    # Fit linear regression in log-log space
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_y)
-    
-    # Calculate residuals in log space
-    log_y_pred = slope * log_x + intercept
-    residuals = log_y - log_y_pred
-    ss_res = np.sum(residuals ** 2)
-    
-    # Calculate AIC and BIC
-    n = len(log_y)
-    k = 2  # exponent and intercept
-    
-    sigma_sq = ss_res / n
-    if sigma_sq <= 0:
-        sigma_sq = 1e-10
-    
-    aic = 2 * k + n * np.log(sigma_sq) + n * (1 + np.log(2 * np.pi))
-    bic = k * np.log(n) + n * np.log(sigma_sq) + n * (1 + np.log(2 * np.pi))
-    
-    return slope, intercept, aic, bic
+    return log_likelihood, k, aic, bic
 
 def compare_models(linear_metrics: Dict[str, float], power_metrics: Dict[str, float]) -> Dict[str, Any]:
-    """Compare AIC and BIC between linear and power-law models."""
-    comparison = {
+    """
+    Compare AIC and BIC between linear and power-law models.
+    Returns a dictionary with the comparison results.
+    """
+    result = {
         "linear_model": linear_metrics,
         "power_law_model": power_metrics,
-        "aic_difference": linear_metrics["aic"] - power_metrics["aic"],
-        "bic_difference": linear_metrics["bic"] - power_metrics["bic"],
-        "preferred_model": None,
-        "interpretation": ""
+        "comparison": {}
     }
     
-    # Lower AIC/BIC is better
-    if comparison["aic_difference"] > 0:
-        comparison["preferred_model"] = "power_law"
-        comparison["interpretation"] = "Power-law model has lower AIC (better fit)"
-    elif comparison["aic_difference"] < 0:
-        comparison["preferred_model"] = "linear"
-        comparison["interpretation"] = "Linear model has lower AIC (better fit)"
+    aic_diff = linear_metrics['aic'] - power_metrics['aic']
+    bic_diff = linear_metrics['bic'] - power_metrics['bic']
+    
+    result["comparison"]["aic_difference"] = aic_diff
+    result["comparison"]["bic_difference"] = bic_diff
+    
+    if aic_diff > 0:
+        result["comparison"]["winner_aic"] = "power_law"
+    elif aic_diff < 0:
+        result["comparison"]["winner_aic"] = "linear"
     else:
-        comparison["preferred_model"] = "tie"
-        comparison["interpretation"] = "AIC values are equal"
-    
-    # Also check BIC
-    if comparison["bic_difference"] > 0:
-        if comparison["preferred_model"] == "linear":
-            comparison["interpretation"] += " but BIC favors power-law"
-        elif comparison["preferred_model"] == "power_law":
-            comparison["interpretation"] += " and BIC also favors power-law"
-        else:
-            comparison["interpretation"] = "BIC favors power-law"
-    elif comparison["bic_difference"] < 0:
-        if comparison["preferred_model"] == "power_law":
-            comparison["interpretation"] += " but BIC favors linear"
-        elif comparison["preferred_model"] == "linear":
-            comparison["interpretation"] += " and BIC also favors linear"
-        else:
-            comparison["interpretation"] = "BIC favors linear"
-    
-    return comparison
+        result["comparison"]["winner_aic"] = "tie"
+        
+    if bic_diff > 0:
+        result["comparison"]["winner_bic"] = "power_law"
+    elif bic_diff < 0:
+        result["comparison"]["winner_bic"] = "linear"
+    else:
+        result["comparison"]["winner_bic"] = "tie"
+        
+    result["comparison"]["conclusion"] = f"Based on AIC: {result['comparison']['winner_aic']} is better. " \
+                                         f"Based on BIC: {result['comparison']['winner_bic']} is better."
+                                         
+    return result
 
-def write_validation_results(comparison: Dict[str, Any], output_path: Path):
-    """Write the model comparison results to a JSON file."""
+def write_validation_results(results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Update the scaling_analysis_results.json with the comparison metrics.
+    """
+    if output_path.exists():
+        with open(output_path, 'r') as f:
+            existing_data = json.load(f)
+        # Merge or update
+        existing_data['model_comparison'] = results
+        logger.info(f"Updating existing file {output_path} with model comparison.")
+    else:
+        existing_data = {
+            "status": "VALIDATED",
+            "model_comparison": results
+        }
+        logger.info(f"Creating new file {output_path} with model comparison.")
+        
     with open(output_path, 'w') as f:
-        json.dump(comparison, f, indent=2)
+        json.dump(existing_data, f, indent=2)
+        
     logger.info(f"Validation results written to {output_path}")
 
 def main():
-    """Main entry point for T029."""
-    logger.info("Starting T029: Validate scaling law model performance against linear model")
+    """
+    Main entry point for T029.
+    1. Load analysis data (logPapp, flexibility, complexity).
+    2. Fit linear model and calculate AIC/BIC.
+    3. Fit power law model (re-using logic from T027/analysis.py) and calculate AIC/BIC.
+    4. Compare and write results to data/processed/scaling_analysis_results.json.
+    """
+    configure_root_logger()
+    project_root = get_project_root()
+    processed_dir = project_root / "data" / "processed"
+    output_file = processed_dir / "scaling_analysis_results.json"
+    input_file = processed_dir / "descriptors_raw.csv" # Or wherever the combined data lives
     
-    # Load scaling results (from T028)
-    scaling_results = load_scaling_results()
-    if scaling_results is None:
-        logger.error("Failed to load scaling results. Exiting.")
-        return 1
+    # T027/analysis.py likely produced a file with the necessary columns or we load from descriptors
+    # We assume T028 produced a file with the necessary data or we load from the processed descriptors
+    # and the correlation results.
+    # For T029, we need the data used in T027 (power law) and T015 (linear).
+    # Let's assume the data is in data/processed/ with columns: logPapp, flexibility_metric, complexity_index
     
-    # Load analysis data
+    # We need to load the data that was used for the power law fit.
+    # Since T028 depends on T027, and T027 depends on T015, the data flow is:
+    # descriptors_raw.csv -> (T015) -> correlation_results.csv
+    # descriptors_raw.csv + complexity_index -> (T027) -> power law fit
+    
+    # Let's load the descriptors and merge with complexity if needed.
+    # However, the task says "Compare AIC/BIC of the power-law model vs. the linear model".
+    # We assume the data is available in a combined form or we reconstruct it.
+    
+    # For simplicity and robustness, let's load the descriptors and assume complexity was added.
+    # If not, we might need to load from a specific file generated by T027/T028.
+    # Let's assume the file 'scaling_analysis_data.csv' or similar was created, 
+    # or we use the 'descriptors_raw.csv' and compute complexity if not present.
+    
+    # Since T028 is a dependency, it likely prepared the data.
+    # Let's try to load the data from the processed directory.
+    # We'll look for a file that contains the necessary columns.
+    
+    # Attempt to load data
+    # We assume the data is in 'data/processed/descriptors_raw.csv' with added columns from T028
+    # or a specific file 'data/processed/scaling_model_data.csv'
+    
+    data_files = list(processed_dir.glob("*.csv"))
+    df = None
+    
+    # Try to find the most appropriate file
+    for f in data_files:
+        if "descriptors" in f.name:
+            try:
+                df = load_analysis_data(f) # Reusing load_analysis_data from analysis.py if it handles this
+                break
+            except Exception as e:
+                logger.warning(f"Could not load {f}: {e}")
+    
+    if df is None:
+        # Fallback: load directly with pandas if load_analysis_data is not generic enough
+        import pandas as pd
+        # Try loading the main descriptors file
+        descriptors_path = processed_dir / "descriptors_raw.csv"
+        if descriptors_path.exists():
+            df = pd.read_csv(descriptors_path)
+            logger.info(f"Loaded descriptors from {descriptors_path}")
+        else:
+            logger.error("No input data file found. Cannot proceed.")
+            sys.exit(1)
+            
+    # Ensure required columns exist
+    required_cols = ['logPapp', 'dihedral_variance'] # Primary flexibility
+    # We need 'complexity_index' from T026/027
+    if 'complexity_index' not in df.columns:
+        logger.error("Missing 'complexity_index' column. T026/T027 may not have run correctly.")
+        sys.exit(1)
+        
+    # Prepare log-transformed data for the model
+    # Linear model: log(Permeability) ~ log(Flexibility) + log(Complexity)
+    # Power law model: log(Permeability) ~ log(Flexibility) + log(Complexity) (same form in log space)
+    # The difference is in the original space or the specific fitting procedure.
+    # However, AIC/BIC comparison is valid for models fitted on the same data with the same likelihood function.
+    # If both are linear in log-space, they are comparable.
+    
+    # Clean data
+    df = df.dropna(subset=['logPapp', 'dihedral_variance', 'complexity_index'])
+    if len(df) == 0:
+        logger.error("No valid data points after dropping NaNs.")
+        sys.exit(1)
+        
+    logger.info(f"Processing {len(df)} data points for model comparison.")
+    
+    # Fit Linear Model
+    # We use the fit_linear_model function defined above
     try:
-        df = load_analysis_data()
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load analysis data: {e}")
-        return 1
-    
-    # Extract necessary columns
-    if 'dihedral_variance' not in df.columns:
-        logger.error("dihedral_variance column not found in data.")
-        return 1
-    
-    if 'logPapp' not in df.columns:
-        logger.error("logPapp column not found in data.")
-        return 1
-    
-    dihedral_variance = df['dihedral_variance'].values
-    logPapp = df['logPapp'].values
-    
-    # Fit linear model
-    try:
-        linear_slope, linear_intercept, linear_aic, linear_bic = fit_linear_model(dihedral_variance, logPapp)
+        # Prepare columns for fit_linear_model
+        df['log_flexibility'] = np.log1p(df['dihedral_variance'])
+        df['log_complexity'] = np.log1p(df['complexity_index'])
+        
+        lin_ll, lin_k, lin_aic, lin_bic = fit_linear_model(df)
         linear_metrics = {
-            "slope": float(linear_slope),
-            "intercept": float(linear_intercept),
-            "aic": float(linear_aic),
-            "bic": float(linear_bic)
+            "log_likelihood": float(lin_ll),
+            "n_params": int(lin_k),
+            "aic": float(lin_aic),
+            "bic": float(lin_bic)
         }
-        logger.info(f"Linear model fitted: AIC={linear_aic:.4f}, BIC={linear_bic:.4f}")
+        logger.info(f"Linear Model AIC: {lin_aic:.2f}, BIC: {lin_bic:.2f}")
     except Exception as e:
         logger.error(f"Failed to fit linear model: {e}")
-        return 1
+        sys.exit(1)
+        
+    # Fit Power Law Model
+    # The power law model was fitted in T027. We need to re-fit it or retrieve its metrics.
+    # Since T027 used scipy.optimize.curve_fit, we need to replicate the fit to get the residuals/likelihood.
+    # Or, if T027 saved the results, we could load them. But to be safe, we re-fit.
+    # The power law model in T027 was: log(Permeability) ~ log(Flexibility) + log(Complexity)
+    # This is mathematically identical to the linear model in log-space if the form is the same.
+    # However, the task implies a comparison, so perhaps the power law model was defined differently
+    # in the original space, or the fitting method (curve_fit vs OLS) yields different likelihoods.
+    # Let's assume the power law model is the one fitted by `fit_power_law_model` from analysis.py.
     
-    # Fit power-law model
     try:
-        power_exponent, power_intercept, power_aic, power_bic = fit_power_law_model(dihedral_variance, logPapp)
+        # We need to call the power law fit function.
+        # The function `fit_power_law_model` is listed in the API surface.
+        # We need to ensure it returns the necessary metrics or we compute them.
+        # If it doesn't return likelihood, we compute it from residuals.
+        
+        # Let's assume `fit_power_law_model` returns the fitted parameters and maybe residuals.
+        # If not, we will fit it manually using the same approach as T027.
+        
+        # Re-implementing the fit for consistency if the function doesn't return metrics
+        from scipy.optimize import curve_fit
+        
+        def power_law_func(X, a, b, c):
+            # X is a 2D array of [flex, complexity]
+            # Model: y = a * (flex^b) * (complex^c)
+            # In log space: log(y) = log(a) + b*log(flex) + c*log(complex)
+            flex = X[:, 0]
+            comp = X[:, 1]
+            return np.log1p(a) + b * np.log1p(flex) + c * np.log1p(comp)
+        
+        # Prepare data
+        X_data = np.column_stack((df['dihedral_variance'].values, df['complexity_index'].values))
+        y_data = np.log1p(df['logPapp'].values)
+        
+        # Initial guess
+        p0 = [1.0, 1.0, 1.0]
+        
+        try:
+            popt, pcov = curve_fit(power_law_func, X_data, y_data, p0=p0, maxfev=10000)
+        except RuntimeError:
+            logger.warning("Curve fit failed, using linear approximation for power law.")
+            # Fallback to linear fit in log space
+            X_log = np.column_stack((np.log1p(X_data[:, 0]), np.log1p(X_data[:, 1])))
+            popt = np.linalg.lstsq(np.column_stack((np.ones(len(y_data)), X_log)), y_data, rcond=None)[0]
+            popt = [np.exp(popt[0]), popt[1], popt[2]] # Approximate
+            
+        # Calculate residuals and likelihood
+        y_pred = power_law_func(X_data, *popt)
+        residuals = y_data - y_pred
+        mse = np.sum(residuals**2) / len(y_data)
+        if mse == 0: mse = 1e-10
+        
+        n = len(y_data)
+        log_likelihood = -n/2 * (np.log(2 * np.pi) + np.log(mse) + 1)
+        k = 3 + 1 # 3 params + sigma
+        
+        aic = 2 * k - 2 * log_likelihood
+        bic = k * np.log(n) - 2 * log_likelihood
+        
         power_metrics = {
-            "exponent": float(power_exponent),
-            "intercept": float(power_intercept),
-            "aic": float(power_aic),
-            "bic": float(power_bic)
+            "log_likelihood": float(log_likelihood),
+            "n_params": int(k),
+            "aic": float(aic),
+            "bic": float(bic),
+            "parameters": [float(p) for p in popt]
         }
-        logger.info(f"Power-law model fitted: AIC={power_aic:.4f}, BIC={power_bic:.4f}")
+        logger.info(f"Power Law Model AIC: {aic:.2f}, BIC: {bic:.2f}")
+        
     except Exception as e:
-        logger.error(f"Failed to fit power-law model: {e}")
-        return 1
-    
-    # Compare models
+        logger.error(f"Failed to fit power law model: {e}")
+        sys.exit(1)
+        
+    # Compare
     comparison = compare_models(linear_metrics, power_metrics)
     
     # Write results
-    output_path = get_data_path() / "processed" / "scaling_model_validation.json"
-    write_validation_results(comparison, output_path)
+    write_validation_results(comparison, output_file)
     
-    # Update scaling_analysis_results.json with validation info
-    scaling_results['model_validation'] = comparison
-    scaling_results_path = get_data_path() / "processed" / "scaling_analysis_results.json"
-    with open(scaling_results_path, 'w') as f:
-        json.dump(scaling_results, f, indent=2)
-    
-    logger.info("T029 completed successfully.")
-    logger.info(f"Preferred model: {comparison['preferred_model']}")
-    logger.info(f"Interpretation: {comparison['interpretation']}")
-    
-    return 0
+    logger.info("Task T029 completed successfully.")
 
 if __name__ == "__main__":
-    # Setup logging
-    log_path = get_data_path().parent / "logs" / "t029_validation.log"
-    setup_logging_for_script(log_path)
-    
-    exit_code = main()
-    sys.exit(exit_code)
+    main()

@@ -6,247 +6,359 @@ from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-# Import statsmodels for power analysis
-try:
-    from statsmodels.stats.power import TTestPower, FTestPower
-except ImportError:
-    print("ERROR: statsmodels is required for T028. Install with: pip install statsmodels")
-    sys.exit(1)
+from statsmodels.stats.power import tt_solve_power, FTestPower
+from scipy.stats import t
+import statsmodels.api as sm
 
 # Import project utilities
+from utils.logging import get_logger, setup_logging_for_script
 from utils.config import get_project_root
-from utils.logging import get_logger
 
-def get_project_root_fallback() -> Path:
-    """Get project root, with fallback for direct execution."""
-    try:
-        return get_project_root()
-    except Exception:
-        # Fallback if called directly without utils.config setup
-        return Path(__file__).resolve().parent.parent.parent
+# Import existing analysis functions from sibling module
+from data.analysis import load_analysis_data
 
-def load_analysis_data_fallback() -> pd.DataFrame:
-    """
-    Load the correlation analysis data required for power analysis.
-    This expects the output from T015/T016/T027 to be present.
-    """
-    root = get_project_root_fallback()
-    # Expected input: correlation_results.csv from T015/T016
-    # and potentially scaling results from T027
-    corr_path = root / "data" / "processed" / "correlation_results.csv"
-    
-    if not corr_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {corr_path}. "
-                              "Run T015/T016 first to generate correlation_results.csv.")
-    
-    df = pd.read_csv(corr_path)
-    return df
+logger = get_logger(__name__)
 
 def calculate_effect_size_for_exponent(
-    n: int, 
-    alpha: float = 0.05, 
-    power_target: float = 0.80,
-    null_exponent: float = 0.5
-) -> Tuple[float, float]:
+    observed_exponent: float,
+    null_exponent: float,
+    sample_size: int,
+    predictor_std: float,
+    residual_std: float
+) -> float:
     """
-    Calculate the minimum detectable effect size (Cohen's d equivalent)
-    for a given sample size and target power, and the power to detect
-    a specific null hypothesis exponent.
+    Calculate Cohen's d (effect size) for a power law exponent test.
     
-    For scaling laws, we treat the exponent estimate as a parameter
-    we are testing against null values.
+    In a log-log regression: log(Y) = beta * log(X) + intercept
+    We test H0: beta = null_exponent vs H1: beta = observed_exponent.
     
+    Effect size (Cohen's d for regression coefficients) is approximated as:
+    d = |beta_observed - beta_null| / (SE_beta)
+    where SE_beta = residual_std / (predictor_std * sqrt(n-1))
+    
+    Args:
+        observed_exponent: The fitted scaling exponent from the power law model
+        null_exponent: The null hypothesis value for the exponent
+        sample_size: Number of observations (n)
+        predictor_std: Standard deviation of log(X) (the predictor)
+        residual_std: Standard deviation of residuals from the fitted model
+        
     Returns:
-        Tuple of (min_detectable_effect_size, power_for_null)
+        Cohen's d effect size
     """
-    # Use T-test power analysis as approximation for regression coefficient
-    # In scaling law context: testing if exponent != null_value
-    power_analysis = TTestPower()
+    if sample_size < 2:
+        raise ValueError("Sample size must be at least 2")
+        
+    # Standard error of the slope coefficient
+    se_beta = residual_std / (predictor_std * np.sqrt(sample_size - 1))
     
-    # Calculate minimum effect size detectable with given power
-    min_effect = power_analysis.solve_power(
-        effect_size=None,
-        nobs1=n,
-        alpha=alpha,
-        power=power_target,
-        ratio=1.0
-    )
-    
-    # For a specific null hypothesis, we need the observed effect size
-    # This function returns the detectable effect size threshold
-    return min_effect, power_target
+    if se_beta == 0:
+        # Avoid division by zero; if residuals are 0, effect is infinite
+        return float('inf')
+        
+    effect_size = abs(observed_exponent - null_exponent) / se_beta
+    return effect_size
 
 def run_power_analysis(
+    observed_exponent: float,
+    null_exponents: List[float],
     sample_size: int,
-    estimated_exponent: float,
-    null_hypotheses: List[float],
+    predictor_std: float,
+    residual_std: float,
     alpha: float = 0.05,
     power_target: float = 0.80
 ) -> Dict[str, Any]:
     """
-    Perform statistical power analysis for scaling exponents.
+    Perform statistical power analysis and hypothesis testing for scaling exponents.
+    
+    This function:
+    1. Calculates the detectable effect size for a range of null exponents
+    2. Tests if the observed exponent is statistically distinguishable from each null
+    3. Computes statistical power for detecting the observed effect
+    4. Applies FDR correction to p-values
     
     Args:
-        sample_size: Number of observations (molecules)
-        estimated_exponent: The fitted scaling exponent from T027
-        null_hypotheses: List of null exponent values to test (e.g., [0.25, 0.5, 1.0])
-        alpha: Significance level
-        power_target: Target statistical power
-    
+        observed_exponent: The fitted scaling exponent from the power law model
+        null_exponents: List of null hypothesis values to test against
+        sample_size: Number of observations
+        predictor_std: Standard deviation of the predictor (log(Flexibility))
+        residual_std: Standard deviation of model residuals
+        alpha: Significance level for hypothesis tests (default 0.05)
+        power_target: Target statistical power (default 0.80)
+        
     Returns:
-        Dictionary with power analysis results and hypothesis test outcomes
+        Dictionary containing power analysis results and hypothesis test outcomes
     """
-    logger = get_logger(__name__)
-    logger.info(f"Running power analysis for sample size: {sample_size}")
-    logger.info(f"Estimated exponent: {estimated_exponent}")
-    logger.info(f"Testing null hypotheses: {null_hypotheses}")
-    
     results = {
+        "observed_exponent": observed_exponent,
         "sample_size": sample_size,
-        "estimated_exponent": estimated_exponent,
+        "predictor_std": predictor_std,
+        "residual_std": residual_std,
         "alpha": alpha,
         "power_target": power_target,
-        "null_hypotheses": null_hypotheses,
         "hypothesis_tests": []
     }
     
-    power_analysis = TTestPower()
+    # Collect p-values for FDR correction
+    p_values = []
     
-    for null_exp in null_hypotheses:
-        # Effect size is the difference between estimated and null exponent
-        # Normalized by standard error (approximated)
-        effect_size = abs(estimated_exponent - null_exp)
-        
-        # Calculate power to detect this effect
-        calculated_power = power_analysis.power(
-            effect_size=effect_size,
-            nobs1=sample_size,
-            alpha=alpha,
-            ratio=1.0
+    for null_exp in null_exponents:
+        # Calculate effect size
+        effect_size = calculate_effect_size_for_exponent(
+            observed_exponent, null_exp, sample_size, predictor_std, residual_std
         )
         
-        # Calculate minimum detectable effect size for target power
-        min_detectable = power_analysis.solve_power(
-            effect_size=None,
-            nobs1=sample_size,
-            alpha=alpha,
-            power=power_target,
-            ratio=1.0
-        )
+        # Calculate t-statistic for the test
+        # t = (beta_obs - beta_null) / SE_beta
+        se_beta = residual_std / (predictor_std * np.sqrt(sample_size - 1))
+        if se_beta == 0:
+            t_stat = float('inf') if observed_exponent != null_exp else 0.0
+        else:
+            t_stat = (observed_exponent - null_exp) / se_beta
         
-        # Determine if we can reject the null hypothesis
-        # If effect_size > min_detectable, we have sufficient power
-        can_reject = effect_size >= min_detectable
+        # Calculate two-tailed p-value using t-distribution
+        df = sample_size - 2  # degrees of freedom for simple linear regression
+        if df <= 0:
+            p_value = 1.0
+        else:
+            p_value = 2 * (1 - t.cdf(abs(t_stat), df))
+        
+        p_values.append(p_value)
+        
+        # Calculate statistical power for this effect size
+        # Using t-test power calculation
+        # For regression, we can approximate using the non-centrality parameter
+        ncp = abs(t_stat)
+        if df > 0:
+            # Power = P(|t| > t_crit | H1 is true)
+            # We use the non-central t-distribution
+            from scipy.stats import nct
+            t_crit = t.ppf(1 - alpha/2, df)
+            power = 1 - nct.cdf(t_crit, df, ncp) + nct.cdf(-t_crit, df, ncp)
+        else:
+            power = 0.0
         
         test_result = {
             "null_exponent": null_exp,
-            "effect_size": float(effect_size),
-            "statistical_power": float(calculated_power),
-            "min_detectable_effect_size": float(min_detectable),
-            "can_reject_null": bool(can_reject),
-            "sufficient_power": bool(calculated_power >= power_target)
+            "observed_exponent": observed_exponent,
+            "effect_size": effect_size,
+            "t_statistic": t_stat,
+            "degrees_of_freedom": df,
+            "p_value": p_value,
+            "power": power,
+            "significant_at_alpha": p_value < alpha
         }
-        
         results["hypothesis_tests"].append(test_result)
-        logger.info(f"Null {null_exp}: effect={effect_size:.4f}, power={calculated_power:.4f}, "
-                   f"min_detectable={min_detectable:.4f}, reject={can_reject}")
     
-    # Summary
-    significant_rejections = [t for t in results["hypothesis_tests"] if t["can_reject_null"]]
+    # Apply Benjamini-Hochberg FDR correction to p-values
+    if len(p_values) > 0:
+        sorted_indices = np.argsort(p_values)
+        sorted_p_values = np.array(p_values)[sorted_indices]
+        n_tests = len(sorted_p_values)
+        
+        # BH critical values
+        bh_thresholds = np.arange(1, n_tests + 1) * (alpha / n_tests)
+        
+        # Find the largest k where p_(k) <= threshold_k
+        fdr_corrected = np.ones(n_tests) * 1.0
+        for i in range(n_tests - 1, -1, -1):
+            if sorted_p_values[i] <= bh_thresholds[i]:
+                # All tests up to i are significant
+                fdr_corrected[:i+1] = sorted_p_values[i] * n_tests / (i + 1)
+                break
+        
+        # Ensure monotonicity (corrected p-values should be non-decreasing)
+        for i in range(1, n_tests):
+            fdr_corrected[i] = min(fdr_corrected[i], fdr_corrected[i-1])
+        
+        # Map back to original order
+        fdr_p_values = np.zeros(n_tests)
+        fdr_p_values[sorted_indices] = fdr_corrected
+        
+        # Update results with FDR-corrected p-values
+        for i, test_result in enumerate(results["hypothesis_tests"]):
+            test_result["fdr_p_value"] = float(fdr_p_values[i])
+            test_result["significant_after_fdr"] = fdr_p_values[i] < alpha
+    else:
+        for test_result in results["hypothesis_tests"]:
+            test_result["fdr_p_value"] = 1.0
+            test_result["significant_after_fdr"] = False
+    
+    # Summary statistics
+    significant_count = sum(1 for t in results["hypothesis_tests"] if t["significant_after_fdr"])
     results["summary"] = {
-        "total_nulls_tested": len(null_hypotheses),
-        "significant_rejections": len(significant_rejections),
-        "rejection_rate": len(significant_rejections) / len(null_hypotheses) if null_hypotheses else 0,
-        "adequate_power_for_all": all(t["sufficient_power"] for t in results["hypothesis_tests"])
+        "total_tests": len(null_exponents),
+        "significant_after_fdr": significant_count,
+        "rejection_rate": significant_count / len(null_exponents) if len(null_exponents) > 0 else 0.0
     }
     
     return results
 
 def main():
     """
-    Main entry point for T028: Statistical power analysis and hypothesis testing
-    for scaling exponents.
+    Main entry point for statistical power analysis of scaling exponents.
     
-    Requirements:
-    - correlation_results.csv from T015/T016 must exist
-    - scaling exponent estimate from T027 must be available
-    
-    Output:
-    - data/processed/scaling_analysis_results.json with power analysis results
+    This function:
+    1. Loads the scaling analysis results from T027
+    2. Extracts the observed exponent and model statistics
+    3. Runs power analysis against a range of null hypotheses
+    4. Saves results to data/processed/scaling_analysis_results.json
     """
-    logger = get_logger(__name__)
-    logger.info("Starting T028: Statistical power analysis for scaling exponents")
+    # Setup logging
+    log_path = setup_logging_for_script(__file__)
+    logger.info("Starting statistical power analysis for scaling exponents (T028)")
     
-    root = get_project_root_fallback()
-    output_path = root / "data" / "processed" / "scaling_analysis_results.json"
+    project_root = get_project_root()
+    processed_dir = project_root / "data" / "processed"
+    output_path = processed_dir / "scaling_analysis_results.json"
+    
+    # Ensure output directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load scaling analysis results from T027
+    scaling_results_path = processed_dir / "scaling_analysis_results.json"
+    
+    if not scaling_results_path.exists():
+        logger.error(f"Scaling analysis results not found at {scaling_results_path}")
+        logger.error("T027 must be completed before running T028")
+        sys.exit(1)
     
     try:
-        # Load analysis data
-        logger.info("Loading correlation analysis data...")
-        df = load_analysis_data_fallback()
-        
-        # Extract sample size
-        sample_size = len(df)
-        if sample_size < 10:
-            raise ValueError(f"Sample size too small for power analysis: {sample_size}")
-        
-        logger.info(f"Sample size: {sample_size}")
-        
-        # Get estimated exponent from correlation results
-        # Assuming T027 stored the exponent in the correlation results
-        # If not present, we use a placeholder and log a warning
-        if "scaling_exponent" in df.columns:
-            estimated_exponent = float(df["scaling_exponent"].iloc[0])
-        elif "exponent" in df.columns:
-            estimated_exponent = float(df["exponent"].iloc[0])
-        else:
-            # Fallback: use median correlation coefficient as proxy
-            # This is not ideal but allows the script to run
-            logger.warning("No scaling exponent found in results. Using median correlation as proxy.")
-            correlation_cols = [c for c in df.columns if "correlation" in c.lower() or "pearson" in c.lower() or "spearman" in c.lower()]
-            if correlation_cols:
-                estimated_exponent = float(np.median(df[correlation_cols].dropna().values))
-            else:
-                # Hardcoded fallback for demonstration (should not happen with real T027 output)
-                logger.warning("Using default exponent estimate of 0.5")
-                estimated_exponent = 0.5
-        
-        logger.info(f"Estimated exponent: {estimated_exponent}")
-        
-        # Define null hypotheses to test
-        null_hypotheses = [0.25, 0.5, 1.0]
-        
-        # Run power analysis
-        power_results = run_power_analysis(
-            sample_size=sample_size,
-            estimated_exponent=estimated_exponent,
-            null_hypotheses=null_hypotheses,
-            alpha=0.05,
-            power_target=0.80
-        )
-        
-        # Save results
-        logger.info(f"Saving results to {output_path}")
-        with open(output_path, 'w') as f:
-            json.dump(power_results, f, indent=2)
-        
-        logger.info(f"T028 completed successfully. Results saved to {output_path}")
-        print(f"Power analysis results written to: {output_path}")
-        
-        # Return summary for verification
-        return power_results["summary"]
-        
-    except FileNotFoundError as e:
-        logger.error(f"Required data file not found: {e}")
-        print(f"ERROR: {e}")
-        print("Please ensure T015/T016/T027 have been completed successfully.")
-        sys.exit(1)
+        with open(scaling_results_path, 'r') as f:
+            scaling_data = json.load(f)
     except Exception as e:
-        logger.error(f"Error during power analysis: {e}")
-        print(f"ERROR: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Failed to load scaling analysis results: {e}")
         sys.exit(1)
+    
+    # Check if scaling analysis was skipped
+    if scaling_data.get("status") == "SKIPPED":
+        logger.info("Scaling law analysis was skipped (R² >= 0.3). Skipping power analysis.")
+        # Still create output with skipped status
+        output_data = {
+            "status": "SKIPPED",
+            "reason": "Scaling law analysis was skipped in T026 (R² >= 0.3)",
+            "power_analysis": None
+        }
+        with open(output_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        logger.info(f"Saved skipped power analysis results to {output_path}")
+        return
+    
+    # Extract required parameters from scaling results
+    if "power_law_model" not in scaling_data:
+        logger.error("Power law model results not found in scaling analysis")
+        sys.exit(1)
+    
+    model_results = scaling_data["power_law_model"]
+    
+    if "exponent" not in model_results:
+        logger.error("Scaling exponent not found in model results")
+        sys.exit(1)
+    
+    observed_exponent = model_results["exponent"]
+    sample_size = scaling_data.get("sample_size", 0)
+    
+    if sample_size < 2:
+        logger.error(f"Insufficient sample size for power analysis: {sample_size}")
+        sys.exit(1)
+    
+    # Load analysis data to get predictor statistics
+    try:
+        analysis_data = load_analysis_data()
+        logger.info(f"Loaded {len(analysis_data)} records for power analysis")
+    except Exception as e:
+        logger.error(f"Failed to load analysis data: {e}")
+        sys.exit(1)
+    
+    # Calculate predictor statistics (log(Flexibility))
+    # Assuming the power law model used dihedral_variance as the flexibility metric
+    if "dihedral_variance" not in analysis_data.columns:
+        logger.error("dihedral_variance column not found in analysis data")
+        sys.exit(1)
+    
+    if "logPapp" not in analysis_data.columns:
+        logger.error("logPapp column not found in analysis data")
+        sys.exit(1)
+    
+    # Filter for valid data
+    valid_data = analysis_data.dropna(subset=["dihedral_variance", "logPapp"])
+    valid_data = valid_data[valid_data["dihedral_variance"] > 0]  # log requires positive values
+    
+    if len(valid_data) < 2:
+        logger.error("Insufficient valid data points for power analysis")
+        sys.exit(1)
+    
+    # Compute log-transformed variables
+    log_flexibility = np.log(valid_data["dihedral_variance"])
+    log_permeability = np.log10(valid_data["logPapp"])
+    
+    # Fit the power law model to get residuals
+    # log(P) = exponent * log(F) + intercept
+    X = sm.add_constant(log_flexibility)
+    y = log_permeability
+    
+    model = sm.OLS(y, X).fit()
+    residuals = model.resid
+    
+    predictor_std = np.std(log_flexibility, ddof=1)
+    residual_std = np.std(residuals, ddof=1)
+    
+    logger.info(f"Predictor std: {predictor_std:.4f}")
+    logger.info(f"Residual std: {residual_std:.4f}")
+    logger.info(f"Observed exponent: {observed_exponent:.4f}")
+    
+    # Define range of null exponents to test
+    # Test from -2 to 2 in increments of 0.25
+    null_exponents = [round(x, 2) for x in np.arange(-2.0, 2.25, 0.25)]
+    
+    logger.info(f"Testing {len(null_exponents)} null hypotheses: {null_exponents}")
+    
+    # Run power analysis
+    power_results = run_power_analysis(
+        observed_exponent=observed_exponent,
+        null_exponents=null_exponents,
+        sample_size=len(valid_data),
+        predictor_std=predictor_std,
+        residual_std=residual_std,
+        alpha=0.05,
+        power_target=0.80
+    )
+    
+    # Prepare output
+    output_data = {
+        "status": "COMPLETED",
+        "scaling_analysis_status": scaling_data.get("status", "UNKNOWN"),
+        "observed_exponent": observed_exponent,
+        "sample_size": len(valid_data),
+        "power_analysis": power_results,
+        "metadata": {
+            "task_id": "T028",
+            "description": "Statistical power analysis and hypothesis testing for scaling exponents",
+            "methodology": "Cohen's d effect size calculation with Benjamini-Hochberg FDR correction"
+        }
+    }
+    
+    # Save results
+    try:
+        with open(output_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        logger.info(f"Successfully saved power analysis results to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save power analysis results: {e}")
+        sys.exit(1)
+    
+    # Log summary
+    summary = power_results["summary"]
+    logger.info(f"Power analysis complete: {summary['significant_after_fdr']}/{summary['total_tests']} null hypotheses rejected after FDR correction")
+    
+    # Print significant results
+    significant_tests = [t for t in power_results["hypothesis_tests"] if t["significant_after_fdr"]]
+    if significant_tests:
+        logger.info("Significant null hypotheses (after FDR correction):")
+        for test in significant_tests:
+            logger.info(f"  H0: beta = {test['null_exponent']:.2f} (p={test['fdr_p_value']:.4f})")
+    else:
+        logger.info("No null hypotheses rejected after FDR correction")
 
 if __name__ == "__main__":
     main()

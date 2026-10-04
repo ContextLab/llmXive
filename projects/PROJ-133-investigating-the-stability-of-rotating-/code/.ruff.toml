@@ -1,38 +1,37 @@
 # Ruff configuration for PROJ-133
-# Linting rules and settings
+# Linting rules for the rotating BEC stability project
 
 [lint]
 # Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort (import sorting)
-    "C90", # mccabe (complexity)
-    "N",  # pep8-naming
-    "UP", # pyupgrade
-    "B",  # flake8-bugbear
-    "SIM",# flake8-simplify
-    "ARG",# flake8-unused-arguments
-    "PTH",# flake8-use-pathlib
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-    "ARG001", # Allow unused arguments in function definitions (common in interfaces)
-]
+select = ["E", "F", "I", "W", "N", "B", "C4", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["I"]
+
+# Exclude specific directories
+exclude = ["__pycache__", ".git", ".venv", "venv", "build", "dist"]
 
 [lint.per-file-ignores]
-"tests/*" = ["ARG001", "S101"] # Allow assert in tests
+# Allow longer lines in data generation scripts if necessary
+"code/utils/setup_data_dirs.py" = ["E501"]
 
 [lint.isort]
-known-first-party = ["simulation", "analysis", "statistics", "viz", "models", "utils", "config"]
-force-to-top = ["numpy", "scipy"]
+known-first-party = ["simulation", "analysis", "statistics", "viz", "utils", "config", "models"]
+force-single-line = false
+lines-after-imports = 2
+order-by-type = true
 
-[lint.mccabe]
-max-complexity = 12
+[lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "double"
+multiline-quotes = "double"
 
-[format]
-# Black-compatible formatting settings
-line-length = 88
-indent-width = 4
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[lint.flake8-comprehensions]
+allow-inline-init-lists = true
+
+[lint.pydocstyle]
+convention = "numpy"

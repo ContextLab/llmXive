@@ -5,24 +5,36 @@ from typing import Dict, Any
 
 def get_project_root() -> Path:
     """
-    Get the project root directory.
-    Assumes the script is run from the project root or a subdirectory.
+    Determine the project root directory.
+    Assumes the project root is the current working directory or two levels up from code/utils.
+    We prioritize the current working directory as it is where the runner executes scripts.
     """
-    # Try to find the root by looking for a specific marker or just using cwd
-    # For this pipeline, we assume the working directory is the project root
-    return Path.cwd()
+    # If running as a script from code/setup_project_structure.py, cwd is likely the root.
+    # If running as a module, we might need to traverse up.
+    cwd = Path.cwd()
+    
+    # Heuristic: if 'code' directory exists in cwd, assume cwd is root.
+    if (cwd / 'code').is_dir() and (cwd / 'data').is_dir():
+        return cwd
+    
+    # Fallback: traverse up from the module location
+    module_path = Path(__file__).resolve()
+    # Expected structure: project_root/code/utils/config.py
+    potential_root = module_path.parent.parent.parent
+    
+    if (potential_root / 'code').is_dir():
+        return potential_root
+    
+    # Last resort: cwd
+    return cwd
 
-def set_seed(seed: int = 42):
+def set_seed(seed: int = 42) -> None:
     """
-    Set random seeds for reproducibility.
+    Set the random seed for reproducibility.
     """
+    import numpy as np
     random.seed(seed)
-    # If numpy is available, set its seed too
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
+    np.random.seed(seed)
 
 def get_config_summary() -> Dict[str, Any]:
     """
@@ -30,7 +42,10 @@ def get_config_summary() -> Dict[str, Any]:
     """
     return {
         "project_root": str(get_project_root()),
-        "seed": 42
+        "data_path": str(get_data_path()),
+        "state_path": str(get_state_path()),
+        "figures_path": str(get_figures_path()),
+        "logs_path": str(get_logs_path())
     }
 
 def get_data_path() -> Path:

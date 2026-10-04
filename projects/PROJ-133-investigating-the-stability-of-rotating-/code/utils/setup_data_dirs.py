@@ -2,60 +2,54 @@ import os
 import sys
 from pathlib import Path
 
-def create_project_structure() -> None:
+def create_project_structure(base_dir: str = "data") -> None:
     """
-    Create the required directory structure for the project.
+    Create the required data directory structure for the project.
     
-    This function ensures the following directories exist:
-    - data/raw
-    - data/processed
-    - data/aggregated
-    - code
-    - tests
-    - docs
+    Creates the following hierarchy relative to base_dir:
+    - raw/
+    - processed/
+    - aggregated/
     
-    The structure is created relative to the project root.
+    Args:
+        base_dir: The root directory where the data folders will be created.
+                 Defaults to "data" relative to the project root.
     """
-    # Define the base directory (project root)
-    # We assume this script is run from the project root or the project root
-    # is the parent of the 'code' directory.
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    data_path = Path(base_dir)
     
-    # Define the directories to create
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "aggregated",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "docs",
-        # Ensure subdirectories for tests if needed by other tasks
-        project_root / "tests" / "unit",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-        # Ensure subdirectories for code if needed
-        project_root / "code" / "simulation",
-        project_root / "code" / "analysis",
-        project_root / "code" / "statistics",
-        project_root / "code" / "viz",
-        project_root / "code" / "utils",
-        project_root / "code" / "models",
-        project_root / "code" / "config",
+    # Define the required subdirectories
+    subdirs = [
+        data_path / "raw",
+        data_path / "processed",
+        data_path / "aggregated"
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-        # else: directory already exists, no action needed
+    # Create directories if they don't exist
+    created = []
+    for subdir in subdirs:
+        if not subdir.exists():
+            subdir.mkdir(parents=True, exist_ok=True)
+            created.append(str(subdir))
+            print(f"Created directory: {subdir}")
+        else:
+            print(f"Directory already exists: {subdir}")
     
-    print(f"Project structure ensured. {created_count} new directories created.")
+    if not created:
+        print("All required data directories already exist.")
+    else:
+        print(f"\nSuccessfully created {len(created)} directory/directories.")
 
 def main() -> None:
-    """Entry point for creating the project structure."""
-    create_project_structure()
+    """Entry point for the script."""
+    # Determine the project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    data_root = project_root / "data"
+    
+    print(f"Setting up data directories under: {data_root}")
+    create_project_structure(str(data_root))
 
 if __name__ == "__main__":
     main()

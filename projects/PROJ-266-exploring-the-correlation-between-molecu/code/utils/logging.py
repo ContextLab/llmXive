@@ -4,63 +4,56 @@ from pathlib import Path
 from typing import Optional
 from .config import get_project_root
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
     Get a logger instance.
     """
-    logger_name = name or __name__
-    return logging.getLogger(logger_name)
+    return logging.getLogger(name)
 
-def configure_root_logger(level: int = logging.INFO) -> logging.Logger:
+def configure_root_logger(level: int = logging.INFO) -> None:
     """
-    Configure the root logger for the project.
+    Configure the root logger for the application.
     """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Avoid adding handlers multiple times if called repeatedly
-    if not root_logger.handlers:
+    if not logging.getLogger().handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         handler.setFormatter(formatter)
-        root_logger.addHandler(handler)
-    
-    return root_logger
+        logging.getLogger().addHandler(handler)
+        logging.getLogger().setLevel(level)
 
 def get_log_path() -> Path:
     """
     Get the path to the logs directory.
     """
-    project_root = get_project_root()
-    logs_path = project_root / 'logs'
-    logs_path.mkdir(exist_ok=True)
-    return logs_path
+    return get_project_root() / 'logs'
 
 def setup_logging_for_script(script_name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Setup logging specific to a script execution.
+    Setup logging for a specific script, ensuring logs go to a file in the logs directory.
     """
-    logger = get_logger(script_name)
+    log_dir = get_log_path()
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    log_file = log_dir / f"{script_name}.log"
+    
+    logger = logging.getLogger(script_name)
     logger.setLevel(level)
     
+    # Avoid adding duplicate handlers if called multiple times
     if not logger.handlers:
-        log_dir = get_log_path()
-        log_file = log_dir / f"{script_name}.log"
-        
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        formatter = logging.Formatter(
+        file_handler.setFormatter(logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        file_handler.setFormatter(formatter)
+        ))
         logger.addHandler(file_handler)
         
-        # Also log to console for immediate feedback
+        # Also add a console handler for immediate feedback
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
+        console_handler.setFormatter(logging.Formatter(
+            '%(levelname)s: %(message)s'
+        ))
         logger.addHandler(console_handler)
     
     return logger

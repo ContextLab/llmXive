@@ -146,9 +146,9 @@
 - [X] T029 [US3] Implement Two-Way ANOVA (Ω × ε_dd) and Dunnett's post-hoc test in `code/statistics/aggregators.py` (Per Plan correction to FR-005). (Depends on T029b).
 - [X] T030 [US3] Implement statistical significance flagging (α=0.05) against null hypothesis in `code/statistics/aggregators.py`
 - [X] T031 [US3] Implement 3D parameter space contour map generation (Ω vs ε_dd vs Stability) in `code/viz/plotter.py`
-- [ ] T032 [US3] Generate representative density/phase plots for stable, metastable, and unstable regimes in `code/viz/plotter.py`
-- [ ] T033 [US3] Create summary table of ANOVA p-values and export to `data/aggregated/` in `code/viz/reporter.py`
-- [ ] T034 [P] [US3] Validate that the statistical design handles the "zero initial vortex" case without division errors in `tests/unit/test_zero_vortex_stats.py::test_no_division_by_zero`
+- [X] T032 [US3] Generate representative density/phase plots for stable, metastable, and unstable regimes in `code/viz/plotter.py`
+- [X] T033 [US3] Create summary table of ANOVA p-values and export to `data/aggregated/` in `code/viz/reporter.py`
+- [X] T034 [P] [US3] Validate that the statistical design handles the "zero initial vortex" case without division errors in `tests/unit/test_zero_vortex_stats.py::test_no_division_by_zero`
 
 **Checkpoint**: All user stories should now be independently functional
 
