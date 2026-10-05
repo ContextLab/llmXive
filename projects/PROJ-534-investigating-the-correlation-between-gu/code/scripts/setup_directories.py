@@ -1,45 +1,50 @@
-"""
-Script to initialize the project directory structure for the gut microbiome
-and cognitive flexibility study.
-
-Creates the following directories at the repository root:
-- src/
-- tests/
-- data/raw
-- data/processed
-- data/results
-- logs/
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root (assuming script is in code/scripts/)
-    # We need to go up two levels to reach the repository root
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
-
+    """
+    Initialize project directory structure for the Gut Microbiome & Cognitive Flexibility study.
+    
+    Creates the following directories relative to the project root:
+    - src/ (with subdirectories for analysis, data, viz, power, sensitivity, utils)
+    - tests/ (with subdirectories for unit, integration, contract)
+    - data/raw, data/processed, data/results
+    - logs/
+    """
+    # Determine project root (assuming script is at code/scripts/setup_directories.py)
+    # The project root is two levels up from this script
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent.parent
+    
+    # Define relative paths to create
     directories = [
-        "src",
-        "tests",
+        "src/analysis",
+        "src/data",
+        "src/viz",
+        "src/power",
+        "src/sensitivity",
+        "src/utils",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
         "data/raw",
         "data/processed",
         "data/results",
         "logs"
     ]
-
+    
     created_count = 0
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path.relative_to(project_root)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"\nInitialization complete. {created_count} new directory(ies) created.")
+            print(f"Directory already exists: {full_path.relative_to(project_root)}")
+    
+    print(f"\nDirectory setup complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

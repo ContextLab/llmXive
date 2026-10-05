@@ -1,1 +1,3 @@
-# Viz package initialization
+"""
+Visualization module for generating plots and figures.
+"""

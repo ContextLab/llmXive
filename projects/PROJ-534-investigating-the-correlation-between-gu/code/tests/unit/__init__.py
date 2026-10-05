@@ -1,3 +1,3 @@
 """
-Unit test package.
+Unit tests package.
 """

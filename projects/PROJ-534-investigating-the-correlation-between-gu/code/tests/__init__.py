@@ -1,3 +1,3 @@
 """
-Test package for the Gut Microbiome and Cognitive Flexibility project.
+Test suite root package.
 """

@@ -1,47 +1,74 @@
 # Analysis Output Schema
-# Defines the structure for correlation and regression analysis results
-# as required by Task T004.
+# Defines the structure for statistical analysis results
+# Used to validate correlation and regression outputs
+# Generated for PROJ-534: Investigating the Correlation Between Gut Microbiome Composition and Cognitive Flexibility in Aging
 
-entity: AnalysisResult
-description: "Schema for storing statistical analysis results including correlations and regressions."
-fields:
-  - name: test_type
-    type: str
-    description: "Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression')."
-    required: true
-    
-  - name: metric_name
-    type: str
-    description: "Name of the diversity metric or variable being analyzed (e.g., 'shannon_diversity', 'simpson_diversity')."
-    required: true
-    
-  - name: correlation_coefficient
-    type: float
-    description: "The calculated correlation coefficient (r) or regression beta coefficient."
-    required: true
-    
-  - name: p_value
-    type: float
-    description: "The unadjusted p-value for the test statistic."
-    required: true
-    
-  - name: adjusted_p_value
-    type: float
-    description: "The Benjamini-Hochberg adjusted p-value for multiple comparison correction."
-    required: true
-    
-  - name: confidence_interval
-    type: array[float, float]
-    description: "Two-element array representing the lower and upper bounds of the confidence interval (e.g., [0.025, 0.975])."
-    required: true
-    
-  - name: r_squared
-    type: float
-    description: "The coefficient of determination (R²) for regression models. For pure correlation tests, this may be null or the square of the correlation coefficient."
-    required: true
-    
-validation_rules:
-  - rule: "correlation_coefficient must be between -1.0 and 1.0 for correlation tests."
-  - rule: "p_value and adjusted_p_value must be between 0.0 and 1.0."
-  - rule: "confidence_interval must have exactly 2 elements where lower < upper."
-  - rule: "r_squared must be between 0.0 and 1.0."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisResult
+description: "Schema for storing statistical analysis results from correlation and regression tests"
+
+type: object
+required:
+  - test_type
+  - metric_name
+  - correlation_coefficient
+  - p_value
+  - adjusted_p_value
+  - confidence_interval
+  - r_squared
+
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression')"
+    minLength: 1
+
+  metric_name:
+    type: string
+    description: "Name of the microbiome metric being analyzed (e.g., 'shannon_diversity', 'simpson_diversity')"
+    minLength: 1
+
+  correlation_coefficient:
+    type: number
+    description: "Correlation coefficient (r) or regression beta coefficient"
+    minimum: -1000000
+    maximum: 1000000
+
+  p_value:
+    type: number
+    description: "Raw p-value from the statistical test"
+    minimum: 0
+    maximum: 1
+
+  adjusted_p_value:
+    type: number
+    description: "FDR-adjusted p-value (Benjamini-Hochberg correction)"
+    minimum: 0
+    maximum: 1
+
+  confidence_interval:
+    type: array
+    description: "95% confidence interval [lower_bound, upper_bound]"
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+
+  r_squared:
+    type: number
+    description: "Coefficient of determination (R²) for regression models"
+    minimum: 0
+    maximum: 1
+
+additionalProperties: false
+
+# Example usage:
+# {
+#   "test_type": "spearman",
+#   "metric_name": "shannon_diversity",
+#   "correlation_coefficient": 0.15,
+#   "p_value": 0.032,
+#   "adjusted_p_value": 0.048,
+#   "confidence_interval": [0.02, 0.28],
+#   "r_squared": 0.0225
+# }

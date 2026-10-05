@@ -1,1 +1,3 @@
-# Sensitivity package initialization
+"""
+Sensitivity analysis module for confounding checks.
+"""

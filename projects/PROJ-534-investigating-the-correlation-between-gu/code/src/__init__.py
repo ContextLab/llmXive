@@ -1,1 +1,3 @@
-# Source package for PROJ-534
+"""
+Main source package for the gut microbiome and cognitive flexibility study.
+"""

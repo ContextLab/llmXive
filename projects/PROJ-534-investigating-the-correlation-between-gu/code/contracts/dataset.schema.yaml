@@ -1,49 +1,68 @@
-dataset:
-  name: filtered_cohort
-  description: Cohort filtered for age >= 65 with complete data for analysis.
-  properties:
-    participant_id:
-      type: string
-      description: Unique identifier for the participant.
-    age:
-      type: integer
-      minimum: 0
-      description: Age of the participant in years.
-    sex:
-      type: string
-      enum:
-        - "M"
-        - "F"
-      description: Biological sex of the participant.
-    bmi:
-      type: number
-      description: Body Mass Index.
-    cognitive_flexibility_score:
-      type: number
-      description: Score from cognitive flexibility assessment.
-    shannon_diversity:
-      type: number
-      description: Shannon diversity index of gut microbiome.
-    simpson_diversity:
-      type: number
-      description: Simpson diversity index of gut microbiome.
-    chao1:
-      type: number
-      description: Chao1 richness estimator.
-    dietary_fiber_intake:
-      type: number
-      description: Daily dietary fiber intake in grams.
-    antibiotic_use_history:
-      type: boolean
-      description: Whether the participant has a history of antibiotic use.
-  required:
-    - participant_id
-    - age
-    - sex
-    - bmi
-    - cognitive_flexibility_score
-    - shannon_diversity
-    - simpson_diversity
-    - chao1
-    - dietary_fiber_intake
-    - antibiotic_use_history
+# Dataset Schema for Gut Microbiome and Cognitive Flexibility Study
+# Defines the expected structure and types for the synthetic and real datasets.
+# Strictly adheres to spec.md FR-002 covariates.
+name: gut_microbiome_cognitive_flexibility
+version: "1.0.0"
+description: "Schema for the synthetic dataset used in the pipeline validation study."
+entities:
+  - name: participant
+    fields:
+      - name: participant_id
+        type: str
+        description: "Unique identifier for the participant."
+        constraints:
+          - not_null
+      - name: age
+        type: int
+        description: "Age of the participant in years."
+        constraints:
+          - not_null
+          - min: 0
+      - name: sex
+        type: enum
+        description: "Biological sex of the participant."
+        values:
+          - "Male"
+          - "Female"
+        constraints:
+          - not_null
+      - name: bmi
+        type: float
+        description: "Body Mass Index."
+        constraints:
+          - not_null
+          - min: 0.0
+      - name: cognitive_flexibility_score
+        type: float
+        description: "Score from cognitive flexibility assessment."
+        constraints:
+          - not_null
+      - name: shannon_diversity
+        type: float
+        description: "Shannon diversity index of gut microbiome."
+        constraints:
+          - not_null
+          - min: 0.0
+      - name: simpson_diversity
+        type: float
+        description: "Simpson diversity index of gut microbiome."
+        constraints:
+          - not_null
+          - min: 0.0
+      - name: chao1
+        type: float
+        description: "Chao1 richness estimator."
+        constraints:
+          - not_null
+          - min: 0.0
+      - name: dietary_fiber
+        type: float
+        description: "Daily dietary fiber intake in grams."
+        constraints:
+          - not_null
+          - min: 0.0
+      - name: antibiotic_use
+        type: bool
+        description: "Whether the participant used antibiotics in the last 6 months."
+        constraints:
+          - not_null

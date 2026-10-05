@@ -1,3 +1,3 @@
 """
-Integration test package.
+Integration tests package.
 """

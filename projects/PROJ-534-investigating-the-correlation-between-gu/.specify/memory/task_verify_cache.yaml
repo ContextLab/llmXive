@@ -1,3 +1,28 @@
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, screenshots, or repository tree were provided to confirm
+    that the `src/`, `tests/`, `data/raw`, `data/processed`, `data/results`, and `logs/`
+    folders (or the extended set in the command) actually exist in the project. Without
+    concrete evidence of these directories, the requirement cannot be verified as
+    fulfilled.
+T013:
+  c: false
+  h: de41344409c460d2a1ffe9e31a55f34d21bdb8b608d6552701a9e4495b63ee91
+  r: "The `filtering.py` file is truncated and does not show the actual listwise\u2011\
+    deletion logic nor a log statement writing the dropped\u2011row count to `logs/filtering.log`.\
+    \ Moreover, the required schema file `contracts/dataset.schema.yaml` is missing,\
+    \ so we cannot confirm the covariate list matches the specification. The task\
+    \ therefore remains unfinished."
+T016:
+  c: false
+  h: 445afb464340912f449bf29d29ce5b5f908f3e970157e01cd84828048ae5027c
+  r: "The required `data/processed/filtered_cohort.csv` file does not exist, and the\
+    \ referenced `contracts/dataset.schema.yaml` (or `schema.yaml`) is also missing.\
+    \ Moreover, the provided test script is incomplete (truncated) and does not actually\
+    \ load and validate the CSV against the schema or check the required non\u2011\
+    null fields. The task\u2019s core artifacts are absent, so the requirement is\
+    \ not satisfied."
 T025:
   c: false
   h: 0586963e5b98107066abcf2ac971e6d816b982a6361fc15eeaf8221d2e3f0490
