@@ -82,7 +82,7 @@
 ### Implementation for User Story 1
 
 - [X] T013 [P] [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py` to download NLCD 30m subset for Colorado. **Primary Source**: USGS EarthExplorer API (FR-001). **Fallback**: If API fails or key is missing, fetch from verified HuggingFace mirror `https://huggingface.co/datasets/nlcd-30m/resolve/main/nlcd_2019_colorado_30m.tif` with checksum validation. Validate checksum using `utils.py::checksum_file`. Implement retry logic using `utils.py` utilities. **Prerequisite**: T039 (URL validation) must pass.
-- [ ] T014 [US1] Implement `projects/PROJ-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling, and implement the CLI loop to call it for factors [2, 4, 8, 16] (60m, 120m, 240m, 480m). **CLI Interface**: `python -m code.resampling --input <path> --factors 2,4,8,16 --output <dir>`. **Output Naming**: Files MUST be named `nlcd_{state}_res_{factor}m.tif` (e.g., `nlcd_co_res_60m.tif`) in the `data/derived/` directory. **Constraint**: MUST use chunked processing (windowed reads) with 2000x2000 pixel windows to stay within 7GB RAM. **Prerequisite**: T004 (Data Models), T005 (IO Utils), T013 (Data Ingestion).
+- [ ] T014 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling, and implement the CLI loop to call it for factors [2, 4, 8, 16] (60m, 120m, 240m, 480m). **CLI Interface**: `python -m code.resampling --input <path> --factors 2,4,8,16 --output <dir>`. **Output Naming**: Files MUST be named `nlcd_{state}_res_{factor}m.tif` (e.g., `nlcd_co_res_60m.tif`) in the `data/derived/` directory. **Constraint**: MUST use chunked processing (windowed reads) with 2000x2000 pixel windows to stay within 7GB RAM. **Prerequisite**: T004 (Data Models), T005 (IO Utils), T013 (Data Ingestion).
 - [ ] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
 - [X] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
 
@@ -151,6 +151,18 @@
 
 ---
 
+## Phase 5.5: MAUP & Topological Narrative Analysis (Review Revision)
+
+**Goal**: Address the "Modifiable Areal Unit Problem" (MAUP) not just as a statistical nuisance, but as a fundamental narrative limit. Explicitly analyze phase transitions and the "story" of aggregation.
+
+- [ ] T042 [P] [US3] [Rev] Implement `code/analysis.py::compute_topological_features` to calculate non-linear metrics beyond Moran's I (e.g., Euler characteristic, cluster count, perimeter-area fractal dimension) for each resolution level. **Rationale**: To detect "phase transitions" where the nature of the pattern changes, as suggested by the reviewer. **Input**: `data/derived/` rasters. **Output**: `data/results/topological_metrics.csv`. **Prerequisite**: T014.
+- [ ] T043 [US3] [Rev] Implement `code/visualization.py::plot_maup_narrative` to generate a composite visualization overlaying the Power Curve (from T028) with the Topological Metrics (from T042). **Goal**: Visually identify if the drop in statistical power correlates with a topological phase transition (e.g., sudden drop in cluster count) rather than a smooth linear decay. **Output**: `data/results/maup_narrative_plot.png`. **Prerequisite**: T028, T042.
+- [ ] T044 [US3] [Rev] Generate `data/results/maup_narrative_report.md`. **Content**: Explicitly discuss the "story" of the aggregation. Does the landscape "lose its voice" at a specific scale? Does the narrative shift from "patchy" to "homogeneous" abruptly? **Constraint**: Must reference the specific resolution where the topological shift occurs and compare it to the power threshold identified in T029. **Prerequisite**: T043.
+
+**Checkpoint**: MAUP narrative and topological limits explicitly addressed.
+
+---
+
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories and final verification
@@ -163,7 +175,7 @@
 - [X] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. **Command**: `python -m code.main --full-sweep`. **Verification**: Check `data/results/threshold_report.txt` exists.
 - [X] T041 Run `quickstart.md` validation. **Procedure**: Execute all commands in `quickstart.md` and verify success exit codes.
 
-**Note**: MAUP effects are implicitly captured in the power curve and threshold analysis; no dedicated MAUP report is required by the spec.
+**Note**: MAUP effects are now explicitly captured in the new Phase 5.5 analysis; the previous implicit assumption is replaced by active topological investigation.
 
 ---
 
@@ -178,6 +190,7 @@
 - **User Stories (Phase 2+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **MAUP Narrative (Phase 5.5)**: Depends on T014 (Resampling) and T028 (Power Curve) to correlate topological shifts with power loss.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -197,6 +210,10 @@
  - **T032**: Depends on T025a
  - **T035**: Depends on T025a
  - **T036**: Depends on T035
+- **MAUP Narrative (Phase 5.5)**:
+ - **T042**: Depends on T014 (Resampling)
+ - **T043**: Depends on T028 (Power Curve), T042
+ - **T044**: Depends on T043
 
 ### Within Each User Story
 
@@ -247,7 +264,8 @@ Task: "Implement resampling.py to generate 60m, 120m, 240m, 480m rasters..."
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add MAUP Narrative (Phase 5.5) → Synthesize topological insights with power data
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -258,6 +276,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2 (requires T010 first)
  - Developer C: User Story 3
+ - Developer D: MAUP Narrative (Phase 5.5) (can start once T014 is done)
 3. Stories complete and integrate independently
 
 ---
@@ -271,5 +290,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Removed Tasks**: T017 (merged into T014), T031 (removed due to ambiguity), T044 (MAUP report removed as scope creep), T045-T048 (Topological/Cultural analysis removed as scope creep).
+- **Removed Tasks**: T017 (merged into T014), T031 (removed due to ambiguity), T044 (MAUP report removed as scope creep - now replaced by T044 in Phase 5.5), T045-T048 (Topological/Cultural analysis removed as scope creep - now integrated in Phase 5.5).
 - **Updated Tasks**: T010 (Fixed sample size), T014 (Added output naming and chunking constraint), T021 (Strict 1000 permutations), T035 (Mandatory), T036 (Mandatory).
+- **New Tasks**: T042, T043, T044 added to address Dan Rockmore's review regarding MAUP, topological phase transitions, and the "story" of aggregation.
