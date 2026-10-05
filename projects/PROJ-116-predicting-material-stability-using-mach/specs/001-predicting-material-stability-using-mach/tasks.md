@@ -24,9 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-116-predicting-material-stability-using-mach/`
+- [X] T001a [P] Create directory structure for `projects/PROJ-116-predicting-material-stability-using-mach/` (data/raw, data/processed, data/models, code, code/utils, outputs, outputs/figures, outputs/logs, outputs/metrics, tests, state)
+- [X] T001b [P] Initialize git repository and create `README.md` in `projects/PROJ-116-predicting-material-stability-using-mach/`
 - [X] T002 Initialize Python 3.11 project with dependencies in `projects/PROJ-116-predicting-material-stability-using-mach/code/requirements.txt` (pymatgen, scikit-learn, pandas, numpy, matplotlib, seaborn, requests, datasets, shap)
-- [ ] T003 [P] Configure linting and formatting tools in `projects/PROJ-116-predicting-material-stability-using-mach/code/`
+- [X] T003 [P] Configure linting and formatting tools (black, flake8, mypy) in `projects/PROJ-116-predicting-material-stability-using-mach/code/`
 
 ---
 
@@ -35,6 +36,7 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**Note**: Phase 2 tasks depend on Phase 1 completion (directory structure and git repo must exist).
 
 - [X] T004 Setup logging infrastructure in `projects/PROJ-116-predicting-material-stability-using-mach/code/utils/logging.py` with file and console handlers
 - [X] T005 [P] Create base data models for `MaterialEntry` and `FeatureVector` in `projects/PROJ-116-predicting-material-stability-using-mach/code/__init__.py` or `data_models.py`
@@ -60,11 +62,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `download_data.py` to fetch OQMD data, filter for Li-rich rock-salt structures, and save to `projects/PROJ-116-predicting-material-stability-using-mach/data/raw/` (FR-001). Explicitly log a warning if the sample count is less than a sufficient threshold and proceed with available data.
-- [ ] T013 [US1] Implement `feature_engineering.py` to compute bulk Magpie features only. Handle missing values by imputing with dataset median. **Explicitly log the count of skipped entries or imputed values to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/imputation_log.txt`**. Output to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/baseline_features.parquet`.
-- [ ] T014 [US1] Implement `train_baseline.py` to train a Gradient Boosting Regressor on Magpie features with hyperparameter tuning on a validation split. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/baseline_model.pkl` and save the tuning results (best params, scores) to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_tuning_results.json`. **Verify that best_params and validation_scores are recorded in the JSON.**
-- [ ] T015 [US1] Implement evaluation logic in `evaluate.py` to generate predictions on the test set and calculate MAE/RMSE. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_results.csv`. <!-- FAILED: unspecified -->
-- [ ] T016 [US1] Add validation to ensure `baseline_results.csv` contains predicted formation energies and metrics even if error > 0.1 eV/atom.
+- [ ] T012 [US1] Implement `download_data.py` to fetch OQMD data from the **OQMD Zenodo repository** using the specific URL pattern for Li-rich rock-salt structures. **Filter** the dataset to include only Li-rich oxides with rock-salt structures and fully relaxed DFT energies. **Verify** the sample count: if < 500, log a warning `Warning: Reduced statistical power due to low sample count (< 500)` and proceed with available data; otherwise, log success. Save raw data to `projects/PROJ-116-predicting-material-stability-using-mach/data/raw/` (FR-001). Ensure the task fails loudly if the real data source is unreachable (no synthetic fallback).
+- [ ] T013 [US1] Implement `feature_engineering.py` to compute bulk Magpie features only. **Handle missing values** by imputing with the dataset median **OR skipping the specific feature for that entry** (per spec Edge Cases). **Log** the count of skipped entries or imputed values to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/imputation_log.txt`. **Output** to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/baseline_features.parquet`. **Reference Schema defined in data-model.md** for column names and types. **Depends on T012**.
+- [ ] T014 [US1] Implement `train_baseline.py` to train a Gradient Boosting Regressor on Magpie features with hyperparameter tuning on a validation split. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/baseline_model.pkl` and save the tuning results (best params, scores) to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_tuning_results.json`. **Verify that best_params and validation_scores are recorded in the JSON.** **Depends on T013**.
+- [ ] T015 [US1] Implement evaluation logic in `evaluate.py` to generate predictions on the test set and calculate MAE/RMSE. **Include validation logic** to ensure `baseline_results.csv` contains predicted formation energies and metrics even if error > 0.1 eV/atom. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/baseline_results.csv`. **Depends on T014**.
 - [ ] T017 [US1] Add logging for dataset size, feature count, and training metrics in `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -84,11 +85,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Extend `feature_engineering.py` to compute local coordination features (Voronoi stats: coordination number, face area, solid angle; bond-length histograms) **using pymatgen on the raw crystal structures from data/raw/ (produced by T012)**. Append to the feature matrix. <!-- ATOMIZE: requested -->
+- [ ] T020 [US2] Extend `feature_engineering.py` to compute local coordination features (Voronoi stats: coordination number, face area, solid angle; bond-length histograms) **using pymatgen on the raw crystal structures from data/raw/ (produced by T012)**. Append to the feature matrix. **Depends on T012**.
 - [ ] T021 [US2] Implement logic to handle degenerate Voronoi cells or missing bond lengths by skipping the feature for that entry and logging the count.
-- [ ] T022 [US2] Save the augmented feature set to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/augmented_features.parquet`. <!-- FAILED: unspecified -->
-- [ ] T023 [US2] Implement `train_augmented.py` to train a second Gradient Boosting Regressor on the combined feature set **with hyperparameter tuning performed on the validation split**. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/augmented_model.pkl` and save tuning results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/augmented_tuning_results.json`. **Verify that the tuning results are recorded in the JSON.**
-- [ ] T024 [US2] Implement comparative analysis in `evaluate.py` to calculate MAE and R² for the augmented model and the delta relative to the baseline. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/comparison_metrics.json` (must include MAE_delta and R2_delta).
+- [ ] T022 [US2] Save the augmented feature set to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/augmented_features.parquet`.
+- [ ] T023 [US2] Implement `train_augmented.py` to train a second Gradient Boosting Regressor on the combined feature set **with hyperparameter tuning performed on the validation split**. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/augmented_model.pkl` and save tuning results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/augmented_tuning_results.json`. **Verify that the tuning results are recorded in the JSON.** **Depends on T022**.
+- [ ] T024 [US2] Implement comparative analysis in `evaluate.py` to calculate MAE and R² for the augmented model and the delta relative to the baseline. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/comparison_metrics.json` (must include MAE_delta and R2_delta). **Depends on T023**.
 - [ ] T025 [US2] Generate a feature importance plot (SHAP or Permutation) highlighting the top local coordination features. Save to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/figures/feature_importance.png`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -108,15 +109,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Implement convex hull distance calculation using `pymatgen` `PhaseDiagram` for all predictions and ground truth values. **Handle cases where pymatgen fails due to missing elemental references by excluding the entry from classification metrics but RETAINING it in the regression analysis, logging the reason. Verify that the filtered dataset for regression contains N entries (where N = total - excluded_count).**
-- [ ] T037b [US3] **Save the calculated hull distances for all entries to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/hull_distances.parquet`.** This artifact is required for downstream classification and sensitivity tasks.
-- [ ] T038 [US3] Implement classification logic to label materials as "stable" (distance ≤ 0.00) or "metastable" (0.00 < distance ≤ threshold). **Depends on T037b (hull_distances.parquet).**
-- [ ] T039 [US3] Implement ROC curve generation and AUC-ROC calculation in `evaluate.py`. Save the plot to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/figures/roc_curve.png` and the metric to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/metrics/roc_auc.json`.
-- [ ] T040 [US3] Implement sensitivity analysis script to sweep thresholds around the 0.05 eV/atom region. Calculate Recall, Precision, F1, and **calculated variance in false-positive/false-negative rates** for each. **Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/sensitivity_analysis.csv` containing columns: threshold, recall, precision, F1, variance_fp, variance_fn.** **Verify that sensitivity_analysis.csv exists and contains the required columns.** **Depends on T037b (hull_distances.parquet) and predictions from T015/T024.**
-- [ ] T041a [US3] **Calculate variance metrics (Recall variance, Precision variance) from `sensitivity_analysis.csv` and save to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/metrics/variance_summary.json`.** **Depends on T040.**
-- [ ] T041b [US3] Generate the final robustness report in `projects/PROJ-116-predicting-material-stability-using-mach/outputs/robustness_report.md` by analyzing `variance_summary.json`. Explicitly state if the model's ability to distinguish metastable phases is robust (variance < 5%) or sensitive to the threshold choice. **Depends on T041a.**
+- [ ] T037 [US3] Implement convex hull distance calculation using `pymatgen` `PhaseDiagram` for all predictions and ground truth values. **Handle cases where pymatgen fails due to missing elemental references** by **excluding the entry from classification metrics but RETAINING it in the regression analysis**. **Log every exclusion with format: [EXCLUSION] Entry ID: {id}, Reason: {reason}** to the exclusion log. **Save the calculated hull distances for all entries to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/hull_distances.parquet`** as the final step of this task. **Verify that the filtered dataset for regression contains N entries (where N = total - excluded_count).** **Depends on T012**.
+- [ ] T038 [US3] Implement classification logic to label materials as "stable" (distance ≤ 0.00) or "metastable" (0.00 < distance ≤ threshold). **Depends on T037**.
+- [ ] T039 [US3] Implement ROC curve generation and AUC-ROC calculation in `evaluate.py`. Save the plot to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/figures/roc_curve.png` and the metric to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/metrics/roc_auc.json`. **Depends on T038**.
+- [ ] T040 [US3] Implement sensitivity analysis script to sweep thresholds **{0.04, 0.05, 0.06} eV/atom**. Calculate Recall, Precision, F1, and **variance_fp/variance_fn (defined as standard deviation of the metric values across the sweep thresholds)** for each. **Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/sensitivity_analysis.csv` containing columns: threshold, recall, precision, F1, variance_fp, variance_fn, low_sample_flag**. **Flag low sample size** (< 500) in `low_sample_flag` column if applicable. **Verify that sensitivity_analysis.csv exists and contains the required columns.** **Depends on T037 and predictions from T015/T024**.
+- [ ] T041a [US3] **Calculate variance metrics (Recall variance, Precision variance) from `sensitivity_analysis.csv` and save to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/metrics/variance_summary.json`.** **Depends on T040**.
+- [ ] T041b [US3] Generate the final robustness report in `projects/PROJ-116-predicting-material-stability-using-mach/outputs/robustness_report.md` by analyzing `variance_summary.json`. Explicitly state if the model's ability to distinguish metastable phases is robust (variance < 5%) or sensitive to the threshold choice. **Depends on T041a**.
 - [ ] T042 [US3] Add logging for dataset size, feature count, and training metrics in `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/`.
-- [ ] T043 [US3] Perform a Permutation Test for model validation to handle non-normal error distributions. Shuffle the target labels (formation energy) to generate a null distribution of performance metrics and compare against the actual model performance. **Requires trained models from T014 and T023.** Save the p-value and test statistics to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/metrics/permutation_test_results.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,17 +137,17 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Foundational (Phase 2)**: **Depends on Phase 1 completion** - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data download (T012) and feature engineering base (T013)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on predictions from US1 and US2 (T015, T024) and hull distances (T037b)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on predictions from US1 and US2 (T015, T024) and hull distances (T037)
 
 ### Within Each User Story
 
@@ -207,9 +206,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
