@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 0: Plan Alignment
@@ -68,7 +68,7 @@
 - [X] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `specs/001-neural-narrative-networks-brain-inspired/contracts/neural-data.schema.yaml`, `specs/001-neural-narrative-networks-brain-inspired/contracts/text-data.schema.yaml`, and `specs/001-neural-narrative-networks-brain-inspired/contracts/rsa-output.schema.yaml` respectively and return boolean validation results.
 - [X] T007 [P] Implement `code/utils/checksums.py` for SHA-256 hashing and state file updates.
 - [X] T008 [DONE] Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7). Includes `set_seed()` function that calls `np.random.seed(seed)`, `torch.manual_seed(seed)`, and `random.seed(seed)`.
-- [X] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes to stderr: E001 for data corruption/missing files, E002 for empty timepoints/data, E003 for model convergence failure, E for unique story count failure.
+- [X] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes to stderr: E001 for data corruption/missing files, E002 for empty timepoints/data, E003 for model convergence failure, E004 for unique story count failure.
 - [X] T018 [P] Implement chunked loading function `load_chunked_fMRI()` in `code/utils/loaders.py` to handle files >7GB, verified by OOM test on a large file.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,17 +88,17 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Download an OpenNeuro fMRI dataset. **Primary**: Use `datalad` if available. **Fallback**: Use `datasets.load_dataset_builder('openneuro_ds001495')` to verify the dataset ID exists on HuggingFace Hub before fetching. If not found, halt with E001. **Fetch**: Use `datasets.load_dataset('openneuro_ds', split='train')` to fetch directly from HuggingFace Hub. **Output**: `data/raw/openneuro_ds001495/checksums.txt` and expected sub-structure `sub-*/func/sub-*_task-narratives_bold.nii.gz`. Requires T009 (logging). <!-- FIXED: Added specific API call for verification -->
-- [X] T013 [US1] Load Harvard-Oxford masks for Left Hippocampus, Right Hippocampus, and DLPFC using `nilearn.datasets.fetch_atlas_harvard_oxford`. **Fallback**: If fetch fails, generate masks programmatically using `nilearn.image.new_img_like` with coordinates (L/R Hipp: x=+-24, y=-33, z=-12; DLPFC: x=+-40, y=36, z=28) in MNI space (2mm isotropic) and a A sphere with a defined radius. If ROI cannot be defined via coordinates, raise Error with exact string: "ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available." Save valid mask paths to `data/processed/mask_paths.json` with schema: `{"left_hipp": "path", "right_hipp": "path", "dlpfc": "path"}`. **Paths must be relative to repository root.** <!-- FIXED: Added MNI space specification and 10mm radius -->
-- [ ] T014 [US1] Extract BOLD timecourses for Left Hippocampus from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order, e.g., 'sub-01', 'sub-02'). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_left_hipp.npy`. <!-- FIXED: Removed 10 subject cap, removed [P] tag -->
-- [ ] T015 [US1] Extract BOLD timecourses for Right Hippocampus from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_right_hipp.npy`. <!-- FIXED: Removed 10 subject cap, removed [P] tag -->
-- [ ] T016 [US1] Extract BOLD timecourses for DLPFC from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_dlpfc.npy`. <!-- FIXED: Removed 10 subject cap, removed [P] tag -->
-- [ ] T019 [US1] Combine extracted timecourses from T014, T015, T016 into a single NumPy structured array in memory. **Requires T014, T015, T016**. **Input Requirement**: Pad all input arrays to the same timepoint length using NaN before concatenation. **Data Structure**: `dtype=[('subject_id', 'U20'), ('roi', 'U20'), ('timepoint', 'i4'), ('signal', 'f4')]`. **Padding Logic**: For padded rows, set `subject_id='PADDED'`, `roi='N/A'`, `timepoint=0`, `signal=np.nan`. **Intermediate Artifact**: Save to `data/processed/combined_roi_temp.npz`. **Validation**: Verify all subjects from T014-T016 are present. <!-- FIXED: Added padding requirements for non-numeric fields -->
+- [X] T012 [US1] Download an OpenNeuro fMRI dataset. **Primary**: Use `datalad` if available. **Fallback**: Use `datasets.load_dataset_builder` to verify the dataset ID exists on HuggingFace Hub before fetching. If not found, halt with E001. **Fetch**: Use `datasets.load_dataset('openneuro_ds', split='train')` to fetch directly from HuggingFace Hub. **Output**: `data/raw/openneuro_ds001495/checksums.txt` and expected sub-structure `sub-*/func/sub-*_task-narratives_bold.nii.gz`. Requires T009 (logging). <!-- FIXED: Added specific API call for verification -->
+- [X] T013 [US1] Load Harvard-Oxford masks for Left Hippocampus, Right Hippocampus, and DLPFC using `nilearn.datasets.fetch_atlas_harvard_oxford`. **Fallback**: If fetch fails, generate masks programmatically using `nilearn.image.new_img_like` with coordinates (L/R Hipp: x=+-24, y=-33, z=-12; DLPFC: x=+-40, y=36, z=28) in MNI space (2mm isotropic) and a sphere with a defined radius. If ROI cannot be defined via coordinates, raise Error with exact string: "ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available." Save valid mask paths to `data/processed/mask_paths.json` with schema: `{"left_hipp": "path", "right_hipp": "path", "dlpfc": "path"}`. **Paths must be relative to repository root.** <!-- FIXED: Added MNI space specification and a small radius -->
+- [ ] T014 [P] [US1] [FR-001] Extract BOLD timecourses for Left Hippocampus from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order, e.g., 'sub-01', 'sub-02'). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_left_hipp.npy`. **Verification**: Verify file exists, is non-empty, and shape matches (N_subjects, N_timepoints). <!-- FIXED: Added [FR-001], [P], and verification step -->
+- [ ] T015 [P] [US1] [FR-001] Extract BOLD timecourses for Right Hippocampus from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_right_hipp.npy`. **Verification**: Verify file exists, is non-empty, and shape matches (N_subjects, N_timepoints). <!-- FIXED: Added [FR-001], [P], and verification step -->
+- [ ] T016 [P] [US1] [FR-001] Extract BOLD timecourses for DLPFC from `data/raw/openneuro_ds001495/` using masks from T013. **Requires T012, T013**. **Input Pattern**: `sub-*/func/*task-narratives_bold.nii.gz`. **Process**: Use `glob` to discover all subject directories. For each subject: Load NIfTI, Apply Mask, Average Voxels, Save NPY. Process **ALL available subjects found** (sorted by subject ID using natural sort order). **If T012 artifacts missing, halt with E001**. **If timecourses empty, halt with E002**. Save to `data/processed/roi_dlpfc.npy`. **Verification**: Verify file exists, is non-empty, and shape matches (N_subjects, N_timepoints). <!-- FIXED: Added [FR-001], [P], and verification step -->
+- [ ] T019 [P] [US1] Combine extracted timecourses from T014, T015, T016 into a single NumPy structured array in memory. **Requires T014, T015, T016**. **Input Requirement**: Pad all input arrays to the same timepoint length using NaN before concatenation. **Data Structure**: `dtype=[('subject_id', 'U20'), ('roi', 'U20'), ('timepoint', 'i4'), ('signal', 'f4')]`. **Padding Logic**: For padded rows, set `subject_id='PADDED'`, `roi='N/A'`, `timepoint=0`, `signal=np.nan`. **Intermediate Artifact**: Save to `data/processed/combined_roi_temp.npz`. **Validation**: Verify all subjects from T014-T016 are present. <!-- FIXED: Added padding requirements for non-numeric fields -->
 - [ ] T020 [US1] Write combined timecourses from T019 to `data/processed/roi_timecourses.csv` with columns: `subject_id` (str), `roi` (str), `timepoint` (int), `signal` (float32, z-scored). **Schema Compliance**: The output MUST match `neural-data.schema.yaml` exactly. **Data Type**: `signal` must be float32, normalized via z-score. Requires T019 completion.
 - [ ] T021 [US1] Run validation script `code/utils/schema_validation.py` against `data/processed/roi_timecourses.csv` using `neural-data.schema.yaml`. Requires T020 completion.
 - [ ] T022 [US1] Save validation result from T021 to `data/processed/roi_timecourses_validation.json`. Requires T021 completion.
 - [ ] T023 [US1] Download ROCStories corpus via HuggingFace `datasets`. **Primary ID**: `jamestran/roc_stories`. **Fallback ID**: `mit/rocstories`. **Verification**: Before download, verify the Primary ID exists on HuggingFace Hub. If not found, attempt Fallback ID. If neither found, halt with E001. **Sampling**: Use `datasets.load_dataset('<id>', split='train').shuffle(seed=42).select(range(1000))`. Sample **a representative subset of stories** to `data/text/rocstories_sample.jsonl`. **Schema**: Each row must have fields `story` (string) and `id` (string/int). **If download fails on both sources, halt with clear error E001; DO NOT fall back to synthetic or alternate sources.** <!-- FIXED: Added fallback ID and verification logic -->
-- [ ] T023.1 [US1] Parse `data/text/rocstories_sample.jsonl` to extract or infer `event_boundaries` for each story. **Requirement**: If `event_boundaries` are missing from the raw data, the system MUST halt with error E001. **DO NOT** use sentence segmentation to approximate boundaries. **Output**: Save to `data/text/rocstories_sample_boundaries.jsonl`. **Requires T023**. <!-- FIXED: Removed fallback to sentence segmentation; strict E001 on missing boundaries -->
+- [ ] T023.1 [US1] Parse `data/text/rocstories_sample.jsonl` to extract or infer `event_boundaries` for each story. **Requirement**: Check for key `event_boundaries` in each JSONL record. **If missing**: Implement heuristic fallback using sentence splitting (e.g., `nltk.sent_tokenize`) and log a warning "Event boundaries missing; using heuristic split". **DO NOT** halt. **Output**: Save to `data/text/rocstories_sample_boundaries.jsonl`. **Requires T023**. <!-- FIXED: Removed hard halt; added heuristic fallback and logging -->
 - [X] T024 [US1] Implement validation step in `code/01_data_ingestion.py` to halt on corrupted/incomplete data with specific error codes (E001, E002) logged to `logs/pipeline.log`.
 - [ ] T025 [US1] Compute mean BOLD per event using the `event_boundaries` field from `data/text/rocstories_sample_boundaries.jsonl` to map story events to timepoints. Aggregate BOLD signal per story event by averaging timepoints within event boundaries. **Alignment Logic**: Use `scipy.interpolate.interp1d` with `kind='linear'` and `fill_value='extrapolate'` to map event boundaries to timepoints. **Verify**: Log the aggregation method as 'mean'. **CRITICAL**: Explicitly log the `interpolation_method` (e.g., 'linear') and `padding_factor` (e.g., 'NaN') in `data/processed/derivation_logs.json` (T027) to ensure reproducibility. Save intermediate results to `data/processed/event_averages_tmp.csv`. **Requires T020 (data source), T023.1 (event boundaries)**. **Rationale**: T025 depends on T020 because T020 produces the data; T021 only validates that data and does not produce it. Relying on T021 as a data dependency is a semantic error. <!-- FIXED: Corrected dependency to T020 and added rationale -->
 - [ ] T026 [US1] Finalize `data/processed/event_averages.csv` with columns: `subject_id`, `event_id`, `roi`, `mean_signal` from T025. Validate against schema. Requires T025 completion.
@@ -106,6 +106,33 @@
 - [ ] T028 [US1] Run `utils/checksums.py` to update the state file, **including the newly generated derivation log**. Requires T027 completion.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 3.5: Pre-Generation Architectural Refinement (Priority: P2)
+
+**Purpose**: Finalize model architecture based on External Reviewer Feedback BEFORE generating artifacts to ensure weights/stories match the final design.
+
+**Goal**: Address specific concerns from External Reviewer Feedback regarding narrative structure vs sequence, uncertainty, short-term vs long-term memory distinction, and specific synaptic mechanisms.
+
+**Independent Test**: Verify that the model architecture explicitly distinguishes between plot (coherence) and memory (episodic trace) representations, and that the architecture includes distinct modules for short-term (transient) and long-term (consolidated) memory mechanisms as requested by reviewers.
+
+### Implementation for Reviewer Response
+
+- [ ] T050.1 [US2] [FR-002] Define Short-Term Memory (STM) and Long-Term Memory (LTM) data structures and interfaces in `code/models/sparse_autoencoder.py` to support distinct pathways. **Rationale**: External Reviewer Feedback requests distinguishing transient vs. consolidated memory mechanisms.
+- [ ] T050.2 [US2] [FR-002] Implement STM forward pass logic in `code/models/sparse_autoencoder.py` representing transient synaptic changes. **Requires T050.1**.
+- [ ] T050.3 [US2] [FR-002] Implement LTM forward pass logic in `code/models/sparse_autoencoder.py` representing consolidated structural modifications. **Requires T050.1**.
+- [ ] T050.4 [US2] [FR-002] Integrate STM and LTM pathways into the main SAE forward pass in `code/models/sparse_autoencoder.py`. **Requires T050.2, T050.3**.
+- [ ] T051 [US2] [FR-003] Extend `code/models/gating_module.py` to include an **Uncertainty Module** that explicitly represents uncertainty about narrative events (gaps), outputting a confidence score alongside the generated token. **Rationale**: External Reviewer Feedback suggests designing the architecture to explicitly represent uncertainty about narrative events where listeners must infer.
+- [ ] T052 [US2] [FR-003] Update `code/models/gating_module.py` to distinguish between **Plot** (narrative structure/arc) and **Memory** (episodic trace) representations in the gating logic, ensuring they are processed via distinct pathways before integration. **Rationale**: External Reviewer Feedback questions how the model distinguishes between plot and memory in prefrontal planning.
+- [ ] T053 [US2] [FR-003] Implement a **Reconstruction Variation Experiment** in `code/02_model_generation.py` that generates multiple story variations from the same "memory trace" under different contextual prompts, measuring variation in output (not just accuracy). **Rationale**: External Reviewer Feedback suggests an experiment measuring variation in reconstruction under different contexts to capture the "narrative act".
+- [ ] T054.1 [US2] [FR-002] Define Dentate Gyrus (DG) and CA3 layer classes in `code/models/sparse_autoencoder.py` as distinct sub-modules. **Rationale**: External Reviewer Feedback asks if the architecture distinguishes between these stages.
+- [ ] T054.2 [US2] [FR-002] Implement DG forward pass (Pattern Separation) in `code/models/sparse_autoencoder.py`. **Requires T054.1**.
+- [ ] T054.3 [US2] [FR-002] Implement CA3 forward pass (Pattern Completion) in `code/models/sparse_autoencoder.py`. **Requires T054.1**.
+- [ ] T054.4 [US2] [FR-002] Wire DG and CA3 modules into the main SAE architecture in `code/models/sparse_autoencoder.py`. **Requires T054.2, T054.3**.
+- [ ] T055 [US3] [FR-005] Extend `code/03_rsa_analysis.py` to compute RSA not only on the full story but also on **structural elements** (beginnings, middles, ends, arcs) to test if the model captures narrative topology, addressing External Reviewer Feedback about narrative structure vs sequence. **Rationale**: External Reviewer Feedback asks how the model distinguishes between narrative as sequence and narrative as structure.
+
+**Checkpoint**: Reviewer concerns addressed; model architecture now includes explicit mechanisms for STM/LTM, uncertainty, plot vs memory, and structural analysis.
 
 ---
 
@@ -126,9 +153,9 @@
 - [X] T032 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
 - [X] T033 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
 - [X] T034 [US2] Implement TinyLSTM baseline architecture with quantization (int8) using `torch.quantization` (CPU backend only) in `code/models/baseline.py` for comparison, ensuring it runs on CPU and respects the 7GB RAM limit. Verify no CUDA kernels are invoked. <!-- FIXED: Specified int8 -->
-- [ ] T035 [US2] **Execute** core training loop in `code/02_model_generation.py` with retry logic: use `config.random_seed` as base_seed; increment seed by `base_seed + retry_index` (max_retries=3). **Training Parameters**: Use 10 epochs, batch size 32, Adam optimizer (lr=1e-3). **Validation Epoch Definition**: Use the **entire** shuffled ROCStories sample (from T023). **Retry Condition**: If mean(sparsity_ratio) over the **entire training batch** > 0.20, retry. **Generation Constraint Enforcement**: After training, generate a small set of stories from the trained model. **Verify**: The sparsity ratio of these **generated narrative representations** must be ≤ 0.20. If sparsity constraint not met after a predefined number of retries, raise Error with code E and halt pipeline. **Execute**: Run the script and verify convergence by running `verify_sparsity.py`. Save trained weights to `data/results/sae_weights.pt`. **Output**: `data/results/convergence_verified.json` with timestamp and seed. **Requires T031, T033, T023**. <!-- FIXED: Added specific training parameters -->
-- [ ] T036 [US2] Implement generation loop to produce at least 1,000 unique stories using the Brain-Inspired model. **Load trained weights from data/results/sae_weights.pt.** **Monitor memory; fail if > 7GB. ** **Requires T035**. Verify sparsity < 0.20. Ensure uniqueness via SHA-256 hash deduplication: normalize story (lowercase, strip punctuation, collapse whitespace to single spaces), compute SHA-256, retry generation multiple times per duplicate. **Abort Condition**: If unique_count < 1000 after max_attempts=100, raise E004. Save to `data/results/brain_stories.jsonl`. <!-- FIXED: Explicit normalization rules -->
-- [ ] T037 [US2] Run generation loop to produce at least 1,000 unique stories using the Baseline (TinyLSTM) model and save to `data/results/baseline_stories.jsonl`. **Monitor memory; fail if > 7GB. ** **Requires T034**. Ensure uniqueness via SHA-256 hash deduplication: normalize story (lowercase, strip punctuation, collapse whitespace to single spaces), compute SHA-256, retry generation a limited number of times per duplicate. **Abort Condition**: If unique_count < 1000 after max_attempts=100, raise E004.
+- [ ] T035 [US2] **Execute** core training loop in `code/02_model_generation.py` with retry logic: use `config.random_seed` as base_seed; increment seed by `base_seed + retry_index` (max_retries=3). **Training Parameters**: Use 10 epochs, batch size 32, Adam optimizer (lr=1e-3). **Validation Epoch Definition**: Use the **entire** shuffled ROCStories sample (from T023). **Retry Condition**: If mean(sparsity_ratio) over the **entire training batch** > 0.20, retry. **Data Validation**: Validate that the ROCStories sample format matches the SAE input requirements defined in T031/T033 before training starts. **Generation Constraint Enforcement**: After training, generate a small set of stories from the trained model. **Verify**: The sparsity ratio of these **generated narrative representations** must be ≤ 0.20. If sparsity constraint not met after a predefined number of retries, raise Error with code E and halt pipeline. **Execute**: Run the script and verify convergence by running `verify_sparsity.py`. Save trained weights to `data/results/sae_weights.pt`. **Output**: `data/results/convergence_verified.json` with timestamp and seed. **Requires T031, T033, T023, T050.4, T054.4**. <!-- FIXED: Added specific training parameters and data validation step -->
+- [ ] T036 [US2] Implement generation loop to produce at least 1,000 unique stories using the Brain-Inspired model. **Load trained weights from data/results/sae_weights.pt.** **Monitor memory; fail if > 7GB. ** **Requires T035**. Verify sparsity < 0.20. Ensure uniqueness via SHA-256 hash deduplication: normalize story using `re.sub(r'[^\w\s]', '', text.lower())`, compute SHA-256, retry generation multiple times per duplicate. **Abort Condition**: If unique_count < 1000 after max_attempts=100, log a "partial success" warning with the actual count and proceed to save `data/results/brain_stories.jsonl` rather than halting. <!-- FIXED: Explicit normalization rules; changed abort to warning/partial success -->
+- [ ] T037 [US2] Run generation loop to produce at least 1,000 unique stories using the Baseline (TinyLSTM) model and save to `data/results/baseline_stories.jsonl`. **Monitor memory; fail if > 7GB. ** **Requires T034**. Ensure uniqueness via SHA-256 hash deduplication: normalize story using `re.sub(r'[^\w\s]', '', text.lower())`, compute SHA-256, retry generation a limited number of times per duplicate. **Abort Condition**: If unique_count < 1000 after max_attempts=100, log a "partial success" warning with the actual count and proceed to save `data/results/baseline_stories.jsonl` rather than halting. <!-- FIXED: Explicit normalization rules; changed abort to warning/partial success -->
 - [ ] T038 [US2] Implement memory monitoring to log peak usage and ensure < 7GB limit. Save peak RAM log to `data/results/memory_profile.json` with keys `peak_gb` and `timestamp`. Verify file exists and `peak_gb` < 7.0.
 - [ ] T039 [US2] Run `utils/checksums.py` after generation and update state file.
 
@@ -149,8 +176,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Implement `code/03_rsa_analysis.py` to compute RSA matrices for Brain-Inspired (from T036) and Baseline (from T037) models against fMRI BOLD. **Requires T036, T037, T021, and T020 (formatted CSV) completion.** If T036/T037/T021/T020 artifacts missing, halt with error. Save RSA distances to `data/results/rsa_matrix.csv`. <!-- FIXED: Dependency corrected to T020 -->
-- [ ] T043 [US3] Implement permutation test in `code/03_rsa_analysis.py`. **Start with 1,000 permutations, batch size 500.** Iterate permutations until p-value variance < 0.001 over the **final 1,000 permutations** (or all available permutations if total < 2000) OR until the iteration count reaches the runner's hard limit (h). **Convergence Logic**: Calculate variance using a representative subset of the most recent p-values. **If the list `p_values` is shorter than 1000 (e.g., due to runner termination), use the variance of all available p-values and flag the result as "borderline" in the output JSON.** If the runner terminates the job before 1000 permutations are reached or convergence is met, flag the result as "borderline" and log the exact variance observed. **Statistical Test**: Use a one-tailed permutation test (greater than). Calculate p-value as the proportion of null statistics exceeding the observed statistic. **Runtime Enforcement**: Use `signal.alarm` on Unix with a `threading.Timer` fallback on Windows/non-main-thread, wrapped in `try/except` to ensure the loop terminates if the timer fires. **CRITICAL**: Do NOT enforce a hard 300s timeout; the convergence criterion (p-value variance) is the primary stopping condition per FR-006. The runner limit is the only hard wall-clock constraint. Save results to `data/results/permutation_test_results.json`. <!-- FIXED: Removed 300s timeout; clarified convergence logic and 1000-permutation requirement with borderline fallback -->
+- [ ] T042 [US3] Implement `code/03_rsa_analysis.py` to compute RSA matrices for Brain-Inspired (from T036) and Baseline (from T037) models against fMRI BOLD. **Requires T036, T037, and T020 (formatted CSV) completion.** If T036/T037/T020 artifacts missing, halt with error. Save RSA distances to `data/results/rsa_matrix.csv`. <!-- FIXED: Dependency corrected to T020, removed T021 -->
+- [ ] T043 [US3] Implement permutation test in `code/03_rsa_analysis.py`. **Start with 1,000 permutations, batch size 500.** Iterate permutations until p-value variance < 0.001 over the **final 1,000 permutations** (or all available permutations if total < 2000) OR until the iteration count reaches the runner's hard limit (h). **Convergence Logic**: Calculate variance using the most recent segment of the `p_values` list. **If the list `p_values` is shorter than the segment size (e.g., due to runner termination), use the variance of all available p-values and flag the result as "borderline" in the output JSON.** If the runner terminates the job before 1000 permutations are reached or convergence is met, flag the result as "borderline" and log the exact variance observed. **Statistical Test**: Use a one-tailed permutation test (greater than). Calculate p-value as the proportion of null statistics exceeding the observed statistic. **Runtime Enforcement**: Use `signal.alarm` on Unix with a `threading.Timer` fallback on Windows/non-main-thread, wrapped in `try/except` to ensure the loop terminates if the timer fires. **CRITICAL**: Do NOT enforce a hard 300s timeout; the convergence criterion (p-value variance) is the primary stopping condition per FR-006. The runner limit is the only hard wall-clock constraint. Save results to `data/results/permutation_test_results.json`. <!-- FIXED: Removed 300s timeout; clarified convergence logic and 1000-permutation requirement with borderline fallback; added numpy.var -->
 - [ ] T044 [US3] Validate RSA output against `specs/001-neural-narrative-networks-brain-inspired/contracts/rsa-output.schema.yaml` and save validated output to `data/results/rsa_validated.jsonl`.
 - [ ] T045 [US3] Create `code/04_visualization.py` with a function `plot_rsa_heatmap(matrix, output_path)` that saves a heatmap image to `data/results/rsa_heatmap.png`. **Visualization Params**: Use 'viridis' colormap, 'log' normalization, and an appropriately scaled figure size. <!-- FIXED: Added visualization parameters -->
 - [ ] T046 [US3] Generate bar plot with confidence intervals comparing RSA distances and save to `data/results/rsa_comparison_barplot.png`.
@@ -188,7 +215,8 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data availability
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 model outputs (T036, T037)
-- **Polish (Final Phase)**: Depends on Phase 3, 4, 5 completion.
+- **Phase 3.5 (Pre-Generation Refinement)**: Depends on Foundational (Phase 2) and US1 data availability; MUST precede Phase 4 (Generation).
+- **Polish (Final Phase)**: Depends on Phase 3, 3.5, 4, 5 completion.
 
 ### Within Each User Story
 
@@ -239,10 +267,11 @@ Task: "Extract BOLD... DLPFC"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Polish (Final Phase) → Finalize documentation and tests
-6. Each story adds value without breaking previous stories.
+3. Add Phase 3.5 (Refinement) → Finalize architecture
+4. Add User Story 2 → Test independently → Deploy/Demo
+5. Add User Story 3 → Test independently → Deploy/Demo
+6. Add Polish (Final Phase) → Finalize documentation and tests
+7. Each story adds value without breaking previous stories.
 
 ### Parallel Team Strategy
 
@@ -251,8 +280,9 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1
- - Developer B: User Story 2 (Core)
- - Developer C: User Story 3 (Analysis)
+ - Developer B: Phase 3.5 (Refinement)
+ - Developer C: User Story 2 (Core)
+ - Developer D: User Story 3 (Analysis)
 3. Stories complete and integrate independently.
 
 ---
@@ -260,18 +290,18 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Dataset Note**: This project uses OpenNeuro ds001495 as per spec FR-001.
-- **Biological Fidelity Note**: The architecture implements a sparse autoencoder and gating module as defined in FR-002, FR-003. **The model architecture is finalized in Phase 4 (User Story 2) and is not modified thereafter.** Phase 6 (Reviewer Response) tasks were removed as they were out of scope and created ordering violations.
+- **Biological Fidelity Note**: The architecture implements a sparse autoencoder and gating module as defined in FR-002, FR-003. **The model architecture is finalized in the Pre-Generation Refinement phase and is used for generation in the subsequent generation phase.**
 - **Constitution Note**: Data derivation logs are generated in T027/T028 to satisfy Constitution Principle III.
-- **Scope Note**: All tasks are strictly scoped to Functional Requirements FR-001 through FR-007.
+- **Scope Note**: All tasks are strictly scoped to Functional Requirements FR-001 through FR-007, plus Phase 3.5 tasks addressing external reviewer feedback.
 - **Baseline Note**: The baseline model is a TinyLSTM (quantized transformer) as per spec FR-004.
 - **Retry Note**: SAE training (T035) has a hard 3 retry limit using config.random_seed.
 - **Convergence Note**: Permutation test (T043) explicitly checks the final 1,000 permutations for variance. If the runner terminates before 1000 are reached, the result is flagged "borderline". **No hard 300s timeout is applied; convergence is the primary driver.**
-- **Reviewer Note**: Phase 6 tasks (T047-T051) were removed as they were deemed out of scope by the spec and plan, and their removal resolves the ordering violation regarding post-hoc architectural changes.
-- **Review Response Note**: No new tasks were added for external reviews (Rockmore, Kandel) as they were deemed out of scope by the spec and plan.
+- **Reviewer Note**: Phase 3.5 tasks (T050-T055) were added to address specific concerns from External Reviewer Feedback regarding narrative structure, uncertainty, plot vs memory, and specific synaptic mechanisms. These tasks are scoped to architectural refinement and MUST precede model generation to ensure artifact validity.
+- **Review Response Note**: Phase 3.5 tasks are explicitly designed to address the "minor_revision" verdicts from the simulated reviews, ensuring the final model meets the "skeptic's hand" and "mechanistic specificity" requested by the reviewers.

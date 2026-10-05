@@ -1,75 +1,85 @@
 # Data Model: Neural Narrative Networks
 
 ## Overview
-This document defines the data structures used throughout the pipeline, ensuring type safety and contract compliance. All data flows from `raw` (downloaded) to `processed` (cleaned) to `results` (analyzed).
 
-## Data Entities
+This document defines the data schemas, storage formats, and transformation logic for the Neural Narrative Networks project. All data artifacts are stored under `data/` and processed according to the pipeline defined in `plan.md`.
 
-### 1. Neural Timecourse
-Represents the BOLD signal for a specific ROI and subject.
-*   **Source**: OpenNeuro ds000208 (processed via `01_data_ingestion.py`).
-*   **Format**: `.npy` (NumPy array).
-*   **Shape**: `(n_timepoints, n_voxels)` or `(n_timepoints, 1)` if averaged.
-*   **Attributes**:
-    *   `subject_id`: String (e.g., "sub-001").
-    *   `roi`: Enum ["hippocampus_left", "hippocampus_right", "dlpfc_left", "dlpfc_right"].
-    *   `story_event_ids`: List of integers linking timepoints to story events (aligned via semantic similarity).
+## Data Flow
 
-### 2. Narrative Representation
-Vector representation of a story event from the model.
-*   **Source**: Model outputs (`02_model_generation.py`).
-*   **Format**: `.npy` or `.csv`.
-*   **Shape**: `(n_events, embedding_dim)`.
-*   **Attributes**:
-    *   `model_type`: Enum ["brain_inspired", "baseline_sae"].
-    *   `story_id`: Integer.
-    *   `event_index`: Integer.
-    *   `activation_vector`: List of floats.
+1. **Raw Ingestion**: Download OpenNeuro (fMRI) and ROCStories (text) from verified URLs.
+2. **Preprocessing**: 
+   - Extract ROI timecourses (Left Hipp, Right Hipp, DLPFC) using Harvard-Oxford masks (threshold 25%) or coordinate fallback.
+   - **HRF-Aligned Extraction**: Apply a Finite Impulse Response (FIR) model to deconvolve the BOLD signal, addressing hemodynamic lag.
+   - Align text events with fMRI timepoints based on the *intersection* of shared stories.
+3. **Model Input**: Tokenized stories (exact fMRI stimuli) and event boundaries.
+4. **Model Output**: Hidden state vectors for each story event.
+5. **Analysis**: RSA matrices and p-values.
 
-### 3. RSA Matrix
-Pairwise similarity matrix.
-*   **Source**: RSA Analysis (`03_rsa_analysis.py`).
-*   **Format**: `.csv` (symmetric).
-*   **Shape**: `(n_events, n_events)`.
-*   **Attributes**:
-    *   `model_type`: Enum.
-    *   `roi`: Enum.
-    *   `similarity_metric`: String ("pearson_correlation").
+## Entity Definitions
 
-### 4. Permutation Result
-Statistical test output.
-*   **Source**: RSA Analysis (`03_rsa_analysis.py`).
-*   **Format**: `.json`.
-*   **Structure**:
-    ```json
-    {
-      "observed_difference": float,
-      "p_value": float,
-      "permutations": a sufficiently large number,
-      "convergence_variance": float,
-      "is_significant": boolean
-    }
-    ```
+### Neural Timecourse
+- **Description**: A matrix of BOLD signal values over time for a specific ROI, deconvolved using FIR.
+- **Source**: OpenNeuro ds001495.
+- **Format**: `.npy` (NumPy array).
+- **Shape**: `(N_subjects, N_timepoints)`.
+- **Validation**: Check for NaNs, ensure non-zero variance.
 
-## Data Flow Diagram
+### Narrative Representation
+- **Description**: A vector of hidden state activations from the model.
+- **Source**: SAE or TinyLSTM generator.
+- **Format**: `.npy` or `.pt`.
+- **Shape**: `(N_stories, N_events, Hidden_Dim)`.
+- **Validation**: Ensure sparsity ratio ≤ 0.20 for SAE.
 
-```mermaid
-graph TD
-    A[OpenNeuro ds000208 Raw] -->|Ingestion| B(Neural Timecourses .npy)
-    C[ROCStories Raw] -->|Ingestion| D(Story Samples .jsonl)
-    B -->|Alignment| E[Aligned Events]
-    D -->|Alignment| E
-    E -->|RSA Input| F[RSA Analysis]
-    D -->|Generation| G[Model Hidden States .npy]
-    G -->|RSA Input| F
-    F -->|Output| H[RSA Matrices .csv]
-    H -->|Permutation Test| I[Statistical Results .json]
-    I -->|Visualization| J[Plots .png]
+### RSA Matrix
+- **Description**: A symmetric matrix of pairwise similarities between representations.
+- **Source**: `code/analysis/rsa_computation.py`.
+- **Format**: `.csv`.
+- **Shape**: `(N_conditions, N_conditions)`.
+- **Validation**: Symmetry check, diagonal = 1.
+
+## Storage Schema
+
+```text
+data/
+├── raw/
+│   ├── openneuro/
+│   │   ├── test-00000-of-00016.parquet  # Raw fMRI data
+│   │   └── dataset_dict.json            # Metadata
+│   └── rocstories/
+│       ├── train-00000-of-00001.parquet # Raw text data
+│       └── ROCStories__spring2016.csv   # Alternative format
+├── processed/
+│   ├── neural/
+│   │   ├── roi_left_hipp.npy            # Left Hippocampus timecourses (HRF-aligned)
+│   │   ├── roi_right_hipp.npy           # Right Hippocampus timecourses (HRF-aligned)
+│   │   └── roi_dlpfc.npy                # DLPFC timecourses (HRF-aligned)
+│   └── text/
+│       └── rocstories_sample.jsonl      # Sampled stories with event boundaries (shared stimuli)
+└── analysis/
+    ├── rsa_matrices/
+    │   ├── sae_rsm.csv                  # SAE Representational Similarity Matrix
+    │   └── baseline_rsm.csv             # Baseline RSM
+    └── results/
+        └── permutation_test_results.csv # P-values and convergence stats
 ```
 
-## Processing Rules
+## Transformation Logic
 
-1.  **Immutability**: Raw files in `data/raw/` are never modified.
-2.  **Checksum**: Every file in `data/processed/` and `data/results/` must have a corresponding SHA-256 hash recorded in the project state file (via `utils/checksums.py`).
-3.  **Chunking**: fMRI data loading must implement chunking if `n_timepoints * n_voxels * 4 bytes` > 1GB.
-4.  **Alignment**: Story event IDs in neural data must align with story indices in model outputs via semantic similarity. Mismatches are logged and excluded.
+### Preprocessing (Neural)
+1. Load `test-00000-of-00016.parquet`.
+2. Identify subjects with valid story conditions.
+3. Apply Harvard-Oxford mask for Left Hippocampus (threshold 25%, linear registration to MNI).
+4. **HRF-Aligned Extraction**: Apply FIR model to deconvolve BOLD signal.
+5. Save to `roi_left_hipp.npy`.
+
+### Preprocessing (Text)
+1. Load `train-00000-of-00001.parquet`.
+2. **Fallback**: Infer event boundaries via NLTK if missing.
+3. Filter to the set of stories that match the fMRI stimuli (intersection).
+4. Save to `rocstories_sample.jsonl`.
+
+### RSA Computation
+1. Load `roi_left_hipp.npy` and `sae_hidden_states.npy`.
+2. Compute pairwise correlation for each condition.
+3. Store in `sae_rsm.csv`.

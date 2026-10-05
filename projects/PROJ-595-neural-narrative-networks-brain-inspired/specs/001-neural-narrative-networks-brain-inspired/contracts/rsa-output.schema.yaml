@@ -41,7 +41,7 @@ properties:
       convergence_variance:
         type: number
       is_significant:
-        type: boolean
+        boolean
     required:
       - observed_difference
       - p_value

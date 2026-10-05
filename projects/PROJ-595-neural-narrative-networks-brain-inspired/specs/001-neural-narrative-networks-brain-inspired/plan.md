@@ -1,41 +1,47 @@
 # Implementation Plan: Neural Narrative Networks
 
-**Branch**: `001-neural-narrative-networks` | **Date**: 2026-05-31 | **Spec**: `specs/001-neural-narrative-networks/spec.md`
+**Branch**: `001-neural-narrative-networks` | **Date**: 2026-05-31 | **Spec**: [spec.md]
+**Input**: Feature specification from `/specs/001-neural-narrative-networks/spec.md`
 
 ## Summary
 
-This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control improve narrative structure alignment with human fMRI data compared to standard architectures. The approach involves: (1) ingesting OpenNeuro fMRI data (Narratives) and ROCStories text data; (2) aligning event boundaries via semantic similarity; (3) building a custom PyTorch model with a sparse autoencoder (pattern separation) and a gating module (executive control); (4) generating narratives and computing Representational Similarity Analysis (RSA) against human BOLD signals for the *common stimulus subset*; and (5) validating significance via a label-shuffling permutation test. All operations are constrained to CPU-only execution on GitHub Actions free-tier resources.
+This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control mechanisms improve narrative alignment with human fMRI data compared to standard architectures. The approach involves downloading OpenNeuro ds001495 and ROCStories data, implementing a Sparse Autoencoder (SAE) with a gating module in PyTorch (CPU-only), processing the *exact story stimuli* from the fMRI dataset (not generating new stories), and performing Representational Similarity Analysis (RSA) with permutation testing.
+
+**Critical Constraint**: The analysis relies on a one-to-one mapping between model inputs and fMRI stimuli. If the intersection of stories in the fMRI dataset and the ROCStories corpus is insufficient (N < 10), the pipeline halts with error E002, as the core analysis is untestable.
+
+**Fallback Strategy**: If precomputed masks for DLPFC are missing, the system falls back to standard Harvard-Oxford atlas coordinates (threshold 25%). If both fail, the system halts with error E001.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: PyTorch (CPU-only wheel), `datasets` (HuggingFace), `nibabel`, `nilearn`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `sentence-transformers`  
-**Storage**: Local file system (`data/`, `code/`), no external DB.  
-**Testing**: `pytest` with contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: A minimal CPU configuration, 7GB RAM, 14GB Disk).  
-**Project Type**: Computational Neuroscience / Research Pipeline.  
-**Performance Goals**: <6h total runtime, <7GB peak RAM.  
-**Constraints**: No GPU, no CUDA, no 8-bit quantization requiring CUDA, no large-LLM fine-tuning.  
-**Scale/Scope**: A cohort of subjects (fMRI), A large corpus of generated stories, A sufficient number of permutation test iterations will be performed to ensure robust statistical inference..
+**Primary Dependencies**: `torch` (CPU), `datasets` (Hugging Face), `nibabel`, `numpy`, `scikit-learn`, `matplotlib`, `pandas`, `nltk`  
+**Storage**: Local file system (`data/`, `code/`)  
+**Testing**: `pytest`  
+**Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM total; Sufficient RAM specifically for the pattern separation layer)  
+**Project Type**: Computational Neuroscience / ML Research  
+**Performance Goals**: Complete data ingestion, model processing, and RSA analysis within 6 hours.  
+**Constraints**: CPU-only execution; peak memory < 7 GB; no local GPU; strict adherence to verified dataset URLs.  
+**Scale/Scope**: A subset of shared stories (intersection of fMRI and ROCStories); RSA on fMRI timecourses for ~ subjects.
 
-**Contract Validation**:
-- **Data Ingestion**: Validates `neural-data.schema.yaml` and `text-data.schema.yaml`.
-- **RSA Output**: Validates `rsa-output.schema.yaml`.
-- **Versioning**: Executes `utils/checksums.py` after every data/code change to update `state/projects/PROJ-595-neural-narrative-networks-brain-inspired.yaml`.
+> Note: Empirical values (e.g., exact subject counts, specific story lengths) are deferred to the implementation phase or derived from the verified datasets. The target of a large set of unique stories is only relevant if the fMRI dataset contains a correspondingly large number of distinct event-locked stimuli, which is unlikely; the plan prioritizes valid alignment over volume.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/`; data fetched from verified HuggingFace/URLs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **Compliant** | All dataset URLs cross-referenced with the "# Verified datasets" block in the spec. No invented URLs. |
-| **III. Data Hygiene** | **Compliant** | Data downloaded to `data/raw/`, processed to `data/processed/`. Checksums recorded in state file via `utils/checksums.py`. No in-place modification. |
-| **IV. Single Source of Truth** | **Compliant** | RSA matrices and p-values generated by `code/` will be the sole source for paper figures. |
-| **V. Versioning Discipline** | **Compliant** | **Procedure**: After `01_data_ingestion.py` and `02_model_generation.py`, the pipeline calls `utils/checksums.py` to compute SHA-256 hashes and update `state/projects/PROJ-595-neural-narrative-networks-brain-inspired.yaml`. |
-| **VI. Neuro-Biological Fidelity** | **Compliant** | Architecture explicitly implements sparse autoencoder (pattern separation) and gating (executive control). Validation via RSA against OpenNeuro ROIs. |
-| **VII. Computational Constraints** | **Compliant** | Plan explicitly avoids GPU/CUDA. Uses CPU-tractable Autoencoder baseline and sampled data subsets. Memory usage capped via chunking. |
+- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic data fetching via `datasets.load_dataset` with verified URLs.
+- **II. Verified Accuracy**: All dataset citations (OpenNeuro, ROCStories) map strictly to the "Verified datasets" block in the spec. The Reference-Validator Agent will be invoked to verify URLs before execution. If verification fails, the pipeline halts with error E000, logs the specific URL, and aborts.
+- **III. Data Hygiene**: Pipeline includes checksumming of downloaded artifacts (SHA-256 hash computed on the file object immediately after writing using Python's `hashlib.sha256`) and separation of raw vs. processed data. No in-place modification.
+- **IV. Single Source of Truth**: RSA matrices and p-values generated by `code/` will be the sole source for `paper/` figures.
+- **V. Versioning**: Artifacts in `data/` will be tracked via content hashes in the project state file (`state/projects/PROJ-595-neural-narrative-networks-brain-inspired.yaml`).
+- **VI. Neuro-Biological Fidelity**: The plan explicitly implements a Sparse Autoencoder (pattern separation) and a Gating Module (executive control) as per FR-002/FR-003. Validation uses RSA against OpenNeuro ds001495 ROIs.
+- **VII. Computational Constraints**: The plan prioritizes CPU-tractable methods (TinyLSTM baseline, SAE on sampled data) and includes a fallback strategy for memory limits (chunked loading, subsampling). The 6-hour and 7GB targets are the operational limits for measuring SC-002 and ensuring the job completes.
+
+## Contract Traceability
+
+- **neural-data.schema.yaml**: Validates FR-001 (data extraction) and SC-001 (sparsity ratio).
+- **rsa-output.schema.yaml**: Validates FR-005/FR-006 (RSA and permutation test) and SC-003/SC-004 (significance and alignment).
+- **text-data.schema.yaml**: Validates FR-004 (story processing) and SC-005 (story count).
 
 ## Project Structure
 
@@ -47,11 +53,7 @@ specs/001-neural-narrative-networks/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── neural-data.schema.yaml
-│   ├── text-data.schema.yaml
-│   └── rsa-output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
 ```
 
 ### Source Code (repository root)
@@ -60,41 +62,66 @@ specs/001-neural-narrative-networks/
 projects/PROJ-595-neural-narrative-networks-brain-inspired/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── 01_data_ingestion.py
-│   ├── 02_model_generation.py
-│   ├── 03_rsa_analysis.py
-│   ├── 04_visualization.py
-│   └── utils/
-│       ├── loaders.py
-│       ├── metrics.py
-│       └── checksums.py
+│   ├── requirements.txt  # Single source of truth for dependencies (Constitution I)
+│   ├── data_ingestion/
+│   │   ├── download_neural.py
+│   │   ├── download_text.py
+│   │   └── preprocess.py
+│   ├── models/
+│   │   ├── sparse_autoencoder.py
+│   │   ├── gating_module.py
+│   │   ├── baseline_lstm.py
+│   │   └── generator.py
+│   ├── analysis/
+│   │   ├── rsa_computation.py
+│   │   ├── permutation_test.py
+│   │   └── visualization.py
+│   └── main.py
 ├── data/
-│   ├── raw/               # Downloaded raw data (gitignored)
-│   ├── processed/         # Cleaned timecourses and story samples
-│   └── results/           # RSA matrices and plots
-├── tests/
-│   ├── test_ingestion.py
-│   ├── test_model.py
-│   └── test_rsa.py
-└── state/
-    └── projects/PROJ-595-neural-narrative-networks-brain-inspired.yaml
+│   ├── raw/
+│   │   ├── openneuro/
+│   │   └── rocstories/
+│   └── processed/
+│       ├── neural/
+│       └── text/
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-**Structure Decision**: Single project structure selected to maintain tight coupling between data ingestion, model generation, and analysis. This minimizes overhead and ensures the entire pipeline fits within the allocated CI window.
+**Structure Decision**: Single project structure with clear separation of `data_ingestion`, `models`, and `analysis` to enforce the dependency order (Data -> Model -> Analysis).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Custom Sparse Autoencoder | Required to model hippocampal pattern separation (FR-002). | Standard transformers lack explicit sparsity constraints on hidden states. |
-| Gating Module | Required to model prefrontal executive control (FR-003). | Standard attention mechanisms do not distinguish between "plot" and "memory" coherence. |
-| Cross-Corpus Alignment | Required to map ROCStories to ds000208 events (Methodology). | Direct 1:1 mapping is impossible without semantic alignment of event boundaries. |
-| Label Shuffling Permutation | Required for valid RSA null hypothesis (Methodology). | Row/column permutation of RDMs destroys metric structure. |
+| Dual Architecture (SAE + Baseline) | Required to test the specific hypothesis (Research Question) that brain-inspired mechanisms improve alignment. FR-004/FR-005/FR-006 mandate the comparison. | A single architecture cannot provide a comparative baseline for RSA. |
+| RSA + Permutation Test | Required to establish statistical significance of neural alignment (FR-006). | Simple correlation without permutation testing does not account for multiple comparisons or distributional assumptions. |
+| CPU-Only Constraint | Mandatory for GitHub Actions free-tier execution (Constitution VII) and mandated by FR-004 (constrained memory limits on CPU) and SC-002. | GPU acceleration is unavailable; attempting to run full BERT would exceed RAM and time limits. |
 
-## Project Steps & Schema Validation
+## Tasks
 
-1.  **Data Ingestion**: Download OpenNeuro datasets and ROCStories. Validate output against `neural-data.schema.yaml` and `text-data.schema.yaml`. Run `utils/checksums.py`.
-2.  **Model Generation**: Train/Generate using Brain-Inspired (SAE+Gating) and Baseline (Standard SAE). Validate output against `text-data.schema.yaml` (for generated stories). Run `utils/checksums.py`.
-3.  **RSA Analysis**: Compute RSA on the *common stimulus subset*. Validate output against `rsa-output.schema.yaml`.
-4.  **Visualization**: Generate plots.
+### Phase 1: Data Ingestion & Preprocessing
+
+- **T012**: Download OpenNeuro ds001495 and ROCStories.
+- **T014**: Extract BOLD timecourses for Left Hippocampus [P] (FR-001). *Verify: file exists, shape matches (N_subjects, N_timepoints).*
+- **T015**: Extract BOLD timecourses for Right Hippocampus [P] (FR-001). *Verify: file exists, shape matches.*
+- **T016**: Extract BOLD timecourses for DLPFC [P] (FR-001). *Verify: file exists, shape matches.*
+- **T020**: Apply HRF-aligned extraction (FIR model) to timecourses.
+- **T023**: Download and parse ROCStories. *Fallback: Infer event boundaries via NLTK if missing.*
+- **T023.1**: Check for intersection of story stimuli. *If N < 10, halt with E002.*
+- **T025**: Compute mean BOLD per event (HRF-aligned) for the shared stories.
+
+### Phase 2: Model Processing
+
+- **T031**: Implement SAE class (FR-002).
+- **T033**: Implement Gating Module (FR-003).
+- **T035**: Process shared stories with SAE (FR-004). *Constraint: Peak memory < 2GB for SAE layer.*
+- **T036**: Process shared stories with TinyLSTM Baseline (FR-004).
+- **T037**: Save hidden states for RSA.
+
+### Phase 3: Analysis
+
+- **T042**: Compute RSA matrices for SAE and Baseline (FR-005). *Depends on T020, T036, T037.*
+- **T043**: Execute permutation test on difference of correlations (FR-006). *Convergence: p-value variance < 0.001 over last 1,000 permutations.*
+- **T044**: Generate visualizations (FR-007).

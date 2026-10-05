@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RSA Result Schema"
+description: "Schema for RSA matrix and permutation test results"
+type: object
+properties:
+  rsa_matrix:
+    type: object
+    description: "Symmetric matrix of pairwise similarities"
+    additionalProperties:
+      type: number
+      description: "Correlation coefficient"
+  permutation_test:
+    type: object
+    description: "Results of the permutation test"
+    properties:
+      p_value:
+        type: number
+        description: "P-value from the permutation test"
+        minimum: 0
+        maximum: 1
+      n_permutations:
+        type: integer
+        description: "Number of permutations performed"
+        minimum: 1
+      convergence_variance:
+        type: number
+        description: "Variance of p-value over the last 1,000 permutations"
+        minimum: 0
+    required:
+      - p_value
+      - n_permutations
+      - convergence_variance
+  model_type:
+    type: string
+    enum:
+      - "sae"
+      - "baseline"
+    description: "Type of model used for this result"
+  roi:
+    type: string
+    description: "Region of Interest (e.g., 'left_hipp', 'dlpfc')"
+required:
+  - rsa_matrix
+  - permutation_test
+  - model_type
+  - roi
+additionalProperties: false

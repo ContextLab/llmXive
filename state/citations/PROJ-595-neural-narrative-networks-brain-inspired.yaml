@@ -1,22 +1,44 @@
-- artifact_hash: 961c74b9b3fa8c251e0b9b5137b7f740065d9f9908c91133b66e550fbf300b8f
+- artifact_hash: 4654da3610884a660f5b5a1f01fa7c5349b29f3d6ec5901a99f9aa578c963526
   artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OpenNeuro
+  fetched_title: test-00000-of-00016.parquet
   kind: url
-  value: https://openneuro.org/datasets/ds000208`
-  verification_status: verified
-  verified_against_url: https://openneuro.org/datasets/ds000208
-  verified_at: '2026-07-13T16:16:37.423418Z'
-- artifact_hash: 961c74b9b3fa8c251e0b9b5137b7f740065d9f9908c91133b66e550fbf300b8f
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&xip=B8AzC3VquyY&X-Xet-Cas-Uid=public&Expires=1791175397&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnhpcD1COEF6QzNWcXV5WSZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxMTc1Mzk3fX19XX0_&Signature=MEUCIEXuNUSZSIBU-RkgMQgaH1oimnly9O8wiWHbx0SYot8rAiEAjc3B6g-Bo87WAhgvMS0EEC-1jXtM%7EtukFSGw-Yh7W7Q_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-05T03:43:17.057488Z'
+- artifact_hash: 4654da3610884a660f5b5a1f01fa7c5349b29f3d6ec5901a99f9aa578c963526
   artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/research.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: dataset_dict.json
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/clane9/openneuro-fslr64k.arrow/5295df2714969c7d29ccb8ee126b4ac8164d94f7/dataset_dict.json?%2Fdatasets%2Fclane9%2Fopenneuro-fslr64k.arrow%2Fresolve%2Fmain%2Fdataset_dict.json=&etag=%2231145eaf92f08c428500ba08c6ee6e186851a3ac%22
+  verified_at: '2026-10-05T03:43:17.057488Z'
+- artifact_hash: 4654da3610884a660f5b5a1f01fa7c5349b29f3d6ec5901a99f9aa578c963526
+  artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: train-00000-of-00001-c17b7a9172e87209.parquet
   kind: url
   value: https://huggingface.co/datasets/umerah/RocStories-Splits/resolve/main/data/train-00000-of-00001-c17b7a9172e87209.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64f04f869c22609d3229bb01/60e5694ed4bc71f789a05f86137d61b0b0be7e87435ae5c1c6c33b40d273a269?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-c17b7a9172e87209.parquet%3B+filename%3D%22train-00000-of-00001-c17b7a9172e87209.parquet%22%3B&Expires=1783962997&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmMDRmODY5YzIyNjA5ZDMyMjliYjAxLzYwZTU2OTRlZDRiYzcxZjc4OWEwNWY4NjEzN2Q2MWIwYjBiZTdlODc0MzVhZTVjMWM2YzMzYjQwZDI3M2EyNjlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYzE3YjdhOTE3MmU4NzIwOS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYzE3YjdhOTE3MmU4NzIwOS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM5NjI5OTd9fX1dfQ__&Signature=MEYCIQDAT%7ERsoBqsZ7tsdC1mv4QNlkWyj90k6c2wZ3PLIlENOQIhAPfCUHvIVrKsTzEAVrclh1ot2IK8L5vviP8mMPx9JVt4&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-13T16:16:37.423418Z'
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64f04f869c22609d3229bb01/60e5694ed4bc71f789a05f86137d61b0b0be7e87435ae5c1c6c33b40d273a269?xip=B8AzC3VquyY&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-c17b7a9172e87209.parquet%3B+filename%3D%22train-00000-of-00001-c17b7a9172e87209.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1791175415&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmMDRmODY5YzIyNjA5ZDMyMjliYjAxLzYwZTU2OTRlZDRiYzcxZjc4OWEwNWY4NjEzN2Q2MWIwYjBiZTdlODc0MzVhZTVjMWM2YzMzYjQwZDI3M2EyNjlcXD94aXA9QjhBekMzVnF1eVkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLWMxN2I3YTkxNzJlODcyMDkucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLWMxN2I3YTkxNzJlODcyMDkucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkxMTc1NDE1fX19XX0_&Signature=MEYCIQDvDr-xp8dzoZ8bKqkLZueC5lfiuDrTWVyBIkRdmT5YqgIhAOeg%7Eyy7JDL8hawsw-2dftFdGvjleGsSzYkabS8C9sY4&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-05T03:43:17.057488Z'
+- artifact_hash: 4654da3610884a660f5b5a1f01fa7c5349b29f3d6ec5901a99f9aa578c963526
+  artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: ROCStories__spring2016.csv
+  kind: url
+  value: https://huggingface.co/datasets/wza/roc_stories/resolve/main/ROCStories__spring2016.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6270905930409cb167038f2c/61abd9a281a8398018d05b9ac56b910c67717525b34807c39ba6d30ff0087d4e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ROCStories__spring2016.csv%3B+filename%3D%22ROCStories__spring2016.csv%22%3B&xip=B8AzC3VquyY&X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&Expires=1791175417&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3MDkwNTkzMDQwOWNiMTY3MDM4ZjJjLzYxYWJkOWEyODFhODM5ODAxOGQwNWI5YWM1NmI5MTBjNjc3MTc1MjViMzQ4MDdjMzliYTZkMzBmZjAwODdkNGVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Uk9DU3Rvcmllc19fc3ByaW5nMjAxNi5jc3YlM0IrZmlsZW5hbWUlM0QlMjJST0NTdG9yaWVzX19zcHJpbmcyMDE2LmNzdiUyMiUzQiZ4aXA9QjhBekMzVnF1eVkmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTExNzU0MTd9fX1dfQ__&Signature=MEUCIQD%7EiiqnVbF5utx2h7K8q6JHwOSypmM8Hhf7Os6jPRB4vgIgY8GZmSi8ffnsWt6C6CQKsMkRPUmc6m9GpnI96YRo9T0_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-05T03:43:17.057488Z'

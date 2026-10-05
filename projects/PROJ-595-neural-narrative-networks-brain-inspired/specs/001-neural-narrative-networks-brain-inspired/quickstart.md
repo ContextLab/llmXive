@@ -1,76 +1,74 @@
 # Quickstart: Neural Narrative Networks
 
 ## Prerequisites
-*   Python 3.11+
-*   Git
-*   Access to GitHub Actions (for CI execution) or a local machine with sufficient RAM.
+
+- Python 3.11+
+- `pip` (or `conda`)
+- 7 GB+ RAM
+- Internet access (for dataset download)
 
 ## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-595-neural-narrative-networks-brain-inspired
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-595-neural-narrative-networks-brain-inspired
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Execution Workflow
+## Data Ingestion
 
-### Step 1: Data Ingestion
-Download and preprocess the fMRI and text data.
+Run the data ingestion pipeline to download and preprocess datasets:
+
 ```bash
-python code/01_data_ingestion.py
+python code/data_ingestion/download_neural.py
+python code/data_ingestion/download_text.py
+python code/data_ingestion/preprocess.py
 ```
-*   **Input**: Verified URLs (OpenNeuro ds000208, ROCStories).
-*   **Output**: `data/processed/neural/*.npy`, `data/processed/text/stories_sample.jsonl`.
-*   **Validation**: Script exits with error if checksums fail or ROI masks are missing.
-*   **Alignment**: Performs semantic alignment of event boundaries.
 
-### Step 2: Model Generation
-Generate narratives using the brain-inspired and baseline models.
+*Note: This step may take a variable duration depending on network speed. It includes HRF-aligned extraction and intersection checking.*
+
+## Model Processing
+
+Process the shared stories using the brain-inspired (SAE) and baseline (TinyLSTM) models:
+
 ```bash
-python code/02_model_generation.py
+python code/models/generator.py --model sae --output data/processed/sae_stories.jsonl
+python code/models/generator.py --model baseline --output data/processed/baseline_stories.jsonl
 ```
-*   **Input**: `data/processed/text/stories_sample.jsonl`.
-*   **Output**: `data/processed/model/brain_inspired_states.npy`, `data/processed/model/baseline_sae_states.npy`.
-*   **Note**: Runs on CPU. May take several hours.
 
-### Step 3: RSA Analysis
-Compute similarity and perform permutation tests.
+*Note: The model processes only the exact story stimuli from the fMRI dataset, not new generations.*
+
+## Analysis & Visualization
+
+Run the RSA analysis and permutation test:
+
 ```bash
-python code/03_rsa_analysis.py
+python code/analysis/rsa_computation.py
+python code/analysis/permutation_test.py
+python code/analysis/visualization.py
 ```
-*   **Input**: Neural timecourses and model states.
-*   **Output**: `data/results/rsa_matrices.csv`, `data/results/permutation_results.json`.
-*   **Note**: Runs a sufficient number of label-shuffling permutations. Checks convergence.
 
-### Step 4: Visualization
-Generate plots.
-```bash
-python code/04_visualization.py
-```
-*   **Output**: `data/results/rsa_heatmap.png`, `data/results/comparison_barplot.png`.
+## Verification
 
-## Testing
+Verify the outputs:
 
-Run the contract tests to verify data integrity:
-```bash
-pytest tests/ -v
-```
+1. Check that `data/processed/neural/roi_left_hipp.npy` exists and is non-empty.
+2. Check that `data/analysis/results/permutation_test_results.csv` contains a p-value < 0.05 (if significant).
+3. Ensure the generated stories in `data/processed/sae_stories.jsonl` have at least N >= 10 entries (the intersection size).
 
 ## Troubleshooting
 
-*   **Memory Error**: If `MemoryError` occurs, reduce the batch size in `code/02_model_generation.py` or enable chunking in `code/01_data_ingestion.py`.
-*   **ROI Missing**: If the script halts with "ROI definition failed", verify the `nilearn` Harvard-Oxford atlas is accessible.
-*   **Permutation Non-Convergence**: If the p-value variance > 0.001, the result is flagged as "borderline". Check the `data/results/permutation_results.json` for the exact variance.
-*   **Alignment Failure**: If semantic alignment fails, the pipeline will log the number of unaligned events and proceed with the common subset only.
+- **Memory Error**: If you encounter a `MemoryError`, reduce the number of stories sampled in `preprocess.py` or enable chunked loading.
+- **Missing Data**: If the pipeline halts with "ROI definition failed", verify that the OpenNeuro dataset contains the required masks or coordinates.
+- **Insufficient Intersection**: If the pipeline halts with E002, the number of shared stories is insufficient for RSA. The analysis cannot proceed.

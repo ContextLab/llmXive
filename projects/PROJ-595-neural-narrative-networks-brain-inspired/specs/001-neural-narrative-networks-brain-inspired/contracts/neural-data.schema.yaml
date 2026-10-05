@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Neural Timecourse Data Contract"
-description: "Schema for preprocessed fMRI BOLD timecourse data."
+description: "Schema for preprocessed fMRI BOLD timecourse data (HRF-aligned)."
 type: object
 properties:
   file_path:
@@ -27,10 +27,15 @@ properties:
   checksum:
     type: string
     description: "SHA-256 hash of the file content."
+  hrf_method:
+    type: string
+    const: "FIR_deconvolution"
+    description: "Method used for HRF alignment."
 required:
   - file_path
   - subject_id
   - roi
   - shape
   - checksum
+  - hrf_method
 additionalProperties: false

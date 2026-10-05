@@ -1,88 +1,92 @@
 # Research: Neural Narrative Networks
 
-## Research Question
-Do computational models incorporating hippocampal-like pattern separation and prefrontal-like executive control produce narrative structures that better match human fMRI activation patterns during story comprehension compared to standard architectures with the same complexity?
+## Executive Summary
+
+This research investigates whether incorporating hippocampal-like pattern separation (via Sparse Autoencoders) and prefrontal-like executive control (via Gating Modules) into narrative generation models yields hidden state representations that are more similar to human fMRI activation patterns during story comprehension than standard LSTM architectures. The study utilizes the OpenNeuro dataset for neural data and the ROCStories corpus for text.
+
+**Critical Constraint**: The model will process *only* the specific story stimuli present in the fMRI dataset (the intersection). It will not generate new stories. If the intersection is insufficient (N < 10), the analysis is untestable and halts.
 
 ## Dataset Strategy
 
-### Verified Datasets
-The following datasets are used, strictly adhering to the verified URLs provided in the specification.
+### Neural Data (fMRI)
 
-| Dataset | Purpose | Verified Source (URL) | Loading Strategy |
-|:--- |:--- |:--- |:--- |
-| **OpenNeuro ds000208** | fMRI BOLD timecourses (Hippocampus, DLPFC) during naturalistic story listening. | `https://openneuro.org/datasets/ds000208` | Load via `datalad` or `huggingface-datasets` (if mirrored). Extract ROIs using **Harvard-Oxford Atlas** (via `nilearn`). |
-| **ROCStories** | Narrative text corpus for generation. | ` | Load via `datasets.load_dataset`. Sample a large corpus of stories for generation. |
-| **Harvard-Oxford Atlas** | Anatomical definitions (Hippocampus/DLPFC). | Native to `nilearn` (no external URL). | Use `nilearn.datasets.fetch_atlas_harvard_oxford` for standard, versioned coordinates. |
+- **Source**: OpenNeuro ds001495.
+- **Verified URLs**:
+ - `
+ - `
+- **Variables**: BOLD timecourses for Left Hippocampus, Right Hippocampus, and Dorsolateral Prefrontal Cortex (DLPFC).
+- **Strategy**:
+ 1. Load the parquet dataset.
+ 2. Apply Harvard-Oxford masks (thresholded, linear registration to MNI) or coordinate-based fallback to extract ROI timecourses.
+ 3. **HRF-Aligned Extraction**: Use a Finite Impulse Response (FIR) model to deconvolve the BOLD signal, addressing the hemodynamic lag and temporal misalignment. Do not simply average.
+ 4. **Dataset Verification**: Check for the presence of event-locked annotations in the dataset metadata. If absent, halt with E002 (Data Availability Risk).
+ 5. **Intersection Check**: Identify the set of stories present in both the fMRI dataset and the ROCStories corpus. If N < 10, halt with E002.
+- **Feasibility**: The dataset is available via Hugging Face `datasets` library. Streaming and chunked loading (subject-by-subject) will be used to avoid RAM overflow.
 
-**Note on Dataset Variable Fit**:
-- **Stimulus Mismatch**: OpenNeuro ds000208 uses naturalistic stories (e.g., "The Man Who Mistook His Wife for a Hat") which differ from ROCStories.
-- **Alignment Strategy**: To ensure a valid RSA comparison, we will **not** compare across different stories. Instead, we will:
- 1. Identify a subset of events in ds000208 that share semantic themes with ROCStories (or use a common subset if available).
- 2. Implement a **Cross-Corpus Alignment** using `sentence-transformers` to map event boundaries in ROCStories to the continuous timecourse in ds000208 based on semantic similarity of event summaries.
- 3. **Restrict RSA Analysis** *only* to the aligned events where the semantic match exceeds a threshold, ensuring the "stimulus-driven" similarity is controlled for.
+### Text Data (Stories)
 
-## Model Architecture Strategy
+- **Source**: ROCStories Corpus.
+- **Verified URLs**:
+ - `
+ - `
+- **Variables**: Story text, event boundaries (if present).
+- **Strategy**:
+ 1. Download the training split.
+ 2. **Fallback**: If `event_boundaries` are missing, infer them using NLTK sentence segmentation and a heuristic for event transitions. If inference fails, halt with E001.
+ 3. **Intersection**: Filter to the set of stories that match the fMRI stimuli.
+- **Feasibility**: Parquet/CSV formats are directly loadable.
 
-### Brain-Inspired Model (Experimental)
-1. **Pattern Separation Layer (Hippocampal)**: Implemented as a Sparse Autoencoder (SAE).
- * **Mechanism**: Encoder maps input narrative embeddings to a high-dimensional latent space; a sparsity penalty (L1 or KL divergence) enforces activation density ≤ 0.20.
- * **Biological Map**: Mimics the dentate gyrus/CA3 pattern separation function.
- * **Constraint**: Must run on CPU; uses `torch.nn.Linear` with custom sparsity loss.
-2. **Executive Control Module (Prefrontal)**: Implemented as a Gating Mechanism.
- * **Mechanism**: A lightweight MLP evaluates the coherence of the latent representation against a "plot" constraint vector. It modulates the flow of information to the output decoder.
- * **Biological Map**: Mimics DLPFC role in working memory and coherence maintenance.
- * **Distinction**: Unlike standard attention, this gate explicitly separates "episodic trace" (memory) from "narrative structure" (plot).
+### Model Data (Processed)
 
-### Baseline Model (Control)
-* **Architecture**: **Standard Sparse Autoencoder (No Gating)**.
-* **Rationale**: To isolate the effect of the "hippocampal-like" sparsity and "prefrontal" gating, the baseline must match the experimental model's architectural class (Autoencoder) but lack the specific biological mechanisms (Gating).
- * **Mechanism**: Same SAE architecture as the experimental model but *without* the sparsity constraint (or with relaxed sparsity) and *without* the gating module.
- * **Constraint**: Must run on CPU; matches memory footprint of the experimental model.
-* **Correction**: The previous "TinyLSTM" baseline was rejected as it introduced a confound between architecture class (RNN vs. Autoencoder) and the mechanism of interest.
+- **Source**: Internal processing of shared stories by SAE and TinyLSTM.
+- **Strategy**: Process the exact story stimuli from the fMRI dataset. Store hidden states for RSA.
 
-## Statistical Analysis Strategy
+## Methodological Rigor
 
-### Representational Similarity Analysis (RSA)
-1. **Input**:
- * **Neural**: BOLD timecourses averaged per story event for Hippocampus and DLPFC (aligned via semantic similarity).
- * **Model**: Hidden state vectors from the SAE and Baseline SAE at corresponding aligned story events.
-2. **Metric**: Pearson correlation distance (1 - r) between pairwise event representations.
-3. **Matrix Construction**: Symmetric matrices for (Model vs. Human) and (Baseline vs. Human).
+### Statistical Analysis: RSA & Permutation Testing
 
-### Permutation Test
-* **Null Hypothesis**: The RSA distance between the brain-inspired model and human data is not significantly different from the baseline.
-* **Procedure (Label Shuffling)**:
- 1. Compute observed difference in RSA distances ($\Delta_{obs}$).
- 2. **Permute Condition Labels**: Randomly shuffle the *labels* (event indices) of the Model RDM relative to the Human RDM *before* computing the correlation distance. This preserves the internal structure of the RDMs while breaking the specific alignment.
- 3. Compute $\Delta_{perm}$ for each permutation.
- 4. Calculate p-value: $P(\Delta_{perm} \geq \Delta_{obs})$.
-* **Convergence Check**: Variance of p-value over the final 1,000 permutations must be < 0.001. If not, flag as "borderline".
-* **Correction**: The previous "Row/Column Permutation" of the final matrix was invalid as it destroys metric structure. Label shuffling is the standard, valid method for RSA.
+- **Method**: Representational Similarity Analysis (RSA) will compute the correlation between the model's hidden state RDM and the human fMRI RDM.
+- **Primary Test**: A permutation test on the *difference* of correlations (Model A vs. Human minus Model B vs. Human). This directly tests the hypothesis that Model A is *better* than Model B.
+- **Multiple Comparison Correction**: Bonferroni or Holm-Bonferroni correction will be applied to the final p-values for multiple ROIs.
+- **Power Justification**: The permutation test will run with a sufficient number of permutations. Convergence is defined as p-value variance < 0.001 over the final 1,000 permutations (computed using `numpy.var(p_values[-1000:])`). If the dataset size limits power, this will be explicitly acknowledged as a limitation.
+- **Causal Inference**: This is an observational study of model representations vs. neural data. Claims will be framed as "associational alignment" rather than causal proof of mechanism.
+- **Collinearity**: If predictors (e.g., story length vs. complexity) are correlated, their effects will be reported descriptively, and independent effects will not be claimed without orthogonalization.
 
-## Statistical Rigor & Limitations
+### Confounding Control
 
-* **Multiple Comparisons**: RSA is computed for two ROIs (Hippocampus, DLPFC). A Bonferroni correction or False Discovery Rate (FDR) will be applied to the final p-values to control family-wise error rate.
-* **Power Analysis**: The sample size is limited by the verified dataset availability. This is acknowledged as a power limitation. Results will be interpreted as "associational" rather than definitive causal proof of mechanism. The permutation test assesses the significance of the *observed difference* but cannot fully overcome the low degrees of freedom inherent in small-N fMRI studies.
-* **Causal Inference**: The study is observational regarding the model's fit to human data. No randomization of human subjects occurs; claims are limited to "better alignment" rather than "causal mechanism validation".
-* **Collinearity**: The SAE latent space and the gating output are definitionally related (gating operates on SAE output). Independent effects will not be claimed; the system is treated as a unified "brain-inspired" module.
-* **Measurement Validity**: The RSA metric assumes that representational geometry is preserved between fMRI BOLD signals and model hidden states. This is a standard assumption in computational neuroscience but acknowledged as a limitation.
-* **Stimulus Control**: To avoid tautological results (model trained on X matches brain responding to X), RSA is restricted to the **Common Stimulus Subset** where the semantic alignment between ROCStories and ds000208 is verified.
+- **Capacity Matching**: The SAE and TinyLSTM models will be constrained to have similar parameter counts to ensure that any difference in RSA alignment is attributable to the architecture (pattern separation/gating) rather than capacity.
+- **Shuffled Baseline**: A shuffled baseline (preserving statistics but destroying temporal structure) will be used to verify that the RSA signal is not spurious.
 
-## Compute Feasibility & Rationale
+### Dataset Variable Fit
 
-* **CPU-Only**: All models use standard `torch` CPU operations. No CUDA, no 8-bit quantization libraries requiring GPU drivers.
-* **Memory Management**:
- * fMRI data is loaded in chunks (subject-by-subject) to avoid memory overflow.
- * Story generation is batched with a configurable maximum batch size.
- * RSA matrices are computed incrementally to avoid storing full $N \times N$ float64 matrices in RAM if $N$ is large (though $N=1000$ is manageable).
-* **Runtime**: Estimated several hours for generation + 1.5 hours for RSA/Permutation. Total < 6 hours.
+- **Check**: The OpenNeuro ds001495 dataset must contain BOLD timecourses for the specified ROIs and event-locked annotations.
+- **Mismatch Handling**: If the dataset lacks DLPFC masks, the plan falls back to coordinate-based extraction. If the dataset lacks story-condition labels entirely, the RSA cannot be computed per event, and the plan will pivot to whole-story RSA (noting the reduced temporal resolution).
+- **Fatal Flaw**: If the dataset lacks *both* masks and coordinates for the required ROIs, or lacks event-locked annotations for the shared stories, the study is halted as untestable (E002).
 
-## Decision Log
+## Compute Feasibility & Time Complexity
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Use Standard SAE Baseline** | To isolate the effect of "Gating" and "Sparsity", the baseline must match the experimental architecture class (Autoencoder) rather than using an LSTM. |
-| **Permutation Test (Label Shuffling)** | Row/column permutation of RDMs is invalid. Label shuffling preserves metric structure while breaking alignment. |
-| **Cross-Corpus Alignment** | ds000208 and ROCStories are different stories. Semantic alignment is required to establish a 1:1 mapping for RSA. |
-| **Harvard-Oxford Atlas** | Standard, versioned atlas via `nilearn` is more reproducible than user-uploaded parquet files. |
-| **OpenNeuro ds000208** | ds001495 (object recognition) lacks story comprehension conditions. ds000208 is the correct dataset for narrative RSA. |
+### CPU-First Strategy
+
+- **Model Architecture**:
+ - **SAE**: Implemented in PyTorch with `torch.no_grad()` where possible. Hidden dimensionality will be constrained to fit within ~ GB RAM for the layer.
+ - **Baseline**: TinyLSTM (quantized) to ensure memory efficiency.
+- **Data Streaming**: The `datasets` library will be used with `streaming=True` to load fMRI data in chunks, preventing RAM overflow. fMRI data will be loaded subject-by-subject using `nibabel` with memory mapping.
+- **Training/Processing**: The SAE will process the shared stories (N < 100) to ensure completion within the 6-hour job limit.
+
+### Time Complexity Estimate
+
+- **RSA**: Computation of correlation matrices for 20 subjects x 10 events x 512 dimensions is ~10MB of data.
+- **Permutation Test**: iterations is the bottleneck. The test will be parallelized across the available CPU cores. If the full run exceeds 4 hours, a subset of permutations will be used, with a note on power limitation.
+
+### GPU Escape Hatch
+
+- **Trigger**: If the SAE processing or RSA computation fails due to memory constraints on the CPU runner, the execution pipeline will detect the CUDA requirement (if any) and re-run on a Kaggle GPU.
+- **Scaled GPU Form**: If a GPU is required, the plan will use an 8-bit quantized model (`load_in_8bit=True`) and a reduced dataset subset to fit within ~16 GB VRAM.
+- **No Fabrication**: No synthetic CPU approximations of GPU-only methods will be used.
+
+## Decision/Rationale
+
+- **Why SAE for Pattern Separation?** The Sparse Autoencoder enforces a sparsity constraint (activation density ≤ 0.20), mimicking the sparse coding observed in the Dentate Gyrus.
+- **Why RSA?** RSA allows direct comparison of high-dimensional representational structures between models and brains without requiring pixel-wise or timepoint-wise alignment.
+- **Why CPU?** The GitHub Actions free tier is the target deployment environment. The methods are selected to be tractable on this hardware.
+- **Why HRF-Aligned Extraction?** Simple averaging introduces noise due to hemodynamic lag. FIR modeling provides a more accurate temporal alignment.
