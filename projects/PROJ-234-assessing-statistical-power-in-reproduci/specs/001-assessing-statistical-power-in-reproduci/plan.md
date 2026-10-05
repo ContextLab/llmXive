@@ -13,7 +13,7 @@ This feature implements a reproducible audit of **Minimum Detectable Effect Size
 **Primary Dependencies**: `openml`, `statsmodels`, `pandas`, `requests`, `matplotlib`, `pytest`, `beautifulsoup4`  
 **Storage**: Local filesystem (`data/` for artifacts, `code/` for scripts)  
 **Testing**: `pytest` with contract validation against YAML schemas (`contracts/dataset_metadata.schema.yaml`, `contracts/power_audit_result.schema.yaml`)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
 **Project Type**: CLI / Data Analysis Pipeline  
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 7GB  
 **Constraints**: No GPU; CPU-only `statsmodels` calculations; strict adherence to OpenML API rate limits; **OA-only publication access** (no scraping paywalled content).  
