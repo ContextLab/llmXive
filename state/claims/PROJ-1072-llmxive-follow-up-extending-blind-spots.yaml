@@ -230,3 +230,257 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T20:12:32Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Blind-Spots-Bench dataset evaluation
+  claim_id: c_daa85fb7
+  context: 'Tasks: llmXive follow-up: extending ''Blind-Spots-Bench: Evaluating Blind
+    Spots in Multimodal Models'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Blind-Spots-Bench_dataset_evaluation
+  kind: entity_fact
+  raw_text: The Blind-Spots-Bench dataset is the subject of the evaluation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:09:58Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: 4-bit quantized Llama-3-8B-Instruct model usage
+  claim_id: c_75f5ff0e
+  context: 'inference.model_name (default: ''meta-llama/Llama-3-8B-Instruct-4bit'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a 4-bit quantized Llama-3-8B-Instruct model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:12:51Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model for paraphrase detection
+  claim_id: c_29dc7f2a
+  context: Implement code/utils/semantic_matcher.py using all-MiniLM-L6-v2 for paraphrase
+    detection (FR-011)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All-MiniLM-L6-v2_model_for_paraphrase_detection
+  kind: entity_fact
+  raw_text: The study uses the all-MiniLM-L6-v2 model for paraphrase detection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:12:57Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Default validation sample size is 30
+  claim_id: c_7b538ceb
+  context: 'validation.sample_size (default: 30)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default validation sample size is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:07Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Default study minimum sample size is 40
+  claim_id: c_5c82c58e
+  context: 'study.min_sample_size (default: 40)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default study minimum sample size is 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:16Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Default inference timeout is 10 minutes
+  claim_id: c_9ffdbd91
+  context: 'inference.timeout_minutes (default: 10)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default inference timeout is 10 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:24Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Default study maximum runtime is 6 hours
+  claim_id: c_66c5ccd2
+  context: 'study.max_runtime_hours (default: 6)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default study maximum runtime is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:33Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size N=10
+  claim_id: c_80d5d936
+  context: Generate CoT traces for a small pilot set (N=10) using the filtered dataset
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot study uses a sample size of N=10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T03:13:33Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Default semantic matching threshold is 0.75
+  claim_id: c_abb02e96
+  context: 'Generate data/pilot/tuned_threshold.json with threshold: 0.75 and source:
+    ''default'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default semantic matching threshold is 0.75.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:42Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Global runtime limit 6 hours
+  claim_id: c_64da4561
+  context: Check if elapsed_time + 600 > 21600 (6 hours). If true, halt immediately
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global runtime limit for the inference loop is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:13:46Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Filter for Abstract Reasoning and Object-Centric categories
+  claim_id: c_4562d1ce
+  context: Retain only 'Abstract Reasoning' and 'Object-Centric' categories.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_for_Abstract_Reasoning_and_Object-Centric_categories
+  kind: entity_fact
+  raw_text: The study filters for 'Abstract Reasoning' and 'Object-Centric' categories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:16:20Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Classifier validation agreement rate threshold 85%
+  claim_id: c_77a9cb64
+  context: "MUST verify the rate is \u2265 85% to validate the methodology as required\
+    \ by SC-006."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The agreement rate threshold for validating the classifier is 85%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:16:21Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Consistency check agreement rate threshold 99%
+  claim_id: c_11eb6708
+  context: "MUST verify the rate is \u2265 99% and halt the pipeline if the threshold\
+    \ is not met"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The consistency check agreement rate threshold is 99%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:16:21Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact test for expected cell counts < 5
+  claim_id: c_eb11572e
+  context: If expected cell counts < 5 (using scipy.stats.chi2_contingency expected
+    counts), select Fisher's Exact
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: With large samples, a chi-squared test (or better yet, a G-test) can
+        be used in this situation. However, the significance value it provides is
+        only an approximation, because the sampling distribution of the test statistic
+        that is calculated is only approximately equal to the theoretical chi-squared
+        distribution. The approximation is poor when sample sizes are small, or the
+        data are very unequally distributed among the cells of the table, resulting
+        in the cell counts predicted on the null hypothesis (the "expected values")
+        being low. The usual rule for deciding whether the chi-squared approximation
+        is good enough is that the chi-squared test is not suitable when the expected
+        values in any of the cells of a contingency table are below 5, or below 10
+        when there is only one degree of freedom (this rule is now known to be overly
+        conservative). In fact, for small, sparse, or unbalanced data, the exact and
+        asymptotic p-values can be quite different and may lead to opposite conclusions
+        concerning the hypothesis of interest. In contrast the Fisher exact test is,
+        as its name states, exact as long as the experimental procedure keeps the
+        row and column totals fixed, and it can therefore be used regardless of the
+        sample characteristics. It becomes difficult to calculate with large samples
+        or well-balanced tables, but fortunately these are exactly the conditions
+        where the chi-squared test is appropriate.
+      source_id: Fisher's exact test
+      url: https://en.wikipedia.org/wiki/Fisher's_exact_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: The study uses Fisher's Exact test if expected cell counts are less than
+    5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T03:16:35Z'

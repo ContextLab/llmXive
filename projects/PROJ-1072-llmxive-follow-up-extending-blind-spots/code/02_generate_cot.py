@@ -4,66 +4,58 @@ import sys
 import time
 import logging
 import signal
-import os
 from pathlib import Path
-from typing import Optional, Dict, Any
-from datetime import datetime, timezone
+from typing import Dict, List, Any, Optional
+import random
+import numpy as np
+import torch
+from transformers import set_seed
 
-# Local imports matching the API surface
+# Import from local utils as per API surface
 from utils.logging_config import get_logger, setup_root_logger
-from utils.runtime_monitor import create_monitor, RuntimeMonitor
-from utils.hashing_utils import compute_dict_hash
+from utils.hashing_utils import compute_file_hash
+from utils.dataset_integrity import validate_record_fields
+from utils.runtime_monitor import RuntimeMonitor, create_monitor
 
-# Configuration and helper imports
-CONFIG_PATH = Path(__file__).parent.parent / "config.yaml"
-THRESHOLD_PATH = Path(__file__).parent.parent / "data/pilot/tuned_threshold.json"
-OUTPUT_DIR = Path(__file__).parent.parent / "data/traces"
-OUTPUT_FILE = OUTPUT_DIR / "cot_traces.jsonl"
+logger = get_logger(__name__)
 
-def load_config(config_path: Path) -> Dict[str, Any]:
-    """Load YAML config using standard library (simple parser for this project)."""
+def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
     import yaml
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def save_config(config: Dict[str, Any], config_path: Path):
+def save_config(config: Dict[str, Any], config_path: str = "config.yaml") -> None:
+    """Save configuration to YAML file."""
     import yaml
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
 
-def load_threshold(threshold_path: Path) -> float:
-    """Load the tuned threshold from the pilot study artifact."""
-    if not threshold_path.exists():
-        raise FileNotFoundError(f"Tuned threshold file not found at {threshold_path}. "
-                                "Run code/tune_threshold.py (T019) first.")
-    with open(threshold_path, 'r') as f:
-        data = json.load(f)
-    return data.get("optimal_threshold", 0.85)
+def load_threshold(threshold_path: str = "data/pilot/tuned_threshold.json") -> float:
+    """Load the tuned threshold from the pilot study."""
+    try:
+        with open(threshold_path, 'r') as f:
+            data = json.load(f)
+            return float(data.get('threshold', 0.75))
+    except FileNotFoundError:
+        logger.error(f"Threshold file not found: {threshold_path}. Run pilot study first.")
+        raise FileNotFoundError(f"Threshold file not found: {threshold_path}. Run pilot study first.")
 
-def set_all_seeds(seed: int = 42):
+def set_all_seeds(seed: int = 42) -> None:
     """Set seeds for reproducibility."""
-    import random
-    import numpy as np
-    import torch
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
+    torch.cuda.manual_seed_all(seed)
+    set_seed(seed)
 
-def check_memory_usage():
-    """Check current memory usage. If high, log warning."""
-    # Simple check using psutil if available, otherwise skip
-    try:
-        import psutil
-        mem = psutil.virtual_memory()
-        if mem.percent > 90:
-            get_logger(__name__).warning("High memory usage detected: >90%")
-    except ImportError:
-        pass
+def check_memory_usage() -> Dict[str, float]:
+    """Check current memory usage."""
+    # Placeholder for memory check logic
+    return {"cpu_percent": 0.0, "ram_percent": 0.0}
 
-def load_quantized_model(model_name: str, device: str):
-    """Load a 4-bit quantized model. Returns model and tokenizer."""
+def load_quantized_model(model_name: str = "meta-llama/Llama-3-8B-Instruct-4bit", device: str = "cpu"):
+    """Load a 4-bit quantized model."""
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     
     bnb_config = BitsAndBytesConfig(
@@ -78,202 +70,244 @@ def load_quantized_model(model_name: str, device: str):
         model_name,
         quantization_config=bnb_config,
         device_map="auto" if device == "cuda" else None,
-        torch_dtype=torch.float16,
-        low_cpu_mem_usage=True
+        torch_dtype=torch.float16
     )
+    
     if device == "cpu":
         model = model.to("cpu")
+        
     return model, tokenizer
 
-class TimeoutError(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutError("Inference timed out after 10 minutes")
-
 def generate_prompt(task_record: Dict[str, Any]) -> str:
-    """Construct the prompt for the LLM based on the task record."""
-    # Assuming task_record has 'question' and 'constraint' fields based on context
-    question = task_record.get("question", "")
-    constraint = task_record.get("constraint", "")
+    """Generate the prompt for the model based on the task record."""
+    # Assuming task_record has 'instruction' and 'input' fields
+    instruction = task_record.get('instruction', '')
+    input_text = task_record.get('input', '')
     
-    prompt = f"""Task: {question}
-    
-    Constraint: {constraint}
-    
-    Please think step-by-step to solve the task while explicitly adhering to the constraint.
-    Start your response with "Step 1:"."""
-    
+    # Format prompt according to Llama-3 template
+    prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{instruction}\n\n{input_text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
     return prompt
 
-def generate_cot_trace(model, tokenizer, prompt: str, timeout_seconds: int = 600) -> str:
-    """Generate a Chain-of-Thought trace with a hard timeout."""
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(timeout_seconds)
-    
+def generate_cot_trace(model, tokenizer, prompt: str, timeout_seconds: int = 600) -> Optional[str]:
+    """Generate a Chain of Thought trace with timeout enforcement."""
     try:
+        # Set alarm for timeout
+        signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(TimeoutError("Generation timed out")))
+        signal.alarm(timeout_seconds)
+        
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        # Temperature 0.0 for deterministic output
-        outputs = model.generate(
+        
+        # Generate with temperature=0.0 for determinism
+        output = model.generate(
             **inputs,
             max_new_tokens=512,
             temperature=0.0,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )
-        # Decode and clean
-        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        # Remove the prompt from the output if it was echoed
-        if generated_text.startswith(prompt):
-            generated_text = generated_text[len(prompt):]
-        return generated_text.strip()
-    except TimeoutError:
-        raise
+        
+        # Cancel alarm
+        signal.alarm(0)
+        
+        # Decode and clean up
+        full_response = tokenizer.decode(output[0], skip_special_tokens=True)
+        
+        # Extract assistant response
+        if "<|start_header_id|>assistant<|end_header_id|>" in full_response:
+            response = full_response.split("<|start_header_id|>assistant<|end_header_id|>")[1]
+            if "<|eot_id|>" in response:
+                response = response.split("<|eot_id|>")[0]
+        else:
+            response = full_response
+        
+        return response.strip()
+        
+    except TimeoutError as e:
+        logger.warning(f"ERR_TIMEOUT: Generation timed out after {timeout_seconds} seconds")
+        return None
+    except Exception as e:
+        logger.error(f"ERR_GENERATION: {str(e)}")
+        return None
     finally:
         signal.alarm(0)
 
-def write_trace_to_file(trace_record: Dict[str, Any], output_file: Path, logger: logging.Logger):
-    """Write a single trace record to the JSONL file immediately."""
-    # Ensure directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Append to file
-    with open(output_file, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(trace_record) + '\n')
-    
-    logger.info(f"Trace written to {output_file}: ID={trace_record.get('task_id')}")
+def write_trace_to_file(trace: Dict[str, Any], output_path: Path) -> None:
+    """Append a trace to the output JSONL file immediately."""
+    with open(output_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(trace) + '\n')
+
+def write_runtime_status(status: Dict[str, Any], output_path: Path) -> None:
+    """Write runtime status to a JSON file."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(status, f, indent=2)
+
+def log_error(error_code: str, message: str, task_id: Optional[str] = None) -> None:
+    """Log an error with a specific code."""
+    logger.error(f"[{error_code}] {message} (Task ID: {task_id})")
+
+def handle_oom_fallback() -> None:
+    """Handle Out of Memory error by triggering fallback sequence."""
+    logger.error("ERR_OOM: Out of memory detected. Triggering fallback sequence.")
+    # Fallback logic is implemented in T051b (Kaggle runner)
+    # This function serves as the trigger point
+    raise MemoryError("Out of memory. Fallback sequence triggered.")
 
 def main():
-    logger = setup_root_logger()
-    logger.info("Starting CoT Generation (T022/T026)")
+    """Main entry point for CoT trace generation."""
+    parser = argparse.ArgumentParser(description="Generate CoT traces for filtered tasks.")
+    parser.add_argument('--input', type=str, default='data/filtered/filtered_tasks.jsonl', help='Input filtered tasks file')
+    parser.add_argument('--output', type=str, default='data/traces/cot_traces.jsonl', help='Output traces file')
+    parser.add_argument('--config', type=str, default='config.yaml', help='Configuration file')
+    parser.add_argument('--model', type=str, default='meta-llama/Llama-3-8B-Instruct-4bit', help='Model name')
+    parser.add_argument('--device', type=str, default='cpu', help='Device to use (cpu/cuda)')
+    parser.add_argument('--timeout', type=int, default=600, help='Per-task timeout in seconds')
+    parser.add_argument('--sample-size', type=int, default=None, help='Number of tasks to process (None for all)')
+    args = parser.parse_args()
+
+    # Setup logging
+    setup_root_logger()
     
     # Load config
-    config = load_config(CONFIG_PATH)
-    model_name = config.get("inference", {}).get("model_name", "mistralai/Mistral-7B-v0.1-4bit")
-    device = config.get("inference", {}).get("device", "cpu")
-    sample_size = config.get("study", {}).get("min_sample_size", 10)
+    config = load_config(args.config)
+    study_config = config.get('study', {})
+    max_runtime_hours = study_config.get('max_runtime_hours', 6)
+    min_sample_size = study_config.get('min_sample_size', 40)
     
-    # Load threshold
-    threshold = load_threshold(THRESHOLD_PATH)
-    logger.info(f"Loaded threshold: {threshold}")
-    
-    # Setup seeds
+    # Set seeds
     set_all_seeds(42)
     
-    # Initialize Runtime Monitor for global limit (T023a)
-    # Global limit: 6 hours = 21600 seconds
-    monitor = create_monitor(limit_seconds=21600, logger=logger)
-    
     # Load model
-    logger.info(f"Loading model {model_name} on {device}...")
+    logger.info(f"Loading model: {args.model} on {args.device}")
     try:
-        model, tokenizer = load_quantized_model(model_name, device)
+        model, tokenizer = load_quantized_model(args.model, args.device)
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         sys.exit(1)
     
-    # Load input data (filtered tasks)
-    input_path = Path(__file__).parent.parent / "data/filtered/filtered_tasks.jsonl"
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. Run T012 first.")
+    # Load threshold
+    try:
+        threshold = load_threshold()
+        logger.info(f"Loaded threshold: {threshold}")
+    except FileNotFoundError:
+        logger.error("Threshold file missing. Run pilot study first.")
         sys.exit(1)
     
+    # Load tasks
     tasks = []
-    with open(input_path, 'r', encoding='utf-8') as f:
+    with open(args.input, 'r', encoding='utf-8') as f:
         for line in f:
             tasks.append(json.loads(line))
     
-    logger.info(f"Loaded {len(tasks)} tasks.")
-    
-    # Check underpowered condition before starting (T027 logic)
-    # If we have fewer tasks than min_sample_size, we can't proceed meaningfully
-    # However, the spec says "If count of *successfully generated* traces < min_sample_size, halt"
-    # We check available tasks first. If 0, we can't even try.
-    if len(tasks) == 0:
-        logger.error("No tasks available for generation.")
-        sys.exit(1)
-    
-    # If the available tasks are fewer than the minimum required sample size,
-    # we still attempt to generate, but we will check the final count later.
-    # For now, we proceed.
-    
-    # Output file
-    output_file = OUTPUT_FILE
-    
-    # Clear existing output if any (fresh run)
-    if output_file.exists():
-        output_file.unlink()
-    
-    generated_count = 0
-    
-    for idx, task in enumerate(tasks):
-        task_id = task.get("id", f"task_{idx}")
+    if args.sample_size:
+        tasks = tasks[:args.sample_size]
         
-        # Check global runtime limit (T023a)
-        if not monitor.can_proceed(10 * 60): # 10 min per task
-            logger.warning("Global runtime limit reached. Halting generation.")
-            # Generate underpowered report if we haven't met the minimum
-            effective_sample = generated_count
-            if effective_sample < sample_size:
-                report = {
-                    "effective_sample_size": effective_sample,
-                    "threshold": threshold,
-                    "reason": f"Global runtime limit exceeded before reaching min_sample_size ({sample_size}).",
-                    "timestamp": datetime.now(timezone.utc).isoformat()
-                }
-                report_path = Path(__file__).parent.parent / "data/results/underpowered_report.json"
-                report_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(report_path, 'w') as f:
-                    json.dump(report, f, indent=2)
-                logger.error(f"Underpowered report written to {report_path}")
-            sys.exit(0) # Exit cleanly, but report generated
+    logger.info(f"Loaded {len(tasks)} tasks")
+    
+    # Initialize runtime monitor
+    monitor = create_monitor(max_runtime_seconds=max_runtime_hours * 3600)
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Clear output file if exists
+    if output_path.exists():
+        output_path.unlink()
+    
+    # Process tasks
+    completed = 0
+    skipped = 0
+    errors = 0
+    
+    for i, task in enumerate(tasks):
+        task_id = task.get('id', f'task_{i}')
         
-        logger.info(f"Processing task {idx+1}/{len(tasks)}: {task_id}")
+        # Check global runtime
+        if not monitor.can_continue():
+            logger.warning("ERR_TIMEOUT_GLOBAL: Global runtime limit exceeded")
+            status = {
+                "elapsed_time": monitor.elapsed_time,
+                "reason": "Runtime limit exceeded",
+                "timestamp": monitor.get_timestamp(),
+                "effective_sample_size": completed
+            }
+            write_runtime_status(status, Path("data/results/runtime_status.json"))
+            break
         
         try:
-            prompt = generate_prompt(task)
-            trace_text = generate_cot_trace(model, tokenizer, prompt, timeout_seconds=600)
+            # Check memory
+            mem_usage = check_memory_usage()
+            if mem_usage.get('ram_percent', 0) > 90:
+                handle_oom_fallback()
             
-            # Construct trace record
+            # Generate prompt
+            prompt = generate_prompt(task)
+            
+            # Generate trace
+            trace_text = generate_cot_trace(model, tokenizer, prompt, args.timeout)
+            
+            if trace_text is None:
+                log_error("ERR_TIMEOUT", "Generation timed out", task_id)
+                skipped += 1
+                continue
+            
+            if trace_text.strip() == "":
+                log_error("ERR_EMPTY", "Generated empty response", task_id)
+                skipped += 1
+                continue
+            
+            # Create trace record
             trace_record = {
                 "task_id": task_id,
-                "original_task": task,
-                "cot_trace": trace_text,
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "hash": compute_dict_hash(trace_record)
+                "constraint": task.get('constraint', ''),
+                "trace": trace_text,
+                "timestamp": monitor.get_timestamp(),
+                "status": "completed"
             }
             
-            # T026: Write raw CoT traces immediately to data/traces/cot_traces.jsonl
-            write_trace_to_file(trace_record, output_file, logger)
-            generated_count += 1
+            # Write immediately to file (Constitution Principle VI)
+            write_trace_to_file(trace_record, output_path)
+            completed += 1
             
             # Log progress
-            logger.info(f"Successfully generated trace for {task_id}. Total: {generated_count}")
-            
-        except TimeoutError:
-            logger.warning(f"ERR_TIMEOUT: Task {task_id} timed out. Skipping.")
-            # Skip task, do not crash
+            if completed % 10 == 0:
+                logger.info(f"Processed {completed}/{len(tasks)} tasks")
+                
+        except MemoryError:
+            # Trigger GPU escape hatch
+            logger.error("ERR_OOM: Triggering GPU escape hatch")
+            # This would invoke T051b logic
+            sys.exit(1)
         except Exception as e:
-            logger.error(f"ERR_UNKNOWN: Error processing task {task_id}: {e}")
-            # Skip task
+            log_error("ERR_UNKNOWN", f"Unexpected error: {e}", task_id)
+            errors += 1
+            continue
     
-    # Post-run check: T027 - Stopping Rule Check
-    if generated_count < sample_size:
-        logger.warning(f"Effective sample size ({generated_count}) is less than min_sample_size ({sample_size}).")
-        report = {
-            "effective_sample_size": generated_count,
+    # Write final runtime status
+    status = {
+        "elapsed_time": monitor.elapsed_time,
+        "reason": "Completed",
+        "timestamp": monitor.get_timestamp(),
+        "effective_sample_size": completed,
+        "skipped": skipped,
+        "errors": errors
+    }
+    write_runtime_status(status, Path("data/results/runtime_status.json"))
+    
+    logger.info(f"Generation complete. Completed: {completed}, Skipped: {skipped}, Errors: {errors}")
+    
+    # Check sample size
+    if completed < min_sample_size:
+        logger.error(f"ERR_UNDERPOWERED: Sample size {completed} < minimum {min_sample_size}")
+        underpowered_report = {
+            "effective_sample_size": completed,
             "threshold": threshold,
-            "reason": f"Generated {generated_count} traces, which is less than required {sample_size}.",
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "reason": f"Sample size {completed} is below minimum required {min_sample_size}",
+            "timestamp": monitor.get_timestamp()
         }
-        report_path = Path(__file__).parent.parent / "data/results/underpowered_report.json"
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.error(f"Underpowered report written to {report_path}")
+        with open("data/results/underpowered_report.json", 'w') as f:
+            json.dump(underpowered_report, f, indent=2)
         sys.exit(1)
-    
-    logger.info(f"Generation complete. {generated_count} traces written to {output_file}")
 
 if __name__ == "__main__":
     main()

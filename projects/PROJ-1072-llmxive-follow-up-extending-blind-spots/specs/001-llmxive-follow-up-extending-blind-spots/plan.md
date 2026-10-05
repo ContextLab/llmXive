@@ -5,7 +5,9 @@
 
 ## Summary
 
-This project extends the "Blind-Spots-Bench" evaluation by analyzing the temporal ordering of constraint mentions in Chain-of-Thought (CoT) traces. The technical approach involves downloading the specific "Abstract Reasoning" and "Object-Centric" subsets of the benchmark, generating deterministic CoT traces using a 4-bit quantized mid-sized LLM (Llama-3-8B or Mistral-7B) on a CPU runner, parsing traces for first/last constraint mentions (with semantic equivalence checks), and applying a rule-based classifier to distinguish Perceptual vs. Procedural errors. The analysis concludes with a Chi-squared or Fisher's exact test to determine if error distribution is task-dependent, explicitly framing results as associational.
+This project extends the "Blind-Spots-Bench" evaluation by analyzing the temporal ordering of constraint mentions in Chain-of-Thought (CoT) traces. The technical approach involves downloading the specific "Abstract Reasoning" and "Object-Centric" subsets of the benchmark, generating deterministic CoT traces using a Quantized mid-sized LLM
+
+The research question is to evaluate the efficacy of quantization techniques on mid-sized language models. The method involves comparing model performance across varying bit-widths. References: [Insert DOI/arXiv/author-year here] (Llama-8B or Mistral-7B) on a CPU runner, parsing traces for first/last constraint mentions (with semantic equivalence checks), and applying a rule-based classifier to distinguish Perceptual vs. Procedural errors. The analysis concludes with a Chi-squared or Fisher's exact test to determine if error distribution is task-dependent, explicitly framing results as associational.
 
 **Critical Methodological Correction**: The outcome variable (Error/Correct) is defined by **independent ground truth** (final answer correctness against a gold label), NOT by the temporal pattern itself. The temporal pattern (First/Last mention) is the **predictor**. This avoids tautological definitions where the predictor defines the outcome.
 
@@ -15,7 +17,7 @@ This project extends the "Blind-Spots-Bench" evaluation by analyzing the tempora
 **Primary Dependencies**: `datasets` (Hugging Face), `transformers` (CPU mode), `sentence-transformers` (semantic matching), `scikit-learn`, `pandas`, `numpy`, `statsmodels` (for Fisher's exact test).  
 **Storage**: Local file system (`data/` for raw/filtered data, `code/` for scripts).  
 **Testing**: `pytest` (unit tests for parser/classifier, integration tests for data flow).  
-**Target Platform**: GitHub Actions CPU runner (cores, ~7 GB RAM).  
+**Target Platform**: GitHub Actions CPU runner (cores, ample RAM).  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: End-to-end analysis < 6 hours; per-task inference < 10 minutes; peak RAM < 7 GB.  
 **Constraints**: No local GPU; Low-bit quantization mandatory for LLM

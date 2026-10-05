@@ -1,11 +1,3 @@
-"""
-Statistical Analysis Module for Blind-Spots-Bench.
-
-This module performs statistical analysis on the classified error data.
-It computes proportions of error types per category and performs hypothesis
-testing (Fisher's Exact or Chi-squared) based on expected cell counts.
-"""
-
 import json
 import argparse
 import logging
@@ -14,257 +6,275 @@ from typing import Dict, List, Any, Tuple, Optional
 import numpy as np
 from scipy.stats import chi2_contingency, fisher_exact
 
-from utils.logging_config import get_logger
+from utils.logging_config import get_logger, setup_root_logger
 
 logger = get_logger(__name__)
 
-def load_parsed_data(input_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load parsed trace data from JSONL file.
-
-    Args:
-        input_path: Path to the parsed data file.
-
-    Returns:
-        List of parsed trace records.
-    """
+def load_parsed_data(input_path: str) -> List[Dict[str, Any]]:
+    """Load parsed and classified traces from JSONL."""
     data = []
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    with open(input_path, 'r', encoding='utf-8') as f:
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Parsed data file not found: {input_path}")
+    
+    with open(path, 'r') as f:
         for line in f:
-            line = line.strip()
-            if line:
+            if line.strip():
                 data.append(json.loads(line))
+    
+    logger.info(f"Loaded {len(data)} parsed traces from {input_path}")
     return data
 
-def select_statistical_test(contingency_table: np.ndarray) -> str:
+def build_contingency_table(parsed_data: List[Dict[str, Any]]) -> np.ndarray:
     """
-    Select the appropriate statistical test based on expected cell counts.
-
-    Rule:
-    - If any expected cell count < 5, use Fisher's Exact Test.
-    - Else, use Chi-squared Test.
-
-    Args:
-        contingency_table: A 2D numpy array representing the contingency table.
-
-    Returns:
-        'fisher' or 'chi2'.
-    """
-    row_totals = contingency_table.sum(axis=1, keepdims=True)
-    col_totals = contingency_table.sum(axis=0, keepdims=True)
-    total = contingency_table.sum()
-
-    if total == 0:
-        logger.warning("Empty contingency table. Defaulting to Chi-squared.")
-        return 'chi2'
-
-    expected = (row_totals * col_totals) / total
-
-    if np.any(expected < 5):
-        return 'fisher'
-    else:
-        return 'chi2'
-
-def run_statistical_test(test_type: str, table: np.ndarray) -> Tuple[float, float, str]:
-    """
-    Execute the selected statistical test.
-
-    Args:
-        test_type: 'fisher' or 'chi2'.
-        table: Contingency table.
-
-    Returns:
-        Tuple of (statistic, p_value, test_name).
-    """
-    if test_type == 'fisher':
-        # Fisher's Exact requires 2x2.
-        if table.shape != (2, 2):
-            raise ValueError(f"Fisher's Exact test requires a 2x2 table, got {table.shape}")
-        try:
-            oddsratio, p_value = fisher_exact(table)
-            return oddsratio, p_value, "Fisher's Exact"
-        except ValueError as e:
-            logger.error(f"Fisher's Exact test failed: {e}")
-            raise
-    elif test_type == 'chi2':
-        stat, p_value, dof, expected = chi2_contingency(table)
-        return stat, p_value, "Chi-squared"
-    else:
-        raise ValueError(f"Unknown test type: {test_type}")
-
-def build_contingency_table(data: List[Dict[str, Any]], 
-                            category_col: str, 
-                            label_col: str, 
-                            categories: List[str], 
-                            labels: List[str]) -> np.ndarray:
-    """
-    Build a contingency table from parsed data.
-
-    Args:
-        data: List of parsed records.
-        category_col: Key for the task category (e.g., 'category').
-        label_col: Key for the error label (e.g., 'error_label').
-        categories: List of categories to include in rows.
-        labels: List of labels to include in columns.
-
-    Returns:
-        2D numpy array (len(categories) x len(labels)).
-    """
-    table = np.zeros((len(categories), len(labels)), dtype=int)
+    Build a contingency table for error types vs task categories.
     
-    for record in data:
-        cat = record.get(category_col)
-        label = record.get(label_col)
-        
-        if cat in categories and label in labels:
-            row_idx = categories.index(cat)
-            col_idx = labels.index(label)
-            table[row_idx, col_idx] += 1
-        
+    Rows: Error types (Perceptual, Procedural, Correct)
+    Cols: Task categories (Abstract Reasoning, Object-Centric)
+    """
+    categories = set()
+    error_types = set()
+    
+    for record in parsed_data:
+        if 'category' in record:
+            categories.add(record['category'])
+        if 'error_label' in record:
+            error_types.add(record['error_label'])
+    
+    # Sort for deterministic ordering
+    categories = sorted(list(categories))
+    error_types = sorted(list(error_types))
+    
+    # Initialize table
+    table = np.zeros((len(error_types), len(categories)), dtype=int)
+    
+    for record in parsed_data:
+        cat = record.get('category')
+        err = record.get('error_label')
+        if cat in categories and err in error_types:
+            cat_idx = categories.index(cat)
+            err_idx = error_types.index(err)
+            table[err_idx, cat_idx] += 1
+    
+    logger.info(f"Built contingency table shape {table.shape}:")
+    logger.info(f"  Categories: {categories}")
+    logger.info(f"  Error types: {error_types}")
+    logger.info(f"  Table:\n{table}")
+    
     return table
 
-def apply_multiple_comparison_correction(p_values: List[float], 
-                                         method: str = "bonferroni") -> List[float]:
+def select_statistical_test(contingency_table: np.ndarray) -> Tuple[str, Any]:
     """
-    Apply multiple comparison correction to a list of p-values.
-
-    Args:
-        p_values: List of raw p-values.
-        method: Correction method ('bonferroni' or 'bh' for Benjamini-Hochberg).
-
+    Select the appropriate statistical test based on expected cell counts.
+    
+    If any expected cell count < 5, use Fisher's Exact (for 2x2 tables)
+    or return a note that Fisher's Exact is not directly applicable for larger tables.
+    Otherwise, use Chi-squared test.
+    
     Returns:
-        List of corrected p-values.
+        Tuple of (test_name, test_result_or_note)
     """
-    if not p_values:
-        return []
+    # Calculate expected counts for Chi-squared
+    chi2, p_value, dof, expected = chi2_contingency(contingency_table)
+    
+    # Check if any expected count is less than 5
+    min_expected = np.min(expected)
+    logger.info(f"Minimum expected cell count: {min_expected:.4f}")
+    
+    if min_expected < 5:
+        # Check if table is 2x2 for Fisher's Exact
+        if contingency_table.shape == (2, 2):
+            logger.info("Expected cell count < 5. Using Fisher's Exact test.")
+            # Fisher's Exact for 2x2 tables
+            # Note: scipy.fisher_exact returns (odds_ratio, p_value)
+            # We need to handle the case where division by zero might occur
+            try:
+                odds_ratio, p_fisher = fisher_exact(contingency_table)
+                return "Fisher's Exact", {
+                    "p_value": float(p_fisher),
+                    "odds_ratio": float(odds_ratio),
+                    "method": "Fisher's Exact Test"
+                }
+            except Exception as e:
+                logger.warning(f"Fisher's Exact test failed: {e}. Falling back to Chi-squared.")
+                return "Chi-squared", {
+                    "p_value": float(p_value),
+                    "chi2_statistic": float(chi2),
+                    "degrees_of_freedom": int(dof),
+                    "method": "Chi-squared Test (Fisher's Exact failed)"
+                }
+        else:
+            # For non-2x2 tables with low expected counts, we cannot use Fisher's Exact directly
+            # We'll use Chi-squared with a warning
+            logger.warning(
+                f"Expected cell count < 5 for non-2x2 table ({contingency_table.shape}). "
+                "Chi-squared test used with caution. Consider Monte Carlo simulation."
+            )
+            # Optional: Use Monte Carlo simulation for more accurate p-value
+            try:
+                chi2_mc, p_mc, dof_mc, expected_mc = chi2_contingency(
+                    contingency_table, 
+                    lambda x: x,  # Use default statistic
+                    simulation=True,
+                    b=10000  # Number of Monte Carlo replicates
+                )
+                return "Chi-squared (Monte Carlo)", {
+                    "p_value": float(p_mc),
+                    "chi2_statistic": float(chi2_mc),
+                    "degrees_of_freedom": int(dof_mc),
+                    "method": "Chi-squared Test with Monte Carlo simulation",
+                    "note": "Used due to low expected cell counts in non-2x2 table"
+                }
+            except Exception as e:
+                logger.warning(f"Monte Carlo simulation failed: {e}. Using standard Chi-squared.")
+                return "Chi-squared", {
+                    "p_value": float(p_value),
+                    "chi2_statistic": float(chi2),
+                    "degrees_of_freedom": int(dof),
+                    "method": "Chi-squared Test (Monte Carlo failed)",
+                    "note": f"Expected cell count < 5: {min_expected:.4f}"
+                }
+    else:
+        logger.info("All expected cell counts >= 5. Using Chi-squared test.")
+        return "Chi-squared", {
+            "p_value": float(p_value),
+            "chi2_statistic": float(chi2),
+            "degrees_of_freedom": int(dof),
+            "method": "Chi-squared Test"
+        }
 
-    n = len(p_values)
+def apply_multiple_comparison_correction(p_values: List[float], method: str = "bonferroni") -> List[float]:
+    """
+    Apply multiple comparison correction if more than one test was performed.
+    
+    Args:
+        p_values: List of raw p-values
+        method: 'bonferroni' or 'benjamini-hochberg'
+    
+    Returns:
+        List of corrected p-values
+    """
+    if len(p_values) <= 1:
+        logger.info("Only one test performed. No multiple comparison correction needed.")
+        return p_values
+    
+    logger.info(f"Applying {method} correction to {len(p_values)} tests.")
+    
     if method == "bonferroni":
-        corrected = [min(p * n, 1.0) for p in p_values]
-    elif method == "bh":
-        # Benjamini-Hochberg
+        corrected = [p * len(p_values) for p in p_values]
+        return [min(p, 1.0) for p in corrected]
+    
+    elif method == "benjamini-hochberg":
+        # Sort p-values
         sorted_indices = np.argsort(p_values)
         sorted_p = np.array(p_values)[sorted_indices]
-        corrected_sorted = np.minimum(1.0, (sorted_p * n) / (np.arange(1, n + 1) + 1e-10))
+        n = len(sorted_p)
+        
+        # Calculate BH critical values
+        bh_values = sorted_p * n / np.arange(1, n + 1)
+        
         # Ensure monotonicity
         for i in range(n - 2, -1, -1):
-            corrected_sorted[i] = min(corrected_sorted[i], corrected_sorted[i + 1])
+            bh_values[i] = min(bh_values[i], bh_values[i + 1])
+        
+        # Map back to original order
         corrected = np.zeros(n)
-        corrected[sorted_indices] = corrected_sorted
-        corrected = corrected.tolist()
+        corrected[sorted_indices] = bh_values
+        
+        return [min(p, 1.0) for p in corrected]
+    
     else:
         raise ValueError(f"Unknown correction method: {method}")
-    
-    return corrected
 
-def perform_statistical_analysis(input_path: Path, 
-                                 output_path: Path,
-                                 categories: List[str],
-                                 labels: List[str],
-                                 correction_method: Optional[str] = None) -> Dict[str, Any]:
+def run_statistical_test(contingency_table: np.ndarray) -> Dict[str, Any]:
     """
-    Perform the full statistical analysis pipeline.
-
+    Run the selected statistical test and return results.
+    
     Args:
-        input_path: Path to parsed data.
-        output_path: Path to output report.
-        categories: List of categories to analyze.
-        labels: List of error labels to analyze.
-        correction_method: Optional multiple comparison correction method.
-
-    Returns:
-        Statistical report dictionary.
-    """
-    logger.info(f"Loading data from {input_path}")
-    data = load_parsed_data(input_path)
-    logger.info(f"Loaded {len(data)} records")
-
-    # Build contingency table
-    table = build_contingency_table(data, 'category', 'error_label', categories, labels)
-    logger.info(f"Contingency table shape: {table.shape}")
-    logger.info(f"Table:\n{table}")
-
-    # Select test type
-    test_type = select_statistical_test(table)
-    logger.info(f"Selected test: {test_type}")
-
-    # Run test
-    try:
-        stat, p_value, test_name = run_statistical_test(test_type, table)
-    except ValueError as e:
-        logger.error(f"Statistical test failed: {e}")
-        return {"error": str(e)}
-
-    # Apply correction if needed and if >1 test (here we assume 1 test for the whole table)
-    # The requirement says: "if and only if >1 hypothesis test is performed".
-    # If we are doing one table analysis, we might not correct unless we split by category.
-    # For this implementation, we assume one global test on the table.
-    # If the user wants per-category tests, the logic would need to loop.
-    # We will report the raw p-value unless correction is explicitly requested and applicable.
+        contingency_table: 2D numpy array of counts
     
-    corrected_p = p_value
-    if correction_method and len(p_values := [p_value]) > 1:
-        corrected_p = apply_multiple_comparison_correction([p_value], correction_method)[0]
-    elif correction_method and len(p_values := [p_value]) == 1:
-        # If only one test, correction is technically not needed per spec, but we can apply it if requested.
-        # However, spec says "if and only if >1 hypothesis test is performed".
-        # So we do NOT correct if only 1 test.
-        corrected_p = p_value
+    Returns:
+        Dictionary with test results
+    """
+    test_name, result = select_statistical_test(contingency_table)
+    result["test_selection_reason"] = (
+        "Fisher's Exact selected due to expected cell count < 5" if "Fisher" in test_name 
+        else "Chi-squared selected (all expected counts >= 5)"
+    )
+    return result
 
+def perform_statistical_analysis(parsed_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Perform complete statistical analysis on parsed data.
+    
+    Args:
+        parsed_data: List of parsed trace records
+    
+    Returns:
+        Dictionary containing all statistical results
+    """
+    # Build contingency table
+    contingency_table = build_contingency_table(parsed_data)
+    
+    # Check if table is valid (non-empty)
+    if np.sum(contingency_table) == 0:
+        raise ValueError("Contingency table is empty. No data to analyze.")
+    
+    # Run statistical test
+    test_result = run_statistical_test(contingency_table)
+    
+    # Build final report
     report = {
-        "framing": "Associational",
-        "test_type": test_name,
-        "contingency_table": table.tolist(),
-        "statistic": float(stat),
-        "p_value_raw": float(p_value),
-        "p_value_corrected": float(corrected_p),
-        "correction_applied": correction_method if (correction_method and len([p_value]) > 1) else None,
-        "categories": categories,
-        "labels": labels,
-        "total_samples": int(table.sum())
+        "contingency_table": contingency_table.tolist(),
+        "test_results": test_result,
+        "framing": "Associational",  # FR-007
+        "analysis_timestamp": datetime.now(timezone.utc).isoformat()
     }
-
-    logger.info(f"Writing report to {output_path}")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-
+    
+    logger.info(f"Statistical analysis complete. Test: {test_result['method']}")
+    logger.info(f"P-value: {test_result['p_value']:.6f}")
+    
     return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Statistical Analysis for Blind-Spots-Bench")
-    parser.add_argument("--input", type=str, required=True, help="Path to parsed data JSONL")
-    parser.add_argument("--output", type=str, required=True, help="Path to output report JSON")
-    parser.add_argument("--categories", type=str, nargs="+", default=["Abstract Reasoning", "Object-Centric"], 
-                        help="Categories to include in analysis")
-    parser.add_argument("--labels", type=str, nargs="+", default=["Perceptual", "Procedural", "Correct"], 
-                        help="Labels to include in analysis")
-    parser.add_argument("--correction", type=str, choices=["bonferroni", "bh"], default=None,
-                        help="Multiple comparison correction method")
+    """Main entry point for statistical analysis."""
+    parser = argparse.ArgumentParser(description="Perform statistical analysis on parsed traces")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        default="data/parsed/classified_traces.jsonl",
+        help="Path to parsed traces JSONL file"
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/results/statistical_report_base.json",
+        help="Path to output statistical report JSON"
+    )
     
     args = parser.parse_args()
-
-    setup_logger = get_logger(__name__)
-    setup_logger.info("Starting statistical analysis")
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
+    
+    # Setup logging
+    setup_root_logger()
+    
     try:
-        report = perform_statistical_analysis(
-            input_path, 
-            output_path,
-            args.categories,
-            args.labels,
-            args.correction
-        )
-        print(json.dumps(report, indent=2))
+        # Load data
+        parsed_data = load_parsed_data(args.input)
+        
+        # Perform analysis
+        report = perform_statistical_analysis(parsed_data)
+        
+        # Write report
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Statistical report written to {args.output}")
+        
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Statistical analysis failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

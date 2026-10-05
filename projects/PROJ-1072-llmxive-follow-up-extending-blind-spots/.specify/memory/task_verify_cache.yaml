@@ -22,26 +22,22 @@ T022:
     \ loading a 4\u2011bit quantized model (defaulting to CPU) and reads the tuned\
     \ threshold from `data/pilot/tuned_threshold.json`, raising a clear `FileNotFoundError`\
     \ when the file is absent. No placeholder or missing functionality is evident."
-T025:
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation implementing the memory\u2011guard\
-    \ fallback logic is present; the required artifact (e.g., a module that detects\
-    \ OOM, switches to a 4\u2011bit quantized model or trims the context window) is\
-    \ missing, so the task\u2019s requirement is not satisfied."
-T027:
-  c: false
-  h: c64a9628484f2c3630130c83ffe4b824f785c286a9d2489f041de3c3deb4bb18
-  r: "The required `data/results/underpowered_report.json` file does not exist, so\
-    \ the stopping\u2011rule check and report generation have not been implemented.\
-    \ Without this artifact the task\u2019s core requirement is unmet."
-T029:
+  r: "No code, script, or documentation implementing the inference loop with temperature\u202F\
+    0.0, fixed per\u2011task wall\u2011clock timeout, error logging (ERR_TIMEOUT),\
+    \ and dynamic budget calculation is present. The required artifact that enforces\
+    \ the timeout logic and skips tasks as specified is missing."
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or output files were provided that demonstrate the implementation
-    of exact string matching for first/last character offsets within the defined token
-    windows, nor any tests or documentation showing it works on the first and last
-    trace segments. The required artifact is missing, so the task is not satisfied.
+  r: "No code, configuration, or log files were provided showing the added error\u2011\
+    handling logic, JSON\u2011structured warning logs with the required codes, or\
+    \ the skip\u2011task behavior. Without concrete artifacts, we cannot confirm that\
+    \ T022 was modified as specified. The implementer must supply the updated source\
+    \ (e.g., the modified T022 module) and example log output demonstrating ERR_TIMEOUT\
+    \ and ERR_EMPTY handling."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,6 +45,21 @@ T031:
     \ handling (word\u2011boundary matching, null flags for missing constraints, and\
     \ substring false\u2011positive checks) was implemented or verified. Without concrete\
     \ artifacts, the requirement cannot be confirmed as satisfied."
+T034:
+  c: false
+  h: 5f9c7d68b435ac3453d314d2f8e4825e9bc4bcf03e276e5c6c32a5ff49addb23
+  r: "The required output file `data/parsed/classified_traces.jsonl` does not exist,\
+    \ and the provided excerpt of `code/03_parse_and_classify.py` stops before any\
+    \ classification logic is shown, so the core rule\u2011based labeling and file\
+    \ writing are not demonstrated. The task\u2019s essential artifacts are missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the conditional selection between\
+    \ Fisher\u2019s exact test and chi\u2011squared based on expected cell counts\
+    \ is present. The required artifact (e.g., a function that uses `scipy.stats.chi2_contingency`\
+    \ to compute expected counts and then chooses the appropriate test) is missing,\
+    \ so the task is not satisfied."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

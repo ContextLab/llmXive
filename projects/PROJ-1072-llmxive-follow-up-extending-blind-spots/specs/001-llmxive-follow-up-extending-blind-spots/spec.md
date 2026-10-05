@@ -25,7 +25,7 @@ The research pipeline MUST successfully download the *Blind-Spots-Bench* dataset
 
 ### User Story 2 - CoT Trace Generation and Parsing (Priority: P2)
 
-The system MUST execute a mid-sized open-weight LLM (e.g., Llama-8B-Int4 or Mistral-7B-Int4) on the filtered tasks using a fixed temperature (0.0) to generate Chain-of-Thought (CoT) traces, and subsequently parse these traces to identify the first mention and the last mention of the task's explicit constraint, including semantic equivalence checks.
+The system MUST execute a mid-sized open-weight LLM (e.g., Llama or Mistral) on the filtered tasks using a fixed temperature to generate Chain-of-Thought (CoT) traces, and subsequently parse these traces to identify the first mention and the last mention of the task's explicit constraint, including semantic equivalence checks.
 
 **Why this priority**: This step generates the primary signal (the reasoning trace) and extracts the specific temporal markers (first/last mention) required to classify errors. It is the core computational engine of the research.
 
@@ -97,7 +97,7 @@ The system MUST apply a rule-based classifier to label each trace as *Perceptual
 ## Assumptions
 
 - The *Blind-Spots-Bench* dataset (arXiv:2607.08317) contains explicit, parseable constraint strings for every task in the "Abstract Reasoning" and "Object-Centric" categories.
-- Mid-sized open-weight models (4-bit quantized) can be loaded and run inference on a CPU-only GitHub Actions runner within the time limit for a representative sample of tasks.
+- Mid-sized open-weight models (quantized) can be loaded and run inference on a CPU-only GitHub Actions runner within the time limit for a representative sample of tasks.
 - The "constraint" mentioned in the task description is a unique string that can be reliably located within the generated text using standard string matching or semantic embedding.
 - The research design is observational; therefore, no causal claims regarding the "order of reasoning steps" causing the error will be made, only associational findings. This is a necessary constraint of the available dataset, and the research question has been reframed accordingly.
 - The statistical power of the test is limited by the available sample size.; a power analysis is deferred, but the study acknowledges this limitation in the final report.
