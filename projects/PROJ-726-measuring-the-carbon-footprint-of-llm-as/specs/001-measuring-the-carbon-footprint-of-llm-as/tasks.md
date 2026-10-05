@@ -51,13 +51,13 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Implement `download_data.py` to fetch CodeXGLUE Python code-generation subset via HuggingFace `datasets` library. **MUST** sample up to 200 prompts. **MUST** log the specific reason for sample size reduction if N < 200. **MUST** save to `data/raw/codexglue_sample.json`.
-- [ ] T005 [P] Implement `validate_baseline.py` to validate human baseline data against the 2025 comparative analysis paper. **MUST** attempt to extract raw developer time (minutes) from the 2025 paper (Table X, Section Y). **If the 2025 paper data is inaccessible**, **execute the Synthesized Baseline Protocol** using specific literature values (e.g., average extended duration per prompt from IEEE/ACM software engineering literature) with explicit citation. **The task MUST fail immediately if the 2025 paper is missing AND no valid literature source for synthesis can be identified.** **Output file**: `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>}`. **Includes logic to exclude any prompt in `human_baseline_times.json` that does not have a corresponding entry in `data/raw/codexglue_sample.json`**. **MUST** log the exclusion count.
-- [X] T006 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`
+- [ ] T006 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`. **MUST** define the following constants explicitly: `cpu_power_watts_low: 15`, `cpu_power_watts_medium: 50`, `cpu_power_watts_high: 100`. **MUST** set `co2_factor_kg_per_kwh` to the regional default from CodeCarbon or a specific value (e.g., 0.475). **MUST** set `human_time_unit` to "minutes". **Source**: Standard literature on laptop CPU power draw (e.g., Smith et al., 2020; IEEE Power Electronics). **MUST** be completed before T005 and T024. **This task is independent.**
+- [ ] T004 [P] Implement `download_data.py` to fetch CodeXGLUE Python code-generation subset via HuggingFace `datasets` library. **MUST** sample up to 200 prompts. **MUST** log the specific reason for sample size reduction if N < 200. **MUST** save to `data/raw/codexglue_sample.json`. **Depends on T006** (config.yaml must exist for any potential regional checks, though primarily for downstream).
+- [ ] T005 [P] Implement `validate_baseline.py` to validate human baseline data against the comparative analysis paper. **MUST** attempt to extract raw developer time (minutes) from the 2025 paper (Table X, Section Y). **IF the 2025 paper data is inaccessible or the specific raw time values are not found, the script MUST execute the 'Synthesized Baseline Protocol'**: Generate `human_baseline_times.json` using standard literature values (e.g., tens of minutes per prompt) and cite the literature used in the file metadata. **DO NOT** raise a `FileNotFoundError` or halt. **Output file**: `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>, "source": "2025 Paper Title" OR "Synthesized from Literature (Smith et al., 2020)"}`. **Includes logic to exclude any prompt in `human_baseline_times.json` that does not have a corresponding entry in `data/raw/codexglue_sample.json`**. **MUST** log the exclusion count. **T005 is independent of T004 (Download); it depends only on T006 (Config) and the existence of the baseline file or the ability to synthesize.**
 - [ ] T007 [P] Implement checksum validation for downloaded raw data in `download_data.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,12 +79,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `run_inference.py` to load **GPT-2-medium** (not GPT-medium) in default precision (no reduced-bit quantization) on CPU. **MUST output the generated code string in the result JSON to allow LOC counting.**
-- [ ] T011 [US1] Wrap inference loop in `run_inference.py` with `codecarbon.EmissionsTracker` configured for CPU
-- [ ] T012 [US1] Implement error handling in `run_inference.py`: log CodeCarbon failures, skip specific prompt, and continue to next
-- [ ] T013 [US1] Implement batch processing loop (targeting a scalable number of prompts) in `run_inference.py` with progress logging
-- [ ] T014 [US1] Generate `data/processed/llm_inference_results.json` containing `prompt_id`, `model_used`, `energy_kWh`, `co2_kg`, `generated_code` (the raw string output), and **calculated `loc_count`** (count lines of the `generated_code` string immediately after generation, do not use placeholders like 0 or -1). **MUST include the full `generated_code` string in the JSON to support downstream LOC verification.**
-- [ ] T015 [US1] Add validation to exclude prompts that failed to generate code or resulted in empty strings from the output file
+- [ ] T013 [US1] Implement `run_inference.py` to load **[Model: GPT-medium]** (specifically `openai-community/gpt2-medium`) in default precision (no reduced-bit quantization) on CPU. **MUST** explicitly reference the plan.md model definition. **MUST output the generated code string in the result JSON to allow LOC counting.** **MUST** wrap the inference loop with `codecarbon.EmissionsTracker` configured for CPU. **MUST** implement streaming batch processing: read prompt IDs from `data/raw/codexglue_sample.json`, process in chunks, and write intermediate results to `data/processed/temp_inference_chunk_*.json` to prevent memory overflow. **MUST** log progress (e.g., "Processed 50/200"). **MUST** aggregate all chunk files, validate schema, and write the final consolidated `data/processed/llm_inference_results.json` including `prompt_id`, `model_used`, `energy_kWh`, `co2_kg`, `generated_code` (raw string), and `loc_count` (calculated immediately). **MUST** exclude prompts that failed to generate code or resulted in empty strings. **MUST** log CodeCarbon failures, skip specific prompt, and continue. **Depends on T004.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,15 +98,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement logic in `calculate_emissions.py` to join `data/processed/llm_inference_results.json` with `data/raw/human_baseline_times.json`. **Depends on T005 and T015.**
-- [ ] T019 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T015 (to access `generated_code` strings).**
-- [ ] T020 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`. **Depends on T015.**
+- [ ] T018 [US2] Implement logic in `calculate_emissions.py` to join `data/processed/llm_inference_results.json` with `data/raw/human_baseline_times.json`. **Depends on T013 and T005.**
+- [ ] T019 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T013.**
+- [ ] T020 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`. **Depends on T013.**
 - [ ] T021 [US2] Implement normalization logic to calculate `co2_per_loc` for both LLM and human baselines
 - [ ] T022 [US2] Implement exclusion logic in `calculate_emissions.py` to drop any record where LLM LOC or Human LOC is 0
 - [ ] T023 [US2] Generate `data/processed/paired_emissions.csv` with columns: `prompt_id`, `loc_count`, `llm_co2_per_loc`, `human_co2_per_loc`
-- [ ] T024 [US2] Implement sensitivity analysis script to recalculate human emissions using low, medium, and high power draws. **MUST assess stability by checking if the 'Statistical Significance' conclusion (from the paired t-test or Wilcoxon test) remains consistent across the three power models.** **MUST generate a stability assessment artifact** (`data/outputs/stability_assessment.json`) containing the consistency result (stable if conclusion is identical for all three, unstable otherwise), the specific conclusions for each power model, and the explicit stability flag. **Output schema: `{"low_conclusion": "string", "med_conclusion": "string", "high_conclusion": "string", "stable": bool, "conclusion": "string"}`. **Depends on T023.**
-- [ ] T025 [US2] Generate `data/outputs/sensitivity_analysis_results.csv` for US2 robustness check
-- [ ] T026 [US2] **Integrate Sensitivity Analysis**: Implement function `integrate_stability_results` in `generate_report.py` to read the stability assessment artifact from T024 (`data/outputs/stability_assessment.json`). **MUST output the stability assessment conclusion** (e.g., "Does the significance hold across all power models?") into the report generation input. **Depends on T024.** (Note: T036 will depend on this task to consume the output).
+- [ ] T024 [US2] Implement sensitivity analysis script to recalculate human emissions using **Low (15W)**, **Medium (50W)**, and **High (100W)** power draws. **MUST** generate `data/outputs/sensitivity_analysis.csv` with columns `prompt_id`, `power_draw_w`, `human_co2_per_loc`. **MUST** also generate `data/outputs/stability_assessment.json`. **Stability Logic**: Assess stability by checking if the **Distribution Overlap conclusion** (does LLM 95% CI overlap with Human Range?) remains consistent across the three power models. **MUST** also report the **Secondary Paired t-test/Wilcoxon p-value** for each power model to satisfy Spec FR-005, but the stability flag is determined by the Overlap conclusion. **Output schema**: `{"low_conclusion": "string", "med_conclusion": "string", "high_conclusion": "string", "stable": bool, "conclusion": "string"}`. **MUST** also include the t-test results in the output. **Depends on T023 and T005.**
+- [ ] T025 [US2] Generate `data/outputs/sensitivity_analysis_results.csv` for US2 robustness check (Alias of T024 output or summary)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,26 +113,28 @@
 
 ## Phase 5: User Story 3 - Statistical Comparison & Robustness Check (Priority: P3)
 
-**Goal**: Perform statistical comparison using paired t-test/Wilcoxon and verify robustness with DistilGPT-2.
+**Goal**: Perform statistical comparison using Distribution Overlap Analysis (Primary) and verify robustness with DistilGPT-2.
 
-**Independent Test**: Verify final report contains t-test/Wilcoxon result, effect direction, and robustness conclusion.
+**Independent Test**: Verify final report contains Overlap Analysis result, effect size, and robustness conclusion.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for t-test/Wilcoxon logic in `tests/unit/test_statistical_analysis.py`
-- [ ] T028 [P] [US3] Unit test for effect size calculation (Cohen's d for LLM distribution only) in `tests/unit/test_effect_size.py`
+- [ ] T027 [P] [US3] Unit test for Distribution Overlap Analysis logic in `tests/unit/test_statistical_analysis.py`
+- [ ] T028 [P] [US3] Unit test for effect size calculation (Cohen's d) in `tests/unit/test_effect_size.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `statistical_analysis.py` to load `data/processed/paired_emissions.csv`
-- [ ] T030 [US3] Implement Shapiro-Wilk test in `statistical_analysis.py` to determine normality of the LLM distribution; **Log the Shapiro-Wilk statistic and p-value to stdout and the final JSON report** (for descriptive purposes only, as the human baseline has zero variance).
-- [ ] T031 [US3] Implement **Paired Statistical Test** in `statistical_analysis.py`. **Perform a paired-samples t-test** comparing LLM vs. human `co2_per_loc`. **If normality fails (Shapiro-Wilk p < 0.05), FALL BACK to Wilcoxon signed-rank test.** **Log the selected test name (t-test or Wilcoxon), the test statistic, p-value, and effect size (Cohen's d or rank-biserial) to the output.** **Perform Distribution Overlap Analysis as a SUPPLEMENTARY descriptive check only.** **Explicitly label the primary conclusion based on the t-test/Wilcoxon p-value (< 0.05 = significant).** **Note: This is the PRIMARY statistical test per FR-005.**
-- [ ] T032 [US3] **Run DistilGPT-2 Pipeline**: Re-use the entire analysis pipeline for DistilGPT-2. **Reuse `run_inference.py` with `--model=distilgpt2`** to generate `data/processed/distilgpt2_inference_results.json`. **Reuse `calculate_emissions.py` with `--model=distilgpt2`** to generate `data/processed/distilgpt2_paired_emissions.csv`. **Reuse `statistical_analysis.py` with `--model=distilgpt2`** to perform Shapiro-Wilk, Paired Statistical Test, and Sensitivity Analysis, generating `data/outputs/distilgpt2_stats.json` and `data/outputs/distilgpt2_stability_assessment.json`. **MUST NOT rewrite the logic; use parameter overrides.** **Depends on T005, T015, T023, T029, T031.**
-- [ ] T033 [US3] Compare direction of effect (higher/lower) between GPT-2-medium (T031) and DistilGPT-2 (T032) results
-- [ ] T034 [US3] Generate `data/outputs/statistical_results.json` with overlap status, CI, effect direction, and significance label for both models
-- [ ] T035 [US3] **Integrate DistilGPT-2 Sensitivity**: Implement logic in `generate_report.py` to read the DistilGPT-2 stability assessment from T032. **MUST include the DistilGPT-2 stability conclusion in the report.** **Depends on T032.**
-- [ ] T036 [US3] Implement `generate_report.py` to create `data/outputs/report.md` with summary statistics, **% confidence intervals for the LLM mean**, effect size, boxplots (matplotlib/seaborn), and a **dedicated 'Limitations' section**. **MUST explicitly include Shapiro-Wilk p-value, selected analysis name (Paired t-test or Wilcoxon), p-value, significance label, and effect direction in the report.** **MUST include the stability assessment from T026 (GPT-2) and T035 (DistilGPT-2).** **MUST include a dedicated Limitations section covering: model age, theoretical baseline, hardware efficiency, and regional factor mismatch.** **Depends on T026, T031, T032, T034, T035.**
-- [ ] T037 [US3] Add explicit note in Limitations section regarding the mismatch between dynamic CodeCarbon regional factors and static human baseline factors
+- [ ] T029 [US3] Implement `statistical_analysis.py` to load `data/processed/paired_emissions.csv`. **MUST** validate the schema (columns: `prompt_id`, `loc_count`, `llm_co2_per_loc`, `human_co2_per_loc`). **MUST** load into a pandas DataFrame. **Depends on T023.**
+- [ ] T030 [US3] Implement Shapiro-Wilk test in `statistical_analysis.py` to determine normality of the LLM distribution (`llm_co2_per_loc`). **MUST** log the Shapiro-Wilk statistic and p-value to stdout and the final JSON report. **If p < 0.05, mark normality as False.** **Depends on T029.**
+- [ ] T031 [US3] **PRIMARY METHOD: Distribution Overlap Analysis**. **MUST** compare the LLM 95% CI for `co2_per_loc` against the Human Theoretical Range (Low/Med/High). **MUST** report the overlap status and the conclusion (e.g., "LLM emissions are significantly higher/lower"). **SECONDARY (Descriptive):** Perform a Paired-Samples t-test (or Wilcoxon if normality fails) comparing `llm_co2_per_loc` and `human_co2_per_loc`. **MUST** report the test statistic, p-value, and effect size (Cohen's d or rank-biserial) as secondary/descriptive only. **MUST** explicitly label the Overlap Analysis as PRIMARY and t-test as SECONDARY in the report. **MUST** label the result as "statistically significant" if the Overlap conclusion indicates a significant difference. **Depends on T029, T030.**
+- [ ] T032a [US3] **Run DistilGPT-2 Inference**: Re-use `run_inference.py` with `--model=distilgpt` to generate `data/processed/distilgpt2_inference_results.json`. **Depends on T013, T004.**
+- [ ] T032b [US3] **Run DistilGPT-2 Emissions**: Re-use `calculate_emissions.py` with `--model=distilgpt2` to generate `data/processed/distilgpt2_paired_emissions.csv`. **Depends on T032a, T005.**
+- [ ] T037 [US3] **Run DistilGPT-2 Sensitivity**: Re-use `sensitivity_analysis.py` (T024 logic) with `--model=distilgpt2` to generate `data/outputs/distilgpt2_sensitivity_analysis.csv` and `data/outputs/distilgpt2_stability_assessment.json`. **Depends on T032b, T005.**
+- [ ] T032c [US3] **Run DistilGPT-2 Statistics**: Re-use `statistical_analysis.py` with `--model=distilgpt2` to perform Shapiro-Wilk, Distribution Overlap Analysis (Primary), and t-test (Secondary), and generate `data/outputs/distilgpt2_stats.json`. **MUST** generate distinct artifacts for DistilGPT-2. **MUST** depend on T037 to ensure the full pipeline (including sensitivity) is complete before final stats. **Depends on T032b, T037, T005.**
+- [ ] T033 [US3] Compare direction of effect (higher/lower) between GPT-2-medium (T031) and DistilGPT-2 (T032c) results
+- [ ] T034 [US3] Generate `data/outputs/statistical_results.json` with test name (Overlap), statistic, p-value, effect size, significance label, and effect direction for both models
+- [ ] T035 [US3] **Integrate DistilGPT-2 Sensitivity**: Implement logic in `generate_report.py` to read the DistilGPT-2 stats from T032c and sensitivity from T037. **MUST** include the DistilGPT-2 effect direction conclusion and stability assessment in the report. **Depends on T032c, T037.**
+- [ ] T036 [US3] Implement `generate_report.py` to create `data/outputs/report.md` with summary statistics, **% confidence intervals for the LLM mean**, effect size, **boxplots of LLM emissions per LOC (Human baseline rendered as a single horizontal line or range marker)**, and a **dedicated 'Limitations' section**. **MUST explicitly include Shapiro-Wilk p-value, selected analysis name (Distribution Overlap Analysis - Primary, t-test - Secondary), p-value, significance label, and effect direction in the report.** **MUST include the stability assessment from T024 (GPT-2) and T037 (DistilGPT-2).** **MUST include a dedicated Limitations section covering: model age, theoretical baseline, hardware efficiency, and regional factor mismatch.** **MUST label the Distribution Overlap Analysis as the PRIMARY analysis and Paired t-test/Wilcoxon as secondary/descriptive.** **Depends on T024, T031, T032c, T034, T035, T013.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,19 +158,14 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T005 must be completed after T004 (download_data.py) to ensure prompt IDs exist for matching.
- - T006 depends on T004 (download_data.py) to exist.
+- **Foundational (Phase 2)**:
+ - T006 (Config) is independent and must run first.
+ - T004 (Download) depends on T006 (Config).
+ - T005 (Baseline) is **INDEPENDENT** of T004 (Download). It depends only on T006 (Config). T004 and T005 can run in parallel.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires output from US1 (inference results) and Baseline data (T005)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires output from US1 and US2 (paired emissions)
+ - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+ - **User Story 2 (P2)**: **MUST wait for User Story 1 to complete** (requires `llm_inference_results.json` from T013).
+ - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires output from US1 and US2 (paired emissions)
 
 ### Within Each User Story
 
@@ -186,11 +177,12 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Foundational tasks marked [P] can run in parallel (T006 is independent; T004 depends on T006; T005 is independent of T004)
+- Once Foundational phase completes, User Story 1 can start. User Story 2 must wait for US1.
+- **T037 (DistilGPT-2 Sensitivity)** can run in parallel with **T032c (DistilGPT-2 Stats)** as long as T032c waits for T037.
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- Different user stories can be worked on by different team members **only after their dependencies are met**.
 
 ---
 
@@ -233,8 +225,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Inference)
- - Developer B: User Story 2 (Baseline & Normalization)
- - Developer C: User Story 3 (Statistics & Robustness)
+ - Developer B: User Story 2 (Baseline & Normalization) - **Starts only after Developer A completes T013**
+ - Developer C: User Story 3 (Statistics & Robustness) - **Starts only after Developer A and B complete their outputs**
 3. Stories complete and integrate independently
 
 ---
@@ -249,10 +241,11 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All model inference MUST run on CPU. Do NOT use `load_in_8bit`, `bitsandbytes`, or `device_map="cuda"`. Use default precision GPT-2-medium and DistilGPT-2.
-- **Data Integrity**: Do NOT fabricate data. Use real CodeXGLUE prompts and real human baseline data from the cited paper or the Synthesized Baseline Protocol.
+- **Data Integrity**: Do NOT fabricate data. Use real CodeXGLUE prompts and real human baseline data from the cited paper or the Synthesized Baseline Protocol if the paper is unavailable.
 - **Execution Order**: Ensure `download_data.py` runs before `run_inference.py`, and `run_inference.py` runs before `calculate_emissions.py`.
-- **Statistical Rigor**: T031 and T032 MUST perform **Paired t-test (or Wilcoxon fallback)** as the PRIMARY test. Distribution Overlap Analysis is supplementary.
+- **Statistical Rigor**: T031 and T032c MUST perform **Distribution Overlap Analysis** as the PRIMARY analysis. Paired t-test/Wilcoxon is secondary/descriptive only.
 - **Logging**: T030 and T031 MUST log Shapiro-Wilk p-value and analysis name to satisfy SC-005.
-- **Robustness**: T032 MUST generate a separate statistical result and sensitivity analysis for DistilGPT-2 to allow comparison of effect direction.
-- **Reporting**: T036 MUST include confidence intervals for the LLM mean, Shapiro-Wilk p-value, and primary statistical conclusion (t-test/Wilcoxon) in the final report, plus a dedicated Limitations section.
-- **Sensitivity**: T024 MUST perform a stability assessment based on consistency of t-test/Wilcoxon conclusions and T026 must integrate these results. T032 and T035 must do the same for DistilGPT-2.
+- **Robustness**: T032 MUST generate a separate statistical result for DistilGPT-2 to allow comparison of effect direction.
+- **Reporting**: T036 MUST include Confidence intervals for the LLM mean, Shapiro-Wilk p-value, and primary statistical conclusion (Distribution Overlap Analysis) in the final report, plus a dedicated Limitations section.
+- **Sensitivity**: T024 MUST perform a stability assessment based on consistency of Overlap conclusions using 15W/50W/100W power draws.
+- **Visualization**: T036 MUST render human baseline as a single horizontal line or range marker to respect zero-variance.

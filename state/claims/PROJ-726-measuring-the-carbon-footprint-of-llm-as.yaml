@@ -182,3 +182,219 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-27T01:07:54Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Nosek et al. 2002 or IEEE TSE 2020 average coding time used as human
+    baseline source
+  claim_id: c_413227df
+  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
+    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
+    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
+    duration per prompt'' (in minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
+    for ''average extended duration per prompt'' (in minutes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:51:06Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: CodeXGLUE Python code-generation subset sampled up to 200 prompts
+  claim_id: c_c5d4f0d9
+  context: Implement 'download_data.py' to fetch CodeXGLUE Python code-generation
+    subset via HuggingFace 'datasets' library. MUST sample up to 200 prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:52:00Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Sample size of 200 prompts for CodeXGLUE Python code-generation subset
+  claim_id: c_9760c0fc
+  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
+    via HuggingFace datasets library. MUST sample up to 200 prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:56:37Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: 'Literature sources for average coding time: Nosek et al. 2002 or IEEE
+    TSE 2020'
+  claim_id: c_d59a57c3
+  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
+    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
+    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
+    duration per prompt'' (in minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
+    for ''average extended duration per prompt'' (in minutes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:56:37Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Extract raw developer time from 2025 comparative analysis paper
+  claim_id: c_b4580541
+  context: Task T005 Implement validate_baseline.py to validate human baseline data
+    against the 2025 comparative analysis paper. MUST attempt to extract raw developer
+    time (minutes) from the 2025 paper (Table X, Section Y).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST attempt to extract raw developer time (minutes) from the 2025 paper
+    (Table X, Section Y).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:59:39Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Use Nosek et al. 2002 or IEEE TSE 2020 for average coding time baseline
+  claim_id: c_8a160698
+  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
+    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
+    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
+    duration per prompt'' (in minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
+    for ''average extended duration per prompt'' (in minutes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:59:39Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Sample up to 200 prompts from CodeXGLUE
+  claim_id: c_387a10a7
+  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
+    via HuggingFace datasets library. MUST sample up to 200 prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:04:07Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Use Nosek et al. 2002 or IEEE TSE 2020 average coding time as human baseline
+    source
+  claim_id: c_67f66dda
+  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
+    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
+    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
+    duration per prompt'' (in minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
+    for ''average extended duration per prompt'' (in minutes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:04:07Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Calculate 95% confidence interval for LLM co2_per_loc mean
+  claim_id: c_0d94d63d
+  context: 'PRIMARY METHOD: Distribution Overlap Analysis. MUST calculate the 95%
+    Confidence Interval (CI) for the LLM co2_per_loc mean.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST calculate the 95% Confidence Interval (CI) for the LLM co2_per_loc
+    mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:04:07Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Nosek et al. 2002 or IEEE TSE 2020 cited for average coding time baseline
+  claim_id: c_3acca7bc
+  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
+    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
+    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
+    duration per prompt'' (in minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
+    for ''average extended duration per prompt'' (in minutes).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:06:46Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: CodeXGLUE Python code-generation subset sampled up to 200 prompts
+  claim_id: c_f2f48d01
+  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
+    via HuggingFace datasets library. MUST sample up to 200 prompts. MUST log the
+    specific reason for sample size reduction if N < 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:06:46Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: 95% Confidence Interval calculated for LLM co2_per_loc mean
+  claim_id: c_21354b78
+  context: 'PRIMARY METHOD: Distribution Overlap Analysis. MUST calculate the 95%
+    Confidence Interval (CI) for the LLM co2_per_loc mean. MUST define the Human Theoretical
+    Range (Low, Medium, High) based on power models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST calculate the 95% Confidence Interval (CI) for the LLM co2_per_loc
+    mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:06:46Z'

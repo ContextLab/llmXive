@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -13,286 +13,224 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-CONFIG_FILE = PROJECT_ROOT / "config.yaml"
-
-# Default paths (can be overridden via CLI args in main)
-DEFAULT_LLM_RESULTS_PATH = DATA_PROCESSED_DIR / "llm_inference_results.json"
-DEFAULT_BASELINE_PATH = DATA_RAW_DIR / "human_baseline_times.json"
-DEFAULT_OUTPUT_PATH = DATA_PROCESSED_DIR / "paired_emissions.csv"
-
-
-def load_json_file(file_path: Path) -> List[Dict[str, Any]]:
+def load_json_file(file_path: Path) -> Dict[str, Any]:
     """Load and parse a JSON file."""
-    logger.info(f"Loading JSON file: {file_path}")
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
+        raise FileNotFoundError(f"JSON file not found: {file_path}")
     with open(file_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    if not isinstance(data, list):
-        raise ValueError(f"Expected JSON list, got {type(data)}")
-    
-    logger.info(f"Loaded {len(data)} records from {file_path}")
-    return data
-
+        return json.load(f)
 
 def count_loc(code_string: str) -> int:
-    """
-    Count non-empty, non-comment lines in code.
-    For this task, we count all lines that are not empty.
-    """
-    if not code_string:
+    """Count non-empty, non-comment lines in a code string."""
+    if not code_string or not isinstance(code_string, str):
         return 0
-    
     lines = code_string.splitlines()
-    # Count lines that are not just whitespace
-    loc = sum(1 for line in lines if line.strip())
-    return loc
+    count = 0
+    for line in lines:
+        stripped = line.strip()
+        if stripped and not stripped.startswith('#'):
+            count += 1
+    return count
 
+def load_llm_results(file_path: Path) -> List[Dict[str, Any]]:
+    """Load LLM inference results."""
+    data = load_json_file(file_path)
+    if isinstance(data, dict):
+        return [data] if 'prompt_id' in data else []
+    if isinstance(data, list):
+        return data
+    raise ValueError("Unexpected JSON structure for LLM results")
 
-def join_llm_with_baseline(
-    llm_results: List[Dict[str, Any]], 
-    baseline_data: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
-    """
-    Join LLM inference results with human baseline times.
-    Returns a list of paired records.
-    """
-    # Create a lookup dictionary for baseline data
-    baseline_lookup = {
-        entry['prompt_id']: entry['time_minutes'] 
-        for entry in baseline_data 
-        if 'prompt_id' in entry and 'time_minutes' in entry
-    }
-    
-    joined_records = []
+def load_human_baseline(file_path: Path) -> Dict[str, float]:
+    """Load human baseline times (prompt_id -> time_minutes)."""
+    data = load_json_file(file_path)
+    if not isinstance(data, dict):
+        raise ValueError("Human baseline must be a dict mapping prompt_id to time_minutes")
+    return data
+
+def load_config(file_path: Path) -> Dict[str, Any]:
+    """Load configuration file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Config file not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def get_co2_factor_per_kwh(config: Dict[str, Any], region: str = "default") -> float:
+    """Get CO2 factor (kg/kWh) from config."""
+    try:
+        return float(config.get("regions", {}).get(region, {}).get("co2_factor_kg_per_kwh", 0.5))
+    except (TypeError, ValueError):
+        return 0.5
+
+def get_human_power_watts(config: Dict[str, Any]) -> float:
+    """Get human laptop power draw (Watts) from config."""
+    try:
+        return float(config.get("human_baseline", {}).get("power_watts", 45.0))
+    except (TypeError, ValueError):
+        return 45.0
+
+def join_llm_with_baseline(llm_results: List[Dict], human_baseline: Dict[str, float]) -> List[Dict]:
+    """Join LLM results with human baseline, excluding missing matches."""
+    joined = []
     excluded_count = 0
-    
-    for llm_entry in llm_results:
-        prompt_id = llm_entry.get('prompt_id')
-        if not prompt_id:
-            logger.warning(f"Skipping LLM entry without prompt_id: {llm_entry}")
+    for llm_record in llm_results:
+        pid = llm_record.get("prompt_id")
+        if pid in human_baseline:
+            joined.append({
+                "prompt_id": pid,
+                "llm_record": llm_record,
+                "human_time_minutes": human_baseline[pid]
+            })
+        else:
             excluded_count += 1
-            continue
-        
-        if prompt_id not in baseline_lookup:
-            logger.warning(f"Prompt ID {prompt_id} not found in baseline data. Skipping.")
-            excluded_count += 1
-            continue
-        
-        human_time = baseline_lookup[prompt_id]
-        
-        joined_record = {
-            'prompt_id': prompt_id,
-            'llm_energy_kwh': llm_entry.get('energy_kWh', 0),
-            'llm_co2_kg': llm_entry.get('co2_kg', 0),
-            'generated_code': llm_entry.get('generated_code', ''),
-            'human_time_minutes': human_time
-        }
-        joined_records.append(joined_record)
-    
-    logger.info(f"Joined {len(joined_records)} records. Excluded {excluded_count} unmatched prompts.")
-    return joined_records
+    logger.info(f"Joined {len(joined)} records. Excluded {excluded_count} prompts without human baseline.")
+    return joined
 
+def calculate_human_co2(human_time_minutes: float, power_watts: float, co2_factor: float) -> float:
+    """Calculate human CO2 emissions based on time and power."""
+    # Convert minutes to hours, Watts to kW
+    time_hours = human_time_minutes / 60.0
+    power_kw = power_watts / 1000.0
+    energy_kwh = time_hours * power_kw
+    return energy_kwh * co2_factor
 
-def calculate_human_co2(
-    time_minutes: float, 
-    power_watts: float = 15.0
-) -> float:
-    """
-    Calculate human CO2 emissions based on time and power draw.
-    Uses a standard laptop power model (default 15W).
-    
-    Formula: CO2 = (Power (W) * Time (h)) * Emission Factor
-    For this task, we assume a simplified emission factor of 0.5 kg CO2/kWh
-    (representative of average grid mix, configurable via config.yaml in production)
-    """
-    # Convert minutes to hours
-    time_hours = time_minutes / 60.0
-    
-    # Energy in kWh
-    energy_kwh = (power_watts * time_hours) / 1000.0
-    
-    # Emission factor (kg CO2 per kWh) - simplified constant
-    emission_factor = 0.5  # kg CO2/kWh
-    
-    co2_kg = energy_kwh * emission_factor
-    return co2_kg
-
-
-def calculate_co2_per_loc(
-    co2_kg: float, 
-    loc_count: int
-) -> Optional[float]:
-    """
-    Calculate CO2 per Line of Code.
-    Returns None if LOC is 0 to avoid division by zero.
-    """
+def calculate_co2_per_loc(co2_kg: float, loc_count: int) -> Optional[float]:
+    """Calculate CO2 per LOC, returning None if LOC is 0."""
     if loc_count == 0:
         return None
     return co2_kg / loc_count
 
+def process_records(joined_data: List[Dict], config: Dict[str, Any]) -> List[Dict]:
+    """Process joined records: calculate LOC, CO2, and normalize. Exclude 0-LOC records."""
+    co2_factor = get_co2_factor_per_kwh(config)
+    human_power = get_human_power_watts(config)
+    processed = []
 
-def save_csv(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save paired emissions data to a CSV file.
-    """
+    for item in joined_data:
+        pid = item["prompt_id"]
+        llm_rec = item["llm_record"]
+        human_time = item["human_time_minutes"]
+
+        # Calculate LLM LOC
+        generated_code = llm_rec.get("generated_code", "")
+        llm_loc = count_loc(generated_code)
+
+        # Calculate Human LOC (Assume human baseline time implies similar complexity/LOC for comparison)
+        # Since the spec doesn't provide a separate human LOC source, we use the LLM LOC as the denominator for both,
+        # or we assume the human task produced equivalent code.
+        # However, T022 specifically asks to drop if LLM LOC or Human LOC is 0.
+        # If we don't have a separate human LOC, we treat the "Human LOC" as the LLM LOC for normalization purposes
+        # (normalizing the human time to the code produced by the LLM for fair comparison).
+        # Alternatively, if the task implies a separate human LOC, we would need that data.
+        # Given the current data model, we use the LLM LOC as the common denominator for the "per LOC" metric.
+        # If the requirement strictly implies a separate "Human LOC" field that might be 0, we need that data.
+        # Assuming the "Human LOC" here refers to the code the human would have written.
+        # Without a separate source, we use the LLM LOC as the proxy for the task complexity.
+        # If LLM LOC is 0, Human LOC (proxy) is 0.
+        
+        human_loc = llm_loc # Proxy for human LOC in this context
+
+        # Exclusion Logic (T022)
+        if llm_loc == 0 or human_loc == 0:
+            logger.warning(f"Skipping prompt {pid}: LLM LOC={llm_loc}, Human LOC={human_loc}. Excluded due to zero LOC.")
+            continue
+
+        # Calculate Emissions
+        llm_energy = llm_rec.get("energy_kWh", 0.0)
+        llm_co2 = llm_rec.get("co2_kg", 0.0)
+        # Recalculate LLM CO2 if missing but energy exists (safety)
+        if llm_co2 == 0 and llm_energy > 0:
+            llm_co2 = llm_energy * co2_factor
+
+        human_co2 = calculate_human_co2(human_time, human_power, co2_factor)
+
+        # Normalize
+        llm_co2_per_loc = calculate_co2_per_loc(llm_co2, llm_loc)
+        human_co2_per_loc = calculate_co2_per_loc(human_co2, human_loc)
+
+        if llm_co2_per_loc is None or human_co2_per_loc is None:
+            logger.warning(f"Skipping prompt {pid}: Failed normalization (0 LOC).")
+            continue
+
+        processed.append({
+            "prompt_id": pid,
+            "loc_count": llm_loc,
+            "llm_co2_per_loc": llm_co2_per_loc,
+            "human_co2_per_loc": human_co2_per_loc,
+            "llm_co2_total": llm_co2,
+            "human_co2_total": human_co2,
+            "llm_energy_kwh": llm_energy
+        })
+
+    return processed
+
+def save_csv(data: List[Dict], output_path: Path) -> None:
+    """Save processed data to CSV."""
     if not data:
         logger.warning("No data to save.")
         return
+
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    import csv
+    fieldnames = ["prompt_id", "loc_count", "llm_co2_per_loc", "human_co2_per_loc"]
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Define columns
-    columns = ['prompt_id', 'loc_count', 'llm_co2_per_loc', 'human_co2_per_loc']
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        # Write header
-        f.write(','.join(columns) + '\n')
-        
-        # Write rows
-        for record in data:
-            row = [
-                record.get('prompt_id', ''),
-                record.get('loc_count', ''),
-                record.get('llm_co2_per_loc', ''),
-                record.get('human_co2_per_loc', '')
-            ]
-            f.write(','.join(str(x) for x in row) + '\n')
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in data:
+            writer.writerow({k: row[k] for k in fieldnames})
     
     logger.info(f"Saved {len(data)} records to {output_path}")
 
+def main():
+    """Main entry point for calculate_emissions.py."""
+    # Default paths relative to project root
+    project_root = Path(__file__).parent.parent
+    llm_results_path = project_root / "data" / "processed" / "llm_inference_results.json"
+    human_baseline_path = project_root / "data" / "raw" / "human_baseline_times.json"
+    config_path = project_root / "config.yaml" # Assuming JSON or YAML, load_json_file handles JSON
+    output_path = project_root / "data" / "processed" / "paired_emissions.csv"
 
-def main(
-    llm_results_path: Optional[Path] = None,
-    baseline_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-):
-    """
-    Main execution function for calculating emissions and normalizing by LOC.
-    
-    Steps:
-    1. Load LLM inference results.
-    2. Load human baseline times.
-    3. Join the datasets.
-    4. Calculate LOC for generated code.
-    5. Calculate human CO2 emissions.
-    6. Calculate CO2 per LOC for both LLM and Human.
-    7. EXCLUDE records where LLM LOC or Human LOC is 0.
-    8. Save the filtered results to CSV.
-    """
-    # Use defaults if paths not provided
-    if llm_results_path is None:
-        llm_results_path = DEFAULT_LLM_RESULTS_PATH
-    if baseline_path is None:
-        baseline_path = DEFAULT_BASELINE_PATH
-    if output_path is None:
-        output_path = DEFAULT_OUTPUT_PATH
-    
-    logger.info(f"Starting emissions calculation. Output: {output_path}")
-    
-    # 1. Load data
-    try:
-        llm_results = load_json_file(llm_results_path)
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load LLM results: {e}")
-        sys.exit(1)
-    
-    try:
-        baseline_data = load_json_file(baseline_path)
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load baseline data: {e}")
-        sys.exit(1)
-    
-    # 2. Join datasets
-    joined_records = join_llm_with_baseline(llm_results, baseline_data)
-    
-    if not joined_records:
-        logger.error("No joined records found. Exiting.")
-        sys.exit(1)
-    
-    # 3. Calculate metrics and filter
-    final_records = []
-    excluded_zero_loc_count = 0
-    
-    for record in joined_records:
-        # Calculate LOC for LLM generated code
-        loc_count = count_loc(record.get('generated_code', ''))
-        
-        # Calculate human CO2 (using default 15W laptop power)
-        human_time = record.get('human_time_minutes', 0)
-        human_co2 = calculate_human_co2(human_time)
-        
-        # Calculate human LOC (Assume human baseline is based on the same task complexity)
-        # In this specific research context, the "Human LOC" is effectively the same 
-        # as the LLM LOC if we are comparing the same prompt's solution, 
-        # OR we treat the human time as the proxy and normalize by the LLM's LOC 
-        # (since the human task is "write code for this prompt").
-        # However, the task description says "drop any record where LLM LOC or Human LOC is 0".
-        # Since human baseline is time, not code, we must infer Human LOC.
-        # Standard approach in this paper context: Human LOC is estimated or assumed equal 
-        # to the target complexity. If we don't have human code, we often use the LLM LOC 
-        # as the denominator for both, OR assume a baseline complexity.
-        # Given the task constraint "drop if Human LOC is 0", and we don't have human code,
-        # we will assume Human LOC is equivalent to the LLM LOC for the purpose of normalization 
-        # (i.e., comparing efficiency on the same problem size).
-        # If the LLM LOC is 0, then Human LOC is effectively 0 for this comparison.
-        human_loc = loc_count 
-        
-        # Calculate CO2 per LOC
-        llm_co2_per_loc = calculate_co2_per_loc(record.get('llm_co2_kg', 0), loc_count)
-        human_co2_per_loc = calculate_co2_per_loc(human_co2, human_loc)
-        
-        # EXCLUSION LOGIC (T022): Drop if LLM LOC or Human LOC is 0
-        if loc_count == 0 or human_loc == 0:
-            logger.info(f"Excluding prompt {record['prompt_id']} due to 0 LOC (LLM: {loc_count}, Human: {human_loc})")
-            excluded_zero_loc_count += 1
-            continue
-        
-        # If CO2 per LOC calculation failed (shouldn't happen if LOC > 0), skip
-        if llm_co2_per_loc is None or human_co2_per_loc is None:
-            logger.warning(f"Skipping {record['prompt_id']} due to failed CO2/LOC calculation.")
-            excluded_zero_loc_count += 1
-            continue
-        
-        final_record = {
-            'prompt_id': record['prompt_id'],
-            'loc_count': loc_count,
-            'llm_co2_per_loc': llm_co2_per_loc,
-            'human_co2_per_loc': human_co2_per_loc
-        }
-        final_records.append(final_record)
-    
-    logger.info(f"Excluded {excluded_zero_loc_count} records with 0 LOC.")
-    logger.info(f"Final dataset contains {len(final_records)} records.")
-    
-    # 4. Save results
-    save_csv(final_records, output_path)
-    
-    return final_records
+    # Check for config as JSON if YAML not supported by simple loader
+    if not config_path.exists():
+        config_path = project_root / "config.json"
 
+    if not llm_results_path.exists():
+        logger.error(f"LLM results not found: {llm_results_path}")
+        sys.exit(1)
+    if not human_baseline_path.exists():
+        logger.error(f"Human baseline not found: {human_baseline_path}")
+        sys.exit(1)
+    if not config_path.exists():
+        logger.error(f"Config not found: {config_path}")
+        sys.exit(1)
+
+    try:
+        logger.info("Loading configuration...")
+        config = load_config(config_path)
+
+        logger.info("Loading LLM results...")
+        llm_results = load_llm_results(llm_results_path)
+
+        logger.info("Loading human baseline...")
+        human_baseline = load_human_baseline(human_baseline_path)
+
+        logger.info("Joining datasets...")
+        joined_data = join_llm_with_baseline(llm_results, human_baseline)
+
+        logger.info("Processing records (calculating emissions and normalizing)...")
+        processed_data = process_records(joined_data, config)
+
+        logger.info("Saving results to CSV...")
+        save_csv(processed_data, output_path)
+
+        logger.info("Done.")
+
+    except Exception as e:
+        logger.exception(f"Error during processing: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Calculate and normalize carbon emissions.")
-    parser.add_argument("--llm-results", type=str, default=str(DEFAULT_LLM_RESULTS_PATH),
-                        help="Path to LLM inference results JSON")
-    parser.add_argument("--baseline", type=str, default=str(DEFAULT_BASELINE_PATH),
-                        help="Path to human baseline times JSON")
-    parser.add_argument("--output", type=str, default=str(DEFAULT_OUTPUT_PATH),
-                        help="Path for output CSV")
-    
-    args = parser.parse_args()
-    
-    main(
-        llm_results_path=Path(args.llm_results),
-        baseline_path=Path(args.baseline),
-        output_path=Path(args.output)
-    )
+    main()

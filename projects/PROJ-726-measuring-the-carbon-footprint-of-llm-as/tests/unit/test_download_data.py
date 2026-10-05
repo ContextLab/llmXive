@@ -1,82 +1,86 @@
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch, MagicMock
+
 import pytest
 
-# Import the module to test
-# Note: In a real execution environment, the path would be relative to the project root
-# For unit tests, we assume the code/ directory is in PYTHONPATH
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from download_data import (
+    fetch_codexglue_dataset,
     compute_file_hash,
     validate_sample_size,
-    verify_baseline_exists,
     save_dataset,
     validate_checksum
 )
 
-def test_compute_file_hash():
-    """Test that file hashing works correctly."""
-    with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
-        f.write("Hello World")
-        temp_path = f.name
+@pytest.fixture
+def mock_dataset_iterator():
+    """Mock iterator that yields fake CodeXGLUE items."""
+    return iter([
+        {"source": "def add(a, b): pass", "target": "return a + b"},
+        {"source": "def sub(a, b): pass", "target": "return a - b"},
+        {"source": "def mul(a, b): pass", "target": "return a * b"},
+    ])
 
-    try:
-        hash_val = compute_file_hash(temp_path)
-        assert len(hash_val) == 64  # SHA256 hex length
-        assert isinstance(hash_val, str)
-    finally:
-        os.unlink(temp_path)
+@patch("download_data.load_dataset")
+def test_fetch_codexglue_dataset_success(mock_load_dataset, mock_dataset_iterator):
+    """Test successful fetching of the dataset."""
+    mock_load_dataset.return_value.__iter__ = MagicMock(return_value=mock_dataset_iterator)
+    
+    samples, reason = fetch_codexglue_dataset(sample_size=10)
+    
+    assert len(samples) == 3
+    assert samples[0]["prompt_id"] == "codexglue_0000"
+    assert samples[0]["prompt"] == "def add(a, b): pass"
+    assert samples[0]["target_code"] == "return a + b"
+    assert reason == "Dataset exhausted before reaching target size (only 3 valid samples available)."
 
-def test_validate_sample_size_exceeds_target():
-    """Test that sample size is capped at target."""
-    result = validate_sample_size(300, target_size=200)
-    assert result == 200
+def test_validate_sample_size():
+    """Test sample size validation logic."""
+    # Empty list
+    assert not validate_sample_size([], 10)
+    
+    # Less than target but > 0
+    assert validate_sample_size([1, 2], 10)
+    
+    # Meets target
+    assert validate_sample_size([1] * 10, 10)
 
-def test_validate_sample_size_within_target():
-    """Test that sample size is kept as is if within target."""
-    result = validate_sample_size(150, target_size=200)
-    assert result == 150
+def test_compute_file_hash(tmp_path):
+    """Test file hash computation."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Hello, World!")
+    
+    hash_val = compute_file_hash(test_file)
+    assert len(hash_val) == 64  # SHA-256 hex length
+    assert hash_val == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 
-def test_verify_baseline_exists_true():
-    """Test baseline verification when file exists."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as f:
-        f.write(b"{}")
-        temp_path = f.name
-
-    try:
-        result = verify_baseline_exists(temp_path)
-        assert result is True
-    finally:
-        os.unlink(temp_path)
-
-def test_verify_baseline_exists_false():
-    """Test baseline verification when file does not exist."""
-    result = verify_baseline_exists("/non/existent/path.json")
-    assert result is False
-
-def test_save_dataset_creates_file():
-    """Test that save_dataset creates the output file."""
-    # Mock dataset iterator
-    mock_data = [
-        {"source": "print('hello')", "target": "print('world')"},
-        {"source": "x = 1", "target": "y = 2"}
+def test_save_dataset(tmp_path):
+    """Test saving dataset to JSON."""
+    samples = [
+        {"prompt_id": "001", "prompt": "test", "target_code": "code"}
     ]
-    mock_dataset = iter(mock_data)
+    output_path = tmp_path / "output.json"
+    
+    save_dataset(samples, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, "r") as f:
+        data = json.load(f)
+    
+    assert len(data) == 1
+    assert data[0]["prompt_id"] == "001"
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test.json")
-        
-        # Mock the dataset object to behave like a streaming iterator
-        with patch('download_data.load_dataset', return_value=mock_dataset):
-            # We need to mock the dataset object itself to pass to save_dataset
-            # The save_dataset function iterates over the dataset
-            save_dataset(mock_dataset, output_path, sample_size=2)
-        
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-            assert len(data) == 2
-            assert "prompt_id" in data[0]
-            assert "source" in data[0]
+def test_validate_checksum(tmp_path):
+    """Test checksum validation."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("test data")
+    
+    assert validate_checksum(test_file)
+    
+    assert not validate_checksum(tmp_path / "nonexistent.txt")

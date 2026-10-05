@@ -1,38 +1,16 @@
-T001:
+T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required repository directories (`code/`, `data/raw/`, `data/processed/`,
-    `data/outputs/`, `tests/`) is provided; the artifact list is empty, so the root
-    structure has not been demonstrated.
-T003:
+  r: "No `run_inference.py` file or modifications are presented, and there is no evidence\
+    \ of added error\u2011handling logic, logging of CodeCarbon failures, or prompt\u2011\
+    skipping behavior. The required artifact is missing, so the task is not satisfied."
+T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or ruff section, or a GitHub Actions workflow invoking
-    ruff/black) were supplied, nor any evidence that these tools have been set up
-    in the repository. Without such artifacts, the requirement to configure ruff and
-    black is not satisfied.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `download_data.py` file containing checksum validation was provided;
-    the claim lacks any artifact showing the implementation of checksum verification
-    for the downloaded raw data. The required code is missing or not visible, so the
-    task is not demonstrably completed.
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_inference.py` script or any generated JSON output is present; the required\
-    \ code that loads GPT\u20112\u2011medium on CPU and records the generated code\
-    \ string is missing, so the task\u2019s core requirement is not satisfied."
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `run_inference.py` (or equivalent script) was provided showing the inference
-    loop wrapped by `codecarbon.EmissionsTracker` with CPU configuration. Without
-    the actual file or code snippet, we cannot confirm that the required wrapping
-    was implemented. The missing artifact must be added and demonstrated to satisfy
-    the task.
+  r: "No code, test files, or documentation were presented showing that validation\
+    \ logic was added to filter out failed or empty\u2011string code generations,\
+    \ nor any test coverage confirming this behavior. The required artifact (implementation\
+    \ and its tests) is missing."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,14 +19,28 @@ T016:
     writing to the output file. Without such evidence, we cannot confirm the requirement
     was implemented. The implementer must supply the modified pipeline code (or a
     diff) and/or test results demonstrating that invalid prompts are excluded.
-T022:
+T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data file implementing the normalization logic (calculating\
-    \ `llm_co2_per_loc` and `human_co2_per_loc` and producing the required table)\
-    \ was provided. The evidence lacks any artifact that demonstrates the calculation,\
-    \ handling of zero\u2011LOC cases, or generation of the output columns specified\
-    \ in the acceptance criteria. The task therefore remains unfinished."
+  r: "No evidence of a modified `calculate_emissions.py` containing LOC\u2011counting\
+    \ logic is present; the claim provides no code, diff, or file content to verify\
+    \ that the required functionality was implemented. The required artifact is missing."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `calculate_emissions.py` file or code snippet was provided, and there is\
+    \ no evidence that the human baseline CO\u2082 calculation (using the mean of\
+    \ the reported time range and a standard laptop power model) has been implemented.\
+    \ The required artifact is missing, so the task is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data file implementing the normalization step was supplied,
+    nor any generated table containing `prompt_id`, `loc_count`, `llm_co2_per_loc`,
+    and `human_co2_per_loc`. Without these artifacts, we cannot confirm that the required
+    `co2_per_loc` calculations for both LLM and human baselines have been implemented.
+    The next implementer must add the normalization logic and provide the resulting
+    output artifact.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

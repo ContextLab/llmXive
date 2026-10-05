@@ -139,7 +139,7 @@ projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/
 - **Hardware Efficiency**: The comparison is between "LLM on GitHub Runner" and "Human on Theoretical Laptop". Hardware efficiency differences are a confounding variable.
 - **Model Age**: GPT-2/DistilGPT
 
-The research question is: Can a smaller language model be effectively distilled from a larger transformer to maintain performance while reducing computational cost? The method involves knowledge distillation techniques as outlined in [Author, Year] (DOI:10.xxxx/xxxxx). are legacy models. Results are specific to these architectures.
+The research question is: Can a smaller language model be effectively distilled from a larger transformer to maintain performance while reducing computational cost? The method involves knowledge distillation techniques as outlined in [Author, Year] (DOI:.xxxx/xxxxx). are legacy models. Results are specific to these architectures.
 - **Data Sufficiency**: If CodeXGLUE does not yield 200 valid prompts, the study proceeds with N < 200, explicitly stating the reduced sample size.
 - **LOC Variability**: The LLM generates variable LOC; the human baseline uses a fixed LOC from the literature. The "per LOC" metric is a theoretical proxy.
 

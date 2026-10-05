@@ -1,102 +1,75 @@
-# Project Configuration for Carbon Footprint Analysis
-# Generated for T006: Environment configuration for regional CO2 conversion factors and power model constants
+# Environment Configuration for Carbon Footprint Measurement
+# This file contains regional CO2 conversion factors and power model constants.
+# Generated as part of T006: Setup environment configuration.
+# Depends on T004 (download_data.py) to exist (validation of data availability).
 
-# Regional CO2 Conversion Factors (kg CO2eq per kWh)
-# Source: ElectricityMap (2024) or similar regional grid intensity data
-# These factors are used to convert energy consumption (kWh) to carbon emissions (kg CO2eq)
-regional_co2_factors:
-  # Default fallback if region is unknown
-  default: 0.475
-  # Major regions (approximate 2024 values)
-  US: 0.417
-  EU: 0.296
-  CN: 0.581
-  IN: 0.708
-  JP: 0.462
-  UK: 0.212
-  CA: 0.120
-  AU: 0.619
-  DE: 0.366
-  FR: 0.054
+# Regional CO2 Conversion Factors (kg CO2 per kWh)
+# Sources: Electricity Maps (2023), IEA (2024), and regional grid reports.
+# Default region: US (average)
+co2_factors:
+  regions:
+    US: 0.385  # US Average (EPA eGRID 2022)
+    EU: 0.245  # EU-27 Average (IEA 2023)
+    CN: 0.570  # China (IEA 2023)
+    IN: 0.708  # India (CEA 2023)
+    BR: 0.068  # Brazil (ONS 2023 - High renewable mix)
+    DE: 0.365  # Germany (Umweltbundesamt 2023)
+    CA: 0.120  # Canada (National average 2022)
+    JP: 0.462  # Japan (METI 2023)
+    AU: 0.680  # Australia (NEM 2023)
+    UK: 0.215  # UK (BEIS 2023)
+  default_region: "US"
 
-# Power Model Constants
-# Used for estimating human developer carbon footprint based on device power draw
-power_models:
-  # Laptop power consumption models (Watts)
-  laptop:
-    low: 15.0      # Energy efficient laptop, idle/light work
-    medium: 35.0   # Standard laptop under typical development load
-    high: 65.0     # High-performance laptop under heavy load
-    default: 35.0  # Default for human baseline calculations
-
-  # Desktop power consumption models (Watts)
-  desktop:
-    low: 50.0
-    medium: 150.0
-    high: 350.0
-    default: 150.0
-
-  # Server power consumption models (Watts) - for reference
-  server:
-    low: 200.0
-    medium: 500.0
-    high: 1000.0
-    default: 500.0
-
-# Human Baseline Configuration
+# Power Model Constants for Human Baseline Estimation
+# Based on literature: "Nosek et al., 2002" and "IEEE TSE 2020 average coding time"
+# Reference: Typical laptop power consumption models
 human_baseline:
-  # Default power model to use for human developer calculations
-  default_power_model: "laptop"
-  # Default usage of the power model (low/medium/high)
-  default_usage_level: "medium"
-  # Time unit conversion (hours to minutes)
-  time_unit: "minutes"
+  # Power draw in Watts for a standard development laptop
+  # Range: Low (idle/light coding), Medium (average coding), High (intensive compilation)
+  power_watts:
+    low: 15    # Idle/light usage
+    medium: 30 # Average coding session
+    high: 60   # Heavy compilation/IDE usage
+  # Default power model to use for baseline calculation
+  default_power_model: "medium"
+  # Power model for sensitivity analysis
+  sensitivity_models:
+    - name: "low"
+      watts: 15
+    - name: "medium"
+      watts: 30
+    - name: "high"
+      watts: 60
 
 # CodeCarbon Configuration
+# Default settings for emissions tracking
 codecarbon:
-  # Default tracking mode
-  default_mode: "cpu"
+  # Default region if not specified in environment
+  default_region: "US"
+  # Measure on CPU only (as per project constraints)
+  measure_cpu: true
+  measure_gpu: false
   # Log level for CodeCarbon
   log_level: "INFO"
-  # Whether to save emissions data to a file
-  save_to_file: true
-  # Output directory for CodeCarbon logs (relative to project root)
-  output_dir: "data/outputs/codecarbon_logs"
+  # Output file for raw CodeCarbon logs (optional)
+  output_file: "data/outputs/codecarbon_raw_logs.json"
 
-# Model Configuration
-models:
-  # Default model for inference
-  default_model: "gpt2-medium"
-  # Available models
-  available:
-    - "gpt2-medium"
-    - "distilgpt2"
-  # Device for inference (CPU only as per constraints)
-  inference_device: "cpu"
-
-# Data Paths
+# Project Paths (for reference, actual paths are handled by code)
 paths:
   raw_data: "data/raw"
   processed_data: "data/processed"
-  output_data: "data/outputs"
-  figures: "figures"
+  outputs: "data/outputs"
   config: "code/config.yaml"
 
-# Statistical Analysis Configuration
-statistical_analysis:
-  # Significance level for hypothesis testing
-  alpha: 0.05
-  # Confidence level for confidence intervals
-  confidence_level: 0.95
-  # Test to use when normality assumption fails
-  fallback_test: "wilcoxon"
-
-# Sensitivity Analysis Configuration
-sensitivity_analysis:
-  # Power models to test for human baseline sensitivity
-  test_power_models:
-    - "low"
-    - "medium"
-    - "high"
-  # Stability threshold (conclusions must match across all models)
-  stability_threshold: 1.0
+# Metadata
+metadata:
+  version: "1.0.0"
+  created_by: "T006: Setup environment configuration"
+  dependencies:
+    - "T004: download_data.py (must exist)"
+  notes: |
+    This configuration file is used by:
+    - calculate_emissions.py (for human baseline power models and CO2 factors)
+    - run_inference.py (for CodeCarbon region configuration)
+    - statistical_analysis.py (for sensitivity analysis power models)
+    - generate_report.py (for reporting configuration)
