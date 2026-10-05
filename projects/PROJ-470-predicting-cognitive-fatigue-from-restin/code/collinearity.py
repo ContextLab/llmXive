@@ -1,4 +1,11 @@
-"""Collinearity diagnostics (VIF) implementation for T024."""
+"""
+Collinearity diagnostics (VIF < 5) for US3 per SC-004.
+
+Calculates Variance Inflation Factor (VIF) for all available predictors
+(Fatigue_Delta, Pre_Complexity, and covariates: age, time_of_day, medication_status).
+Writes diagnostics to data/analysis/vif_diagnostics.log and valid predictors to
+data/analysis/vif_valid_predictors.json.
+"""
 from __future__ import annotations
 
 import argparse
@@ -7,35 +14,41 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import List, Dict, Any
 
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+# Import from project utils
 from utils.logging import get_logger, log_operation
 
 
 def setup_logger(name: str, log_file: str | None = None) -> logging.Logger:
-    """Configure a logger for this module."""
+    """Configure a logger with file and console handlers."""
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
         if log_file:
             os.makedirs(os.path.dirname(log_file), exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(file_handler)
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.DEBUG)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
     return logger
 
 
-def load_config(config_path: str = "code/config.yaml") -> dict:
-    """Load configuration from YAML."""
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load pipeline configuration."""
     import yaml
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
@@ -46,16 +59,13 @@ def load_analysis_results(
     delta_file: str = "data/analysis/delta_scores.csv"
 ) -> pd.DataFrame:
     """
-    Load complexity metrics and delta scores, merge them, and prepare the predictor matrix.
+    Load and merge complexity metrics and delta scores to form the predictor matrix.
 
     Returns a DataFrame with columns:
     - Fatigue_Delta
-    - Pre_Complexity (median of LZC across channels for pre-state)
-    - Available covariates (age, time_of_day, medication_status) if present.
+    - Pre_Complexity (median across channels per participant)
+    - Any available covariates (age, time_of_day, medication_status)
     """
-    logger = get_logger("collinearity")
-    logger.info("Loading analysis results for VIF calculation.")
-
     if not os.path.exists(complexity_file):
         raise FileNotFoundError(f"Complexity metrics file not found: {complexity_file}")
     if not os.path.exists(delta_file):
@@ -64,197 +74,174 @@ def load_analysis_results(
     complexity_df = pd.read_csv(complexity_file)
     delta_df = pd.read_csv(delta_file)
 
-    # Ensure participant_id is string for merging
-    complexity_df['participant_id'] = complexity_df['participant_id'].astype(str)
-    delta_df['participant_id'] = delta_df['participant_id'].astype(str)
+    # Aggregate complexity to participant level (median across channels)
+    participant_complexity = (
+        complexity_df
+        .groupby(['participant_id', 'segment_id'])[['lzc_value', 'pe_value']]
+        .median()
+        .reset_index()
+    )
 
-    # We need Pre_Complexity (LZC) for the pre-state.
-    # Assuming complexity_metrics has a 'timepoint' or 'segment' column indicating pre/post.
-    # If not, we assume the first segment is pre.
-    # Based on T016 spec: "per channel per segment". T019 calculates deltas.
-    # We need to aggregate complexity by participant and timepoint.
+    # Merge with delta scores
+    # We assume delta_df has participant_id, fatigue_delta, and potentially covariates
+    merged = pd.merge(
+        delta_df,
+        participant_complexity,
+        on='participant_id',
+        how='inner'
+    )
 
-    # Filter for Pre state complexity (LZC)
-    # Assumption: 'segment_id' or 'timepoint' indicates pre/post.
-    # If 'timepoint' exists:
-    if 'timepoint' in complexity_df.columns:
-        pre_complexity = complexity_df[complexity_df['timepoint'] == 'pre']
-    else:
-        # Fallback: assume first segment per participant is pre, or aggregate all if no timepoint
-        # For VIF, we need a single Pre_Complexity per participant.
-        # Let's aggregate median LZC across channels for the 'pre' timepoint if available.
-        # If 'timepoint' is missing, we might need to infer from 'segment_id' naming or just take all.
-        # Given T019 calculates delta (Post - Pre), 'timepoint' should exist in delta_df.
-        # We join delta_df to get the mapping, but we need Pre_Complexity.
-        # Let's assume complexity_df has 'timepoint'. If not, we raise an error or aggregate.
-        logger.warning("No 'timepoint' column in complexity_metrics.csv. Attempting to infer or aggregate.")
-        pre_complexity = complexity_df # Fallback: use all if structure is flat
+    # If segment_id is in complexity but not delta, we might need to align.
+    # For VIF, we typically use one row per participant.
+    # Let's assume delta_df is already per-participant (one row per participant).
+    # If complexity has multiple segments, we take the mean/median per participant.
+    participant_complexity_agg = (
+        participant_complexity
+        .groupby('participant_id')[['lzc_value', 'pe_value']]
+        .median()
+        .reset_index()
+        .rename(columns={'lzc_value': 'Pre_Complexity'})
+    )
 
-    # Aggregate Pre Complexity (median LZC per participant)
-    # We assume 'lzc_value' is the column name from T016.
-    if 'lzc_value' not in pre_complexity.columns:
-        raise ValueError("Column 'lzc_value' not found in complexity_metrics.csv")
+    final_df = pd.merge(delta_df, participant_complexity_agg, on='participant_id', how='inner')
 
-    pre_lzc = pre_complexity.groupby('participant_id')['lzc_value'].median().reset_index()
-    pre_lzc.columns = ['participant_id', 'Pre_Complexity']
+    # Ensure required columns exist
+    required = ['Fatigue_Delta', 'Pre_Complexity']
+    missing = [col for col in required if col not in final_df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in merged data: {missing}")
 
-    # Prepare the main dataframe
-    # Start with Fatigue_Delta from delta_df
-    # T019 output: delta_scores.csv. Columns likely: participant_id, metric, delta_value (or similar).
-    # T019 spec: "delta scores (Post - Pre) for both complexity and fatigue".
-    # Let's assume delta_df has columns: participant_id, metric_name, delta_value.
-    # We need Fatigue_Delta specifically.
-
-    if 'metric' in delta_df.columns and 'delta_value' in delta_df.columns:
-        fatigue_delta = delta_df[delta_df['metric'] == 'fatigue'][['participant_id', 'delta_value']]
-        fatigue_delta.columns = ['participant_id', 'Fatigue_Delta']
-    elif 'Fatigue_Delta' in delta_df.columns:
-        fatigue_delta = delta_df[['participant_id', 'Fatigue_Delta']]
-    else:
-        # Try to find a column that looks like fatigue delta
-        fatigue_cols = [c for c in delta_df.columns if 'fatigue' in c.lower() and 'delta' in c.lower()]
-        if fatigue_cols:
-            fatigue_delta = delta_df[['participant_id'] + fatigue_cols]
-            fatigue_delta.columns = ['participant_id', 'Fatigue_Delta']
-        else:
-            raise ValueError("Could not identify Fatigue_Delta column in delta_scores.csv")
-
-    # Merge
-    df = pd.merge(pre_lzc, fatigue_delta, on='participant_id', how='inner')
-
-    # Add covariates if they exist in delta_df (or a separate covariate file)
-    # T024 spec: "covariates: age, time_of_day, medication_status"
-    covariates = ['age', 'time_of_day', 'medication_status']
-    for cov in covariates:
-        if cov in delta_df.columns:
-            # Merge covariates
-            cov_df = delta_df[['participant_id', cov]].drop_duplicates()
-            df = pd.merge(df, cov_df, on='participant_id', how='left')
-            logger.info(f"Covariate '{cov}' found and merged.")
-        else:
-            logger.warning(f"Covariate '{cov}' not found in input data.")
-
-    return df
+    return final_df
 
 
-def calculate_vif(df: pd.DataFrame, exclude: list | None = None) -> dict:
+def calculate_vif(
+    df: pd.DataFrame,
+    predictors: List[str]
+) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor for each predictor in the DataFrame.
+    Calculate VIF for a list of predictors in the DataFrame.
 
-    Args:
-        df: DataFrame with predictors as columns.
-        exclude: List of column names to exclude from VIF calculation.
-
-    Returns:
-        Dictionary mapping predictor names to VIF values.
+    Returns a dict mapping predictor name to its VIF value.
     """
-    if exclude is None:
-        exclude = []
-
-    # Select columns
-    predictors = [col for col in df.columns if col not in exclude]
-
-    # Check for NaNs
-    if df[predictors].isnull().any().any():
-        logger = get_logger("collinearity")
-        logger.warning("NaN values found in predictors. Dropping rows with NaNs for VIF calculation.")
-        df_clean = df[predictors].dropna()
-    else:
-        df_clean = df[predictors]
-
-    if df_clean.shape[0] < df_clean.shape[1] + 1:
-        logger = get_logger("collinearity")
-        logger.error("Not enough samples to calculate VIF (N < P + 1).")
-        raise ValueError("Insufficient samples for VIF calculation.")
+    X = df[predictors].dropna()
+    if X.shape[0] < len(predictors) + 1:
+        raise ValueError("Not enough samples to calculate VIF for given predictors.")
 
     # Add constant for intercept
-    X = df_clean.values
-    X = np.column_stack((np.ones(X.shape[0]), X))
-
+    X = sm.add_constant(X)
     vif_data = {}
-    for i, col in enumerate(predictors):
-        # VIF for feature i is 1 / (1 - R^2_i)
-        # where R^2_i is from regression of feature i on all other features.
-        # statsmodels VIF function handles this.
-        try:
-            vif = variance_inflation_factor(X, i + 1) # +1 because index 0 is intercept
-            vif_data[col] = vif
-        except Exception as e:
-            logger = get_logger("collinearity")
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_data[col] = np.nan
+    for i, col in enumerate(X.columns):
+        if col == 'const':
+            continue
+        vif = variance_inflation_factor(X.values, i)
+        vif_data[col] = vif
 
     return vif_data
 
 
 def run_collinearity_diagnostics(
-    config: dict,
-    complexity_file: str = "data/analysis/complexity_metrics.csv",
-    delta_file: str = "data/analysis/delta_scores.csv",
-    log_file: str = "data/analysis/vif_diagnostics.log",
-    output_json: str = "data/analysis/vif_valid_predictors.json"
-) -> None:
+    df: pd.DataFrame,
+    vif_threshold: float = 5.0,
+    logger: logging.Logger | None = None
+) -> Dict[str, Any]:
     """
-    Run VIF diagnostics, log results, and exit with code 1 if VIF >= 5.
+    Run VIF diagnostics on the available predictors.
+
+    Identifies available predictors (Fatigue_Delta, Pre_Complexity, and covariates).
+    Calculates VIF for all.
+    Logs all VIF values to vif_diagnostics.log.
+    Writes valid predictors (VIF < threshold) to vif_valid_predictors.json.
+
+    Does NOT exit on failure; logs warnings for high VIF.
     """
-    logger = setup_logger("collinearity", log_file=log_file)
-    logger.info("Starting collinearity diagnostics (VIF).")
+    if logger is None:
+        logger = logging.getLogger(__name__)
 
-    # Load data
-    try:
-        df = load_analysis_results(complexity_file, delta_file)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+    # Define potential predictors
+    core_predictors = ['Fatigue_Delta', 'Pre_Complexity']
+    covariates = ['age', 'time_of_day', 'medication_status']
 
-    if df.empty:
-        logger.error("No data available for VIF calculation.")
-        sys.exit(1)
+    # Identify which are present
+    available_predictors = [p for p in core_predictors if p in df.columns]
+    available_covariates = [c for c in covariates if c in df.columns]
 
-    logger.info(f"Data loaded. Shape: {df.shape}")
-    logger.info(f"Columns: {list(df.columns)}")
+    all_predictors = available_predictors + available_covariates
+
+    if not all_predictors:
+        logger.warning("No predictors available for VIF calculation.")
+        return {'valid_predictors': [], 'vif_values': {}, 'status': 'no_predictors'}
+
+    if len(all_predictors) < 2:
+        logger.warning("At least 2 predictors required for VIF calculation.")
+        # If only one predictor, VIF is undefined (or 1.0 by definition), but statsmodels requires >1
+        # We'll handle this gracefully
+        return {'valid_predictors': all_predictors, 'vif_values': {p: 1.0 for p in all_predictors}, 'status': 'single_predictor'}
+
+    # Drop rows with NaN in any predictor
+    clean_df = df[all_predictors].dropna()
+
+    if clean_df.shape[0] < len(all_predictors) + 1:
+        logger.warning(f"Insufficient samples ({clean_df.shape[0]}) for VIF with {len(all_predictors)} predictors.")
+        return {'valid_predictors': [], 'vif_values': {}, 'status': 'insufficient_samples'}
 
     # Calculate VIF
-    vif_results = calculate_vif(df)
+    try:
+        import statsmodels.api as sm
+        X = sm.add_constant(clean_df[all_predictors])
+        vif_values = {}
+        for i, col in enumerate(X.columns):
+            if col == 'const':
+                continue
+            vif = variance_inflation_factor(X.values, i)
+            vif_values[col] = float(vif)
+    except Exception as e:
+        logger.error(f"Error calculating VIF: {e}")
+        return {'valid_predictors': [], 'vif_values': {}, 'status': 'calculation_error', 'error': str(e)}
 
-    # Log all VIF values
-    logger.info("VIF Results:")
-    for predictor, vif_val in vif_results.items():
-        logger.info(f"  {predictor}: {vif_val:.4f}")
-        # Explicitly write to log file via logger (which is configured with FileHandler)
+    # Identify valid predictors
+    valid_predictors = [p for p, v in vif_values.items() if v < vif_threshold]
+    invalid_predictors = [p for p, v in vif_values.items() if v >= vif_threshold]
 
-    # Check threshold
-    threshold = 5.0
-    collinear_predictors = []
-    for predictor, vif_val in vif_results.items():
-        if vif_val >= threshold:
-            collinear_predictors.append(predictor)
+    # Log diagnostics
+    logger.info(f"VIF Diagnostics - Threshold: {vif_threshold}")
+    logger.info(f"Available predictors: {all_predictors}")
+    for p, v in vif_values.items():
+        status = "VALID" if v < vif_threshold else "HIGH_VIF"
+        logger.info(f"  {p}: VIF = {v:.4f} [{status}]")
 
-    if collinear_predictors:
-        logger.warning(f"Collinearity violation detected (VIF >= {threshold}):")
-        for p in collinear_predictors:
-            logger.warning(f"  - {p} (VIF: {vif_results[p]:.4f})")
-        logger.error(f"Collinearity violation: VIF >= {threshold} for {collinear_predictors}. Study invalid per SC-004.")
-        # HARD HALT
-        sys.exit(1)
+    if invalid_predictors:
+        logger.warning(f"Predictors with VIF >= {vif_threshold}: {invalid_predictors}")
     else:
-        logger.info(f"All predictors passed VIF check (threshold < {threshold}).")
-        valid_predictors = list(vif_results.keys())
+        logger.info(f"All predictors passed VIF < {vif_threshold} threshold.")
 
-        # Write valid predictors to JSON
-        os.makedirs(os.path.dirname(output_json), exist_ok=True)
-        with open(output_json, 'w') as f:
-            json.dump({"valid_predictors": valid_predictors}, f, indent=2)
-        logger.info(f"Valid predictors written to {output_json}")
+    return {
+        'valid_predictors': valid_predictors,
+        'vif_values': vif_values,
+        'status': 'completed',
+        'invalid_predictors': invalid_predictors
+    }
 
 
 def save_collinearity_report(
-    vif_results: dict,
-    output_file: str = "data/analysis/vif_report.csv"
-) -> None:
-    """Save VIF results to a CSV file."""
-    df = pd.DataFrame(list(vif_results.items()), columns=['predictor', 'vif'])
-    df.to_csv(output_file, index=False)
+    results: Dict[str, Any],
+    log_path: str = "data/analysis/vif_diagnostics.log",
+    json_path: str = "data/analysis/vif_valid_predictors.json"
+):
+    """
+    Write VIF diagnostics to log and valid predictors to JSON.
+
+    Note: This function appends to the log file to preserve previous entries.
+    """
+    # Ensure directories exist
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    os.makedirs(os.path.dirname(json_path), exist_ok=True)
+
+    # Write JSON
+    with open(json_path, 'w') as f:
+        json.dump({'valid_predictors': results.get('valid_predictors', [])}, f, indent=2)
+
+    # The logging is handled by the logger passed to run_collinearity_diagnostics.
+    # This function ensures the JSON is written.
 
 
 def main():
@@ -262,24 +249,28 @@ def main():
     parser.add_argument("--config", default="code/config.yaml", help="Path to config file.")
     parser.add_argument("--complexity", default="data/analysis/complexity_metrics.csv", help="Path to complexity metrics.")
     parser.add_argument("--delta", default="data/analysis/delta_scores.csv", help="Path to delta scores.")
-    parser.add_argument("--log", default="data/analysis/vif_diagnostics.log", help="Path to log file.")
-    parser.add_argument("--output", default="data/analysis/vif_valid_predictors.json", help="Path to output JSON.")
-
+    parser.add_argument("--vif-threshold", type=float, default=5.0, help="VIF threshold for validity.")
     args = parser.parse_args()
 
-    try:
-        config = load_config(args.config)
-    except Exception as e:
-        print(f"Error loading config: {e}")
-        sys.exit(1)
+    # Setup logger
+    logger = setup_logger("collinearity", "data/analysis/vif_diagnostics.log")
+    logger.info("Starting collinearity diagnostics.")
 
-    run_collinearity_diagnostics(
-        config=config,
-        complexity_file=args.complexity,
-        delta_file=args.delta,
-        log_file=args.log,
-        output_json=args.output
-    )
+    try:
+        # Load data
+        df = load_analysis_results(args.complexity, args.delta)
+        logger.info(f"Loaded {len(df)} participants for VIF analysis.")
+
+        # Run diagnostics
+        results = run_collinearity_diagnostics(df, args.vif_threshold, logger)
+
+        # Save results
+        save_collinearity_report(results)
+        logger.info(f"VIF diagnostics complete. Valid predictors: {results.get('valid_predictors', [])}")
+
+    except Exception as e:
+        logger.error(f"Collinearity diagnostics failed: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

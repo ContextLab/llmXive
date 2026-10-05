@@ -1,6 +1,12 @@
 """
-Preprocessing pipeline for EEG data.
-Implements filtering, artifact rejection, and segment validation.
+EEG Preprocessing Pipeline for Cognitive Fatigue Study.
+
+This module implements the full preprocessing pipeline including:
+- Bandpass filtering (1-40 Hz)
+- Notch filtering (50/60 Hz)
+- Re-referencing
+- Artifact rejection (amplitude and length)
+- Parallel processing of the full dataset
 """
 from __future__ import annotations
 
@@ -9,393 +15,462 @@ import json
 import logging
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
-import pandas as pd
 import mne
+from scipy.signal import butter, filtfilt, iirnotch
 
-# Import logging utility from the shared utils module
-# Note: The API surface shows utils.logging provides get_logger, save_exclusion_log_csv, etc.
-# We must import from code/utils/logging.py relative to the project root.
-# Since this file is in code/, we import from utils.logging
-try:
-    from utils.logging import get_logger, save_exclusion_log_csv, log_artifact_rejection
-except ImportError:
-    # Fallback for direct execution if path isn't set up correctly, though standard run should work
-    sys.path.insert(0, str(Path(__file__).parent))
-    from utils.logging import get_logger, save_exclusion_log_csv, log_artifact_rejection
+# Import logging utility from the shared module
+from utils.logging import get_logger, log_participant_exclusion, log_artifact_rejection, save_exclusion_log_csv
 
-def setup_logger(name: str, log_file: str | None = None) -> logging.Logger:
-    """Configure and return a logger."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+# Global logger instance
+logger = get_logger("preprocess")
+
+# Constants
+MIN_SEGMENT_DURATION_SEC = 120
+ARTIFACT_THRESHOLD_UV = 100.0
+OUTPUT_DIR = "data/processed/cleaned_eeg"
+EXCLUSION_LOG_PATH = "data/processed/exclusion_log.csv"
+MANIFEST_PATH = "data/raw/download_manifest.json"
+
+
+def load_config() -> Dict[str, Any]:
+    """Load configuration from code/config.yaml."""
+    import yaml
+    config_path = Path("code/config.yaml")
+    if not config_path.exists():
+        logger.error(f"Config file not found: {config_path}")
+        sys.exit(1)
     
-    if not logger.handlers:
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-        
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
     
-    return logger
+    # Ensure required keys exist with defaults
+    defaults = {
+        'filter_low': 1.0,
+        'filter_high': 40.0,
+        'notch_frequency': 50.0,
+        'artifact_threshold_uV': 100,
+        'random_seed': 42
+    }
+    
+    for key, default_val in defaults.items():
+        if key not in config:
+            config[key] = default_val
+        else:
+            # Type conversion if necessary
+            if key == 'artifact_threshold_uV':
+                config[key] = int(config[key])
+            else:
+                config[key] = float(config[key])
+    
+    return config
 
-def load_sample_path(manifest_path: str = "data/raw/download_manifest.json") -> str:
+
+def load_manifest(manifest_path: str = MANIFEST_PATH) -> List[Dict[str, Any]]:
     """
-    Load the path to the sample EEG file from the manifest.
-    For T013 verification, we specifically look for the verification sample.
+    Load the download manifest containing participant data.
+    
+    Args:
+        manifest_path: Path to the manifest JSON file.
+        
+    Returns:
+        List of participant dictionaries.
     """
     if not os.path.exists(manifest_path):
-        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
+        logger.error(f"Manifest file not found: {manifest_path}")
+        logger.error("Please run code/download.py first to generate the manifest.")
+        sys.exit(1)
     
     with open(manifest_path, 'r') as f:
         manifest = json.load(f)
     
-    # The task T013 specifically requires processing the sample file created by T012a
-    # which is copied to data/raw/sample_eeg_verification.fif
-    sample_path = "data/raw/sample_eeg_verification.fif"
+    if not isinstance(manifest, list):
+        logger.error("Manifest must be a list of participant entries.")
+        sys.exit(1)
     
-    if not os.path.exists(sample_path):
-        # Fallback: try to find the first file in the manifest if the specific sample doesn't exist
-        # This handles cases where T012a might have run but the file is named differently
-        # However, per spec, we must use the specific sample path for verification
-        if 'files' in manifest and len(manifest['files']) > 0:
-            sample_path = manifest['files'][0]['path']
-            logging.warning(f"Using fallback sample path: {sample_path}")
-        else:
-            raise FileNotFoundError("No sample EEG file found in manifest or at expected location.")
-    
-    return sample_path
+    logger.info(f"Loaded manifest with {len(manifest)} participants.")
+    return manifest
 
-def load_eeg_data(file_path: str) -> mne.io.Raw:
-    """Load EEG data from a file."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"EEG file not found: {file_path}")
+
+def apply_bandpass_filter(
+    data: np.ndarray, 
+    sfreq: float, 
+    low_cut: float = 1.0, 
+    high_cut: float = 40.0
+) -> np.ndarray:
+    """
+    Apply a 4th-order Butterworth bandpass filter.
     
-    # Determine file type and load accordingly
-    if file_path.endswith('.fif'):
-        raw = mne.io.read_raw_fif(file_path, preload=True)
-    elif file_path.endswith('.edf'):
-        raw = mne.io.read_raw_edf(file_path, preload=True)
-    elif file_path.endswith('.vhdr'):
-        raw = mne.io.read_raw_brainvision(file_path, preload=True)
+    Args:
+        data: EEG data array (channels x samples).
+        sfreq: Sampling frequency in Hz.
+        low_cut: Low cutoff frequency.
+        high_cut: High cutoff frequency.
+        
+    Returns:
+        Filtered data array.
+    """
+    nyquist = sfreq / 2.0
+    
+    # Normalize frequencies
+    low = low_cut / nyquist
+    high = high_cut / nyquist
+    
+    # Ensure frequencies are within valid range
+    low = max(0.001, min(low, 0.999))
+    high = max(0.001, min(high, 0.999))
+    
+    b, a = butter(4, [low, high], btype='band')
+    
+    # Apply filter along the time axis (axis=-1)
+    filtered_data = filtfilt(b, a, data, axis=-1)
+    
+    return filtered_data
+
+
+def apply_notch_filter(
+    data: np.ndarray, 
+    sfreq: float, 
+    freq: float = 50.0, 
+    q: float = 30.0
+) -> np.ndarray:
+    """
+    Apply a notch filter to remove line noise.
+    
+    Args:
+        data: EEG data array.
+        sfreq: Sampling frequency in Hz.
+        freq: Notch frequency (50 or 60 Hz).
+        q: Quality factor (higher = narrower notch).
+        
+    Returns:
+        Filtered data array.
+    """
+    nyquist = sfreq / 2.0
+    freq = min(freq, nyquist * 0.99)  # Ensure frequency is valid
+    
+    b, a = iirnotch(freq / nyquist, q)
+    filtered_data = filtfilt(b, a, data, axis=-1)
+    
+    return filtered_data
+
+
+def re_reference(data: np.ndarray, method: str = 'average') -> np.ndarray:
+    """
+    Re-reference EEG data.
+    
+    Args:
+        data: EEG data array (channels x samples).
+        method: Re-referencing method ('average' or 'common').
+        
+    Returns:
+        Re-referenced data array.
+    """
+    if method == 'average':
+        # Subtract the mean across channels for each time point
+        mean_signal = np.mean(data, axis=0, keepdims=True)
+        return data - mean_signal
     else:
-        raise ValueError(f"Unsupported file format: {file_path}")
-    
-    return raw
+        # For other methods, return data unchanged
+        logger.warning(f"Unknown re-referencing method: {method}. Returning original data.")
+        return data
 
-def apply_filters(raw: mne.io.Raw, filter_low: float = 1.0, filter_high: float = 40.0, notch_freq: float = 50.0) -> mne.io.Raw:
-    """Apply bandpass and notch filters."""
-    # Bandpass filter
-    raw.filter(l_freq=filter_low, h_freq=filter_high, method='fir')
-    
-    # Notch filter for line noise
-    raw.notch_filter(freqs=notch_freq)
-    
-    return raw
-
-def verify_filtering(raw: mne.io.Raw, original_raw: mne.io.Raw) -> bool:
-    """
-    Verify that filtering has attenuated line noise.
-    For T012 verification, we check 50Hz attenuation.
-    """
-    # This is a placeholder for the actual verification logic
-    # In a real implementation, we would compute PSD and compare
-    return True
 
 def reject_artifacts_by_amplitude(
-    raw: mne.io.Raw, 
-    threshold_uV: float = 100.0, 
-    participant_id: str = "unknown",
-    logger: logging.Logger | None = None
-) -> tuple[mne.io.Raw, list[dict]]:
+    data: np.ndarray, 
+    threshold_uv: float = 100.0
+) -> Tuple[np.ndarray, List[Dict[str, Any]]]:
     """
-    Reject epochs/segments where amplitude exceeds threshold.
-    
-    Implements FR-002: Exclude epochs > ±100µV.
+    Reject epochs that exceed amplitude thresholds.
     
     Args:
-        raw: The raw EEG data object.
-        threshold_uV: Amplitude threshold in microvolts.
-        participant_id: ID of the participant for logging.
-        logger: Logger instance for recording events.
+        data: EEG data array (epochs x channels x samples).
+        threshold_uv: Threshold in microvolts.
         
     Returns:
-        Tuple of (cleaned_raw, list_of_rejected_segments)
+        Tuple of (cleaned_data, list of rejection logs).
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    rejection_logs = []
+    cleaned_epochs = []
     
-    rejected_segments = []
+    # Convert threshold to data units (assuming data is in Volts)
+    threshold = threshold_uv * 1e-6
     
-    # Get data and times
-    data = raw.get_data()  # Shape: (n_channels, n_times)
-    info = raw.info
-    sfreq = info['sfreq']
-    
-    # Convert threshold to data units (if data is in V, convert threshold)
-    # MNE usually stores in Volts, so 100uV = 100e-6 V
-    threshold = threshold_uV * 1e-6
-    
-    # Check amplitude for each channel
-    # We'll reject any segment (epoch) where any channel exceeds threshold
-    # For simplicity in this implementation, we treat the whole recording as one segment
-    # or we can split into fixed-length epochs if needed
-    
-    # Calculate max absolute amplitude per channel
-    max_amplitudes = np.max(np.abs(data), axis=1)
-    
-    # Identify channels that exceed threshold
-    bad_channels = np.where(max_amplitudes > threshold)[0]
-    
-    if len(bad_channels) > 0:
-        # Log rejection
-        timestamp = datetime.utcnow().isoformat()
-        rejection_reason = f"amplitude_threshold_exceeded (max={np.max(max_amplitudes):.2e}V, threshold={threshold:.2e}V)"
+    for i, epoch in enumerate(data):
+        # Check if any channel exceeds threshold at any time point
+        max_amplitude = np.max(np.abs(epoch))
         
-        # Use the logging utility to record the event
-        # The utility expects specific parameters
-        log_entry = log_artifact_rejection(
-            artifact_type="epoch",
-            artifact_id=participant_id,
-            reason=rejection_reason
-        )
-        
-        # Save to exclusion log CSV
-        save_exclusion_log_csv(
-            participant_id=participant_id,
-            reason=rejection_reason,
-            timestamp=timestamp
-        )
-        
-        logger.warning(f"Rejected segments for participant {participant_id}: {rejection_reason}")
-        
-        # Create rejection info
-        rejected_segments.append({
-            'participant_id': participant_id,
-            'reason': rejection_reason,
-            'timestamp': timestamp,
-            'bad_channels': [info['ch_names'][i] for i in bad_channels]
-        })
-        
-        # For this implementation, we will drop the bad channels or reject the whole segment
-        # Per FR-002, we exclude the epoch/segment. We'll create a new raw object without bad channels
-        # or mark the whole segment as rejected.
-        # Here we choose to drop bad channels to preserve data, but log the rejection.
-        # If strict exclusion is required, we would return an empty raw or raise an error.
-        # For now, we'll drop bad channels to continue processing.
-        good_channels = [i for i in range(len(info['ch_names'])) if i not in bad_channels]
-        if len(good_channels) == 0:
-            logger.error(f"All channels rejected for participant {participant_id}")
-            # Return empty raw or raise error? For now, return original and log error
-            return raw, rejected_segments
-        
-        raw.drop_channels([info['ch_names'][i] for i in bad_channels])
+        if max_amplitude > threshold:
+            rejection_logs.append({
+                'epoch_index': i,
+                'max_amplitude_uv': max_amplitude * 1e6,
+                'threshold_uv': threshold_uv,
+                'reason': 'amplitude_exceeded'
+            })
+        else:
+            cleaned_epochs.append(epoch)
     
-    return raw, rejected_segments
+    if cleaned_epochs:
+        cleaned_data = np.array(cleaned_epochs)
+    else:
+        cleaned_data = np.array([])
+        logger.warning("All epochs rejected due to amplitude threshold.")
+    
+    return cleaned_data, rejection_logs
+
 
 def validate_segment_length(
-    raw: mne.io.Raw, 
-    min_length_seconds: float = 120.0,
-    participant_id: str = "unknown",
-    logger: logging.Logger | None = None
-) -> tuple[bool, dict | None]:
+    data: np.ndarray, 
+    sfreq: float, 
+    min_duration_sec: float = MIN_SEGMENT_DURATION_SEC
+) -> Tuple[np.ndarray, bool]:
     """
-    Validate that segment length meets minimum requirement.
-    
-    Implements FR-002: Exclude segments < 120 seconds.
+    Validate that the segment meets minimum duration requirements.
     
     Args:
-        raw: The raw EEG data object.
-        min_length_seconds: Minimum required length in seconds.
-        participant_id: ID of the participant for logging.
-        logger: Logger instance for recording events.
+        data: EEG data array (channels x samples).
+        sfreq: Sampling frequency in Hz.
+        min_duration_sec: Minimum required duration in seconds.
         
     Returns:
-        Tuple of (is_valid, rejection_info_or_none)
+        Tuple of (data, is_valid).
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    n_samples = data.shape[-1]
+    duration_sec = n_samples / sfreq
     
-    duration = raw.times[-1] - raw.times[0]
+    if duration_sec < min_duration_sec:
+        logger.warning(f"Segment duration {duration_sec:.2f}s < {min_duration_sec}s. Excluding.")
+        return data, False
     
-    if duration < min_length_seconds:
-        timestamp = datetime.utcnow().isoformat()
-        rejection_reason = f"segment_too_short (duration={duration:.2f}s, min={min_length_seconds}s)"
-        
-        # Log rejection
-        log_entry = log_artifact_rejection(
-            artifact_type="segment",
-            artifact_id=participant_id,
-            reason=rejection_reason
-        )
-        
-        # Save to exclusion log CSV
-        save_exclusion_log_csv(
-            participant_id=participant_id,
-            reason=rejection_reason,
-            timestamp=timestamp
-        )
-        
-        logger.warning(f"Rejected segment for participant {participant_id}: {rejection_reason}")
-        
-        return False, {
-            'participant_id': participant_id,
-            'reason': rejection_reason,
-            'timestamp': timestamp,
-            'duration': duration
-        }
-    
-    return True, None
+    return data, True
 
-def save_cleaned_data(raw: mne.io.Raw, output_path: str) -> None:
-    """Save cleaned EEG data to a file."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    raw.save(output_path, overwrite=True)
-    logging.info(f"Saved cleaned data to {output_path}")
 
-def preprocess_eeg(
-    input_path: str, 
-    output_path: str, 
-  participant_id: str,
-  config: dict | None = None,
-  logger: logging.Logger | None = None
-) -> bool:
+def process_segment(
+    raw_data: np.ndarray,
+    sfreq: float,
+    participant_id: str,
+    segment_id: str,
+    config: Dict[str, Any]
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     """
-    Main preprocessing function.
+    Process a single EEG segment: apply filters, re-reference, and reject artifacts.
+    
+    This is a pure function with no file I/O. It returns the processed data and metadata.
     
     Args:
-        input_path: Path to input EEG file.
-        output_path: Path to save cleaned EEG file.
+        raw_data: Raw EEG data array (channels x samples).
+        sfreq: Sampling frequency in Hz.
         participant_id: Participant identifier.
-        config: Configuration dictionary (optional).
-        logger: Logger instance.
+        segment_id: Segment identifier.
+        config: Configuration dictionary.
         
     Returns:
-        True if preprocessing succeeded, False otherwise.
+        Tuple of (metadata_dict, rejection_logs).
+        metadata_dict contains 'processed_data', 'sfreq', 'participant_id', 'segment_id'.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    rejection_logs = []
     
-    if config is None:
-        config = {}
+    # Apply bandpass filter
+    filtered_data = apply_bandpass_filter(
+        raw_data, 
+        sfreq, 
+        low_cut=config['filter_low'], 
+        high_cut=config['filter_high']
+    )
     
-    # Set defaults from config or FR-002
-    filter_low = config.get('filter_low', 1.0)
-    filter_high = config.get('filter_high', 40.0)
-    artifact_threshold = config.get('artifact_threshold_uV', 100)
-    notch_freq = config.get('notch_frequency', 50.0)
-    min_length = config.get('min_segment_length', 120)
+    # Apply notch filter
+    filtered_data = apply_notch_filter(
+        filtered_data, 
+        sfreq, 
+        freq=config['notch_frequency']
+    )
     
-    try:
-        # Load data
-        raw = load_eeg_data(input_path)
-        
-        # Apply filters
-        raw = apply_filters(raw, filter_low, filter_high, notch_freq)
-        
-        # Validate segment length first
-        is_valid, rejection_info = validate_segment_length(
-            raw, min_length, participant_id, logger
-        )
-        
-        if not is_valid:
-            logger.error(f"Segment validation failed for {participant_id}: {rejection_info['reason']}")
-            return False
-        
-        # Reject artifacts by amplitude
-        raw, rejected_segments = reject_artifacts_by_amplitude(
-            raw, artifact_threshold, participant_id, logger
-        )
-        
-        # Save cleaned data
-        save_cleaned_data(raw, output_path)
-        
-        logger.info(f"Preprocessing completed for participant {participant_id}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Preprocessing failed for {participant_id}: {str(e)}")
-        return False
+    # Re-reference
+    re_ref_data = re_reference(filtered_data, method='average')
+    
+    # Validate segment length
+    re_ref_data, is_valid_length = validate_segment_length(
+        re_ref_data, sfreq, config.get('min_duration_sec', MIN_SEGMENT_DURATION_SEC)
+    )
+    
+    if not is_valid_length:
+        rejection_logs.append({
+            'participant_id': participant_id,
+            'segment_id': segment_id,
+            'reason': 'segment_too_short',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        return {'processed_data': None, 'participant_id': participant_id, 'segment_id': segment_id}, rejection_logs
+    
+    # Reshape for artifact rejection (1 epoch x channels x samples)
+    data_for_rejection = re_ref_data[np.newaxis, :, :]
+    
+    # Reject artifacts
+    cleaned_data, artifact_logs = reject_artifacts_by_amplitude(
+        data_for_rejection, 
+        threshold_uv=config['artifact_threshold_uV']
+    )
+    
+    if artifact_logs:
+        for log in artifact_logs:
+            rejection_logs.append({
+                'participant_id': participant_id,
+                'segment_id': segment_id,
+                'reason': 'artifact_rejected',
+                'max_amplitude_uv': log['max_amplitude_uv'],
+                'timestamp': datetime.utcnow().isoformat()
+            })
+    
+    # If all epochs rejected, return None
+    if cleaned_data.size == 0:
+        return {'processed_data': None, 'participant_id': participant_id, 'segment_id': segment_id}, rejection_logs
+    
+    # Return the first (and only) epoch
+    processed_data = cleaned_data[0]
+    
+    metadata = {
+        'processed_data': processed_data,
+        'sfreq': sfreq,
+        'participant_id': participant_id,
+        'segment_id': segment_id,
+        'n_channels': processed_data.shape[0],
+        'n_samples': processed_data.shape[1]
+    }
+    
+    return metadata, rejection_logs
 
-def main():
-    """Main entry point for preprocessing script."""
-    parser = argparse.ArgumentParser(description="Preprocess EEG data")
-    parser.add_argument(
-        "--config", 
-        type=str, 
-        default="code/config.yaml",
-        help="Path to configuration file"
-    )
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        default=None,
-        help="Input file path (optional, uses manifest if not provided)"
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default=None,
-        help="Output file path (optional)"
-    )
-    parser.add_argument(
-        "--participant", 
-        type=str, 
-        default="unknown",
-        help="Participant ID"
+
+def save_cleaned_data(
+    metadata: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Save processed EEG data to a .fif file.
+    
+    Args:
+        metadata: Dictionary containing processed_data and metadata.
+        output_path: Path to save the .fif file.
+    """
+    if metadata['processed_data'] is None:
+        logger.warning(f"No data to save for {metadata['participant_id']}_{metadata['segment_id']}.")
+        return
+    
+    # Create a simple Info object for MNE
+    info = mne.create_info(
+        ch_names=[f'EEG{i:03d}' for i in range(metadata['n_channels'])],
+        sfreq=metadata['sfreq'],
+        ch_types='eeg'
     )
     
+    # Create RawArray
+    raw = mne.io.RawArray(metadata['processed_data'], info)
+    
+    # Save to FIF
+    raw.save(output_path, overwrite=True)
+    logger.info(f"Saved cleaned data to {output_path}")
+
+
+def process_single_entry(args: Tuple[Dict[str, Any], Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
+    """
+    Process a single entry from the manifest. This function is designed to be used with multiprocessing.
+    
+    Args:
+        args: Tuple of (entry, config).
+        
+    Returns:
+        Tuple of (participant_id, rejection_logs).
+    """
+    entry, config = args
+    participant_id = entry['participant_id']
+    segment_id = entry.get('segment_id', '0')
+    file_path = entry['file_path']
+    
+    logger.info(f"Processing {participant_id}/{segment_id} from {file_path}")
+    
+    # Load the raw data
+    try:
+        raw = mne.io.read_raw_fif(file_path, preload=True)
+        data = raw.get_data()
+        sfreq = raw.info['sfreq']
+    except Exception as e:
+        logger.error(f"Failed to load {file_path}: {e}")
+        return participant_id, [{'participant_id': participant_id, 'segment_id': segment_id, 'reason': 'load_error', 'error': str(e), 'timestamp': datetime.utcnow().isoformat()}]
+    
+    # Process the segment
+    metadata, rejection_logs = process_segment(
+        data, sfreq, participant_id, segment_id, config
+    )
+    
+    # Save the cleaned data if successful
+    if metadata['processed_data'] is not None:
+        output_dir = Path(OUTPUT_DIR)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = str(output_dir / f"{participant_id}_{segment_id}.fif")
+        save_cleaned_data(metadata, output_path)
+    
+    return participant_id, rejection_logs
+
+
+def preprocess_eeg(n_jobs: int = -1) -> None:
+    """
+    Preprocess the entire dataset using parallel execution.
+    
+    Args:
+        n_jobs: Number of parallel jobs. -1 means use all CPUs.
+    """
+    # Load config
+    config = load_config()
+    
+    # Load manifest
+    manifest = load_manifest()
+    
+    # Prepare arguments for parallel processing
+    args_list = [(entry, config) for entry in manifest]
+    
+    all_rejection_logs = []
+    
+    # Process in parallel
+    logger.info(f"Starting parallel preprocessing with {n_jobs} jobs.")
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        futures = [executor.submit(process_single_entry, args) for args in args_list]
+        
+        for future in as_completed(futures):
+            participant_id, logs = future.result()
+            all_rejection_logs.extend(logs)
+            if logs:
+                logger.info(f"Rejection logs for {participant_id}: {len(logs)} entries.")
+    
+    # Save exclusion log
+    if all_rejection_logs:
+        save_exclusion_log_csv(all_rejection_logs, EXCLUSION_LOG_PATH)
+        logger.info(f"Saved exclusion log to {EXCLUSION_LOG_PATH}")
+    else:
+        # Ensure the file exists even if empty (header only)
+        save_exclusion_log_csv([], EXCLUSION_LOG_PATH)
+        logger.info("No rejections occurred. Created empty exclusion log.")
+    
+    # Verify output
+    output_dir = Path(OUTPUT_DIR)
+    if output_dir.exists():
+        files = list(output_dir.glob("*.fif"))
+        logger.info(f"Preprocessing complete. Saved {len(files)} cleaned EEG files to {OUTPUT_DIR}.")
+    else:
+        logger.error(f"Output directory {OUTPUT_DIR} does not exist. Preprocessing may have failed.")
+
+
+def main() -> None:
+    """Main entry point for the preprocessing pipeline."""
+    parser = argparse.ArgumentParser(description="Preprocess EEG data for cognitive fatigue study.")
+    parser.add_argument('--n-jobs', type=int, default=-1, help='Number of parallel jobs (default: -1 for all CPUs).')
     args = parser.parse_args()
     
-    # Load config
-    config = {}
-    if os.path.exists(args.config):
-        import yaml
-        with open(args.config, 'r') as f:
-            config = yaml.safe_load(f)
-    
-    logger = setup_logger("preprocess")
-    
-    # Determine input and output paths
-    input_path = args.input
-    output_path = args.output
-    participant_id = args.participant
-    
-    if input_path is None:
-        # Load from manifest
-        input_path = load_sample_path()
-        logger.info(f"Loaded sample path from manifest: {input_path}")
-    
-    if output_path is None:
-        # Default output path
-        output_path = "data/processed/cleaned_eeg_verification.fif"
-        logger.info(f"Using default output path: {output_path}")
-    
-    # Run preprocessing
-    success = preprocess_eeg(
-        input_path=input_path,
-        output_path=output_path,
-        participant_id=participant_id,
-        config=config,
-        logger=logger
-    )
-    
-    if success:
-        logger.info("Preprocessing completed successfully")
-        sys.exit(0)
-    else:
-        logger.error("Preprocessing failed")
-        sys.exit(1)
+    preprocess_eeg(n_jobs=args.n_jobs)
+
 
 if __name__ == "__main__":
     main()

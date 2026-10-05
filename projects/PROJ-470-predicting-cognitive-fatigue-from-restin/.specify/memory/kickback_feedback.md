@@ -4,10 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/validation_report.json
-- `T012a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/download_manifest.json, data/raw/sample_eeg_verification.fif
-- `T016` (rejected 1x): The required output file `data/analysis/complexity_metrics.csv` does not exist, and the input EEG file `data/processed/cleaned_eeg.fif` is also missing. Moreover, `code/features.py` is truncated and incomplete (ends abruptly), so it cannot reliably generate the needed CSV. These missing/unfinished artifacts prevent the task from being satisfied.
-- `T018` (rejected 1x): The provided `code/analysis.py` validates different files (VIF JSON, delta_scores.csv) and never checks for `data/processed/cleaned_eeg.fif` or `data/processed/fatigue_scores.csv`. Moreover, none of the three required data files exist in the repository. The implementation therefore does not satisfy the task’s validation logic or the existence requirement.
+- `T012` (rejected 1x): The `code/preprocess.py` file exists and contains band‑pass and notch filtering logic, but the required input `data/raw/download_manifest.json` is missing, so the script cannot actually read the full dataset as mandated. Without this manifest the implementation cannot be executed or verified.
+- `T013` (rejected 1x): The required `data/processed/exclusion_log.csv` file is missing, so the verification condition cannot be met. Without this log (even an empty header‑only file), the task’s requirement of recording epoch rejections is not satisfied. The implementer must ensure the preprocessing code creates `exclusion_log.csv` with the columns `[participant_id, reason, timestamp]` (populated or header‑only).
+- `T014` (rejected 1x): The required `data/processed/exclusion_log.csv` file does not exist, and the provided `code/preprocess.py` excerpt shows only the constant `MIN_SEGMENT_DURATION_SEC` without any logic that actually checks segment length or logs rejections. Consequently, the segment‑length validation and logging stipulated by the task are not implemented.
+- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: data/analysis/vif_diagnostics.log, data/analysis/vif_valid_predictors.json
 
 ## Required change
 

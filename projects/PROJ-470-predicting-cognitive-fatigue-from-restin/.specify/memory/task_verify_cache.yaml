@@ -15,39 +15,21 @@ T009:
     \ logic required by the task. Moreover, the expected output file `data/raw/download_manifest.json`\
     \ is absent. The script therefore fails to meet the specified functional and output\
     \ requirements."
-T011:
+T015b:
   c: false
-  h: 19405bde95c48f2ce203f174420c4bd323443c6d16f82a50b734528d2bec4716
-  r: "The repository lacks the required `data/raw/download_manifest.json` and the\
-    \ output `data/processed/fatigue_scores.csv`. Moreover, there is no `code/extract.py`\
-    \ (or equivalent extraction logic) to read the manifest and produce the CSV; the\
-    \ existing `code/download.py` only handles dataset downloading. Consequently,\
-    \ the task\u2019s core requirement\u2014extracting fatigue scores into the specified\
-    \ CSV\u2014is not fulfilled."
-T012:
+  h: 82fe6d68005e50d1c0135ea1cd36c41baa931a9e8293fa7d9548be0fbc3da56c
+  r: "The repository lacks the required `data/raw/download_manifest.json`, so the\
+    \ script cannot iterate over participants as specified. Consequently the parallel\
+    \ processing loop and generation of per\u2011subject `.fif` files cannot be verified,\
+    \ and no output files or exclusion log are present. The task\u2019s core output\
+    \ is missing."
+T016:
   c: false
-  h: 524f09ade1e3c5331a12512f03d20c14579a55e7628564520601c5a4294ba254
-  r: "The required sample file `data/raw/sample_eeg_verification.fif` is absent, so\
-    \ the script cannot be exercised as specified. Moreover, the provided `code/preprocess.py`\
-    \ is truncated and shows no implementation of a 1\u201140\u202FHz band\u2011pass\
-    \ filter or line\u2011noise removal, nor does it demonstrate reading the verification\
-    \ file. Both the artifact and the required functionality are missing."
-T013:
-  c: false
-  h: fdef00b152ac1133f7e5e245118cf692ed47495c41af365c5e505ff5a41b9c06
-  r: The required output file `data/processed/exclusion_log.csv` does not exist, so
-    the verification step cannot be satisfied. Additionally, the provided `code/preprocess.py`
-    excerpt is truncated and does not show any implementation of epoch rejection or
-    logging to the exclusion log, leaving it unclear whether the core functionality
-    was added. The missing CSV file and lack of visible rejection logic mean the task
-    is not genuinely completed.
-T014:
-  c: false
-  h: fdef00b152ac1133f7e5e245118cf692ed47495c41af365c5e505ff5a41b9c06
-  r: "The repository lacks the required `data/processed/exclusion_log.csv` file, and\
-    \ the provided excerpt of `code/preprocess.py` shows no implementation of segment\u2011\
-    length validation or logging of rejected segments. Consequently the task\u2019\
-    s verification criteria are not satisfied."
+  h: 9e77616cb005e9b655dcb85ad02668aa530523c36d65766c60fe652b55809bf9
+  r: "The required output file `data/analysis/complexity_metrics.csv` is missing,\
+    \ and the provided `code/features.py` is truncated (e.g., the `write_metrics_to_csv`\
+    \ function is incomplete and there is no processing loop to read the full dataset\
+    \ and generate the CSV). The task\u2019s core deliverable is therefore not present."
 T017:
   c: false
   h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
@@ -55,6 +37,13 @@ T017:
     \ so the task\u2019s verification step (asserting the CSV with the specified columns)\
     \ cannot be satisfied. The implementation file is present, but without the generated\
     \ CSV the requirement is unmet."
+T018:
+  c: true
+  h: 6331a8ecfb5079f390ae994090c8c46c4a732f07e745cb94e17f9ac904a24748
+  r: "The `code/analysis.py` file contains a non\u2011empty `validate_inputs()` function\
+    \ that checks the three required paths, prints a detailed error with missing and\
+    \ available files, and exits with status\u202F1 when any are absent, exactly as\
+    \ the task specified."
 T019:
   c: false
   h: c9f181cd9dd52de2a797ca0aab49d5be55376dbf2977aaf6751a7b180ebd987d

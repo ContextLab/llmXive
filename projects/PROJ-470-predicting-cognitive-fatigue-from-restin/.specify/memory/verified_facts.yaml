@@ -1,6 +1,5 @@
-'|channel eeg involve more study typically':
-  quote: "The EEG data were acquired using a Refa 2048\u2009Hz EEG system and an appropriately\
-    \ sized 64-"
-  source_id: '2403.09707'
-  url: https://arxiv.org/abs/2403.09707
-  value: '64'
+1|code exception exit if print raise sample size:
+  quote: 'P3879: 8615'
+  source_id: Q111072551
+  url: https://www.wikidata.org/wiki/Q111072551
+  value: '8615'

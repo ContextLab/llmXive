@@ -1,4 +1,12 @@
-"""Benjamini-Hochberg correction for multiple comparisons."""
+"""Benjamini-Hochberg correction for multiple comparisons.
+
+This module implements the Benjamini-Hochberg procedure to control the False
+Discovery Rate (FDR) across multiple hypothesis tests (electrodes).
+
+It reads raw correlation results from `data/analysis/raw_correlation_results.csv`,
+applies the BH correction using `statsmodels`, and writes the corrected p-values
+to `data/analysis/bh_corrected_pvalues.csv`.
+"""
 from __future__ import annotations
 
 import argparse
@@ -8,131 +16,194 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import numpy as np
+from statsmodels.stats.multitest import multipletests
 
-# Import the project's custom logger factory (defined in utils/logging.py)
-from utils.logging import get_logger
-
+# Ensure we can import from the project root if run as a script
+# The API surface expects this module to be importable as `from benjamini_hochberg import ...`
+# When run as a script, it should work from the project root or `code/` directory.
 
 def load_config(config_path: str = "code/config.yaml") -> dict:
     """Load configuration from YAML file."""
     import yaml
-    with open(config_path, "r") as f:
+    with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-
 def setup_logger(name: str, log_file: str | None = None) -> logging.Logger:
-    """Set up a standard logging.Logger with file and console handlers."""
+    """Set up a logger for this module.
+
+    Args:
+        name: Logger name.
+        log_file: Optional file path to log to.
+
+    Returns:
+        Configured logger.
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
+    # Avoid duplicate handlers if called multiple times
     if not logger.handlers:
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-
+        # Console handler
         ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
+        # File handler if specified
+        if log_file:
+            os.makedirs(os.path.dirname(log_file), exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
     return logger
 
-
-def run_benjamini_hochberg(
-    p_values: np.ndarray,
-    alpha: float = 0.05,
-    method: str = "indep"
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-
-    Uses statsmodels.stats.multitest.multipletests.
+def load_raw_correlation_results(input_path: str) -> pd.DataFrame:
+    """Load the raw correlation results.
 
     Args:
-        p_values: Array of raw p-values.
-        alpha: Significance level (default 0.05).
-        method: Method for correction ('indep' for independent tests,
-                'neg' for non-positive dependent tests).
+        input_path: Path to the raw correlation CSV file.
 
     Returns:
-        Tuple of (reject, p_corrected, p_corrected_lower, p_corrected_upper)
-        as returned by statsmodels.
+        DataFrame with correlation results.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    from statsmodels.stats.multitest import multipletests
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Raw correlation results not found: {input_path}")
 
-    if len(p_values) == 0:
-        return np.array([]), np.array([]), np.array([]), np.array([])
+    df = pd.read_csv(input_path)
 
-    reject, p_corrected, _, _ = multipletests(p_values, alpha=alpha, method=method)
-    
-    # statsmodels returns (reject, p_corrected, _, _)
-    # We return the corrected p-values and the rejection mask
-    return reject, p_corrected, np.array([]), np.array([])
+    required_cols = ['electrode', 'p_value', 'correlation_type']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
 
+    return df
+
+def run_benjamini_hochberg(
+    df: pd.DataFrame,
+    alpha: float = 0.05,
+    method: str = 'fdr_bh'
+) -> pd.DataFrame:
+    """Apply Benjamini-Hochberg correction to p-values.
+
+    Args:
+        df: DataFrame containing raw p-values.
+        alpha: Significance level (default 0.05).
+        method: Method for multiple testing correction (default 'fdr_bh').
+
+    Returns:
+        DataFrame with added corrected p-values and significance flags.
+    """
+    # Extract p-values
+    p_values = df['p_value'].values
+
+    # Apply BH correction
+    # multipletests returns: (reject, p_corrected, p_corrected_sidak, p_corrected_bonferroni)
+    reject, p_corrected, _, _ = multipletests(
+        p_values,
+        alpha=alpha,
+        method=method,
+        returnsorted=False
+    )
+
+    # Create result DataFrame
+    result_df = df.copy()
+    result_df['p_corrected'] = p_corrected
+    result_df['is_significant'] = reject
+
+    return result_df
+
+def save_corrected_results(df: pd.DataFrame, output_path: str) -> None:
+    """Save the corrected results to CSV.
+
+    Args:
+        df: DataFrame with corrected results.
+        output_path: Path to save the CSV file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
 
 def main() -> int:
-    """Main entry point for Benjamini-Hochberg correction task."""
-    logger = setup_logger("benjamini_hochberg")
-    logger.info("Starting Benjamini-Hochberg correction pipeline.")
+    """Main entry point for Benjamini-Hochberg correction."""
+    parser = argparse.ArgumentParser(
+        description="Apply Benjamini-Hochberg correction to correlation p-values."
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default='data/analysis/raw_correlation_results.csv',
+        help='Path to raw correlation results CSV'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='data/analysis/bh_corrected_pvalues.csv',
+        help='Path to output corrected p-values CSV'
+    )
+    parser.add_argument(
+        '--alpha',
+        type=float,
+        default=0.05,
+        help='Significance level for FDR control'
+    )
+    parser.add_argument(
+        '--config',
+        type=str,
+        default='code/config.yaml',
+        help='Path to config file'
+    )
+    parser.add_argument(
+        '--log-file',
+        type=str,
+        default=None,
+        help='Path to log file'
+    )
 
-    # Paths
-    input_file = "data/analysis/raw_correlation_results.csv"
-    output_file = "data/analysis/bh_corrected_pvalues.csv"
-    config_path = "code/config.yaml"
+    args = parser.parse_args()
 
-    # Load config to get alpha if specified
+    # Setup logger
+    logger = setup_logger('benjamini_hochberg', args.log_file)
+    logger.info("Starting Benjamini-Hochberg correction.")
+
+    # Load config (for alpha if not overridden)
     try:
-        config = load_config(config_path)
-        alpha = config.get("alpha", 0.05)
+        config = load_config(args.config)
+        alpha = config.get('fdr_alpha', args.alpha)
     except Exception as e:
-        logger.warning(f"Could not load config for alpha, using default 0.05: {e}")
-        alpha = 0.05
+        logger.warning(f"Could not load config: {e}. Using default alpha.")
+        alpha = args.alpha
 
-    # Validate input file exists
-    if not os.path.exists(input_file):
-        logger.error(f"Input file not found: {input_file}")
-        logger.error("Please ensure T020a (Raw Correlation Calculation) has been run successfully.")
+    logger.info(f"Using alpha={alpha}")
+
+    # Load raw results
+    try:
+        raw_df = load_raw_correlation_results(args.input)
+        logger.info(f"Loaded {len(raw_df)} raw correlation results from {args.input}")
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(str(e))
         return 1
 
+    # Run correction
+    corrected_df = run_benjamini_hochberg(raw_df, alpha=alpha)
+
+    # Save results
     try:
-        # Load raw correlation results
-        df = pd.read_csv(input_file)
-        logger.info(f"Loaded {len(df)} raw correlation results from {input_file}")
-
-        # Verify required columns
-        required_cols = ["p_value"]
-        missing_cols = [c for c in required_cols if c not in df.columns]
-        if missing_cols:
-            logger.error(f"Missing required columns in {input_file}: {missing_cols}")
-            return 1
-
-        # Extract p-values
-        p_values = df["p_value"].values
-
-        # Apply BH correction
-        reject, p_corrected, _, _ = run_benjamini_hochberg(p_values, alpha=alpha)
-
-        # Create output DataFrame
-        output_df = df.copy()
-        output_df["p_corrected"] = p_corrected
-        output_df["reject_bh"] = reject
-
-        # Save to disk
-        output_df.to_csv(output_file, index=False)
-        logger.info(f"Successfully wrote BH-corrected results to {output_file}")
-        logger.info(f"Significant findings at alpha={alpha}: {sum(reject)} out of {len(reject)}")
-
-        return 0
-
+        save_corrected_results(corrected_df, args.output)
+        logger.info(f"Saved corrected results to {args.output}")
+        logger.info(f"Significant electrodes (p < {alpha}): {corrected_df['is_significant'].sum()}")
     except Exception as e:
-        logger.error(f"Error during BH correction: {e}", exc_info=True)
+        logger.error(f"Failed to save results: {e}")
         return 1
 
+    logger.info("Benjamini-Hochberg correction completed successfully.")
+    return 0
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

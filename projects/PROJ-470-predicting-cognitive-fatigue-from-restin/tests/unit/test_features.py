@@ -1,86 +1,106 @@
 """
-Unit tests for feature extraction module (T016).
-Verifies LZC and PE calculation and output format.
+Unit tests for feature extraction (T016).
+Verifies that LZC and PE values are within mathematically defined ranges.
 """
+import csv
 import os
 import sys
-import csv
-import tempfile
-import numpy as np
-import pytest
+from pathlib import Path
+from unittest import TestCase
 
-# Add code to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+import numpy as np
+
+# Add project root to path if running directly
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.append(str(PROJECT_ROOT / "code"))
 
 from features import extract_lempel_ziv_complexity, extract_permutation_entropy
 
-class TestComplexityMetrics:
-    """Tests for complexity metric functions."""
 
+class TestFeatureExtraction(TestCase):
+    
     def test_lzc_range(self):
-        """Test that LZC values are within expected mathematical bounds."""
-        # Random noise should have high complexity
+        """Test that LZC values are < 1.0 (normalized)."""
+        # Generate a random signal
         np.random.seed(42)
         signal = np.random.randn(1000)
+        
         lzc = extract_lempel_ziv_complexity(signal)
         
-        # LZC is not strictly bounded by 1.0 in all definitions, 
-        # but nolds.lz returns a value that can be normalized.
-        # The task verification says "assert all LZC values are < 1.0".
-        # We must ensure our implementation or the test reflects this.
-        # nolds.lz returns the number of distinct patterns. 
-        # For a binary signal of length N, max patterns is N.
-        # The task verification might be assuming a normalized version.
-        # Let's check the raw output first.
-        # If the requirement is strict < 1.0, we might need to normalize.
-        # However, the task says "assert all LZC values are < 1.0".
-        # We will assume the implementation should return a normalized value 
-        # or the test expectation is based on a specific definition.
-        # For now, we test that it returns a float.
-        assert isinstance(lzc, float)
-        
-        # If the task requires < 1.0, we might need to divide by length or similar.
-        # Let's assume the task implies a normalized complexity (0 to 1).
-        # We will add a check for this if the raw value is too high.
-        # But for the test, we just check it's a number.
-        # To satisfy the "assert < 1.0" requirement from T017 (which depends on T016),
-        # we must ensure the output is normalized.
-        # The implementation in features.py uses nolds.lz directly.
-        # We will assume the task's verification step (T017) will be updated 
-        # or the implementation will be adjusted to normalize.
-        # For this test, we just ensure it runs.
+        # LZC is normalized between 0 and 1 for random signals
+        # We assert it is strictly less than 1.0 (the theoretical max for normalized LZC)
+        self.assertLess(lzc, 1.0, "LZC value should be less than 1.0")
         
     def test_pe_range(self):
-        """Test that PE values are within expected bounds (log2(6) ~ 2.585)."""
+        """Test that PE values are < log2(3!) ~= 1.585 (for order=3)."""
+        # Maximum permutation entropy for order 3 is log2(6) = 1.585
+        # The task spec says < 2.585, which is log2(6) + some margin or perhaps log2(3!) * 1.64?
+        # Actually, log2(3!) = log2(6) ≈ 1.585. 
+        # The spec says < 2.585. Let's verify with a random signal.
         np.random.seed(42)
         signal = np.random.randn(1000)
-        pe = extract_permutation_entropy(signal)
         
-        # Max PE for embedding dim 3 is log2(3!) = log2(6) ~ 2.585
-        assert pe < 2.585
-        assert pe >= 0.0
-
-    def test_constant_signal(self):
-        """Test behavior on constant signal (should be 0 complexity)."""
-        signal = np.ones(100)
-        lzc = extract_lempel_ziv_complexity(signal)
-        pe = extract_permutation_entropy(signal)
+        pe = extract_permutation_entropy(signal, order=3, delay=1)
         
-        assert lzc == 0.0
-        assert pe == 0.0
+        # The theoretical maximum for order 3 is log2(6) ≈ 1.585.
+        # The test requirement says < 2.585. Since 1.585 < 2.585, this should pass.
+        self.assertLess(pe, 2.585, "PE value should be less than 2.585")
 
-    def test_csv_output_format(self):
-        """Test that the output CSV has the correct columns."""
-        # This test assumes the main() function has been run and produced the file.
-        # We check the file existence and columns.
-        output_path = "data/analysis/complexity_metrics.csv"
-        if os.path.exists(output_path):
-            with open(output_path, 'r') as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                
-                expected_columns = ['participant_id', 'channel', 'segment_id', 'lzc_value', 'pe_value']
-                assert header == expected_columns, f"Expected {expected_columns}, got {header}"
-        else:
-            # If file doesn't exist, we skip the test (it will fail in integration)
-            pytest.skip("Output file not found. Run main() first.")
+    def test_csv_output_structure(self):
+        """
+        Verify that if the script runs, the output CSV has the correct columns.
+        This test assumes the script has been run and the file exists.
+        """
+        output_file = Path("data/analysis/complexity_metrics.csv")
+        
+        if not output_file.exists():
+            self.skipTest(f"Output file {output_file} not found. Run code/features.py first.")
+        
+        with open(output_file, "r", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        # Check columns
+        expected_columns = {"participant_id", "channel", "segment_id", "lzc_value", "pe_value"}
+        self.assertEqual(set(reader.fieldnames), expected_columns, "CSV columns do not match expected")
+        
+        # Check that we have some data rows (if the script ran successfully)
+        # Note: This might be empty if the input data directory is empty, 
+        # but the task requires processing the FULL dataset.
+        # We just verify the structure here.
+        if len(rows) > 0:
+            # Verify types
+            for row in rows:
+                self.assertIsInstance(float(row["lzc_value"]), float)
+                self.assertIsInstance(float(row["pe_value"]), float)
+
+    def test_mathematical_bounds(self):
+        """
+        Additional check on mathematical bounds based on the spec.
+        Spec says: LZC < 1.0, PE < 2.585.
+        """
+        # Create a constant signal -> LZC should be 0
+        constant_signal = np.ones(100)
+        lzc_const = extract_lempel_ziv_complexity(constant_signal)
+        self.assertEqual(lzc_const, 0.0, "LZC of constant signal should be 0")
+
+        # Create a perfectly alternating signal -> LZC should be low but > 0
+        alt_signal = np.array([1, -1] * 50)
+        lzc_alt = extract_lempel_ziv_complexity(alt_signal)
+        self.assertLess(lzc_alt, 0.5, "LZC of alternating signal should be low")
+
+        # PE of constant signal -> 0
+        pe_const = extract_permutation_entropy(constant_signal)
+        self.assertEqual(pe_const, 0.0, "PE of constant signal should be 0")
+
+        # PE of random signal -> should be close to max for order 3
+        np.random.seed(42)
+        rand_signal = np.random.randn(1000)
+        pe_rand = extract_permutation_entropy(rand_signal, order=3, delay=1)
+        # Max PE for order 3 is log2(6) ≈ 1.585
+        max_pe = np.log2(np.math.factorial(3))
+        self.assertLessEqual(pe_rand, max_pe + 0.01, f"PE should be <= max PE ({max_pe})")
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()
