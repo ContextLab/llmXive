@@ -1,7 +1,7 @@
 """Unit tests for ingestion module (SMILES validation)."""
 import pytest
 from rdkit import Chem
-from ingest import is_valid_smiles
+from ingest import is_valid_smiles, validate_smiles_and_convert
 
 def test_smiles_validation_rejects_invalid():
     """Test that invalid SMILES strings are rejected."""
@@ -35,7 +35,6 @@ def test_smiles_validation_accepts_valid():
 
 def test_validate_smiles_and_convert_rejects_invalid():
     """Test the full conversion pipeline rejects invalid SMILES."""
-    from ingest import validate_smiles_and_convert
     
     assert validate_smiles_and_convert("C1CC1C1CC1") is None
     assert validate_smiles_and_convert("CC(=O)O)") is None
@@ -44,7 +43,6 @@ def test_validate_smiles_and_convert_rejects_invalid():
 
 def test_validate_smiles_and_convert_accepts_valid():
     """Test the full conversion pipeline accepts valid SMILES."""
-    from ingest import validate_smiles_and_convert
     
     mol = validate_smiles_and_convert("CCO")
     assert mol is not None

@@ -1,16 +1,23 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/setup_log.txt` file containing the recursive directory listing (`ls
-    -R`) with a timestamp was provided; the claim lacks any tangible artifact to verify
-    that the command was run and logged. The required log file is missing, so the
-    task is not satisfied.
+  r: No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,
+    `data/reports/`, `tests/`, `state/`, `state/projects/`) is present in the provided
+    artifacts; the claim cannot be verified without actual filesystem listings or
+    `tree` output.
 T003:
-  c: true
-  h: 0cf94fa14e82edc0a29c5cb1841b432aa26751a32c0a2ed04710eec3366825ca
-  r: "The `code/.ruff.toml` file exists, is non\u2011empty, and contains a comprehensive\
-    \ set of linting rules\u2014including type\u2011checking (`TCH`) and strict reproducibility\
-    \ settings\u2014fulfilling the task\u2019s requirement."
+  c: false
+  h: 2c392c123b4e8ad8f7fa9cd42bfec9cb75154823bf553c9ad537d36993b82f33
+  r: "The repository contains a `code/.ruff.toml` file with extensive strict linting\
+    \ rules, satisfying the configuration requirement, but there is no provided evidence\
+    \ (e.g., command output or exit code) that `ruff check code/` actually runs successfully\
+    \ with exit code\u202F0. The verification step is missing."
+T008:
+  c: false
+  h: 022b9485f1eb14cbbf5c4c2feda1753aa53d3a011858f153b507d4056b3ed50a
+  r: "The provided `pytest.ini` exists, but the required `conftest.py` file is missing,\
+    \ and the `pytest.ini` does not contain any seed\u2011pinning configuration. Both\
+    \ artifacts are needed to satisfy the task."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,6 +32,13 @@ T013:
     \ lacks the required artifact that downloads NIST and Materials Project records\
     \ with rate\u2011limit backoff. The task cannot be verified as completed without\
     \ the actual implementation."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ingest.py` script or any related code, data, or logs were provided; therefore\
+    \ there is no evidence that a script identifying records missing \u201Cdegradation\
+    \ pathway\u201D labels was created or that it functions as required. The required\
+    \ artifact is missing."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,6 +46,13 @@ T015:
     \ SMILES strings are converted to RDKit molecular graphs with the specified parameters,\
     \ nor that non\u2011polyesters are filtered by detecting the `C(=O)O` ester pattern.\
     \ The required artifact is missing, so the task is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No saved dataset files or checksum records are present; the implementer provided
+    no artifact paths, files, or content demonstrating that the raw ingested data
+    (T013) and processed graph data (T015) were actually saved with accompanying checksums.
+    Consequently the task requirement is not satisfied.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,12 +68,13 @@ T024:
     3 layers, hidden dim \u2264128, ReLU activation, mean pooling, CPU\u2011only)\
     \ was provided; thus the artifact the task demands is missing. The implementer\u2019\
     s claim cannot be verified without the actual model implementation."
-T025a:
+T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/augmentation_trigger.json` file or any code that reads it was supplied;\
-    \ therefore the required artifact does not exist or is empty, and the task\u2019\
-    s requirement (reading that JSON) is not satisfied."
+  r: "No code, script, notebook, or output files demonstrating edge\u2011dropout or\
+    \ subgraph\u2011sampling data augmentation were provided; the claim lacks any\
+    \ concrete artifact to verify that the required augmentation was implemented.\
+    \ The task therefore remains unfulfilled."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

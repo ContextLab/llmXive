@@ -1,125 +1,139 @@
-"""
-Shared utilities for the project.
-Provides logging, configuration loading, path resolution, and retry logic.
-"""
 import logging
 import os
 import time
-from pathlib import Path
-from typing import Optional, Callable, Any, Dict
 import random
+from pathlib import Path
+from typing import Optional, Callable, Any, Dict, Tuple
+from datetime import datetime
 
-# Logger cache to avoid re-creating loggers
-_loggers: Dict[str, logging.Logger] = {}
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
-    """
-    Configures the root logger with a console handler and optional file handler.
-    """
-    if not _loggers:  # Only setup once
-        root_logger = logging.getLogger()
-        root_logger.setLevel(log_level)
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
+    """Configure and return the project logger."""
+    global _logger
+    if _logger is None:
+        _logger = logging.getLogger("llmXive")
+        _logger.setLevel(level)
+        
+        # Create console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(level)
+        
+        # Create formatter
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        ch.setFormatter(formatter)
+        
+        # Add handler to logger
+        if not _logger.handlers:
+            _logger.addHandler(ch)
+    
+    return _logger
 
-        # Console Handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(log_level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
+def get_logger() -> logging.Logger:
+    """Get the configured logger instance."""
+    if _logger is None:
+        return setup_logging()
+    return _logger
 
-        # File Handler (if specified)
-        if log_file:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(log_level)
-            file_handler.setFormatter(formatter)
-            root_logger.addHandler(file_handler)
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Retrieves or creates a logger with the given name.
-    """
-    if name not in _loggers:
-        _loggers[name] = logging.getLogger(name)
-        # Ensure it doesn't propagate to root if root is already configured elsewhere
-        # but usually we want propagation to the root handler we set up.
-        _loggers[name].propagate = True
-    return _loggers[name]
-
-def load_config_env(env_file: Optional[str] = None) -> Dict[str, str]:
-    """
-    Loads environment variables from a .env file if it exists.
-    Returns a dictionary of loaded variables.
-    """
+def load_config_env(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Load configuration from environment variables and optional file."""
     config = {}
-    if env_file and os.path.exists(env_file):
-        with open(env_file, 'r') as f:
+    
+    # Load from file if provided
+    if config_path and config_path.exists():
+        # Simple key=value parser for .env style files
+        with open(config_path, 'r') as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#'):
-                    if '=' in line:
-                        key, value = line.split('=', 1)
-                        config[key.strip()] = value.strip()
-                        os.environ[key.strip()] = value.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    config[key.strip()] = value.strip()
+    
+    # Override with environment variables
+    for key in list(config.keys()):
+        if key in os.environ:
+            config[key] = os.environ[key]
+    
     return config
 
-def get_project_paths() -> Dict[str, Path]:
-    """
-    Returns a dictionary of key project paths relative to the project root.
-    Assumes the script is run from the project root or code/ directory.
-    """
-    # Determine project root: if __file__ is in code/, go up one level.
-    # If run as a module, we might need a different strategy, but for scripts:
-    current_file = Path(__file__).resolve()
-    # If this file is in code/, parent is root.
-    if current_file.name == 'utils.py' and current_file.parent.name == 'code':
-        root = current_file.parent
-    else:
-        # Fallback: assume current working directory is root
-        root = Path.cwd()
-
+def get_project_paths(base_dir: Optional[Path] = None) -> Dict[str, Path]:
+    """Return standard project directory paths."""
+    if base_dir is None:
+        # Default to parent of code directory if running from code/
+        base_dir = Path(__file__).resolve().parent.parent
+    
     return {
-        "root": root,
-        "code": root / "code",
-        "data_raw": root / "data" / "raw",
-        "data_processed": root / "data" / "processed",
-        "data_reports": root / "data" / "reports",
-        "tests": root / "tests",
-        "state": root / "state",
-        "state_projects": root / "state" / "projects",
+        'root': base_dir,
+        'code': base_dir / 'code',
+        'data_raw': base_dir / 'data' / 'raw',
+        'data_processed': base_dir / 'data' / 'processed',
+        'data_reports': base_dir / 'data' / 'reports',
+        'tests': base_dir / 'tests',
+        'state': base_dir / 'state',
+        'state_projects': base_dir / 'state' / 'projects'
     }
+
+def exponential_backoff(
+    func: Callable,
+    max_retries: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0
+) -> Callable:
+    """Decorator for exponential backoff retry logic."""
+    def wrapper(*args, **kwargs) -> Any:
+        last_exception = None
+        delay = base_delay
+        
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                last_exception = e
+                if attempt < max_retries - 1:
+                    logger = get_logger()
+                    logger.warning(
+                        f"Attempt {attempt + 1} failed: {e}. "
+                        f"Retrying in {delay:.2f}s..."
+                    )
+                    time.sleep(delay)
+                    delay = min(delay * 2 + random.uniform(0, 0.1), max_delay)
+        
+        raise last_exception
+    return wrapper
 
 def retry_with_backoff(
     func: Callable,
     max_retries: int = 3,
     base_delay: float = 1.0,
-    max_delay: float = 10.0,
-    jitter: bool = True
+    max_delay: float = 60.0
 ) -> Any:
-    """
-    Executes a function with exponential backoff and jitter on failure.
-    Retries up to max_retries times.
-    """
-    attempt = 0
+    """Execute a function with exponential backoff."""
+    logger = get_logger()
+    last_exception = None
     delay = base_delay
-
-    while attempt < max_retries:
+    
+    for attempt in range(max_retries):
         try:
             return func()
         except Exception as e:
-            attempt += 1
-            if attempt == max_retries:
-                raise e
+            last_exception = e
+            if attempt < max_retries - 1:
+                logger.warning(
+                    f"Attempt {attempt + 1} failed: {e}. "
+                    f"Retrying in {delay:.2f}s..."
+                )
+                time.sleep(delay)
+                delay = min(delay * 2 + random.uniform(0, 0.1), max_delay)
+    
+    raise last_exception
 
-            # Calculate delay with jitter
-            if jitter:
-                delay = min(max_delay, delay * (2 ** random.random()))
-            else:
-                delay = min(max_delay, delay * 2)
+def ensure_directory(path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    path.mkdir(parents=True, exist_ok=True)
 
-            logging.getLogger(__name__).warning(
-                f"Attempt {attempt}/{max_retries} failed: {e}. Retrying in {delay:.2f}s..."
-            )
-            time.sleep(delay)
-
-    # Should not reach here due to the raise in the loop
-    raise RuntimeError("Retry logic failed unexpectedly")
+def get_timestamp() -> str:
+    """Return current timestamp in ISO format."""
+    return datetime.now().isoformat()

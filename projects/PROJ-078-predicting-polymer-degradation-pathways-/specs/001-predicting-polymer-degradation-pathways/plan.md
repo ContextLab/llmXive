@@ -16,7 +16,7 @@ This feature implements a lightweight Graph Neural Network (GNN) pipeline to pre
 **Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, no GPU)  
 **Project Type**: Computational Chemistry Simulation Pipeline  
 **Performance Goals**: <6h total runtime, <7GB RAM peak, <30min augmentation  
-**Constraints**: CPU-only execution; no external API credentials; dataset size ~a representative subset (estimated from ChemData700K filtering for ester bonds)  
+**Constraints**: CPU-only execution; no external API credentials; dataset size ~a representative subset (estimated from ChemData filtering for ester bonds)  
 **Scale/Scope**: A dataset of polymer records; 3 degradation classes; 1 GNN model; 1 statistical report
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -26,7 +26,7 @@ This feature implements a lightweight Graph Neural Network (GNN) pipeline to pre
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **I. Reproducibility**: All random seeds pinned in `code/`; external datasets fetched from canonical HuggingFace sources (verified); `requirements.txt` pins all dependencies.
-- **II. Verified Accuracy**: Citations in `research.md` validated against primary sources (e.g., arXiv 2312.01650 for confidence threshold 0.6).
+- **II. Verified Accuracy**: Citations in `research.md` validated against primary sources (e.g., arXiv for confidence threshold 0.6).
 - **III. Data Hygiene**: Raw data checksummed in `state/`; derivations written to new files; no PII allowed.
 - **IV. Single Source of Truth**: All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers in reports.
 - **V. Versioning Discipline**: Content hashes for all artifacts; `state/` timestamps updated on change.

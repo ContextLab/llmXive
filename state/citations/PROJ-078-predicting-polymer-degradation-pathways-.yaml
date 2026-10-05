@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-078-predicting-polymer-degradation-pathways-
   verified_at: '2026-09-28T06:55:27.309015Z'
-- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-01T13:24:43.703033Z'
-- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+  verified_at: '2026-10-05T12:52:53.959111Z'
+- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,8 +63,8 @@
   value: https://webbook.nist.gov/cgi/cbook.cgi?ID=...`
   verification_status: pending
   verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi?ID=
-  verified_at: '2026-10-01T13:24:43.703033Z'
-- artifact_hash: 02a1e1cfa4f100e43ca7804a98dc4eba7e6eeaf037b76b864115a3eb1a3e2cbb
+  verified_at: '2026-10-05T12:52:53.959111Z'
+- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -74,4 +74,4 @@
   value: https://materialsproject.org/rest/v/materials/...`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v/materials/
-  verified_at: '2026-10-01T13:24:43.703033Z'
+  verified_at: '2026-10-05T12:52:53.959111Z'
