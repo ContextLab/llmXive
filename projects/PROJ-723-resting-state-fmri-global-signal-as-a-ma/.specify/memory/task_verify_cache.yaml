@@ -1,11 +1,11 @@
 T024:
   c: false
-  h: 1b5f1d0948df6b7c84af4970b59981403700e9652715d788eb683a0f367ba2b6
-  r: "The repository contains a partially\u2011implemented `code/diagnostics.py` (the\
-    \ `run_collinearity_diagnostics` function is cut off and does not show JSON writing\
-    \ or VIF\u2011threshold warnings). Moreover, the required input file `data/processed/cleaned_data.csv`\
-    \ and the expected output `data/results/diagnostics.json` are absent. The task\u2019\
-    s deliverables are therefore not present."
+  h: 90ccf1afb57b5f1e9974ced57178ce53909dccfeb94c9681654d5b6ed98811be
+  r: The required input file `data/processed/cleaned_data.csv` is missing, so the
+    script could not have processed real data. Moreover, `data/results/diagnostics.json`
+    does not contain the required `collinearity_flag` boolean (it only has `high_vif_features`
+    and other fields). Consequently the implementation does not fully meet the task
+    specifications.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

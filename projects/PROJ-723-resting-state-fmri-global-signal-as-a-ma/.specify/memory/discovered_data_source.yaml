@@ -1,0 +1,14 @@
+status: none
+intent: download Human Connectome Project 1200 resting state fMRI ConnectomeDB and
+  MWQ scores OpenNeuro
+required_fields:
+- Subject_ID
+- Global_Signal_SD
+- MWQ_Score
+- Age
+- Sex
+- FD
+- DVARS
+cache_key: 824c71c0d39f74315744ae41228f9369b563e9680d8cbfdd598e3910f2073aa1
+searched_at: '2026-10-05T19:23:01.050056+00:00'
+retry_count: 1

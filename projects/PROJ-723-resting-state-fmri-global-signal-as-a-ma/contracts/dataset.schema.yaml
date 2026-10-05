@@ -1,44 +1,47 @@
-# Schema for the cleaned dataset used in the Global Signal as a Marker of Mind-Wandering project.
-# This schema defines the required columns and their expected data types.
-# It is used by code/ingestion.py to validate the dataset before processing.
-
-columns:
-  - name: Subject_ID
-    type: string
+# Dataset Schema for Resting-State fMRI Global Signal Analysis
+# This schema defines the required columns and data types for the cleaned dataset
+# Used by T010 for validation before downstream processing
+type: object
+properties:
+  Subject_ID:
+    type: integer
+    nullable: false
     description: Unique identifier for the subject
-    required: true
-    
-  - name: global_signal
-    type: float
-    description: Mean global signal time series for the subject (averaged across runs)
-    required: true
-    
-  - name: global_signal_sd
-    type: float
-    description: Standard deviation of the global signal for the subject
-    required: true
-    
-  - name: MWQ_Score
-    type: integer
+  global_signal:
+    type: number
+    nullable: true
+    description: Global signal mean time series (optional, for reference)
+  global_signal_sd:
+    type: number
+    nullable: false
+    description: Standard deviation of the global signal per subject
+  MWQ_Score:
+    type: number
+    nullable: false
     description: Mind-Wandering Questionnaire total score
-    required: true
-    
-  - name: Age
+  Age:
     type: integer
+    nullable: false
     description: Subject age in years
-    required: true
-    
-  - name: Sex
+  Sex:
     type: string
-    description: Subject sex (e.g., 'M', 'F')
-    required: true
-    
-  - name: Mean_FD
-    type: float
-    description: Mean Framewise Displacement (motion metric)
-    required: true
-    
-  - name: Mean_DVARS
-    type: float
-    description: Mean DVARS (rate of change of BOLD signal)
-    required: true
+    nullable: false
+    enum: ["M", "F"]
+    description: Biological sex
+  Mean_FD:
+    type: number
+    nullable: false
+    description: Mean framewise displacement in mm
+  Mean_DVARS:
+    type: number
+    nullable: false
+    description: Mean DVARS (temporal derivative of RMS variance)
+required:
+  - Subject_ID
+  - global_signal_sd
+  - MWQ_Score
+  - Age
+  - Sex
+  - Mean_FD
+  - Mean_DVARS
+additionalProperties: true

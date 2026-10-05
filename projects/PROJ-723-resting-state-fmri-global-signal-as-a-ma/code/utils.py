@@ -7,126 +7,80 @@ import sys
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-import time
-from functools import wraps
-
-from config import ensure_directories
-
-# Logger setup
-logger = None
+import pandas as pd
 
 def get_logger(name: str = "llmXive") -> logging.Logger:
-    """Get or create a logger instance."""
-    global logger
-    if logger is None:
-        logger = logging.getLogger(name)
-        if not logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
+    """Create and return a logger instance."""
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
-def setup_logging(log_level: int = logging.INFO) -> None:
-    """Configure the root logging settings."""
-    global logger
-    logger = get_logger()
-    logger.setLevel(log_level)
+def setup_logging(log_file: Optional[str] = None) -> None:
+    """Configure logging to file and/or console."""
+    if log_file:
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        logging.basicConfig(
+            filename=log_file,
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
 
-def read_json(path: Union[str, Path]) -> Dict[str, Any]:
-    """Read a JSON file and return its contents."""
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"JSON file not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+def read_json(filepath: str) -> Dict:
+    """Read a JSON file and return a dictionary."""
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def write_json(path: Union[str, Path], data: Dict[str, Any]) -> None:
-    """Write data to a JSON file."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, sort_keys=True)
+def write_json(filepath: str, data: Dict) -> None:
+    """Write a dictionary to a JSON file."""
+    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def read_csv(path: Union[str, Path]) -> List[Dict[str, Any]]:
-    """Read a CSV file into a list of dictionaries."""
-    import csv
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"CSV file not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+def read_csv(filepath: str) -> pd.DataFrame:
+    """Read a CSV file and return a DataFrame."""
+    return pd.read_csv(filepath)
 
-def write_csv(path: Union[str, Path], data: List[Dict[str, Any]], fieldnames: Optional[List[str]] = None) -> None:
-    """Write a list of dictionaries to a CSV file."""
-    import csv
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not data:
-        # Create empty file with headers if provided, otherwise just empty file
-        with open(path, 'w', encoding='utf-8') as f:
-            if fieldnames:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-        return
+def write_csv(filepath: str, df: pd.DataFrame) -> None:
+    """Write a DataFrame to a CSV file."""
+    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(filepath, index=False)
 
-    if fieldnames is None:
-        fieldnames = list(data[0].keys())
-
-    with open(path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
-
-def read_text(path: Union[str, Path]) -> str:
+def read_text(filepath: str) -> str:
     """Read a text file and return its contents."""
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"Text file not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(filepath, 'r') as f:
         return f.read()
 
-def write_text(path: Union[str, Path], content: str) -> None:
-    """Write content to a text file."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+def write_text(filepath: str, content: str) -> None:
+    """Write a string to a text file."""
+    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w') as f:
         f.write(content)
 
-def file_exists(path: Union[str, Path]) -> bool:
+def file_exists(filepath: str) -> bool:
     """Check if a file exists."""
-    return Path(path).exists()
+    return Path(filepath).exists()
 
-def ensure_file_directory(path: Union[str, Path]) -> Path:
-    """Ensure the directory for a file path exists."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path
+def ensure_file_directory(filepath: str) -> None:
+    """Ensure the directory for a file exists."""
+    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
-def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
+def safe_divide(a: float, b: float, default: float = 0.0) -> float:
     """Safely divide two numbers, returning default if denominator is zero."""
-    if denominator == 0:
+    if b == 0:
         return default
-    return numerator / denominator
+    return a / b
 
-def validate_required_keys(data: Dict[str, Any], required_keys: List[str]) -> None:
-    """Validate that a dictionary contains all required keys."""
-    missing = [key for key in required_keys if key not in data]
-    if missing:
-        raise ValueError(f"Missing required keys: {missing}")
+def validate_required_keys(data: Dict, required_keys: List[str]) -> bool:
+    """Check if all required keys are present in a dictionary."""
+    return all(key in data for key in required_keys)
 
-def log_execution_time(func):
-    """Decorator to log the execution time of a function."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        elapsed = end_time - start_time
-        logger.info(f"Function '{func.__name__}' executed in {elapsed:.4f} seconds")
-        return result
-    return wrapper
+def log_execution_time(start_time: float, end_time: float, task_name: str) -> None:
+    """Log the execution time of a task."""
+    duration = end_time - start_time
+    logger = get_logger()
+    logger.info(f"{task_name} executed in {duration:.2f} seconds")

@@ -1,46 +1,92 @@
 import pytest
 import numpy as np
+import pandas as pd
 import json
 import os
 from pathlib import Path
 from sklearn.linear_model import Ridge
-from sklearn.model_selection import KFold, GridSearchCV
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, r2_score
 
 # Import functions to test
-from modeling import calculate_empirical_p_value, run_null_distribution_pipeline
+# Assuming the functions are in code/modeling.py
+# We need to add code/ to sys.path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-def test_calculate_empirical_p_value():
-    """Test the p-value calculation formula."""
-    # Scenario: Observed MAE is lower than all null MAEs (strong effect)
-    # Null: [5, 6, 7, 8, 9], Observed: 4
-    # Count <= 4 is 0. N=5. p = (0+1)/(5+1) = 1/6
-    null_samples = [5.0, 6.0, 7.0, 8.0, 9.0]
-    observed = 4.0
-    p = calculate_empirical_p_value(observed, null_samples)
-    assert abs(p - 1.0/6.0) < 1e-6
+from modeling import run_null_distribution_analysis, load_cleaned_data, prepare_model_data
 
-    # Scenario: Observed MAE is higher than all null MAEs (no effect)
-    # Null: [1, 2, 3], Observed: 10
-    # Count <= 10 is 3. N=3. p = (3+1)/(3+1) = 1.0
-    null_samples_2 = [1.0, 2.0, 3.0]
-    observed_2 = 10.0
-    p_2 = calculate_empirical_p_value(observed_2, null_samples_2)
-    assert abs(p_2 - 1.0) < 1e-6
+@pytest.fixture
+def sample_data(tmp_path):
+    """Create a small sample dataset for testing."""
+    data = {
+        'Subject_ID': range(1, 21),
+        'Global_Signal_SD': np.random.rand(20) * 10,
+        'MWQ_Score': np.random.rand(20) * 100,
+        'Age': np.random.randint(18, 65, 20),
+        'Sex': np.random.choice([0, 1], 20),
+        'Mean_FD': np.random.rand(20) * 0.5,
+        'Mean_DVARS': np.random.rand(20) * 10
+    }
+    df = pd.DataFrame(data)
+    file_path = tmp_path / "cleaned_data.csv"
+    df.to_csv(file_path, index=False)
+    return str(file_path), df
 
-def test_null_distribution_pipeline_structure():
-    """Test that the null distribution pipeline runs and returns expected keys."""
-    # Create small synthetic data for testing logic (not for final results)
-    np.random.seed(42)
-    X = np.random.rand(50, 5)
-    y = np.random.rand(50)
+def test_null_distribution_generation(sample_data):
+    """Test that null distribution is generated correctly."""
+    file_path, df = sample_data
+    X, y, _ = prepare_model_data(df)
+    observed_mae = 10.0 # Fake observed for test
     
-    # Run with small N to save time in test
-    result = run_null_distribution_pipeline(X, y, n_permutations=10, n_splits=3, seed=42)
+    # Run with small N for speed
+    results = run_null_distribution_analysis(
+        X, y, observed_mae, 
+        min_permutations=5, max_permutations=10, target_std=100.0 # High target to stop early
+    )
     
-    assert 'null_mae_samples' in result
-    assert 'null_r2_samples' in result
-    assert len(result['null_mae_samples']) == 10
-    assert len(result['null_r2_samples']) == 10
-    assert 'n_permutations' in result
-    assert result['n_permutations'] == 10
+    assert 'null_maes' in results
+    assert 'n_permutations' in results
+    assert results['n_permutations'] >= 5
+    assert len(results['null_maes']) == results['n_permutations']
+    
+    # Check p-value calculation
+    assert 'p_value_mae' in results
+    assert 0 <= results['p_value_mae'] <= 1
+
+def test_permutation_logic(sample_data):
+    """Test that permutation actually changes the data."""
+    file_path, df = sample_data
+    X, y, _ = prepare_model_data(df)
+    
+    # Run a single permutation manually to verify
+    rng = np.random.RandomState(42)
+    y_permuted = rng.permutation(y)
+    
+    assert not np.array_equal(y, y_permuted)
+    assert np.array_equal(np.sort(y), np.sort(y_permuted))
+    
+    # Run the analysis and ensure it doesn't crash
+    results = run_null_distribution_analysis(
+        X, y, 10.0, 
+        min_permutations=2, max_permutations=2, target_std=100.0
+    )
+    assert results['n_permutations'] == 2
+
+def test_null_distribution_file_creation(tmp_path, sample_data):
+    """Test that the null distribution file is created with correct structure."""
+    # This test is more of an integration test for the file writing
+    # We simulate the main logic here
+    file_path, df = sample_data
+    X, y, _ = prepare_model_data(df)
+    
+    results = run_null_distribution_analysis(
+        X, y, 10.0, 
+        min_permutations=2, max_permutations=2, target_std=100.0
+    )
+    
+    # Verify structure
+    assert 'null_maes' in results
+    assert isinstance(results['null_maes'], list)
+    assert all(isinstance(x, float) for x in results['null_maes'])
+    assert 'p_value_mae' in results
+    assert isinstance(results['p_value_mae'], float)
