@@ -1,10 +1,17 @@
 status: none
-intent: TRY plant trait database NCBI RefSeq genomic annotations python package dataset
+intent: download TRY plant trait database and NCBI RefSeq genomic annotations python
+  package dataset
 required_fields:
-- species
-- physiological_trait_*
-- ABA_signaling_gene_presence_*
-- osmoprotectant_gene_presence_*
-cache_key: 5f5b4d63f89b575b26e29ce29d150cafb43bbb996b3637599f6d2bca2bfec422
-searched_at: '2026-10-02T00:17:45.475490+00:00'
+- species_scientific_name
+- species_taxonomic_family
+- species_taxonomic_genus
+- physiological_trait_leaf_area
+- physiological_trait_seed_mass
+- physiological_trait_specific_leaf_area
+- physiological_trait_photosynthetic_rate
+- physiological_trait_stomatal_conductance
+- gene_presence_ABA_signaling_genes
+- gene_presence_osmoprotectant_genes
+cache_key: 0b0ba5b596a0bf071ad1b9c6da883e28646665c7b844489fe526b5efe12a5808
+searched_at: '2026-10-05T22:36:14.680971+00:00'
 retry_count: 1

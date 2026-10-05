@@ -10,34 +10,34 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/models/compare.py: self-declared fabricated metric — “…ng("No CV scores found, using placeholder values")                 t_stat, p_…”
 - code/models/compare.py: self-declared fabricated metric — “…results file not found, using placeholder values")             t_stat, p_valu…”
-- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…on Mode # If True: allow synthetic data fallback if real fetch f…”
-- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…Seed RANDOM_SEED = 42  # Synthetic Data Parameters SYNTHETIC_PAR…”
-- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…ipped (VALIDATION_MODE). Synthetic data will be used.")  def mai…”
+- code/config.py: synthetic/fake INPUT data not authorized by the spec — “…n Modes # If True: allow synthetic data fallback if real fetch f…”
 - code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…ta generation module for synthetic datasets and matrices.  This modu…”
 - code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…d matrices.  This module generates synthetic genomic features and phy…”
-- code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…es() -> str:     """     Generate synthetic genomic features and dro…”
+- code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic genomic features and dro…”
+- code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…ALIDATION_MODE is False. Synthetic data generation is forbidden…”
+- code/data/generate.py: synthetic/fake INPUT data not authorized by the spec — “…RuntimeError("CRITICAL: Synthetic data generation attempted in…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 21 fabricated/simulated-result signal(s) — results are not real measurements: code/models/compare.py: self-declared fabricated metric — “…ng("No CV scores found, using placeholder values")                 t_stat, p_…”; code/models/compare.py: self-declared fabricated metric — “…results file not found, using placeholder values")             t_stat, p_valu…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…on Mode # If True: allow synthetic data fallback if real fetch f…”; 1 command(s) failed: python code/run_pipeline.py (rc=1); 2 declared deliverable(s) absent: data/logs/feature_importance.json; data/logs/metrics.json
+**Summary**: 25 fabricated/simulated-result signal(s) — results are not real measurements: code/models/compare.py: self-declared fabricated metric — “…ng("No CV scores found, using placeholder values")                 t_stat, p_…”; code/models/compare.py: self-declared fabricated metric — “…results file not found, using placeholder values")             t_stat, p_valu…”; code/config.py: synthetic/fake INPUT data not authorized by the spec — “…n Modes # If True: allow synthetic data fallback if real fetch f…”; 1 command(s) failed: python code/run_pipeline.py (rc=1); 4 declared deliverable(s) absent: data/logs/feature_importance.json; data/processed/real_phylo_matrix.npy; data/processed/synthetic_genomics.csv
 
 ## Failing / missing run-book commands
 
 - python code/run_pipeline.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/run_pipeline.py", line 31, in <module>
-    from data.download import download_try_data, fetch_ncbi_refseq, main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/data/download.py", line 20, in <module>
-    logger = DataPipelineLog("download")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/utils/logging.py", line 24, in __init__
-    ensure_directories([self.log_dir])
-TypeError: ensure_directories() takes 0 positional arguments but 1 was given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/run_pipeline.py", line 20, in <module>
+    from data.split import main as split_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-197-predicting-plant-drought-tolerance-from-/code/data/split.py", line 73, in <module>
+    feature_names: List[str]
+                   ^^^^
+NameError: name 'List' is not defined. Did you mean: 'list'?
 
 ## Declared deliverables still missing
 
 - data/logs/feature_importance.json
-- data/logs/metrics.json
+- data/processed/real_phylo_matrix.npy
+- data/processed/synthetic_genomics.csv
+- data/processed/synthetic_phylo_matrix.npy
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -47,9 +47,13 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `ensure_directories` — defined in `code/config.py`; called 10 way(s):
+### `ensure_directories` — defined in `code/config.py`; called 14 way(s):
 
-- code/run_pipeline.py: ensure_directories()
+- code/run_pipeline.py: ensure_directories([log_dir])
+- code/config.py: - ensure_directories()
+- code/config.py: - ensure_directories([path1, path2])
+- code/config.py: - ensure_directories(path1, path2)
+- code/config.py: - ensure_directories(config_dict)
 - code/utils/logging.py: ensure_directories([self.log_dir])
 - code/utils/metrics_logger.py: ensure_directories()
 - code/models/compare.py: ensure_directories()
@@ -58,7 +62,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 - code/models/save_metrics_runner.py: ensure_directories(config)
 - code/data/split.py: ensure_directories()
 - code/data/ingest.py: ensure_directories()
-- code/data/generate.py: ensure_directories()
+- code/data/generate.py: ensure_directories([Path("data/processed")])
 
 Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
@@ -67,17 +71,18 @@ Make `ensure_directories` in `code/config.py` accept ALL of the above.
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/logs/feature_importance.json` is declared but was NOT written. Scripts referencing it:
-    - `code/run_pipeline.py` — IS a run-book command
     - `code/utils/metrics_logger.py` — NOT invoked by the run-book
     - `code/models/compare.py` — NOT invoked by the run-book
     - `code/models/entities.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/logs/feature_importance.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/logs/metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/run_pipeline.py` — IS a run-book command
-    - `code/setup_directories.py` — NOT invoked by the run-book
-    - `code/utils/metrics_logger.py` — NOT invoked by the run-book
-    - `code/models/compare.py` — NOT invoked by the run-book
-    - `code/models/evaluate.py` — NOT invoked by the run-book
-    - `code/models/entities.py` — NOT invoked by the run-book
-    - `code/models/save_metrics_runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/logs/metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/real_phylo_matrix.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/data/generate.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/real_phylo_matrix.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/synthetic_genomics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data/ingest.py` — NOT invoked by the run-book
+    - `code/data/generate.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/synthetic_genomics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/synthetic_phylo_matrix.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/models/train.py` — NOT invoked by the run-book
+    - `code/data/generate.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/synthetic_phylo_matrix.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

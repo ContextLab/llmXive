@@ -1,12 +1,27 @@
-T016b:
+T012:
   c: false
-  h: 01386b6a1c03f6fa627982cf46cd591406599c5970e9f6a65e41ea5b3fb1895b
-  r: "The provided `code/data/generate.py` contains only synthetic genomic feature\
-    \ generation and does not check for `data/raw/phylo_tree.newick`, compute a distance\
-    \ matrix, or log \u201CReal tree not found\u201D to `data/logs/metrics.json`.\
-    \ Moreover, the required files `data/raw/phylo_tree.newick`, `data/logs/metrics.json`,\
-    \ and `data/processed/real_phylo_matrix.npy` are absent. The task\u2019s core\
-    \ functionality is therefore not implemented."
+  h: ae833df3bd6aa20fd900d4015a14e0fa3f834935b3740e5dd6a9a2c4d4a73e4c
+  r: "The repository contains a `code/data/generate.py` file, but it is truncated\
+    \ and lacks the required checks for T011b failure, real\u2011data detection/bypass,\
+    \ and the final write\u2011out of `data/processed/synthetic_genomics.csv` (the\
+    \ CSV file is missing). Consequently the script does not fully implement the specified\
+    \ synthetic data generation logic nor produce the required output file."
+T014a:
+  c: false
+  h: b6c1e96703ff8672a12d46f6d32bf5823f7654258f9e0fd977abfc0fed71064d
+  r: The required file `data/processed/real_phylo_matrix.npy` does not exist, so the
+    script cannot perform the existence check mandated by the task. Moreover, the
+    provided `code/data/ingest.py` is truncated and shows no concrete logic for handling
+    missing continuous traits based on that check. Both the dependency file and the
+    necessary handling code are missing.
+T016a:
+  c: false
+  h: 299fedf05a9003a2b4bea70ef3b3d30a19e3f9fe0790c7a57cf39a8252776260
+  r: "The required output file `data/processed/synthetic_phylo_matrix.npy` does not\
+    \ exist, and the provided `code/data/generate.py` only contains code for synthetic\
+    \ genomic feature generation (truncated) with no implementation of a symmetric\
+    \ phylogenetic distance matrix or saving to the specified path. The task\u2019\
+    s core requirement is therefore unmet."
 T016c:
   c: false
   h: f76c2a2d7de634529296fcb01ef8eaec422a60c325b0b62ef27e1b62fb390d5b
@@ -30,3 +45,11 @@ T031:
     \ cannot confirm the required artifact exists or contains the specified information.\
     \ The implementer must add the updated report file(s) with the synthetic\u2011\
     data limitation note."
+T037:
+  c: false
+  h: 4fed8601f1ef528d6267d40841c3f605a47521d6ca636c6e3675ccd1302bf9b4
+  r: "The provided `ingest.py` is truncated and does not contain code that records\
+    \ the excluded species IDs or writes them to `data/logs/metrics.json`. Moreover,\
+    \ `metrics.json` is empty (`{}`), lacking the required `\"excluded_species\"`\
+    \ list. The task\u2019s requirement to log exact excluded IDs and store them in\
+    \ the metrics file is therefore not satisfied."
