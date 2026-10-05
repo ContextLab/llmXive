@@ -1,9 +1,9 @@
 """
 Structured logging utility for the llmXive pipeline.
 
-Provides a configured logger that writes to stdout and to a log file
-under logs/pipeline.log. Supports standard log levels (DEBUG, INFO,
-WARNING, ERROR, CRITICAL) and includes structured formatting.
+Provides a configured logger that writes to stdout and a rotating log file
+at logs/pipeline.log. Includes a custom StructuredFormatter for JSON-like
+output suitable for parsing by log aggregation systems.
 """
 
 import logging
@@ -12,100 +12,122 @@ import os
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from typing import Optional
+import json
+import datetime
+import traceback
 
-# Ensure the logs directory exists
-LOGS_DIR = Path("logs")
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOGS_DIR / "pipeline.log"
 
-# Custom formatter for structured output
 class StructuredFormatter(logging.Formatter):
     """
-    A formatter that outputs logs in a structured key=value style
-    suitable for parsing and monitoring.
+    A custom formatter that outputs log records as a single-line JSON object.
+    Fields include: timestamp, level, logger_name, message, and optional extra fields.
     """
+
     def format(self, record: logging.LogRecord) -> str:
-        # Standard fields
-        msg = (
-            f"level={record.levelname} "
-            f"name={record.name} "
-            f"message={record.getMessage()} "
-            f"timestamp={record.created} "
-            f"module={record.module} "
-            f"function={record.funcName} "
-            f"line={record.lineno}"
-        )
+        # Create a dictionary for the log entry
+        log_entry = {
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        # Add exception info if present
         if record.exc_info:
-            msg += f" exception={self.formatException(record.exc_info)}"
-        return msg
+            log_entry["exception"] = {
+                "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
+                "message": str(record.exc_info[1]) if record.exc_info[1] else None,
+                "traceback": traceback.format_exception(*record.exc_info)
+            }
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+        # Add any extra fields passed in the record
+        if hasattr(record, 'extra_fields') and isinstance(record.extra_fields, dict):
+            log_entry.update(record.extra_fields)
+
+        return json.dumps(log_entry)
+
+
+def get_logger(
+    name: str,
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    max_bytes: int = 10 * 1024 * 1024,  # 10 MB
+    backup_count: int = 5
+) -> logging.Logger:
     """
-    Retrieves or creates a logger with the specified name.
-    If name is None, returns the root logger configured for the pipeline.
+    Retrieves or creates a logger with structured output.
 
-    The logger is configured to:
-    - Output to stdout (INFO level and above)
-    - Output to logs/pipeline.log (DEBUG level and above, rotating)
+    Args:
+        name: The name of the logger.
+        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Path to the log file. If None, only stdout is used.
+        max_bytes: Maximum size of the log file before rotation.
+        backup_count: Number of backup log files to keep.
 
     Returns:
-        logging.Logger: Configured logger instance.
+        A configured logging.Logger instance.
     """
-    logger_name = name if name else "pipeline"
-    logger = logging.getLogger(logger_name)
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
 
-    # Avoid adding handlers multiple times if called repeatedly
+    # Prevent adding handlers multiple times if called repeatedly
     if logger.handlers:
         return logger
 
-    logger.setLevel(logging.DEBUG)
-
-    # Clear any existing handlers from parent loggers to avoid duplication
-    logger.propagate = False
+    # Formatter for structured output
+    formatter = StructuredFormatter()
 
     # Console Handler (stdout)
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_formatter = StructuredFormatter()
-    console_handler.setFormatter(console_formatter)
-
-    # File Handler (logs/pipeline.log) with rotation
-    # Max size 10MB, keep 5 backup files
-    file_handler = RotatingFileHandler(
-        LOG_FILE,
-        maxBytes=10 * 1024 * 1024,
-        backupCount=5,
-        encoding="utf-8"
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_formatter = StructuredFormatter()
-    file_handler.setFormatter(file_formatter)
-
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+
+    # File Handler (if log_file is provided)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        file_handler = RotatingFileHandler(
+            log_file,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding='utf-8'
+        )
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     return logger
 
-# Initialize the default pipeline logger immediately
-logger = get_logger()
 
 def main():
     """
-    Simple test harness to demonstrate logger functionality.
-    Runs when the module is executed directly.
+    Demonstration of the logger functionality.
+    Writes test logs to stdout and logs/pipeline.log.
     """
-    log = get_logger("test_logger")
-    log.debug("This is a DEBUG message.")
-    log.info("This is an INFO message.")
-    log.warning("This is a WARNING message.")
-    log.error("This is an ERROR message.")
-    log.critical("This is a CRITICAL message.")
+    # Define the log file path relative to project root
+    # Assuming this script runs from the project root or code/
+    project_root = Path(__file__).resolve().parent.parent.parent
+    log_file_path = project_root / "logs" / "pipeline.log"
+
+    logger = get_logger(
+        name="pipeline.demo",
+        log_level=logging.DEBUG,
+        log_file=str(log_file_path)
+    )
+
+    logger.info("Pipeline logger initialized successfully.")
+    logger.debug("This is a debug message.")
+    logger.warning("This is a warning message.")
+    
     try:
         1 / 0
     except ZeroDivisionError:
-        log.exception("An exception occurred during testing.")
+        logger.error("An error occurred during execution.", exc_info=True)
+    
+    logger.info("Demo complete. Check logs/pipeline.log for structured output.")
 
-    print(f"\nLog file created at: {LOG_FILE.absolute()}")
 
 if __name__ == "__main__":
     main()

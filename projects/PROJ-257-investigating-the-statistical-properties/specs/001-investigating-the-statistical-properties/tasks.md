@@ -26,13 +26,13 @@
 
 **Purpose**: Project initialization and basic structure, including core utilities required for data integrity and logging.
 
-- [ ] T001 [P] Initialize Project Directory Structure. **Content**: Create `src/`, `tests/`, `data/raw/`, `data/processed/`, `output/results/`, `output/figures/`, `logs/`, `src/data/`, `src/analysis/`, `src/viz/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`. **Verification**: Generate `project_structure_manifest.json` containing a JSON object with keys for each directory and a list of its subdirectories. **Artifact**: `project_structure_manifest.json`.
-- [X] T002 [P] Create `requirements.txt` with pinned versions (numpy, scipy, pandas, matplotlib, requests, tqdm, pytest, h5py, statsmodels).
+- [ ] T001 [P] Initialize Project Directory Structure. **Content**: Create `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `output/results/`, `output/figures/`, `logs/`, `src/data/`, `src/analysis/`, `src/viz/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`. **Verification**: Run `python -c "import json, os; m=json.load(open(os.path.abspath('project_structure_manifest.json'))); assert all(isinstance(v, list) for v in m.values()); assert all(isinstance(k, str) and k.startswith('/') for k in m.keys())"`. **Artifact**: `project_structure_manifest.json` containing a JSON object where keys are absolute paths to directories and values are lists of subdirectory names.
+- [X] T002 [P] Create `requirements.txt` with pinned versions (numpy, scipy, pandas, matplotlib, requests, tqdm, pytest, h5py, statsmodels, memory-profiler).
 - [X] T003 [P] Initialize Python virtual environment and install dependencies. **Verification**: Run `python -m venv.venv` and `source.venv/bin/activate`. Run `pip list` and verify all packages from `requirements.txt` are installed. Verify `.venv/bin/python --version` returns a compatible Python 3.x version.
-- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools. **Verification**: Run `ruff check.` and `black --check.` and verify they return exit code 0 (or show expected linting errors if code is not yet written). Verify `ruff` and `black` are in `.venv/bin/`.
+- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools. **Verification**: Run `ruff check.` and `black --check.` and verify they return exit code 0 (or show expected linting errors if code is not yet written). Verify `ruff` and `black` are in `.venv/bin/`. <!-- FAILED: unspecified -->
 - [X] T005 [P] Implement `src/utils/checksum.py` for SHA256 integrity verification of downloaded files. **Output**: A function `verify_file(path: str, expected_hash: str) -> bool`.
 - [ ] T006 [P] Implement `src/utils/logger.py` with structured logging and log levels. **Output**: A configured logger that writes to `stdout` and `logs/pipeline.log`.
-- [ ] T047 [US0] Configure `.github/workflows/ci.yml`. **Content**: Must include `runs-on: ubuntu-latest`, `timeout-minutes: 360` (6 hours), and a step running `pytest` (e.g., `python -m pytest tests/ -v`). **Dependency**: Runs after T001. **Verification**: Run `cat.github/workflows/ci.yml` and verify the presence of `runs-on`, `timeout-minutes`, and `pytest` command.
+- [ ] T047 [US0] Configure `.github/workflows/ci.yml`. **Content**: Must include `runs-on: ubuntu-latest`, `timeout-minutes:` (6 hours), a step running `pytest`, and a step using `memory_profiler` or `psutil` to log peak memory usage to `ci_resource_metrics.json`. **Dependency**: Runs after T001. **Verification**: Run `cat.github/workflows/ci.yml` and verify the presence of `runs-on`, `timeout-minutes`, `pytest`, and memory profiling steps.
 - [ ] T048 [P] [US0] Optimize data loading in `src/data/preprocess.py` to stream/process in chunks if necessary (avoid loading full posterior samples into RAM). **Dependency**: None (Setup task).
 - [ ] T049 [P] [US0] Add pre-commit hook to check for large file uploads or inefficient imports. **Dependency**: None (Setup task).
 
@@ -40,18 +40,14 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes selection bias handling and main pipeline entry.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Create `src/config.py` defining paths, random seeds, and `alpha_thresholds` defaults. The configuration MUST define `alpha_thresholds` as a list of significance levels that is **overridable via CLI arguments or environment variables**.
+- [] T007 [P] Create `src/config.py` defining paths, random seeds, and `alpha_thresholds` defaults. The configuration MUST define `alpha_thresholds` as a list of significance levels **defaulting to `[, 0.06 (2309.06305, https://arxiv.org/abs/2309.06305)]`** (per FR-009) and be overridable via CLI arguments or environment variables.
 - [ ] T008 [P] Implement `src/data/schemas.py` with Pydantic models for GWTC_Catalog, Simulation_Dataset, Statistical_Test_Result.
 - [ ] T009 [P] Setup `tests/contract/test_schemas.py` to validate JSON/CSV data against defined schemas.
-- [ ] T032 [P] [US2] Implement selection bias handling in `src/analysis/selection_bias.py` (FR-016): Attempt to load official LVK selection efficiency files from `data/raw/lvk_selection_efficiency.h5` (GWTC-1) and `data/raw/lvk_selection_efficiency_GWTC2.h5` (GWTC-2).
- - **If files exist**: Apply Inverse Probability Weighting (IPW) and record the method used as `ipw` in `data/results/selection_bias_status.json`.
- - **If files are missing**: **DO NOT HALT**. Log a warning `[SELECTION_BIAS_MISSING]`, proceed with **uniform weighting**, and record the method as `uniform_approximation` in `data/results/selection_bias_status.json`. The pipeline MUST continue to T028/T029. **CRITICAL**: This fallback MUST trigger a log entry explicitly classified as a 'Limitation' to preserve the mandatory nature of FR-016.
- **Verification**: Run `python -c "import json; d=json.load(open('data/results/selection_bias_status.json')); assert d['method'] in ['ipw', 'uniform_approximation']; print(d['method'])"`. **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) to calculate weights. **Execution Order**: MUST run BEFORE T028 and T029.
-- [ ] T010 [P] Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks. The pipeline MUST log peak memory/disk usage. [UNRESOLVED-CLAIM: c_b5aaf415 — status=not_enough_info] If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a `[RESOURCE_BREACH]` message with the specific metric and value, then **exit with code 1** to signal failure, ensuring hard constraints (FR-011) are enforced. **Dependency**: Requires T005, T006, T032. (Note: T032 is now in Phase 2 and handled within the orchestration flow after data is loaded).
+- [ ] T010 [P] Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks. The pipeline MUST log peak memory/disk usage. If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a `[RESOURCE_BREACH]` message with the specific metric and value, then **exit with code 1** to signal failure, ensuring hard constraints (FR-011) are enforced. **Dependency**: Requires T005, T006.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +71,14 @@
 - [ ] T015 [US1] Implement `src/data/preprocess.py` to parse posterior samples, extract mass_ratio, effective_spin, component_mass, and filter NaNs.
 - [ ] T016 [US1] Implement validation in `src/data/preprocess.py` to ensure ≥100 valid events remain; fail with explicit error if not.
 - [ ] T017 [US1] Implement **Event-Level Bootstrapping** in `src/data/preprocess.py` to create the primary observational artifact. **Specific Mechanism**:
- 1. **Algorithm**: Iterate over events in **batches of 100**. For each batch:
- a. For each event in the batch, sample 1000 medians from its respective posterior distribution. [UNRESOLVED-CLAIM: c_4a957a82 — status=not_enough_info]
- b. Stack these samples into a temporary 3D array segment of shape `[100, 1000, 4]`.
+ 1. **Convergence Check**: Before full bootstrapping, run a preliminary check on a subset of events sampling varying numbers of medians, including 500 and 1000. Verify that the variance of the median estimates stabilizes (variance < 1e-4) at a specific sample count `N_samples`. If variance does not stabilize at 1000, log a warning and proceed with 1000 (documenting the limitation).
+ 2. **Algorithm**: Iterate over events in **batches of a fixed size**. For each batch:
+ a. For each event in the batch, sample `N_samples` medians from its respective posterior distribution (where `N_samples` is determined by the convergence check).
+ b. Stack these samples into a temporary D array segment of shape `[100, N_samples, 4]`.
  c. Append this segment to the HDF5 file `data/processed/bootstrapped_obs_samples.h5` using chunked writing.
- 2. **Output A**: Save the aggregated summary to `data/processed/obs_catalog.csv` with columns: `event_id`, `mass_ratio_median`, `mass_ratio_std`, `effective_spin_median`, `effective_spin_std`, `component_mass_1_median`, `component_mass_1_std`, `component_mass_2_median`, `component_mass_2_std`.
- 3. **Output B (CRITICAL)**: Save the full bootstrapped dataset to `data/processed/bootstrapped_obs_samples.h5` (HDF5 format). **Schema**: The file MUST contain a dataset named `samples` with shape `[N_events, 1000, 4]` (Events, Iterations, Parameters: mass_ratio, effective_spin, m1, m2) and dtype float64.
- **Constraint**: MUST implement chunked writing/streaming (batches of 100) to ensure memory usage stays within acceptable limits and disk usage under 20GB. **Verification**: Run `du -sh data/processed/bootstrapped_obs_samples.h5` to confirm size < 20GB. **AND** Run a Python snippet: `import h5py; f=h5py.File('data/processed/bootstrapped_obs_samples.h5','r'); assert f['samples'].shape[0] >= 100 and f['samples'].shape[1] == 1000 and f['samples'].shape[2] == 4 [UNRESOLVED-CLAIM: c_84a7a305 — status=not_enough_info]; assert f['samples'].dtype == 'float64'; f.close()`. **Dependency**: Requires T014, T015, T016.
+ 3. **Output A**: Save the aggregated summary to `data/processed/obs_catalog.csv` with columns: `event_id`, `mass_ratio_median`, `mass_ratio_std`, `effective_spin_median`, `effective_spin_std`, `component_mass_1_median`, `component_mass_1_std`, `component_mass_2_median`, `component_mass_2_std`.
+ 4. **Output B (CRITICAL)**: Save the full bootstrapped dataset to `data/processed/bootstrapped_obs_samples.h5` (HDF5 format). **Schema**: The file MUST contain a dataset named `samples` with shape `[N_events, N_samples, D]`, where `D` represents the dimensionality of the feature space. (Events, Iterations, Parameters: mass_ratio, effective_spin, m1, m2) and dtype float64, where `N_samples` is the count determined by the convergence check.
+ **Constraint**: MUST implement chunked writing/streaming (batches of 100) to ensure memory usage stays within acceptable limits and disk usage under a moderate threshold. **Verification**: Run `du -sh data/processed/bootstrapped_obs_samples.h5` to confirm size < 20GB. **AND** Run a Python snippet: `import h5py; f=h5py.File('data/processed/bootstrapped_obs_samples.h5','r'); assert f['samples'].shape[0] >= 100 and f['samples'].shape[2] == 4 and f['samples'].dtype == 'float64'; assert f['samples'].shape[1] > 0; f.close()`. **Dependency**: Requires T014, T015, T016.
 
 **Checkpoint**: User Story 1 complete - observational data is downloaded, validated, and preprocessed.
 
@@ -102,7 +99,7 @@
 
 - [ ] T020 [P] [US1b] Implement `src/data/download.py` function to attempt fetching a dedicated BBH population synthesis catalog (e.g., from Zenodo/Community Repo).
 - [ ] T021 [US1b] Implement fallback logic in `src/data/download.py` to generate synthetic catalog if external source fails.
-- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law mass with independent spin" hypothesis. **Citation**: Must cite "Abbott et al. (), ApJL, L7 " (or similar LVC population paper). **Parameters**: **Output**: `data/processed/sim_catalog.csv` with ≥100 events.
+- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law mass with independent spin" hypothesis. **Citation**: Must cite "Abbott et al., ApJL, 913, L7" (). **Output**: `data/processed/sim_catalog.csv` with ≥100 events.
 - [ ] T023 [US1b] Ensure synthetic generator produces ≥100 events with `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`.
 - [ ] T024 [US1b] Add validation in `src/data/preprocess.py` to confirm simulation data schema matches observational data schema.
 
@@ -112,7 +109,7 @@
 
 ## Phase 5: User Story 2 - Statistical Analysis (KS Tests & Corrections) (Priority: P2)
 
-**Goal**: Perform Kolmogorov-Smirnov tests with Bonferroni correction and sensitivity analysis.
+**Goal**: Perform Kolmogorov-Smirnov tests with Bonferroni correction, sensitivity analysis, and selection bias correction.
 
 **Independent Test**: Verify `output/results/ks_test_results.json` contains statistics, p-values, and corrected flags.
 
@@ -124,9 +121,13 @@
 
 ### Implementation for User Story 2
 
+- [ ] T032 [P] [US2] Implement selection bias handling in `src/analysis/selection_bias.py` (FR-016): Attempt to load official LVK selection efficiency files from `data/raw/lvk_selection_efficiency.h5` (GWTC-1) and `data/raw/lvk_selection_efficiency_GWTC2.h5` (GWTC-2).
+ - **If files exist**: Apply Inverse Probability Weighting (IPW) and record the method used as `ipw` in `data/results/selection_bias_status.json`.
+ - **If files are missing**: **FAIL HARD**. The script MUST raise an explicit error and halt execution with exit code 1. The system MUST NOT proceed with uniform weighting. Log a critical error `[SELECTION_BIAS_MISSING]` stating that FR-016 cannot be satisfied without the required correction files.
+ **Verification**: Run `python -c "import json, os; f='data/results/selection_bias_status.json'; assert os.path.exists(f); d=json.load(open(f)); assert d['method'] == 'ipw'; print(d['method'])"`. **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) to calculate weights. **Execution Order**: MUST run AFTER T017 and BEFORE T028/T029.
 - [ ] T028 [US2] Implement `src/analysis/kde.py` to compute 1D KDEs for mass_ratio and effective_spin using scipy.stats.gaussian_kde. **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) AND `data/results/selection_bias_status.json` (from T032) to ensure weights are applied. **3D Structure Handling**: Iterate over the 'Iteration' axis (shape [Events, Iterations, Parameters]) of the HDF5 file. For each iteration `j`, sample one median per event from the `j-th` slice, compute the KDE, and aggregate the results across all iterations.
 - [ ] T029 [US2] Implement `src/analysis/ks_test.py` to perform **Weighted** KS tests on mass_ratio and effective_spin distributions using the weights from T032. **Dependency**: Requires `data/processed/bootstrapped_obs_samples.h5` (from T017) and `data/results/selection_bias_status.json` (from T032). **3D Structure Handling**: Iterate over the 'Iteration' axis (shape [Events, Iterations, Parameters]) of the HDF5 file. For each iteration `j`, sample one median per event from the `j-th` slice, compute the KS statistic with weights, and aggregate the resulting KS statistics to form the final distribution. **Bonferroni Correction**: Apply Bonferroni correction for multiple comparisons (multiple tests) as a sub-step of this task.
-- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α over the **fixed discrete set {0.05, 0.06}** as mandated by FR-009. **Algorithm**: For each α in {0.05, 0.06}, evaluate significance. **Borderline Logic**: If the significance status (significant/not significant) flips between α=0.05 and α=0.06, flag the result as "borderline". **Artifact Generation**: This task MUST generate `data/results/sensitivity_report.json` containing the p-values and significance flags for each α in the sweep set. **Dependency**: Requires T029 (KS Test) to be complete.
+- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α over the **discrete set of low values** as mandated by FR-009. **Algorithm**: For each α in `{, 0.06}`, evaluate significance. **Borderline Logic**: If the significance status (significant/not significant) flips across the sweep range, flag the result as "borderline". **Artifact Generation**: This task MUST generate `data/results/sensitivity_report.json` containing the p-values and significance flags for each α in the sweep set. **Dependency**: Requires T029 (KS Test) to be complete.
 - [ ] T033 [US2] Generate `output/results/ks_test_results.json` with all statistics, adjusted p-values, and significance flags. **Dependency**: Requires T031 (Sensitivity Results) and T029 (KS Test) to ensure borderline flags are applied before finalizing the report. **Specific Artifact**: Must include a dedicated entry `sc002_effective_spin_nominal` with the p-value and pass/fail status for α=0.05.
 
 **Checkpoint**: User Story 2 complete - statistical comparisons are performed and corrected.
@@ -214,6 +215,6 @@
 - Commit after each task or logical group
 - **Critical Constraint**: All code must run on CPU-only, -core, limited RAM. No GPU, no large model loading.
 - **Data Integrity**: All downloads must have checksum verification. No fake data allowed.
-- **Scope Boundary**: This project is strictly limited to comparing existing GWTC data against the single synthetic baseline defined in US-1b and US-2. No additional Monte Carlo extrapolations or "Slow Takeoff" analyses are included.
-- **Limitations**: The report must explicitly state any limitations regarding selection bias (if LVK files were missing - which is now handled by proceeding with uniform weighting per T032) and sample size power, as generated in T039.
-- **Selection Bias**: Per FR-016, if LVK selection files are missing, the pipeline proceeds with uniform weighting and logs a limitation (T032), ensuring the 'Limitations' section (T039) can be generated with the correct error context.
+- **Scope Boundary**: This project is strictly limited to comparing existing GWTC data against the single synthetic baseline defined in US-1b and US-2.
+- **Limitations**: The report must explicitly state any limitations regarding selection bias (if LVK files were missing - which now causes a hard failure per T032) and sample size power, as generated in T039.
+- **Selection Bias**: Per FR-016, if LVK selection files are missing, the pipeline MUST fail with an explicit error (T032), ensuring the 'MUST correct' constraint is not bypassed.

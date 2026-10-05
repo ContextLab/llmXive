@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The implementer did not provide a `project_structure_manifest.json` file or any JSON content showing the directory keys and subdirectory lists. Without the manifest artifact, the task’s requirement cannot be confirmed as satisfied. The next implementer must create and supply the `project_structure_manifest.json` with the specified structure.
-- `T004` (rejected 1x): No evidence was provided showing that a virtual environment exists with `ruff` and `black` in `.venv/bin/`, nor any command output confirming that `ruff check .` and `black --check .` run with exit code 0 (or expected linting errors). The required artifacts to verify the linting/formatting configuration are missing.
+- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/logger.py
 
 ## Required change
 

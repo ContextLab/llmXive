@@ -1,0 +1,14 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `project_structure_manifest.json` file or its contents were provided; without
+    the manifest we cannot verify that the required directory structure was created
+    or that the JSON meets the specified schema. The task therefore lacks the essential
+    artifact.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that a virtual environment exists with `ruff`\
+    \ and `black` binaries in `.venv/bin/`, nor any output or exit\u2011code results\
+    \ from running `ruff check .` or `black --check .`. The required artifacts to\
+    \ verify linting/formatting configuration are missing."

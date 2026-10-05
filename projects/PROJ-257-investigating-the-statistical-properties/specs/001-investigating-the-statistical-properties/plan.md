@@ -9,7 +9,7 @@ This project implements a reproducible statistical pipeline to compare observati
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3  
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `tqdm`, `pyyaml`, `h5py`, `statsmodels` (for weighted KS if available, else custom implementation)  
 **Storage**: 
 - Raw posterior samples: **HDF5 format** (`.h5`) to efficiently store array data.
