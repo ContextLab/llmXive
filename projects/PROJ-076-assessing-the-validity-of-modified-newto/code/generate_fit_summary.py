@@ -1,13 +1,3 @@
-"""
-Generate fit_summary.csv with all metrics per galaxy-model.
-
-This script loads the results from the fitting engine (fit_all_galaxies output),
-aggregates the metrics (reduced chi2, AIC, BIC) for both MOND and NFW models,
-and writes a summary CSV to results/fit_summary.csv.
-
-Dependency: T023 (fitting engine) and T024 (metric calculator) must be complete.
-"""
-
 import os
 import logging
 import pandas as pd
@@ -15,129 +5,143 @@ import numpy as np
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 
-# Import from existing API surface
 from fit import fit_all_galaxies
 from metrics import compute_fit_metrics
-from utils import get_logger, ensure_directory, log_stage
+from utils import get_logger, ensure_directory
 from config import get_config
 
-logger = get_logger(__name__)
-
-
-def load_fit_results(results_dir: Path) -> List[Dict[str, Any]]:
+def load_fit_results(galaxy_data_path: Path, models: List[str] = ["mond", "nfw"]) -> pd.DataFrame:
     """
-    Load fit results from the results directory.
-
-    The fitting engine (T023) should have saved individual fit results
-    or a combined results file. We expect a file named 'fit_results.parquet'
-    or 'fit_results.csv' in the results directory.
-
-    If not found, we run the fitting engine to generate them.
-    """
-    results_file = results_dir / "fit_results.csv"
+    Loads filtered galaxy data, performs fitting for specified models,
+    and returns a DataFrame of fit results.
     
-    if not results_file.exists():
-        logger.warning(f"Fit results file not found at {results_file}. Running fitting engine...")
-        # Run the fitting engine to generate results
-        # This assumes T023 has been executed and will populate the results
-        fit_all_galaxies()
+    This function orchestrates the fitting process (T023) and metric calculation (T024)
+    to produce the raw data needed for the summary.
+    """
+    logger = get_logger(__name__)
+    
+    if not galaxy_data_path.exists():
+        logger.error(f"Upstream artifact missing: {galaxy_data_path}. Cannot generate fit summary.")
+        raise FileNotFoundError(f"Upstream artifact missing: {galaxy_data_path}")
+
+    df_galaxies = pd.read_csv(galaxy_data_path)
+    logger.info(f"Loaded {len(df_galaxies)} galaxies from {galaxy_data_path}")
+
+    results = []
+
+    for _, row in df_galaxies.iterrows():
+        galaxy_name = row['galaxy_name']
+        r = row['radial_distance']
+        v = row['velocity']
+        v_err = row['velocity_error']
         
-        if not results_file.exists():
-            raise FileNotFoundError(
-                f"Fit results file not generated at {results_file}. "
-                "Ensure the fitting engine (T023) runs successfully."
-            )
-    
-    df = pd.read_csv(results_file)
-    logger.info(f"Loaded {len(df)} fit results from {results_file}")
-    return df.to_dict('records')
+        # Convert string representations of lists to numpy arrays if necessary
+        if isinstance(r, str):
+            r = np.fromstring(r.strip('[]'), sep=',')
+        if isinstance(v, str):
+            v = np.fromstring(v.strip('[]'), sep=',')
+        if isinstance(v_err, str):
+            v_err = np.fromstring(v_err.strip('[]'), sep=',')
 
+        if len(r) == 0 or len(v) == 0:
+            logger.warning(f"Skipping {galaxy_name}: Empty data arrays.")
+            continue
 
-def aggregate_metrics(fit_results: List[Dict[str, Any]]) -> pd.DataFrame:
+        for model_name in models:
+            try:
+                # Fit the model
+                fit_result = fit_all_galaxies(
+                    r=r, 
+                    v=v, 
+                    v_err=v_err, 
+                    model_name=model_name,
+                    galaxy_name=galaxy_name
+                )
+                
+                if fit_result is None or 'status' not in fit_result or fit_result['status'] != 'success':
+                    logger.warning(f"Fitting failed for {galaxy_name} ({model_name}). Skipping metric calc.")
+                    continue
+
+                # Compute metrics
+                metrics = compute_fit_metrics(
+                    y_obs=v,
+                    y_pred=fit_result['y_pred'],
+                    y_err=v_err,
+                    n_params=fit_result['n_params'],
+                    n_points=len(v)
+                )
+
+                result_row = {
+                    'galaxy_name': galaxy_name,
+                    'model': model_name,
+                    'chi2_reduced': metrics['chi2_reduced'],
+                    'aic': metrics['aic'],
+                    'bic': metrics['bic'],
+                    'n_params': fit_result['n_params'],
+                    'n_points': len(v),
+                    'converged': fit_result.get('converged', False)
+                }
+                
+                # Add specific parameter estimates if available
+                if 'params' in fit_result:
+                    for k, v_val in fit_result['params'].items():
+                        result_row[f'param_{k}'] = v_val
+
+                results.append(result_row)
+
+            except Exception as e:
+                logger.error(f"Error processing {galaxy_name} ({model_name}): {e}", exc_info=True)
+                continue
+
+    if not results:
+        logger.error("No fit results generated. Check upstream data and fitting logic.")
+        return pd.DataFrame()
+
+    return pd.DataFrame(results)
+
+def aggregate_metrics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate fit metrics into a summary table.
-
-    Expected columns in fit_results:
-    - galaxy_id
-    - model_type ('mond' or 'nfw')
-    - reduced_chi2
-    - aic
-    - bic
-    - n_params
-    - n_points
-    - fit_status
-
-    Returns a DataFrame with one row per (galaxy_id, model_type) pair.
+    Optional: Aggregate metrics if needed (e.g., mean chi2 per model).
+    Currently returns the full detailed dataframe as required by T025.
     """
-    summary_data = []
-    
-    for result in fit_results:
-        summary_data.append({
-            'galaxy_id': result.get('galaxy_id'),
-            'model_type': result.get('model_type'),
-            'reduced_chi2': result.get('reduced_chi2'),
-            'aic': result.get('aic'),
-            'bic': result.get('bic'),
-            'n_params': result.get('n_params'),
-            'n_points': result.get('n_points'),
-            'fit_status': result.get('fit_status', 'unknown')
-        })
-    
-    df_summary = pd.DataFrame(summary_data)
-    
-    # Ensure numeric columns are numeric
-    numeric_cols = ['reduced_chi2', 'aic', 'bic', 'n_params', 'n_points']
-    for col in numeric_cols:
-        if col in df_summary.columns:
-            df_summary[col] = pd.to_numeric(df_summary[col], errors='coerce')
-    
-    return df_summary
+    return df
 
-
-def write_fit_summary(df_summary: pd.DataFrame, output_path: Path) -> None:
+def write_fit_summary(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Write the fit summary to a CSV file.
+    Writes the fit summary DataFrame to a CSV file.
     """
     ensure_directory(output_path.parent)
-    df_summary.to_csv(output_path, index=False)
-    logger.info(f"Wrote fit summary to {output_path} with {len(df_summary)} rows")
-
+    df.to_csv(output_path, index=False)
+    logging.info(f"Fit summary written to {output_path}")
 
 def main():
-    """
-    Main entry point for generating the fit summary.
-    """
-    log_stage("Generating fit summary")
-    
+    logger = get_logger(__name__)
     config = get_config()
-    results_dir = Path(config.get('paths', {}).get('results', 'results'))
-    output_file = results_dir / "fit_summary.csv"
     
-    try:
-        # Load or generate fit results
-        fit_results = load_fit_results(results_dir)
-        
-        if not fit_results:
-            logger.error("No fit results found. Cannot generate summary.")
-            return
-        
-        # Aggregate metrics
-        df_summary = aggregate_metrics(fit_results)
-        
-        # Write output
-        write_fit_summary(df_summary, output_file)
-        
-        # Log summary statistics
-        logger.info(f"Summary statistics:")
-        logger.info(f"  Total fits: {len(df_summary)}")
-        logger.info(f"  Unique galaxies: {df_summary['galaxy_id'].nunique()}")
-        logger.info(f"  Models: {df_summary['model_type'].unique().tolist()}")
-        logger.info(f"  Successful fits: {(df_summary['fit_status'] == 'success').sum()}")
-        
-    except Exception as e:
-        logger.error(f"Failed to generate fit summary: {e}", exc_info=True)
-        raise
+    # Define paths based on project structure
+    input_path = Path("data/processed/filtered_galaxies.csv")
+    output_path = Path("results/fit_summary.csv")
+    
+    # Verify upstream artifact exists
+    if not input_path.exists():
+        logger.error(f"FATAL: Upstream artifact missing: {input_path}. T025 cannot proceed.")
+        logger.error("Ensure T015 (filtered_galaxies.csv) and T023/T024 (fitting/metrics) are complete.")
+        exit(1)
 
+    try:
+        logger.info("Generating fit summary...")
+        df_results = load_fit_results(input_path)
+        
+        if df_results.empty:
+            logger.error("FATAL: No fit results generated. Aborting.")
+            exit(1)
+
+        write_fit_summary(df_results, output_path)
+        logger.info("T025 completed successfully.")
+
+    except Exception as e:
+        logger.error(f"FATAL: Unexpected error during T025 execution: {e}", exc_info=True)
+        exit(1)
 
 if __name__ == "__main__":
     main()

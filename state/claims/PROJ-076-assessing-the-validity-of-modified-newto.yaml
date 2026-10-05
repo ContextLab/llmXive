@@ -63,3 +63,431 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T12:37:48Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: final sample of 175 galaxies from SPARC database
+  claim_id: c_21f9a26f
+  context: To ensure data quality and minimize systematic uncertainties, we applied
+    strict filtering criteria... This process yielded a final sample of 175 high-quality
+    galaxies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This process yielded a final sample of 175 high-quality galaxies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:39:06Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: exclusion of galaxies with inclination uncertainty >= 10 degrees
+  claim_id: c_d22e086a
+  context: "Inclination Uncertainty: Galaxies with inclination uncertainty \u2265\
+    \ 10\xB0 were excluded to prevent significant errors in deprojected velocities."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Galaxies with inclination uncertainty \u2265 10\xB0 were excluded."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:39:06Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: retention of galaxies with >= 15 rotation curve points
+  claim_id: c_131dc890
+  context: "Data Points: Only galaxies with \u2265 15 rotation curve points were retained\
+    \ to ensure sufficient degrees of freedom for robust fitting."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Only galaxies with \u2265 15 rotation curve points were retained."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:39:06Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: universal acceleration constant a0 equals 1.2e-10 m s^-2
+  claim_id: c_a4f4c4c3
+  context: "where a0 = 1.2 \xD7 10^-10 m s^-2 is the universal acceleration constant."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The universal acceleration constant a0 is 1.2 \xD7 10^-10 m s^-2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:39:39Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: concentration parameter c scales as Mb^0.24 with 0.1 dex scatter
+  claim_id: c_81949358
+  context: 'To constrain the parameter space and reduce degeneracy, we implemented
+    a Gaussian prior on the concentration parameter c, scaled with baryonic mass Mb
+    as: c ~ Mb^0.24 with a scatter of 0.1 dex.'
+  evidence:
+    asserted: '0.24'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: The concentration parameter c scales with baryonic mass Mb as c ~ Mb^0.24
+    with a scatter of 0.1 dex.
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T21:39:39Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: block-bootstrap permutation test performed with 10000 permutations
+  claim_id: c_8b3e1071
+  context: The test statistic (difference in mean squared residuals) was recomputed
+    for 10,000 permutations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test statistic was recomputed for 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:40:01Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median reduced chi-squared for MOND is 1.12
+  claim_id: c_92e4f6c2
+  context: "The aggregate analysis of the 175-galaxy sample revealed distinct performance\
+    \ characteristics... Median \u03C72\u03BD: MOND (Simple) 1.12"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median reduced chi-squared value for MOND was 1.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:40:31Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median reduced chi-squared for NFW is 1.45
+  claim_id: c_8e751d6e
+  context: "The aggregate analysis of the 175-galaxy sample revealed distinct performance\
+    \ characteristics... Median \u03C72\u03BD: NFW (with Prior) 1.45"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median reduced chi-squared value for NFW was 1.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:40:51Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median AIC for MOND is -12.5
+  claim_id: c_6f65140f
+  context: 'The aggregate analysis of the 175-galaxy sample revealed distinct performance
+    characteristics... Median AIC: MOND (Simple) -12.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median AIC for MOND was -12.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:41:08Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median AIC for NFW is -4.2
+  claim_id: c_a32be807
+  context: 'The aggregate analysis of the 175-galaxy sample revealed distinct performance
+    characteristics... Median AIC: NFW (with Prior) -4.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median AIC for NFW was -4.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:41:46Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median BIC for MOND is -10.1
+  claim_id: c_ceff2781
+  context: 'The aggregate analysis of the 175-galaxy sample revealed distinct performance
+    characteristics... Median BIC: MOND (Simple) -10.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median BIC for MOND was -10.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:42:06Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: median BIC for NFW is -1.8
+  claim_id: c_fb311f45
+  context: 'The aggregate analysis of the 175-galaxy sample revealed distinct performance
+    characteristics... Median BIC: NFW (with Prior) -1.8'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The median BIC for NFW was -1.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:42:42Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: block-bootstrap permutation test p-value is 0.032 for MOND vs NFW residuals
+  claim_id: c_fc795985
+  context: The block-bootstrap permutation test yielded a p-value of p = 0.032 for
+    the hypothesis that MOND residuals are significantly smaller than NFW residuals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block-bootstrap permutation test yielded a p-value of 0.032 for the
+    hypothesis that MOND residuals are significantly smaller than NFW residuals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:42:59Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: Milgrom proposed MOND in 1983
+  claim_id: c_bf4b7c52
+  context: In contrast, Modified Newtonian Dynamics (MOND), proposed by Milgrom (1983),
+    suggests that the observed discrepancies arise not from unseen mass, but from
+    a modification of Newton's laws at low accelerations.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: MOND was developed in 1982 and presented in 1983 by Israeli physicist
+        Mordehai Milgrom. Milgrom noted that galaxy rotation curve data, which seemed
+        to show that galaxies contain more matter than is observed, could also be
+        explained if the gravitational force experienced by a star in the outer regions
+        of a galaxy decays more slowly than predicted by Newton's law of gravity.
+        MOND modifies Newton's laws for extremely small accelerations, which are common
+        in galaxies and galaxy clusters. This provides a good fit to galaxy rotation
+        curve data while leaving the dynamics of the Solar System with its strong
+        gravitational field intact. However, the theory predicts that the gravitational
+        field of the galaxy could influence the orbits of Kuiper Belt objects through
+        the external field effect, which is unique to MOND.
+      source_id: Modified Newtonian dynamics
+      url: https://en.wikipedia.org/wiki/Modified_Newtonian_dynamics
+      value: '1983'
+    filled: true
+  kind: numeric
+  raw_text: Milgrom proposed Modified Newtonian Dynamics (MOND) in 1983.
+  resolved_value: '1983'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T21:43:09Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: Famaey and Binney proposed simple interpolating function in 2005
+  claim_id: c_4d2ec89c
+  context: We implemented the 'simple' interpolating function proposed by Famaey &
+    Binney (2005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Famaey & Binney proposed the simple interpolating function in 2005.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:43:27Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  attempts: 1
+  canonical: family-wise error rate controlled below 0.05
+  claim_id: c_2dafcbc7
+  context: "Finally, we applied the Holm-Bonferroni correction to the resulting p-values\
+    \ to account for the multiple hypothesis tests performed across the sample, ensuring\
+    \ the family-wise error rate remained below \u03B1 = 0.05."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER
+        (the probability of making
+      source_id: '2310.09493'
+      url: https://arxiv.org/abs/2310.09493
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The family-wise error rate was controlled to remain below alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T21:44:00Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: NFW concentration prior std 0.1 dex from Bullock et al. 2001
+  claim_id: c_73658eaa
+  context: "Implement NFW model in code/models/nfw.py with concentration prior c ~\
+    \ M_baryon^\u03B1 (\u03B1=0.24, std=0.1 dex). Source: Derive std=0.1 dex from\
+    \ Bullock et al. 2001 (ApJ, 550, 21)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive std=0.1 dex from Bullock et al. 2001 (ApJ, 550, 21).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:59:50Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: MOND simple model a0 value 1.2e-10
+  claim_id: c_6fedffaa
+  context: 'Implement MOND ''simple'' model in code/models/mond.py: a = a_N/2 + sqrt((a_N/2)^2
+    + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement MOND ''simple'' model in code/models/mond.py: a = a_N/2 + sqrt((a_N/2)^2
+    + a_N*a_0) with a0=1.2e-10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:00:13Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 reports concentration prior std of 0.1 dex
+  claim_id: c_ae81f0b1
+  context: "T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration\
+    \ prior c ~ M_baryon^\u03B1 (\u03B1=0.24, std=0.1 dex). **Source**: Derive std=0.1\
+    \ dex from Bullock et al. 2001 (ApJ, 550, 21)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive std=0.1 dex from Bullock et al. 2001 (ApJ, 550, 21).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:01:29Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: MOND simple model a0 value 1.2e-10
+  claim_id: c_1a051406
+  context: Phase 4, User Story 2, Task T021 description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement MOND ''simple'' model in `code/models/mond.py`: a = a_N/2 +
+    sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:02:12Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: NFW concentration prior std 0.1 dex from Bullock et al 2001
+  claim_id: c_d5e36459
+  context: Phase 4, User Story 2, Task T022 description.
+  evidence:
+    asserted: '0.24'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Implement NFW model with concentration prior c ~ M_baryon^\u03B1 (\u03B1\
+    =0.24, std=0.1 dex). **Source**: Derive std=0.1 dex from Bullock et al. 2001 (ApJ,\
+    \ 550, 21)."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T22:02:12Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: MOND simple model a0 value 1.2e-10
+  claim_id: c_a9cf07e4
+  context: 'T021 [P] [US2] Implement MOND ''simple'' model in `code/models/mond.py`:
+    a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light
+    ratio) as a free parameter (FR-004, Plan Summary)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement MOND ''simple'' model in `code/models/mond.py`: a = a_N/2 +
+    sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:02:52Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto/tasks.md
+  attempts: 1
+  canonical: NFW concentration prior alpha 0.24 and std 0.1 dex from Bullock et al
+    2001
+  claim_id: c_b0e61bcc
+  context: "T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration\
+    \ prior c ~ M_baryon^\u03B1 (\u03B1=0.24, std=0.1 dex). **Source**: Derive std=0.1\
+    \ dex from Bullock et al. 2001 (ApJ, 550, 21). **Note**: spec.md FR-005 text is\
+    \ defective (missing value); plan.md requires update to explicitly mandate this\
+    \ citation or include the value. (FR-005)"
+  evidence:
+    asserted: '0.24'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Implement NFW model in `code/models/nfw.py` with concentration prior\
+    \ c ~ M_baryon^\u03B1 (\u03B1=0.24, std=0.1 dex). **Source**: Derive std=0.1 dex\
+    \ from Bullock et al. 2001 (ApJ, 550, 21)."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T22:02:52Z'

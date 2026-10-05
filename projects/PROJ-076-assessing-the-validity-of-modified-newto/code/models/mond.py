@@ -1,39 +1,41 @@
 """
 Modified Newtonian Dynamics (MOND) models.
+
+Implements the 'simple' interpolating function as specified in FR-004 and Plan Summary.
+Formula: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0)
 """
 import numpy as np
 from typing import Union, Tuple, Optional
 
-# Default critical acceleration scale (m/s^2)
+# Default critical acceleration scale (m/s^2) per specification
 DEFAULT_A0 = 1.2e-10
 # Gravitational constant (m^3 kg^-1 s^-2)
 G = 6.67430e-11
 
 def mond_simple(r: Union[np.ndarray, float], a0: float = DEFAULT_A0, M: float = 1.0) -> Union[np.ndarray, float]:
     """
-    Calculate the circular velocity squared for the MOND 'simple' interpolating function.
-
-    The 'simple' interpolating function is defined as:
-        mu(x) = x / (1 + x)
-    where x = a / a0.
-
-    The acceleration relation is:
+    Calculate the circular velocity squared (v^2) for the MOND 'simple' interpolating function.
+    
+    The 'simple' interpolating function implies the acceleration relation:
         a = a_N / 2 + sqrt((a_N / 2)^2 + a_N * a0)
-
-    This function returns v^2 = r * a.
-
+    
+    Where:
+        a_N = G * M / r^2 (Newtonian acceleration)
+        v^2 = r * a
+    
     Args:
         r: Radial distance (in meters or consistent units).
         a0: Critical acceleration scale (default 1.2e-10 m/s^2).
         M: Total baryonic mass (in kg or consistent units).
-
+    
     Returns:
         Circular velocity squared (v^2) at radius r.
     """
     r = np.asarray(r, dtype=np.float64)
-    # Avoid division by zero
+    # Avoid division by zero at r=0
     r_safe = np.where(r == 0, 1e-10, r)
     
+    # Newtonian acceleration: a_N = G * M / r^2
     a_N = G * M / (r_safe ** 2)
 
     # MOND 'simple' interpolating function logic
@@ -46,15 +48,15 @@ def mond_simple(r: Union[np.ndarray, float], a0: float = DEFAULT_A0, M: float = 
 
 def mond_simple_velocity(r: Union[np.ndarray, float], a0: float = DEFAULT_A0, M: float = 1.0) -> Union[np.ndarray, float]:
     """
-    Calculate the circular velocity for the MOND 'simple' interpolating function.
-
-    This is the square root of mond_simple.
-
+    Calculate the circular velocity (v) for the MOND 'simple' interpolating function.
+    
+    This is the square root of mond_simple (v = sqrt(r * a)).
+    
     Args:
         r: Radial distance (in meters or consistent units).
         a0: Critical acceleration scale (default 1.2e-10 m/s^2).
         M: Total baryonic mass (in kg or consistent units).
-
+    
     Returns:
         Circular velocity (v) at radius r.
     """
@@ -64,13 +66,13 @@ def mond_simple_velocity(r: Union[np.ndarray, float], a0: float = DEFAULT_A0, M:
 
 def mond_simple_acceleration(r: Union[np.ndarray, float], a0: float = DEFAULT_A0, M: float = 1.0) -> Union[np.ndarray, float]:
     """
-    Calculate the acceleration for the MOND 'simple' interpolating function.
-
+    Calculate the acceleration (a) for the MOND 'simple' interpolating function.
+    
     Args:
         r: Radial distance (in meters or consistent units).
         a0: Critical acceleration scale (default 1.2e-10 m/s^2).
         M: Total baryonic mass (in kg or consistent units).
-
+    
     Returns:
         Acceleration (a) at radius r.
     """
@@ -85,42 +87,39 @@ def mond_simple_acceleration(r: Union[np.ndarray, float], a0: float = DEFAULT_A0
 
 def mond_simple_model(r: Union[np.ndarray, float], M_l: float, a0: float = DEFAULT_A0) -> Union[np.ndarray, float]:
     """
-    MOND 'simple' model wrapper for curve fitting.
+    MOND 'simple' model wrapper for curve fitting (scipy.optimize.curve_fit).
     
-    This function is designed to be used with scipy.optimize.curve_fit.
-    It takes radial distance and a mass-to-light ratio (M_l) as parameters.
-    The total mass M is assumed to be M_l * L, where L is a fixed luminosity
-    or the mass is directly scaled by M_l. For fitting purposes, we treat M_l
-    as the total mass parameter if the input data is normalized, or we assume
-    a fixed luminosity L=1.0 for the model definition.
+    This function implements the interface required by FR-004, including M/L (mass-to-light ratio)
+    as a free parameter. In the context of the fitting engine, `M_l` represents the scaling factor
+    for the baryonic mass distribution (effectively the total mass M if luminosity is normalized,
+    or M = M_l * L).
     
-    In the context of the fitting engine (fit.py), this will likely be called
-    with M_l representing the total baryonic mass directly, or scaled by a 
-    known luminosity. Here, we interpret M_l as the effective mass M for the
-    calculation to keep the interface simple for curve_fit (one free parameter).
+    The model calculates v(r) using the 'simple' interpolating function:
+        a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0)
+        v = sqrt(r * a)
     
     Args:
         r: Radial distance (meters).
-        M_l: Mass-to-light ratio (or effective mass) parameter (kg or solar units).
-        a0: Critical acceleration scale (m/s^2).
+        M_l: Mass-to-light ratio (or effective total mass) parameter.
+             This is the free parameter to be fitted.
+        a0: Critical acceleration scale (m/s^2). Defaults to 1.2e-10.
     
     Returns:
         Circular velocity (v) in consistent units (m/s).
     """
-    # If M_l is meant to be M/L and we have a fixed L, we would multiply by L.
-    # Assuming for the fitting interface that M_l is the total mass M to be fitted.
-    # If the data is in km/s and kpc, unit conversion must happen before calling this
-    # or inside the fitting wrapper. We assume SI units here.
+    # Interpret M_l as the total effective mass M for the calculation.
+    # The fitting engine (fit.py) will handle unit conversions (e.g., km/s, kpc)
+    # before calling this, or this function assumes SI units.
     return mond_simple_velocity(r, a0, M_l)
 
 def mond_simple_model_with_params(r: Union[np.ndarray, float], M_l: float, a0: float = DEFAULT_A0) -> Union[np.ndarray, float]:
     """
     Alternative signature allowing a0 to be a free parameter if needed,
-    though the task specifies a0=1.2e-10.
+    though the task specification fixes a0=1.2e-10.
     
     Args:
         r: Radial distance.
-        M_l: Mass parameter.
+        M_l: Mass parameter (M/L).
         a0: Critical acceleration scale.
     
     Returns:

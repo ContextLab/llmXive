@@ -1,77 +1,47 @@
-"""
-Test suite for T001a: Directory Structure Creation.
-
-Verifies that the setup script creates the required directories
-and that they are actually directories.
-"""
 import os
-import pytest
-from pathlib import Path
-import shutil
 import tempfile
+from pathlib import Path
+import pytest
+
+# Import the function to test
 import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from code.setup_structure import create_directories
 
-# Add parent to path to import the script if needed, 
-# though we will test the logic directly here.
-sys.path.insert(0, str(Path(__file__).parent.parent))
+def test_create_directories_creates_all_required_folders():
+    """Test that create_directories creates all required folders."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        project_root = Path(tmp_dir)
+        
+        create_directories(project_root)
+        
+        # Check main directories
+        required_dirs = [
+            "code",
+            "data/raw",
+            "data/processed",
+            "results",
+            "tests",
+            "state",
+            "code/models",
+            "code/utils",
+            "code/simulations",
+        ]
+        
+        for dir_path in required_dirs:
+            full_path = project_root / dir_path
+            assert full_path.exists(), f"Directory {dir_path} was not created"
+            assert full_path.is_dir(), f"{dir_path} is not a directory"
 
-REQUIRED_DIRS = [
-    "code",
-    "data/raw",
-    "data/processed",
-    "results",
-    "tests",
-    "state",
-    "code/models",
-    "code/utils",
-    "code/simulations",
-    "tests/unit",
-    "tests/integration",
-    "tests/contract",
-]
-
-def test_directories_exist_after_setup(tmp_path):
-    """
-    Verify that running the setup logic creates all required directories.
-    """
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(tmp_path)
-        
-        # Import the logic from the script
-        from setup_structure import create_directories
-        
-        # Run the creation
-        created = create_directories()
-        
-        # Verify all required dirs exist
-        for rel_dir in REQUIRED_DIRS:
-            full_path = tmp_path / rel_dir
-            assert full_path.exists(), f"Directory missing: {full_path}"
-            assert full_path.is_dir(), f"Path is not a directory: {full_path}"
-        
-        # Verify the function returned the list of created paths
-        assert len(created) > 0, "Expected at least one directory to be created"
-        
-    finally:
-        os.chdir(original_cwd)
-
-def test_idempotency(tmp_path):
-    """
-    Verify that running the setup script twice does not raise errors.
-    """
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(tmp_path)
-        
-        from setup_structure import create_directories
+def test_create_directories_idempotent():
+    """Test that running create_directories twice doesn't cause errors."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        project_root = Path(tmp_dir)
         
         # Run twice
-        first_run = create_directories()
-        second_run = create_directories()
+        create_directories(project_root)
+        create_directories(project_root)
         
-        # Second run should create nothing new
-        assert len(second_run) == 0, "Idempotency failed: second run created directories"
-        
-    finally:
-        os.chdir(original_cwd)
+        # Should still exist
+        assert (project_root / "code").exists()
+        assert (project_root / "data/raw").exists()

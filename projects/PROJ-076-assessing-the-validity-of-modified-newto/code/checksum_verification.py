@@ -1,203 +1,134 @@
-"""
-T016: Implement checksum verification and metadata logging for downloaded SPARC data.
-
-This module verifies the integrity of downloaded SPARC data using SHA-256 checksums
-and updates the project metadata file (data/metadata.yaml) with verification results.
-"""
 import os
 import logging
 import hashlib
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any
 
-# Import existing utilities
-from utils import get_logger, get_timestamp, ensure_directory
-from config import load_config, create_default_metadata
-
-# Import download functions for re-use
-from download import download_file, verify_file_integrity
+from utils import get_logger, log_stage
 
 def calculate_sha256(file_path: Path) -> str:
-    """
-    Calculate SHA-256 checksum of a file.
-
-    Args:
-        file_path: Path to the file to checksum
-
-    Returns:
-        Hex digest of the SHA-256 hash
-    """
+    """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_sparc_data_integrity(raw_data_path: Path, expected_checksum: Optional[str] = None) -> Dict[str, Any]:
+def verify_sparc_data_integrity(data_dir: Path, expected_checksums: dict = None) -> dict:
     """
-    Verify the integrity of downloaded SPARC data.
-
+    Verify integrity of downloaded SPARC data files.
+    
     Args:
-        raw_data_path: Path to the downloaded SPARC data file
-        expected_checksum: Optional expected checksum for comparison
-
+        data_dir: Path to directory containing downloaded SPARC data
+        expected_checksums: Optional dict of filename -> expected checksum
+        
     Returns:
-        Dictionary with verification results
+        dict with verification results including checksums and status
     """
+    logger = get_logger(__name__)
+    results = {
+        "verified_at": datetime.utcnow().isoformat(),
+        "files": {},
+        "all_passed": True
+    }
+    
+    if not data_dir.exists():
+        logger.error(f"Data directory does not exist: {data_dir}")
+        results["all_passed"] = False
+        return results
+    
+    # Find all data files (zip, txt, etc.)
+    data_files = list(data_dir.glob("*"))
+    
+    if not data_files:
+        logger.warning(f"No files found in {data_dir}")
+        results["all_passed"] = False
+        return results
+    
+    for file_path in data_files:
+        if file_path.is_file():
+            try:
+                checksum = calculate_sha256(file_path)
+                status = "verified"
+                
+                if expected_checksums and file_path.name in expected_checksums:
+                    if checksum != expected_checksums[file_path.name]:
+                        status = "mismatch"
+                        results["all_passed"] = False
+                        logger.error(f"Checksum mismatch for {file_path.name}")
+                
+                results["files"][file_path.name] = {
+                    "checksum": checksum,
+                    "size_bytes": file_path.stat().st_size,
+                    "status": status
+                }
+                
+                logger.info(f"Verified {file_path.name}: {checksum[:16]}...")
+                
+            except Exception as e:
+                logger.error(f"Failed to verify {file_path.name}: {e}")
+                results["files"][file_path.name] = {
+                    "error": str(e),
+                    "status": "failed"
+                }
+                results["all_passed"] = False
+    
+    return results
+
+def update_metadata_with_verification(metadata_path: Path, verification_results: dict) -> None:
+    """Update metadata.yaml with verification results."""
     logger = get_logger(__name__)
     
-    if not raw_data_path.exists():
-        logger.error(f"Raw data file not found: {raw_data_path}")
-        return {
-            "verified": False,
-            "error": "File not found",
-            "path": str(raw_data_path)
-        }
-
-    try:
-        actual_checksum = calculate_sha256(raw_data_path)
-        file_size = raw_data_path.stat().st_size
-        file_mtime = datetime.fromtimestamp(raw_data_path.stat().st_mtime).isoformat()
-
-        result = {
-            "verified": True,
-            "checksum": actual_checksum,
-            "file_size": file_size,
-            "file_mtime": file_mtime,
-            "path": str(raw_data_path)
-        }
-
-        if expected_checksum:
-            if actual_checksum == expected_checksum:
-                logger.info(f"Checksum verification PASSED for {raw_data_path.name}")
-            else:
-                logger.error(f"Checksum verification FAILED for {raw_data_path.name}")
-                logger.error(f"  Expected: {expected_checksum}")
-                logger.error(f"  Actual:   {actual_checksum}")
-                result["verified"] = False
-                result["error"] = "Checksum mismatch"
-
-        return result
-
-    except Exception as e:
-        logger.error(f"Error verifying file integrity: {e}")
-        return {
-            "verified": False,
-            "error": str(e),
-            "path": str(raw_data_path)
-        }
-
-def update_metadata_with_verification(metadata_path: Path, verification_result: Dict[str, Any], 
-                                    download_info: Optional[Dict[str, Any]] = None) -> bool:
-    """
-    Update the metadata.yaml file with verification results.
-
-    Args:
-        metadata_path: Path to the metadata.yaml file
-        verification_result: Result dictionary from verify_sparc_data_integrity
-        download_info: Optional additional download information to log
-
-    Returns:
-        True if update was successful, False otherwise
-    """
-    logger = get_logger(__name__)
-
-    try:
-        # Load existing metadata or create default
-        if metadata_path.exists():
-            with open(metadata_path, 'r') as f:
-                metadata = yaml.safe_load(f)
-        else:
-            metadata = create_default_metadata()
-
-        # Ensure data section exists
-        if 'data' not in metadata:
-            metadata['data'] = {}
-
-        # Update verification information
-        metadata['data']['verification'] = {
-            "verified": verification_result.get("verified", False),
-            "checksum": verification_result.get("checksum"),
-            "file_size": verification_result.get("file_size"),
-            "verification_timestamp": get_timestamp(),
-            "error": verification_result.get("error") if not verification_result.get("verified") else None
-        }
-
-        # Update download timestamp if provided
-        if download_info and "timestamp" in download_info:
-            metadata['data']['download_timestamp'] = download_info["timestamp"]
-        
-        if download_info and "version" in download_info:
-            metadata['data']['version'] = download_info["version"]
-
-        # Ensure directory exists
-        ensure_directory(metadata_path.parent)
-
-        # Write updated metadata
-        with open(metadata_path, 'w') as f:
-            yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
-
-        logger.info(f"Metadata updated successfully at {metadata_path}")
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to update metadata: {e}")
-        return False
+    if not metadata_path.exists():
+        logger.error(f"Metadata file not found: {metadata_path}")
+        return
+    
+    with open(metadata_path, "r") as f:
+        metadata = yaml.safe_load(f)
+    
+    # Update data section with verification info
+    if "data" not in metadata:
+        metadata["data"] = {}
+    
+    metadata["data"]["verification"] = {
+        "verified_at": verification_results["verified_at"],
+        "all_passed": verification_results["all_passed"],
+        "files": verification_results["files"]
+    }
+    
+    # Update timestamp
+    metadata["data"]["last_verified"] = datetime.utcnow().isoformat()
+    
+    # Write back
+    with open(metadata_path, "w") as f:
+        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"Updated metadata at {metadata_path}")
 
 def main():
-    """
-    Main entry point for checksum verification and metadata logging.
-    
-    This function:
-    1. Loads configuration to get data paths
-    2. Verifies the integrity of the downloaded SPARC data
-    3. Updates data/metadata.yaml with verification results
-    """
+    """Main entry point for checksum verification."""
     logger = get_logger(__name__)
-    logger.info("Starting SPARC data checksum verification (T016)")
-
-    try:
-        # Load configuration
-        config = load_config()
-        metadata_path = Path(config.get('paths', {}).get('metadata', 'data/metadata.yaml'))
-        raw_data_path = Path(config.get('paths', {}).get('raw_data', 'data/raw/sparc_data.zip'))
-
-        # Ensure metadata file exists
-        if not metadata_path.exists():
-            logger.info("Creating initial metadata file")
-            create_default_metadata(metadata_path)
-
-        # Verify data integrity
-        logger.info(f"Verifying integrity of {raw_data_path}")
-        verification_result = verify_sparc_data_integrity(raw_data_path)
-
-        if verification_result["verified"]:
-            logger.info(f"Checksum: {verification_result['checksum']}")
-            logger.info(f"File size: {verification_result['file_size']} bytes")
-        else:
-            logger.warning(f"Verification failed: {verification_result.get('error', 'Unknown error')}")
-
-        # Update metadata
-        download_info = {
-            "timestamp": get_timestamp(),
-            "version": "1.0"
-        }
-        
-        success = update_metadata_with_verification(metadata_path, verification_result, download_info)
-
-        if success:
-            logger.info("T016 completed successfully: Checksum verification and metadata logging complete")
-            return 0
-        else:
-            logger.error("T016 failed: Could not update metadata")
-            return 1
-
-    except Exception as e:
-        logger.error(f"T016 failed with exception: {e}")
-        import traceback
-        traceback.print_exc()
+    log_stage(logger, "T016: Checksum Verification")
+    
+    # Define paths
+    project_root = Path(__file__).parent.parent
+    data_dir = project_root / "data" / "raw"
+    metadata_path = project_root / "data" / "metadata.yaml"
+    
+    logger.info(f"Scanning data directory: {data_dir}")
+    
+    # Verify data integrity
+    verification_results = verify_sparc_data_integrity(data_dir)
+    
+    # Update metadata
+    update_metadata_with_verification(metadata_path, verification_results)
+    
+    if verification_results["all_passed"]:
+        logger.info("All data files verified successfully.")
+        return 0
+    else:
+        logger.error("Data verification failed. Check logs for details.")
         return 1
 
 if __name__ == "__main__":

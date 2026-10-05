@@ -53,3 +53,14 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2602.24211
   verified_at: '2026-09-29T12:37:48.655614Z'
+- artifact_hash: 47ec8827f4fa20d7353c9eb6d3ce962b824970874040c4b1da07087a1467aaa9
+  artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/research_paper.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Modified Newtonian dynamics - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Modified_Newtonian_dynamics
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Modified_Newtonian_dynamics
+  verified_at: '2026-10-05T21:44:00.192002Z'

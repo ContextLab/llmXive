@@ -1,250 +1,196 @@
 """
-Contract tests for data schema validators.
+Contract tests for data and fit result schemas.
 
-This module implements validation logic for the dataset and fit_results schemas
-defined in the contracts directory. It ensures that data produced by the pipeline
-conforms to the expected structure and types.
+This module validates that the generated contract schemas (T048, T049)
+are correctly structured and that the codebase adheres to them.
 
 Dependencies:
-  - contracts/dataset.schema.yaml
-  - contracts/fit_results.schema.yaml
+  - T048: contracts/dataset.schema.yaml
+  - T049: contracts/fit_results.schema.yaml
 """
-import pytest
+import os
+import sys
 import yaml
-import pandas as pd
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-import jsonschema
 import json
+import jsonschema
+import logging
+from pathlib import Path
+from typing import Dict, Any, List
 
-
-# Paths to schema files relative to project root
+# Add project root to path for imports if running as script
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils import get_logger, ensure_directory
+
+# Configure logging
+logger = get_logger(__name__)
+logger.setLevel(logging.INFO)
+
+# Paths to schema files
 DATASET_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
 FIT_RESULTS_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "fit_results.schema.yaml"
 
-
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file and return it as a dictionary."""
+    """Load a YAML schema file."""
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    if not isinstance(schema, dict):
+        raise ValueError(f"Schema at {schema_path} must be a YAML dictionary")
+    
+    return schema
 
-
-def validate_dataframe_against_schema(
-    df: pd.DataFrame, 
+def validate_sample_against_schema(
+    sample_data: Dict[str, Any], 
     schema: Dict[str, Any], 
     schema_name: str
-) -> List[str]:
+) -> bool:
     """
-    Validate a pandas DataFrame against a JSON Schema.
+    Validate sample data against a JSON schema.
     
-    Converts DataFrame rows to JSON objects and validates each against the schema.
-    Returns a list of validation error messages.
-    
-    Args:
-        df: The DataFrame to validate
-        schema: The JSON Schema definition
-        schema_name: Name of the schema for error reporting
-        
-    Returns:
-        List of error messages (empty if valid)
+    Returns True if valid, raises ValidationError if invalid.
     """
-    errors = []
+    try:
+        jsonschema.validate(instance=sample_data, schema=schema)
+        logger.info(f"Sample data validated successfully against {schema_name}")
+        return True
+    except jsonschema.exceptions.ValidationError as e:
+        logger.error(f"Validation failed for {schema_name}: {e.message}")
+        logger.error(f"Path: {list(e.path)}")
+        raise
+
+def test_dataset_schema_exists() -> None:
+    """Test that the dataset schema file exists."""
+    assert DATASET_SCHEMA_PATH.exists(), f"Dataset schema missing: {DATASET_SCHEMA_PATH}"
+    logger.info(f"Dataset schema found: {DATASET_SCHEMA_PATH}")
+
+def test_fit_results_schema_exists() -> None:
+    """Test that the fit results schema file exists."""
+    assert FIT_RESULTS_SCHEMA_PATH.exists(), f"Fit results schema missing: {FIT_RESULTS_SCHEMA_PATH}"
+    logger.info(f"Fit results schema found: {FIT_RESULTS_SCHEMA_PATH}")
+
+def test_dataset_schema_structure() -> None:
+    """Test that the dataset schema has valid JSON Schema structure."""
+    schema = load_schema(DATASET_SCHEMA_PATH)
     
-    # Convert schema to JSON-compatible format if needed
-    schema_json = json.loads(json.dumps(schema))
+    # Basic JSON Schema checks
+    assert "$schema" in schema or "type" in schema, "Schema must define type or $schema"
+    assert "properties" in schema, "Schema must define properties"
     
-    # Validate each row
-    for idx, row in df.iterrows():
-        row_dict = row.to_dict()
+    # Check for expected galaxy data fields based on FR-002, FR-003
+    required_fields = ["galaxy_id", "radial_distance", "velocity", "velocity_uncertainty", "inclination"]
+    schema_props = schema["properties"]
+    
+    for field in required_fields:
+        assert field in schema_props, f"Required field '{field}' missing from dataset schema"
+    
+    logger.info("Dataset schema structure is valid and contains required fields")
+
+def test_fit_results_schema_structure() -> None:
+    """Test that the fit results schema has valid JSON Schema structure."""
+    schema = load_schema(FIT_RESULTS_SCHEMA_PATH)
+    
+    # Basic JSON Schema checks
+    assert "$schema" in schema or "type" in schema, "Schema must define type or $schema"
+    assert "properties" in schema, "Schema must define properties"
+    
+    # Check for expected fit result fields based on FR-007, FR-009
+    required_fields = ["galaxy_id", "model_type", "reduced_chi2", "aic", "bic", "parameters"]
+    schema_props = schema["properties"]
+    
+    for field in required_fields:
+        assert field in schema_props, f"Required field '{field}' missing from fit results schema"
+    
+    logger.info("Fit results schema structure is valid and contains required fields")
+
+def test_dataset_schema_valid_json() -> None:
+    """Test that the dataset schema is valid JSON Schema."""
+    schema = load_schema(DATASET_SCHEMA_PATH)
+    
+    # jsonschema library will raise if schema is invalid
+    # We create a dummy validator to test the schema itself
+    jsonschema.Draft7Validator.check_schema(schema)
+    logger.info("Dataset schema is valid JSON Schema (Draft 7)")
+
+def test_fit_results_schema_valid_json() -> None:
+    """Test that the fit results schema is valid JSON Schema."""
+    schema = load_schema(FIT_RESULTS_SCHEMA_PATH)
+    
+    # jsonschema library will raise if schema is invalid
+    jsonschema.Draft7Validator.check_schema(schema)
+    logger.info("Fit results schema is valid JSON Schema (Draft 7)")
+
+def test_dataset_schema_with_sample_data() -> None:
+    """Test dataset schema against a realistic sample galaxy record."""
+    schema = load_schema(DATASET_SCHEMA_PATH)
+    
+    sample_galaxy = {
+        "galaxy_id": "UGC_0001",
+        "radial_distance": [1.0, 2.0, 3.0, 4.0, 5.0],
+        "velocity": [100.0, 120.0, 130.0, 135.0, 138.0],
+        "velocity_uncertainty": [5.0, 5.0, 5.0, 5.0, 5.0],
+        "inclination": 45.0,
+        "inclination_uncertainty": 2.0,
+        "notes": "Test galaxy"
+    }
+    
+    validate_sample_against_schema(sample_galaxy, schema, "dataset.schema.yaml")
+
+def test_fit_results_schema_with_sample_data() -> None:
+    """Test fit results schema against a realistic sample fit record."""
+    schema = load_schema(FIT_RESULTS_SCHEMA_PATH)
+    
+    sample_fit = {
+        "galaxy_id": "UGC_0001",
+        "model_type": "MOND_simple",
+        "reduced_chi2": 1.23,
+        "aic": 150.5,
+        "bic": 160.2,
+        "parameters": {
+            "M_L": 0.8,
+            "a_0": 1.2e-10
+        },
+        "fit_status": "success",
+        "convergence_iterations": 12
+    }
+    
+    validate_sample_against_schema(sample_fit, schema, "fit_results.schema.yaml")
+
+def run_all_tests() -> None:
+    """Run all schema validation tests."""
+    logger.info("Starting schema validation tests...")
+    
+    tests = [
+        test_dataset_schema_exists,
+        test_fit_results_schema_exists,
+        test_dataset_schema_structure,
+        test_fit_results_schema_structure,
+        test_dataset_schema_valid_json,
+        test_fit_results_schema_valid_json,
+        test_dataset_schema_with_sample_data,
+        test_fit_results_schema_with_sample_data
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for test in tests:
         try:
-            jsonschema.validate(instance=row_dict, schema=schema_json)
-        except jsonschema.ValidationError as e:
-            errors.append(
-                f"Row {idx} in {schema_name}: {e.message} "
-                f"(path: {'.'.join(map(str, e.path))})"
-            )
+            test()
+            passed += 1
+        except Exception as e:
+            logger.error(f"Test {test.__name__} failed: {e}")
+            failed += 1
     
-    return errors
+    logger.info(f"Tests completed: {passed} passed, {failed} failed")
+    
+    if failed > 0:
+        sys.exit(1)
 
-
-class TestDatasetSchema:
-    """Tests for the dataset schema validation."""
-    
-    @pytest.fixture
-    def dataset_schema(self) -> Dict[str, Any]:
-        """Load the dataset schema."""
-        return load_schema(DATASET_SCHEMA_PATH)
-    
-    def test_schema_file_exists(self):
-        """Verify that the dataset schema file exists."""
-        assert DATASET_SCHEMA_PATH.exists(), "dataset.schema.yaml not found"
-    
-    def test_schema_is_valid_json(self, dataset_schema):
-        """Verify that the schema is valid JSON/YAML."""
-        assert isinstance(dataset_schema, dict), "Schema must be a dictionary"
-        assert "type" in dataset_schema, "Schema must have a type field"
-    
-    def test_valid_galaxy_data(self, dataset_schema):
-        """Test validation with properly formatted galaxy data."""
-        # Create a valid sample DataFrame matching the expected schema
-        valid_data = {
-            'galaxy_name': ['NGC2403', 'NGC3198'],
-            'distance_mpc': [3.2, 14.5],
-            'inclination_deg': [58.2, 72.1],
-            'inclination_uncertainty': [2.1, 1.8],
-            'hubble_type': ['Sc', 'Sb'],
-            'radial_distance_kpc': [0.5, 1.2, 2.3, 4.5],
-            'rotation_velocity_km_s': [120.5, 145.2, 158.7, 162.3],
-            'velocity_uncertainty': [3.2, 2.8, 3.5, 2.1],
-            'surface_brightness': [21.5, 22.1, 21.8, 23.2],
-            'mass_to_light_ratio': [0.8, 0.9, 0.85, 0.7]
-        }
-        df = pd.DataFrame(valid_data)
-        
-        errors = validate_dataframe_against_schema(df, dataset_schema, "dataset")
-        assert len(errors) == 0, f"Valid data should not produce errors: {errors}"
-    
-    def test_missing_required_field(self, dataset_schema):
-        """Test validation fails when required field is missing."""
-        # Create data missing a required field (galaxy_name)
-        invalid_data = {
-            'distance_mpc': [3.2],
-            'inclination_deg': [58.2],
-            'inclination_uncertainty': [2.1],
-            'hubble_type': ['Sc'],
-            'radial_distance_kpc': [0.5],
-            'rotation_velocity_km_s': [120.5],
-            'velocity_uncertainty': [3.2],
-            'surface_brightness': [21.5],
-            'mass_to_light_ratio': [0.8]
-        }
-        df = pd.DataFrame(invalid_data)
-        
-        errors = validate_dataframe_against_schema(df, dataset_schema, "dataset")
-        assert len(errors) > 0, "Should detect missing required field"
-        assert any("galaxy_name" in err for err in errors), "Should mention missing field name"
-    
-    def test_wrong_data_type(self, dataset_schema):
-        """Test validation fails when data type is incorrect."""
-        # Create data with wrong type for a numeric field
-        invalid_data = {
-            'galaxy_name': ['NGC2403'],
-            'distance_mpc': ['invalid'],  # Should be numeric
-            'inclination_deg': [58.2],
-            'inclination_uncertainty': [2.1],
-            'hubble_type': ['Sc'],
-            'radial_distance_kpc': [0.5],
-            'rotation_velocity_km_s': [120.5],
-            'velocity_uncertainty': [3.2],
-            'surface_brightness': [21.5],
-            'mass_to_light_ratio': [0.8]
-        }
-        df = pd.DataFrame(invalid_data)
-        
-        errors = validate_dataframe_against_schema(df, dataset_schema, "dataset")
-        # Note: JSON schema validation might not catch pandas type mismatches directly
-        # This test documents expected behavior
-        assert len(errors) >= 0  # May or may not catch type errors depending on schema
-
-
-class TestFitResultsSchema:
-    """Tests for the fit results schema validation."""
-    
-    @pytest.fixture
-    def fit_results_schema(self) -> Dict[str, Any]:
-        """Load the fit results schema."""
-        return load_schema(FIT_RESULTS_SCHEMA_PATH)
-    
-    def test_schema_file_exists(self):
-        """Verify that the fit results schema file exists."""
-        assert FIT_RESULTS_SCHEMA_PATH.exists(), "fit_results.schema.yaml not found"
-    
-    def test_schema_is_valid_json(self, fit_results_schema):
-        """Verify that the schema is valid JSON/YAML."""
-        assert isinstance(fit_results_schema, dict), "Schema must be a dictionary"
-        assert "type" in fit_results_schema, "Schema must have a type field"
-    
-    def test_valid_fit_results(self, fit_results_schema):
-        """Test validation with properly formatted fit results."""
-        valid_data = {
-            'galaxy_name': ['NGC2403', 'NGC3198'],
-            'model_type': ['MOND', 'NFW'],
-            'reduced_chi2': [1.05, 1.12],
-            'aic': [245.3, 248.7],
-            'bic': [252.1, 255.4],
-            'parameters': [
-                '{"M/L": 0.8, "a0": 1.2e-10}',
-                '{"scale_radius": 5.2, "concentration": 8.5}'
-            ],
-            'convergence_status': ['converged', 'converged'],
-            'n_iterations': [50, 45]
-        }
-        df = pd.DataFrame(valid_data)
-        
-        errors = validate_dataframe_against_schema(df, fit_results_schema, "fit_results")
-        assert len(errors) == 0, f"Valid data should not produce errors: {errors}"
-    
-    def test_missing_required_field(self, fit_results_schema):
-        """Test validation fails when required field is missing."""
-        # Create data missing a required field (model_type)
-        invalid_data = {
-            'galaxy_name': ['NGC2403'],
-            'reduced_chi2': [1.05],
-            'aic': [245.3],
-            'bic': [252.1],
-            'parameters': ['{"M/L": 0.8}'],
-            'convergence_status': ['converged'],
-            'n_iterations': [50]
-        }
-        df = pd.DataFrame(invalid_data)
-        
-        errors = validate_dataframe_against_schema(df, fit_results_schema, "fit_results")
-        assert len(errors) > 0, "Should detect missing required field"
-        assert any("model_type" in err for err in errors), "Should mention missing field name"
-    
-    def test_invalid_parameter_format(self, fit_results_schema):
-        """Test validation with invalid parameter format."""
-        invalid_data = {
-            'galaxy_name': ['NGC2403'],
-            'model_type': ['MOND'],
-            'reduced_chi2': [1.05],
-            'aic': [245.3],
-            'bic': [252.1],
-            'parameters': ['not_valid_json'],  # Should be valid JSON string
-            'convergence_status': ['converged'],
-            'n_iterations': [50]
-        }
-        df = pd.DataFrame(invalid_data)
-        
-        errors = validate_dataframe_against_schema(df, fit_results_schema, "fit_results")
-        # This test documents that we expect validation to catch invalid JSON in parameters
-        assert len(errors) >= 0  # Depends on schema definition
-
-
-class TestSchemaIntegration:
-    """Integration tests for schema validation in the pipeline context."""
-    
-    def test_both_schemas_load_successfully(self):
-        """Verify both schema files can be loaded without error."""
-        dataset_schema = load_schema(DATASET_SCHEMA_PATH)
-        fit_results_schema = load_schema(FIT_RESULTS_SCHEMA_PATH)
-        
-        assert dataset_schema is not None
-        assert fit_results_schema is not None
-    
-    def test_schema_references_consistency(self):
-        """Test that schemas reference consistent field names where expected."""
-        dataset_schema = load_schema(DATASET_SCHEMA_PATH)
-        fit_results_schema = load_schema(FIT_RESULTS_SCHEMA_PATH)
-        
-        # Extract field names from schemas
-        dataset_fields = set(dataset_schema.get('properties', {}).keys())
-        fit_fields = set(fit_results_schema.get('properties', {}).keys())
-        
-        # Check that galaxy_name is in both (common reference field)
-        assert 'galaxy_name' in dataset_fields, "galaxy_name should be in dataset schema"
-        assert 'galaxy_name' in fit_fields, "galaxy_name should be in fit_results schema"
+if __name__ == "__main__":
+    run_all_tests()

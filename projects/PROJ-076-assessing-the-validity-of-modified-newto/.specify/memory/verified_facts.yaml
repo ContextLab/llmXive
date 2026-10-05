@@ -1,6 +1,21 @@
-'|analysi apply competing curve galaxy generative high observed quality rigorously rotation rule two':
-  quote: applied to fit the rotation curves of the SPARC sample of 175 galaxies, yielding
-    mass-to-
-  source_id: '2602.24211'
-  url: https://arxiv.org/abs/2602.24211
-  value: '175'
+'|alpha below controlled error family rate remain wise':
+  quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER (the
+    probability of making
+  source_id: '2310.09493'
+  url: https://arxiv.org/abs/2310.09493
+  value: '0.05'
+'|dynamic milgrom modified newtonian proposed':
+  quote: MOND was developed in 1982 and presented in 1983 by Israeli physicist Mordehai
+    Milgrom. Milgrom noted that galaxy rotation curve data, which seemed to show that
+    galaxies contain more matter than is observed, could also be explained if the
+    gravitational force experienced by a star in the outer regions of a galaxy decays
+    more slowly than predicted by Newton's law of gravity. MOND modifies Newton's
+    laws for extremely small accelerations, which are common in galaxies and galaxy
+    clusters. This provides a good fit to galaxy rotation curve data while leaving
+    the dynamics of the Solar System with its strong gravitational field intact. However,
+    the theory predicts that the gravitational field of the galaxy could influence
+    the orbits of Kuiper Belt objects through the external field effect, which is
+    unique to MOND.
+  source_id: Modified Newtonian dynamics
+  url: https://en.wikipedia.org/wiki/Modified_Newtonian_dynamics
+  value: '1983'

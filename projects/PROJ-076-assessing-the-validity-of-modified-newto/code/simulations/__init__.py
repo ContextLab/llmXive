@@ -1,4 +1,4 @@
 """
-Simulation modules for galaxy dynamics.
+Simulations package for future simulation modules.
 """
 pass

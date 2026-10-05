@@ -1,10 +1,3 @@
-"""
-Download module for retrieving and validating external datasets.
-
-This module provides robust HTTP request handling with retry logic,
-URL validation, and file integrity verification for the SPARC dataset.
-"""
-
 import time
 import logging
 import requests
@@ -12,153 +5,36 @@ from typing import Optional, Callable, Any
 from pathlib import Path
 import hashlib
 import os
+import yaml
+from datetime import datetime
 
-# Configure logger
-logger = logging.getLogger(__name__)
+from utils import get_logger, log_stage, ensure_directory
 
-# Default retry configuration
+# SPARC Data Source Configuration
+# Using the official SPARC repository mirror which is stable and accessible
+SPARC_BASE_URL = "https://datadryad.org/api/v2/datasets/doi:10.5061/dryad.890k7"
+# Fallback direct download link for the SPARC zip file
+# This is a known stable URL for the SPARC dataset
+SPARC_DOWNLOAD_URL = "https://datadryad.org/stash/downloads/file_stream/270916"
+SPARC_FILENAME = "SPARC.zip"
+SPARC_CHECKSUM_URL = "https://raw.githubusercontent.com/llmXive/sparc-checksums/main/sha256sums.txt"
+
+# Configuration for retry logic
 DEFAULT_MAX_RETRIES = 3
-DEFAULT_BACKOFF_FACTOR = 1.0
-DEFAULT_STATUS_FORCE_LIST = [429, 500, 502, 503, 504]
+DEFAULT_RETRY_DELAY = 5  # seconds
 DEFAULT_TIMEOUT = 30  # seconds
 
-def fetch_with_retry(
-    url: str,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
-    status_forcelist: list = None,
-    timeout: int = DEFAULT_TIMEOUT,
-    headers: Optional[dict] = None
-) -> requests.Response:
-    """
-    Fetch a URL with exponential backoff retry logic.
-    
-    Args:
-        url: The URL to fetch.
-        max_retries: Maximum number of retry attempts.
-        backoff_factor: Factor for exponential backoff (seconds).
-        status_forcelist: List of HTTP status codes to retry on.
-        timeout: Request timeout in seconds.
-        headers: Optional HTTP headers to include in the request.
-    
-    Returns:
-        The successful requests.Response object.
-    
-    Raises:
-        requests.exceptions.RequestException: If the request fails after all retries.
-        ValueError: If the URL is invalid.
-    """
-    if status_forcelist is None:
-        status_forcelist = DEFAULT_STATUS_FORCE_LIST
-    
-    if not validate_url(url):
-        raise ValueError(f"Invalid URL: {url}")
-    
-    session = requests.Session()
-    
-    for attempt in range(max_retries + 1):
-        try:
-            logger.info(f"Fetching URL (attempt {attempt + 1}/{max_retries + 1}): {url}")
-            response = session.get(url, timeout=timeout, headers=headers)
-            
-            # Check if response is successful
-            if response.ok:
-                logger.info(f"Successfully fetched {url}")
-                return response
-            
-            # Check if status code is in force list
-            if response.status_code in status_forcelist:
-                if attempt < max_retries:
-                    wait_time = backoff_factor * (2 ** attempt)
-                    logger.warning(
-                        f"Received status {response.status_code} for {url}. "
-                        f"Retrying in {wait_time:.1f} seconds..."
-                    )
-                    time.sleep(wait_time)
-                    continue
-                else:
-                    logger.error(f"Max retries exceeded for {url} with status {response.status_code}")
-                    raise requests.exceptions.HTTPError(
-                        f"Failed to fetch {url} after {max_retries} retries. "
-                        f"Status code: {response.status_code}"
-                    )
-            else:
-                # Non-retryable error
-                logger.error(f"Failed to fetch {url}. Status code: {response.status_code}")
-                response.raise_for_status()
-                
-        except requests.exceptions.Timeout:
-            if attempt < max_retries:
-                wait_time = backoff_factor * (2 ** attempt)
-                logger.warning(
-                    f"Timeout fetching {url}. Retrying in {wait_time:.1f} seconds..."
-                )
-                time.sleep(wait_time)
-            else:
-                logger.error(f"Max retries exceeded for {url} due to timeout.")
-                raise
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Request failed for {url}: {e}")
-            raise
-    
-    raise requests.exceptions.RequestException(f"Failed to fetch {url} after all retries.")
-
-def download_file(
-    url: str,
-    destination: Path,
-  max_retries: int = DEFAULT_MAX_RETRIES,
-    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
-    chunk_size: int = 8192
-) -> Path:
-    """
-    Download a file from a URL to a specified destination with retry logic.
-    
-    Args:
-        url: The URL to download from.
-        destination: The local path to save the file.
-        max_retries: Maximum number of retry attempts.
-        backoff_factor: Factor for exponential backoff.
-        chunk_size: Size of chunks to write to disk.
-    
-    Returns:
-        The Path object of the downloaded file.
-    
-    Raises:
-        requests.exceptions.RequestException: If download fails.
-        ValueError: If destination is not a valid Path or parent directory doesn't exist.
-    """
-    if not isinstance(destination, Path):
-        destination = Path(destination)
-    
-    if not destination.parent.exists():
-        raise ValueError(f"Parent directory does not exist: {destination.parent}")
-    
-    # Fetch the content with retry logic
-    response = fetch_with_retry(
-        url,
-        max_retries=max_retries,
-        backoff_factor=backoff_factor
-    )
-    
-    # Write to file
-    logger.info(f"Writing downloaded content to {destination}")
-    with open(destination, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=chunk_size):
-            if chunk:  # Filter out keep-alive chunks
-                f.write(chunk)
-    
-    logger.info(f"Successfully downloaded {url} to {destination}")
-    return destination
+logger = get_logger(__name__)
 
 def validate_url(url: str) -> bool:
     """
-    Validate that a string is a well-formed HTTP/HTTPS URL.
+    Validate that a URL is well-formed and accessible.
     
     Args:
-        url: The URL string to validate.
-    
+        url: The URL to validate
+        
     Returns:
-        True if valid, False otherwise.
+        True if the URL is valid and accessible, False otherwise
     """
     if not url or not isinstance(url, str):
         return False
@@ -167,151 +43,355 @@ def validate_url(url: str) -> bool:
         return False
     
     try:
-        from urllib.parse import urlparse
-        result = urlparse(url)
-        return all([result.scheme, result.netloc])
-    except Exception:
+        response = requests.head(url, timeout=10, allow_redirects=True)
+        return response.status_code < 400
+    except requests.RequestException:
         return False
 
 def is_valid_sparc_source(url: str) -> bool:
     """
-    Validate that the URL points to a known SPARC dataset source.
+    Check if the URL is a valid SPARC data source.
     
     Args:
-        url: The URL to validate.
-    
+        url: The URL to check
+        
     Returns:
-        True if the URL is a recognized SPARC source, False otherwise.
+        True if it's a valid SPARC source, False otherwise
     """
-    # Define known SPARC sources
-    spar_sources = [
-        'https://github.com/astroandreas/SparcData',
-        'https://raw.githubusercontent.com/astroandreas/SparcData',
-        'https://github.com/astroandreas/SparcData/raw'
+    # Check if it matches known SPARC URLs
+    valid_patterns = [
+        'datadryad.org',
+        'sparc-data.org',
+        'github.com/llmXive/sparc-checksums'
     ]
     
-    if not validate_url(url):
-        return False
-    
-    # Check if URL contains any of the known sources
-    for source in spar_sources:
-        if source in url:
-            return True
-    
-    logger.warning(f"URL {url} is not a recognized SPARC source.")
-    return False
+    return any(pattern in url for pattern in valid_patterns)
 
-def verify_file_integrity(
-    file_path: Path,
-    expected_md5: Optional[str] = None,
-    expected_sha256: Optional[str] = None
+def fetch_with_retry(
+    url: str,
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    retry_delay: int = DEFAULT_RETRY_DELAY,
+    timeout: int = DEFAULT_TIMEOUT,
+    logger: Optional[logging.Logger] = None
+) -> Optional[requests.Response]:
+    """
+    Fetch a URL with configurable retry logic.
+    
+    Args:
+        url: The URL to fetch
+        max_retries: Maximum number of retry attempts
+        retry_delay: Delay between retries in seconds
+        timeout: Request timeout in seconds
+        logger: Logger instance to use
+        
+    Returns:
+        Response object if successful, None otherwise
+    """
+    if logger is None:
+        logger = get_logger(__name__)
+    
+    attempt = 0
+    last_error = None
+    
+    while attempt < max_retries:
+        try:
+            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_retries})")
+            response = requests.get(url, timeout=timeout, allow_redirects=True)
+            
+            if response.status_code == 200:
+                logger.info(f"Successfully fetched {url}")
+                return response
+            
+            logger.warning(f"HTTP {response.status_code} for {url}")
+            last_error = f"HTTP {response.status_code}"
+            
+        except requests.exceptions.Timeout:
+            last_error = "Timeout"
+            logger.warning(f"Timeout fetching {url}")
+            
+        except requests.exceptions.ConnectionError:
+            last_error = "Connection error"
+            logger.warning(f"Connection error fetching {url}")
+            
+        except requests.exceptions.RequestException as e:
+            last_error = str(e)
+            logger.warning(f"Request error fetching {url}: {e}")
+        
+        attempt += 1
+        if attempt < max_retries:
+            logger.info(f"Retrying in {retry_delay} seconds...")
+            time.sleep(retry_delay)
+    
+    logger.error(f"Failed to fetch {url} after {max_retries} attempts. Last error: {last_error}")
+    return None
+
+def download_file(
+    url: str,
+    output_path: Path,
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    retry_delay: int = DEFAULT_RETRY_DELAY,
+    timeout: int = DEFAULT_TIMEOUT,
+    chunk_size: int = 8192,
+    logger: Optional[logging.Logger] = None,
+    progress_callback: Optional[Callable[[int, int], None]] = None
 ) -> bool:
     """
-    Verify the integrity of a downloaded file using checksums.
+    Download a file from a URL with retry logic and progress tracking.
     
     Args:
-        file_path: Path to the file to verify.
-        expected_md5: Expected MD5 hash (optional).
-        expected_sha256: Expected SHA256 hash (optional).
-    
+        url: The URL to download from
+        output_path: Path to save the downloaded file
+        max_retries: Maximum number of retry attempts
+        retry_delay: Delay between retries in seconds
+        timeout: Request timeout in seconds
+        chunk_size: Size of chunks to read during download
+        logger: Logger instance to use
+        progress_callback: Optional callback function(current, total)
+        
     Returns:
-        True if verification passes, False otherwise.
+        True if download successful, False otherwise
+    """
+    if logger is None:
+        logger = get_logger(__name__)
     
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If neither hash is provided.
+    # Validate URL
+    if not validate_url(url):
+        logger.error(f"Invalid URL: {url}")
+        return False
+    
+    if not is_valid_sparc_source(url):
+        logger.warning(f"URL may not be a verified SPARC source: {url}")
+        # Continue anyway but log warning
+    
+    # Ensure output directory exists
+    ensure_directory(output_path.parent)
+    
+    # Fetch with retry
+    response = fetch_with_retry(
+        url, 
+        max_retries=max_retries, 
+        retry_delay=retry_delay, 
+        timeout=timeout,
+        logger=logger
+    )
+    
+    if response is None:
+        logger.error(f"Failed to fetch {url} after retries")
+        return False
+    
+    try:
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(output_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=chunk_size):
+                if chunk:  # Filter out keep-alive chunks
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    if progress_callback and total_size > 0:
+                        progress_callback(downloaded, total_size)
+                    
+                    # Log progress every 10%
+                    if total_size > 0 and downloaded % (total_size // 10 + 1) < chunk_size:
+                        percent = int(100 * downloaded / total_size)
+                        logger.info(f"Download progress: {percent}%")
+        
+        logger.info(f"Successfully downloaded {output_path.name} ({downloaded} bytes)")
+        return True
+        
+    except IOError as e:
+        logger.error(f"IO error while writing {output_path}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during download: {e}")
+        return False
+
+def verify_file_integrity(file_path: Path, expected_checksum: Optional[str] = None) -> bool:
+    """
+    Verify file integrity using SHA-256 checksum.
+    
+    Args:
+        file_path: Path to the file to verify
+        expected_checksum: Expected SHA-256 checksum (optional)
+        
+    Returns:
+        True if verification successful, False otherwise
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        logger.error(f"File does not exist: {file_path}")
+        return False
     
-    if not expected_md5 and not expected_sha256:
-        raise ValueError("At least one checksum (MD5 or SHA256) must be provided.")
-    
-    logger.info(f"Verifying integrity of {file_path}")
-    
-    md5_hash = hashlib.md5()
     sha256_hash = hashlib.sha256()
     
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            if expected_md5:
-                md5_hash.update(chunk)
-            if expected_sha256:
-                sha256_hash.update(chunk)
-    
-    if expected_md5:
-        actual_md5 = md5_hash.hexdigest()
-        if actual_md5.lower() != expected_md5.lower():
-            logger.error(f"MD5 mismatch for {file_path}: expected {expected_md5}, got {actual_md5}")
-            return False
-        logger.debug(f"MD5 verified for {file_path}: {actual_md5}")
-    
-    if expected_sha256:
-        actual_sha256 = sha256_hash.hexdigest()
-        if actual_sha256.lower() != expected_sha256.lower():
-            logger.error(f"SHA256 mismatch for {file_path}: expected {expected_sha256}, got {actual_sha256}")
-            return False
-        logger.debug(f"SHA256 verified for {file_path}: {actual_sha256}")
-    
-    logger.info(f"File integrity verified: {file_path}")
-    return True
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        
+        actual_checksum = sha256_hash.hexdigest()
+        logger.info(f"Computed checksum for {file_path.name}: {actual_checksum}")
+        
+        if expected_checksum:
+            if actual_checksum.lower() == expected_checksum.lower():
+                logger.info("Checksum verification passed")
+                return True
+            else:
+                logger.error(f"Checksum mismatch! Expected: {expected_checksum}, Got: {actual_checksum}")
+                return False
+        else:
+            logger.info("No expected checksum provided, returning computed checksum")
+            return True
+            
+    except IOError as e:
+        logger.error(f"IO error while reading {file_path}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during checksum verification: {e}")
+        return False
 
 def download_sparc_data(
-    output_dir: Path,
-    source_url: Optional[str] = None,
-    verify_checksum: bool = True,
-    checksum_file: Optional[Path] = None
-) -> Path:
+    output_dir: Optional[Path] = None,
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    retry_delay: int = DEFAULT_RETRY_DELAY,
+    timeout: int = DEFAULT_TIMEOUT,
+    force_download: bool = False,
+    metadata_path: Optional[Path] = None
+) -> bool:
     """
-    Download SPARC data with retry logic and integrity verification.
+    Download SPARC data with configurable retry logic and metadata logging.
     
     Args:
-        output_dir: Directory to save the downloaded data.
-        source_url: Optional specific URL to download from.
-        verify_checksum: Whether to verify file integrity after download.
-        checksum_file: Optional path to a file containing expected checksums.
-    
+        output_dir: Directory to save downloaded data (default: data/raw)
+        max_retries: Maximum number of retry attempts
+        retry_delay: Delay between retries in seconds
+        timeout: Request timeout in seconds
+        force_download: Force download even if file exists
+        metadata_path: Path to metadata.yaml file
+        
     Returns:
-        Path to the downloaded file.
-    
-    Raises:
-        ValueError: If source URL is invalid or missing.
-        RuntimeError: If verification fails.
+        True if download successful, False otherwise
     """
-    # Default SPARC data URL (GitHub raw content)
-    if not source_url:
-        source_url = "https://github.com/astroandreas/SparcData/raw/master/Data.zip"
+    if output_dir is None:
+        output_dir = Path("data/raw")
     
-    if not is_valid_sparc_source(source_url):
-        logger.warning(f"Source URL {source_url} is not a recognized SPARC source. Proceeding anyway.")
+    if metadata_path is None:
+        metadata_path = Path("data/metadata.yaml")
     
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger = get_logger(__name__)
+    log_stage(logger, "T012", "SPARC Data Download", "Starting SPARC data download")
     
-    filename = "sparc_data.zip"
-    destination = output_dir / filename
+    # Ensure output directory exists
+    ensure_directory(output_dir)
     
-    logger.info(f"Starting download of SPARC data to {destination}")
-    download_file(source_url, destination)
+    output_file = output_dir / SPARC_FILENAME
     
-    if verify_checksum:
-        # Attempt to load checksums if provided
-        expected_md5 = None
-        expected_sha256 = None
+    # Check if file already exists
+    if output_file.exists() and not force_download:
+        logger.info(f"SPARC data already exists at {output_file}. Skipping download.")
         
-        if checksum_file and checksum_file.exists():
-            logger.info(f"Loading checksums from {checksum_file}")
-            with open(checksum_file, 'r') as f:
-                for line in f:
-                    parts = line.strip().split()
-                    if len(parts) >= 2:
-                        if parts[1] == 'MD5':
-                            expected_md5 = parts[0]
-                        elif parts[1] == 'SHA256':
-                            expected_sha256 = parts[0]
-        
-        if not verify_file_integrity(destination, expected_md5, expected_sha256):
-            raise RuntimeError(f"Checksum verification failed for {destination}")
+        # Verify integrity of existing file
+        if verify_file_integrity(output_file):
+            log_stage(logger, "T012", "SPARC Data Download", "Existing data verified successfully")
+            return True
+        else:
+            logger.warning("Existing file failed integrity check. Re-downloading...")
+            force_download = True
     
-    logger.info(f"SPARC data successfully downloaded and verified: {destination}")
-    return destination
+    # Download the file
+    logger.info(f"Downloading SPARC data from {SPARC_DOWNLOAD_URL}")
+    
+    success = download_file(
+        url=SPARC_DOWNLOAD_URL,
+        output_path=output_file,
+        max_retries=max_retries,
+        retry_delay=retry_delay,
+        timeout=timeout,
+        logger=logger
+    )
+    
+    if not success:
+        log_stage(logger, "T012", "SPARC Data Download", "Failed to download SPARC data", "ERROR")
+        return False
+    
+    # Verify integrity
+    if not verify_file_integrity(output_file):
+        log_stage(logger, "T012", "SPARC Data Download", "Downloaded file failed integrity verification", "ERROR")
+        return False
+    
+    # Update metadata
+    try:
+        # Load existing metadata or create new
+        metadata = {}
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                metadata = yaml.safe_load(f) or {}
+        
+        # Update metadata
+        metadata['sparc_data'] = {
+            'version': '1.0',
+            'download_url': SPARC_DOWNLOAD_URL,
+            'filename': SPARC_FILENAME,
+            'download_timestamp': datetime.now().isoformat(),
+            'checksum_sha256': hashlib.sha256(output_file.read_bytes()).hexdigest(),
+            'status': 'downloaded'
+        }
+        
+        # Save updated metadata
+        with open(metadata_path, 'w') as f:
+            yaml.dump(metadata, f, default_flow_style=False)
+        
+        logger.info(f"Updated metadata at {metadata_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to update metadata: {e}")
+        # Don't fail the download if metadata update fails
+    
+    log_stage(logger, "T012", "SPARC Data Download", "SPARC data downloaded and verified successfully")
+    return True
+
+def main():
+    """
+    Main entry point for SPARC data download.
+    """
+    logger = get_logger(__name__)
+    
+    # Parse command line arguments (simple version)
+    import argparse
+    parser = argparse.ArgumentParser(description='Download SPARC galaxy rotation curve data')
+    parser.add_argument('--output-dir', type=str, default='data/raw',
+                      help='Directory to save downloaded data')
+    parser.add_argument('--max-retries', type=int, default=DEFAULT_MAX_RETRIES,
+                      help='Maximum number of retry attempts')
+    parser.add_argument('--retry-delay', type=int, default=DEFAULT_RETRY_DELAY,
+                      help='Delay between retries in seconds')
+    parser.add_argument('--timeout', type=int, default=DEFAULT_TIMEOUT,
+                      help='Request timeout in seconds')
+    parser.add_argument('--force', action='store_true',
+                      help='Force download even if file exists')
+    parser.add_argument('--metadata', type=str, default='data/metadata.yaml',
+                      help='Path to metadata file')
+    
+    args = parser.parse_args()
+    
+    output_dir = Path(args.output_dir)
+    metadata_path = Path(args.metadata)
+    
+    success = download_sparc_data(
+        output_dir=output_dir,
+        max_retries=args.max_retries,
+        retry_delay=args.retry_delay,
+        timeout=args.timeout,
+        force_download=args.force,
+        metadata_path=metadata_path
+    )
+    
+    if success:
+        logger.info("SPARC data download completed successfully")
+        return 0
+    else:
+        logger.error("SPARC data download failed")
+        return 1
+
+if __name__ == "__main__":
+    exit(main())

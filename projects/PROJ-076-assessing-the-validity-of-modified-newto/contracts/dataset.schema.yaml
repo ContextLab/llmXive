@@ -1,68 +1,113 @@
-%YAML 1.2
----
-title: Galaxy Rotation Curve Dataset Schema
-description: |
-  Schema for parsed and filtered galaxy rotation curve data derived from SPARC.
-  Used to validate the structure of data loaded into the analysis pipeline.
+# Schema for parsed galaxy rotation curve data
+# Generated for PROJ-076: Assessing the Validity of Modified Newtonian Dynamics
+# References: FR-002 (Data Parsing), FR-003 (Quality Filtering)
+#
+# This schema defines the structure of the `data/processed/filtered_galaxies.csv`
+# and the internal DataFrame used during the preprocessing pipeline.
+#
+# All numeric fields are expected to be floating point numbers.
+# Missing values should be represented as NaN.
+
+$schema: http://json-schema.org/draft-07/schema#
+title: GalaxyRotationCurveSchema
+description: >
+  Schema for galaxy rotation curve data derived from SPARC dataset.
+  Includes radial distance, observed velocity, uncertainties, and metadata
+  required for quality filtering (inclination, point count).
+
 type: object
-required:
-  - galaxy_id
-  - distance
-  - inclination
-  - velocity_uncertainty
-  - rotation_curve
 properties:
   galaxy_id:
     type: string
-    description: Unique identifier for the galaxy (e.g., 'NGC2403')
-  distance:
-    type: number
-    description: Distance to the galaxy in Mpc
+    description: >
+      Unique identifier for the galaxy. Derived from the SPARC galaxy name
+      (e.g., "NGC0001", "U3001").
+    minLength: 1
+
+  r:
+    type: array
+    items:
+      type: number
+    description: >
+      Radial distance from the galaxy center (kpc).
+      Must have at least 15 data points after filtering.
+    minItems: 15
+
+  v_obs:
+    type: array
+    items:
+      type: number
+    description: >
+      Observed rotational velocity (km/s).
+      Must correspond 1:1 with the `r` array.
+    minItems: 15
+
+  v_err:
+    type: array
+    items:
+      type: number
+    description: >
+      Uncertainty in observed velocity (km/s).
+      Must correspond 1:1 with the `r` and `v_obs` arrays.
+    minItems: 15
+
   inclination:
     type: number
-    description: Inclination angle in degrees (0-90)
-  inclination_uncertainty:
+    description: >
+      Galaxy inclination angle in degrees.
+      Used for velocity correction: v_rot = v_obs / sin(inclination).
+    minimum: 0
+    maximum: 90
+
+  inclination_err:
     type: number
-    description: Uncertainty in inclination angle
-  heliocentric_velocity:
+    description: >
+      Uncertainty in inclination angle in degrees.
+      Quality filter requires this to be < 10.0 degrees.
+    minimum: 0
+    maximum: 90
+
+  mass_to_light_ratio:
     type: number
-    description: Heliocentric systemic velocity in km/s
-  rotation_curve:
-    type: array
-    description: Array of rotation curve measurements
-    minItems: 15
-    items:
-      type: object
-      required:
-        - radius
-        - velocity
-        - velocity_error
-      properties:
-        radius:
-          type: number
-          description: Radial distance from center in kpc
-        velocity:
-          type: number
-          description: Observed rotational velocity in km/s
-        velocity_error:
-          type: number
-          description: Uncertainty in velocity measurement in km/s
-        errorbar_direction:
-          type: integer
-          description: Direction of error bar (0: none, 1: up, -1: down, 2: both)
-          enum: [0, 1, -1, 2]
-          nullable: true
-additionalProperties: false
-examples:
-  - galaxy_id: "NGC2403"
-    distance: 3.2
-    inclination: 58.0
-    inclination_uncertainty: 2.0
-    heliocentric_velocity: 132.0
-    rotation_curve:
-      - radius: 0.5
-        velocity: 45.2
-        velocity_error: 2.1
-      - radius: 1.0
-        velocity: 85.4
-        velocity_error: 1.5
+    description: >
+      Stellar mass-to-light ratio (M/L) in solar units.
+      May be None or NaN if not available for a specific band.
+    nullable: true
+
+  distance:
+    type: number
+    description: >
+      Distance to the galaxy (Mpc).
+      Used for scale calculations.
+    minimum: 0
+
+  source_file:
+    type: string
+    description: >
+      Original filename from the SPARC dataset (e.g., "NGC0001/NGC0001_RotCurve.dat").
+    minLength: 1
+
+  n_points:
+    type: integer
+    description: >
+      Total number of data points in the rotation curve.
+      Quality filter requires n_points >= 15.
+    minimum: 15
+
+required:
+  - galaxy_id
+  - r
+  - v_obs
+  - v_err
+  - inclination
+  - inclination_err
+  - n_points
+  - source_file
+
+additionalProperties: true
+
+# Validation constraints applied during preprocessing (code/preprocess.py)
+# 1. inclination_err < 10.0
+# 2. n_points >= 15
+# 3. All velocity and radius values must be positive
+# 4. Arrays must be of equal length
