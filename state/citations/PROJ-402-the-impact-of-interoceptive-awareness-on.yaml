@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-08-04T18:40:16.650707Z'
-- artifact_hash: 45792bbb6935cb64922816f47c8440670d895de5af1f7387c3d23cf5ed4e9268
+- artifact_hash: 6954d1f5d927c43d600c09ee2331bb8d64a19d27b17afd73a3dca34ee8977ca9
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: 10.5281/zenodo.1292932
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-10-01T17:00:44.529458Z'
+  verified_at: '2026-10-05T16:51:20.422882Z'

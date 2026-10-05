@@ -1,276 +1,318 @@
+"""
+HRV Utilities for artifact rejection and signal validation.
+
+This module provides functions to validate ECG/PPG signals, reject artifacts
+based on beat validity thresholds, and compute clean RR interval statistics.
+"""
+
 import numpy as np
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
 import logging
 
-# Configure logging for this module
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class SignalQualityError(Exception):
     """Exception raised when signal quality is insufficient for analysis."""
     pass
 
+
 class ArtifactRejectionError(Exception):
     """Exception raised when artifact rejection criteria are not met."""
     pass
 
-def validate_signal_structure(signal: np.ndarray, sampling_rate: float) -> Dict[str, Any]:
+
+def validate_signal_structure(
+    signal: np.ndarray,
+    sampling_rate: float,
+    min_duration_seconds: float = 30.0,
+    min_amplitude: float = 0.1,
+    max_amplitude: float = 5.0
+) -> Dict[str, Any]:
     """
-    Validate the structure and basic quality of a physiological signal.
-    
+    Validate the structure and quality of a physiological signal.
+
     Args:
         signal: 1D numpy array of signal values.
         sampling_rate: Sampling rate in Hz.
-        
+        min_duration_seconds: Minimum required duration in seconds.
+        min_amplitude: Minimum expected signal amplitude.
+        max_amplitude: Maximum expected signal amplitude.
+
     Returns:
-        Dictionary containing validation results and metadata.
-        
+        Dictionary with validation results:
+        - valid: bool
+        - duration: float (seconds)
+        - sample_count: int
+        - amplitude_range: tuple (min, max)
+        - mean_amplitude: float
+        - has_nan: bool
+        - has_inf: bool
+
     Raises:
-        SignalQualityError: If signal structure is invalid.
+        SignalQualityError: If signal fails basic validation checks.
     """
     if not isinstance(signal, np.ndarray):
         raise SignalQualityError("Signal must be a numpy array.")
-    
+
     if signal.ndim != 1:
         raise SignalQualityError(f"Signal must be 1D, got {signal.ndim}D.")
-    
+
     if len(signal) == 0:
         raise SignalQualityError("Signal is empty.")
-    
-    if np.all(np.isnan(signal)):
-        raise SignalQualityError("Signal contains only NaN values.")
-    
-    # Check for reasonable amplitude range (heuristic for ECG/PPG)
-    # Assuming normalized or typical ECG/PPG ranges
-    signal_range = np.nanmax(signal) - np.nanmin(signal)
-    if signal_range < 1e-6:
-        raise SignalQualityError("Signal range is too small, likely flatline or noise.")
-    
-    # Check for saturation (e.g., > 99% of values at max/min)
-    if np.sum(np.isclose(signal, np.nanmax(signal))) > 0.99 * len(signal) or \
-       np.sum(np.isclose(signal, np.nanmin(signal))) > 0.99 * len(signal):
-        raise SignalQualityError("Signal appears saturated.")
-    
+
+    # Check for NaN and Inf
+    has_nan = np.any(np.isnan(signal))
+    has_inf = np.any(np.isinf(signal))
+
+    if has_nan or has_inf:
+        raise SignalQualityError(f"Signal contains NaN ({has_nan}) or Inf ({has_inf}).")
+
+    # Calculate duration
+    duration = len(signal) / sampling_rate
+    if duration < min_duration_seconds:
+        raise SignalQualityError(
+            f"Signal duration ({duration:.2f}s) is less than minimum "
+            f"required ({min_duration_seconds}s)."
+        )
+
+    # Check amplitude range
+    min_val = np.min(signal)
+    max_val = np.max(signal)
+    amplitude_range = (min_val, max_val)
+
+    # Check for reasonable amplitude (avoid flat lines or extreme noise)
+    if (max_val - min_val) < min_amplitude:
+        raise SignalQualityError(
+            f"Signal amplitude range ({max_val - min_val:.4f}) is too small "
+            f"(min: {min_amplitude})."
+        )
+
+    if (max_val - min_val) > max_amplitude:
+        logger.warning(
+            f"Signal amplitude range ({max_val - min_val:.4f}) exceeds expected "
+            f"maximum ({max_amplitude})."
+        )
+
     return {
         "valid": True,
-        "length": len(signal),
-        "sampling_rate": sampling_rate,
-        "duration_seconds": len(signal) / sampling_rate,
-        "min_val": float(np.nanmin(signal)),
-        "max_val": float(np.nanmax(signal)),
-        "mean_val": float(np.nanmean(signal)),
-        "std_val": float(np.nanstd(signal))
+        "duration": duration,
+        "sample_count": len(signal),
+        "amplitude_range": amplitude_range,
+        "mean_amplitude": np.mean(signal),
+        "has_nan": has_nan,
+        "has_inf": has_inf
     }
+
 
 def reject_artifacts(
     rr_intervals: np.ndarray,
-    threshold_percent: float = 5.0
+    valid_beats_threshold: float = 0.05
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     """
-    Reject artifacts from RR intervals based on a threshold of valid beats.
-    
-    This function filters RR intervals by removing outliers that deviate
-    significantly from the local median, then checks if the remaining
-    valid beats meet the minimum percentage threshold.
-    
+    Reject artifacts in RR intervals based on physiological plausibility.
+
+    This function identifies and removes RR intervals that are physiologically
+    implausible (e.g., < 0.3s or > 2.0s) and ensures that at least a minimum
+    percentage of beats remain valid.
+
     Args:
         rr_intervals: 1D numpy array of RR intervals in seconds.
-        threshold_percent: Minimum percentage of valid beats required (default 5%).
-        
+        valid_beats_threshold: Minimum fraction of valid beats required (default 0.05 = 5%).
+
     Returns:
         Tuple of:
-            - Cleaned RR intervals (numpy array)
-            - Boolean mask indicating valid beats (True = valid)
-            - Dictionary with rejection statistics
-            
+        - clean_rr: numpy array of valid RR intervals.
+        - rejection_mask: boolean array (True = rejected).
+        - stats: Dictionary with rejection statistics.
+
     Raises:
-        ArtifactRejectionError: If valid beats fall below threshold_percent.
+        ArtifactRejectionError: If valid beats fall below the threshold.
     """
     if len(rr_intervals) == 0:
-        raise ArtifactRejectionError("RR intervals array is empty.")
-    
-    if np.all(np.isnan(rr_intervals)):
-        raise ArtifactRejectionError("All RR intervals are NaN.")
-    
-    # Initial mask for non-NaN values
-    valid_mask = ~np.isnan(rr_intervals)
-    current_valid_count = np.sum(valid_mask)
-    total_count = len(rr_intervals)
-    
-    if current_valid_count == 0:
-        raise ArtifactRejectionError("No valid RR intervals found (all NaN).")
-    
-    # Iterative outlier removal based on median absolute deviation
-    clean_rr = rr_intervals.copy()
-    mask = valid_mask.copy()
-    
-    max_iterations = 10
-    for i in range(max_iterations):
-        current_rr = clean_rr[mask]
-        if len(current_rr) == 0:
-            break
-            
-        median_rr = np.median(current_rr)
-        mad = np.median(np.abs(current_rr - median_rr))
-        
-        # Avoid division by zero if all values are identical
-        if mad == 0:
-            mad = 1e-6
-        
-        # Threshold for outlier detection (e.g., 3.5 MADs)
-        # Adjusted to be robust but not overly aggressive
-        lower_bound = median_rr - 3.5 * mad
-        upper_bound = median_rr + 3.5 * mad
-        
-        # Update mask
-        new_mask = mask & (clean_rr >= lower_bound) & (clean_rr <= upper_bound)
-        
-        # If no change, stop
-        if np.array_equal(new_mask, mask):
-            break
-            
-        mask = new_mask
-    
-    final_valid_count = np.sum(mask)
-    valid_percentage = (final_valid_count / total_count) * 100
-    
+        raise ArtifactRejectionError("No RR intervals provided.")
+
+    # Define physiological bounds for RR intervals (0.3s to 2.0s)
+    # Corresponds to heart rates of 200 bpm to 30 bpm
+    rr_min = 0.3
+    rr_max = 2.0
+
+    # Identify outliers
+    rejection_mask = (rr_intervals < rr_min) | (rr_intervals > rr_max)
+
+    clean_rr = rr_intervals[~rejection_mask]
+
+    # Calculate valid beats percentage
+    total_beats = len(rr_intervals)
+    valid_beats = len(clean_rr)
+    valid_percentage = valid_beats / total_beats
+
     stats = {
-        "total_beats": total_count,
-        "rejected_beats": total_count - final_valid_count,
-        "valid_beats": final_valid_count,
+        "total_beats": total_beats,
+        "rejected_beats": int(np.sum(rejection_mask)),
+        "valid_beats": valid_beats,
         "valid_percentage": valid_percentage,
-        "rejection_threshold": threshold_percent,
-        "iterations": i + 1
+        "rejection_rate": 1.0 - valid_percentage
     }
-    
-    if valid_percentage < threshold_percent:
+
+    # Check if valid beats meet threshold
+    if valid_percentage < valid_beats_threshold:
         raise ArtifactRejectionError(
-            f"Valid beats ({valid_percentage:.2f}%) below threshold ({threshold_percent}%). "
-            f"Rejected {total_count - final_valid_count} out of {total_count} beats."
+            f"Valid beats percentage ({valid_percentage:.2%}) is below "
+            f"threshold ({valid_beats_threshold:.2%}). "
+            f"Only {valid_beats} of {total_beats} beats are valid."
         )
-    
-    return clean_rr, mask, stats
+
+    logger.info(
+        f"Artifact rejection complete: {stats['rejected_beats']} beats rejected "
+        f"({stats['rejection_rate']:.2%}), {valid_percentage:.2%} remaining."
+    )
+
+    return clean_rr, rejection_mask, stats
+
 
 def compute_clean_rr_stats(
-    rr_intervals: np.ndarray,
-    valid_mask: np.ndarray
+    clean_rr: np.ndarray
 ) -> Dict[str, float]:
     """
-    Compute statistics on cleaned RR intervals.
-    
+    Compute statistics from cleaned RR intervals.
+
     Args:
-        rr_intervals: 1D numpy array of RR intervals.
-        valid_mask: Boolean mask indicating valid beats.
-        
+        clean_rr: 1D numpy array of valid RR intervals in seconds.
+
     Returns:
-        Dictionary with RR interval statistics.
+        Dictionary with statistics:
+        - mean_rr: Mean RR interval (s)
+        - std_rr: Standard deviation of RR intervals (s)
+        - min_rr: Minimum RR interval (s)
+        - max_rr: Maximum RR interval (s)
+        - mean_hr: Mean heart rate (bpm)
+        - sdnn: SDNN (Standard Deviation of NN intervals) in ms
+        - rmssd: RMSSD (Root Mean Square of Successive Differences) in ms
     """
-    clean_rr = rr_intervals[valid_mask]
-    
     if len(clean_rr) == 0:
-        return {
-            "mean_rr": np.nan,
-            "median_rr": np.nan,
-            "std_rr": np.nan,
-            "min_rr": np.nan,
-            "max_rr": np.nan,
-            "n_valid": 0
-        }
-    
+        raise ValueError("Cannot compute statistics from empty RR intervals.")
+
+    # Basic statistics
+    mean_rr = np.mean(clean_rr)
+    std_rr = np.std(clean_rr)
+    min_rr = np.min(clean_rr)
+    max_rr = np.max(clean_rr)
+
+    # Heart rate (bpm)
+    mean_hr = 60.0 / mean_rr if mean_rr > 0 else 0.0
+
+    # SDNN (in ms)
+    sdnn = std_rr * 1000.0
+
+    # RMSSD (in ms)
+    if len(clean_rr) < 2:
+        rmssd = 0.0
+    else:
+        successive_diffs = np.diff(clean_rr)
+        rmssd = np.sqrt(np.mean(successive_diffs ** 2)) * 1000.0
+
     return {
-        "mean_rr": float(np.mean(clean_rr)),
-        "median_rr": float(np.median(clean_rr)),
-        "std_rr": float(np.std(clean_rr)),
-        "min_rr": float(np.min(clean_rr)),
-        "max_rr": float(np.max(clean_rr)),
-        "n_valid": int(len(clean_rr))
+        "mean_rr": mean_rr,
+        "std_rr": std_rr,
+        "min_rr": min_rr,
+        "max_rr": max_rr,
+        "mean_hr": mean_hr,
+        "sdnn": sdnn,
+        "rmssd": rmssd
     }
 
+
 def validate_hrv_output(
-    hrv_metrics: Dict[str, Any],
-    required_keys: Optional[list] = None
+    hrv_metrics: Dict[str, float],
+    required_keys: Optional[List[str]] = None
 ) -> bool:
     """
-    Validate the output of HRV calculation functions.
-    
+    Validate that HRV output contains expected keys and valid values.
+
     Args:
-        hrv_metrics: Dictionary containing HRV metrics.
-        required_keys: List of required keys (default: ['RMSSD', 'SDNN']).
-        
+        hrv_metrics: Dictionary of HRV metrics.
+        required_keys: List of required keys (default: ['rmssd', 'sdnn']).
+
     Returns:
-        True if validation passes, False otherwise.
-        
+        True if validation passes.
+
     Raises:
-        SignalQualityError: If validation fails.
+        ValueError: If validation fails.
     """
     if required_keys is None:
-        required_keys = ['RMSSD', 'SDNN']
-    
-    if not isinstance(hrv_metrics, dict):
-        raise SignalQualityError("HRV metrics must be a dictionary.")
-    
+        required_keys = ['rmssd', 'sdnn']
+
+    # Check for required keys
     missing_keys = [key for key in required_keys if key not in hrv_metrics]
     if missing_keys:
-        raise SignalQualityError(f"Missing required HRV metrics: {missing_keys}")
-    
-    for key in required_keys:
-        value = hrv_metrics[key]
+        raise ValueError(f"Missing required HRV keys: {missing_keys}")
+
+    # Check for valid numeric values
+    for key, value in hrv_metrics.items():
         if not isinstance(value, (int, float)):
-            raise SignalQualityError(f"HRV metric '{key}' must be numeric, got {type(value)}.")
-        
+            raise ValueError(f"HRV metric '{key}' is not numeric: {value}")
         if np.isnan(value) or np.isinf(value):
-            raise SignalQualityError(f"HRV metric '{key}' is NaN or Inf.")
-        
-        if value < 0:
-            raise SignalQualityError(f"HRV metric '{key}' is negative ({value}), which is invalid.")
-    
-    logger.info("HRV output validation passed.")
+            raise ValueError(f"HRV metric '{key}' is NaN or Inf: {value}")
+
+    # Sanity checks for HRV values
+    if hrv_metrics.get('rmssd', 0) < 0:
+        raise ValueError("RMSSD cannot be negative.")
+    if hrv_metrics.get('sdnn', 0) < 0:
+        raise ValueError("SDNN cannot be negative.")
+    if hrv_metrics.get('mean_hr', 0) < 20 or hrv_metrics.get('mean_hr', 0) > 200:
+        logger.warning(
+            f"Mean heart rate ({hrv_metrics.get('mean_hr'):.1f} bpm) outside "
+            f"typical range (20-200 bpm)."
+        )
+
     return True
 
+
 def main():
-    """Main entry point for HRV utils - demonstration of functionality."""
-    logging.basicConfig(level=logging.INFO)
-    
-    # Demonstrate signal validation
-    logger.info("Demonstrating signal validation...")
+    """
+    Main function for testing HRV utilities.
+    """
+    logger.info("Testing HRV utilities...")
+
+    # Generate synthetic RR intervals for testing
+    np.random.seed(42)
+    n_beats = 300
+    base_rr = 0.8  # 75 bpm
+    rr_intervals = base_rr + np.random.normal(0, 0.05, n_beats)
+
+    # Add some artifacts
+    artifact_indices = np.random.choice(n_beats, size=20, replace=False)
+    rr_intervals[artifact_indices] = np.random.uniform(0.1, 0.25, 20)  # Too short
+
     try:
-        test_signal = np.random.randn(1000) * 0.5 + 1.0  # Simulated ECG-like signal
-        sampling_rate = 1000.0  # Hz
-        validation_result = validate_signal_structure(test_signal, sampling_rate)
-        logger.info(f"Signal validation result: {validation_result}")
-    except SignalQualityError as e:
-        logger.error(f"Signal validation failed: {e}")
-    
-    # Demonstrate artifact rejection
-    logger.info("Demonstrating artifact rejection...")
-    try:
-        # Generate synthetic RR intervals with some outliers
-        rr_intervals = np.random.exponential(0.8, 100)  # Mean RR ~ 0.8s
-        # Inject some artifacts
-        rr_intervals[10] = 0.1  # Too short
-        rr_intervals[20] = 2.0  # Too long
-        rr_intervals[30] = np.nan  # Missing value
-        
-        clean_rr, mask, stats = reject_artifacts(rr_intervals, threshold_percent=5.0)
-        logger.info(f"Artifact rejection stats: {stats}")
-        logger.info(f"Cleaned RR intervals shape: {clean_rr[mask].shape}")
-        
-        # Compute stats on clean data
-        clean_stats = compute_clean_rr_stats(rr_intervals, mask)
-        logger.info(f"Clean RR stats: {clean_stats}")
-        
-    except ArtifactRejectionError as e:
-        logger.error(f"Artifact rejection failed: {e}")
-    
-    # Demonstrate HRV output validation
-    logger.info("Demonstrating HRV output validation...")
-    try:
-        sample_hrv = {"RMSSD": 45.0, "SDNN": 50.0}
-        is_valid = validate_hrv_output(sample_hrv)
-        logger.info(f"HRV output valid: {is_valid}")
-    except SignalQualityError as e:
-        logger.error(f"HRV validation failed: {e}")
-    
-    logger.info("HRV utils demonstration completed.")
+        # Validate signal structure (simulated)
+        signal_validation = validate_signal_structure(
+            np.random.normal(0, 1, 3000),  # Dummy signal
+            sampling_rate=100.0
+        )
+        logger.info(f"Signal validation: {signal_validation}")
+
+        # Reject artifacts
+        clean_rr, mask, stats = reject_artifacts(rr_intervals)
+        logger.info(f"Rejection stats: {stats}")
+
+        # Compute statistics
+        stats_output = compute_clean_rr_stats(clean_rr)
+        logger.info(f"Clean RR stats: {stats_output}")
+
+        # Validate output
+        is_valid = validate_hrv_output(stats_output)
+        logger.info(f"HRV output validation: {is_valid}")
+
+    except (SignalQualityError, ArtifactRejectionError, ValueError) as e:
+        logger.error(f"Validation failed: {e}")
+        raise
+
+    logger.info("HRV utilities test completed successfully.")
+
 
 if __name__ == "__main__":
     main()

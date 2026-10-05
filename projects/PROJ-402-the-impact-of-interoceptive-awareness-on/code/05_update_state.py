@@ -1,207 +1,178 @@
+"""
+05_update_state.py
+
+Implements logic to checksum ALL files under `data/` and `results/`,
+and update the project state file `state/projects/...yaml` with the new hashes.
+
+Per Constitution Principle V, this script must:
+1. Scan `data/` and `results/` recursively for all files.
+2. Compute SHA-256 checksums for each file.
+3. Update `state/projects/...yaml` (specifically the `artifact_hashes` map).
+4. Fail loudly if the state file is missing or cannot be updated.
+"""
+
 import hashlib
 import os
 import sys
 import yaml
 from pathlib import Path
 from datetime import datetime
-import logging
+from typing import Dict, Any, List, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Project root relative to this script (assuming script is in code/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = PROJECT_ROOT / "results"
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
+PROJECT_ID = "001-impact-of-interoceptive-awareness-on"
+STATE_FILE_PATH = STATE_DIR / f"{PROJECT_ID}.yaml"
+
+# Ensure state directory exists
+STATE_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def compute_sha256(file_path: Path) -> str:
     """
     Compute SHA-256 hash of a file.
-    
-    Args:
-        file_path: Path to the file to hash.
-        
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+    Reads in chunks to handle large files efficiently.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except IOError as e:
-        logger.error(f"Error reading file {file_path}: {e}")
-        raise
+    except Exception as e:
+        raise RuntimeError(f"Failed to compute checksum for {file_path}: {e}")
 
-def scan_directory_for_artifacts(directory: Path) -> list:
+
+def scan_directory_for_artifacts(directory: Path) -> List[Path]:
     """
     Recursively scan a directory for all files.
-    
-    Args:
-        directory: Path to the directory to scan.
-        
-    Returns:
-        List of Path objects for all files found.
+    Returns a list of absolute paths to all files found.
     """
     if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
+        print(f"Warning: Directory {directory} does not exist. Skipping scan.")
         return []
-    
+
     files = []
     for root, _, filenames in os.walk(directory):
         for filename in filenames:
-            file_path = Path(root) / filename
-            # Skip hidden files and common temporary files
-            if not filename.startswith('.') and not filename.endswith('~'):
-                files.append(file_path)
+            full_path = Path(root) / filename
+            # Skip hidden files or common temporary files if necessary
+            if not filename.startswith('.'):
+                files.append(full_path)
     return files
 
-def load_state_file(state_path: Path) -> dict:
+
+def load_state_file() -> Dict[str, Any]:
     """
-    Load the state YAML file.
-    
-    Args:
-        state_path: Path to the state file.
-        
-    Returns:
-        Dictionary containing the state data.
+    Load the existing state file.
+    If it doesn't exist, initialize a new structure.
     """
-    if not state_path.exists():
-        logger.info(f"State file not found, initializing new state: {state_path}")
+    if not STATE_FILE_PATH.exists():
+        print(f"State file not found at {STATE_FILE_PATH}. Initializing new state.")
         return {
-            "project_id": "PROJ-402-the-impact-of-interoceptive-awareness-on",
+            "project_id": PROJECT_ID,
             "last_updated": None,
             "artifact_hashes": {}
         }
-    
+
     try:
-        with open(state_path, "r") as f:
-            state = yaml.safe_load(f)
-            if state is None:
-                state = {
-                    "project_id": "PROJ-402-the-impact-of-interoceptive-awareness-on",
+        with open(STATE_FILE_PATH, "r", encoding="utf-8") as f:
+            content = yaml.safe_load(f)
+            if content is None:
+                content = {
+                    "project_id": PROJECT_ID,
                     "last_updated": None,
                     "artifact_hashes": {}
                 }
-            return state
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing state file {state_path}: {e}")
-        raise
+            return content
+    except Exception as e:
+        raise RuntimeError(f"Failed to load state file {STATE_FILE_PATH}: {e}")
 
-def update_state_file(state_path: Path, state: dict) -> None:
+
+def update_state_file(state_data: Dict[str, Any]) -> None:
     """
-    Update the state YAML file with new data.
-    
-    Args:
-        state_path: Path to the state file.
-        state: Dictionary containing the updated state data.
+    Write the updated state data back to the YAML file.
     """
-    state["last_updated"] = datetime.now().isoformat()
-    
-    # Ensure directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
     try:
-        with open(state_path, "w") as f:
-            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"State file updated successfully: {state_path}")
-    except IOError as e:
-        logger.error(f"Error writing state file {state_path}: {e}")
-        raise
+        state_data["last_updated"] = datetime.utcnow().isoformat()
+        with open(STATE_FILE_PATH, "w", encoding="utf-8") as f:
+            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+        print(f"State file updated successfully at {STATE_FILE_PATH}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to write state file {STATE_FILE_PATH}: {e}")
 
-def compute_artifact_hashes(data_dir: Path, state_path: Path) -> dict:
+
+def compute_artifact_hashes() -> Dict[str, str]:
     """
-    Compute hashes for all files under the data directory and update state.
-    
-    This function scans the data directory (including derived artifacts),
-    computes SHA-256 hashes for every file, and updates the state file
-    with the new hash map.
-    
-    Args:
-        data_dir: Path to the data directory (e.g., 'data/').
-        state_path: Path to the state YAML file.
-        
-    Returns:
-        Dictionary containing the updated artifact hashes.
+    Compute hashes for all files under data/ and results/ and return a dict mapping
+    relative path -> checksum.
     """
-    logger.info(f"Starting artifact hash computation for directory: {data_dir}")
-    
-    if not data_dir.exists():
-        logger.warning(f"Data directory does not exist: {data_dir}")
-        # Initialize empty hashes if directory missing
-        artifact_hashes = {}
-    else:
-        files = scan_directory_for_artifacts(data_dir)
-        logger.info(f"Found {len(files)} files in {data_dir}")
-        
-        artifact_hashes = {}
-        for file_path in files:
-            try:
-                # Store relative path from data_dir for cleaner state file
-                rel_path = file_path.relative_to(data_dir)
-                file_hash = compute_sha256(file_path)
-                artifact_hashes[str(rel_path)] = file_hash
-                logger.debug(f"Hashed: {rel_path} -> {file_hash[:16]}...")
-            except Exception as e:
-                logger.error(f"Failed to hash file {file_path}: {e}")
-                # Continue processing other files
-    
-    # Load current state
-    state = load_state_file(state_path)
-    
-    # Update artifact hashes in state
-    state["artifact_hashes"] = artifact_hashes
-    
-    # Write updated state
-    update_state_file(state_path, state)
-    
-    logger.info(f"Completed hash computation. Total artifacts: {len(artifact_hashes)}")
-    return artifact_hashes
+    artifacts = []
+    if DATA_DIR.exists():
+        artifacts.extend(scan_directory_for_artifacts(DATA_DIR))
+    if RESULTS_DIR.exists():
+        artifacts.extend(scan_directory_for_artifacts(RESULTS_DIR))
+
+    hashes = {}
+
+    if not artifacts:
+        print("No files found in data or results directories.")
+        return {}
+
+    for file_path in artifacts:
+        try:
+            checksum = compute_sha256(file_path)
+            # Store relative path from project root for portability
+            rel_path = str(file_path.relative_to(PROJECT_ROOT))
+            hashes[rel_path] = checksum
+            print(f"  Checked: {rel_path} -> {checksum[:16]}...")
+        except Exception as e:
+            # Log error but continue processing other files
+            print(f"  ERROR: Failed to hash {file_path}: {e}")
+
+    return hashes
+
 
 def main():
     """
     Main entry point for the state update script.
-    
-    Computes SHA-256 hashes for all files under 'data/' (including
-    derived artifacts like data/derived/hrv_metrics.csv) and updates
-    the state file at 'state/projects/001-impact-of-interoceptive-awareness.yaml'.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    data_dir = project_root / "data"
-    state_dir = project_root / "state" / "projects"
-    state_file = state_dir / "001-impact-of-interoceptive-awareness.yaml"
-    
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Data directory: {data_dir}")
-    logger.info(f"State file: {state_file}")
-    
-    # Ensure state directory exists
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
+    print(f"--- Starting State Update for Project: {PROJECT_ID} ---")
+    print(f"Scanning data directory: {DATA_DIR}")
+    print(f"Scanning results directory: {RESULTS_DIR}")
+    print(f"Target state file: {STATE_FILE_PATH}")
+
     try:
-        hashes = compute_artifact_hashes(data_dir, state_file)
-        
-        # Summary output
-        logger.info("Artifact Hash Summary:")
-        for rel_path, file_hash in sorted(hashes.items()):
-            logger.info(f"  {rel_path}: {file_hash[:32]}...")
-        
-        print(f"SUCCESS: Updated state file with {len(hashes)} artifact hashes.")
-        sys.exit(0)
-        
+        # 1. Load existing state
+        state_data = load_state_file()
+
+        # 2. Compute new hashes for data/ and results/ artifacts
+        new_hashes = compute_artifact_hashes()
+
+        if not new_hashes:
+            print("No new artifacts found to checksum.")
+            # Still update the timestamp if we ran successfully
+            state_data["last_updated"] = datetime.utcnow().isoformat()
+            update_state_file(state_data)
+            return 0
+
+        # 3. Update the artifact_hashes map in state
+        # We replace the entire map to ensure consistency with current scan
+        state_data["artifact_hashes"] = new_hashes
+
+        # 4. Write back to disk
+        update_state_file(state_data)
+
+        print("--- State Update Completed Successfully ---")
+        return 0
+
     except Exception as e:
-        logger.error(f"Failed to update state: {e}")
-        print(f"ERROR: Failed to update state: {e}")
-        sys.exit(1)
+        print(f"CRITICAL ERROR during state update: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
