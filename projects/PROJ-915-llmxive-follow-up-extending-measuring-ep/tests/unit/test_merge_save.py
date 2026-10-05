@@ -1,95 +1,153 @@
 """
-Unit tests for merge_save.py (T025).
+Unit tests for T025: Merge and Save logic.
 """
-import pandas as pd
 import pytest
-from pathlib import Path
-import sys
+import pandas as pd
+import tempfile
 import os
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import sys
 
-# Add project root to path
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
-from merge_save import merge_datasets, load_features, load_responses, load_labels
-from error_handling import DataRetrievalError, DependencyError
-
-@pytest.fixture
-def mock_config(tmp_path):
-    return {
-        "paths": {
-            "processed_features": str(tmp_path / "features.csv"),
-            "interim": str(tmp_path / "interim"),
-            "labeled_responses": str(tmp_path / "interim" / "labeled_responses.csv")
-        }
+# Mock config for testing
+MOCK_CONFIG = {
+    'paths': {
+        'data_processed': 'data/processed',
+        'data_interim': 'data/interim',
+        'data_results': 'data/results'
     }
+}
 
 @pytest.fixture
-def mock_features_df():
-    return pd.DataFrame({
-        "prompt_id": [1, 2, 3],
-        "raw_text": ["text1", "text2", "text3"],
-        "modal_freq": [0.1, 0.2, 0.3],
-        "imperative_ratio": [0.5, 0.6, 0.7]
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
+
+def test_load_features_missing_file(temp_dir):
+    """Test that load_features raises FileNotFoundError if file is missing."""
+    from merge_save import load_features
+    
+    config = {'paths': {'data_processed': str(temp_dir / 'nonexistent')}}
+    
+    with pytest.raises(FileNotFoundError, match="Required file missing"):
+        load_features(config)
+
+def test_load_features_missing_columns(temp_dir):
+    """Test that load_features raises ValueError if columns are missing."""
+    from merge_save import load_features
+    
+    # Create a temp file with wrong columns
+    csv_path = temp_dir / 'features.csv'
+    df_wrong = pd.DataFrame({'wrong_col': [1, 2, 3]})
+    df_wrong.to_csv(csv_path, index=False)
+    
+    config = {'paths': {'data_processed': str(temp_dir)}}
+    
+    with pytest.raises(ValueError, match="Features file missing required columns"):
+        load_features(config)
+
+def test_load_features_success(temp_dir):
+    """Test successful loading of features."""
+    from merge_save import load_features
+    
+    csv_path = temp_dir / 'features.csv'
+    df_correct = pd.DataFrame({
+        'prompt_id': ['p1', 'p2'],
+        'raw_text': ['text1', 'text2'],
+        'feature_a': [0.1, 0.2]
     })
-
-@pytest.fixture
-def mock_responses_df():
-    return pd.DataFrame({
-        "prompt_id": [1, 2, 3],
-        "response_text": ["resp1", "resp2", "resp3"],
-        "model_name": ["m1", "m1", "m1"]
-    })
-
-@pytest.fixture
-def mock_labels_df():
-    return pd.DataFrame({
-        "prompt_id": [1, 2, 3],
-        "adherence_label": [0, 1, 2],
-        "safety_refusal": [False, True, False]
-    })
-
-def test_merge_datasets_success(mock_features_df, mock_responses_df, mock_labels_df):
-    """Test successful merge of all three dataframes."""
-    result = merge_datasets(mock_features_df, mock_responses_df, mock_labels_df)
+    df_correct.to_csv(csv_path, index=False)
     
-    assert len(result) == 3
-    assert "prompt_id" in result.columns
-    assert "raw_text" in result.columns
-    assert "response_text" in result.columns
-    assert "adherence_label" in result.columns
-    assert "safety_refusal" in result.columns
+    config = {'paths': {'data_processed': str(temp_dir)}}
+    result = load_features(config)
     
-    # Check specific values
-    assert result.loc[0, "raw_text"] == "text1"
-    assert result.loc[0, "response_text"] == "resp1"
-    assert result.loc[0, "adherence_label"] == 0
+    assert result.shape == (2, 3)
+    assert 'prompt_id' in result.columns
+    assert 'raw_text' in result.columns
 
-def test_merge_datasets_missing_prompt_id(mock_features_df, mock_responses_df, mock_labels_df):
-    """Test that merge fails if prompt_id is missing in one of the dataframes."""
-    # Remove prompt_id from labels
-    bad_labels = mock_labels_df.drop(columns=["prompt_id"])
+def test_load_responses_missing_file(temp_dir):
+    """Test that load_responses raises FileNotFoundError if file is missing."""
+    from merge_save import load_responses
     
-    with pytest.raises(DependencyError):
-        merge_datasets(mock_features_df, mock_responses_df, bad_labels)
+    config = {'paths': {'data_interim': str(temp_dir / 'nonexistent')}}
+    
+    with pytest.raises(FileNotFoundError, match="Required file missing"):
+        load_responses(config)
 
-def test_merge_datasets_inner_join(mock_features_df, mock_responses_df, mock_labels_df):
-    """Test that merge performs inner join (only matching prompt_ids are kept)."""
-    # Modify responses to have a different set of prompt_ids
-    bad_responses = pd.DataFrame({
-        "prompt_id": [4, 5, 6],
-        "response_text": ["r4", "r5", "r6"],
-        "model_name": ["m1", "m1", "m1"]
+def test_load_responses_missing_columns(temp_dir):
+    """Test that load_responses raises ValueError if columns are missing."""
+    from merge_save import load_responses
+    
+    csv_path = temp_dir / 'labeling_results.csv'
+    df_wrong = pd.DataFrame({'wrong_col': [1, 2, 3]})
+    df_wrong.to_csv(csv_path, index=False)
+    
+    config = {'paths': {'data_interim': str(temp_dir)}}
+    
+    with pytest.raises(ValueError, match="Labeling results missing required columns"):
+        load_responses(config)
+
+def test_merge_datasets_inner_join(temp_dir):
+    """Test that merge_datasets performs an inner join."""
+    from merge_save import merge_datasets
+    
+    df_features = pd.DataFrame({
+        'prompt_id': ['p1', 'p2', 'p3'],
+        'raw_text': ['t1', 't2', 't3']
     })
     
-    result = merge_datasets(mock_features_df, bad_responses, mock_labels_df)
-    assert len(result) == 0
-
-def test_merge_datasets_missing_required_columns(mock_features_df, mock_responses_df, mock_labels_df):
-    """Test that merge fails if required columns are missing in the final result."""
-    # Remove adherence_label from labels
-    bad_labels = mock_labels_df.drop(columns=["adherence_label"])
+    df_responses = pd.DataFrame({
+        'prompt_id': ['p2', 'p3', 'p4'],
+        'response_text': ['r2', 'r3', 'r4'],
+        'adherence_label': [0, 1, 0],
+        'safety_refusal': [False, False, True]
+    })
     
-    with pytest.raises(DependencyError):
-        merge_datasets(mock_features_df, mock_responses_df, bad_labels)
+    merged = merge_datasets(df_features, df_responses)
+    
+    # Inner join should only keep p2 and p3
+    assert len(merged) == 2
+    assert set(merged['prompt_id']) == {'p2', 'p3'}
+    assert 'response_text' in merged.columns
+    assert 'adherence_label' in merged.columns
+
+def test_merge_datasets_empty_result(temp_dir):
+    """Test that merge_datasets raises ValueError if result is empty."""
+    from merge_save import merge_datasets
+    
+    df_features = pd.DataFrame({
+        'prompt_id': ['p1'],
+        'raw_text': ['t1']
+    })
+    
+    df_responses = pd.DataFrame({
+        'prompt_id': ['p2'],
+        'response_text': ['r2'],
+        'adherence_label': [0],
+        'safety_refusal': [False]
+    })
+    
+    with pytest.raises(ValueError, match="Merged dataset is empty"):
+        merge_datasets(df_features, df_responses)
+
+def test_save_merged_dataset(temp_dir):
+    """Test that save_merged_dataset writes the file correctly."""
+    from merge_save import save_merged_dataset
+    
+    df = pd.DataFrame({
+        'prompt_id': ['p1'],
+        'raw_text': ['t1'],
+        'response_text': ['r1'],
+        'adherence_label': [0],
+        'safety_refusal': [False]
+    })
+    
+    output_path = temp_dir / 'labeled_responses.csv'
+    config = {'paths': {'data_interim': str(temp_dir)}}
+    
+    save_merged_dataset(df, config)
+    
+    assert output_path.exists()
+    loaded = pd.read_csv(output_path)
+    assert len(loaded) == 1
+    assert loaded['prompt_id'].iloc[0] == 'p1'

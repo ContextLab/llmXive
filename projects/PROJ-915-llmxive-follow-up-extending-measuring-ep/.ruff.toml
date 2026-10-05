@@ -1,11 +1,51 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "F401"]
+# Select rules relevant to scientific code quality and safety
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (sorting imports)
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade (modernize syntax)
+    "RUF",# Ruff specific rules
+    "ANN",# flake8-annotations (type hints) - optional strictness
+    "SIM",# flake8-simplify
+    "T20",# flake8-print (forbid print statements in prod code)
+]
+
+# Ignore specific rules that are too strict or irrelevant for this research context
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "E501",   # Line too long (handled by black)
+    "B904",   # Within an `except` clause, raise exceptions with `raise ... from err`
+    "UP006",  # Use `list` instead of `List` for type annotation (PEP 585) - keep for compat if needed
+    "UP007",  # Use `X | Y` for type annotation (PEP 604) - keep for compat if needed
+]
+
+# Allow specific patterns
+allow-confusables = false
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"]
+# Test files can be less strict about annotations and print usage for debugging
+"tests/**" = ["ANN", "T20"]
+# Notebooks (if any) can skip linting
+"code/*.py" = []
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["config", "data_models", "ingestion", "features", "inference", "labeling", "modeling", "validation", "annotation"]
+known-third-party = ["datasets", "scikit-learn", "statsmodels", "sentence-transformers", "llama-cpp-python", "pandas", "numpy", "tqdm", "biopython", "firth-logistic", "requests", "yaml"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [format]
+# Align with Black's default line length (88) to ensure consistency
+line-length = 88
 quote-style = "double"
 indent-style = "space"
-line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = false
+docstring-code-line-length = "dynamic"

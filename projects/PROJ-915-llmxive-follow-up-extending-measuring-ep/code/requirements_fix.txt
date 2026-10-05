@@ -1,0 +1,3 @@
+# Fix for execution failure: biopython missing
+# This file lists the missing dependency that must be installed
+biopython>=1.81

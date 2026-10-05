@@ -42,6 +42,10 @@ def generate_with_timeout(
     """
     Execute model generation with a hard timeout enforced via threading.
     
+    This implementation uses a cross-platform approach compatible with Windows,
+    Linux, and macOS by utilizing `threading.Timer` and a shared state container
+    instead of Unix-specific `signal` modules which do not work across threads on Windows.
+    
     Args:
         model: The llama-cpp-python model instance.
         prompt: The input prompt string.
@@ -56,6 +60,7 @@ def generate_with_timeout(
         InferenceTimeoutError: If the generation exceeds the timeout.
     """
     result_container = {"text": None, "error": None, "timed_out": False}
+    generation_complete = threading.Event()
     
     def run_generation():
         try:
@@ -73,13 +78,18 @@ def generate_with_timeout(
                 
         except Exception as e:
             result_container["error"] = e
+        finally:
+            generation_complete.set()
 
+    # Start the generation in a daemon thread
     thread = threading.Thread(target=run_generation)
     thread.daemon = True
     thread.start()
-    thread.join(timeout=timeout_seconds)
+    
+    # Wait for completion or timeout
+    completed = generation_complete.wait(timeout=timeout_seconds)
 
-    if thread.is_alive():
+    if not completed:
         # Timeout occurred
         result_container["timed_out"] = True
         msg = f"Generation exceeded {timeout_seconds}s limit."

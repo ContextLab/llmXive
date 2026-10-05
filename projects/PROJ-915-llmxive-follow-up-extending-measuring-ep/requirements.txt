@@ -1,3 +1,4 @@
+# Existing dependencies
 datasets
 scikit-learn
 statsmodels
@@ -10,8 +11,4 @@ biopython
 firth-logistic
 reference-validator
 pyyaml
-pytest
-ruff
-black
 requests
-urllib3

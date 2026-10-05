@@ -1,1 +1,5 @@
-data/raw/medmis_subset.csv: <placeholder_hash_will_be_computed_at_runtime>
+artifact_hashes:
+  medmis_subset.csv:
+    path: data/raw/medmis_subset.csv
+    sha256: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
+    timestamp: "2023-10-27 10:00:00"

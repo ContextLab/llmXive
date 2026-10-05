@@ -1,6 +1,6 @@
 """
-Project directory setup module for llmXive.
-Creates the required root project directories and subfolders.
+Setup script to create the root project directory structure for llmXive.
+Implements T001: Create root project directories and test directories.
 """
 import os
 import sys
@@ -8,17 +8,30 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Create the root project directories and test directories.
-    Directories: code/, data/raw, data/processed, data/interim, data/results, state/,
-                 tests/unit, tests/integration, docs/
+    Creates the required directory structure for the llmXive project.
+    Verifies creation and prints the tree structure.
     """
-    # Determine project root based on the current file location
-    # The script is in code/, so project root is the parent
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent
+    # Project root is the parent of this file's directory (code/)
+    # But tasks.md says "Create root project directories (projects/PROJ-...)"
+    # We assume the script runs from the project root or we derive it.
+    # The task specifies: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/
+    
+    # Determine the base path: we assume the current working directory is the repo root
+    # or the script is run from the repo root.
+    base_path = Path.cwd()
+    
+    # The specific project directory as per T001
+    project_dir_name = "PROJ-915-llmxive-follow-up-extending-measuring-ep"
+    # The task says "Create root project directories (projects/PROJ-...)"
+    # implying a 'projects' folder at the root.
+    projects_root = base_path / "projects"
+    project_root = projects_root / project_dir_name
 
-    # Define the directories to create relative to project root
-    directories = [
+    # Ensure the projects root exists
+    projects_root.mkdir(parents=True, exist_ok=True)
+
+    # Define all required directories relative to the project root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -30,34 +43,34 @@ def setup_directories():
         "docs"
     ]
 
-    created_count = 0
-    for dir_path in directories:
+    created_paths = []
+    for dir_path in required_dirs:
         full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(full_path)
 
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return project_root
+    # Verification: Print the tree structure
+    print(f"Created project structure at: {project_root}")
+    print("Directory structure:")
+    for path in sorted(created_paths):
+        rel_path = path.relative_to(project_root)
+        print(f"  {rel_path}")
+    
+    # Verify existence
+    missing = []
+    for path in created_paths:
+        if not path.exists():
+            missing.append(str(path))
+    
+    if missing:
+        print(f"ERROR: The following directories were not created: {missing}")
+        sys.exit(1)
+    
+    print("Verification: All directories created successfully.")
+    return True
 
 def main():
-    """Entry point for directory setup."""
-    print("Starting project directory setup...")
-    root = setup_directories()
-    print(f"Project root identified at: {root}")
-
-    # Verify structure by listing top-level items
-    print("\nCurrent project structure (top level):")
-    for item in sorted(root.iterdir()):
-        if item.is_dir():
-            print(f"  [DIR] {item.name}")
-        else:
-            print(f"  [FILE] {item.name}")
-
-    return 0
+    setup_directories()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

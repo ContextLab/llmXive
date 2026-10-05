@@ -1,14 +1,16 @@
 """
-Utilities for ingestion tasks.
+Utility functions for ingestion tasks.
 """
 import os
-from datetime import datetime
 from pathlib import Path
 
-def ensure_dir(dir_path: str):
-    """Ensure a directory exists, creating it if necessary."""
-    path = Path(dir_path)
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-    return path
+def ensure_dir(file_path: Path) -> None:
+    """
+    Ensure the directory for the given file path exists.
+    
+    Args:
+        file_path: Path to the file (directory will be created if missing).
+    """
+    dir_path = file_path.parent
+    if dir_path and not dir_path.exists():
+        os.makedirs(dir_path, exist_ok=True)

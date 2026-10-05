@@ -1,147 +1,144 @@
 """
-merge_save.py
-Implements T025: Merge and Save.
-Merges features, responses, and labels into a single dataset.
+Merge and Save (T025): Merges features, responses, and labels into a single dataset.
+
+Schema:
+  prompt_id, raw_text, features_*, response_text, adherence_label, safety_refusal
+
+Logic:
+  - Perform inner join on `prompt_id`.
+  - If any required column is missing, abort with clear error (no silent fallback).
 """
 import os
 import sys
 import logging
 import pandas as pd
 from pathlib import Path
-
-# Ensure project root is in path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
 from config import get_config
-from error_handling import DataRetrievalError, DependencyError
 
+# Ensure logging is configured
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
 def load_features(config: dict) -> pd.DataFrame:
-    """Load the extracted linguistic features."""
-    path = Path(config["paths"]["processed_features"])
-    if not path.exists():
-        raise DataRetrievalError(f"Feature file missing: {path}")
-    df = pd.read_csv(path)
-    logger.info(f"Loaded features: {len(df)} rows, columns: {list(df.columns)}")
+    """Load features from data/processed/features.csv."""
+    features_path = Path(config['paths']['data_processed']) / 'features.csv'
+    if not features_path.exists():
+        raise FileNotFoundError(f"Required file missing: {features_path}. "
+                                "Run T014 (features.py) first.")
+    logger.info(f"Loading features from {features_path}")
+    df = pd.read_csv(features_path)
+    
+    required_cols = ['prompt_id', 'raw_text']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Features file missing required columns: {missing}")
+    
     return df
 
 def load_responses(config: dict) -> pd.DataFrame:
-    """Load the model responses."""
-    # Assuming responses are saved in data/interim/ by inference stage
-    # The exact file name might vary, but usually it's 'responses.csv' or similar.
-    # Based on the pipeline flow, we look for the output of the inference stage.
-    # If the inference stage outputs to a specific file, we should use that.
-    # Let's assume 'data/interim/model_responses.csv' based on standard patterns.
-    path = Path(config["paths"]["interim"]) / "model_responses.csv"
-    if not path.exists():
-        # Fallback to common alternative if standard path fails
-        alt_path = Path(config["paths"]["interim"]) / "responses.csv"
-        if alt_path.exists():
-            path = alt_path
-        else:
-            raise DataRetrievalError(f"Response file missing: {path} (and {alt_path})")
+    """Load model responses from data/interim/model_responses.csv."""
+    # Assuming T022/T023/T024 produced a response file. 
+    # Based on typical pipeline flow, this is the output of the inference/labeling stage.
+    # If the labeling stage (T022-T024) produced a single file with labels, 
+    # we might need to split or adjust. 
+    # However, T025 implies merging *responses* and *labels*.
+    # Let's assume labeling.py (T022-T024) produced 'data/interim/labeling_results.csv' 
+    # containing prompt_id, response_text, adherence_label, safety_refusal.
+    # If the task description implies separate files, we adjust.
+    # Given T022/T023/T024 are in labeling.py, and T025 merges them, 
+    # it's likely labeling.py saves an intermediate file or T025 loads from memory?
+    # The prompt says "Merge features, responses, and labels".
+    # Let's assume the labeling pipeline (T022-T024) saves a file:
+    responses_path = Path(config['paths']['data_interim']) / 'labeling_results.csv'
     
-    df = pd.read_csv(path)
-    logger.info(f"Loaded responses: {len(df)} rows, columns: {list(df.columns)}")
+    if not responses_path.exists():
+        # Fallback: check if main.py or inference.py saved responses separately
+        # But T024 (Safety Trigger) and T023 (Label Logic) are part of labeling.py.
+        # It is most logical that labeling.py saves the labeled data here.
+        raise FileNotFoundError(
+            f"Required file missing: {responses_path}. "
+            "Run T024 (labeling.py) first to generate labeling_results.csv."
+        )
+    
+    logger.info(f"Loading responses and labels from {responses_path}")
+    df = pd.read_csv(responses_path)
+    
+    required_cols = ['prompt_id', 'response_text', 'adherence_label', 'safety_refusal']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Labeling results missing required columns: {missing}")
+    
     return df
 
-def load_labels(config: dict) -> pd.DataFrame:
-    """Load the adherence labels and safety flags."""
-    # Labels are generated by labeling.py. Assuming output is 'labeled_data.csv' or similar.
-    # Based on T023/T024, the output should contain adherence_label and safety_refusal.
-    path = Path(config["paths"]["interim"]) / "labeled_data.csv"
-    if not path.exists():
-        alt_path = Path(config["paths"]["interim"]) / "labels.csv"
-        if alt_path.exists():
-            path = alt_path
-        else:
-            raise DataRetrievalError(f"Label file missing: {path} (and {alt_path})")
+def merge_datasets(features_df: pd.DataFrame, responses_df: pd.DataFrame) -> pd.DataFrame:
+    """Perform inner join on prompt_id."""
+    logger.info("Merging datasets on prompt_id (inner join)")
+    merged = pd.merge(
+        features_df,
+        responses_df,
+        on='prompt_id',
+        how='inner'
+    )
     
-    df = pd.read_csv(path)
-    logger.info(f"Loaded labels: {len(df)} rows, columns: {list(df.columns)}")
-    return df
-
-def merge_datasets(features: pd.DataFrame, responses: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
-    """
-    Perform inner join on prompt_id.
-    Schema: prompt_id, raw_text, features_*, response_text, adherence_label, safety_refusal.
-    """
-    required_cols = ["prompt_id"]
+    if merged.empty:
+        raise ValueError("Merged dataset is empty. Check prompt_id consistency between features and responses.")
     
-    # Check for prompt_id in all dataframes
-    for name, df in [("features", features), ("responses", responses), ("labels", labels)]:
-        if "prompt_id" not in df.columns:
-            raise DependencyError(f"Missing 'prompt_id' column in {name}")
-    
-    # Rename columns to avoid conflicts if necessary, but prompt_id is the key.
-    # We need to ensure raw_text and response_text are present.
-    # Features might have raw_text or prompt_text.
-    # Responses should have response_text.
-    
-    # Standardize column names for merging
-    # Features: prompt_id, raw_text (or prompt_text), feature_cols...
-    # Responses: prompt_id, response_text
-    # Labels: prompt_id, adherence_label, safety_refusal (and maybe others)
-    
-    # Merge Features and Responses
-    merged = pd.merge(features, responses, on="prompt_id", how="inner")
-    logger.info(f"After features+responses merge: {len(merged)} rows")
-    
-    # Merge with Labels
-    merged = pd.merge(merged, labels, on="prompt_id", how="inner")
-    logger.info(f"After labels merge: {len(merged)} rows")
-    
-    # Validate required columns exist in final result
-    final_required = ["prompt_id", "raw_text", "response_text", "adherence_label", "safety_refusal"]
-    missing_cols = [c for c in final_required if c not in merged.columns]
-    if missing_cols:
-        raise DependencyError(f"Missing required columns in merged data: {missing_cols}")
-    
+    logger.info(f"Merged dataset shape: {merged.shape}")
     return merged
 
-def save_merged_dataset(df: pd.DataFrame, config: dict) -> Path:
-    """Save the merged dataset to the specified output path."""
-    output_path = Path(config["paths"]["interim"]) / "labeled_responses.csv"
+def save_merged_dataset(df: pd.DataFrame, config: dict) -> None:
+    """Save the merged dataset to data/interim/labeled_responses.csv."""
+    output_path = Path(config['paths']['data_interim']) / 'labeled_responses.csv'
+    logger.info(f"Saving merged dataset to {output_path}")
+    
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved merged dataset to {output_path} ({len(df)} rows)")
-    return output_path
+    logger.info("Successfully saved labeled_responses.csv")
 
-def run_merge_save_pipeline(config: dict = None) -> Path:
-    """Main pipeline function for T025."""
+def run_merge_save_pipeline(config: dict = None) -> None:
+    """Main pipeline for T025."""
     if config is None:
         config = get_config()
     
-    logger.info("Starting Merge and Save pipeline (T025)...")
-    
-    # 1. Load Data
-    features = load_features(config)
-    responses = load_responses(config)
-    labels = load_labels(config)
-    
-    # 2. Merge
-    merged_df = merge_datasets(features, responses, labels)
-    
-    # 3. Save
-    output_path = save_merged_dataset(merged_df, config)
-    
-    logger.info("Merge and Save pipeline completed successfully.")
-    return output_path
+    try:
+        # 1. Load Features
+        features_df = load_features(config)
+        
+        # 2. Load Responses/Labels
+        responses_df = load_responses(config)
+        
+        # 3. Merge
+        merged_df = merge_datasets(features_df, responses_df)
+        
+        # 4. Save
+        save_merged_dataset(merged_df, config)
+        
+        logger.info("T025 Merge and Save completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during merge: {e}")
+        raise
 
 def main():
     """Entry point for script execution."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logger.info("Starting T025: Merge and Save")
     try:
         run_merge_save_pipeline()
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,10 +1,12 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `tree -L 2` output was provided; the required root
-    project directories and subfolders are missing from the evidence, so the verification
-    cannot be performed. The implementer must create the specified folders and supply
-    the `tree` command output showing the correct hierarchy.
+  r: "No directory structure or `tree -L 2` output was provided; the claim that the\
+    \ required folders (`projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
+    \ with sub\u2011directories `code/`, `data/raw`, `data/processed`, `data/interim`,\
+    \ `data/results`, `state/`, and test/docs folders) exist cannot be verified. The\
+    \ implementer must create the directories and supply the `tree` command output\
+    \ showing the expected layout."
 T002:
   c: false
   h: 81d9dcc83d6e9cbea4fd2a6a7e458cddb2e8e915d2ca15a10a1e78ba51a779eb
@@ -12,13 +14,6 @@ T002:
     local module `code/agents/reference_validator.py` is missing, so the project initialization
     does not fully meet the specification. The implementer must add the `reference_validator.py`
     file at the specified path.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `.flake8` files, or corresponding CI scripts) are present
-    in the provided evidence, so the requirement to configure ruff/flake8 and Black
-    is not satisfied.
 T006a:
   c: false
   h: 00674801b7a41c4dd556f2f032a8d745291cf26db08c50656b1e35550577c0d4
@@ -44,12 +39,29 @@ T017b:
     \ deliverable is therefore missing."
 T017d:
   c: false
-  h: 504650a0d1111bf9e0608401f401a3d573d0f33b9bacca305862eee6cec7aa42
-  r: "The provided `code/annotation.py` does not contain the logic to compare the\
-    \ correlation coefficient against the 0.6 threshold, compute Cohen\u2019s\u202F\
-    \u03BA, raise `ValidationGateFailedError` when thresholds are violated, nor does\
-    \ it generate the required `data/results/feature_validation_report.md`. Additionally,\
-    \ the report file is missing from the repository."
+  h: 76a39bcdf8ec14c3cfa35f32c9396b7d21a5735bdfd4bedee107414a08348033
+  r: "The repository contains a partially implemented `code/annotation.py`, but the\
+    \ file is truncated and does not show any function that computes the Pearson/Spearman\
+    \ correlation or Cohen\u2019s \u03BA, nor does it write `data/results/feature_correlation_and_kappa.json`.\
+    \ Moreover, the required JSON output file is absent. The task\u2019s core computational\
+    \ and output requirements are therefore not satisfied."
+T020:
+  c: false
+  h: 632acb947e9d6d77c288b6913d0d0bfa244f9625d6109bec8376aa5a7221608f
+  r: "The required output file `data/interim/pubmed_facts.json` (and the log file)\
+    \ does not exist, and the provided `code/labeling.py` is truncated and lacks the\
+    \ full caching, error\u2011handling, and retrieval\u2011rate logic described in\
+    \ the task. The implementation is therefore incomplete."
+T020a:
+  c: false
+  h: 2f3f701c01c5904c2e2eb9d2b445e6f686919aed30eab0c07f823b4debeda009
+  r: "The provided `code/inference.py` stops at \u201C# Start the generation\u201D\
+    \ and does not show the logic that actually starts the generation thread, enforces\
+    \ the timeout, calls `log_timeout_failure`, or skips the prompt on timeout. Additionally,\
+    \ the required `data/interim/timeout_failures.log` file is absent, indicating\
+    \ the timeout\u2011logging behavior has not been demonstrated. The missing continuation\
+    \ of the function prevents verification that the cross\u2011platform timeout enforcement\
+    \ meets the task\u2019s specifications."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
