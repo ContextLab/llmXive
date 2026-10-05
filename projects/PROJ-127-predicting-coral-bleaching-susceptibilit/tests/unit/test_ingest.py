@@ -12,14 +12,14 @@ from ingest import merge_datasets, impute_missing_values, flag_missing_trait_dat
 
 class TestIngestMerge:
     """
-    Test the merge logic for T014.
+    Test the merge logic for T011.
     Verifies row counts, column presence, and null handling in the unified dataset.
     """
 
     def test_merge_produces_unified_csv(self, tmp_path):
         """
         Mock the data loading functions to test the merge logic without real data.
-        Since T013 is a prerequisite, we simulate the output of T013.
+        Since T011 is a prerequisite, we simulate the output of T007.
         """
         # Setup mock data
         mock_climate = pd.DataFrame({

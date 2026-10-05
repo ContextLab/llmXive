@@ -1,130 +1,148 @@
 """
-tests/unit/test_map.py
-Unit tests for code/map.py
+Unit tests for map.py functions.
 """
 import os
-import sys
-import tempfile
 import json
+import tempfile
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
+from unittest.mock import patch, MagicMock
 import rasterio
 from rasterio.transform import from_origin
+import joblib
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
-# Add project root to path if needed
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Import functions to test
+# Note: In a real scenario, we would import from code.map
+# For this test, we assume the functions are available
+# from code.map import load_raster, generate_risk_map, identify_dominant_drivers, threshold_sensitivity, validate_map_against_independent_reports
 
-from map import generate_risk_map, threshold_sensitivity, identify_dominant_drivers
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-@pytest.fixture
-def mock_model(temp_dir):
-    # Create a dummy XGBoost model file (JSON)
-    model_path = temp_dir / "dummy_model.json"
-    # Minimal valid XGBoost JSON structure (booster)
-    dummy_json = {
-        "learner": {
-            "gradient_booster": {
-                "trees": []
-            }
-        }
-    }
-    with open(model_path, 'w') as f:
-        json.dump(dummy_json, f)
-    return model_path
-
-@pytest.fixture
-def mock_rasters(temp_dir):
-    # Create dummy rasters
-    sst_path = temp_dir / "sst.tif"
-    dhw_path = temp_dir / "dhw.tif"
-    
-    height, width = 10, 10
-    transform = from_origin(0, 10, 1, 1)
-    
-    # Create simple rasters
-    sst_data = np.ones((height, width), dtype=np.float32) * 28.0
-    dhw_data = np.ones((height, width), dtype=np.float32) * 4.0
-    
+def create_temp_raster(path, data, transform, crs):
+    """Helper to create a temporary GeoTIFF file."""
     profile = {
-        'driver': 'gtiff',
-        'height': height,
-        'width': width,
-        'count': 1,
+        'driver': 'GTiff',
         'dtype': 'float32',
-        'crs': 'EPSG:4326',
+        'count': 1,
+        'width': data.shape[1],
+        'height': data.shape[0],
         'transform': transform,
+        'crs': crs,
         'nodata': -9999
     }
-    
-    with rasterio.open(sst_path, 'w', **profile) as dst:
-        dst.write(sst_data, 1)
-    
-    with rasterio.open(dhw_path, 'w', **profile) as dst:
-        dst.write(dhw_data, 1)
-        
-    return sst_path, dhw_path
+    with rasterio.open(path, 'w', **profile) as dst:
+        dst.write(data.astype(np.float32), 1)
+
 
 @pytest.fixture
-def mock_data(temp_dir):
-    # Create dummy CSV
-    data_path = temp_dir / "data.csv"
-    df = pd.DataFrame({
-        'SST': [28.0, 29.0, 30.0, 27.0],
-        'DHW': [4.0, 5.0, 6.0, 3.0],
-        'bleaching_label': [1, 1, 0, 0]
-    })
-    df.to_csv(data_path, index=False)
-    return data_path
+def temp_rasters():
+    """Create temporary rasters for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        sst_path = os.path.join(tmpdir, 'sst.tif')
+        dhw_path = os.path.join(tmpdir, 'dhw.tif')
+        
+        # Create dummy data
+        data = np.random.rand(10, 10).astype(np.float32) * 10 + 20
+        transform = from_origin(0, 10, 1, 1)
+        crs = 'EPSG:4326'
+        
+        create_temp_raster(sst_path, data, transform, crs)
+        create_temp_raster(dhw_path, data, transform, crs)
+        
+        yield sst_path, dhw_path, tmpdir
 
-def test_generate_risk_map_structure(temp_dir, mock_model, mock_rasters):
-    """Test that generate_risk_map creates a valid GeoTIFF."""
-    sst_path, dhw_path = mock_rasters
-    output_path = temp_dir / "risk_map.tif"
-    
-    # This will likely fail because the dummy model is empty,
-    # but we can test the file creation logic if we mock the model loading
-    # For a true unit test, we would mock xgb.Booster.
-    # Here we assume the function runs and creates the file if data is valid.
-    # Since we can't easily run a real XGBoost prediction with a dummy model,
-    # we assert that the function raises a specific error if model is invalid,
-    # or we skip the full execution and test the path logic.
-    # Given the constraints, we test that the function signature works.
-    pass
 
-def test_threshold_sensitivity_logic(temp_dir, mock_model, mock_data):
-    """Test that threshold_sensitivity creates CSV and Report."""
-    data_path = mock_data
-    output_csv = temp_dir / "thresholds.csv"
-    output_report = temp_dir / "report.md"
-    
-    # Similar to above, real execution requires a valid model.
-    # We test the logic by mocking the model prediction if possible.
-    # For now, we assert the files are created if the function runs.
-    pass
+@pytest.fixture
+def temp_model_and_scaler():
+    """Create temporary model and scaler files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        model_path = os.path.join(tmpdir, 'model.pkl')
+        scaler_path = os.path.join(tmpdir, 'scaler.pkl')
+        
+        # Create dummy model and scaler
+        model = RandomForestClassifier(n_estimators=2)
+        scaler = StandardScaler()
+        
+        joblib.dump(model, model_path)
+        joblib.dump(scaler, scaler_path)
+        
+        yield model_path, scaler_path, tmpdir
 
-def test_identify_dominant_drivers(temp_dir, mock_rasters):
-    """Test that identify_dominant_drivers creates a JSON report."""
-    sst_path, dhw_path = mock_rasters
-    risk_path = sst_path # Reuse sst as risk for this test
-    output_path = temp_dir / "drivers.json"
-    
-    # Create a fake risk map
-    with rasterio.open(risk_path, 'r+') as dst:
-        data = dst.read(1)
-        # Modify to have some high values
-        data[0,0] = 0.9
-        data[1,1] = 0.8
-        dst.write(data, 1)
-    
-    # This test would need a real model to work fully.
-    pass
 
-# Note: Full integration tests for map.py require a trained model and real rasters.
-# These unit tests verify the file paths and structure logic.
+def test_load_raster(temp_rasters):
+    """Test loading a raster file."""
+    sst_path, _, _ = temp_rasters
+    data, meta = load_raster(sst_path)
+    
+    assert data.shape == (10, 10)
+    assert meta['dtype'] == 'float32'
+    assert 'transform' in meta
+    assert 'crs' in meta
+
+
+def test_generate_risk_map(temp_rasters, temp_model_and_scaler):
+    """Test generating a risk map."""
+    sst_path, dhw_path, tmpdir = temp_rasters
+    model_path, scaler_path, _ = temp_model_and_scaler
+    output_path = os.path.join(tmpdir, 'risk_map.tif')
+    
+    generate_risk_map(sst_path, dhw_path, model_path, scaler_path, output_path)
+    
+    assert os.path.exists(output_path)
+    
+    # Verify output
+    risk_data, risk_meta = load_raster(output_path)
+    assert risk_data.shape == (10, 10)
+    assert risk_data.dtype == np.float32
+    
+    # Check values are in [0, 1]
+    valid_values = risk_data[~np.isnan(risk_data)]
+    assert np.all(valid_values >= 0.0)
+    assert np.all(valid_values <= 1.0)
+
+
+def test_threshold_sensitivity(temp_rasters):
+    """Test threshold sensitivity analysis."""
+    sst_path, dhw_path, tmpdir = temp_rasters
+    # Create a dummy risk map
+    risk_path = os.path.join(tmpdir, 'risk_map.tif')
+    risk_data = np.random.rand(10, 10).astype(np.float32)
+    transform = from_origin(0, 10, 1, 1)
+    crs = 'EPSG:4326'
+    create_temp_raster(risk_path, risk_data, transform, crs)
+    
+    thresholds = [0.3, 0.5, 0.7]
+    results = threshold_sensitivity(risk_path, thresholds)
+    
+    assert len(results) == 3
+    for thresh in thresholds:
+        assert str(thresh) in results
+        assert 'pixels_above' in results[str(thresh)]
+        assert 'pixels_below' in results[str(thresh)]
+        assert 'fraction_above' in results[str(thresh)]
+
+
+def test_validate_map_against_independent_reports(temp_rasters):
+    """Test validation against independent reports."""
+    sst_path, dhw_path, tmpdir = temp_rasters
+    risk_path = os.path.join(tmpdir, 'risk_map.tif')
+    risk_data = np.random.rand(10, 10).astype(np.float32)
+    transform = from_origin(0, 10, 1, 1)
+    crs = 'EPSG:4326'
+    create_temp_raster(risk_path, risk_data, transform, crs)
+    
+    # Test without independent data
+    result = validate_map_against_independent_reports(risk_path)
+    assert result['independent_data_available'] is False
+    
+    # Test with non-existent file
+    result = validate_map_against_independent_reports(risk_path, 'non_existent.csv')
+    assert result['independent_data_available'] is False
+    
+    # Test with existing file (dummy)
+    events_path = os.path.join(tmpdir, 'events.csv')
+    pd.DataFrame({'reef_id': [1, 2], 'bleaching': [1, 0]}).to_csv(events_path, index=False)
+    result = validate_map_against_independent_reports(risk_path, events_path)
+    assert result['independent_data_available'] is True

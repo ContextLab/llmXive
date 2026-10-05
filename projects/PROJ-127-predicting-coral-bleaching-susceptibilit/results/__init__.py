@@ -1,1 +1,1 @@
-# Results directory initialization
+# Results module initialization

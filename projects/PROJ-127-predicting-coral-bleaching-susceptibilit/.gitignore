@@ -28,6 +28,10 @@ wheels/
 *.manifest
 *.spec
 
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -53,12 +57,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
 # IDE
 .idea/
 .vscode/
@@ -66,17 +64,17 @@ venv.bak/
 *.swo
 *~
 
+# Jupyter Notebook
+.ipynb_checkpoints
+
 # Project specific
-data/raw/*.zip
-data/raw/*.tar.gz
-data/raw/*.tif
-data/raw/*.nc
+data/raw/**/*.tiff
+data/raw/**/*.tif
 data/processed/*.csv
 data/models/*.pkl
-data/models/*.h5
-data/models/*.tif
-results/*.json
-results/*.md
-results/*.png
-logs/
-.DS_Store
+data/models/*.json
+results/
+state/
+*.log
+data_gap_report.md
+data_gap_status.json

@@ -1,15 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file list showing the required folders (`code/`, `data/raw`,
-    `data/processed`, `data/models`, `tests/unit`, `tests/integration`, `results/`)
-    was provided; without concrete evidence the claimed structure cannot be confirmed.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files are present in the listed directories (`code/`, `tests/`,
-    `tests/unit/`, `tests/integration/`) and no `.gitignore` file is shown in the
-    provided evidence, so the required artifacts are missing.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,6 +6,22 @@ T003:
     \ in the `code/` directory, so the requirement to configure ruff/black is not\
     \ demonstrated. The implementer must add the appropriate config files and verify\
     \ they are non\u2011empty."
+T009:
+  c: false
+  h: f404e9e2f75a71f0178c25068ec179e3b5993b02f835770680ad491220d1f9c4
+  r: "The provided `code/features.py` defines a `check_definitional_circularity` function\
+    \ that adds a `circularity_flag` column and (presumably) logs a warning, but there\
+    \ is no evidence it writes any note to `data/processed/features.csv`. Moreover,\
+    \ the required `data/processed/features.csv` file is missing entirely. The task\u2019\
+    s requirement to record the flag in that CSV is therefore unmet."
+T012:
+  c: false
+  h: 2bcc36dd3cff35271f5b9ea0872dfc1b0ab7c1ec65f7aa6399194ef2e8666cc6
+  r: "The provided `code/features.py` is truncated (e.g., the `calculate_vif` function\
+    \ ends abruptly and no logic for dropping high\u2011VIF features or writing `filtered_features.csv`\
+    \ / `feature_list.txt` is present). Moreover, the required output files `data/processed/filtered_features.csv`\
+    \ and `data/processed/feature_list.txt` do not exist. The task\u2019s core requirements\
+    \ are therefore unmet."
 T014:
   c: false
   h: b5e13c8934d367998e41fc5bc82c762508f5b73456557e28e6d5fc6be681572c
@@ -27,32 +31,39 @@ T014:
     \ CSV `data/processed/reef_species_unified.csv` is absent. The task\u2019s core\
     \ requirement\u2014producing a unified dataset at 5\u2011km grid resolution\u2014\
     is therefore not satisfied."
-T018:
+T015:
   c: false
-  h: d03cd66c9882c5856c0fac42a1851bf00216c4753c833431dae658062531e76a
-  r: "The required output file `data/processed/features.csv` is missing, and the provided\
-    \ `code/features.py` snippet is incomplete (truncated) and does not clearly show\
-    \ logging of the decision or writing a flag to the CSV. Without the CSV artifact,\
-    \ the task\u2019s primary deliverable is not satisfied."
-T019:
+  h: 8a4dd98acb3bb2f099220a8a9c84cb39b0a1712be3beee36fd3e46edc819d90e
+  r: "The required output files `data/processed/train_split.csv` and `data/processed/test_split.csv`\
+    \ are absent, and the provided `code/train.py` is truncated before completing\
+    \ the spatial split logic and saving the splits. Consequently the task\u2019s\
+    \ core requirement is not satisfied."
+T022:
   c: false
-  h: 407994f35f216deb491fc5d8ce33e2da0d4c1c986fc0cb7ac3ae30ffa5a41c27
-  r: "The provided `code/features.py` contains only lag/interaction feature helpers\
-    \ and a partial circularity check; there is no implementation that computes variance\
-    \ inflation factors, drops columns with VIF\u202F>\u202F5, or writes a `filtered_features.csv`.\
-    \ Moreover, the required `data/processed/filtered_features.csv` file is absent.\
-    \ The task\u2019s core requirement is therefore not satisfied."
-T035:
+  h: 76f9150a5e4c3436d59c2d801bc441f14cf6df60952a93c5b4ab6612f0203bc8
+  r: "The repository contains `code/map.py` with a `generate_risk_map` implementation,\
+    \ but the required output file `data/models/bleaching_risk_map.tif` is missing,\
+    \ so the task\u2019s core deliverable (a GeoTIFF of bleaching probabilities) was\
+    \ not produced. The implementer must run the script (or otherwise generate) the\
+    \ GeoTIFF and ensure its pixel values lie within\u202F[0,\u202F1]."
+T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file or any document containing the requested ROC\u2011AUC,\
-    \ AUPRC, stability scores, and data\u2011gap status was provided; the evidence\
-    \ consists only of the task description and project spec, without the required\
-    \ final report. The implementer must create and supply a populated `research.md`\
-    \ that aggregates the metrics from T033, T025, T027, T028, and T032."
-T036:
+  h: 4e7e5e214671ed86c309d35c55da50771f8616e3f9489eac176dd6cc4dc384f4
+  r: "The required output file `data/models/local_driver_analysis.json` does not exist,\
+    \ and the `identify_dominant_drivers` function in `code/map.py` contains only\
+    \ a placeholder comment (\u201CImplementation details omitted\u201D). No actual\
+    \ local permutation importance logic or JSON generation is present."
+T024:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data-model.md` file was presented or referenced; there is no evidence that
-    a markdown document describing the final schema of the `reef-species` dataset
-    exists or contains the required schema details. The task remains undone.
+  h: 9d7d6d2b9c63539d0fa8640dd7abf37c075c9b8320503f85763739b0108296ad
+  r: "The repository lacks the required `data/models/xgboost_model.pkl` and the generated\
+    \ `data/models/bleaching_risk_map.tif`. Moreover, `code/map.py`\u2019s `generate_risk_map`\
+    \ function is a stub (`pass`) with no implementation to load rasters, apply the\
+    \ model, or write a GeoTIFF. These missing artifacts and placeholder code mean\
+    \ the task\u2019s requirements are not met."
+T029:
+  c: false
+  h: 763092b78bdd927830194af4592c77d931f63106835fb36758b26e73bbedacfc
+  r: "The required `data/processed/runtime.log` file does not exist, so no runtime\
+    \ has been logged and the conditional warning/success behavior cannot be verified.\
+    \ The task\u2019s primary output is missing."

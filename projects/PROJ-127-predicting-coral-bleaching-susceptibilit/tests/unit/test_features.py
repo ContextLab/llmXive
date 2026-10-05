@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
+import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from code.features import (
+from features import (
     compute_lagged_features,
     compute_interaction_features,
     check_definitional_circularity,
@@ -17,86 +18,91 @@ from code.features import (
 
 @pytest.fixture
 def sample_df():
-    """Create a sample dataframe for testing."""
-    dates = pd.date_range(start="2023-01-01", periods=100, freq="D")
+    """Create a sample DataFrame for testing."""
     data = {
-        "date": dates,
-        "sst": np.random.normal(29.0, 1.0, 100),
-        "dhw": np.random.exponential(0.5, 100), # Simulated DHW
-        "thermal_tolerance": np.random.normal(1.2, 0.2, 100),
-        "reef_id": ["R1"] * 100,
-        "species_id": ["S1"] * 100
+        'reef_id': ['R1', 'R1', 'R1', 'R2', 'R2', 'R2'],
+        'date': pd.to_datetime(['2023-01-01', '2023-01-08', '2023-01-15', '2023-01-01', '2023-01-08', '2023-01-15']),
+        'SST': [28.5, 29.0, 29.5, 27.0, 27.5, 28.0],
+        'DHW': [1.0, 2.0, 3.0, 0.5, 1.0, 1.5],
+        'thermal_tolerance': [2.5, 2.5, 2.5, 3.0, 3.0, 3.0],
+        'bleaching_label': [0, 1, 1, 0, 0, 1]
     }
     return pd.DataFrame(data)
 
 def test_compute_lagged_features(sample_df):
-    """Test that lagged features are computed correctly."""
-    result = compute_lagged_features(sample_df, value_cols=["sst"])
-    assert "sst_lag_30d" in result.columns
-    # First few rows should have values (min_periods=1)
-    assert result["sst_lag_30d"].notna().all()
-    # Values should be cumulative means, so generally increasing in variance or smoothing
-    assert result["sst_lag_30d"].std() <= result["sst"].std()
+    """Test lagged feature computation."""
+    result = compute_lagged_features(sample_df, 'SST', [1, 2], 'date')
+    
+    # Check that lag columns exist
+    assert 'SST_lag_1' in result.columns
+    assert 'SST_lag_2' in result.columns
+    
+    # Check values (first row should be NaN for lags)
+    assert pd.isna(result.loc[0, 'SST_lag_1'])
+    assert pd.isna(result.loc[1, 'SST_lag_1'])  # Should be SST from previous row in same reef
+    
+    # Check specific values
+    assert result.loc[1, 'SST_lag_1'] == 28.5  # SST from previous row in R1
+    assert result.loc[2, 'SST_lag_2'] == 28.5  # SST from 2 rows back in R1
 
 def test_compute_interaction_features(sample_df):
-    """Test interaction term calculation."""
-    result = compute_interaction_features(sample_df)
-    assert "dhw_thermal_interaction" in result.columns
-    expected = sample_df["dhw"] * sample_df["thermal_tolerance"]
-    pd.testing.assert_series_equal(result["dhw_thermal_interaction"], expected)
+    """Test interaction feature computation."""
+    result = compute_interaction_features(sample_df, 'DHW', 'thermal_tolerance')
+    
+    # Check that interaction column exists
+    assert 'DHW_x_thermal_tolerance' in result.columns
+    
+    # Check values
+    expected = sample_df['DHW'] * sample_df['thermal_tolerance']
+    pd.testing.assert_series_equal(result['DHW_x_thermal_tolerance'], expected)
 
 def test_check_definitional_circularity(sample_df):
-    """
-    Test T018: Definitional Circularity Check.
-    Must detect that DHW is derived from SST.
-    """
-    is_circular, reason = check_definitional_circularity(sample_df, "dhw", "sst")
-    assert is_circular is True
-    assert "derived" in reason.lower() or "circular" in reason.lower()
-    assert "dhw" in reason
-    assert "sst" in reason
-
-def test_check_definitional_circularity_missing_columns(sample_df):
-    """Test circularity check when columns are missing."""
-    df = sample_df.drop(columns=["dhw"])
-    is_circular, reason = check_definitional_circularity(df, "dhw", "sst")
-    assert is_circular is False
-    assert "not found" in reason.lower()
+    """Test circularity check."""
+    features = ['SST', 'DHW', 'thermal_tolerance']
+    result = check_definitional_circularity(sample_df, features)
+    
+    # Check that circularity is detected
+    assert len(result['circular_pairs']) > 0
+    assert ('SST', 'DHW') in result['circular_pairs']
+    assert len(result['warnings']) > 0
 
 def test_calculate_vif(sample_df):
     """Test VIF calculation."""
-    features = ["sst", "dhw", "thermal_tolerance"]
-    vif_df = calculate_vif(sample_df, features)
-    assert "feature" in vif_df.columns
-    assert "vif" in vif_df.columns
-    assert len(vif_df) == len(features)
-    # VIF should be >= 1
-    assert (vif_df["vif"] >= 1.0).all()
+    features = ['SST', 'DHW', 'thermal_tolerance', 'DHW_x_thermal_tolerance']
+    # Add interaction column if not exists
+    if 'DHW_x_thermal_tolerance' not in sample_df.columns:
+        sample_df['DHW_x_thermal_tolerance'] = sample_df['DHW'] * sample_df['thermal_tolerance']
+    
+    result = calculate_vif(sample_df, features)
+    
+    # Check result structure
+    assert 'feature' in result.columns
+    assert 'vif' in result.columns
+    assert len(result) == len(features)
+    
+    # Check VIF values are positive
+    assert all(result['vif'] > 0)
 
-def test_filter_high_vif(sample_df):
-    """Test VIF filtering."""
-    # Create a dataset with high correlation to force high VIF
-    high_corr_df = sample_df.copy()
-    high_corr_df["sst_dup"] = high_corr_df["sst"] * 1.0 + 0.0001 # Almost identical
-    high_corr_df["dhw_dup"] = high_corr_df["dhw"] * 1.0 + 0.0001
+def test_filter_high_vif():
+    """Test filtering of high VIF features."""
+    vif_data = pd.DataFrame({
+        'feature': ['f1', 'f2', 'f3', 'f4'],
+        'vif': [2.0, 4.5, 6.0, 8.0]
+    })
     
-    features = ["sst", "dhw", "thermal_tolerance", "sst_dup", "dhw_dup"]
-    filtered_df, dropped = filter_high_vif(high_corr_df, vif_threshold=5.0)
+    kept, dropped = filter_high_vif(vif_data, threshold=5.0)
     
-    # At least one of the duplicates should be dropped
-    assert "sst_dup" in dropped or "dhw_dup" in dropped
-    # The dropped columns should not be in the result
-    assert "sst_dup" not in filtered_df.columns or "dhw_dup" not in filtered_df.columns
+    assert kept == ['f1', 'f2']
+    assert dropped == ['f3', 'f4']
 
-def test_main_execution_integration():
-    """
-    Integration test for main() if the input file exists.
-    Skips if data not present (expected in CI without data download).
-    """
-    input_path = Path("data/processed/reef_species_unified.csv")
-    if not input_path.exists():
-        pytest.skip("Input data file not found, skipping integration test.")
+def test_filter_high_vif_threshold():
+    """Test filtering with different thresholds."""
+    vif_data = pd.DataFrame({
+        'feature': ['f1', 'f2', 'f3'],
+        'vif': [3.0, 5.0, 5.1]
+    })
     
-    # We cannot easily test the full main() without mocking file system writes
-    # but we verify the logic path by ensuring the functions it calls work.
-    pass
+    kept, dropped = filter_high_vif(vif_data, threshold=5.0)
+    
+    assert kept == ['f1', 'f2']
+    assert dropped == ['f3']

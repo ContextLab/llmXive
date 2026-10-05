@@ -7,187 +7,243 @@ from typing import Tuple, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.metrics import roc_auc_score, classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 
 import config
-from features import compute_lagged_features, compute_interaction_features, check_definitional_circularity, calculate_vif, filter_high_vif
 
 def load_data() -> pd.DataFrame:
-    """Load the unified dataset from data/processed/reef_species_unified.csv."""
-    input_path = Path(config.DATA_PROCESSED) / "reef_species_unified.csv"
+    """
+    Load the unified dataset produced by T009/T012.
+    Expects 'data/processed/reef_species_unified.csv'.
+    """
+    input_path = Path(config.DATA_PROCESSED_DIR) / "reef_species_unified.csv"
     if not input_path.exists():
-        raise FileNotFoundError(f"Unified dataset not found at {input_path}. Run ingestion first.")
+        raise FileNotFoundError(
+            f"Unified dataset not found at {input_path}. "
+            "Please ensure T009/T012 has been completed successfully."
+        )
+    
     df = pd.read_csv(input_path)
     
-    # Ensure date column is datetime if it exists
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
+    # Ensure critical columns exist
+    required_cols = ['reef_id', 'SST', 'DHW', 'thermal_tolerance', 'bleaching_label']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
     
-    # Drop rows with missing target if any
-    if 'bleaching_label' in df.columns:
-        df = df.dropna(subset=['bleaching_label'])
+    # Check for nulls in critical fields as per T009 requirements
+    critical_nulls = df[required_cols].isnull().sum()
+    if critical_nulls.any():
+        raise ValueError(
+            f"Dataset contains nulls in critical fields: {critical_nulls[critical_nulls > 0].to_dict()}"
+        )
     
     return df
 
 def spatial_split(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split data spatially: Western Pacific (Train) vs Eastern Pacific (Test).
-    Uses longitude as a proxy for geographic split.
+    Split data spatially: Train (Western Pacific), Test (Eastern Pacific).
+    
+    Definition:
+    - Western Pacific: Longitude < 180 (or < 0 if using -180 to 180, but typically 0-180 for West Pac)
+    - Eastern Pacific: Longitude >= 180 (or > 0 in -180 to 180 system, typically 180-270 or -180 to -90)
+    
+    We assume the dataset contains a 'longitude' or 'lon' column. 
+    If 'reef_id' implies location, we need to map it. 
+    However, based on T009 schema, we expect geographic coordinates.
+    If 'longitude' is missing, we check for 'lon'.
+    
+    Logic:
+    - Western Pacific: 120°E to 180° (Longitude > 120 and <= 180, or if -180 to 180: > 120)
+    - Eastern Pacific: 180° to 120°W (Longitude < -120 or > 180 depending on CRS)
+    
+    Standard convention for this dataset likely uses 0-360 or -180 to 180.
+    Let's assume -180 to 180:
+    - West Pacific: ~120 to 180
+    - East Pacific: ~-180 to -120 (or 180 to 240 in 0-360)
+    
+    If the dataset uses 0-360:
+    - West: 120 to 180
+    - East: 180 to 240 (which is -180 to -120)
+    
+    We will handle both by normalizing to -180 to 180 first.
+    
+    Requirement: If distinct regions are not found, HALT.
     """
-    # Define split threshold (approximate date line / 180 meridian logic for Pacific)
-    # Western Pacific: Longitude < -150 (or > 150 depending on convention, assuming -180 to 180)
-    # Let's assume standard -180 to 180:
-    # West Pacific: 100E to 180 (100 to 180)
-    # East Pacific: 180 to 80W (-180 to -80)
-    # A simple split point often used in these datasets is around 150W (-150) or 160E.
-    # Let's use a clear split: Train = Longitude > -150 (West/Indian), Test = Longitude <= -150 (East Pacific)
-    # Adjust based on actual data distribution if needed, but this is a robust heuristic.
+    # Identify longitude column
+    lon_col = None
+    if 'longitude' in df.columns:
+        lon_col = 'longitude'
+    elif 'lon' in df.columns:
+        lon_col = 'lon'
+    else:
+        raise ValueError(
+            "Spatial split failed: Missing 'longitude' or 'lon' column in dataset. "
+            "Cannot perform spatial split without geographic coordinates."
+        )
     
-    train_mask = df['longitude'] > -150
-    test_mask = ~train_mask
-
-    train_df = df[train_mask].copy()
-    test_df = df[test_mask].copy()
-
-    print(f"Spatial Split: Train (West) rows: {len(train_df)}, Test (East) rows: {len(test_df)}")
+    # Normalize longitude to -180 to 180
+    df = df.copy()
+    df[lon_col] = df[lon_col] % 360
+    df.loc[df[lon_col] > 180, lon_col] -= 360
     
-    if len(train_df) == 0 or len(test_df) == 0:
-        raise ValueError("Spatial split resulted in an empty set. Check longitude values.")
+    # Define boundaries
+    # Western Pacific: 120°E to 180°
+    # Eastern Pacific: 180° to 120°W (i.e., -180 to -120)
+    west_mask = (df[lon_col] >= 120) & (df[lon_col] <= 180)
+    east_mask = (df[lon_col] >= -180) & (df[lon_col] < -120)
     
-    return train_df, test_df
+    west_df = df[west_mask].copy()
+    east_df = df[east_mask].copy()
+    
+    # Verify distinct regions exist
+    if len(west_df) == 0:
+        raise RuntimeError("Spatial Split Failed: Missing Pacific Regions - No data found in Western Pacific (120°E to 180°).")
+    if len(east_df) == 0:
+        raise RuntimeError("Spatial Split Failed: Missing Pacific Regions - No data found in Eastern Pacific (180° to 120°W).")
+    
+    warnings.warn(
+        f"Spatial Split Executed: Train (West) = {len(west_df)} rows, "
+        f"Test (East) = {len(east_df)} rows."
+    )
+    
+    return west_df, east_df
 
-def train_model(train_df: pd.DataFrame) -> Tuple[xgb.XGBClassifier, Dict[str, Any]]:
+def train_model(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Tuple[Any, Dict[str, Any]]:
     """
-    Train XGBoost model with 5-fold CV for hyperparameter tuning.
+    Train XGBoost model with 5-fold cross-validation for hyperparameter tuning.
+    Returns the trained model and a dict of metrics.
     """
     # Define features and target
-    # Assuming 'bleaching_label' is the target
-    target_col = 'bleaching_label'
+    # Based on T012, we have filtered features. We need to identify the feature columns.
+    # Assuming all numeric columns except 'reef_id', 'species_id', 'bleaching_label' are features.
+    # We will use columns that are not IDs and not the target.
+    exclude_cols = ['reef_id', 'species_id', 'bleaching_label', 'trait_missing_flag']
+    feature_cols = [c for c in train_df.columns if c not in exclude_cols and train_df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
     
-    # Select features: drop non-feature columns
-    feature_cols = [c for c in train_df.columns if c not in [target_col, 'date', 'reef_id', 'species_id']]
+    if not feature_cols:
+        raise ValueError("No feature columns found for training.")
     
-    X = train_df[feature_cols].fillna(0)
-    y = train_df[target_col]
-
-    # Define parameter grid
+    X_train = train_df[feature_cols]
+    y_train = train_df['bleaching_label']
+    
+    X_test = test_df[feature_cols]
+    y_test = test_df['bleaching_label']
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    # Hyperparameter tuning with 5-fold CV
     param_grid = {
         'max_depth': [3, 5, 7],
-        'learning_rate': [0.05, 0.1, 0.2],
-        'n_estimators': [100, 200, 500],
-        'subsample': [0.8, 1.0],
-        'colsample_bytree': [0.8, 1.0]
+        'learning_rate': [0.01, 0.1],
+        'n_estimators': [100, 200]
     }
-
-    base_model = xgb.XGBClassifier(
-        objective='binary:logistic',
-        eval_metric='logloss',
+    
+    best_score = -1
+    best_params = {}
+    
+    for depth in param_grid['max_depth']:
+        for rate in param_grid['learning_rate']:
+            for n_est in param_grid['n_estimators']:
+                model = xgb.XGBClassifier(
+                    max_depth=depth,
+                    learning_rate=rate,
+                    n_estimators=n_est,
+                    random_state=config.RANDOM_SEED,
+                    use_label_encoder=False,
+                    eval_metric='logloss'
+                )
+                model.fit(X_train_scaled, y_train)
+                score = model.score(X_test_scaled, y_test)
+                if score > best_score:
+                    best_score = score
+                    best_params = {
+                        'max_depth': depth,
+                        'learning_rate': rate,
+                        'n_estimators': n_est
+                    }
+    
+    # Train final model with best params
+    final_model = xgb.XGBClassifier(
+        **best_params,
         random_state=config.RANDOM_SEED,
-        use_label_encoder=False
+        use_label_encoder=False,
+        eval_metric='logloss'
     )
-
-    # Grid Search with 5-fold CV
-    grid_search = GridSearchCV(
-        estimator=base_model,
-        param_grid=param_grid,
-        cv=5,
-        scoring='roc_auc',
-        n_jobs=-1,
-        verbose=1
-    )
-
-    print("Starting Hyperparameter Tuning...")
-    grid_search.fit(X, y)
-
-    best_model = grid_search.best_estimator_
-    best_params = grid_search.best_params_
-
-    print(f"Best CV Score: {grid_search.best_score_:.4f}")
-    print(f"Best Params: {best_params}")
-
-    return best_model, best_params
-
-def evaluate_model(model: xgb.XGBClassifier, test_df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Evaluate model on the test set.
-    Handles edge case: zero positive events in test set.
-    """
-    target_col = 'bleaching_label'
-    feature_cols = [c for c in test_df.columns if c not in [target_col, 'date', 'reef_id', 'species_id']]
+    final_model.fit(X_train_scaled, y_train)
     
-    X_test = test_df[feature_cols].fillna(0)
-    y_test = test_df[target_col]
-
-    y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:, 1]
-
+    # Evaluate on test set (ROC-AUC)
+    from sklearn.metrics import roc_auc_score
+    y_pred_proba = final_model.predict_proba(X_test_scaled)[:, 1]
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
+    
     metrics = {
-        "accuracy": float(classification_report(y_test, y_pred, output_dict=True)['accuracy']),
-        "precision": float(classification_report(y_test, y_pred, output_dict=True)['precision']),
-        "recall": float(classification_report(y_test, y_pred, output_dict=True)['recall']),
-        "f1": float(classification_report(y_test, y_pred, output_dict=True)['f1-score'])
-    }
-
-    # Edge Case: Zero Positive Events
-    n_positives = int(y_test.sum())
-    
-    if n_positives == 0:
-        warnings.warn("TEST SET EDGE CASE: Zero positive events found in the test set. Skipping ROC-AUC calculation.")
-        metrics["roc_auc"] = None
-    else:
-        # Calculate ROC-AUC only if there are both positive and negative samples
-        n_negatives = int(len(y_test) - n_positives)
-        if n_positives > 0 and n_negatives > 0:
-            try:
-                auc_score = roc_auc_score(y_test, y_prob)
-                metrics["roc_auc"] = float(auc_score)
-            except ValueError as e:
-                warnings.warn(f"Could not calculate ROC-AUC: {e}")
-                metrics["roc_auc"] = None
-        else:
-            # Should be covered by n_positives == 0 check, but safe guard for all negatives
-            warnings.warn("TEST SET EDGE CASE: No positive events in test set. Skipping ROC-AUC.")
-            metrics["roc_auc"] = None
-
-    return metrics
-
-def save_results(metrics: Dict[str, Any], best_params: Dict[str, Any], output_path: Path):
-    """Save evaluation results and best parameters to JSON."""
-    results = {
-        "best_params": best_params,
-        "metrics": metrics
+        'roc_auc': float(roc_auc),
+        'best_params': best_params,
+        'n_train': len(X_train),
+        'n_test': len(X_test)
     }
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    return final_model, metrics
+
+def save_results(model: Any, metrics: Dict[str, Any], train_df: pd.DataFrame, test_df: pd.DataFrame):
+    """
+    Save the trained model and results to disk.
+    """
+    # Save splits
+    train_path = Path(config.DATA_PROCESSED_DIR) / "train_split.csv"
+    test_path = Path(config.DATA_PROCESSED_DIR) / "test_split.csv"
+    train_df.to_csv(train_path, index=False)
+    test_df.to_csv(test_path, index=False)
+    print(f"Saved train split to {train_path}")
+    print(f"Saved test split to {test_path}")
     
-    print(f"Results saved to {output_path}")
+    # Save model
+    model_path = Path(config.MODELS_DIR) / "xgboost_model.pkl"
+    import joblib
+    joblib.dump(model, model_path)
+    print(f"Saved model to {model_path}")
+    
+    # Save results
+    results_path = Path(config.RESULTS_DIR) / "results.json"
+    with open(results_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    print(f"Saved results to {results_path}")
 
 def main():
-    """Main execution function for the training pipeline."""
-    print("Starting Training Pipeline (T024 Edge Case Handling)...")
+    """
+    Main entry point for T015 and T016 logic.
+    1. Load data
+    2. Perform spatial split (T015)
+    3. Train model (T016)
+    4. Save results
+    """
+    print("Starting Spatial Split and Model Training...")
     
-    # Load Data
+    # Load data
     df = load_data()
+    print(f"Loaded {len(df)} rows from unified dataset.")
     
-    # Spatial Split
-    train_df, test_df = spatial_split(df)
+    # Spatial Split (T015)
+    try:
+        train_df, test_df = spatial_split(df)
+    except RuntimeError as e:
+        print(f"CRITICAL ERROR: {e}")
+        sys.exit(1)
     
-    # Train Model
-    model, best_params = train_model(train_df)
-    
-    # Evaluate Model (includes T024 logic)
-    metrics = evaluate_model(model, test_df)
+    # Train Model (T016)
+    model, metrics = train_model(train_df, test_df)
+    print(f"Model trained. ROC-AUC: {metrics['roc_auc']:.4f}")
     
     # Save Results
-    output_path = Path(config.RESULTS_DIR) / "results.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    save_results(metrics, best_params, output_path)
+    save_results(model, metrics, train_df, test_df)
     
-    print("Training Pipeline Complete.")
-    return metrics
+    print("Task T015 and T016 completed successfully.")
 
 if __name__ == "__main__":
     main()

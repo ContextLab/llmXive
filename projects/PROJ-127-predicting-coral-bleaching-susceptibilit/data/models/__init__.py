@@ -1,1 +1,1 @@
-# Models directory initialization
+# Model artifacts storage initialization

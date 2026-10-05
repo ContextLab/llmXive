@@ -1,4 +1,3 @@
 """
-llmXive Project: Predicting Coral Bleaching Susceptibility
-Code package initialization.
+Coral Bleaching Susceptibility Prediction Package.
 """

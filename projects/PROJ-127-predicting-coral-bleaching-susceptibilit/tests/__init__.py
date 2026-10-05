@@ -1,4 +1,3 @@
 """
-llmXive Project: Predicting Coral Bleaching Susceptibility
-Tests package initialization.
+Test suite for the coral bleaching prediction pipeline.
 """
