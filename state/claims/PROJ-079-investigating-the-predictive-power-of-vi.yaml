@@ -1694,3 +1694,550 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T23:55:25Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer extraction restricted to k=3 and k=4 for HDLSS regime
+  claim_id: c_7a99f00d
+  context: The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure
+    CPU tractability and Debiased Lasso validity in the HDLSS regime. This is a fixed,
+    a priori selection protocol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure
+    CPU tractability and Debiased Lasso validity in the HDLSS regime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:16Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Permutation test performed on subset of 20 strains
+  claim_id: c_c0babd52
+  context: The system MUST perform the permutation test (including full feature re-extraction)
+    on a representative subset of 20 strains (or [deferred] of total, whichever is
+    smaller) and scale the p-value. This subset approach is the single source of truth
+    for permutation inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST perform the permutation test on a representative subset
+    of 20 strains (or [deferred] of total, whichever is smaller) and scale the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:25Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Proxy section validation requires R-squared >= 0.8
+  claim_id: c_04961182
+  context: "Validity Criteria: The function MUST search for the exact string 'R\xB2\
+    \ >= 0.8' in the Proxy section and 'k=3, 4 ONLY' in the k-mer section."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST search for the exact string 'R\xB2 >= 0.8' in the Proxy\
+    \ section."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:35Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Abort if >10% of samples lack valid strain accession link
+  claim_id: c_9aaae5d0
+  context: 'CRITICAL VALIDATION: Before generating the manifest, check the GEO metadata.
+    ABORT with fatal error if >10% of initial candidate samples lack a valid virus_strain_accession
+    link (FR-014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ABORT with fatal error if >10% of initial candidate samples lack a valid
+    virus_strain_accession link.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:35Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Exclude samples with <80% ortholog mapping overlap
+  claim_id: c_3458bb42
+  context: 'CRITICAL VALIDATION: If overlap < 80%, mark sample as excluded (FR-015)
+    and log reason.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If overlap < 80%, mark sample as excluded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:36Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Extract k=3 and k=4 only if n_final < 50
+  claim_id: c_2afe4133
+  context: If n_final < 50, extract k=3, 4 ONLY as authorized by docs/spec_amendments.md
+    (T002c). If n_final >= 50, extract k=3, 4, 5, 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n_final < 50, extract k=3, 4 ONLY.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:45Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: ESM-1b feasibility failure if runtime > 30s or memory > 1GB
+  claim_id: c_45d44b4b
+  context: 'Failure Threshold: If runtime > 30s OR memory > 1GB, return False. Log
+    the failure reason.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime > 30s OR memory > 1GB, return False for ESM-1b feasibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:45Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Abort if proxy correlation R-squared < 0.8
+  claim_id: c_64149f71
+  context: "Calculate R\xB2 between ESM-1b scores and Proxy scores. ABORT if R\xB2\
+    \ < 0.8. Return True if validation passes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ABORT if R\xB2 < 0.8 between ESM-1b scores and Proxy scores."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:45Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Dataset requires at least 30 samples and 5 unique strains
+  claim_id: c_35c008ff
+  context: 'Add validation in src/main.py: assert len(aggregated_df) >= 30 AND len(aggregated_df[''strain_accession''].unique())
+    >= 5. Abort with fatal error if false per FR-013, FR-017.'
+  evidence:
+    candidates:
+    - - Log in Dataset requires at least
+      - 30.0
+    - - Dataset requires at least 30 samples and
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Dataset_requires_at_least_30_samples_and_5_unique_strains
+  kind: magnitude
+  raw_text: Assert len(aggregated_df) >= 30 AND len(aggregated_df['strain_accession'].unique())
+    >= 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-05T03:43:53Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Abort permutation test if estimated runtime > 3.5 hours
+  claim_id: c_9606af01
+  context: 'Calculate estimated_total_time for 1000 permutations on the subset. If
+    estimated_total_time > 3.5 hours (12600 seconds): ABORT with fatal error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If estimated_total_time > 3.5 hours (12600 seconds): ABORT with fatal
+    error.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:43:54Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Top 5 features defined as influential by coefficient magnitude
+  claim_id: c_19225ba8
+  context: Define 'influential' as top 5 ranked by absolute coefficient magnitude
+    from the Debiased Lasso results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define 'influential' as top 5 ranked by absolute coefficient magnitude.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:44:06Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Partial dependence plot generated with 50 points
+  claim_id: c_62c90a51
+  context: 'Implement src/viz.py function plot_partial_dependence(model: Model, X:
+    DataFrame, features: list, n_points: int=50) that generates partial dependence
+    plots for top-ranked features.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a partial dependence plot with n_points=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:44:14Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Bar chart comparing physical and sequence-based metric effect sizes
+  claim_id: c_3007782f
+  context: Generate a dedicated bar chart comparing the effect sizes of these physical
+    metrics against sequence-based metrics (k-mers, GC).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bar_chart_comparing_physical_and_sequence-based_metric_effec
+  kind: entity_fact
+  raw_text: Generate a dedicated bar chart comparing effect sizes of physical metrics
+    against sequence-based metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:45:45Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer extraction restricted to k=3 and k=4 only
+  claim_id: c_b3cf0ed2
+  context: 'Spec Amendment: Create docs/spec_amendments.md with a section titled k-mer
+    Dimensionality Reduction. The text MUST explicitly state: FR-003 requirement for
+    k=3,4,5,6 is overridden by Plan.md Section: Complexity Tracking (Fixed k-mer Order).
+    The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure CPU tractability
+    and Debiased Lasso validity in the HDLSS regime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure
+    CPU tractability and Debiased Lasso validity in the HDLSS regime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:47:32Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Permutation test performed on subset of 20 strains
+  claim_id: c_9024904f
+  context: 'Spec Amendment (Permutation Strategy): The text MUST explicitly state:
+    FR-007 requirement for a global permutation test of the entire dataset is overridden
+    by Plan.md Section: Complexity Tracking (Runtime Constraints). The system MUST
+    perform the permutation test (including full feature re-extraction) on a representative
+    subset of 20 strains (or deferred of total, whichever is smaller) and scale the
+    p-value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST perform the permutation test on a representative subset
+    of 20 strains (or deferred of total, whichever is smaller) and scale the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:47:32Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Uniform Stability Proxy used for all samples
+  claim_id: c_5546905e
+  context: 'Spec Amendment: Protein Stability Proxy Override. The text MUST explicitly
+    state: FR-003 requirement for ESM-1b is overridden by Plan.md Section: Complexity
+    Tracking (Uniform Stability Proxy). The system MUST use a Uniform Stability Proxy
+    (Amino Acid Composition + Hydrophobicity Scales) for ALL samples to ensure CPU
+    feasibility on standard multi-core, limited-memory hardware.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uniform_Stability_Proxy_used_for_all_samples
+  kind: entity_fact
+  raw_text: The system MUST use a Uniform Stability Proxy (Amino Acid Composition
+    + Hydrophobicity Scales) for ALL samples to ensure CPU feasibility on standard
+    multi-core, limited-memory hardware.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:50:18Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Ortholog mapping overlap must be at least 80%
+  claim_id: c_b2aa6b48
+  context: 'Implement src/preprocess.py function validate_isg_mapping that verifies
+    mapped orthologs exist in the raw counts matrix. CRITICAL VALIDATION: If overlap
+    < 80%, mark sample as excluded and log reason.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ortholog_mapping_overlap_must_be_at_least_80%25
+  kind: magnitude
+  raw_text: The system MUST abort if the overlap of mapped orthologs in the raw counts
+    matrix is less than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:53:12Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Abort if more than 10% of samples lack strain link
+  claim_id: c_2ea74326
+  context: 'CRITICAL VALIDATION: Before generating the manifest, check the GEO metadata.
+    ABORT with fatal error if >10% of initial candidate samples lack a valid virus_strain_accession
+    link (FR-014).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_more_than_10%25_of_samples_lack_strain_link
+  kind: magnitude
+  raw_text: The system MUST abort with a fatal error if more than 10% of initial candidate
+    samples lack a valid virus_strain_accession link.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:53:23Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Minimum 30 samples in aggregated dataset
+  claim_id: c_c000df58
+  context: 'Add validation in src/main.py: assert len(aggregated_df) >= 30 AND len(aggregated_df[''strain_accession''].unique())
+    >= 5. Abort with fatal error if false per FR-013, FR-017.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_30_samples_in_aggregated_dataset
+  kind: magnitude
+  raw_text: The pipeline must contain at least 30 samples after aggregation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:53:34Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Minimum 5 unique strains in aggregated dataset
+  claim_id: c_a95d094e
+  context: 'Add validation in src/main.py: assert len(aggregated_df) >= 30 AND len(aggregated_df[''strain_accession''].unique())
+    >= 5. Abort with fatal error if false per FR-013, FR-017.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_5_unique_strains_in_aggregated_dataset
+  kind: magnitude
+  raw_text: The pipeline must contain at least 5 unique strains in the aggregated
+    dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:53:46Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Minimum 5 unique strains in test set
+  claim_id: c_8d470b56
+  context: Implement src/model.py function validate_strains. Check len(df['strain_accession'].unique())
+    >= 5. ABORT with fatal error if len(test_strains) < 5 per FR-017.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_5_unique_strains_in_test_set
+  kind: magnitude
+  raw_text: The pipeline must contain at least 5 unique strains in the test set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:53:56Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Permutation test executes 1000 permutations
+  claim_id: c_0179b8a2
+  context: 'Implement src/model.py function run_full_permutation_test. Mandatory:
+    Execute exactly 1,000 permutations as per Spec FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test must execute exactly 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:54:05Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Permutation test runtime limit 3.5 hours
+  claim_id: c_7d94169d
+  context: 'Runtime Check: Run run_pilot_permutation to estimate time per shuffle.
+    Calculate estimated_total_time for 1000 permutations on the subset. If estimated_total_time
+    > 3.5 hours (12600 seconds): ABORT with fatal error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimated total runtime for 1,000 permutations on the subset must
+    not exceed 3.5 hours (12,600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:54:07Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Proxy baseline R-squared must be at least 0.8
+  claim_id: c_d6c405b8
+  context: "Implement src/features.py function validate_proxy_baseline. Calculate\
+    \ R\xB2 between ESM-1b scores and Proxy scores. ABORT if R\xB2 < 0.8."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_baseline_R-squared_must_be_at_least_0.8
+  kind: magnitude
+  raw_text: The Uniform Stability Proxy must yield an R-squared value of at least
+    0.8 when compared to ESM-1b scores on a representative subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:54:59Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer extraction includes k=5 and k=6 if N >= 50
+  claim_id: c_2c4aa630
+  context: Implement src/features.py function calculate_kmer_frequencies. If n_final
+    < 50, extract k=3, 4 ONLY. If n_final >= 50, extract k=3, 4, 5, 6.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/k-mer_extraction_includes_k=5_and_k=6_if_N_%3E=_50
+  kind: magnitude
+  raw_text: k-mer extraction includes k=5 and k=6 only if the final dataset size (N)
+    is greater than or equal to 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:06Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Uniform Stability Proxy includes AAC for 20 amino acids
+  claim_id: c_42c80688
+  context: 'Implement src/features.py function calculate_stability_proxy. Mandatory:
+    Implement Uniform Stability Proxy for ALL samples. 1. Amino Acid Composition (AAC):
+    Keys aac_{AA} for each of the standard amino acids (float frequency).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Uniform Stability Proxy includes Amino Acid Composition (AAC) for
+    each of the 20 standard amino acids.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:17Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Uniform Stability Proxy uses Kyte-Doolittle hydrophobicity scale
+  claim_id: c_d1aff513
+  context: 'Implement src/features.py function calculate_stability_proxy. 2. Hydrophobicity
+    Scales (Kyte-Doolittle): Key hydrophobicity_kytedoolittle (float). Algorithm:
+    Average Kyte-Doolittle score using pyteomics.physical_properties.hydrophobicity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uniform_Stability_Proxy_uses_Kyte-Doolittle_hydrophobicity_s
+  kind: entity_fact
+  raw_text: The Uniform Stability Proxy uses the Kyte-Doolittle scale for hydrophobicity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:23Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: Uniform Stability Proxy calculated for proteins > 100aa
+  claim_id: c_bd5d64bc
+  context: Update docs/research.md with a new section titled Structural Feature Quantification
+    Strategy. 5. Explicitly state that these metrics are calculated for ALL viral
+    proteins >100aa in the dataset, ensuring no method-switch bias.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Uniform Stability Proxy is calculated for all viral proteins longer
+    than 100 amino acids.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:26Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: ESM-1b feasibility check runtime > 30s or memory > 1GB
+  claim_id: c_d9d1b27c
+  context: 'Implement src/features.py function check_esm1b_feasibility. Failure Threshold:
+    If runtime > 30s OR memory > 1GB, return False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ESM-1b feasibility check fails if runtime exceeds 30 seconds or memory
+    exceeds 1GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:29Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: ESM-1b feasibility check memory > 1GB
+  claim_id: c_9df9993b
+  context: 'Implement src/features.py function check_esm1b_feasibility. Failure Threshold:
+    If runtime > 30s OR memory > 1GB, return False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ESM-1b feasibility check fails if memory usage exceeds 1GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T03:55:32Z'

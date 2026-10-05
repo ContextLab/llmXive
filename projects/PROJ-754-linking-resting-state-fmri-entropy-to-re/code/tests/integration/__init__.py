@@ -1,1 +1,1 @@
-"""Integration tests for the project."""
+"""Integration test suite."""

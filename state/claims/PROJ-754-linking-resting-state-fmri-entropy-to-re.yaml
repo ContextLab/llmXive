@@ -2169,3 +2169,133 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T18:58:48Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Fetch 4mm parcellated time series for 200 subjects from HCP S3
+  claim_id: c_663afefd
+  context: 'Phase 3: User Story 1 - Data Acquisition & Preprocessing Pipeline'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement HCP S3 downloader in src/data/download_hcp.py to fetch minimally
+    preprocessed 4mm parcellated time series and behavioral data for N=200 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:02:25Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Fit mass-univariate Linear Mixed Effects model with subject random effect
+  claim_id: c_7c5a4f90
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement mass-univariate Linear Mixed Effects (MixedLM) model per parcel
+    (DSRT ~ Entropy + Age + Sex + MeanFD + (1|Subject)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:04:59Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Perform Freedman-Lane permutation test with 5,000 iterations
+  claim_id: c_118bbe22
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Freedman-Lane permutation test (exactly 5,000 iterations) in
+    src/stats/permutation_test.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:05Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Calculate power for effect size d=0.3
+  claim_id: c_a8d2da33
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement post-hoc power analysis (F-test) to calculate power for effect
+    size d=0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:14Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Flag study as underpowered if power is less than 0.80
+  claim_id: c_cbb92d33
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_study_as_underpowered_if_power_is_less_than_0.80
+  kind: magnitude
+  raw_text: Flag the study as 'Underpowered' in the report if Power < 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:29Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis grid with r in 0.1, 0.15, 0.2 and m in 2, 3, 4
+  claim_id: c_4d1080f4
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity Analysis Grid: r \u2208 {0.1, 0.15, 0.2} and m \u2208 {2,\
+    \ 3, 4}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:36Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Use 500 permutations per grid point in sensitivity analysis
+  claim_id: c_6b5e8ea9
+  context: 'Phase 5: User Story 3 - Statistical Modeling & Reporting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity Analysis uses N=500 permutations per grid point.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:39Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with mean FD greater than or equal to 0.2mm
+  claim_id: c_2319dd01
+  context: 'Phase 3: User Story 1 - Data Acquisition & Preprocessing Pipeline'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_FD_greater_than_or_equal_to_0.2mm
+  kind: magnitude
+  raw_text: "Filter high-motion subjects with mean framewise displacement (FD) \u2265\
+    \ 0.2mm."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T04:05:47Z'

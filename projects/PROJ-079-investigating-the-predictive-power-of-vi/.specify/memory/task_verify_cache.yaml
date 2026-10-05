@@ -6,6 +6,14 @@ T011a:
     \ actual `data/manifest.json` file is missing, so the test cannot verify that\
     \ the pipeline produces the required manifest with checksums. The task\u2019s\
     \ core requirement is not met."
+T012c#1:
+  c: false
+  h: abe7e8b8db3ae16fe7b85bc4bb6fe3d3d1b35bf376a8d212f038491a941d6d47
+  r: "The repository lacks a `generate_manifest(accessions: list, geo_accessions:\
+    \ list) -> None` function and does not contain the required unified `data/manifest.json`\
+    \ file; the only manifest\u2011related code creates separate template or versioned\
+    \ files and raises NotImplementedError for the core download logic. Consequently\
+    \ the task\u2019s specification is not met."
 T017:
   c: false
   h: 7831e9417d8ba4bef374b0992595d1dff6ccb7385d24338cf7cae416f59ac68c
@@ -35,32 +43,3 @@ T037:
     \ are missing, so the test cannot verify their existence and non\u2011emptiness.\
     \ The missing plot artifacts must be generated (and be non\u2011empty) for the\
     \ task to be complete."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `README.md` or `quickstart.md` files are present in the provided\
-    \ evidence, and there is no commit log showing the required changes. The task\u2019\
-    s deliverables (installation instructions, usage examples, data requirements,\
-    \ and a 5\u2011minute quickstart guide) are therefore missing."
-T043a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest execution logs, coverage reports, or any test output files are present
-    in the repository. The claim that `pytest --cov` was run on `src/` and `tests/`
-    cannot be verified because the required artifacts (e.g., console output, `.coverage`
-    file, HTML report) are missing. The task therefore remains incomplete.
-T043b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No coverage report file for the `src/` modules is present in the provided evidence,\
-    \ and there is no content showing line\u2011coverage percentages. Consequently,\
-    \ the requirement to verify that a coverage report exists and indicates >80\u202F\
-    % line coverage cannot be confirmed."
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, output files, or documentation of the run of `quickstart.md`\
-    \ in a fresh virtual environment are present. The required evidence that the pipeline\
-    \ completed end\u2011to\u2011end and produced the expected artifacts (e.g., downloaded\
-    \ genomes, preprocessed matrices, model files, performance reports) is missing,\
-    \ so the task is not satisfied."

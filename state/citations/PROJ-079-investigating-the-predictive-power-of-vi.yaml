@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/
   verified_at: '2026-09-30T15:10:09.495395Z'
-- artifact_hash: 4609d6e9915fdb26060bececc1fa8f31ca6aa9c3fbf00075d7ed0092d2c299dd
+- artifact_hash: 55f23fbdd72bb4f0ebdb382831dbd505e5377ff3e16a298a36a33cee3653d4c2
   artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.ncbi.nlm.nih.gov/geo/download
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/download
-  verified_at: '2026-10-04T22:28:52.718214Z'
+  verified_at: '2026-10-05T03:55:32.339004Z'

@@ -1,1 +1,1 @@
-"""Configuration and environment management modules."""
+"""Configuration management modules."""

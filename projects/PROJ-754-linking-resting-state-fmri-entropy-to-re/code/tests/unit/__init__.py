@@ -1,1 +1,1 @@
-"""Unit tests for the project."""
+"""Unit test suite."""

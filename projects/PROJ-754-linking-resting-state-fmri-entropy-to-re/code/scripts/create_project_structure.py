@@ -1,91 +1,75 @@
+"""Script to create the full project directory structure and verify existence."""
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
 def get_project_root() -> Path:
-    """
-    Determine the project root directory.
-    
-    Looks for the project root by checking for a .git directory,
-    or defaults to the current working directory if not found.
-    
-    Returns:
-        Path: The project root directory path.
-    """
-    current = Path.cwd()
-    
-    # Walk up the directory tree looking for .git
-    for parent in [current, *current.parents]:
-        if (parent / ".git").exists():
-            return parent
-        
-        # Also check for common project markers
-        if (parent / "requirements.txt").exists():
-            return parent
-    
-    # Fallback to current directory
-    return current
+    """Determine the project root directory (parent of 'code' or current dir)."""
+    current = Path(__file__).resolve()
+    # If running from code/scripts/, go up two levels
+    if current.name == "create_project_structure.py":
+        return current.parent.parent.parent
+    return current.parent.parent
 
 def ensure_directory(path: Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: The directory path to ensure exists.
-        
-    Returns:
-        bool: True if the directory exists after the call (created or pre-existing).
-    """
+    """Create a directory if it does not exist. Returns True if created or exists."""
     try:
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            return True
+        path.mkdir(parents=True, exist_ok=True)
         return True
     except OSError as e:
         print(f"Error creating directory {path}: {e}", file=sys.stderr)
         return False
 
-def main():
-    """
-    Main function to create the project directory structure.
+def main() -> int:
+    """Create the required directory structure for the project."""
+    root = get_project_root()
     
-    Creates the following directories relative to the project root:
-    - src/data, src/analysis, src/stats, src/config, src/utils, src/entities
-    - tests/unit, tests/integration
-    """
-    project_root = get_project_root()
-    print(f"Project root: {project_root}")
-    
-    # Define the directories to create for T002
-    directories = [
+    # Define the required directories relative to the project root
+    # Based on tasks.md T002 and T001 requirements
+    required_dirs = [
         # Source subdirectories
-        project_root / "src" / "data",
-        project_root / "src" / "analysis",
-        project_root / "src" / "stats",
-        project_root / "src" / "config",
-        project_root / "src" / "utils",
-        project_root / "src" / "entities",
+        root / "src" / "data",
+        root / "src" / "analysis",
+        root / "src" / "stats",
+        root / "src" / "config",
+        root / "src" / "utils",
+        root / "src" / "entities",
         
         # Test subdirectories
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
+        root / "tests" / "unit",
+        root / "tests" / "integration",
+        
+        # Root level directories (from T001, ensuring they exist for completeness)
+        root / "data",
+        root / "reports",
+        root / "docs",
+        root / "scripts",
+        root / "state",
     ]
-    
+
     success = True
-    for dir_path in directories:
+    for dir_path in required_dirs:
         if ensure_directory(dir_path):
-            print(f"Created/Verified: {dir_path.relative_to(project_root)}")
+            print(f"Created/Verified: {dir_path.relative_to(root)}")
         else:
-            print(f"Failed to create: {dir_path.relative_to(project_root)}", file=sys.stderr)
             success = False
-    
+            print(f"FAILED to create: {dir_path.relative_to(root)}", file=sys.stderr)
+
+    # Create __init__.py files to make them packages
+    for dir_path in required_dirs:
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            # Write a minimal docstring
+            init_file.write_text(f'"""Auto-generated package init for {dir_path.name}.\"""\n')
+            print(f"Created: {init_file.relative_to(root)}")
+
     if success:
-        print("Directory structure creation completed successfully.")
-        sys.exit(0)
+        print("\nDirectory structure verification complete.")
+        return 0
     else:
-        print("Directory structure creation had errors.", file=sys.stderr)
-        sys.exit(1)
+        print("\nDirectory structure creation failed.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
