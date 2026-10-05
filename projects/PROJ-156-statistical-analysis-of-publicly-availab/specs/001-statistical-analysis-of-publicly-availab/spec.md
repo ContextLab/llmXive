@@ -106,7 +106,7 @@ As a researcher, I want to fit hierarchical mixed-effects models (log(Time) ~ lo
 
 - speedrun.com API provides all required variables (run times, runner IDs, attempt numbers, submission dates) for the 10–15 target games without authentication requiring a paid tier
 - Game difficulty labels are available from external community rankings (e.g., Machin et al.) that are independent of run times.; if external difficulty labels are not available for a game, that game is excluded from the difficulty-modulation analysis
-- The 10–15 target games collectively contain ≥5,000 total runs (sufficient for distribution fitting and mixed-effects modeling); games with <100 runs are flagged as "low-sample" and excluded from parametric fitting
+- The –15 target games collectively contain ≥5,000 total runs (sufficient for distribution fitting and mixed-effects modeling); games with <100 runs are flagged as "low-sample" and excluded from parametric fitting
 - GitHub Actions free-tier runners provide ≥7 GB RAM and ≥14 GB disk for the entire 6-hour job; data must be sampled or subset if exceeding these limits
 - Python libraries (pandas, numpy, scipy, statsmodels, matplotlib) are available on the GitHub Actions runner without requiring CUDA or GPU accelerators
 - Competitive pressure can be proxied by the count of active runners (unique runner IDs) within a defined time period for each game; this proxy is validated against community activity trends

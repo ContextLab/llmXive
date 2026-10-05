@@ -1,3 +1,12 @@
+"""
+Distribution Fitting Script (T020)
+
+Fits log-normal, Weibull, and gamma distributions to speedrun times using MLE.
+Performs Kolmogorov-Smirnov (KS) tests and calculates AIC.
+Handles low-sample games by running Anderson-Darling tests and flagging them.
+Saves results to data/processed/distribution_fits.csv.
+"""
+
 import csv
 import json
 import logging
@@ -5,406 +14,309 @@ import os
 import sys
 import math
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
 
-# Conditional import for scipy to allow graceful degradation if missing,
-# but we will raise an error if it's required for the main logic.
-try:
-    import scipy.stats as stats
-    import numpy as np
-    SCIPY_AVAILABLE = True
-except ImportError:
-    SCIPY_AVAILABLE = False
-    logging.warning("scipy or numpy not found. Distribution fitting will fail.")
+import numpy as np
+from scipy import stats
+from scipy.special import gammaln
 
-# --- Configuration Loading ---
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def load_config() -> Dict[str, Any]:
-    """Loads configuration from code/config.yaml.
+from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, get_checkpoint_path
+from scripts.preprocess import load_config
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('code/logs/fit_distributions.log', mode='a')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def load_processed_data():
+    """Load the preprocessed run records CSV."""
+    input_path = Path('data/processed/run_records.csv')
+    if not input_path.exists():
+        logger.error(f"Processed data not found: {input_path}. Run preprocessing first.")
+        raise FileNotFoundError(f"Processed data not found: {input_path}. Run preprocessing first.")
     
-    Tries to use PyYAML if available, otherwise falls back to a simple parser
-    for the specific structure expected, but prefers PyYAML.
-    """
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    # Try PyYAML first (preferred and robust)
-    try:
-        import yaml
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except ImportError:
-        logging.warning("PyYAML not found. Attempting manual parse for simple config.")
-        # Fallback manual parser for the specific simple structure
-        # This handles the specific keys we expect: games, min_sample_size
-        config = {}
-        with open(config_path, 'r') as f:
-            lines = f.readlines()
-        
-        current_key = None
-        current_list = []
-        
-        for line in lines:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            
-            if line.startswith('- ') and current_key:
-                current_list.append(line[2:].strip().strip('"').strip("'"))
-            elif ':' in line and not line.startswith('-'):
-                if current_key and current_list:
-                    config[current_key] = current_list
-                    current_list = []
-                
-                key, val = line.split(':', 1)
-                key = key.strip()
-                val = val.strip()
-                
-                if val == '':
-                    current_key = key
-                else:
-                    # Simple value
-                    if val.lower() == 'true':
-                        config[key] = True
-                    elif val.lower() == 'false':
-                        config[key] = False
-                    else:
-                        try:
-                            config[key] = int(val)
-                        except ValueError:
-                            try:
-                                config[key] = float(val)
-                            except ValueError:
-                                config[key] = val.strip('"').strip("'")
-        
-        if current_key and current_list:
-            config[current_key] = current_list
-        
-        if 'games' not in config or 'min_sample_size' not in config:
-            raise ValueError("Manual config parse failed to find required keys 'games' or 'min_sample_size'")
-        
-        return config
-    except Exception as e:
-        logging.error(f"Error loading config: {e}")
-        raise
-
-# --- Data Loading ---
-
-def load_processed_data() -> List[Dict[str, Any]]:
-    """Loads run_records.csv from data/processed/."""
-    data_path = Path("data/processed/run_records.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Processed data not found: {data_path}. Run preprocessing first.")
-    
-    records = []
-    with open(data_path, 'r', newline='', encoding='utf-8') as f:
+    data = []
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert numeric fields
+            # Convert run_time_seconds to float
             try:
                 row['run_time_seconds'] = float(row['run_time_seconds'])
-                row['attempt_number'] = int(row['attempt_number'])
-            except (ValueError, KeyError) as e:
-                logging.warning(f"Skipping row due to conversion error: {row} - {e}")
-                continue
-            records.append(row)
-    
-    return records
+                data.append(row)
+            except ValueError:
+                logger.warning(f"Skipping row with invalid run_time_seconds: {row.get('run_time_seconds')}")
+    return data
 
-# --- Helper Functions ---
-
-def group_by_game(records: List[Dict[str, Any]]) -> Dict[str, List[float]]:
-    """Groups run times by game_id."""
+def group_by_game(data):
+    """Group data by game_id."""
     games = {}
-    for record in records:
-        game_id = record.get('game_id')
-        if not game_id:
-            continue
-        run_time = record.get('run_time_seconds')
-        if run_time is None or run_time <= 0:
-            continue
-        
+    for row in data:
+        game_id = row['game_id']
         if game_id not in games:
             games[game_id] = []
-        games[game_id].append(run_time)
+        games[game_id].append(row['run_time_seconds'])
     return games
 
-def fit_distribution(data: List[float], dist_name: str) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[float]]:
+def fit_distribution(times, dist_name):
     """
-    Fits a distribution and returns (params, KS_D, KS_pvalue, AIC).
-    Returns None for values if fit fails.
+    Fit a distribution to the times using MLE.
+    Returns parameters, KS statistic, KS p-value, and AIC.
     """
-    if not SCIPY_AVAILABLE:
-        raise ImportError("scipy is required for distribution fitting.")
-    
-    data_np = np.array(data)
-    if len(data_np) < 3:
+    if len(times) < 2:
         return None, None, None, None
 
-    dist = None
-    try:
-        if dist_name == 'lognormal':
-            # scipy.stats.lognorm: s is the shape parameter (sigma)
-            # loc is typically 0 for time data, scale is exp(mu)
-            shape, loc, scale = stats.lognorm.fit(data_np, floc=0)
-            dist = stats.lognorm(s=shape, loc=loc, scale=scale)
-            params = {'s': shape, 'loc': loc, 'scale': scale}
-        elif dist_name == 'weibull_min':
-            # scipy.stats.weibull_min: c is shape (k), scale is scale
-            shape, loc, scale = stats.weibull_min.fit(data_np, floc=0)
-            dist = stats.weibull_min(c=shape, loc=loc, scale=scale)
-            params = {'c': shape, 'loc': loc, 'scale': scale}
-        elif dist_name == 'gamma':
-            shape, loc, scale = stats.gamma.fit(data_np, floc=0)
-            dist = stats.gamma(a=shape, loc=loc, scale=scale)
-            params = {'a': shape, 'loc': loc, 'scale': scale}
-        else:
+    times = np.array(times)
+    # Filter out non-positive values for log-normal, gamma, weibull
+    if dist_name in ['lognorm', 'gamma', 'weibull_min']:
+        valid_mask = times > 0
+        if np.sum(valid_mask) < 2:
+            logger.warning(f"Not enough positive values for {dist_name} fit in sample of size {len(times)}")
             return None, None, None, None
+        times = times[valid_mask]
+
+    try:
+        if dist_name == 'lognorm':
+            # scipy.stats.lognorm: s is shape (sigma), scale is exp(mu)
+            # Fit using log-transformed data to get mu, sigma directly
+            log_times = np.log(times)
+            mu, sigma = stats.norm.fit(log_times)
+            # Convert back to lognorm parameters: s=sigma, scale=exp(mu)
+            params = {'s': sigma, 'scale': np.exp(mu)}
+            # For AIC and KS, we use the fitted lognorm object
+            dist = stats.lognorm(**params)
+            
+        elif dist_name == 'weibull_min':
+            # Weibull minimum (standard Weibull)
+            # scipy.stats.weibull_min: c is shape (k), scale is scale
+            params = stats.weibull_min.fit(times, floc=0) # Fix location to 0
+            dist = stats.weibull_min(*params)
+
+        elif dist_name == 'gamma':
+            # Gamma distribution
+            params = stats.gamma.fit(times, floc=0) # Fix location to 0
+            dist = stats.gamma(*params)
+        
+        else:
+            raise ValueError(f"Unknown distribution: {dist_name}")
+
+        # Kolmogorov-Smirnov test
+        # KS test compares empirical CDF to theoretical CDF
+        ks_stat, ks_pvalue = stats.kstest(times, dist.cdf)
+
+        # AIC calculation: 2k - 2ln(L)
+        # k = number of parameters
+        # ln(L) = log-likelihood
+        k = len(params)
+        log_likelihood = np.sum(dist.logpdf(times))
+        aic = 2 * k - 2 * log_likelihood
+
+        return params, ks_stat, ks_pvalue, aic
+
     except Exception as e:
-        logging.warning(f"Failed to fit {dist_name}: {e}")
+        logger.warning(f"Failed to fit {dist_name} to game: {e}")
         return None, None, None, None
 
-    # KS Test
-    try:
-        ks_stat, ks_pvalue = stats.kstest(data_np, dist.cdf)
-    except Exception as e:
-        logging.warning(f"KS test failed for {dist_name}: {e}")
-        return params, None, None, None
-
-    # AIC
-    try:
-        # AIC = 2k - 2ln(L)
-        # logpdf of the distribution
-        log_likelihood = np.sum(dist.logpdf(data_np))
-        # Number of parameters: usually 3 (shape, loc, scale) but loc is fixed to 0 in fit
-        # Actually, floc=0 fixes loc, so we estimate 2 params.
-        # However, scipy's fit returns 3 values. We used floc=0, so k=2.
-        k = 2 
-        aic = 2 * k - 2 * log_likelihood
-    except Exception as e:
-        logging.warning(f"AIC calculation failed for {dist_name}: {e}")
-        return params, ks_stat, ks_pvalue, None
-
-    return params, ks_stat, ks_pvalue, aic
-
-def perform_anderson_darling(data: List[float], dist_name: str) -> Optional[float]:
+def perform_anderson_darling(times, dist_name):
     """
-    Performs Anderson-Darling test for descriptive purposes.
-    Returns the statistic.
+    Perform Anderson-Darling test for a distribution.
+    Returns the AD statistic.
     """
-    if not SCIPY_AVAILABLE:
-        return None
-    
-    data_np = np.array(data)
-    if len(data_np) < 3:
+    if len(times) < 2:
         return None
 
+    times = np.array(times)
+    if dist_name in ['lognorm', 'gamma', 'weibull_min']:
+        valid_mask = times > 0
+        if np.sum(valid_mask) < 2:
+            return None
+        times = times[valid_mask]
+
     try:
-        if dist_name == 'lognormal':
-            # AD test for lognormal
-            res = stats.anderson(data_np, dist='lognorm')
-            return res.statistic
+        if dist_name == 'lognorm':
+            log_times = np.log(times)
+            ad_stat, crit_vals, sig_level = stats.anderson(log_times, dist='norm')
+            return ad_stat # AD stat for log-transformed data
         elif dist_name == 'weibull_min':
-            # AD test for Weibull is not directly in stats.anderson for specific params
-            # We can use the generic AD or fit and compare.
-            # For simplicity in this context, we'll return None or use a generic approach if needed.
-            # But the task asks for AD statistic.
-            # Let's try to fit and use the statistic from the fit if possible, 
-            # or just use the standard normal AD if we transform.
-            # Given the constraints, we'll return None for Weibull/Gamma AD if not directly supported.
-            return None
+            # AD test for Weibull is not directly in scipy, use gamma as proxy or custom
+            # For simplicity, we'll use the generic AD test against the fitted distribution
+            params = stats.weibull_min.fit(times, floc=0)
+            dist = stats.weibull_min(*params)
+            # scipy.stats.anderson does not support arbitrary CDFs directly in older versions
+            # We will compute it manually or use a placeholder if not supported
+            # Let's try to use the built-in if available, else fallback to None or custom
+            # Since scipy < 1.10 doesn't support custom CDF in anderson, we'll skip for now
+            # or implement a simple version.
+            # For this task, we'll return None for Weibull AD if not directly supported
+            # But let's try to compute it manually:
+            n = len(times)
+            sorted_times = np.sort(times)
+            y = dist.cdf(sorted_times)
+            # AD statistic formula: -n - (1/n) * sum((2i-1)*(ln(y_i) + ln(1-y_{n+1-i})))
+            # Avoid log(0)
+            y = np.clip(y, 1e-10, 1-1e-10)
+            i = np.arange(1, n+1)
+            ad_stat = -n - (1/n) * np.sum((2*i - 1) * (np.log(y) + np.log(1 - y[::-1])))
+            return ad_stat
         elif dist_name == 'gamma':
-            return None
+            params = stats.gamma.fit(times, floc=0)
+            dist = stats.gamma(*params)
+            n = len(times)
+            sorted_times = np.sort(times)
+            y = dist.cdf(sorted_times)
+            y = np.clip(y, 1e-10, 1-1e-10)
+            i = np.arange(1, n+1)
+            ad_stat = -n - (1/n) * np.sum((2*i - 1) * (np.log(y) + np.log(1 - y[::-1])))
+            return ad_stat
         else:
             return None
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed AD test for {dist_name}: {e}")
         return None
 
-# --- Main Logic ---
-
-def process_game(game_id: str, run_times: List[float], min_sample_size: int, config: Dict) -> List[Dict[str, Any]]:
-    """Processes a single game and returns list of result rows."""
+def process_game(game_id, times, min_sample_size):
+    """Process a single game: fit distributions, run tests, handle low sample."""
     results = []
-    n = len(run_times)
+    n = len(times)
     
-    # Check sample size
-    if n < min_sample_size:
-        # Handle T021: Descriptive only
-        ad_stat = None
-        # Try to compute AD for lognormal as a fallback for descriptive
-        if n >= 3:
-            ad_stat = perform_anderson_darling(run_times, 'lognormal')
-        
-        results.append({
-            'game_id': game_id,
-            'distribution_family': 'descriptive',
-            'parameters': 'N/A',
-            'KS_D': None,
-            'KS_pvalue': None,
-            'AIC': None,
-            'ad_statistic': ad_stat,
-            'n_samples': n,
-            'status': 'excluded_low_sample'
-        })
-        return results
-
-    # Fit distributions
-    dists_to_fit = ['lognormal', 'weibull_min', 'gamma']
+    # Low sample check
+    is_low_sample = n < min_sample_size
+    
+    # Define distributions to fit
+    dists = ['lognorm', 'weibull_min', 'gamma']
+    
     best_fit = None
     best_aic = float('inf')
-    rejected_dists = []
-
-    for dist_name in dists_to_fit:
-        params, ks_d, ks_p, aic = fit_distribution(run_times, dist_name)
+    
+    for dist_name in dists:
+        params, ks_stat, ks_pvalue, aic = fit_distribution(times, dist_name)
         
         if params is None:
             continue
-
-        # Format params as JSON string for CSV
-        params_str = json.dumps(params)
         
-        # Flag rejection
-        status = 'accepted'
-        if ks_p is not None and ks_p < 0.05:
-            status = 'rejected'
-            rejected_dists.append(dist_name)
-
-        # Track best
-        if aic is not None and aic < best_aic:
-            best_aic = aic
-            best_fit = dist_name
-
-        results.append({
+        # Map scipy names to human readable
+        dist_label = {
+            'lognorm': 'log-normal',
+            'weibull_min': 'Weibull',
+            'gamma': 'Gamma'
+        }[dist_name]
+        
+        # Run AD test
+        ad_stat = perform_anderson_adarling(times, dist_name)
+        
+        row = {
             'game_id': game_id,
-            'distribution_family': dist_name,
-            'parameters': params_str,
-            'KS_D': ks_d,
-            'KS_pvalue': ks_p,
+            'distribution_family': dist_label,
+            'n': n,
+            'KS_D': ks_stat,
+            'KS_pvalue': ks_pvalue,
             'AIC': aic,
-            'ad_statistic': None,
-            'n_samples': n,
-            'status': status
-        })
-
-    # If we have a best fit, add a recommendation row or update status?
-    # The task says "recommend next-best". We can add a note in the best fit row or a separate row.
-    # Let's add a 'recommendation' column or just ensure the best fit is marked.
-    # For now, we just have the rows. The "recommendation" is implicit by AIC.
-    # We can update the 'status' of the best fit to 'recommended' if it wasn't rejected?
-    # Or just leave it. The task says "recommend next-best".
-    # Let's add a specific row for the recommendation if there are rejections.
-    if rejected_dists and best_fit:
-        # Find the best fit that wasn't rejected? Or just the global best?
-        # If the global best is rejected, we might want the next best non-rejected?
-        # The task says: "Flag distributions with p < 0.05 and recommend next-best"
-        # This implies if the best is rejected, recommend the next.
+            'ad_statistic': ad_stat,
+            'is_low_sample': is_low_sample
+        }
         
-        # Let's filter non-rejected
-        non_rejected = [r for r in results if r['distribution_family'] in dists_to_fit and r['status'] == 'accepted']
-        if non_rejected:
-            # Sort by AIC
-            non_rejected.sort(key=lambda x: x['AIC'] if x['AIC'] is not None else float('inf'))
-            recommended = non_rejected[0]
-            # Add a flag to the recommended row? Or a separate row?
-            # Let's update the recommended row's status to 'recommended'
-            # But we already have 'accepted'. Let's add a 'is_recommended' column?
-            # To keep schema simple, let's just ensure the AIC is the lowest among accepted.
-            pass
+        # Store parameters as JSON string
+        row['parameters'] = json.dumps(params)
+        
+        results.append(row)
+        
+        if aic < best_aic:
+            best_aic = aic
+            best_fit = dist_label
+            
+    # If low sample, we still add the parametric rows if fit was successful,
+    # but we also need to add a 'descriptive' row if NO parametric fit was possible
+    # or if we want to explicitly mark it. The task says:
+    # "Filter out games with <100 runs" -> T021a handles filtering in the CSV or logic.
+    # "Run Anderson-Darling test on low-sample games" -> Done above.
+    # "Add 'descriptive' rows for excluded games" -> T021c handles adding the row.
+    # So here we just return the fitted rows. T021a/c will filter/add based on n.
+    
+    return results, best_fit
 
-    return results
-
-def save_results(results: List[Dict[str, Any]], output_path: str):
-    """Saves results to CSV."""
-    if not results:
-        logging.warning("No results to save.")
-        return
-
-    fieldnames = ['game_id', 'distribution_family', 'parameters', 'KS_D', 'KS_pvalue', 'AIC', 'ad_statistic', 'n_samples', 'status']
+def save_results(all_results, output_path):
+    """Save results to CSV."""
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = [
+        'game_id', 'distribution_family', 'n', 'parameters', 
+        'KS_D', 'KS_pvalue', 'AIC', 'ad_statistic', 'is_low_sample'
+    ]
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(results)
+        for row in all_results:
+            writer.writerow(row)
+    
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
-    
     logger.info("Starting distribution fitting with checkpointing.")
     
-    if not SCIPY_AVAILABLE:
-        logger.error("scipy is not installed. Cannot perform distribution fitting.")
-        sys.exit(1)
-
-    try:
-        config = load_config()
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        sys.exit(1)
-
-    games = config.get('games', [])
+    config = load_config()
     min_sample_size = config.get('min_sample_size', 100)
-
-    if not games:
-        logger.error("No games specified in config.yaml")
-        sys.exit(1)
-
-    logger.info(f"Loading processed data for {len(games)} games...")
+    
+    # Load data
     try:
-        all_records = load_processed_data()
+        data = load_processed_data()
     except FileNotFoundError as e:
         logger.error(str(e))
         sys.exit(1)
-
-    games_data = group_by_game(all_records)
     
+    games = group_by_game(data)
+    logger.info(f"Loaded processed data for {len(games)} games.")
+    
+    # Checkpoint setup
+    checkpoint_dir = ensure_checkpoint_dir()
+    checkpoint_path = get_checkpoint_path('fit_distributions')
+    checkpoint = load_checkpoint(checkpoint_path)
+    
+    processed_games = set(checkpoint.get('processed_games', []))
     all_results = []
     
-    # Checkpointing logic (simplified for this task)
-    checkpoint_path = Path("data/checkpoints/fit_distributions_checkpoint.json")
-    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    game_ids = list(games.keys())
     
-    completed_games = []
-    if checkpoint_path.exists():
-        try:
-            with open(checkpoint_path, 'r') as f:
-                checkpoint_data = json.load(f)
-                completed_games = checkpoint_data.get('completed_games', [])
-            logger.info(f"Resuming from checkpoint. Completed: {completed_games}")
-        except Exception as e:
-            logger.warning(f"Could not load checkpoint: {e}")
-            completed_games = []
-
-    for game_id in games:
-        if game_id in completed_games:
-            logger.info(f"Skipping {game_id} (already completed)")
+    for i, game_id in enumerate(game_ids):
+        # Checkpoint resume
+        if game_id in processed_games:
+            logger.info(f"Skipping already processed game: {game_id}")
             continue
-
-        if game_id not in games_data:
-            logger.warning(f"No data found for game {game_id}")
-            # Still record as processed to avoid infinite loop, or skip?
-            # Let's record it as processed with 0 samples
-            completed_games.append(game_id)
-            with open(checkpoint_path, 'w') as f:
-                json.dump({'completed_games': completed_games}, f)
-            continue
-
-        run_times = games_data[game_id]
-        logger.info(f"Processing {game_id} (n={len(run_times)})")
         
-        game_results = process_game(game_id, run_times, min_sample_size, config)
+        logger.info(f"Processing game {i+1}/{len(game_ids)}: {game_id}")
+        
+        times = games[game_id]
+        game_results, best_fit = process_game(game_id, times, min_sample_size)
+        
         all_results.extend(game_results)
         
-        completed_games.append(game_id)
-        
         # Save checkpoint after each game
-        with open(checkpoint_path, 'w') as f:
-            json.dump({'completed_games': completed_games}, f)
-
-    output_path = "data/processed/distribution_fits.csv"
+        processed_games.add(game_id)
+        save_checkpoint(checkpoint_path, {
+            'processed_games': list(processed_games),
+            'partial_results_count': len(all_results)
+        })
+        
+        logger.info(f"Completed game: {game_id}, best fit: {best_fit}")
+    
+    # Save final results
+    output_path = 'data/processed/distribution_fits.csv'
     save_results(all_results, output_path)
-    logger.info(f"Results saved to {output_path}")
+    
+    # Clean up checkpoint on success
+    if os.path.exists(checkpoint_path):
+        os.remove(checkpoint_path)
+        logger.info("Checkpoint cleaned up.")
+        
+    logger.info("Distribution fitting completed successfully.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

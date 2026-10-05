@@ -31,3 +31,24 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T23:33:28Z'
+- artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: minimum sample size for statistical power not pre-specified
+  claim_id: c_602dabe3
+  context: 'Content of code/config.yaml: ''games: ... The study will establish a minimum
+    sample size sufficient to ensure statistical power and representativeness, without
+    pre-specifying exact counts at this planning stage.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_for_statistical_power_not_pre-specified
+  kind: entity_fact
+  raw_text: The study will establish a minimum sample size sufficient to ensure statistical
+    power and representativeness, without pre-specifying exact counts at this planning
+    stage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:15:22Z'

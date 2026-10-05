@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://www.speedrun.com/api/v1/%60
   verified_at: '2026-06-30T09:40:24.048735Z'
-- artifact_hash: 10da3dbc971853f6f61011e1558dfb817bf7f156d189f4799c78817822f7eb84
+- artifact_hash: 3bae54cc3dd7e08efa851e107f7cdf827e7fa2240e1052580d1a79259a827e8e
   artifact_path: projects/PROJ-156-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-03T00:03:35.342001Z'
+  verified_at: '2026-10-05T10:32:07.665115Z'

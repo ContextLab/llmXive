@@ -1,21 +1,21 @@
 {
   "project_id": "PROJ-156-statistical-analysis-of-publicly-availab",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/scripts/generate_report.py; 4 command(s) failed: python code/scripts/fetch_data.py (rc=1); python code/scripts/preprocess.py (rc=1); python code/scripts/fit_distributions.py (rc=1); 5 declared deliverable(s) absent: data/processed/distribution_fits.csv; data/processed/game_metadata.csv; data/processed/model_results.csv",
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/scripts/generate_report.py; 4 command(s) failed: python code/scripts/fetch_data.py (rc=1); python code/scripts/preprocess.py (rc=1); python code/scripts/fit_distributions.py (rc=1); 4 declared deliverable(s) absent: data/processed/distribution_fits.csv; data/processed/game_metadata.csv; data/processed/model_results.csv",
   "artifacts": [],
   "failures": [
-    "python code/scripts/fetch_data.py -> rc=1\n    2026-10-02 23:22:24,878 - ERROR - No games specified in config.yaml",
-    "python code/scripts/preprocess.py -> rc=1\n    2026-10-02 23:22:24,923 - INFO - Starting preprocessing pipeline...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 428, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 386, in main\n    config = load_config()\n             ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-pu",
-    "python code/scripts/fit_distributions.py -> rc=1\n    2026-10-02 23:22:24,966 - INFO - Starting distribution fitting with checkpointing.\n2026-10-02 23:22:24,966 - WARNING - PyYAML not found, attempting manual parse. This may fail for complex YAML.\n2026-10-02 23:22:24,966 - ERROR - No games defined in config.",
-    "python code/scripts/fit_mixed_effects.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/fit_mixed_effects.py\", line 23, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/scripts/fetch_data.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/fetch_data.py\", line 16, in <module>\n    logging.FileHandler('code/logs/fetch_data.log'),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11",
+    "python code/scripts/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 17, in <module>\n    logging.FileHandler('code/logs/preprocess.log')\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return",
+    "python code/scripts/fit_distributions.py -> rc=1\n    2026-10-05 10:13:32,877 - INFO - Starting distribution fitting with checkpointing.\n2026-10-05 10:13:32,891 - INFO - Loading processed data for 15 games...\n2026-10-05 10:13:32,891 - ERROR - Processed data not found: data/processed/run_records.csv. Run preprocessing first.",
+    "python code/scripts/fit_mixed_effects.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/fit_mixed_effects.py\", line 20, in <module>\n    from scripts.preprocess import load_config, load_schema, validate_record\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/preprocess.py\", line 17, in <module>\n    logging.FileHandler('code/logs/preprocess.log')\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__i",
     "python code/scripts/generate_report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/scripts/generate_report.py': [Errno 2] No such file or directory",
-    "python -c \"import pandas as pd; df = pd.read_csv('data/processed/run_records.csv'); print(f'Completeness: {df.notna().mean().mean():.2%}')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'pandas'"
+    "python -c \"import pandas as pd; df = pd.read_csv('data/processed/run_records.csv'); print(f'Completeness: {df.notna().mean().mean():.2%}')\" -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3."
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-02T23:22:25Z"
+  "updated_at": "2026-10-05T10:13:34Z"
 }

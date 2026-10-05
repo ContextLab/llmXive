@@ -1,3 +1,6 @@
+"""
+Fetch raw speedrun data from speedrun.com API with checkpointing support.
+"""
 import json
 import os
 import sys
@@ -5,157 +8,182 @@ import time
 import urllib.request
 import urllib.error
 import logging
-import yaml
 from pathlib import Path
 
-# Ensure logging is configured
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('code/logs/fetch_data.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from scripts.utils.checkpoint import ensure_checkpoint_dir, save_checkpoint, load_checkpoint, get_checkpoint_path
+
+# Configuration
+CONFIG_PATH = "code/config.yaml"
+API_BASE_URL = "https://www.speedrun.com/api/v1"
+TIMEOUT_PER_REQUEST = 30
+RETRY_COUNT = 3
+RETRY_DELAY = 2
 
 def load_config():
-    config_path = Path('code/config.yaml')
-    if not config_path.exists():
-        logger.error(f"Configuration file not found at {config_path}")
-        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+    """Load configuration from YAML file."""
+    import yaml
+    with open(CONFIG_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+def setup_logging():
+    """Setup logging with file and console handlers."""
+    log_dir = Path("code/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    try:
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-        if 'games' not in config or not config['games']:
-            logger.error("No games specified in config.yaml")
-            raise ValueError("No games specified in config.yaml")
-        logger.info(f"Loaded config with {len(config['games'])} games")
-        return config
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML config: {e}")
-        raise
+    log_file = log_dir / "fetch_data.log"
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def parse_value(key, config):
-    value = config.get(key)
-    if value is None:
-        logger.warning(f"Key '{key}' not found in config, using default")
-        return None
-    return value
+def get_cache_key(game_id):
+    """Generate a cache key for a game."""
+    return f"{game_id}_raw"
 
-def get_cache_key(game_id, page):
-    return f"{game_id}_page_{page}"
-
-def load_from_cache(cache_dir, game_id, page):
-    cache_path = Path(cache_dir) / f"{get_cache_key(game_id, page)}.json"
-    if cache_path.exists():
-        logger.info(f"Loading from cache: {cache_path}")
-        with open(cache_path, 'r') as f:
+def load_from_cache(cache_dir, game_id):
+    """Load raw data from cache if available."""
+    cache_file = Path(cache_dir) / f"{game_id}_raw.json"
+    if cache_file.exists():
+        with open(cache_file, 'r') as f:
             return json.load(f)
     return None
 
-def save_to_cache(cache_dir, game_id, page, data):
-    cache_path = Path(cache_dir) / f"{get_cache_key(game_id, page)}.json"
-    Path(cache_dir).mkdir(parents=True, exist_ok=True)
-    with open(cache_path, 'w') as f:
-        json.dump(data, f)
-    logger.debug(f"Saved to cache: {cache_path}")
+def save_to_cache(cache_dir, game_id, data):
+    """Save raw data to cache."""
+    cache_file = Path(cache_dir) / f"{game_id}_raw.json"
+    with open(cache_file, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def fetch_page(game_id, page, retries=3):
-    base_url = "https://speedrun.com/api/v1/runs"
-    params = f"?game={game_id}&top=100&offset={page * 100}"
-    url = base_url + params
-    
-    for attempt in range(retries):
+def fetch_page(url, logger):
+    """Fetch a single page from the API with retry logic."""
+    for attempt in range(RETRY_COUNT):
         try:
-            logger.info(f"Fetching page {page} for {game_id} (attempt {attempt + 1}/{retries})")
-            req = urllib.request.Request(url, headers={'User-Agent': 'SpeedrunAnalysis/1.0'})
-            with urllib.request.urlopen(req, timeout=30) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                logger.info(f"Successfully fetched page {page} for {game_id}")
-                return data
+            req = urllib.request.Request(url, headers={'User-Agent': 'SpeedrunStats/1.0'})
+            with urllib.request.urlopen(req, timeout=TIMEOUT_PER_REQUEST) as response:
+                return json.loads(response.read().decode('utf-8'))
+        except urllib.error.HTTPError as e:
+            logger.warning(f"HTTP Error {e.code} for {url} (attempt {attempt+1})")
+            if e.code == 429:  # Rate limit
+                time.sleep(RETRY_DELAY * (attempt + 1))
+            else:
+                raise
         except urllib.error.URLError as e:
-            logger.warning(f"URL Error fetching {url}: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff
+            logger.warning(f"URL Error for {url} (attempt {attempt+1}): {e.reason}")
+            time.sleep(RETRY_DELAY * (attempt + 1))
         except Exception as e:
-            logger.error(f"Unexpected error fetching {url}: {e}")
-            raise
+            logger.warning(f"Unexpected error for {url} (attempt {attempt+1}): {e}")
+            time.sleep(RETRY_DELAY * (attempt + 1))
     
-    logger.error(f"Failed to fetch page {page} for {game_id} after {retries} attempts")
-    raise Exception(f"Failed to fetch page {page} for {game_id}")
+    raise RuntimeError(f"Failed to fetch {url} after {RETRY_COUNT} attempts")
 
-def fetch_game_runs(game_id, cache_dir='data/raw/cache'):
-    all_runs = []
-    page = 0
-    max_pages = 10  # Safety limit for demo, adjust based on real needs
+def fetch_game_runs(game_id, logger, max_pages=100):
+    """Fetch all runs for a specific game with pagination."""
+    runs = []
+    page = 1
     
-    while page < max_pages:
-        data = load_from_cache(cache_dir, game_id, page)
-        if data is None:
-            data = fetch_page(game_id, page)
-            save_to_cache(cache_dir, game_id, page, data)
+    while page <= max_pages:
+        url = f"{API_BASE_URL}/games/{game_id}/runs?per-page=100&order=asc&page={page}"
+        logger.info(f"Fetching page {page} for game {game_id}")
         
-        runs = data.get('data', [])
-        if not runs:
-            logger.info(f"No more runs found for {game_id} at page {page}")
+        response = fetch_page(url, logger)
+        data = response.get('data', [])
+        
+        if not data:
             break
         
-        all_runs.extend(runs)
-        logger.info(f"Fetched {len(runs)} runs for {game_id} (total: {len(all_runs)})")
+        runs.extend(data)
+        
+        # Check for pagination
+        pagination = response.get('pagination', {})
+        if not pagination.get('has_next', False):
+            break
+        
         page += 1
+        time.sleep(0.5)  # Be respectful to the API
     
-    return all_runs
+    return runs
 
-def save_raw_data(data, output_path):
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(data, f)
-    logger.info(f"Saved raw data to {output_path}")
+def save_raw_data(data_dir, game_id, runs):
+    """Save raw data to disk."""
+    data_path = Path(data_dir)
+    data_path.mkdir(parents=True, exist_ok=True)
+    
+    output_file = data_path / f"{game_id}_raw.json"
+    with open(output_file, 'w') as f:
+        json.dump(runs, f, indent=2)
+    
+    logger.info(f"Saved {len(runs)} runs for {game_id} to {output_file}")
 
 def main():
-    logger.info("Starting data acquisition pipeline")
+    """Main entry point with checkpointing support."""
+    logger = setup_logging()
+    logger.info("Starting data fetch with checkpointing")
+    
     config = load_config()
-    games = config['games']
-    min_sample_size = parse_value('min_sample_size', config) or 100
-    checkpoint_dir = Path('data/checkpoints')
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    games = config.get('games', [])
+    min_sample_size = config.get('min_sample_size', 100)
     
-    checkpoint_file = checkpoint_dir / 'fetch_checkpoint.json'
-    completed_games = []
+    raw_data_dir = "data/raw"
+    checkpoint_dir = "data/checkpoints"
+    ensure_checkpoint_dir(checkpoint_dir)
     
-    if checkpoint_file.exists():
-        with open(checkpoint_file, 'r') as f:
-            checkpoint = json.load(f)
-            completed_games = checkpoint.get('completed_games', [])
-            logger.info(f"Resuming from checkpoint: {len(completed_games)} games completed")
+    checkpoint_path = get_checkpoint_path(checkpoint_dir, "fetch_data")
+    checkpoint = load_checkpoint(checkpoint_path)
     
-    for game_id in games:
-        if game_id in completed_games:
-            logger.info(f"Skipping {game_id} (already completed)")
-            continue
+    # Determine starting point
+    if checkpoint and 'completed_games' in checkpoint:
+        completed_games = set(checkpoint['completed_games'])
+        games_to_fetch = [g for g in games if g not in completed_games]
+        logger.info(f"Resuming from checkpoint. Completed: {completed_games}, Remaining: {games_to_fetch}")
+    else:
+        completed_games = set()
+        games_to_fetch = games
+        logger.info("Starting fresh. Games to fetch: {games_to_fetch}")
+    
+    # Process each game
+    for game_id in games_to_fetch:
+        logger.info(f"Processing game: {game_id}")
         
         try:
-            logger.info(f"Processing game: {game_id}")
-            runs = fetch_game_runs(game_id)
+            # Check cache first
+            cached_data = load_from_cache(raw_data_dir, game_id)
+            if cached_data:
+                logger.info(f"Loaded {game_id} from cache")
+                runs = cached_data
+            else:
+                # Fetch from API
+                runs = fetch_game_runs(game_id, logger)
+                save_to_cache(raw_data_dir, game_id, runs)
             
-            if len(runs) < min_sample_size:
-                logger.warning(f"Game {game_id} has only {len(runs)} runs (< {min_sample_size}). Skipping.")
-                continue
+            # Save to raw data directory
+            save_raw_data(raw_data_dir, game_id, runs)
             
-            output_path = f"data/raw/{game_id}_raw.json"
-            save_raw_data(runs, output_path)
+            # Update checkpoint
+            completed_games.add(game_id)
+            checkpoint = {
+                'completed_games': list(completed_games),
+                'total_games': len(games),
+                'last_updated': time.time()
+            }
+            save_checkpoint(checkpoint_path, checkpoint)
             
-            completed_games.append(game_id)
-            with open(checkpoint_file, 'w') as f:
-                json.dump({'completed_games': completed_games}, f)
+            logger.info(f"Successfully fetched {len(runs)} runs for {game_id}")
             
-            logger.info(f"Successfully processed {game_id} with {len(runs)} runs")
         except Exception as e:
-            logger.error(f"Failed to process {game_id}: {e}")
+            logger.error(f"Failed to fetch {game_id}: {e}")
             raise
     
-    logger.info("Data acquisition pipeline completed successfully")
+    logger.info(f"All games processed. Total completed: {len(completed_games)}/{len(games)}")
+    return 0
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())
