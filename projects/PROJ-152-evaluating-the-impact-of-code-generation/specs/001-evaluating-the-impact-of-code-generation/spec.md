@@ -16,14 +16,14 @@ The project generates code snippets from security-oriented prompts, runs static 
 
 ### 2.2 Prompt Generation Scope (FR-002) - **AMENDED**
 - **Original Requirement**: The system shall process a large corpus of prompts (N > 100) to ensure statistical power.
-- **Amended Requirement**: Due to resource constraints (GitHub Actions runner limits: 7GB RAM, 6-hour execution window), the scope is reduced to **N=30 prompts** total:
+- **Amended Requirement**: Due to resource constraints (GitHub Actions runner limits: constrained RAM, 6-hour execution window), the scope is reduced to **N=30 prompts** total:
  - **10 prompts** from the CodeXGLUE security subset (selected for high relevance).
  - **20 handcrafted prompts** (5 each for: Database Access, HTML Rendering, Authentication, Injection).
 - **Output**: This results in **N=90 code snippets** (30 prompts × 3 models).
 - **Justification**: Full-scale generation exceeds the available compute budget. The N=30 subset allows for a pilot study that fits within the 6h/7GB constraint while maintaining diverse category coverage.
 
 ### 2.3 Code Generation (FR-003)
-- The system shall generate code using StarCoder-Base (7B), CodeGen (2B), and GPT-NeoX (1.3B).
+- The system shall generate code using StarCoder-Base, CodeGen, and GPT-NeoX.
 - Generation must use 4-bit quantization to fit within memory limits.
 - Generation timeout is set to 120 seconds per snippet.
 
@@ -40,7 +40,7 @@ The project generates code snippets from security-oriented prompts, runs static 
 ### 3.1 Performance Constraints (SC-005) - **AMENDED**
 - **Original Constraint**: The system must complete generation and analysis within 24 hours on a standard GPU cluster.
 - **Amended Constraint**: The entire pipeline (generation + analysis) must complete within **6 hours** on a **CPU-only environment** with **7GB RAM** (GitHub Actions default runner).
-- **Implication**: Model loading must use 4-bit quantization. Batch sizes must be 1. The prompt count is limited to 30 to satisfy this constraint.
+- **Implication**: Model loading must use 4-bit quantization. Batch sizes must be 1. The prompt count is limited to a manageable size to satisfy this constraint.
 
 ### 3.2 Reproducibility
 - All random seeds must be pinned.

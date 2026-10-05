@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): The provided `code/generate.py` shows logging setup for `data/failures.log` but the file is truncated before any generation loop that iterates over the 30 prompts and creates 90 snippets, so we cannot confirm the required processing logic exists. Moreover, the `data/failures.log` file is absent, meaning failures are not currently being recorded. The implementer must add a concrete loop that reads the 30 prompts from `data/prompts/manifest.json`, generates snippets for the three models, and ensure `data/failures.log` is created and populated with any generation errors.
+- `T018` (rejected 1x): No artifacts (prompt manifest, code snippet CSVs, analysis findings, or result statistics) are present, and the implementer provided no evidence of the required data collection, code generation, vulnerability analysis, or metric calculations described in the specification. Consequently the task’s deliverables are missing.
 
 ## Required change
 

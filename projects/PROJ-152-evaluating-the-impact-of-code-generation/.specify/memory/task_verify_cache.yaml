@@ -12,9 +12,50 @@ T010:
     provided `code/prompts.py` is truncated before any logic that would create and
     write that manifest. Consequently the task of combining the two source JSONs into
     a final manifest with attribution and checksums has not been fulfilled.
-T016:
+T014:
   c: false
-  h: 1d2a928dd39d72db6a1c6516d53a59aa326a0c1f8e08e58fa71af217be90c661
-  r: The `code/metrics.py` file contains the mapping functions, but the required `data/mappings/nist_severity_map.yaml`
-    file is absent, so the implementation cannot actually perform the severity conversion
-    as specified. The missing YAML mapping file must be added for the task to be complete.
+  h: 87df6d1f16d9266db0a1ac1417a3465bd2c2e1c5a68453de57d310ad89b8eeaa
+  r: "The required input manifest (`data/prompts/manifest.json`) and the generated\
+    \ outputs (`data/generated/snippets.csv`, its `.sha256` checksum, and `data/failures.log`)\
+    \ are all missing, and the provided `code/generate.py` does not contain a complete\
+    \ generation loop (the file is truncated). The task\u2019s core artifacts are\
+    \ absent, so the implementation is not complete."
+T016b:
+  c: false
+  h: b73a20f7dda36d6caf8048baa66601ced8b73d05bc23cc1917718944e17a9ec1
+  r: "The `code/metrics.py` file contains only metric\u2011calculation utilities and\
+    \ lacks any logic to parse scanner output or extract CWE IDs, and there is no\
+    \ code that adds a `cwe_id` column to a findings CSV. Moreover, the required `data/findings/raw_findings.csv`\
+    \ file is missing entirely. Both the implementation and the output artifact are\
+    \ absent."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (prompt manifest, code snippet CSVs, vulnerability findings CSVs,\
+    \ results CSV, or state.yaml) were supplied; therefore the required outputs are\
+    \ missing and the task\u2019s functional and non\u2011functional requirements\
+    \ cannot be verified."
+T022a:
+  c: false
+  h: a0f373eab3982cc4673ecbbdecc8babcc60ece01a1047dadb93b7a80cd9fee46
+  r: "The required artifacts `data/calibration/calibration_template.csv` and `data/calibration/calibration_instructions.md`\
+    \ are absent, and the provided `code/calibration.py` is incomplete (truncated)\
+    \ and contains only loading/validation utilities, not code that creates the CSV\
+    \ template or the markdown instructions. The task\u2019s core requirement\u2014\
+    to generate those two files\u2014is therefore unmet."
+T022c:
+  c: false
+  h: e7b1b0acbca91d8b48552f3138562695b37a5f23f0968203b0671caf59fc8d93
+  r: "The provided `code/calibration.py` is truncated and lacks any logic for computing\
+    \ inter\u2011rater reliability or false\u2011positive rates, and it does not write\
+    \ `data/calibration/fpr_stats.csv`. Moreover, the required output file `data/calibration/fpr_stats.csv`\
+    \ is missing from the repository."
+T022d:
+  c: false
+  h: 80c7edc935864efbe98ef0f6f25201683968ede0938652106544f2631cc92afc
+  r: "The repository lacks the required `data/calibration/human_labels.csv` and the\
+    \ expected `data/calibration/validation_report.json`. Moreover, `code/calibration.py`\
+    \ is truncated (e.g., an unfinished assignment to `report[\"message\"]`) and contains\
+    \ no logic that actually performs the validation, writes the JSON report, or aborts\
+    \ the pipeline on failure. These missing files and incomplete implementation mean\
+    \ the task\u2019s requirements are not met."

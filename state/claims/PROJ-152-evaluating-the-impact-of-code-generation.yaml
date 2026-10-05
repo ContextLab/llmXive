@@ -2184,3 +2184,608 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T06:45:09Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 30 prompts consisting of 10 CodeXGLUE and 20 handcrafted for 90 snippets
+    total
+  claim_id: c_5bd8d7a6
+  context: Update spec.md (FR-002, SC-005) to explicitly reflect the amended scope
+    of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:39:37Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: max_tokens parameter set to 256
+  claim_id: c_4dac956d
+  context: Create code/config.py with pinned random seeds, path constants, and model
+    hyperparameters (max_tokens=256, batch_size=1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_tokens=256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:39:59Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: batch_size parameter set to 1
+  claim_id: c_020fd874
+  context: Create code/config.py with pinned random seeds, path constants, and model
+    hyperparameters (max_tokens=256, batch_size=1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch_size=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:40:16Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 90 code snippets generated from 30 prompts
+  claim_id: c_0a56adb4
+  context: Implement generation loop in code/generate.py to process 30 prompts (N=90
+    snippets total) using data/prompts/manifest.json as input.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=90 snippets total
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:40:34Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Bandit severity mapping: HIGH to 4, MEDIUM to 3, LOW to 2'
+  claim_id: c_8d487991
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandit 'HIGH'->4, 'MEDIUM'->3, 'LOW'->2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:40:34Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Semgrep severity mapping: ERROR to 5, WARNING to 3, INFO to 1'
+  claim_id: c_56940671
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Semgrep 'ERROR'->5, 'WARNING'->3, 'INFO'->1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:40:35Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'CodeQL severity mapping: High to 4, Medium to 3, Low to 2'
+  claim_id: c_5d3d5565
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeQL 'High'->4, 'Medium'->3, 'Low'->2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:40:35Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction significance level set to 0.0167
+  claim_id: c_e5e6afa0
+  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
+    \ (\u03B1 = 0.0167) if KW p < 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction (\u03B1 = 0.0167)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:41:59Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Zero-inflation threshold set to 50% for conditional ZINB regression
+  claim_id: c_e00d1617
+  context: 'Logic: If zero-inflation > 50% (calculated in T023), run ZINB; else skip.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: zero-inflation > 50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:41:59Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Dataset consists of 30 prompts: 10 from CodeXGLUE and 20 handcrafted'
+  claim_id: c_af377c86
+  context: 'CRITICAL: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit
+    6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 prompts (10 CodeXGLUE + 20 handcrafted)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:42:14Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total number of generated snippets is 90
+  claim_id: c_c821d869
+  context: Generate data/results/run_summary.csv with completion rate, total snippets
+    (N=90), failure counts per SC-005 (amended scope)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total snippets (N=90)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:42:15Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets
+  claim_id: c_8f8bf6e6
+  context: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope
+    of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scope includes N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90
+    snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:44:37Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 6-hour time limit
+  claim_id: c_6f3142fa
+  context: Document the resource constraints (GitHub Actions GB RAM, time limit) as
+    the justification for this amendment. ... resolving the contradiction with the
+    original 'Generate 250 prompts' entry.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project enforces a 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:44:58Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: StarCoder-Base, CodeGen, GPT-NeoX models evaluated
+  claim_id: c_78d1bf4f
+  context: Implement `code/generate.py` with ... CPU-only -bit quantization loading
+    for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StarCoder-Base,_CodeGen,_GPT-NeoX_models_evaluated
+  kind: entity_fact
+  raw_text: The models StarCoder-Base, CodeGen, and GPT-NeoX will be evaluated.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:45:23Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bandit, Semgrep, CodeQL used for static analysis
+  claim_id: c_78118000
+  context: Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL
+    with A timeout mechanism with a configurable duration is implemented. per scan
+    using `subprocess` timeout.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bandit,_Semgrep,_CodeQL_used_for_static_analysis
+  kind: entity_fact
+  raw_text: Bandit, Semgrep, and CodeQL will be used for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:45:50Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: NIST severity map High=4, Medium=3, Low=2
+  claim_id: c_359f847e
+  context: Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based
+    mapping rules (e.g., 'High' -> 4, 'Medium' -> 3) for severity conversion
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NIST severity map uses High=4, Medium=3, Low=2 mapping rules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:09Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bandit severity mapping HIGH=4, MEDIUM=3, LOW=2
+  claim_id: c_27e49193
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandit severity labels are mapped as HIGH->4, MEDIUM->3, LOW->2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:10Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Semgrep severity mapping ERROR=5, WARNING=3, INFO=1
+  claim_id: c_3ffda21d
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Semgrep severity labels are mapped as ERROR->5, WARNING->3, INFO->1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:10Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeQL severity mapping High=4, Medium=3, Low=2
+  claim_id: c_bd32f371
+  context: 'Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2; Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1; CodeQL ''High''->4, ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeQL severity labels are mapped as High->4, Medium->3, Low->2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:10Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test used for model comparison
+  claim_id: c_5141e5f2
+  context: Compute V/100LOC and mean severity, apply Kruskal-Wallis/Dunn tests, perform
+    ZINB robustness check (conditional), and run sensitivity analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_used_for_model_comparison
+  kind: entity_fact
+  raw_text: The Kruskal-Wallis test is used to compare models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:45Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ZINB regression run if zero-inflation > 50%
+  claim_id: c_2f8445ef
+  context: 'Logic: If zero-inflation > 50% (calculated in T023), run ZINB; else skip.
+    Library: `statsmodels.discrete.discrete_model.ZeroInflatedNegativeBinomialP`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zero-Inflated Negative Binomial (ZINB) regression is run if zero-inflation
+    exceeds 50%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:46:45Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ZINB formula vuln_count ~ model + offset(log(LOC)) and zero_inflated
+    ~ model
+  claim_id: c_dc110c63
+  context: 'Formula: `vuln_count ~ model + offset(log(LOC))` for count, `zero_inflated
+    ~ model` for zero-inflation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ZINB_formula_vuln_count_~_model_%2B_offset(log(LOC))_and_zero
+  kind: entity_fact
+  raw_text: The ZINB formula uses `vuln_count ~ model + offset(log(LOC))` for count
+    and `zero_inflated ~ model` for zero-inflation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:47:50Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python 3.11 used
+  claim_id: c_433bd227
+  context: Initialize Python 3.11 virtual environment using `python -m venv venv`
+    and ensure `requirements.txt` is installed in the new environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:48:08Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 4-bit quantization used for model loading
+  claim_id: c_4cb0c2a4
+  context: 'CRITICAL: All model loading MUST use 4-bit quantization on CPU only (no
+    CUDA/bitsandbytes GPU requirements).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model loader uses 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:48:28Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Evaluation scope: 30 prompts (10 CodeXGLUE, 20 handcrafted) and 90 snippets'
+  claim_id: c_f2bc1cc8
+  context: Task T000a updates spec.md to explicitly reflect the amended scope of N=30
+    prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource
+    constraints (GitHub Actions GB RAM, time limit) as the justification for this
+    amendment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The amended scope of the evaluation is N=30 prompts (10 CodeXGLUE + 20
+    handcrafted) and N=90 snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:56:51Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Dataset composition: 10 CodeXGLUE prompts and 20 handcrafted prompts'
+  claim_id: c_1bb84158
+  context: Task T000a updates spec.md to explicitly reflect the amended scope of N=30
+    prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation uses a dataset of 10 CodeXGLUE prompts and 20 handcrafted
+    prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:57:09Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Total generated snippets: 90'
+  claim_id: c_29e88bb0
+  context: Task T000a updates spec.md to explicitly reflect the amended scope of N=30
+    prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of generated code snippets is 90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:57:26Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runtime limit: 6 hours'
+  claim_id: c_d251f67b
+  context: Task T008b implements logic to halt generation if elapsed_time + estimated_time
+    > 6 hours. Task T000c resolves the contradiction with the original scope regarding
+    the 6h limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total runtime limit for the generation and analysis pipeline is 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:57:48Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Models used: StarCoder-Base, CodeGen, GPT-NeoX'
+  claim_id: c_d7a49e7b
+  context: Task T008a implements generation handling for StarCoder-Base, CodeGen,
+    GPT-NeoX. Task T013 implements model loader for StarCoder-Base large-scale, CodeGen
+    B, GPT-NeoX B.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_used:_StarCoder-Base,_CodeGen,_GPT-NeoX
+  kind: entity_fact
+  raw_text: The models StarCoder-Base, CodeGen, and GPT-NeoX are used for code generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:16Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Model loading configuration: 4-bit quantization on CPU'
+  claim_id: c_7fd3761b
+  context: Task T013 implements model loader with -bit quantization (bitsandbytes
+    CPU-compatible). Notes state all model loading MUST use 4-bit quantization on
+    CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation uses 4-bit quantization for model loading on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:33Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Static analysis tools: Bandit, Semgrep, CodeQL'
+  claim_id: c_16788557
+  context: Task T015 implements scanner runner to pipe snippets through Bandit (Python),
+    Semgrep (security rules), CodeQL (Java/JS).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Static_analysis_tools:_Bandit,_Semgrep,_CodeQL
+  kind: entity_fact
+  raw_text: Bandit, Semgrep, and CodeQL are used for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:56Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Bandit severity mapping: HIGH=4, MEDIUM=3, LOW=2'
+  claim_id: c_d438d5fe
+  context: 'Task T016a implements severity mapping to convert raw scanner labels to
+    NIST-based ordinal rank. Logic: Map Bandit ''HIGH''->4, ''MEDIUM''->3, ''LOW''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandit severity labels are mapped as HIGH->4, MEDIUM->3, LOW->2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:57Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Semgrep severity mapping: ERROR=5, WARNING=3, INFO=1'
+  claim_id: c_3d1a9012
+  context: 'Task T016a implements severity mapping. Logic: Map Semgrep ''ERROR''->5,
+    ''WARNING''->3, ''INFO''->1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Semgrep severity labels are mapped as ERROR->5, WARNING->3, INFO->1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:57Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'CodeQL severity mapping: High=4, Medium=3, Low=2'
+  claim_id: c_28152bbe
+  context: 'Task T016a implements severity mapping. Logic: Map CodeQL ''High''->4,
+    ''Medium''->3, ''Low''->2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeQL severity labels are mapped as High->4, Medium->3, Low->2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:58:57Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction alpha: 0.0167'
+  claim_id: c_0bb134af
+  context: "Task T025 implements Dunn's post-hoc with Bonferroni correction (\u03B1\
+    \ = 0.0167) if KW p < 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction uses an alpha value of 0.0167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:59:10Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'ZINB regression condition: zero-inflation > 50%'
+  claim_id: c_9ec0974f
+  context: 'Task T026 implements ZINB regression conditionally. Logic: If zero-inflation
+    > 50% (calculated in T023), run ZINB; else skip.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ZINB_regression_condition:_zero-inflation_%3E_50%25
+  kind: magnitude
+  raw_text: Zero-Inflated Negative Binomial (ZINB) regression is run only if zero-inflation
+    is greater than 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:59:31Z'
