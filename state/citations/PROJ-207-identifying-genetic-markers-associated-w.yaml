@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://useast.ensembl.org/Apis_mellifera/Info/Index?redirectsrc=//www.ensembl.org%2FApis_mellifera%2FInfo%2FIndex
   verified_at: '2026-08-01T12:48:16.115569Z'
+- artifact_hash: 0471743855d3ea654823d4930e552a58e2e87fdc42749b4891da5dfeec446160
+  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://bees.ensembl.org/
+  verification_status: unreachable
+  verified_against_url: https://bees.ensembl.org/
+  verified_at: '2026-10-05T19:09:44.717134Z'

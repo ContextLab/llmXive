@@ -7,6 +7,8 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/001-gene-regulation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
+**⚠️ CRITICAL NOTE ON PLAN ARTIFACT**: The `plan.md` artifact currently contains contradictions with the Spec (specifically regarding "Candidate-Gene Pre-filtering" and "Deferred Split"). These contradictions are flagged as **plan-root cause** issues. The tasks below strictly implement the **Spec** requirements (GWAS on ALL SNPs, concrete 80/20 split). Implementation must follow the Spec, not the contradictory Plan text.
+
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
@@ -43,9 +45,11 @@ description: "Task list template for feature implementation"
  ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup (Shared Infrastructure & Power Analysis)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, basic structure, and the mandatory Power Analysis gate (FR-012).
+
+**⚠️ CRITICAL**: T005 (Power Analysis) MUST complete and pass before ANY full data download begins.
 
 - [X] T001 Create project structure by executing: `mkdir -p code/ data/raw/ data/processed/ data/interim/ state/ docs/ tests/`
 - [X] T003a [P] Create `code/pyproject.toml` with ruff and black configuration sections
@@ -66,24 +70,29 @@ entrez-direct
 ```
 **Note**: `dwgsim` is a system binary, not a Python package. It must be installed via conda/bioconda, not pip. Do NOT include it in requirements.txt. T013a handles system binary installation.
 
+- [ ] T005 [US1] [Foundational] Implement `code/utils/power_analysis.py` for FR-012. MUST:
+ 1. Calculate power using non-central chi-squared distribution.
+ 2. **Parameters**: Effect size (OR >= 2.5), alpha=0.05, target power=0.8.
+ 3. **Input**: Accepts `n_samples` as a command-line argument (provided by T012a metadata fetch).
+ 4. **HALT ONLY IF n < 80** with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
+ 5. If n >= 80: Calculate power and **REPORT** it by writing a JSON object to `data/processed/power_analysis_report.json` with keys: `power_value`, `status: "PASS"`, `n_samples`.
+ 6. **Verification**: The script MUST verify the existence of `data/processed/power_analysis_report.json` after writing.
+ 7. Output: Write power value and status to `data/processed/power_analysis.txt` (summary) and `data/processed/power_analysis_report.json` (structured).
+ 8. **Dependency**: This task MUST be executed AFTER T012a fetches metadata to determine `n_samples`, but BEFORE T012b proceeds to full data download.
+
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes Data Fetch with strict gates.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. T012b depends on T005 passing.
 
 - [X] T004 Create data directory structure with immutable raw data constraints (mkdir -p data/raw, data/processed, data/interim)
 - [X] T039 [P] Implement `code/utils/checksum_verify.py` to verify checksums of raw data files against recorded hashes
 - [X] T040 [P] Create `docs/data_policy.md` defining the 'immutable' constraint for raw data
-- [X] T005 [P] Implement `code/utils/power_analysis.py` for FR-012. MUST:
- 1. Calculate power using non-central chi-squared distribution.
- 2. **HALT ONLY IF n < 80** with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
- 3. If n >= 80: Calculate power and **REPORT** it by writing a JSON object to `data/processed/power_analysis_report.json` with keys: `power_value`, `status: "PASS"`, `n_samples`.
- 4. **Verification**: The script MUST verify the existence of `data/processed/power_analysis_report.json` after writing.
- 5. Output: Write power value and status to `data/processed/power_analysis.txt` (summary) and `data/processed/power_analysis_report.json` (structured).
-- [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
+- [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix).
+ - **Coverage Note**: This foundational task covers collinearity diagnostics for **all** project phases, including US1 covariate checks and US3 model diagnostics. It ensures that any covariate set used in the pipeline is checked for multicollinearity before model fitting.
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
 - [X] T008 [P] Create `.env.example` with keys `NCBI_API_KEY`, `ENSEMBL_API_KEY` and default values for SSL CA bundle paths
 - [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks:
@@ -97,7 +106,23 @@ entrez-direct
 - [X] T013b [P] [Foundational] Verify `dwgsim` availability.
  - **Implementation**: Run `dwgsim --help` and verify it exits with code 0.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T012a [US1] [Foundational] Implement `code/01_download_metadata.py` to fetch **metadata only** from NCBI BioProject PRJNA639195 (CCD) and PRJNA566029 (Healthy) to determine sample size.
+ - **Implementation**:
+ 1. **Primary Source**: Use `entrez-direct` (esearch, efetch) to download SRA metadata for PRJNA639195 and PRJNA566029.
+ 2. **API Details**: Use `esearch` with `db=sra` and `query="PRJNA639195[Accession]"` to retrieve accession IDs. Use `efetch` to retrieve metadata JSON.
+ 3. **Metadata Fields**: Extract `sample_accession`, `library_strategy`, `instrument_platform`, and `attributes` (specifically `ccd_status`, `varroa_load`, `geographic_region`).
+ 4. **SSL Hard-Stop**: Validate SSL certificates using a verified CA bundle. If verification fails, the system MUST halt with `sys.exit(1)` and a clear error message: "SSL Verification Failed: [Error Details]". Do NOT proceed. Do NOT fallback to synthetic data.
+ 5. **Sample Count Check**: After fetching metadata, count the number of unique colonies. If n < 80, exit with error `ERR_SAMPLE_SIZE_INSUFFICIENT`.
+ 6. **Output Artifacts**: `data/processed/ncbi_metadata_only.json` (contains sample count and Varroa coverage stats).
+ - **Note**: This task fetches ONLY metadata. It does NOT download FASTQ files. It provides `n_samples` to T005.
+
+- [X] T012b [US1] [Foundational] Implement `code/01_download_full.py` to fetch **full data** (FASTQ) from NCBI BioProject PRJNA639195 and PRJNA566029.
+ - **Depends on**: T005 (Power Analysis) must pass (n >= 80) before full data fetch proceeds.
+ - **Implementation**:
+ 1. **Primary Source**: Use `prefetch` or `fasterq-dump` from SRA Toolkit to download FASTQ files for the accessions identified in T012a.
+ 2. **SSL Hard-Stop**: Validate SSL certificates. Halt on failure.
+ 3. **Output Artifacts**: `data/raw/fastq_files`, `data/processed/ncbi_fetch_log.json`.
+ - **Note**: This task performs the full download only after T005 confirms sufficient sample size.
 
 ---
 
@@ -114,25 +139,26 @@ entrez-direct
 
 ### Implementation for User Story 1
 
-- [X] T012a [US1] Implement `code/01_download.py` to fetch data from NCBI BioProject PRJNA639195 (CCD) and PRJNA566029 (Healthy) with associated metadata.
+- [ ] T062 [US1] [Foundational] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
+ - **Depends on**: T012b (Full Data Fetch).
+ - **Input**: `data/processed/ncbi_metadata_only.json` (from T012a) and `data/raw/fastq_files` (from T012b).
+ - **Output**: `data/interim/phenotypes_harmonized.fam`.
  - **Implementation**:
- 1. **Primary Source**: Use `entrez-direct` (esearch, efetch) to download SRA metadata and FASTQ files for PRJNA639195 and PRJNA566029.
- 2. **SSL Hard-Stop**: Validate SSL certificates using a verified CA bundle. If verification fails, the system MUST halt with `sys.exit(1)` and a clear error message: "SSL Verification Failed: [Error Details]". Do NOT proceed. Do NOT fallback to synthetic data.
- 3. **Sample Count Check**: After fetching, count the number of unique colonies. If n < 80, exit with error `ERR_SAMPLE_SIZE_INSUFFICIENT`.
- 4. **Output Artifacts**: `data/raw/fastq_files`, `data/processed/ncbi_fetch_log.json`.
- - **Note**: This task enforces NCBI as the primary source per Spec FR-001. No fallback paths allowed.
-
-- [X] T012b [US1] [Plan Revision] Update `plan.md` to remove HuggingFace references.
- - **Implementation**: In `plan.md`, replace all mentions of "Hugging Face (bee_genome_variants)" with "NCBI BioProject PRJNA639195 and PRJNA566029". Ensure Phase 0 and Summary reflect NCBI as the sole source.
- - **Rationale**: Resolve conflict between Spec (NCBI) and Plan (HF).
+ 1. **Protocol**: Use CCD Working Group (2007) protocol: 'Colony collapse' = dead adult bees, no dead pupae, < 10% live bee population.
+ 2. **Mapping Logic**: Map 'CCD', 'Colony Collapse' -> 1; 'Healthy', 'Control' -> 0. Apply to **PHENOTYPE column (column 6)** in the.fam file.
+ 3. **Ambiguous Codes**: If 'colony loss' is found, flag as ambiguous and exclude from primary analysis unless mapped to CCD criteria.
+ 4. **Varroa Check**: Calculate the percentage of samples with Varroa data.
+ 5. **Logic**: If < 80% of the total cohort has Varroa data, exit with code `ERR_VARROA_COVARIATE_MISSING`. If >= 80%, **exclude** samples with missing Varroa data from the covariate model but **retain** them for genotype-only analysis (as per Spec Assumptions).
+ - **Note**: This task MUST run BEFORE alignment (T014) to prevent wasted compute if Varroa coverage is insufficient.
 
 - [X] T014 [US1] Implement alignment and variant calling pipeline in `code/02_align_call.sh` (FR-002).
- - **Input**: `data/raw/fastq_files` (from T012a).
+ - **Input**: `data/raw/fastq_files` (from T012b).
  - **Output**: `data/interim/raw_variants.vcf`.
  - **Implementation**:
- 1. Align reads to reference genome `Amel_HAv3.1` using `bwa mem`.
- 2. Call variants using `FreeBayes`.
- 3. Filter to high-quality biallelic SNPs (QUAL > 30, depth ≥ 10) using `bcftools`.
+ 1. **Reference Genome**: Use `data/raw/refs/Amel_HAv3.1.fa`. Verify checksum before alignment.
+ 2. Align reads to reference genome `Amel_HAv3.1` using `bwa mem`.
+ 3. Call variants using `FreeBayes`.
+ 4. Filter to high-quality biallelic SNPs (QUAL > 30, depth ≥ 10) using `bcftools`.
  - **Note**: This task is critical for producing the VCF required by T015.
 
 - [X] T045 [P] [US1] [Validation Only] Implement `code/00_generate_simulated_fastq.py` to simulate FASTQ for *validation/testing* of the alignment pipeline (FR-002).
@@ -154,15 +180,17 @@ entrez-direct
  - **Output**: `data/interim/bed_pruned.bim` (for LD pruning reference), `data/interim/phenotypes_cleaned.fam`.
  - **Implementation**: Perform LD pruning using PLINK `--indep-pairwise 50 5 0.2` and output the pruned bim file.
 
-- [X] T062 [US1] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
- - **Input**: `data/interim/phenotypes_cleaned.fam`.
- - **Output**: `data/interim/phenotypes_harmonized.fam`.
+- [X] T062b [US1] [Validation] Implement `code/02_validate_instruments.py` to verify CCD diagnosis instruments against BeeBase/NCBI standards (FR-011).
+ - **Depends on**: T012a (metadata fetch).
+ - **Input**: `data/processed/ncbi_metadata_only.json`.
+ - **Output**: `data/processed/instrument_validation_report.json`.
  - **Implementation**:
- 1. Map CCD diagnosis codes to binary (CCD=1, Healthy=0).
- 2. **Varroa Check**: Calculate the percentage of samples with Varroa data. If < 80%, exit with code `ERR_VARROA_COVARIATE_MISSING` and a clear error message.
- - **Note**: This task includes the logic from T044.
+ 1. Compare CCD diagnosis fields in metadata against BeeBase standard definitions.
+ 2. Verify consistency of `ccd_status` and `varroa_load` fields across sources.
+ 3. If inconsistencies are found, log them and halt if > 10% of records are ambiguous (as per Spec Assumptions).
+ - **Rationale**: Explicitly validates the real data source's instrument consistency before harmonization.
 
-- [X] T063 [US1] Implement `code/03_filter_snps.py` to pre-filter SNPs to immune pathway (Candidate-Gene approach) **for annotation purposes only** (FR-003).
+- [X] T063 [US1] [Validation] Implement `code/03_filter_snps.py` to pre-filter SNPs to immune pathway (Candidate-Gene approach) **for annotation purposes only** (FR-003).
  - **CRITICAL WARNING**: This filtered list is **STRICTLY EXCLUDED** from the primary GWAS run (T017). T017 MUST use ALL high-quality SNPs.
  - **Input**: `data/interim/bed.bim`.
  - **Output**: `data/interim/immune_pathway_snps.txt`.
@@ -171,26 +199,29 @@ entrez-direct
 - [X] T063b [US1] [Documentation] Add explicit exclusion note to `code/03_gwas.sh` (T017).
  - **Implementation**: Ensure T017's code comments explicitly state: "This script uses ALL SNPs from data/interim/bed.*. It does NOT use data/interim/immune_pathway_snps.txt."
 
-- [X] T064 [US1] Implement `code/05_collinearity_diag.py` to perform collinearity diagnostics (FR-010).
-
-- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
- - **Input**: `data/interim/bed.bim`, `data/interim/bed.fam`, `data/interim/phenotypes_cleaned.fam`.
- - **Output**: `data/interim/gwas_raw.tsv`.
- - **Note**: This task uses ALL SNPs. Do not use the filtered list from T063.
-
-- [X] T052 [P] [US1] [Review Fix] Implement `code/utils/gwas_thresholds.py` to calculate the "Effective Number of Independent Tests (Me)" for documentation.
+- [X] T052 [P] [US1] [Review Fix] Implement `code/utils/gwas_thresholds.py` to calculate the "Effective Number of Independent Tests (Me)" for documentation [FR-004] [SC-003].
  - **Depends on**: T016.
  - **Rationale**: Address reviewer concern in Assumptions regarding the genome-wide significance threshold. The Spec mentions "effective number of independent tests" but the tasks only implement BH. We need a specific task to calculate Me for the honeybee genome to document the Me value used for BH context (NOT for Bonferroni correction).
  - **Implementation**:
- 1. Implement a script that estimates Me using `scipy.linalg.eigh` on the correlation matrix of the LD-pruned SNPs (from T016).
+ 1. Implement a script that estimates Me using the **Li & Ji method** on the correlation matrix of the LD-pruned SNPs (from T016).
  2. **Input**: `data/interim/bed_pruned.bim` (from T016).
- 3. Output `data/processed/me_estimate.txt` with the calculated Me value as a **single integer**.
- 4. Update `code/utils/fdr_correction.py` (T020) to read this value and log it.
- 5. **MANDATORY**: This task is for documentation ONLY. It must not alter the FDR method (BH).
- - **Verification**: Verify `me_estimate.txt` exists and contains a plausible integer value for honeybee genome.
+ 3. **Threshold**: Use r² < 0.2 for the correlation matrix.
+ 4. Output `data/processed/me_estimate.txt` with the calculated Me value as a **single integer**.
+ 5. Update `code/utils/fdr_correction.py` (T020) to read this value and log it.
+ 6. **MANDATORY**: This task is for documentation ONLY. It must not alter the FDR method (BH).
+ 7. **Verification**: Verify `me_estimate.txt` exists and contains a plausible integer value for honeybee genome.
+ 8. **Citation**: Ensure the Me value is explicitly cited in T023 (Study Design) as the basis for threshold context.
+
+- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
+ - **Depends on**: T063 (to ensure warning logic is in place) and T016.
+ - **Input**: `data/interim/bed.bim`, `data/interim/bed.fam`, `data/interim/phenotypes_cleaned.fam`.
+ - **Output**: `data/interim/gwas_raw.tsv`.
+ - **Implementation**:
+ 1. **Input Check**: Add a grep check at the start of the script that validates the input BIM file is `data/interim/bed.bim` and NOT `data/interim/immune_pathway_snps.txt`. Exit with error if filtered file is detected.
+ 2. This task uses ALL SNPs. Do not use the filtered list from T063.
 
 - [X] T020 [US1] Implement Benjamini-Hochberg FDR correction in `code/utils/fdr_correction.py` (FR-004).
- - **Depends on**: T017.
+ - **Depends on**: T017, T052.
  - **Input**: `data/interim/gwas_raw.tsv`. MUST sort by p-value in **ascending order** before processing. P-values must be formatted to **10 decimal places**.
  - **Output**: `data/interim/gwas_fdr.tsv`.
  - **Output Schema**: Columns must be: `rank`, `raw_p`, `q_value`, `significant` (boolean).
@@ -207,6 +238,7 @@ entrez-direct
 
 - [X] T023 [US1] Create `code/05_document_study_design.py` to document the study design, associational nature, and covariate handling.
  - **Implementation**: Generate `data/processed/study_design.md` with explicit disclaimers (FR-009).
+ - **Citation**: Explicitly cite the Me value from T052 as the basis for threshold context in the document.
  - **Note**: This task replaces the ambiguous T023 shell script reference.
 
 **Checkpoint**: US1 fully complete. Pipeline produces FDR-corrected results ready for sensitivity analysis.
@@ -226,11 +258,12 @@ entrez-direct
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement threshold sensitivity sweep across a specific set of thresholds in `code/utils/threshold_sensitivity.py` (FR-005).
+- [ ] T021 [US2] Implement threshold sensitivity sweep across a specific set of thresholds in `code/utils/threshold_sensitivity.py` (FR-005).
  - **Depends on**: T022.
  - **Input**: `data/processed/gwas_results_fdr.tsv` (from T022).
  - **Output**: `data/processed/threshold_sensitivity.json`.
- - **Logic**: For each threshold in a set of small magnitudes, count SNPs passing and list corresponding q-values.
+ - **Logic**: For each threshold in the set **{1e-7, 5e-8, 1e-8}**, count SNPs passing and list corresponding q-values.
+ - **Output Schema**: `{"threshold": float, "count": int, "q_values": [float]}` for each threshold.
 
 **Note**: FDR Correction (T020) and Merging (T022) are completed in Phase 3 (US1) to ensure US1 is self-contained. This phase focuses solely on Threshold Sensitivity (T021) and Documentation.
 
@@ -242,19 +275,18 @@ entrez-direct
 
 **Independent Test**: Can be tested by running LASSO on a held-out test set (80/20 split) and verifying AUC is computed correctly.
 
+**Note on Redundancy**: Task T026 was removed as a duplicate of T019 (both test threshold sensitivity output). T027-T032 are the single source of truth for US3 implementation.
+
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T025 [P] [US3] Unit test for LASSO AUC calculation in `tests/unit/test_lasso_auc.py`
-- [X] T026 [P] [US3] Contract test for threshold sensitivity output format in `tests/contract/test_threshold_sensitivity.py`
 
 ### Implementation for User Story 3
 
-**Note on Redundancy**: Tasks T070, T071, T072 were removed to resolve duplication. **T027-T032 are the single source of truth** for US3 implementation.
-
-- [X] T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
+- [ ] T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
  - **Depends on**: T022.
  - **Implementation**:
- 1. Split data: [deferred] training, [deferred] testing using `train_test_split` with `random_state=42` and `stratify=y`.
+ 1. Split data: **80% training, [deferred] testing** using `train_test_split` with `random_state=42` and `stratify=y`.
  2. Train LASSO on the training set using `StratifiedKFold(n_splits=5, random_state=42)` for cross-validation.
  3. Compute AUC on the held-out test set.
  4. Report AUC value. If AUC < 0.75, flag as low predictive power.
@@ -262,14 +294,14 @@ entrez-direct
  - **Input**: `data/processed/gwas_results_fdr.tsv` (from T022).
  - **Output**: `data/processed/lasso_auc_report.json`.
 
-- [X] T027b [US3] Implement phenotype permutation to generate null distribution for AUC comparison (US-3 AC3).
+- [ ] T027b [US3] Implement phenotype permutation to generate null distribution for AUC comparison (US-3 AC3).
  - **Depends on**: T027.
  - **Implementation**:
  1. Permute phenotype labels multiple times.
  2. For each permutation, calculate AUC using the same LASSO model.
  3. Generate null distribution and compare observed AUC.
  4. **Output Artifact**: Write JSON to `data/processed/phenotype_permutation_null.json` with keys: `{"observed_auc": float, "null_distribution": [float], "p_value": float}`.
- 5. **Merged Output**: Also write `data/processed/validation_metrics.json` with keys: `{"auc": float, "null_p_value": float, "flag": "low_power"}`.
+ 5. **Merged Output**: Also write `data/processed/validation_metrics.json` with keys: `{"auc": float, "null_p_value": float, "flag": "low_power"}`. The `flag` key MUST be set to "low_power" if AUC < 0.75, otherwise "normal".
  - **Input**: `data/processed/lasso_auc_report.json`.
  - **Output**: `data/processed/phenotype_permutation_null.json`, `data/processed/validation_metrics.json`.
 
@@ -280,7 +312,7 @@ entrez-direct
  - **Implementation**: Calculate PRS for each colony based on significant SNPs.
  - **Output Schema**: Columns must be: `colony_id`, `prs_score`, `p_value`.
 
-- [X] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007).
+- [ ] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007).
  - **Depends on**: T028.
  - **Input**: `data/processed/prs_scores.tsv` (from T028).
  - **Output**: `data/processed/prs_lr_test.json`.
@@ -291,15 +323,20 @@ entrez-direct
  - **Output**: `data/processed/collinearity_report.json`.
  - **Output Schema**: `{"vif_values": {"region": float, "year": float}, "correlation_matrix": [[float]]}`.
 
-- [X] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API v104 and query GO terms (FR-008).
- - **Input**: `data/interim/immune_pathway_snps.txt` (from T063).
+- [ ] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API v104 at and query GO terms (FR-008).
+ - **Depends on**: T063, T022.
+ - **Input**: `data/interim/immune_pathway_snps.txt` (from T063), `data/processed/gwas_results_fdr.tsv` (from T022).
  - **Output**: `data/processed/annotation_results.tsv`.
  - **Implementation**:
- 1. Use Ensembl Bees API **v104**.
- 2. If a SNP maps to multiple genes, select the one with the shortest genomic distance.
- 3. If a SNP maps to **no genes**, assign the value **'INTERGENIC'** in the output schema.
- 4. If the API is unavailable, assign **'UNAVAILABLE'**.
+ 1. **API**: Use Ensembl Bees API **v104** at ``.
+ 2. **Query**: Use `snp_id` (rs_id) as the query parameter.
+ 3. **Multiple Genes**: If a SNP maps to multiple genes, select the one with the **shortest genomic distance**.
+ 4. **Missing Distance**: If distance data is missing, log a warning and assign 'INTERGENIC'.
+ 5. **No Gene Found**: If a SNP maps to **no genes**, assign the value **'INTERGENIC'**.
+ 6. **API Unavailable**: If the API is unavailable, assign **'UNAVAILABLE'** and log the specific error (timeout, 404, etc.) to `data/processed/annotation_errors.log`.
+ 7. **Protocol**: Follow **Ensembl Bees API v104 documentation** and **Gene Ontology Consortium standards** for querying GO terms.
  - **Output Schema**: Columns must be: `snp_id`, `gene_symbol`, `distance`, `go_terms`.
+ - **Note**: This task can run in parallel with T027/T028 as it depends only on T022 (GWAS results) and T063.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -332,67 +369,66 @@ entrez-direct
 
 ---
 
-## Phase O: Plan Alignment & Documentation (Revision)
-
-**Purpose**: Resolve conflicts between Spec and Plan regarding Candidate-Gene filtering and ensure documentation reflects the governing Spec requirements.
-
-- [ ] T082 [P] [Plan Revision] Update `plan.md` to remove "Candidate-Gene Pre-filtering" from the "Complexity Tracking" table and the "Critical Methodological Adjustment" section. <!-- FAILED: unspecified -->
- - **Specific Action**: Delete the entire "Critical Methodological Adjustment" section (lines 15-25 in plan.md) and remove the "Candidate-Gene Pre-filtering" row from the "Complexity Tracking" table.
- - **Rationale**: The Spec (FR-004) requires GWAS on all high-quality SNPs. The Plan's suggestion to pre-filter for the primary GWAS contradicts the Spec. The Candidate-Gene approach is correctly implemented in T063 *only* for annotation, not for the statistical test.
-
-- [ ] T083 [P] [Plan Revision] Update `plan.md` Phase 3 to explicitly state that LASSO uses `StratifiedKFold(n_splits=5)` and a concrete 80/20 split, removing the "[deferred] split" language.
- - **Specific Action**: In Phase 3, replace "LASSO logistic regression on held-out validation set ([deferred] split)" with "LASSO logistic regression on held-out validation set (80/20 split, StratifiedKFold(n_splits=5))".
-
-- [ ] T084 [P] [Plan Revision] Reorder Phase 1 in `plan.md` to ensure Power Analysis runs *before* Data Fetch, matching the task list gate (T043).
- - **Specific Action**: In Phase 1, move the "Power Analysis" bullet to appear before "Download data from HF/NCBI".
-
-- [ ] T085 [P] [Plan Revision] Update `plan.md` to remove the Hugging Face dataset ID 'bee_genome_variants' and replace it with NCBI BioProject IDs PRJNA639195/566029.
- - **Specific Action**: In Summary and Phase 0/1, replace "Hugging Face (bee_genome_variants)" with "NCBI BioProject PRJNA639195 and PRJNA566029".
-
-- [ ] T086 [P] [Plan Revision] Update `plan.md` Phase 2 and 3 to reflect that FDR and Merging (T020, T022) occur after the initial GWAS run, aligning with the Task list phases (US1 -> US2).
- - **Specific Action**: In Phase 2, remove "Apply FDR". In Phase 3, add "Apply FDR and Merge results".
-
-- [ ] T087 [P] [Plan Revision] Update `plan.md` Technical Context to specify Ensembl Bees API v104.
- - **Specific Action**: In Technical Context, update "Ensembl Bees API" to "Ensembl Bees API v104".
-
-- [ ] T088 [P] [Plan Revision] Update `plan.md` to remove the 'Critical Methodological Adjustment' section entirely, as it contradicts the Spec.
- - **Specific Action**: Delete the section titled "Critical Methodological Adjustment" and its content.
-
-- [ ] T089 [P] [Final Check] Implement `code/07_wall_clock_timer.py` to wrap the full pipeline execution.
- - **Implementation**: Use `time.perf_counter` to measure total runtime from start to finish. Log results to `data/processed/runtime_log.json`.
- - **Verification**: Ensure the log includes start time, end time, and total duration.
-
-- [ ] T090 [P] [Plan Revision] Update `plan.md` to reference `code/07_wall_clock_timer.py` (T089) for runtime verification, removing the claim that `cProfile` verifies wall-clock limits.
- - **Specific Action**: In Phase N, replace "cProfile verifies wall-clock limits" with "T089 (wall_clock_timer.py) verifies runtime limits".
-
-- [ ] T091 [P] [Plan Revision] Update `plan.md` to ensure the sequence of Power Analysis -> Data Fetch is explicit in Phase 1.
- - **Specific Action**: In Phase 1, explicitly state "Run Power Analysis (T005) BEFORE Data Fetch (T012a)".
-
-- [ ] T092 [P] [Plan Revision] Update `plan.md` to remove the 'Data Size Check' (760GB) and replace it with a 'Sample Count Check' (n < 80) in the data fetch description.
- - **Specific Action**: In Data Fetch description, replace "Check data size" with "Check sample count (n >= 80)".
-
----
-
 ## Phase P: Final Validation & Handoff
 
 **Purpose**: Ensure the project is ready for execution and meets all constitutional requirements.
 
-- [ ] T095 [P] [Final Check] Run a dry-run of the full pipeline on the synthetic dataset to verify all paths (data fetch -> alignment -> GWAS -> FDR -> ML -> Annotation) execute without error.
+- [X] T095 [P] [Final Check] Run a dry-run of the full pipeline on the synthetic dataset to verify all paths (data fetch -> alignment -> GWAS -> FDR -> ML -> Annotation) execute without error.
  - **Implementation**: Execute `code/00_generate_synthetic_data.py` -> `code/00_generate_simulated_fastq.py` -> `code/02_align_call.sh` -> `code/03_gwas.sh` -> `code/utils/fdr_correction.py` -> `code/04_ml_validation.py` -> `code/05_annotation.py`.
  - **Verification**: Verify all output artifacts exist: `data/processed/gwas_results_fdr.tsv`, `data/processed/lasso_auc_report.json`, `data/processed/prs_scores.tsv`, `data/processed/annotation_results.tsv`, `data/processed/validation_metrics.json`, `data/processed/collinearity_report.json`, `data/processed/runtime_log.json`.
 
-- [ ] T096 [P] [Final Check] Verify that `code/01_download.py` (T012a) strictly adheres to the "fail loud" rule: if the NCBI fetch fails, it MUST raise an exception and NOT fall back to synthetic data.
+- [X] T096 [P] [Final Check] Verify that `code/01_download.py` (T012a) strictly adheres to the "fail loud" rule: if the NCBI fetch fails, it MUST raise an exception and NOT fall back to synthetic data.
  - **Implementation**: Review `code/01_download.py` for any `try/except` blocks that catch fetch errors and return synthetic data. Remove such blocks.
  - **Rationale**: The Constitution mandates that failed real data fetches must halt the pipeline, not substitute fake data.
 
-- [ ] T097 [P] [Final Check] Confirm that the power analysis (T005) and Varroa coverage check (T062) are executed in the correct order and that their exit codes are properly propagated to the main run-book.
+- [X] T097 [P] [Final Check] Confirm that the power analysis (T005) and Varroa coverage check (T062) are executed in the correct order and that their exit codes are properly propagated to the main run-book.
  - **Implementation**: Verify `docs/quickstart.md` calls `code/04_check_power_and_halt.sh` and `code/02_harmonize_phenotypes.py` in sequence before proceeding to alignment.
 
-- [ ] T098 [P] [Final Check] Verify that `code/07_wall_clock_timer.py` (T089) correctly measures total runtime and logs it to `data/processed/runtime_log.json`.
+- [X] T098 [P] [Final Check] Verify that `code/07_wall_clock_timer.py` (T089) correctly measures total runtime and logs it to `data/processed/runtime_log.json`.
  - **Implementation**: Run the pipeline with the timer and verify the log file contains valid start/end times and duration.
 
-- [ ] T099 [P] [Final Check] Verify that `plan.md` has been updated to reflect NCBI as the primary source, 5-fold CV, and the removal of the 'Critical Methodological Adjustment' section.
+- [X] T099 [P] [Final Check] Verify that `plan.md` has been updated to reflect NCBI as the primary source, 5-fold CV, and the removal of the 'Critical Methodological Adjustment' section.
  - **Implementation**: Check `plan.md` for the presence of PRJNA639195/566029, `StratifiedKFold`, and absence of the pre-filtering justification.
 
-- [ ] T100 [P] [Final Check] Verify that `tasks.md` accurately reflects the dependency chain: Power Analysis (T005/T043) -> Data Fetch (T012a) -> Alignment (T014) -> GWAS (T017) -> FDR (T020) -> ML (T027).
+- [X] T100 [P] [Final Check] Verify that `tasks.md` accurately reflects the dependency chain: Power Analysis (T005/T043) -> Data Fetch (T012a/T012b) -> Alignment (T014) -> GWAS (T017) -> FDR (T020) -> ML (T027).
  - **Implementation**: Review the task list to ensure no task attempts to use output from a task that hasn't been marked complete yet.
+
+- [ ] T101 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly use `StratifiedKFold(n_splits=5, random_state=42)` and log the exact split indices used for reproducibility.
+ - **Specific Action**: Modify the LASSO training block in `code/04_ml_validation.py` to instantiate `StratifiedKFold` with `random_state=42` and print the train/test indices for each fold to `data/processed/ml_split_log.txt`.
+ - **Rationale**: The plan revision (T083) mandates a concrete 80/20 split with 5-fold CV. Explicit logging of the split ensures the "independent test" condition for US3 can be verified deterministically.
+
+- [ ] T102 [P] [Review Fix] Add a validation task to verify that the `me_estimate.txt` (from T052) contains a positive integer and that `code/utils/fdr_correction.py` (T020) correctly reads and logs it.
+ - **Implementation**: Create `tests/unit/test_me_estimate_validation.py` to check that `data/processed/me_estimate.txt` exists, is a valid integer > 0, and that the FDR script logs this value in its output metadata.
+ - **Rationale**: T052 introduced a new dependency (Me estimate) for documentation. This task ensures the data flow between T052 and T020 is robust and that the documentation requirement is met.
+
+- [ ] T103 [P] [Review Fix] Update `docs/pipeline_execution_guide.md` to explicitly state that the Candidate-Gene filter (T063) is **NOT** used for the GWAS run (T017).
+ - **Implementation**: Add a "Critical Warning" box in the guide next to the GWAS execution step: "WARNING: The GWAS run (T017) uses ALL high-quality SNPs. Do NOT use data/interim/immune_pathway_snps.txt for the statistical test. That file is for annotation only (T032)."
+ - **Rationale**: Prevents future implementation errors where the candidate-gene list might be mistakenly applied to the primary GWAS, violating FR-004.
+
+- [ ] T104 [P] [Review Fix] Verify that `code/02_harmonize_phenotypes.py` (T062) correctly handles the `ERR_VARROA_COVARIATE_MISSING` error code and that this error halts the pipeline before alignment.
+ - **Implementation**: Add an integration test `tests/integration/test_varroa_halt.py` that simulates <80% Varroa coverage and verifies the script exits with code `ERR_VARROA_COVARIATE_MISSING` and no alignment files are generated.
+ - **Rationale**: Ensures the "fail loud" principle is applied to covariate missingness, preventing biased results from proceeding to the expensive alignment step.
+
+- [ ] T105 [P] [Review Fix] Update `plan.md` Phase 1 to explicitly list the error codes `ERR_SAMPLE_SIZE_INSUFFICIENT` and `ERR_VARROA_COVARIATE_MISSING` as hard stops before any data processing.
+ - **Implementation**: In the "Phase 1: Data Preprocessing & Harmonization" section of `plan.md`, add a sub-list of "Pre-processing Gates" that lists these two error codes and their consequences (pipeline halt).
+ - **Rationale**: Aligns the plan with the implementation logic in T005 and T062, ensuring the execution flow is clearly documented.
+
+- [ ] T106 [P] [Review Fix] Ensure `code/05_annotation.py` (T032) handles the "UNAVAILABLE" case for the Ensembl API by logging the specific error (timeout, 404, etc.) to `data/processed/annotation_errors.log`.
+ - **Implementation**: Wrap the API call in a try/except block that catches connection errors and 4xx/5xx responses, logging the specific error message and timestamp to `data/processed/annotation_errors.log` before assigning "UNAVAILABLE".
+ - **Rationale**: Improves debuggability and ensures that API failures are not silently swallowed, allowing for proper investigation if annotation results are missing.
+
+- [ ] T107 [P] [Review Fix] Add a task to verify that the `validation_metrics.json` (from T027b) includes the `flag` key set to "low_power" if AUC < 0.75, as required by US3 AC3.
+ - **Implementation**: Create `tests/contract/test_validation_metrics_schema.py` to assert that `validation_metrics.json` contains the `flag` key and that its value is correctly set based on the AUC threshold.
+ - **Rationale**: Ensures the "low predictive power" flagging requirement from the user story is implemented and testable.
+
+- [ ] T108 [P] [Review Fix] Update `docs/data_dictionary.md` to include the new `me_estimate.txt` artifact and explain its purpose (documentation of effective number of tests).
+ - **Implementation**: Add an entry for `data/processed/me_estimate.txt` in the data dictionary, describing it as a single integer representing the estimated effective number of independent tests for the honeybee genome, used for logging in the FDR correction step.
+ - **Rationale**: Maintains consistency in documentation as new artifacts are introduced (T052).
+
+- [ ] T109 [P] [Review Fix] Verify that `code/03_gwas.sh` (T017) does not inadvertently use the filtered SNP list from T063 by adding a grep check in the script that asserts the input file is `data/interim/bed.bim` and not `data/interim/immune_pathway_snps.txt`.
+ - **Implementation**: Add a check at the start of `code/03_gwas.sh` that validates the input BIM file is the full set, exiting with an error if the filtered file is detected.
+ - **Rationale**: Provides an additional safeguard against the critical error of using the wrong SNP set for the primary GWAS.
+
+- [ ] T110 [P] [Review Fix] Update `code/01_download.py` (T012a) to log the exact NCBI BioProject IDs being fetched and the number of SRA runs retrieved for each project.
+ - **Implementation**: Add logging statements in `code/01_download.py` that output "Fetching PRJNA639195: X runs found" and "Fetching PRJNA566029: Y runs found" to `data/processed/ncbi_fetch_log.json`.
+ - **Rationale**: Enhances traceability and ensures the correct data sources are being accessed, as required by FR-001.
