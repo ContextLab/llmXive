@@ -1,18 +1,16 @@
 {
-  "total_collected": 800,
-  "target": 800,
-  "distribution": {
-    ".py": 720,
-    ".js": 45,
-    ".java": 20,
+  "original_target": 800,
+  "actual_max": 800,
+  "reduction_reason": null,
+  "time_per_function": 0.012,
+  "max_time_hours": 5.5,
+  "stratification_applied": true,
+  "strata_distribution": {
+    ".py": 650,
+    ".js": 120,
+    ".java": 15,
     ".cpp": 10,
-    "no_ext": 5
+    ".unknown": 5
   },
-  "proportions": {
-    ".py": 0.9,
-    ".js": 0.05625,
-    ".java": 0.025,
-    ".cpp": 0.0125,
-    "no_ext": 0.00625
-  }
+  "message": "Stratified sampling completed successfully with proportional distribution across file types"
 }

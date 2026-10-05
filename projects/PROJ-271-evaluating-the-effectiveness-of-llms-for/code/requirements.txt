@@ -12,3 +12,6 @@ black>=24.2.0
 flake8>=7.0.0
 pre-commit>=3.6.0
 isort>=5.13.0
+huggingface_hub  # auto-added: imported by run-book but missing from venv
+llama_cpp  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

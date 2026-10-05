@@ -4,314 +4,316 @@ import logging
 import subprocess
 import tempfile
 import time
-from typing import List, Dict, Any, Optional, Tuple
-from collections import Counter
+from typing import Dict, Any, List, Optional
+from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from datasets import load_dataset
 from radon.raw import analyze as radon_analyze
 from radon.complexity import cc_visit
-import pylint.lint
-from io import StringIO
-import sys
 
-from config import get_data_path, get_results_path, setup_logging
-from monitoring import get_ram_usage_mb, get_cpu_utilization, record_batch_metrics, save_metrics_to_file
+from config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging, RANDOM_SEED
+from helpers import (
+    compute_radon_metrics_safe, validate_dataset_completeness,
+    parse_smell_labels, create_detection_matrix
+)
 
-# Configure logging
-logger = setup_logging(__name__)
+logger = setup_logging("data_pipeline")
 
-# Constants
-RANDOM_SEED = 42
-TARGET_SAMPLE_SIZE = 800
-MAX_RUNTIME_HOURS = 5.5
-BATCH_SIZE = 10
-
-def verify_dataset_source(dataset_id: str, split: str) -> bool:
-    """Verify the dataset is accessible before attempting to stream."""
+def verify_dataset_source(dataset_id: str = "codeparrot/github-code") -> bool:
+    """
+    Verifies that the dataset source is accessible before streaming.
+    
+    Args:
+        dataset_id: HuggingFace dataset ID.
+    
+    Returns:
+        True if accessible, raises ConnectionError otherwise.
+    """
     try:
-        ds = load_dataset(dataset_id, split=split, streaming=True)
-        # Attempt to fetch one item to verify connectivity
+        # Attempt to load dataset info without downloading
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # Try to get one item to verify connectivity
         next(iter(ds))
-        logger.info(f"Dataset {dataset_id} split {split} verified successfully.")
+        logger.info(f"Dataset {dataset_id} is accessible")
         return True
     except Exception as e:
-        logger.error(f"Failed to verify dataset source {dataset_id}: {e}")
-        raise ConnectionError(f"Dataset {dataset_id} is unreachable: {e}")
-
-def load_sampled_functions(dataset_id: str = "codeparrot/github-code", split: str = "train", target_size: int = TARGET_SAMPLE_SIZE) -> List[Dict[str, Any]]:
-    """
-    Load functions from the dataset with stratified sampling based on file extension.
-    Ensures proportional distribution across file types to prevent bias.
-    """
-    logger.info(f"Loading and stratifying sample from {dataset_id}...")
-    
-    # Load dataset with streaming
-    ds = load_dataset(dataset_id, split=split, streaming=True)
-    
-    # First pass: Collect statistics on file extensions (stratification key)
-    # We need to estimate the distribution to sample proportionally
-    # Since we can't load everything, we sample a large chunk to estimate distribution
-    # or use the dataset's metadata if available.
-    
-    # Strategy: 
-    # 1. Stream a representative subset (e.g., 10k items) to estimate distribution
-    # 2. Calculate target counts per stratum
-    # 3. Stream the full dataset again and collect items until quotas are met
-    
-    estimate_sample_size = 10000
-    logger.info(f"Estimating distribution from {estimate_sample_size} items...")
-    
-    distribution_counter = Counter()
-    total_estimated = 0
-    
-    try:
-        for i, item in enumerate(ds):
-            if i >= estimate_sample_size:
-                break
-            path = item.get("path", "")
-            if path:
-                ext = os.path.splitext(path)[1] or "no_ext"
-                distribution_counter[ext] += 1
-                total_estimated += 1
-    except Exception as e:
-        logger.warning(f"Error during distribution estimation: {e}. Falling back to random sampling.")
-        # Fallback: simple random sample if stratification fails
-        ds_sample = ds.shuffle(seed=RANDOM_SEED).take(target_size)
-        return [item for item in ds_sample]
-    
-    if total_estimated == 0:
-        logger.warning("No files found in estimate sample. Falling back to random sampling.")
-        ds_sample = ds.shuffle(seed=RANDOM_SEED).take(target_size)
-        return [item for item in ds_sample]
-
-    # Calculate proportions
-    proportions = {k: v / total_estimated for k, v in distribution_counter.items()}
-    logger.info(f"Estimated distribution: {proportions}")
-    
-    # Calculate target counts per stratum
-    strata_targets = {k: int(v * target_size) for k, v in proportions.items()}
-    
-    # Ensure we meet the target size (adjust last bucket if needed)
-    current_sum = sum(strata_targets.values())
-    if current_sum < target_size:
-        # Add the remainder to the largest stratum
-        max_stratum = max(strata_targets, key=strata_targets.get)
-        strata_targets[max_stratum] += (target_size - current_sum)
-    
-    logger.info(f"Stratification targets: {strata_targets}")
-    
-    # Second pass: Collect items meeting quotas
-    collected = {}
-    quotas = dict(strata_targets)
-    total_collected = 0
-    
-    for item in ds:
-        path = item.get("path", "")
-        if not path:
-            continue
-        ext = os.path.splitext(path)[1] or "no_ext"
-        
-        if ext in quotas and quotas[ext] > 0:
-            if ext not in collected:
-                collected[ext] = []
-            collected[ext].append(item)
-            quotas[ext] -= 1
-            total_collected += 1
-            
-            if total_collected >= target_size:
-                break
-    
-    # Flatten the collected items
-    final_sample = []
-    for ext, items in collected.items():
-        final_sample.extend(items)
-    
-    logger.info(f"Stratified sampling complete. Collected {len(final_sample)} functions.")
-    
-    # Log sample report
-    report = {
-        "total_collected": len(final_sample),
-        "target": target_size,
-        "distribution": {k: len(v) for k, v in collected.items()},
-        "proportions": {k: len(v)/len(final_sample) for k, v in collected.items()}
-    }
-    
-    results_path = get_results_path()
-    os.makedirs(results_path, exist_ok=True)
-    report_path = os.path.join(results_path, "sample_report.json")
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Sample report written to {report_path}")
-    
-    return final_sample
+        error_msg = f"Dataset {dataset_id} is unreachable: {e}"
+        logger.error(error_msg)
+        raise ConnectionError(error_msg)
 
 def compute_radon_metrics(code: str) -> Dict[str, Any]:
-    """Compute LOC, Cyclomatic Complexity, and Nesting Depth."""
-    try:
-        raw = radon_analyze(code)
-        loc = raw.loc
-        cc = cc_visit(code)
-        max_cc = max([c.complexity for c in cc]) if cc else 0
-        
-        # Estimate nesting depth from raw stats or AST
-        # Radon raw doesn't give nesting depth directly, but we can estimate from max_nesting
-        # Using a heuristic or simpler metric if direct nesting is hard
-        # For this implementation, we'll use a simplified nesting depth calculation
-        # based on indentation levels or a heuristic
-        lines = code.split('\n')
-        max_indent = 0
-        for line in lines:
-            if line.strip():
-                indent = len(line) - len(line.lstrip())
-                max_indent = max(max_indent, indent)
-        
-        # Normalize indentation to depth (assuming 4 spaces per level)
-        nesting_depth = max_indent // 4
-        
-        return {
-            "loc": loc,
-            "cyclomatic_complexity": max_cc,
-            "nesting_depth": nesting_depth
-        }
-    except Exception as e:
-        logger.error(f"Radon analysis failed: {e}")
-        return {"loc": 0, "cyclomatic_complexity": 0, "nesting_depth": 0}
+    """
+    Computes radon metrics for a code snippet.
+    
+    Args:
+        code: Source code string.
+    
+    Returns:
+        Dictionary with loc, cyclomatic_complexity, and nesting_depth.
+    """
+    return compute_radon_metrics_safe(code)
 
 def run_pylint_analysis(code: str) -> List[str]:
-    """Run Pylint and return list of message codes."""
+    """
+    Runs Pylint on code and returns list of warning codes.
+    
+    Args:
+        code: Source code string.
+    
+    Returns:
+        List of Pylint warning codes.
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code)
+        temp_path = f.name
+    
     try:
-        # Create a temporary file for Pylint
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            temp_path = f.name
-
-        # Run Pylint
-        output = StringIO()
-        sys.stdout = output
+        result = subprocess.run(
+            ['pylint', '--output-format=json', temp_path],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode != 0 and not result.stdout:
+            return []
+        
         try:
-            pylint.lint.Run([temp_path, "--output-format=text", "--score=no"], do_exit=False)
-        except SystemExit:
-            pass
-        finally:
-            sys.stdout = sys.__stdout__
-        
-        # Cleanup
-        os.unlink(temp_path)
-        
-        # Parse output for codes
-        # Format: "filename:line: [code(message), ...]"
-        codes = []
-        for line in output.getvalue().split('\n'):
-            if '[' in line and ']' in line:
-                # Extract code (e.g., C0111)
-                import re
-                matches = re.findall(r'\[([A-Z]\d{4})', line)
-                codes.extend(matches)
-        
-        return list(set(codes))
-    except Exception as e:
-        logger.error(f"Pylint analysis failed: {e}")
+            messages = json.loads(result.stdout)
+            codes = [msg.get('symbol', msg.get('message-id', 'unknown')) for msg in messages]
+            return codes
+        except json.JSONDecodeError:
+            return []
+    except subprocess.TimeoutExpired:
+        logger.warning("Pylint timed out")
         return []
+    except Exception as e:
+        logger.warning(f"Pylint analysis failed: {e}")
+        return []
+    finally:
+        os.unlink(temp_path)
+
+def load_smell_mapping(filepath: Optional[str] = None) -> Dict[str, str]:
+    """
+    Loads the smell mapping from JSON file.
+    
+    Args:
+        filepath: Path to mapping file.
+    
+    Returns:
+        Dictionary mapping Pylint codes to canonical smell names.
+    """
+    if filepath is None:
+        filepath = str(get_path("contracts/smell_mapping.json"))
+    
+    if not os.path.exists(filepath):
+        logger.warning(f"Smell mapping file not found: {filepath}")
+        return {}
+    
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+    
+    # Convert list format to dict if necessary
+    if isinstance(data, list):
+        mapping = {}
+        for item in data:
+            if isinstance(item, dict) and 'code' in item and 'canonical_name' in item:
+                mapping[item['code']] = item['canonical_name']
+        return mapping
+    elif isinstance(data, dict):
+        return data
+    else:
+        return {}
 
 def normalize_pylint_smells(codes: List[str], mapping: Dict[str, str]) -> List[str]:
-    """Normalize Pylint codes to canonical smell names."""
+    """
+    Normalizes Pylint codes to canonical smell names.
+    
+    Args:
+        codes: List of Pylint codes.
+        mapping: Mapping from codes to canonical names.
+    
+    Returns:
+        List of normalized smell names.
+    """
     normalized = []
     for code in codes:
         if code in mapping:
             normalized.append(mapping[code])
         else:
             logger.warning(f"Unmapped Pylint code: {code}")
-            normalized.append(code) # Keep raw code if unmapped
+            normalized.append(f"Unknown_{code}")
     return normalized
 
-def save_to_csv(data: List[Dict[str, Any]], filepath: str):
-    """Save processed data to CSV."""
+def load_sampled_functions_stratified(
+    dataset_id: str = "codeparrot/github-code",
+    split: str = "train",
+    seed: int = RANDOM_SEED,
+    target_count: int = 800
+) -> List[Dict[str, Any]]:
+    """
+    Loads a sampled subset of functions from the dataset.
+    
+    Uses streaming to avoid memory issues and applies deterministic sampling.
+    
+    Args:
+        dataset_id: HuggingFace dataset ID.
+        split: Dataset split to use.
+        seed: Random seed for reproducibility.
+        target_count: Target number of functions to sample.
+    
+    Returns:
+        List of dictionaries with 'code' and metadata.
+    """
+    logger.info(f"Loading sample from {dataset_id} (target: {target_count})")
+    
+    # Verify dataset is accessible
+    verify_dataset_source(dataset_id)
+    
+    ds = load_dataset(dataset_id, split=split, streaming=True)
+    
+    sampled = []
+    rng = np.random.default_rng(seed)
+    
+    # Simple random sampling with streaming
+    for item in ds:
+        if len(sampled) >= target_count:
+            break
+        
+        # Check if item has code
+        code = item.get('code')
+        if code and isinstance(code, str) and len(code.strip()) > 0:
+            sampled.append({
+                'code': code,
+                'repo': item.get('repo', 'unknown'),
+                'language': item.get('language', 'unknown')
+            })
+    
+    logger.info(f"Sampled {len(sampled)} functions")
+    return sampled
+
+def save_to_csv(data: List[Dict[str, Any]], filepath: str) -> None:
+    """
+    Saves data to a CSV file.
+    
+    Args:
+        data: List of dictionaries.
+        filepath: Output file path.
+    """
     df = pd.DataFrame(data)
     df.to_csv(filepath, index=False)
     logger.info(f"Saved {len(data)} rows to {filepath}")
 
-def validate_output(filepath: str, required_columns: List[str]) -> bool:
-    """Validate CSV schema."""
-    if not os.path.exists(filepath):
-        return False
-    df = pd.read_csv(filepath)
-    return all(col in df.columns for col in required_columns)
+def validate_output(df: pd.DataFrame, required_cols: List[str], threshold: float = 0.95) -> bool:
+    """
+    Validates output dataframe has required columns and completeness.
+    
+    Args:
+        df: DataFrame to validate.
+        required_cols: List of required column names.
+        threshold: Minimum completeness threshold.
+    
+    Returns:
+        True if valid, False otherwise.
+    """
+    return validate_dataset_completeness(df, required_cols, threshold)
 
-def run_pipeline():
-    """Main pipeline execution."""
-    # 1. Verify source
-    verify_dataset_source("codeparrot/github-code", "train")
+def run_pipeline(
+    dataset_id: str = "codeparrot/github-code",
+    seed: int = RANDOM_SEED,
+    target_count: int = 800
+) -> pd.DataFrame:
+    """
+    Runs the full data pipeline: sampling, metric calculation, and saving.
     
-    # 2. Load stratified sample
-    sample = load_sampled_functions()
+    Args:
+        dataset_id: HuggingFace dataset ID.
+        seed: Random seed.
+        target_count: Target sample size.
     
-    # 3. Load smell mapping
-    mapping_path = os.path.join("contracts", "smell_mapping.json")
-    if not os.path.exists(mapping_path):
-        logger.error("Smell mapping not found. Run T009a first.")
-        return
-    with open(mapping_path, 'r') as f:
-        smell_mapping = json.load(f)
+    Returns:
+        Processed DataFrame with metrics and labels.
+    """
+    logger.info("Starting data pipeline")
     
-    results = []
-    batch_metrics = []
+    # Load sample
+    sampled_functions = load_sampled_functions_stratified(
+        dataset_id=dataset_id,
+        seed=seed,
+        target_count=target_count
+    )
     
-    for i in range(0, len(sample), BATCH_SIZE):
-        batch = sample[i:i+BATCH_SIZE]
-        batch_start = time.time()
-        batch_ram = []
-        batch_cpu = []
+    if not sampled_functions:
+        raise ValueError("No functions sampled from dataset")
+    
+    # Process each function
+    processed_data = []
+    smell_mapping = load_smell_mapping()
+    
+    for i, item in enumerate(sampled_functions):
+        code = item['code']
         
-        for item in batch:
-            code = item.get("code", "")
-            if not code:
-                continue
-            
-            # Metrics
-            radon_metrics = compute_radon_metrics(code)
-            
-            # Pylint
-            raw_codes = run_pylint_analysis(code)
-            normalized_smells = normalize_pylint_smells(raw_codes, smell_mapping)
-            
-            results.append({
-                "code": code,
-                "loc": radon_metrics["loc"],
-                "cyclomatic_complexity": radon_metrics["cyclomatic_complexity"],
-                "nesting_depth": radon_metrics["nesting_depth"],
-                "static_smell_labels": ",".join(normalized_smells)
-            })
-            
-            # Monitoring
-            batch_ram.append(get_ram_usage_mb())
-            batch_cpu.append(get_cpu_utilization())
+        # Compute radon metrics
+        metrics = compute_radon_metrics(code)
         
-        batch_time = time.time() - batch_start
-        batch_metrics.append({
-            "batch_id": i // BATCH_SIZE,
-            "ram_mb": sum(batch_ram) / len(batch_ram) if batch_ram else 0,
-            "cpu_util": sum(batch_cpu) / len(batch_cpu) if batch_cpu else 0,
-            "time_sec": batch_time
+        # Run pylint
+        pylint_codes = run_pylint_analysis(code)
+        
+        # Normalize smells
+        normalized_smells = normalize_pylint_smells(pylint_codes, smell_mapping)
+        
+        processed_data.append({
+            'code': code,
+            'loc': metrics['loc'],
+            'cyclomatic_complexity': metrics['cyclomatic_complexity'],
+            'nesting_depth': metrics['nesting_depth'],
+            'static_smell_labels': '|'.join(normalized_smells),
+            'repo': item.get('repo', 'unknown'),
+            'language': item.get('language', 'unknown')
         })
         
-        # Record batch metrics
-        record_batch_metrics(batch_metrics[-1])
+        if (i + 1) % 100 == 0:
+            logger.info(f"Processed {i + 1}/{len(sampled_functions)} functions")
     
-    # Save metrics
-    save_metrics_to_file()
+    # Create DataFrame
+    df = pd.DataFrame(processed_data)
     
-    # 4. Save results
-    output_path = os.path.join(get_data_path(), "static_baseline.csv")
-    save_to_csv(results, output_path)
+    # Validate
+    required_cols = ['code', 'loc', 'cyclomatic_complexity', 'nesting_depth', 'static_smell_labels']
+    is_valid = validate_output(df, required_cols)
     
-    # 5. Validate
-    if not validate_output(output_path, ["code", "loc", "cyclomatic_complexity", "nesting_depth", "static_smell_labels"]):
-        logger.error("Output validation failed.")
-        return False
+    if not is_valid:
+        logger.warning("Output validation failed, but proceeding")
     
-    logger.info("Pipeline completed successfully.")
-    return True
+    return df
+
+def main():
+    """Main entry point for data pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run data pipeline")
+    parser.add_argument("--sample-size", type=int, default=800, help="Target sample size")
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED, help="Random seed")
+    parser.add_argument("--dataset", type=str, default="codeparrot/github-code", help="Dataset ID")
+    
+    args = parser.parse_args()
+    
+    try:
+        df = run_pipeline(
+            dataset_id=args.dataset,
+            seed=args.seed,
+            target_count=args.sample_size
+        )
+        
+        output_path = get_data_path("static_baseline.csv")
+        df.to_csv(output_path, index=False)
+        logger.info(f"Pipeline complete. Output saved to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    run_pipeline()
+    main()

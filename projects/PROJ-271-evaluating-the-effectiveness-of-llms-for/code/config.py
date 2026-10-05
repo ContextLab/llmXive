@@ -1,54 +1,104 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-# Project Root
+# Project root and directory paths
 PROJECT_ROOT = Path(__file__).parent.parent
-
-# Directory Paths
 DATA_DIR = PROJECT_ROOT / "data"
 DATA_RAW_DIR = DATA_DIR / "raw"
 DATA_PROCESSED_DIR = DATA_DIR / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
-SPEC_DIR = PROJECT_ROOT / "specs"
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-# Constants
+# Random seed for reproducibility
 RANDOM_SEED = 42
-BATCH_SIZE = 10  # LLM batch size constraint
 
-# Logging Configuration
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_LEVEL = logging.INFO
-LOG_FILE = RESULTS_DIR / "pipeline.log"
+# Batch size constraints
+LLM_BATCH_SIZE_MAX = 10
 
-def setup_logging():
-    """Configure logging for the project."""
-    log_file = LOG_FILE
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+def setup_logging(
+    name: Optional[Union[str, None]] = None,
+    level: Optional[int] = None
+) -> logging.Logger:
+    """
+    Configure and return a logger instance.
     
-    logging.basicConfig(
-        level=LOG_LEVEL,
-        format=LOG_FORMAT,
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
-    )
+    This function is designed to be tolerant of various call signatures
+    found across the codebase:
+    - setup_logging()
+    - setup_logging("module_name")
+    - setup_logging(__name__)
+    - setup_logging("module_name", logging.INFO)
+    
+    Args:
+        name: Optional logger name. If None, returns the root logger.
+        level: Optional logging level (e.g., logging.INFO). If None, uses default.
+        
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    logger = logging.getLogger(name)
+    
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    
+    if level is not None:
+        logger.setLevel(level)
+    else:
+        logger.setLevel(logging.INFO)
+        
+    return logger
 
-def get_path(base_dir: Path, sub_path: str = "") -> Path:
-    """Construct a full path from base directory and sub-path."""
-    return base_dir / sub_path if sub_path else base_dir
+def get_path(relative_path: str) -> Path:
+    """
+    Get an absolute path relative to the project root.
+    
+    Args:
+        relative_path: Path relative to project root.
+        
+    Returns:
+        Path: Absolute path.
+    """
+    return PROJECT_ROOT / relative_path
 
-def get_data_path(sub_path: str = "") -> Path:
-    """Get path relative to data directory."""
-    return get_path(DATA_DIR, sub_path)
+def get_data_path(filename: str) -> Path:
+    """
+    Get path to a file in the data directory.
+    
+    Args:
+        filename: Name of the file in data/ directory.
+        
+    Returns:
+        Path: Absolute path to the file.
+    """
+    return DATA_DIR / filename
 
-def get_processed_path(sub_path: str = "") -> Path:
-    """Get path relative to processed data directory."""
-    return get_path(DATA_PROCESSED_DIR, sub_path)
+def get_processed_path(filename: str) -> Path:
+    """
+    Get path to a file in the processed data directory.
+    
+    Args:
+        filename: Name of the file in data/processed/ directory.
+        
+    Returns:
+        Path: Absolute path to the file.
+    """
+    return DATA_PROCESSED_DIR / filename
 
-def get_results_path(sub_path: str = "") -> Path:
-    """Get path relative to results directory."""
-    return get_path(RESULTS_DIR, sub_path)
+def get_results_path(filename: str) -> Path:
+    """
+    Get path to a file in the results directory.
+    
+    Args:
+        filename: Name of the file in results/ directory.
+        
+    Returns:
+        Path: Absolute path to the file.
+    """
+    return RESULTS_DIR / filename
