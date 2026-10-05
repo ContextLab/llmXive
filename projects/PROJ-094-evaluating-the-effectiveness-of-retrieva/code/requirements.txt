@@ -10,4 +10,7 @@ transformers
 torch
 accelerate
 pytest
-bitsandbytes
+ruff
+black
+scipy
+tqdm

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-094-evaluating-the-effectiveness-of-retrieva
-last_run_id: 71219c85-e8cb-4400-9ecc-fe51604b5279
+last_run_id: dc7934b7-1f79-4448-972a-c86e5695b256
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva
 title: Evaluating the Effectiveness of Retrieval-Augmented Generation for Code Search
-updated_at: '2026-10-01T07:06:59.187524Z'
+updated_at: '2026-10-05T07:11:06.404605Z'

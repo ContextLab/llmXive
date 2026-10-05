@@ -1,82 +1,43 @@
-# Byte-compiled / optimized / DLL files
+# Python cache
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-# C extensions
-*.so
+# Environment variables
+.env
 
-# Distribution / packaging
-.eggs/
-*.egg-info/
-*.egg
-MANIFEST
+# Data directories (raw and processed)
+data/raw/
+data/processed/
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Results and outputs
+results/
 
-# Unit test / coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-.hypothesis/
+# Test cache
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
+# Logs
+*.log
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDEs and editors
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.settings/
-.classpath
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Project specific
-results/
-data/raw/
-data/processed/
-figures/
-logs/
+# Virtual environments
+venv/
+env/
+.venv/
 
-# Temporary files
-tmp/
-temp/
+# Build artifacts
+build/
+dist/
+*.egg-info/

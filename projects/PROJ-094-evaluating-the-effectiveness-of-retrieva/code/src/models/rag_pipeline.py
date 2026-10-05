@@ -1,3 +1,17 @@
+"""
+RAG Pipeline Implementation for Code Search Evaluation.
+
+This module implements the Retrieval-Augmented Generation pipeline using
+Salesforce/codegen-mono as the generator. It includes logic for:
+1. Loading the generator model with CPU/GPU fallback strategies.
+2. Memory monitoring using psutil.
+3. Constructing prompts and generating code completions.
+4. Handling OOM scenarios by attempting GPU offload.
+
+Critical Requirement (FR-003): If CPU loading fails, the system MUST attempt
+GPU offload. If both fail, it MUST raise a RuntimeError.
+"""
+
 import os
 import sys
 import logging
@@ -6,262 +20,333 @@ import psutil
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
+from accelerate import init_empty_weights, infer_auto_device_map, load_checkpoint_in_model
+
+# Import existing project utilities
+# Note: These are defined in T003 (utils.py) which is already completed
 try:
-    import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-    HAS_TORCH = True
+    from src.lib.utils import set_fixed_seed, setup_logging
 except ImportError:
-    HAS_TORCH = False
-    logging.warning("torch or transformers not installed. RAG pipeline will fail on load.")
+    # Fallback if utils.py is not yet available in the path
+    def set_fixed_seed(seed: int = 42):
+        import random
+        import numpy as np
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
 
-from src.data.models import CodeSnippet
+    def setup_logging(level=logging.INFO):
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-# Configuration constants
-PRIMARY_MODEL = "Salesforce/codegen-350M-mono"
-FALLBACK_MODEL = "microsoft/phi-1.5"
-SYSTEM_PROMPT_TEMPLATE = (
-    "You are an expert code search system. Given a natural language query, "
-    "identify the most relevant code snippet from the provided context.\n\n"
-    "Query: {query}\n\n"
-    "Context:\n{context}\n\n"
-    "Answer:"
-)
-DEFAULT_TOP_K = 10
-DEFAULT_TEMPERATURE = 0.0
-MEMORY_THRESHOLD_GB = 7.0
-QUANTIZATION_BIT = 4
+# Constants
+MODEL_NAME = "Salesforce/codegen-mono-350M"  # Using a smaller variant for feasibility, or the full one if available
+# Note: The task specifies "Salesforce/codegen-mono". We will try to load the 350M version first as it's more common,
+# but the logic supports the full model if resources permit.
+# If the specific 350M is not intended and the full 16B is required, the OOM logic will trigger.
+# To strictly follow "Salesforce/codegen-mono", we default to the base identifier which usually resolves to the smallest,
+# but we will explicitly try the 350M for a balanced approach, falling back to 2B/16B if needed by the user's config.
+# For this implementation, we use the 350M as the default "codegen-mono" variant often used in research to fit in RAM.
+# If the task implies the full 16B, the OOM logic is critical.
+DEFAULT_MODEL_PATH = "Salesforce/codegen-350M-mono" 
+
+SYSTEM_PROMPT_TEMPLATE = """Below is a query describing a code snippet. Generate the code that satisfies the query.
+
+Query: {query}
+
+Code:
+"""
 
 logger = logging.getLogger(__name__)
 
+
 def get_available_ram_gb() -> float:
     """
-    Estimate available RAM in Gigabytes using psutil.
-    Returns the available memory in GB.
+    Returns the available RAM in GB using psutil.
     """
-    if not HAS_TORCH:
-        # Fallback if psutil/transformers not available for estimation
-        return 0.0
-    
     try:
         mem = psutil.virtual_memory()
         return mem.available / (1024 ** 3)
     except Exception as e:
-        logger.error(f"Failed to estimate RAM: {e}")
-        return 0.0
+        logger.warning(f"Could not read available RAM via psutil: {e}. Assuming 2GB safe limit.")
+        return 2.0
 
-def load_generator_model(model_name: str, use_quantization: bool = False) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+
+def load_generator_model(
+    model_path: str = DEFAULT_MODEL_PATH,
+    force_gpu: bool = False,
+    load_8bit: bool = False
+) -> Tuple[Any, Any]:
     """
-    Load a generator model with optional 4-bit quantization.
-    
+    Loads the generator model with fallback logic for OOM.
+
+    Strategy:
+    1. Try loading on CPU (default).
+    2. If OOM occurs (detected by exception or memory check), try GPU with 8-bit if available.
+    3. If GPU is unavailable or 8-bit fails, raise RuntimeError.
+
     Args:
-        model_name: HuggingFace model ID.
-        use_quantization: If True, attempts 4-bit quantization (requires bitsandbytes).
-        
-    Returns:
-        Tuple of (model, tokenizer).
-        
-    Raises:
-        RuntimeError: If the model fails to load or RAM is insufficient.
-    """
-    if not HAS_TORCH:
-        raise RuntimeError("Torch/Transformers dependencies are missing.")
+        model_path: HuggingFace model identifier.
+        force_gpu: If True, skip CPU attempt and go straight to GPU.
+        load_8bit: If True, attempt 8-bit loading (requires bitsandbytes).
 
-    logger.info(f"Loading model: {model_name} (quantization={use_quantization})")
+    Returns:
+        Tuple of (model, tokenizer)
+    """
+    set_fixed_seed(42)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    
-    # Configure device map for CPU mode as per task requirements
-    device_map = "cpu"
-    
-    load_kwargs = {
-        "device_map": device_map,
-        "torch_dtype": torch.float32,
-    }
-    
-    if use_quantization:
-        try:
-            # Attempt to load with 4-bit quantization
-            # Note: requires bitsandbytes which might not be installed
-            from transformers import BitsAndBytesConfig
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16
-            )
-            load_kwargs["quantization_config"] = bnb_config
-            logger.info("Applying 4-bit quantization configuration.")
-        except ImportError:
-            logger.warning("bitsandbytes not found, proceeding without 4-bit quantization.")
-            # Fallback to standard loading if quantization libs missing
-            load_kwargs.pop("quantization_config", None)
-    
+    # Ensure pad token is set if not present
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    model = None
+    device = "cpu"
+
+    # Check if GPU is available
+    cuda_available = torch.cuda.is_available()
+    gpu_memory_gb = 0
+    if cuda_available:
+        gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+        logger.info(f"GPU detected: {torch.cuda.get_device_name(0)} with {gpu_memory_gb:.2f} GB VRAM")
+
     try:
-        model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
-        logger.info(f"Successfully loaded model: {model_name}")
-        return model, tokenizer
-    except Exception as e:
-        logger.error(f"Failed to load model {model_name}: {e}")
-        raise RuntimeError(f"Model load failed: {e}")
+        logger.info(f"Attempting to load model {model_path} on CPU...")
+        
+        # Check RAM before loading
+        available_ram = get_available_ram_gb()
+        logger.info(f"Available RAM: {available_ram:.2f} GB")
+        
+        # Heuristic: 350M model needs ~1-2GB, 2B needs ~4GB, 16B needs ~32GB+
+        # We attempt to load with appropriate dtype based on available RAM
+        if available_ram < 3.0:
+            # Likely need 8-bit or GPU if RAM is tight
+            logger.warning("Low RAM detected. Attempting CPU loading with float16 or error.")
+            # Force float16 to save memory if possible
+            model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                torch_dtype=torch.float16,
+                device_map="cpu",
+                low_cpu_mem_usage=True
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                device_map="cpu",
+                low_cpu_mem_usage=True
+            )
+        
+        device = "cpu"
+        logger.info("Model loaded successfully on CPU.")
+
+    except (torch.cuda.OutOfMemoryError, OSError, ValueError) as e:
+        # Check if it's specifically an OOM or loading error
+        error_msg = str(e)
+        logger.warning(f"Failed to load model on CPU: {error_msg}")
+
+        if cuda_available and (force_gpu or "CPU" in error_msg or "OOM" in error_msg or "Memory" in error_msg):
+            logger.info("Attempting GPU offload with 8-bit quantization...")
+            try:
+                if load_8bit:
+                    # Requires bitsandbytes
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_path,
+                        load_in_8bit=True,
+                        device_map="auto",
+                        torch_dtype=torch.float16
+                    )
+                else:
+                    # Try standard GPU loading
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_path,
+                        device_map="auto",
+                        torch_dtype=torch.float16
+                    )
+                device = "cuda"
+                logger.info("Model loaded successfully on GPU.")
+            except Exception as gpu_e:
+                logger.error(f"GPU offload also failed: {gpu_e}")
+                raise RuntimeError(f"RAG execution failed: CPU OOM and GPU offload unavailable.") from gpu_e
+        else:
+            if not cuda_available:
+                raise RuntimeError("RAG execution failed: CPU OOM and no GPU available.") from e
+            else:
+                # GPU available but not forced/needed, re-raise or try GPU?
+                # Per task: MUST attempt offload.
+                logger.info("Retrying with GPU offload as CPU failed...")
+                try:
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_path,
+                        device_map="auto",
+                        torch_dtype=torch.float16
+                    )
+                    device = "cuda"
+                    logger.info("Model loaded successfully on GPU.")
+                except Exception as gpu_e:
+                    raise RuntimeError("RAG execution failed: CPU OOM and GPU offload unavailable.") from gpu_e
+
+    if model is None:
+        raise RuntimeError("RAG execution failed: Model loading failed on all devices.")
+
+    return model, tokenizer
+
 
 class RAGPipeline:
     """
     RAG Pipeline for Code Search.
     
-    Integrates a retriever (BM25 or Neural) and a generator model to
-    refine search results based on natural language queries.
+    Takes a query, retrieves top-k snippets (using an external retriever),
+    constructs a prompt, and generates code.
     """
     
-    def __init__(self, retriever, generator_model: AutoModelForCausalLM, 
-                 tokenizer: AutoTokenizer, top_k: int = DEFAULT_TOP_K):
-        self.retriever = retriever
-        self.generator = generator_model
+    def __init__(
+        self,
+        model: AutoModelForCausalLM,
+        tokenizer: AutoTokenizer,
+        retriever: Any,
+        k: int = 5,
+        max_new_tokens: int = 256,
+        temperature: float = 0.0
+    ):
+        self.model = model
         self.tokenizer = tokenizer
-        self.top_k = top_k
-        self.temperature = DEFAULT_TEMPERATURE
+        self.retriever = retriever
+        self.k = k
+        self.max_new_tokens = max_new_tokens
+        self.temperature = temperature
         
-        # Ensure deterministic behavior
-        self.generator.eval()
-        if hasattr(self.generator, 'config') and hasattr(self.generator.config, 'pad_token_id'):
-            if self.generator.config.pad_token_id is None:
-                self.generator.config.pad_token_id = self.tokenizer.eos_token_id
+        # Set generation config
+        self.generation_config = GenerationConfig(
+            max_new_tokens=self.max_new_tokens,
+            temperature=self.temperature,
+            do_sample=self.temperature > 0.0,
+            pad_token_id=self.tokenizer.pad_token_id,
+            eos_token_id=self.tokenizer.eos_token_id
+        )
 
-    def _construct_prompt(self, query: str, context: str) -> str:
+    def construct_prompt(self, query: str, retrieved_snippets: List[Dict[str, Any]]) -> str:
         """
-        Construct the prompt for the generator model.
-        
-        Args:
-            query: The natural language search query.
-            context: The retrieved code snippets context.
-        
-        Returns:
-            Formatted prompt string.
+        Constructs the prompt by concatenating the query and retrieved snippets.
         """
-        return SYSTEM_PROMPT_TEMPLATE.format(query=query, context=context)
+        context = "\n\n".join([
+            f"Reference {i+1}:\n{snippet.get('code', snippet.get('text', ''))}"
+            for i, snippet in enumerate(retrieved_snippets)
+        ])
+        
+        prompt = SYSTEM_PROMPT_TEMPLATE.format(query=query)
+        if context:
+            prompt += f"\n\nContext:\n{context}"
+        
+        return prompt
 
-    def _retrieve_context(self, query: str, k: int) -> str:
+    def generate(self, query: str, retrieved_snippets: List[Dict[str, Any]]) -> str:
         """
-        Retrieve top-k snippets and format them as context.
-        
-        Args:
-            query: The search query.
-            k: Number of snippets to retrieve.
-        
-        Returns:
-            Concatenated string of retrieved snippets.
+        Generates code given a query and retrieved snippets.
         """
-        # Assuming retriever has a method `search(query, k)` that returns list of CodeSnippet
-        # Adjust based on actual retriever implementation (BM25Retriever or NeuralRetriever)
-        # Based on task context, we assume retriever exposes a search method.
-        # If the retriever is a class, we call it.
+        prompt = self.construct_prompt(query, retrieved_snippets)
+        inputs = self.tokenizer(prompt, return_tensors="pt")
         
-        # Mocking the retrieval call for this specific pipeline logic
-        # In a real execution, `self.retriever` would be the instance from T009/T010
-        # We assume it has a `search` method returning CodeSnippets.
-        
-        try:
-            results = self.retriever.search(query, k)
-            if not results:
-                return "No relevant code snippets found."
-            
-            context_parts = []
-            for i, snippet in enumerate(results):
-                # CodeSnippet structure from src.data.models
-                code = snippet.code if hasattr(snippet, 'code') else str(snippet)
-                context_parts.append(f"[{i+1}] {code}")
-            
-            return "\n\n".join(context_parts)
-        except AttributeError as e:
-            logger.error(f"Retriever method 'search' not found or incorrect: {e}")
-            return "Retriever error."
-
-    def generate_ranked_response(self, query: str, k: int = None) -> str:
-        """
-        Main entry point for RAG inference.
-        
-        Args:
-            query: Natural language query.
-            k: Optional override for top-k context snippets.
-        
-        Returns:
-            Generated text response.
-        """
-        if k is None:
-            k = self.top_k
-        
-        context = self._retrieve_context(query, k)
-        prompt = self._construct_prompt(query, context)
-        
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.generator.device)
+        # Move inputs to device
+        device = next(self.model.parameters()).device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
-            outputs = self.generator.generate(
+            outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=128,
-                do_sample=False, # temp=0.0 equivalent
-                temperature=self.temperature,
-                pad_token_id=self.tokenizer.eos_token_id
+                generation_config=self.generation_config
             )
         
-        generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        # Strip the prompt from the output to get just the answer
-        if generated_text.startswith(prompt):
-            generated_text = generated_text[len(prompt):]
-        
-        return generated_text.strip()
+        # Decode
+        full_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Extract generated part (remove prompt)
+        generated_text = full_text[len(prompt):].strip()
+        return generated_text
 
-def create_rag_pipeline(retriever, primary_model: str = PRIMARY_MODEL, 
-                        fallback_model: str = FALLBACK_MODEL, 
-                        top_k: int = DEFAULT_TOP_K) -> RAGPipeline:
-    """
-    Creates a RAG Pipeline with fallback logic for model loading.
-    
-    Logic:
-    1. Check available RAM.
-    2. Try loading PRIMARY model (Salesforce/codegen-350M-mono).
-    3. If RAM < 7GB or load fails, try FALLBACK model (microsoft/phi-1.5) with 4-bit quantization.
-    4. If both fail, raise RuntimeError.
-    
-    Args:
-        retriever: An initialized retriever instance (BM25 or Neural).
-        primary_model: HuggingFace ID for the primary model.
-        fallback_model: HuggingFace ID for the fallback model.
-        top_k: Number of snippets to retrieve.
-    
-    Returns:
-        RAGPipeline instance.
-    
-    Raises:
-        RuntimeError: If no model can be loaded.
-    """
-    available_ram = get_available_ram_gb()
-    logger.info(f"Available RAM: {available_ram:.2f} GB")
-    
-    model_to_load = None
-    use_quantization = False
-    
-    # Decision logic based on RAM threshold
-    if available_ram < MEMORY_THRESHOLD_GB:
-        logger.warning(f"RAM ({available_ram:.2f}GB) below threshold ({MEMORY_THRESHOLD_GB}GB). "
-                       f"Attempting fallback with quantization.")
-        model_to_load = fallback_model
-        use_quantization = True
-    else:
-        logger.info(f"RAM ({available_ram:.2f}GB) sufficient. Attempting primary model.")
-        model_to_load = primary_model
+    def run(self, query: str, ground_truth_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Runs the full RAG pipeline for a single query.
+        1. Retrieves top-k snippets.
+        2. Generates code.
+        3. Returns results.
+        """
+        # Retrieve
+        retrieved = self.retriever.retrieve(query, self.k)
         
-        # Try primary first
-        try:
-            model, tokenizer = load_generator_model(model_to_load, use_quantization=False)
-        except RuntimeError:
-            logger.warning(f"Primary model {model_to_load} failed. Falling back to {fallback_model}.")
-            model_to_load = fallback_model
-            use_quantization = True
+        # Generate
+        generated_code = self.generate(query, retrieved)
+        
+        return {
+            "query": query,
+            "ground_truth_id": ground_truth_id,
+            "retrieved_snippets": retrieved,
+            "generated_code": generated_code,
+            "method": "RAG"
+        }
+
+
+def create_rag_pipeline(
+    retriever: Any,
+    model_path: str = DEFAULT_MODEL_PATH,
+    k: int = 5,
+    force_gpu: bool = False
+) -> RAGPipeline:
+    """
+    Factory function to create and configure the RAG pipeline.
+    """
+    model, tokenizer = load_generator_model(model_path, force_gpu=force_gpu)
+    return RAGPipeline(model, tokenizer, retriever, k=k)
+
+
+def main():
+    """
+    Main entry point for testing the RAG pipeline.
+    This function is intended to be called by the CLI (T013) or for standalone testing.
+    """
+    import json
+    from src.data.models import CodeSnippet
     
-    # Attempt to load the selected model
+    # Setup logging
+    setup_logging()
+    
+    # Mock retriever for standalone testing if not provided
+    # In production, this is injected by the CLI
+    class MockRetriever:
+        def retrieve(self, query: str, k: int):
+            return [
+                {"code": f"def mock_func_{i}():\n    pass", "score": 0.9 - i*0.1}
+                for i in range(k)
+            ]
+
     try:
-        model, tokenizer = load_generator_model(model_to_load, use_quantization=use_quantization)
+        # Load model
+        pipeline = create_rag_pipeline(
+            retriever=MockRetriever(),
+            model_path=DEFAULT_MODEL_PATH,
+            k=3
+        )
+        
+        # Test query
+        test_query = "Write a function to calculate the factorial of a number"
+        result = pipeline.run(test_query)
+        
+        print(f"Query: {test_query}")
+        print(f"Generated Code:\n{result['generated_code']}")
+        
     except RuntimeError as e:
-        raise RuntimeError(f"Failed to load both primary and fallback models: {e}")
-    
-    return RAGPipeline(retriever, model, tokenizer, top_k=top_k)
+        logger.error(f"Critical Error: {e}")
+        # Re-raise to ensure the execution stage knows it failed
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during RAG execution: {e}")
+        traceback.print_exc()
+        raise
+
+
+if __name__ == "__main__":
+    main()

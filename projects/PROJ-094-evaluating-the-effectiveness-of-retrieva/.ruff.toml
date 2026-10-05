@@ -1,19 +1,2 @@
-# Standalone ruff configuration (optional, if pyproject.toml is not used)
-# This file is provided for environments where pyproject.toml is not respected
-# or for editor-specific configuration overrides.
-extend = "pyproject.toml"
-line-length = 88
 target-version = "py311"
-exclude = [
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "__pycache__",
-    "*.pyc",
-]
+line-length = 88

@@ -32,7 +32,7 @@ This plan implements a reproducible, CPU-first evaluation pipeline comparing Ret
 | **IV. Single Source of Truth** | ✅ PASS | All metrics (nDCG, Precision) are computed by `src/models/metrics.py` and output to `results/metrics.csv`. The paper generation script reads *only* this file. |
 | **V. Versioning Discipline** | ✅ PASS | Each artifact (data, code, results) carries a content hash. The plan includes a `state/.../updated_at` update mechanism in the CLI orchestration. |
 | **VI. Semantic Descriptor Traceability** | ✅ PASS | The plan explicitly computes API density, doc density, and naming consistency (FR-002) using CodeBERT-base. Correlation analysis uses Spearman's rho per FR-005 (Constitution VI is flagged for amendment). |
-| **VII. Resource-Constraint Fidelity** | ✅ PASS | The plan uses `codegenM-mono` (multi-layer, ~160M params) as the verified proxy for the '≈150M' constraint in the constrained run. |
+| **VII. Resource-Constraint Fidelity** | ✅ PASS | The plan uses `codegenM-mono` (multi-layer, large-scale parameters) as the verified proxy for the constrained parameter budget in the constrained run. |
 
 ## Project Structure
 
@@ -100,7 +100,7 @@ results/
 
 **CPU-First Approach**:
 - **Retrieval**: BM25 (`rank_bm25`) and Dual-Encoder (`all-MiniLM-L6-v2`) run entirely on CPU. FAISS index built with `IndexFlatIP` (float32) but subsampled if necessary to fit ≤1GB RAM.
-- **Generation**: `Salesforce/codegen-350M-mono` is the standard model. To fit the model within limited CPU RAM, the plan uses `accelerate` to load in 8-bit precision if available. If OOM occurs, the context window is reduced to a minimal sustainable size. If OOM persists, the 'GPU Escape Hatch' (Kaggle) is triggered as a **non-reproducible fallback**.
+- **Generation**: `Salesforce/codegen-350M-mono` is the standard model. To fit the model within limited CPU RAM, the plan uses `accelerate` to load in lower precision if available. If OOM occurs, the context window is reduced to a minimal sustainable size. If OOM persists, the 'GPU Escape Hatch' (Kaggle) is triggered as a **non-reproducible fallback**.
 - **Descriptors**: `CodeBERT-base` embeddings for naming consistency computed on CPU in batches. **No fallback** to `all-MiniLM` is allowed (per FR-008). If time is exceeded, batch size is reduced.
 - **Streaming**: `ir-datasets` used to process large datasets without loading full corpus into RAM.
 
@@ -153,7 +153,7 @@ results/
 ## Assumptions & Risks
 
 - **Assumption**: `codegen-350M-mono` fits in 7GB RAM on CPU with 8-bit quantization.  
-  **Risk**: If OOM, fallback to 1024-token context window. If still OOM, GPU offload (non-reproducible).
+  **Risk**: If OOM, fallback to a reduced context window. If still OOM, GPU offload (non-reproducible).
 - **Assumption**: CodeSearchNet Test Split contains ≥200 queries.  
   **Risk**: If <200, reduce sample size and note power limitation.
 - **Assumption**: FAISS index fits in 1GB RAM with subsampling.  

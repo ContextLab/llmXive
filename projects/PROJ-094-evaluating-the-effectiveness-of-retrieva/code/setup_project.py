@@ -1,49 +1,41 @@
-"""
-Project setup script for creating directory structure.
-"""
 import os
 from pathlib import Path
 
-
-def create_directories(base_path: str = ".") -> None:
+def create_directories():
     """
-    Create the project directory structure.
-    
-    Args:
-        base_path: Base directory path (default: current directory)
+    Create the project directory structure as defined in T001a.
+    Creates src/data, src/models, src/analysis, src/cli, src/lib,
+    data/raw, data/processed, results, tests/unit, tests/integration, tests/contract.
     """
-    base = Path(base_path)
+    project_root = Path(__file__).parent
     
-    # Define directory structure
+    # Define the directories to create relative to the project root
     directories = [
-        # Source directories
-        "code/src/data",
-        "code/src/models",
-        "code/src/analysis",
-        "code/src/cli",
-        "code/src/lib",
-        
-        # Data directories
-        "code/data/raw",
-        "code/data/processed",
-        
-        # Results directory
-        "code/results",
-        
-        # Test directories
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/tests/contract",
+        "src/data",
+        "src/models",
+        "src/analysis",
+        "src/cli",
+        "src/lib",
+        "data/raw",
+        "data/processed",
+        "results",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract"
     ]
     
-    # Create directories
+    created_count = 0
     for dir_path in directories:
-        full_path = base / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created: {full_path}")
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
     
-    print("Directory structure created successfully.")
-
+    print(f"Directory setup complete. Created {created_count} new directories.")
+    return created_count
 
 if __name__ == "__main__":
     create_directories()
