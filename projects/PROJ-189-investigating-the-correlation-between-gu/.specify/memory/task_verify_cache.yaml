@@ -1,3 +1,50 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `projects/PROJ-189-investigating-the-correlation-between-gu/`\
+    \ directory or its required subfolders (`data/raw`, `data/processed`, `data/models`,\
+    \ `code`, `code/utils`, `tests`, `tests/contract`, `tests/integration`, `tests/unit`,\
+    \ `docs`) was provided. The implementer must supply a concrete listing or screenshot\
+    \ showing that this directory hierarchy exists and is non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content was provided; the evidence does not show that a
+    file exists at the repository root containing the exact required patterns (`data/raw/*`,
+    `data/processed/*.parquet`, `__pycache__/`, `venv/`, `.env`, `*.pyc`, `.pytest_cache/`).
+    The implementer must add the file with those exact entries.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided; therefore we cannot confirm\
+    \ that a title, description, and a one\u2011liner environment activation instruction\
+    \ were added. The required artifact is missing."
+T006:
+  c: false
+  h: a7d58fa7ba260373d30a6abbbba0f56dbdefe8e7eee455b4b61afc5c06cf98df
+  r: "The `code/utils/logging.py` file defines a `setup_logging` function with a default\
+    \ path of `data/processed/run.log`, but the implementation is truncated and does\
+    \ not show that a file handler is added to write logs to that location. Additionally,\
+    \ the required log file `data/processed/run.log` does not exist, indicating the\
+    \ logging infrastructure has not been verified to create or use it. The missing\
+    \ implementation details and absent log file mean the task\u2019s requirement\
+    \ is not demonstrably satisfied."
+T014:
+  c: false
+  h: 3e39810f24f5ec28c78d9f58daff98777cc3d47ccd21d6667fe4d5daa399c134
+  r: "The repository lacks the required `data/processed/merge_log.json` file, and\
+    \ the shown portion of `code/01_data_ingestion.py` is truncated before any merge\
+    \ logic is defined, so we cannot verify that it checks for \u2265\u202F500 overlapping\
+    \ IDs, raises a `ValueError` on failure, and logs the count. The task\u2019s core\
+    \ requirements are therefore not satisfied."
+T016:
+  c: false
+  h: 9a5fe20fc49dd2c5bd96351de596c477ae0243842439fc18d4a7a114198b86c2
+  r: "The provided `code/02_preprocessing.py` does not contain any logic for rarefying\
+    \ to a uniform depth or collapsing to genus\u2011level relative abundances, and\
+    \ the required output file `data/processed/rarefied_genus_table.parquet` is absent\
+    \ from the repository. Both the implementation and the expected artifact are missing,\
+    \ so the task is not satisfied."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -7,29 +54,21 @@ T018:
     \ Consequently, there is no artifact to verify that the required behavior is implemented.\
     \ The missing implementation (e.g., a Python/R script that computes the overlap,\
     \ logs the mismatch count, and aborts when <\u202F500) must be added."
-T024:
+T024b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No result artifact (e.g., a CSV/TSV table or report) showing filtered associations\
-    \ with adjusted p\u202F<\u202F0.05 and an explicit \u201Cassociational\u201D label\
-    \ was provided. Without such a file we cannot confirm that the filtering, flagging,\
-    \ and labeling were actually performed. The implementer must supply the concrete\
-    \ output containing the significant associations and the required label."
-T031:
+  h: 495da69fa9b2257bc823f65170a489aad48e04002d67d3d52e2308bc64410ade
+  r: "The required artifact `data/processed/run.log` does not exist, so no log entry\
+    \ confirming the explicit \u201Cassociational\u201D framing can be verified. The\
+    \ task\u2019s core requirement\u2014logging that framing to the specified run\
+    \ log\u2014is therefore unmet."
+T032a:
   c: false
-  h: 20b649299dc51990f744ab79e3cb852eaf27597edb2443001c8b76a0d1dcd700
-  r: "The required output file `data/processed/null_threshold.json` does not exist,\
-    \ and the provided `code/04_predictive_modeling.py` excerpt shows no implementation\
-    \ of a permutation test or logic to compute and write the 95th\u2011percentile\
-    \ R\xB2 threshold. Consequently the task\u2019s core requirements are unmet."
-T032:
-  c: false
-  h: cfb190851bb7bc0491494b4486c9191051ab0a0100bbc56081cd437fc5c8fce6
+  h: e3b4d2e34bee12303cda430795f5b528a03b0b20e9c513bbd3cb7fda0b64d544
   r: "The required output file `data/processed/top_taxa.json` does not exist, and\
     \ the provided `code/04_predictive_modeling.py` snippet shows no implementation\
-    \ for extracting top predictive taxa from Random Forest feature importance or\
-    \ writing them to that JSON file. The task\u2019s core logic and artifact are\
-    \ missing."
+    \ for extracting the top genera by mean decrease in impurity, saving them to JSON,\
+    \ or asserting the file\u2019s existence/validity. The task\u2019s core logic\
+    \ is therefore missing."
 T033:
   c: false
   h: 49e366d3b48b1ad5d6ad54324ce6047651e45d3febcbbd044f8df72598762956
@@ -37,18 +76,3 @@ T033:
     \ not exist, and the provided `code/04_predictive_modeling.py` snippet shows no\
     \ implementation of VIF calculation, CLR transformation, or JSON logging for VIF\
     \ >\u202F5. The task\u2019s core functionality is therefore not delivered."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test scripts, logs, or resulting dataframe were provided; there is no evidence\
-    \ that contract tests for the merged dataframe schema were executed or that they\
-    \ passed the required checks (\u2265500 rows, non\u2011null microbial genera and\
-    \ cognitive scores, ID overlap, age filter, imputation). The implementer must\
-    \ supply the test code and its execution output demonstrating compliance."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test artifacts (e.g., test scripts, execution logs, or result reports) were\
-    \ provided to demonstrate that integration tests for the age\u202F\u2265\u202F\
-    60 filter and missing\u2011value imputation were actually run and passed. Without\
-    \ such evidence, the requirement cannot be verified as satisfied."

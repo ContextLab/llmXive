@@ -1,204 +1,207 @@
 """
 Deterministic data fetching utilities with checksum validation.
 
-This module provides functions to fetch data from remote sources in a
-reproducible manner, validating integrity via checksums (SHA-256).
-It ensures that downloaded files match expected hashes to prevent
-silent data corruption or version drift.
+This module provides robust functions to fetch data from remote sources,
+validate integrity via SHA-256 checksums, and cache results locally.
+It raises DataFetchError on any validation failure.
 """
-
 import hashlib
 import os
 import tempfile
+import shutil
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
-
+from typing import Dict, Optional, Tuple, Union, List
 import requests
-from tqdm import tqdm
+import logging
+from datetime import datetime
 
+# Configure logger for this module
+logger = logging.getLogger(__name__)
 
 class DataFetchError(Exception):
-    """Custom exception for data fetching failures."""
+    """Custom exception for data fetching and validation errors."""
     pass
-
 
 def calculate_sha256(file_path: Union[str, Path]) -> str:
     """
-    Calculate the SHA-256 checksum of a file.
-
+    Calculate the SHA-256 hash of a file.
+    
     Args:
         file_path: Path to the file to hash.
-
+        
     Returns:
         Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
+    file_path = Path(file_path)
+    
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+        
+    try:
+        with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Error reading file for hashing: {e}")
 
 def fetch_data_with_validation(
     url: str,
     output_path: Union[str, Path],
     expected_checksum: Optional[str] = None,
     chunk_size: int = 8192,
-    timeout: int = 60,
-    retries: int = 3,
-) -> Tuple[bool, str]:
+    timeout: int = 300
+) -> Tuple[Path, str]:
     """
-    Fetch data from a URL with optional checksum validation.
-
-    This function downloads a file from the specified URL, saves it to
-    the output path, and validates its integrity if an expected checksum
-    is provided. It includes retry logic for transient network failures.
-
+    Fetch data from a URL, validate checksum, and save to disk.
+    
+    This function downloads a file from the given URL, calculates its
+    SHA-256 checksum, and compares it against the expected checksum if provided.
+    If validation fails, it raises a DataFetchError.
+    
     Args:
         url: The URL to fetch data from.
-        output_path: Local path where the file should be saved.
-        expected_checksum: Optional SHA-256 hex string to validate against.
+        output_path: Path where the downloaded file should be saved.
+        expected_checksum: Optional expected SHA-256 checksum for validation.
         chunk_size: Size of chunks to read during download.
         timeout: Request timeout in seconds.
-        retries: Number of retry attempts on failure.
-
+        
     Returns:
-        Tuple of (success: bool, message: str).
-        If success is False, message contains the error description.
-        If success is True, message contains the file path or validation status.
-
+        Tuple of (Path to saved file, Calculated checksum)
+        
     Raises:
-        DataFetchError: If download fails after retries or checksum mismatch.
+        DataFetchError: If download fails, checksum mismatch occurs, or I/O errors.
+        ValueError: If the URL is invalid or empty.
     """
     output_path = Path(output_path)
+    
+    if not url or not url.strip():
+        raise ValueError("URL cannot be empty")
+        
+    if not url.startswith(('http://', 'https://')):
+        raise ValueError(f"Invalid URL scheme: {url}")
+        
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    last_error = None
-
-    for attempt in range(1, retries + 1):
-        try:
-            # Use a temporary file first to avoid partial writes
-            with tempfile.NamedTemporaryFile(
-                dir=output_path.parent, delete=False
-            ) as tmp_file:
-                tmp_path = Path(tmp_file.name)
-
-                response = requests.get(url, stream=True, timeout=timeout)
-                response.raise_for_status()
-
-                total_size = int(response.headers.get("content-length", 0))
-                desc = f"Downloading {output_path.name} (Attempt {attempt}/{retries})"
-
-                with tqdm(
-                    total=total_size,
-                    unit="B",
-                    unit_scale=True,
-                    desc=desc,
-                    disable=total_size == 0,
-                ) as pbar:
-                    for chunk in response.iter_content(chunk_size=chunk_size):
-                        if chunk:
-                            tmp_file.write(chunk)
-                            pbar.update(len(chunk))
-
-                # Move temp file to final destination
-                tmp_path.rename(output_path)
-
-            # Validate checksum if provided
-            if expected_checksum:
-                actual_checksum = calculate_sha256(output_path)
-                if actual_checksum.lower() != expected_checksum.lower():
-                    os.remove(output_path)
-                    return (
-                        False,
-                        f"Checksum mismatch for {output_path.name}. "
-                        f"Expected: {expected_checksum}, Got: {actual_checksum}",
-                    )
-
-            return True, f"Successfully fetched and validated {output_path.name}"
-
-        except requests.exceptions.RequestException as e:
-            last_error = e
-            if attempt < retries:
-                continue
-            return False, f"Download failed after {retries} attempts: {str(e)}"
-        except Exception as e:
-            return False, f"Unexpected error during fetch: {str(e)}"
-
-    return False, f"Download failed after {retries} attempts: {str(last_error)}"
-
+    
+    temp_fd = None
+    temp_path = None
+    
+    try:
+        logger.info(f"Downloading from {url} to {output_path}...")
+        
+        # Use a temporary file to avoid partial downloads being used
+        temp_dir = tempfile.mkdtemp()
+        temp_path = Path(temp_dir) / output_path.name
+        
+        # Stream the download
+        response = requests.get(url, stream=True, timeout=timeout)
+        response.raise_for_status()
+        
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=chunk_size):
+                if chunk:  # Filter out keep-alive chunks
+                    f.write(chunk)
+                    
+        # Calculate checksum
+        calculated_checksum = calculate_sha256(temp_path)
+        logger.info(f"Download complete. Calculated checksum: {calculated_checksum}")
+        
+        # Validate checksum if expected is provided
+        if expected_checksum:
+            if calculated_checksum.lower() != expected_checksum.lower():
+                # Clean up temp file on failure
+                if temp_path.exists():
+                    temp_path.unlink()
+                raise DataFetchError(
+                    f"Checksum validation failed for {url}. "
+                    f"Expected: {expected_checksum}, Got: {calculated_checksum}"
+                )
+        
+        # Move temp file to final destination
+        shutil.move(str(temp_path), str(output_path))
+        logger.info(f"File saved successfully to {output_path}")
+        
+        return output_path, calculated_checksum
+        
+    except requests.exceptions.RequestException as e:
+        raise DataFetchError(f"Failed to download data from {url}: {e}")
+    except DataFetchError:
+        raise
+    except Exception as e:
+        raise DataFetchError(f"Unexpected error during fetch/validation: {e}")
+    finally:
+        # Clean up temp directory if it exists
+        if temp_dir and os.path.exists(temp_dir):
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception as cleanup_err:
+                logger.warning(f"Failed to clean up temp directory: {cleanup_err}")
 
 def fetch_and_cache(
     url: str,
     cache_dir: Union[str, Path],
-    filename: Optional[str] = None,
     expected_checksum: Optional[str] = None,
-    force_refresh: bool = False,
-) -> Tuple[bool, Path, str]:
+    force_refresh: bool = False
+) -> Path:
     """
-    Fetch data and cache it locally, skipping if already present and valid.
-
+    Fetch data with caching and validation.
+    
+    Checks if a valid, cached copy exists. If so, returns it.
+    If not, downloads, validates, caches, and returns the path.
+    
     Args:
-        url: The URL to fetch data from.
-        cache_dir: Directory to cache the file in.
-        filename: Optional filename to use. If None, derived from URL.
-        expected_checksum: Optional SHA-256 hex string for validation.
-        force_refresh: If True, re-download even if file exists.
-
+        url: URL to fetch data from.
+        cache_dir: Directory to use for caching.
+        expected_checksum: Expected SHA-256 checksum for validation.
+        force_refresh: If True, re-download even if cached copy exists.
+        
     Returns:
-        Tuple of (success: bool, file_path: Path, message: str).
+        Path to the cached file.
+        
+    Raises:
+        DataFetchError: If validation fails or download errors occur.
     """
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Derive filename from URL (simple approach)
+    filename = url.split('/')[-1] or "downloaded_file"
+    cached_path = cache_dir / filename
+    
+    # Check if cached version exists and is valid
+    if cached_path.exists() and not force_refresh:
+        logger.info(f"Checking cached file: {cached_path}")
+        try:
+            cached_checksum = calculate_sha256(cached_path)
+            if expected_checksum:
+                if cached_checksum.lower() == expected_checksum.lower():
+                    logger.info(f"Cached file validated successfully. Using cached copy.")
+                    return cached_path
+                else:
+                    logger.warning(f"Cached file checksum mismatch. Re-fetching.")
+                    cached_path.unlink()
+            else:
+                logger.info(f"Using cached file (no checksum provided for validation).")
+                return cached_path
+        except Exception as e:
+            logger.warning(f"Error validating cache: {e}. Re-fetching.")
+            if cached_path.exists():
+                cached_path.unlink()
+    
+    # Fetch and validate
+    logger.info("Fetching data...")
+    return fetch_data_with_validation(
+        url=url,
+        output_path=cached_path,
+        expected_checksum=expected_checksum
+    )[0]
 
-    if filename is None:
-        filename = url.split("/")[-1].split("?")[0]
-
-    local_path = cache_dir / filename
-
-    # Check if file already exists and is valid
-    if not force_refresh and local_path.exists():
-        if expected_checksum:
-            actual_checksum = calculate_sha256(local_path)
-            if actual_checksum.lower() == expected_checksum.lower():
-                return True, local_path, f"Using cached file: {local_path.name}"
-        else:
-            return True, local_path, f"Using cached file: {local_path.name}"
-
-    success, message = fetch_data_with_validation(
-        url, local_path, expected_checksum
-    )
-
-    if success:
-        return True, local_path, message
-    else:
-        return False, local_path, message
-
-
-# Example usage and basic validation
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Fetch and validate data files with checksums."
-    )
-    parser.add_argument("--url", required=True, help="URL to fetch data from")
-    parser.add_argument(
-        "--output", required=True, help="Local path to save the file"
-    )
-    parser.add_argument(
-        "--checksum", help="Expected SHA-256 checksum (optional)"
-    )
-
-    args = parser.parse_args()
-
-    success, message = fetch_data_with_validation(
-        args.url, args.output, args.checksum
-    )
-
-    if success:
-        print(f"SUCCESS: {message}")
-        exit(0)
-    else:
-        print(f"FAILED: {message}")
-        exit(1)
+# Example usage and verification can be added here if needed
+# This module is designed to be imported and used by other pipeline components

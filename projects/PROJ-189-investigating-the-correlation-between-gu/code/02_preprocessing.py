@@ -4,241 +4,269 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Dict, List, Optional, Tuple
+import json
 
-# Import from sibling modules based on provided API surface
-# Note: Assuming these exist as per task context, though not explicitly listed in the "public names"
-# We will implement the logic inline or assume they are available if the pipeline runs.
-# However, to be safe and strictly follow "Extend, don't re-author", we assume the
-# functions load_merged_data, filter_by_age, etc., are defined elsewhere or will be.
-# Since the prompt asks to implement T017 (validation) and the file 02_preprocessing.py
-# is the target, we will ensure the `validate_null_values` function is fully implemented
-# and integrated into the pipeline.
+# Import from sibling utilities
+from utils.logging import get_logger, log_memory_usage, check_memory_limit
+from utils.resource_guard import enforce_resource_limits, ResourceLimitExceededError
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Configure logger
+logger = get_logger(__name__)
 
 # Constants
-DATA_DIR = Path("data")
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_MERGED_PATH = DATA_DIR / "raw" / "merged_data.csv"
-PROCESSED_OUTPUT_PATH = PROCESSED_DIR / "analysis_ready.csv"
+MIN_RAREFACTION_DEPTH = 5000  # Default minimum depth, will be adjusted based on data
+OUTPUT_DIR = Path("data/processed")
+MERGED_DATA_PATH = OUTPUT_DIR / "merged_dataset.parquet"
+RAREFIED_OUTPUT_PATH = OUTPUT_DIR / "rarefied_genus_table.parquet"
+RAREFACTION_LOG_PATH = OUTPUT_DIR / "rarefaction_log.json"
 
-# Ensure directories exist
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-def load_merged_data(input_path: Optional[Path] = None) -> pd.DataFrame:
-    """Loads the merged dataset from the raw directory."""
-    path = input_path or RAW_MERGED_PATH
-    if not path.exists():
-        raise FileNotFoundError(f"Merged data file not found at {path}. "
-                                "Please run data ingestion first.")
-    logger.info(f"Loading merged data from {path}")
-    return pd.read_csv(path)
+def load_merged_data() -> pd.DataFrame:
+    """Load the merged dataset from the preprocessing pipeline."""
+    if not MERGED_DATA_PATH.exists():
+        raise FileNotFoundError(f"Merged data file not found at {MERGED_DATA_PATH}. "
+                                "Run data ingestion pipeline first.")
+    logger.info(f"Loading merged data from {MERGED_DATA_PATH}")
+    df = pd.read_parquet(MERGED_DATA_PATH)
+    logger.info(f"Loaded {len(df)} rows with {len(df.columns)} columns")
+    return df
 
 def filter_by_age(df: pd.DataFrame, min_age: int = 60) -> pd.DataFrame:
-    """Filters the dataframe to include only participants with age >= min_age."""
-    if 'age' not in df.columns:
-        raise ValueError("Column 'age' not found in dataframe.")
-    logger.info(f"Filtering for age >= {min_age}. Original shape: {df.shape}")
-    filtered = df[df['age'] >= min_age].copy()
-    logger.info(f"Filtered shape: {filtered.shape}")
-    return filtered
+    """Filter samples to include only participants aged >= min_age."""
+    logger.info(f"Filtering for age >= {min_age}")
+    initial_count = len(df)
+    df_filtered = df[df['age'] >= min_age].copy()
+    filtered_count = len(df_filtered)
+    logger.info(f"Filtered from {initial_count} to {filtered_count} rows based on age")
+    return df_filtered
 
-def impute_covariates(df: pd.DataFrame, strategy: str = 'median') -> pd.DataFrame:
-    """Imputes missing values in covariate columns (BMI, education)."""
-    covariates = ['bmi', 'education']
-    existing_covariates = [col for col in covariates if col in df.columns]
-    
-    if not existing_covariates:
-        logger.warning("No covariate columns found to impute.")
-        return df
-
-    logger.info(f"Imputing covariates {existing_covariates} with {strategy} strategy.")
+def impute_covariates(df: pd.DataFrame) -> pd.DataFrame:
+    """Impute missing values in covariates (BMI, education) using median/mode."""
+    logger.info("Imputing missing covariates")
     df_imputed = df.copy()
     
-    for col in existing_covariates:
-        if strategy == 'median':
-            val = df_imputed[col].median()
-        elif strategy == 'mean':
-            val = df_imputed[col].mean()
-        else:
-            val = 0 # Fallback
-        
-        df_imputed[col] = df_imputed[col].fillna(val)
-        logger.info(f"Imputed {col} with {strategy} value: {val}")
+    # Impute BMI with median
+    if 'bmi' in df_imputed.columns:
+        bmi_median = df_imputed['bmi'].median()
+        df_imputed['bmi'] = df_imputed['bmi'].fillna(bmi_median)
+        logger.info(f"Imputed BMI missing values with median: {bmi_median}")
+    
+    # Impute education with mode
+    if 'education' in df_imputed.columns:
+        education_mode = df_imputed['education'].mode()[0]
+        df_imputed['education'] = df_imputed['education'].fillna(education_mode)
+        logger.info(f"Imputed education missing values with mode: {education_mode}")
     
     return df_imputed
 
 def validate_covariate_imputation(df: pd.DataFrame) -> bool:
-    """Checks if covariates still have nulls after imputation."""
-    covariates = ['bmi', 'education']
-    existing = [c for c in covariates if c in df.columns]
-    for col in existing:
-        if df[col].isnull().any():
-            logger.error(f"Covariate {col} still contains nulls after imputation.")
-            return False
+    """Validate that covariates have no missing values after imputation."""
+    missing_covariates = []
+    if 'bmi' in df.columns and df['bmi'].isnull().any():
+        missing_covariates.append('bmi')
+    if 'education' in df.columns and df['education'].isnull().any():
+        missing_covariates.append('education')
+    
+    if missing_covariates:
+        logger.error(f"Covariates with missing values after imputation: {missing_covariates}")
+        return False
+    logger.info("All covariates successfully imputed")
     return True
 
-def rarefy_samples(df: pd.DataFrame, min_depth: Optional[int] = None) -> pd.DataFrame:
-    """
-    Performs rarefaction to uniform depth.
-    If min_depth is None, calculates the minimum read depth of retained samples.
-    Note: This is a placeholder for the actual rarefaction logic which depends on
-    specific microbial abundance columns. In a real scenario, we would identify
-    abundance columns and rarefy.
-    """
-    # Identify abundance columns (assumed to start with 'genus_' or similar, or numeric columns excluding ID/Age)
-    # For this implementation, we assume columns not in ['participant_id', 'age', 'bmi', 'education', 'cognitive_score'] are abundances
-    exclude_cols = ['participant_id', 'age', 'bmi', 'education', 'cognitive_score', 'cognitive_test_name']
-    abundance_cols = [col for col in df.columns if col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col])]
+def validate_null_values(df: pd.DataFrame, required_columns: List[str]) -> bool:
+    """Validate that required columns have no null values."""
+    missing_required = []
+    for col in required_columns:
+        if col not in df.columns:
+            missing_required.append(f"{col} (missing column)")
+        elif df[col].isnull().any():
+            missing_required.append(f"{col} ({df[col].isnull().sum()} nulls)")
     
-    if not abundance_cols:
-        logger.warning("No abundance columns found for rarefaction.")
-        return df
+    if missing_required:
+        logger.error(f"Required columns with missing values: {missing_required}")
+        return False
+    logger.info("All required columns validated successfully")
+    return True
 
-    # Calculate min depth if not provided
-    if min_depth is None:
-        min_depth = int(df[abundance_cols].sum(axis=1).min())
-        logger.info(f"Calculated minimum read depth: {min_depth}")
+def rarefy_samples(abundance_df: pd.DataFrame, target_depth: int) -> pd.DataFrame:
+    """
+    Perform rarefaction (subsampling without replacement) to a uniform sequencing depth.
     
-    if min_depth <= 0:
-        logger.warning("Minimum read depth is <= 0. Skipping rarefaction.")
-        return df
+    Args:
+        abundance_df: DataFrame with sample IDs as index and taxon counts as columns.
+        target_depth: The uniform depth to rarefy all samples to.
+        
+    Returns:
+        Rarefied DataFrame with same shape, counts subsampled.
+    """
+    logger.info(f"Starting rarefaction to depth {target_depth}")
+    
+    # Filter out samples with total reads < target_depth
+    sample_sums = abundance_df.sum(axis=1)
+    retained_samples = sample_sums[sample_sums >= target_depth].index.tolist()
+    dropped_samples = sample_sums[sample_sums < target_depth].index.tolist()
+    
+    logger.info(f"Retained {len(retained_samples)} samples, dropped {len(dropped_samples)} samples "
+                f"with depth < {target_depth}")
+    
+    if len(retained_samples) == 0:
+        raise ValueError(f"No samples have sequencing depth >= {target_depth}. "
+                         f"Minimum depth in data: {sample_sums.min()}")
+    
+    rarefied_df = abundance_df.loc[retained_samples].copy()
+    
+    # Perform rarefaction
+    rarefied_counts = rarefied_df.apply(
+        lambda row: np.random.choice(
+            row.index, 
+            size=target_depth, 
+            replace=False, 
+            p=row / row.sum()
+        ).tolist(), 
+        axis=1
+    )
+    
+    # Convert list of counts back to DataFrame
+    rarefied_matrix = np.zeros((len(rarefied_df), len(rarefied_df.columns)), dtype=int)
+    for i, row_counts in enumerate(rarefied_counts):
+        counts_dict = pd.Series(row_counts).value_counts()
+        for taxon, count in counts_dict.items():
+            if taxon in rarefied_df.columns:
+                rarefied_matrix[i, rarefied_df.columns.get_loc(taxon)] = count
+    
+    rarefied_df = pd.DataFrame(
+        rarefied_matrix, 
+        index=rarefied_df.index, 
+        columns=rarefied_df.columns
+    )
+    
+    logger.info(f"Rarefaction complete. Output shape: {rarefied_df.shape}")
+    return rarefied_df
 
-    logger.info(f"Rarefying samples to depth {min_depth}.")
+def collapse_to_genus(counts_df: pd.DataFrame, taxonomy_map: Dict[str, str]) -> pd.DataFrame:
+    """
+    Collapse taxonomic counts from species/OTU level to genus level.
     
-    # Simple rarefaction: random subsampling without replacement
-    # In a real bioinformatics context, we might use scikit-bio or similar
-    # Here we simulate the logic for the pipeline
-    df_rarefied = df.copy()
-    # Normalize to relative abundance after rarefaction (common practice)
-    # Or just sum to min_depth. Let's do relative abundance for correlation analysis.
+    Args:
+        counts_df: DataFrame with taxon counts (columns are taxon IDs).
+        taxonomy_map: Dictionary mapping taxon IDs to genus names.
+        
+    Returns:
+        DataFrame with genus-level counts.
+    """
+    logger.info("Collapsing to genus level")
     
-    # Since actual rarefaction is complex, we will simulate the effect of filtering
-    # and normalizing to ensure we don't have zero-sum rows if min_depth is valid.
-    # For the purpose of T017 (validation), the key is that the pipeline runs.
-    # We will perform a simple normalization to relative abundance as a proxy
-    # if real rarefaction libraries aren't available, but the structure remains.
+    # Map columns to genus
+    genus_counts = pd.DataFrame()
+    for taxon, genus in taxonomy_map.items():
+        if taxon in counts_df.columns:
+            if genus not in genus_counts.columns:
+                genus_counts[genus] = 0
+            genus_counts[genus] += counts_df[taxon]
     
-    row_sums = df_rarefied[abundance_cols].sum(axis=1)
-    # Avoid division by zero
-    row_sums = row_sums.replace(0, 1)
-    df_rarefied[abundance_cols] = df_rarefied[abundance_cols].div(row_sums, axis=0)
+    # Fill missing genera with 0
+    all_genera = set(taxonomy_map.values())
+    for genus in all_genera:
+        if genus not in genus_counts.columns:
+            genus_counts[genus] = 0
     
-    logger.info("Rarefaction and normalization complete.")
-    return df_rarefied
+    logger.info(f"Collapsed to {len(genus_counts.columns)} genera")
+    return genus_counts
 
-def collapse_to_genus(df: pd.DataFrame) -> pd.DataFrame:
+def run_preprocessing_pipeline() -> pd.DataFrame:
     """
-    Collapses taxonomic data to genus level.
-    Assumes the input dataframe already has genus-level columns or needs aggregation.
-    For this task, we assume the data is already at genus level or we just pass through
-    if the columns represent genera.
-    """
-    logger.info("Collapsing to genus level (if necessary).")
-    # In a real implementation, this would group by genus and sum abundances.
-    # Given the previous step rarefied, we assume the structure is ready.
-    return df
-
-def validate_null_values(df: pd.DataFrame, required_columns: Optional[List[str]] = None) -> Tuple[pd.DataFrame, bool]:
-    """
-    Validates that no null values remain in the final analysis dataset.
-    If nulls are found, rows with nulls are dropped and logged.
-    Returns the cleaned dataframe and a boolean indicating success (True if no nulls).
-    """
-    logger.info("Starting null value validation...")
-    
-    initial_null_count = df.isnull().sum().sum()
-    logger.info(f"Initial total null count: {initial_null_count}")
-    
-    if required_columns:
-        # Check specifically for required columns
-        for col in required_columns:
-            if col in df.columns:
-                nulls = df[col].isnull().sum()
-                if nulls > 0:
-                    logger.warning(f"Column '{col}' has {nulls} null values.")
-            else:
-                logger.warning(f"Required column '{col}' not found in dataframe.")
-    
-    # Drop rows with any nulls to ensure a clean dataset for analysis
-    if initial_null_count > 0:
-        logger.warning(f"Dropping {initial_null_count} null values by removing affected rows.")
-        df_clean = df.dropna()
-        dropped_count = len(df) - len(df_clean)
-        logger.info(f"Dropped {dropped_count} rows due to null values.")
-        if dropped_count > 0:
-            logger.warning(f"Remaining rows: {len(df_clean)}")
-    else:
-        df_clean = df
-    
-    final_null_count = df_clean.isnull().sum().sum()
-    success = (final_null_count == 0)
-    
-    if success:
-        logger.info("Validation PASSED: No null values remain in the final dataset.")
-    else:
-        logger.error(f"Validation FAILED: {final_null_count} null values remain.")
-    
-    return df_clean, success
-
-def run_preprocessing_pipeline(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Runs the full preprocessing pipeline:
+    Execute the full preprocessing pipeline:
     1. Load merged data
     2. Filter by age >= 60
     3. Impute covariates
-    4. Rarefy samples
-    5. Collapse to genus
-    6. Validate nulls (T017)
+    4. Rarefy to uniform depth
+    5. Collapse to genus level
+    6. Validate and save output
     """
-    logger.info("Starting preprocessing pipeline.")
+    logger.info("Starting preprocessing pipeline")
+    enforce_resource_limits()  # Check RAM and CPU-only constraints
     
-    # 1. Load
-    df = load_merged_data(input_path)
+    # Step 1: Load merged data
+    df = load_merged_data()
     
-    # 2. Filter
+    # Step 2: Filter by age
     df = filter_by_age(df, min_age=60)
+    if len(df) < 500:
+        raise ValueError(f"Filtered dataset has {len(df)} samples, which is less than the required 500.")
     
-    # 3. Impute
-    df = impute_covariates(df)
-    
-    # 4. Validate imputation
+    # Step 3: Impute covariates
+    df = impute_covariates()
     if not validate_covariate_imputation(df):
-        raise RuntimeError("Covariate imputation validation failed.")
+        raise ValueError("Covariate imputation validation failed.")
     
-    # 5. Rarefy
-    df = rarefy_samples(df)
+    # Step 4: Extract abundance matrix (assuming columns starting with 'genus_' or taxon IDs)
+    # We need to identify which columns are taxonomic counts
+    # Assuming the merged data has a structure where taxon columns are numeric and not metadata
+    metadata_cols = ['participant_id', 'age', 'bmi', 'education', 'cognitive_score']
+    taxon_cols = [col for col in df.columns if col not in metadata_cols and df[col].dtype in ['int64', 'float64']]
     
-    # 6. Collapse
-    df = collapse_to_genus(df)
+    if len(taxon_cols) == 0:
+        raise ValueError("No taxonomic count columns found in merged data.")
     
-    # 7. Validate nulls (T017 - Core Task)
-    df_clean, success = validate_null_values(df)
+    abundance_df = df.set_index('participant_id')[taxon_cols].fillna(0).astype(int)
+    logger.info(f"Extracted abundance matrix: {abundance_df.shape}")
     
-    if not success:
-        raise RuntimeError("Final null validation failed. Check logs.")
+    # Step 5: Determine rarefaction depth
+    min_depth = abundance_df.sum(axis=1).min()
+    target_depth = min(MIN_RAREFACTION_DEPTH, min_depth)
+    logger.info(f"Minimum sequencing depth: {min_depth}, using target depth: {target_depth}")
     
-    # Save output
-    output = output_path or PROCESSED_OUTPUT_PATH
-    df_clean.to_csv(output, index=False)
-    logger.info(f"Preprocessing complete. Output saved to {output}")
+    # Step 6: Rarefy samples
+    rarefied_abundance = rarefy_samples(abundance_df, target_depth)
     
-    return df_clean
+    # Step 7: Collapse to genus level
+    # We need a taxonomy map. For now, we assume column names are already genus-level or we map them.
+    # In a real scenario, this would come from the AGP metadata.
+    # Here we assume columns are already genus-level for simplicity, or we map based on naming convention.
+    taxonomy_map = {col: col.split('_')[0] if '_' in col else col for col in rarefied_abundance.columns}
+    genus_abundance = collapse_to_genus(rarefied_abundance, taxonomy_map)
+    
+    # Step 8: Merge back with metadata
+    metadata = df[['participant_id', 'age', 'bmi', 'education', 'cognitive_score']].set_index('participant_id')
+    final_df = metadata.join(genus_abundance)
+    
+    # Step 9: Validate required columns
+    required_genera = [col for col in final_df.columns if col not in metadata.columns]
+    if len(required_genera) < 5:
+        logger.warning(f"Only {len(required_genera)} genus columns found, expected at least 5.")
+    
+    if not validate_null_values(final_df, ['age', 'bmi', 'education', 'cognitive_score'] + required_genera):
+        raise ValueError("Final dataset validation failed: null values detected in required columns.")
+    
+    # Step 10: Save output
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    final_df.to_parquet(RAREFIED_OUTPUT_PATH, index=True)
+    logger.info(f"Saved rarefied genus table to {RAREFIED_OUTPUT_PATH}")
+    
+    # Log rarefaction parameters
+    log_data = {
+        "target_depth": target_depth,
+        "min_depth": min_depth,
+        "samples_retained": len(final_df),
+        "genera_count": len(required_genera),
+        "output_path": str(RAREFIED_OUTPUT_PATH)
+    }
+    with open(RAREFACTION_LOG_PATH, 'w') as f:
+        json.dump(log_data, f, indent=2)
+    logger.info(f"Saved rarefaction log to {RAREFACTION_LOG_PATH}")
+    
+    return final_df
 
 def main():
-    """Entry point for the preprocessing script."""
+    """Main entry point for preprocessing pipeline."""
+    setup_logging()
     try:
-        df = run_preprocessing_pipeline()
-        logger.info(f"Pipeline successful. Final dataset shape: {df.shape}")
+        result = run_preprocessing_pipeline()
+        logger.info(f"Preprocessing pipeline completed successfully. Output: {result.shape}")
+        return result
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Preprocessing pipeline failed: {str(e)}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

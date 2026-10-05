@@ -1,1 +1,1 @@
-# Code package for PROJ-189
+# Code package initialization

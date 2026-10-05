@@ -1,45 +1,12 @@
 # PROJ-189: Investigating the Correlation Between Gut Microbiome and Cognitive Decline
 
-## Project Structure
+## Description
+This project analyzes the correlation between gut microbiome composition (AGP 16S data) and cognitive decline metrics (HRS data). The pipeline ingests raw data, performs preprocessing (rarefaction, filtering), and executes statistical correlation and predictive modeling.
 
-This project follows the llmXive automated science pipeline structure:
-
-- `data/`: Raw and processed data
- - `raw/`: Unmodified source data
- - `processed/`: Cleaned and aggregated data
- - `models/`: Trained model artifacts
-- `code/`: Source code for analysis
- - `utils/`: Shared utilities
-- `tests/`: Test suites
- - `unit/`: Unit tests
- - `integration/`: Integration tests
- - `contract/`: Contract tests
-- `docs/`: Documentation
-
-## Setup
-
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-3. Run the analysis pipeline:
- ```bash
- python code/01_data_ingestion.py
- python code/02_preprocessing.py
- ```
-
-## Data Sources
-
-- AGP 16S Taxonomic Data: Qiita/EBI
-- HRS Cognitive Metadata: HRS Portal
-
-## License
-
-Open for research use.
+## Setup Instructions
+1. Clone the repository.
+2. Create a virtual environment: `python -m venv venv`
+3. Activate the environment: `source venv/bin/activate` (Linux/Mac) or `venv\\Scripts\\activate` (Windows)
+4. Install dependencies: `pip install -r code/requirements.txt`
+5. Run directory setup: `python code/setup_dirs.py`
+6. Configure environment variables: Copy `code/.env.example` to `code/.env` and fill in values.
