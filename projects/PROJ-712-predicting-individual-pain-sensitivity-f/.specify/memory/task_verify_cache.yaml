@@ -1,10 +1,26 @@
-T017:
+T001:
   c: false
-  h: 38932c48dbd5007eea4247829de6c5392a8f9831aa85ace94c483e633ef063a5
-  r: The repository contains `code/main.py` with an aggregation function and the required
-    assertion, but the script never writes the DataFrame to `data/processed/feature_matrix.csv`
-    (the file is missing). Consequently the required output artifact does not exist,
-    so the task is not fulfilled.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure is presented or listed in the provided artifacts; there\
+    \ is no evidence that the required `data/raw/`, `data/processed/`, `artifacts/`,\
+    \ `state/`, `code/`, and `tests/` folders have been created. The implementer\u2019\
+    s claim cannot be verified without concrete file system evidence."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing the 200\u2011iteration\
+    \ bootstrap for Pearson\u202Fr (with the required runtime\u2011limit logic) was\
+    \ provided. Consequently the required artifact is missing, so the task is not\
+    \ satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, notebook, or output file implementing the empirical\
+    \ p\u2011value calculation is present. The claim cannot be verified because the\
+    \ required artifact (e.g., a module that takes the observed Pearson\u202Fr, the\
+    \ null distribution from T022, and returns the empirical p\u2011value) is missing.\
+    \ The next implementer must add the implementation and provide the resulting artifact\
+    \ (e.g., a Python function or report) showing the computed p\u2011value."
 T026a:
   c: false
   h: f5b307da3f32df57f62fd6b5bd7ce11a445c3b8da01f4e3814bc560d3737d038
@@ -13,3 +29,15 @@ T026a:
     \ under 6\u202Fhours. Moreover, `code/config.py` is missing entirely, so there\
     \ is no alternative location for the required instrumentation. The task\u2019\
     s timing\u2011instrumentation requirement is therefore not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/diagnostics_report.md` file was presented, and no content showing\
+    \ an FDR table, VIF flags, or sensitivity\u2011analysis plots/tables was provided.\
+    \ The required diagnostic report is therefore missing."
+T036a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` file or its contents were presented, so we cannot confirm that
+    installation instructions and usage examples have been added. The required artifact
+    is missing from the evidence.

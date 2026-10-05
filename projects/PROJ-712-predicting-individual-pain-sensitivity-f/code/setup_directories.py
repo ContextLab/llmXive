@@ -1,15 +1,6 @@
 """
-Script to initialize the project directory structure for llmXive PROJ-712.
-
-Creates the required directories:
-- data/raw/
-- data/processed/
-- artifacts/
-- state/
-- code/
-- tests/
-
-This script is idempotent and will not fail if directories already exist.
+Module to initialize project directory structure.
+Implements Task T001: Create data/raw/, data/processed/, artifacts/, state/, code/, and tests/ directories.
 """
 import os
 import sys
@@ -23,87 +14,100 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directories():
+def ensure_directories(root_dir: Optional[Path] = None) -> list:
     """
-    Create the standard project directory structure.
+    Creates the required project directory structure relative to root_dir.
+    If root_dir is None, uses the current working directory.
     
+    Args:
+        root_dir: Optional base path for the project. Defaults to cwd.
+        
     Returns:
-        list: List of created directory paths as strings.
+        List of created Path objects.
     """
-    # Define the project root relative to this script's location
-    # Assuming this script is at code/setup_directories.py
-    # The project root is the parent of 'code'
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    if root_dir is None:
+        root_dir = Path.cwd()
     
+    # Define required directories relative to root
     required_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "artifacts",
-        project_root / "state",
-        project_root / "code",
-        project_root / "tests"
+        "data/raw",
+        "data/processed",
+        "artifacts",
+        "state",
+        "code",
+        "tests"
     ]
     
-    created = []
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created.append(str(dir_path))
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
+    created_paths = []
     
-    return created
+    for dir_name in required_dirs:
+        full_path = root_dir / dir_name
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_paths.append(full_path)
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise e
+    
+    return created_paths
 
-def validate_paths():
+def validate_paths(root_dir: Optional[Path] = None) -> bool:
     """
-    Validate that the required directories exist.
+    Validates that all required directories exist.
     
+    Args:
+        root_dir: Optional base path for the project. Defaults to cwd.
+        
     Returns:
-        bool: True if all directories exist, False otherwise.
+        True if all directories exist, False otherwise.
     """
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    if root_dir is None:
+        root_dir = Path.cwd()
     
     required_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "artifacts",
-        project_root / "state",
-        project_root / "code",
-        project_root / "tests"
+        "data/raw",
+        "data/processed",
+        "artifacts",
+        "state",
+        "code",
+        "tests"
     ]
     
-    missing = []
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            missing.append(str(dir_path))
+    all_exist = True
+    for dir_name in required_dirs:
+        full_path = root_dir / dir_name
+        if not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        else:
+            logger.debug(f"Directory exists: {full_path}")
     
-    if missing:
-        logger.error(f"Missing required directories: {missing}")
-        return False
-    
-    logger.info("All required directories are present.")
-    return True
+    return all_exist
 
 def main():
-    """Main entry point for the directory setup script."""
-    logger.info("Starting project directory initialization...")
+    """
+    Main entry point to initialize the project structure.
+    """
+    logger.info("Initializing project directory structure...")
     
-    created = ensure_directories()
+    # Use current working directory as root
+    root_dir = Path.cwd()
+    logger.info(f"Using root directory: {root_dir}")
     
-    if created:
+    try:
+        created = ensure_directories(root_dir)
         logger.info(f"Successfully created {len(created)} directories.")
-    else:
-        logger.info("No new directories were created (all already exist).")
-    
-    # Validate the structure
-    if not validate_paths():
-        logger.error("Validation failed. Some directories are missing.")
-        sys.exit(1)
-    
-    logger.info("Project directory structure initialized successfully.")
+        
+        if validate_paths(root_dir):
+            logger.info("Validation passed: All required directories exist.")
+            return 0
+        else:
+            logger.error("Validation failed: Some directories are missing.")
+            return 1
+    except Exception as e:
+        logger.error(f"Error during directory initialization: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

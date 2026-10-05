@@ -1410,3 +1410,163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T09:54:44Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: EEG preprocessing re-reference to average mastoids and band-pass filter
+    1-40 Hz
+  claim_id: c_5fdf84c0
+  context: 'Phase 3: User Story 1 - Task T013'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/preprocessing.py`: re-reference to average mastoids,\
+    \ band-pass filter 1\u201340 Hz, and apply ICA for ocular/muscle removal."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:05:24Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: spectral frequency bands Delta 1-4Hz Theta 4-8Hz Alpha 8-13Hz Beta 13-30Hz
+    Low-Gamma 30-50Hz High-Gamma 50-70Hz
+  claim_id: c_13a091be
+  context: 'Phase 3: User Story 1 - Task T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly define frequency bands: Delta (1-4Hz), Theta (4-8Hz), Alpha
+    (8-13Hz), Beta (13-30Hz), Low-Gamma (30-50Hz), High-Gamma (50-70Hz).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:05:46Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: calculation of exactly 30 features per participant
+  claim_id: c_0162e593
+  context: 'Phase 3: User Story 1 - Task T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement feature extraction in `code/preprocessing.py`: calculate exactly
+    30 features per participant: A set of mean durations, occurrence rates, transition
+    probabilities (represented as a square matrix), and spectral power features.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:06:22Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Elastic Net model with alpha 0.5
+  claim_id: c_d1be7108
+  context: 'Phase 4: User Story 2 - Task T021'
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "Implement `code/modeling.py` function for Elastic Net (\u03B1=0.5) with\
+    \ nested k-fold cross-validation."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T16:06:22Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 1000 permutations for nested permutation test
+  claim_id: c_48babb11
+  context: 'Phase 4: User Story 2 - Task T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement nested permutation test in `code/modeling.py`: Perform 1,000
+    permutations to ensure statistical robustness.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:06:51Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: 200 bootstrap iterations for 95% confidence interval
+  claim_id: c_72f16e0a
+  context: 'Phase 4: User Story 2 - Task T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrap resampling with 200 iterations to calculate a 95%
+    confidence interval for Pearson r.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:08:17Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold greater than 10
+  claim_id: c_0a7fbd7e
+  context: 'Phase 5: User Story 3 - Task T031'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag any predictors with VIF > 10 in the diagnostic output
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T16:08:26Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: median-split sensitivity analysis thresholds 0.1 0.05 0.05 0.1 around
+    median
+  claim_id: c_de732e9a
+  context: 'Phase 5: User Story 3 - Task T032'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define a set of thresholds: [median-0.1, median-0.05, median, median+0.05,
+    median+0.1] for median-split sensitivity analysis.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:08:55Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: regularization alpha sweep from 0.0 to 1.0 in steps of 0.05
+  claim_id: c_f9175ea3
+  context: 'Phase 5: User Story 3 - Task T033'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement regularization sensitivity analysis in `code/diagnostics.py`:\
+    \ sweep \u03B1 from 0.0 to 1.0 in steps of 0.05 and report R-squared stability."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T16:09:18Z'

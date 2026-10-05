@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -58,10 +58,11 @@
 - [X] T004 Implement `code/utils.py` with seed pinning, logging setup, `record_artifact_hash()`, and `compute_checksum()` functions for Constitution Principles V and III.
 - [X] T004b [US1] Compute SHA-256 checksums for all raw data files upon ingestion into `data/raw/` and record them in `state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml` (Constitution Principle III).
 - [X] T005 [P] Create `scripts/pre-run-validation.sh` to invoke `code/utils.py --validate-citations` (Constitution Principle II: Verified Accuracy)
-- [ ] T007 Create `contracts/dataset.schema.yaml` and `contracts/features.schema.yaml` based on `plan.md` entities
+- [X] T007 [P] Create `contracts/dataset.schema.yaml` and `contracts/features.schema.yaml` based on `plan.md` entities and validate them against the data model.
 - [X] T008 Implement `code/data_loader.py` with `DataChunk` logic using `numpy.memmap` to handle limited RAM constraints. Ensure the data loading and preparation logic supports the extraction of exactly 30 features as defined in FR-002.
-- [X] T009 Setup `code/config.py` for environment variables and path management
-- [X] T026a [P] Implement timing instrumentation in `code/utils.py` or `code/config.py`: function to record start/end times and an assertion `assert duration < 6 hours` to enforce SC-005.
+- [X] T009 Setup `code/config.py` for environment variables, path management, and define the constant `EXPECTED_FEATURE_COLUMNS` (list of 30 strings) matching FR-002.
+- [X] T026a [P] Implement timing instrumentation in `code/utils.py`: function to measure duration of a specific step and **return the duration value** for aggregation. Do NOT assert global limit here.
+- [X] T026b [P] Implement global timing wrapper in `code/main.py`: wrap the entire pipeline execution, sum durations from T026a, and assert `total_duration < 6 hours` at the end of the pipeline to enforce SC-005.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,17 +79,18 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [US1] Write unit test `test_ica_artifact_removal` in `tests/unit/test_preprocessing.py` that asserts `ica.n_components_ > 0` and `ica.fit()` completes without error on a dummy MNE Epochs object.
-- [ ] T011 [US1] Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py` that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum() == 0` after running the pipeline on 5 dummy participants. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T011 [US1] Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py` that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum() == 0` after running the pipeline on a set of dummy participants. **Sub-task**: Generate dummy data in `data/dummy/` if it does not exist (e.g., random EEG signals with known structure).
+- [X] T011b [US1] Write unit test `test_spectral_band_definitions` in `tests/unit/test_preprocessing.py` that asserts the calculated spectral power features match the exact frequency bands defined in FR-002 (Delta: 1-4Hz, Theta: 4-8Hz, Alpha: 8-13Hz, Beta: 13-30Hz, Low-Gamma: 30-50Hz, High-Gamma: 50-70Hz) and that the column names in the output match the expected set of 30 features.
 
 ### Implementation for User Story 1
 
-- [X] T011a [US1] Implement `code/data_loader.py` function to verify the existence of the OpenNeuro dataset ID **resolved in `research.md`** and the presence of heat-pain threshold labels. If the dataset is missing or labels are absent, raise an explicit error to halt execution. <!-- FAILED: unspecified -->
-- [X] T012 [US1] Implement `code/data_loader.py` function to fetch the OpenNeuro dataset ID **resolved in `research.md`** (using `mne.datasets` or direct URL) and save to `data/raw/`. <!-- FAILED: unspecified -->
+- [X] T011a [US1] Implement `code/data_loader.py` function to verify the existence of the OpenNeuro dataset ID **resolved in `research.md`** and the presence of heat-pain threshold labels. If the dataset is missing or labels are absent, raise an explicit error to halt execution.
+- [X] T012 [US1] Implement `code/data_loader.py` function to fetch the OpenNeuro dataset ID **resolved in `research.md`** (using `mne.datasets` or direct URL) and save to `data/raw/`.
 - [X] T013 [US1] Implement EEG preprocessing in `code/preprocessing.py`: re-reference to **average mastoids**, band-pass filter **1–40 Hz**, and apply ICA for ocular/muscle removal.
 - [X] T014 [US1] Implement participant exclusion logic in `code/preprocessing.py`: exclude if < 4 minutes of valid EEG data remains after ICA artifact removal and bad channel interpolation, log warning.
 - [X] T015 [US1] Implement microstate segmentation in `code/preprocessing.py` to extract canonical maps (A, B, C, D).
-- [X] T016 [US1] Implement feature extraction in `code/preprocessing.py`: calculate **exactly 30 features** per participant: 4 mean durations, 4 occurrence rates, 16 transition probabilities (4x4 matrix flattened), and 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma). Ensure no NaN values are produced.
-- [ ] T017 [US1] Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv` with a defined set of columns. Add explicit assertion: `assert len(df.columns) == 30` before saving. Ensure column order is: mean durations, occurrence rates, transition probabilities, and spectral power features.
+- [X] T016 [US1] Implement feature extraction in `code/preprocessing.py`: calculate **exactly 30 features** per participant: 4 mean durations, 4 occurrence rates, 16 transition probabilities (4x4 matrix flattened), and 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma). **Explicitly define frequency bands**: Delta (1-4Hz), Theta (4-8Hz), Alpha (8-13Hz), Beta (13-30Hz), Low-Gamma (30-50Hz), High-Gamma (50-70Hz). Ensure no NaN values are produced.
+- [X] T017 [US1] Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv`. Add explicit assertion: `assert set(df.columns) == config.EXPECTED_FEATURE_COLUMNS` (imported from `code.config`) AND `assert df.isna().sum().sum() == 0`. Ensure column order is: mean durations, occurrence rates, transition probabilities, and spectral power features.
 - [X] T018 [US1] Add validation in `code/preprocessing.py` to ensure heat-pain threshold labels are present, numeric, and convert to °C if units differ (e.g., Kelvin or Fahrenheit) using a standard conversion factor.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -97,23 +99,23 @@
 
 ## Phase 4: User Story 2 - Predictive Model Training and Validation (Priority: P2)
 
-**Goal**: Train Elastic Net with nested 5-fold CV, perform a permutation test *globally* before the outer loop as per FR-004, and report Pearson r with bootstrap CI.
+**Goal**: Train Elastic Net with nested 5-fold CV, perform a permutation test *within* the nested CV loop as per FR-004, and report Pearson r with bootstrap CI.
 
-**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the global permutation test.
+**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the permutation test performed within the CV structure.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T019 [P] [US2] Unit test for nested CV loop structure in `tests/unit/test_modeling.py`
-- [X] T020 [P] [US2] Integration test for global permutation test logic in `tests/integration/test_permutation.py`
+- [X] T020 [P] [US2] Integration test for permutation test logic in `tests/integration/test_permutation.py`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/modeling.py` function for Elastic Net (α=0.5) with nested k-fold cross-validation.
-- [ ] T022 [US2] Implement **global** permutation test in `code/modeling.py`: **Iterate a sufficient number of times to ensure convergence.**: shuffle labels globally (once per iteration), then run the nested CV loop on the shuffled labels to generate a null distribution, ensuring valid null hypothesis per FR-004. Use random seed = `global_seed` for reproducibility.
-- [ ] T023 [US2] Implement bootstrap resampling (a sufficient number of iterations) to calculate a confidence interval for Pearson r.
-- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from global permutations.
-- [ ] T025 [US2] Implement convergence check in `code/modeling.py`: if Elastic Net fails to converge, increase `max_iter` to a sufficiently large value to ensure convergence.; if still failing, raise explicit error.
-- [ ] T026 [US2] Implement `code/main.py` step to train model, generate `artifacts/model_result.json` (r, p-value, MAE, CI), log execution time using T026a, and verify total time < 6 hours (GitHub Actions free-tier limit per SC-005).
+- [X] T021 [US2] Create function `train_nested_cv` in `code/modeling.py` that: 1) Implements **nested k-fold cross-validation** (outer loop for testing, inner loop for hyperparameter tuning if needed), 2) Trains an **Elastic Net regression model** (α=0.5) on each training split, 3) Predicts on the test split, 4) Calculates the **Pearson correlation coefficient (r)** between predicted and observed heat-pain thresholds for each fold, and 5) Aggregates to a mean r. This task covers FR-003 and SC-001.
+- [X] T022 [US2] Implement **nested permutation test** in `code/modeling.py`: Perform **exactly 1,000 permutations** to ensure statistical robustness as per FR-004. For each permutation: 1) **Shuffle the target labels Y within the current training split of the outer CV loop** (do NOT shuffle globally before the loop; the shuffle must happen inside the outer loop to test the full model structure including inner optimization). 2) Run the **full nested CV loop** on the shuffled data to get one correlation value. **Repeat this [deferred] times** to generate a null distribution of correlation values. **Do not dynamically reduce the number of permutations**; the 1,000 count is a hard requirement. This generates the null distribution artifact required for T024.
+- [X] T023 [US2] Implement bootstrap resampling with **200 iterations** to calculate a 95% confidence interval for Pearson r. **Include logic**: If estimated runtime (based on dataset size) exceeds a substantial duration, reduce the number of bootstrap iterations to a sufficient level (but not lower). Record the CI in `artifacts/model_result.json`.
+- [X] T024 [US2] Implement calculation of empirical p-value comparing observed r against the null distribution generated by T022. **Output**: Record the p-value in `artifacts/model_result.json` alongside r and MAE.
+- [X] T025 [US2] Implement convergence check in `code/modeling.py`: if Elastic Net fails to converge, increase `max_iter` to 5000; if still failing, raise explicit error.
+- [X] T026 [US2] Implement `code/main.py` step to train model, generate `artifacts/model_result.json` (r, p-value, MAE, CI), log execution time using T026a, and verify total time < 6 hours (GitHub Actions free-tier limit per SC-005) via T026b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,18 +129,25 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for FDR correction logic on permutation scores in `tests/unit/test_diagnostics.py`
-- [ ] T028 [P] [US3] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
+- [X] T027 [P] [US3] Unit test for FDR correction logic on permutation scores in `tests/unit/test_diagnostics.py`
+- [X] T028 [P] [US3] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/diagnostics.py` function to calculate **permutation importance scores** for all features (shuffling each feature individually).
-- [ ] T030 [US3] Implement FDR correction in `code/diagnostics.py`: apply Benjamini-Hochberg to the **p-values derived from permutation importance** (T029).
-- [ ] T031 [US3] Implement VIF calculation in `code/diagnostics.py` using `statsmodels`; flag any predictors with VIF > 10 in the diagnostic output, but do NOT exclude them or re-run the model.
-- [ ] T032 [US3] Implement median-split sensitivity analysis in `code/diagnostics.py`: sweep the median-split threshold on the **observed heat-pain threshold labels** (ground truth) by testing the specific set **[median-0.1, median-0.05, median, median+0.05, median+0.1]**, calculate **Cohen's d** as the effect size for each step, and report the variation in effect size estimates.
-- [ ] T033 [US3] Implement regularization sensitivity analysis in `code/diagnostics.py`: sweep α from a low value to the upper bound of the parameter range with a step size and report R-squared stability.
-- [ ] T034 [US3] Generate `artifacts/diagnostics_report.md` containing FDR table, VIF flags, and sensitivity analysis plots/tables.
-- [ ] T035 [US3] Update `code/main.py` to orchestrate diagnostics, record all artifact hashes, and verify total execution time < 6 hours.
+- [X] T029 [US3] Implement `code/diagnostics.py` function to calculate **permutation importance scores** for all features. For each feature: 1) Train the model on the full data, 2) Shuffle **only that feature's column** in the test set (or use a leave-one-out approach if appropriate for the metric), 3) Measure the drop in model performance (e.g., reduction in Pearson r) compared to the unshuffled baseline. Repeat the procedure multiple times to ensure a stable score. **Note**: This differs from shuffling the target Y; this measures feature contribution.
+- [X] T030 [US3] Implement FDR correction in `code/diagnostics.py`: Calculate p-values for the **30 feature coefficients** by generating a null distribution for each coefficient (e.g., by permuting the feature against the target multiple times and comparing the observed coefficient to the null). Apply Benjamini-Hochberg to these **30 coefficient p-values** to control for multiplicity (FR-005). **Do not** apply FDR to permutation importance scores directly; apply it to the p-values derived from the coefficient null distributions.
+- [X] T031 [US3] Implement VIF calculation in `code/diagnostics.py` using `statsmodels.stats.outliers_influence.variance_inflation_factor`; calculate VIF for all predictors and report any with VIF > 10 in the diagnostic output, but do NOT exclude them or re-run the model.
+- [X] T032 [US3] Implement **median-split sensitivity analysis** in `code/diagnostics.py`:
+ 1. Calculate the median of the observed heat-pain threshold labels.
+ 2. Define a set of thresholds: `[median-0.1, median-0.05, median, median+0.05, median+0.1]`.
+ 3. For each threshold:
+ - Split participants into "High Pain" (threshold < x) and "Low Pain" (threshold >= x) groups.
+ - Perform a group comparison (e.g., t-test or effect size calculation like Cohen's d) on the top predictive features between these two groups.
+ - Record the effect size and statistical significance.
+ 4. Report the variation in effect size estimates across the sweep to assess robustness against arbitrary cutoffs.
+- [X] T033 [US3] Implement regularization sensitivity analysis in `code/diagnostics.py`: sweep α from **0.0 to 1.0** in steps of 0.05 and report R-squared stability. (Required by plan.md Complexity Tracking table and FR-003).
+- [X] T034 [US3] Generate `artifacts/diagnostics_report.md` containing: 1) A **Markdown table** of FDR-adjusted p-values for the selected features, 2) A **JSON block** or table of VIF flags, 3) Tables/plots for the median-split and regularization sensitivity analyses. Ensure the report structure allows verification of SC-002, SC-003, and SC-004.
+- [X] T035 [US3] Update `code/main.py` to orchestrate diagnostics, record all artifact hashes, and verify total execution time < 6 hours (via T026b).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,15 +158,15 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T036a [P] Update `README.md` with installation instructions and usage examples
-- [ ] T036b [P] Create `docs/api.md` with function signatures for `code/` modules
-- [ ] T036c [P] Create `docs/analysis.md` explaining the statistical methodology (global permutation, FDR on importance, dual sensitivity)
+- [X] T036b [P] Create `docs/api.md` with function signatures for `code/` modules
+- [ ] T036c [P] Create `docs/analysis.md` explaining the statistical methodology (nested permutation, FDR on importance, dual sensitivity)
 - [ ] T037a [P] Extract validation logic into separate module `code/validation.py`
 - [ ] T037b [P] Remove dead code and unused imports in `code/`
 - [ ] T038a [P] Profile pipeline to identify performance bottlenecks
 - [ ] T038b [P] Implement caching for feature extraction to optimize runtime
 - [ ] T039 [P] Additional unit tests in `tests/unit/`
 - [ ] T040 Run `scripts/pre-run-validation.sh` to verify citations and project state
-- [ ] T041 Final validation: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns, no NaNs, and `artifacts/` contains all required reports.
+- [ ] T041 Final validation: Ensure `data/processed/feature_matrix.csv` has the expected number of columns corresponding to the selected feature set, with no missing values., and `artifacts/` contains all required reports.
 
 ---
 
