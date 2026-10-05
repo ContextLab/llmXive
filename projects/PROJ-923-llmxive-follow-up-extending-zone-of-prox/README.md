@@ -1,55 +1,52 @@
-# llmXive Follow-up: Extending Zone of Proximal Policy Optimization
+# llmXive Follow-up: Extending "Zone of Proximal Policy Optimization"
 
-## Project Setup
+## Code Quality Tools
 
-This project implements a simulation of the ZPPO training loop with Confidence-Adaptive Pruning (CAP).
-
-### Prerequisites
-
-- Python 3.9+
-- pip
+This project uses **Black** for code formatting and **Ruff** for linting.
 
 ### Installation
 
-1. Create a virtual environment:
- ```bash
- python -m venv.venv
- source.venv/bin/activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-### Development Tools
-
-This project uses `black` for formatting and `ruff` for linting.
-
-### Running Linters and Formatters
-
 ```bash
-# Check formatting
+pip install -r requirements.txt
+```
+
+### Usage
+
+**Format code:**
+```bash
+black code/ tests/
+# Or use the Makefile target:
 make format
+```
 
-# Auto-fix formatting
-make format-write
-
-# Check linting
+**Lint code:**
+```bash
+ruff check code/ tests/
+# Or use the Makefile target:
 make lint
-
-# Run all checks
-make check
 ```
 
-### Running Tests
-
+**Check formatting (without modifying):**
 ```bash
-pytest tests/
+black --check code/ tests/
 ```
 
-### Running the Simulation
-
+**Run all checks:**
 ```bash
-python code/main.py --runs 10 --seeds 10
+make check-format
+```
+
+### Configuration
+
+- **Black**: Configured in `pyproject.toml` with line length 88 and target Python 3.9+.
+- **Ruff**: Configured in `pyproject.toml` and `.ruff.toml` to enforce PEP 8, import sorting, and bugbear checks.
+
+### CI/CD Integration
+
+The linting and formatting checks should be run in your CI pipeline before merging.
+Example GitHub Actions step:
+```yaml
+- name: Lint and Format Check
+ run: |
+ make check-format
 ```

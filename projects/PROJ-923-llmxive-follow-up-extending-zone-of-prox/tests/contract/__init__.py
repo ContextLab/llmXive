@@ -1,1 +1,3 @@
-# Contract Tests Package
+"""
+Contract tests for schemas.
+"""

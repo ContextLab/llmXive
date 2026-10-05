@@ -1,62 +1,104 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-zppo-extension"
+name = "llmxive-follow-up-extending-zone-of-prox"
 version = "0.1.0"
-description = "Extension of Zone of Proximal Policy Optimization with Confidence-Adaptive Pruning"
-readme = "README.md"
+description = "Extending Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy",
-    "pandas",
-    "scikit-learn",
-    "tqdm",
-    "pyyaml",
-    "datasets",
-    "pytest",
-    "scipy",
-    "jsonschema",
-    "matplotlib",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "datasets>=2.14.0",
+    "pyyaml>=6.0",
+    "jsonschema>=4.17.0",
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-]
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
-include = "code/"
-exclude = "data/"
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.ruff]
+# Same as Black.
 line-length = 88
+indent-width = 4
+
+# Assume Python 3.9+
 target-version = "py39"
-select = [
-    "E",  # pycodes
-    "F",  # flake8
-    "I",  # isort
-    "W",  # warnings
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "F401", # Unused imports (sometimes needed for API surface)
-]
+
+# Exclude a few directories
 exclude = [
-    "data/*",
-    "state/*",
-    "tests/__pycache__/*",
-    "*/__pycache__/*",
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
-[tool.ruff.per-Target-version]
-py39 = true
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --strict-mode"
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
+# Also enable isort (`I`) and flake8-bugbear (`B`)
+select = ["E4", "E7", "E9", "F", "I", "B"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

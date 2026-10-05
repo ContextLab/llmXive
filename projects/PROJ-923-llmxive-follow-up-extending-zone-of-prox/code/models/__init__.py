@@ -1,1 +1,3 @@
-# Models Package
+"""
+Model definitions and simulation logic.
+"""

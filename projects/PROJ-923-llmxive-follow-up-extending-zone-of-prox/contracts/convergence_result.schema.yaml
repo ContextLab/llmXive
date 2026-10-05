@@ -1,111 +1,146 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Convergence Result Schema"
+$schema: http://json-schema.org/draft-07/schema#
+title: Convergence Result Schema
 description: >
-  Defines the structure for per-cycle convergence data in the ZPPO simulation.
-  This schema tracks the evolution of student performance and prompt content
-  over training cycles to analyze convergence behavior.
+  Defines the structure for per-cycle convergence data.
+  Tracks student accuracy and prompt composition over training cycles
+  to analyze the convergence behavior of ZPPO and CAP-ZPPO variants.
 type: object
 required:
-  - run_id
   - task_id
   - seed
+  - run_id
   - cycles
-  - start_time
-  - end_time
-  - total_cycles
+  - summary
 properties:
-  run_id:
-    type: string
-    description: "Unique identifier for this simulation run"
-    pattern: "^[a-zA-Z0-9_-]+$"
-  
   task_id:
     type: string
-    description: "Identifier of the task being simulated (e.g., MMLU subject)"
-    pattern: "^[a-zA-Z0-9_-]+$"
-  
+    description: Unique identifier for the task (e.g., 'mmlu_physics_01')
+    minLength: 1
   seed:
     type: integer
-    description: "Random seed used for reproducibility"
-    minimum: 0
-  
-  start_time:
+    description: Random seed used for this specific run to ensure reproducibility
+  run_id:
     type: string
-    format: date-time
-    description: "ISO 8601 timestamp when the simulation started"
-  
-  end_time:
+    description: Unique identifier for this specific simulation run (UUID or timestamp-based)
+  model_variant:
     type: string
-    format: date-time
-    description: "ISO 8601 timestamp when the simulation ended"
-  
-  total_cycles:
-    type: integer
-    description: "Total number of training cycles executed"
-    minimum: 1
-  
+    description: Identifier for the model variant (e.g., 'baseline_static', 'cap_adaptive')
+    enum:
+      - baseline_static
+      - cap_adaptive
   cycles:
     type: array
-    description: "Array of per-cycle results ordered by cycle index"
-    minItems: 1
+    description: >
+      List of per-cycle results. Each cycle represents one iteration of the
+      training loop where confidence scores are updated and the NCQ prompt is generated.
     items:
       type: object
       required:
         - cycle_index
         - accuracy
-        - prompt_content
         - prompt_length
         - candidate_count
-        - timestamp
+        - prompt_content_hash
       properties:
         cycle_index:
           type: integer
-          description: "Zero-based index of the cycle"
+          description: Zero-based index of the cycle (0, 1, 2, ...)
           minimum: 0
-        
         accuracy:
           type: number
-          description: "Student accuracy on the held-out test set for this cycle"
+          description: >
+            Student model accuracy on the held-out test set after this cycle.
+            Value between 0.0 and 1.0.
           minimum: 0.0
           maximum: 1.0
-        
-        prompt_content:
-          type: string
-          description: "The actual NCQ prompt content used in this cycle (truncated or full)"
-          maxLength: 65536
-        
         prompt_length:
           type: integer
-          description: "Number of tokens/characters in the prompt"
-          minimum: 1
-        
+          description: Total number of tokens in the generated NCQ prompt for this cycle
+          minimum: 0
         candidate_count:
           type: integer
-          description: "Number of negative candidates included in the prompt"
+          description: >
+            Number of negative candidates included in the prompt for this cycle.
+            For baseline, this is constant. For CAP, this varies.
           minimum: 0
-        
-        timestamp:
+        prompt_content_hash:
           type: string
-          format: date-time
-          description: "ISO 8601 timestamp when this cycle completed"
-      
-      additionalProperties: false
-  
+          description: >
+            SHA-256 hash of the prompt content to verify exact prompt composition
+            without storing full text. Useful for debugging prompt drift.
+            Format: 64-character hexadecimal string.
+          pattern: '^[a-f0-9]{64}$'
+        avg_confidence:
+          type: number
+          description: Average confidence score of included candidates for this cycle
+          minimum: 0.0
+          maximum: 1.0
+        pruned_count:
+          type: integer
+          description: >
+            Number of candidates pruned by the CAP mechanism in this cycle.
+            Only relevant for 'cap_adaptive' variant.
+          minimum: 0
+  summary:
+    type: object
+    description: Aggregated statistics computed over all cycles
+    required:
+      - total_cycles
+      - final_accuracy
+      - initial_accuracy
+      - aucc
+      - avg_prompt_length
+      - convergence_epoch
+    properties:
+      total_cycles:
+        type: integer
+        description: Total number of cycles executed
+        minimum: 1
+      final_accuracy:
+        type: number
+        description: Accuracy at the final cycle
+        minimum: 0.0
+        maximum: 1.0
+      initial_accuracy:
+        type: number
+        description: Accuracy at the first cycle (cycle_index 0)
+        minimum: 0.0
+        maximum: 1.0
+      aucc:
+        type: number
+        description: >
+          Area Under the Convergence Curve (AUCC).
+          Calculated using trapezoidal integration of accuracy vs. cycle index.
+        minimum: 0.0
+      avg_prompt_length:
+        type: number
+        description: Mean prompt length across all cycles
+        minimum: 0.0
+      convergence_epoch:
+        type: integer
+        description: >
+          The cycle index at which convergence is detected.
+          Convergence is defined as accuracy change < threshold (e.g., 0.001)
+          for 3 consecutive cycles. -1 if not converged.
+        minimum: -1
+      prompt_length_reduction:
+        type: number
+        description: >
+          Percentage reduction in average prompt length compared to baseline.
+          Only relevant for 'cap_adaptive' variant.
+        minimum: -100.0
   metadata:
     type: object
-    description: "Optional additional metadata about the run"
+    description: Additional runtime metadata
     properties:
-      model_variant:
+      timestamp:
         type: string
-        enum:
-          - static_zppo
-          - cap_zppo
-        description: "Which ZPPO variant was executed"
-      config_path:
-        type: string
-        description: "Path to the configuration file used"
-      notes:
-        type: string
-        description: "Any additional notes about the run"
-    additionalProperties: true
+        format: date-time
+        description: ISO 8601 timestamp when the result was generated
+      config_snapshot:
+        type: object
+        description: Snapshot of relevant hyperparameters used (alpha, epsilon, etc.)
+      execution_time_seconds:
+        type: number
+        description: Wall-clock time taken to run the simulation
 additionalProperties: false

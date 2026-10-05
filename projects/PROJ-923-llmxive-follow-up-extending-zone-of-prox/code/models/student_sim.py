@@ -3,157 +3,70 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from utils.logging import get_logger, info, debug, warning
 from utils.seeds import get_rng
+from utils.noise import inject_noise
 from config import get_config
 
 @dataclass
 class StudentState:
-    """
-    Represents the internal state of the simulated student model.
-    Tracks confidence scores per task and learning parameters.
-    """
-    task_id: str
-    current_confidence: float
-    expert_confidence: float  # Ground truth expert confidence for the task
-    prompt_length_factor: float  # Normalized prompt length (0.0 to 1.0)
-    cycle: int = 0
-    history: List[float] = None
-
-    def __post_init__(self):
-        if self.history is None:
-            self.history = []
+    confidence: float
+    correct_count: int
+    total_count: int
 
 class SimulatedStudent:
-    """
-    Simulated student model that updates confidence scores based on
-    the learning dynamics defined in T012.
-
-    Formula: new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)
-
-    This class handles the simulation of a student interacting with the ZPPO loop,
-    updating its confidence after each cycle based on the prompt length and the
-    expert gap.
-    """
-
     def __init__(self, seed: int):
-        """
-        Initialize the simulated student with a specific random seed for reproducibility.
-
-        Args:
-            seed (int): The random seed for the student's internal RNG.
-        """
-        self.seed = seed
         self.rng = get_rng(seed)
-        self.logger = get_logger("SimulatedStudent")
-        self.state_map: Dict[str, StudentState] = {}
         self.config = get_config()
-        self.alpha = self.config.get("learning_alpha", 0.1)
-        self.noise_sigma = self.config.get("noise_sigma", 0.05)
-
-        info(f"Initialized SimulatedStudent with seed {seed}, alpha={self.alpha}, noise_sigma={self.noise_sigma}")
-
-    def initialize_task(self, task_id: str, expert_confidence: float, initial_confidence: float = 0.5) -> None:
-        """
-        Initialize a new task state for the student.
-
-        Args:
-            task_id (str): Unique identifier for the task.
-            expert_confidence (float): The expert's confidence in the correct answer (ground truth).
-            initial_confidence (float): The student's starting confidence for this task.
-        """
-        if task_id in self.state_map:
-            debug(f"Task {task_id} already initialized, resetting state.")
-
-        self.state_map[task_id] = StudentState(
-            task_id=task_id,
-            current_confidence=initial_confidence,
-            expert_confidence=expert_confidence,
-            prompt_length_factor=0.0, # Will be updated per cycle
-            cycle=0,
-            history=[initial_confidence]
+        self.state = StudentState(
+            confidence=0.5,
+            correct_count=0,
+            total_count=0
         )
-        debug(f"Initialized task {task_id} with initial confidence {initial_confidence}")
 
-    def update_confidence(self, task_id: str, prompt_length_factor: float, cycle: int) -> float:
+    def update_confidence(self, expert_conf: float, prompt_length_factor: float) -> float:
         """
-        Update the student's confidence for a specific task using the learning dynamics formula.
-
-        Formula: new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)
-
+        Updates confidence using the formula:
+        new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)
+        
+        Applies Gaussian noise (sigma=0.05) to the confidence score at every step as per T026.
+        
         Args:
-            task_id (str): The task identifier.
-            prompt_length_factor (float): Normalized prompt length (0.0 to 1.0).
-            cycle (int): The current cycle number.
-
+            expert_conf: The expert's confidence score for the current step.
+            prompt_length_factor: A factor derived from prompt length (1 / initial_candidate_pool_size).
+            
         Returns:
-            float: The updated confidence score.
+            The updated confidence score after applying the learning dynamics and noise.
         """
-        if task_id not in self.state_map:
-            raise ValueError(f"Task {task_id} not initialized. Call initialize_task first.")
+        # 1. Calculate the base update without noise
+        alpha = self.config.alpha
+        delta = alpha * (expert_conf - self.state.confidence) * (1 - prompt_length_factor)
+        new_conf = self.state.confidence + delta
+        
+        # 2. Clip to valid range [0.0, 1.0]
+        new_conf = float(np.clip(new_conf, 0.0, 1.0))
+        
+        # 3. Inject Gaussian noise as per T026 requirement
+        # T026 specifies sigma=0.05
+        noisy_conf = inject_noise(new_conf, sigma=0.05, rng=self.rng)
+        
+        # 4. Final clip to ensure noise didn't push it out of bounds
+        self.state.confidence = float(np.clip(noisy_conf, 0.0, 1.0))
+        
+        debug(f"Student confidence updated: {self.state.confidence:.4f} (expert: {expert_conf:.4f}, factor: {prompt_length_factor:.4f})")
+        
+        return self.state.confidence
 
-        state = self.state_map[task_id]
+    def predict(self, confidence: float) -> bool:
+        """Simulates a prediction based on confidence."""
+        # Use the noisy confidence for prediction if it was updated in the current step,
+        # otherwise use the current state confidence.
+        return bool(self.rng.random() < confidence)
 
-        # Calculate the expert gap
-        expert_gap = state.expert_confidence - state.current_confidence
+    def record_result(self, correct: bool):
+        self.state.total_count += 1
+        if correct:
+            self.state.correct_count += 1
 
-        # Calculate the prompt length factor influence
-        # (1 - prompt_length_factor) implies that longer prompts (higher factor)
-        # reduce the learning rate, while shorter prompts increase it.
-        learning_rate_modifier = (1.0 - prompt_length_factor)
-
-        # Calculate the update delta
-        delta = self.alpha * expert_gap * learning_rate_modifier
-
-        # Apply noise to the update as per FR-008
-        noise = self.rng.normal(0.0, self.noise_sigma)
-        delta += noise
-
-        # Update confidence
-        new_confidence = state.current_confidence + delta
-
-        # Clamp confidence to [0.0, 1.0]
-        new_confidence = float(np.clip(new_confidence, 0.0, 1.0))
-
-        # Update state
-        state.current_confidence = new_confidence
-        state.prompt_length_factor = prompt_length_factor
-        state.cycle = cycle
-        state.history.append(new_confidence)
-
-        debug(f"Task {task_id} Cycle {cycle}: Conf {state.history[-2]:.4f} -> {new_confidence:.4f} (Gap: {expert_gap:.4f}, PromptFactor: {prompt_length_factor:.4f})")
-
-        return new_confidence
-
-    def get_confidence(self, task_id: str) -> float:
-        """
-        Get the current confidence score for a task.
-
-        Args:
-            task_id (str): The task identifier.
-
-        Returns:
-            float: Current confidence score.
-        """
-        if task_id not in self.state_map:
-            raise ValueError(f"Task {task_id} not initialized.")
-        return self.state_map[task_id].current_confidence
-
-    def get_history(self, task_id: str) -> List[float]:
-        """
-        Get the history of confidence scores for a task.
-
-        Args:
-            task_id (str): The task identifier.
-
-        Returns:
-            List[float]: List of confidence scores over time.
-        """
-        if task_id not in self.state_map:
-            raise ValueError(f"Task {task_id} not initialized.")
-        return self.state_map[task_id].history.copy()
-
-    def reset(self) -> None:
-        """
-        Reset the student state for all tasks.
-        """
-        self.state_map.clear()
-        info("Reset all student states.")
+    def get_accuracy(self) -> float:
+        if self.state.total_count == 0:
+            return 0.0
+        return self.state.correct_count / self.state.total_count

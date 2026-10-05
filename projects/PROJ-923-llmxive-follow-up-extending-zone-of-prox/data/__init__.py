@@ -1,1 +1,3 @@
-# Data package
+"""
+Data storage directory.
+"""

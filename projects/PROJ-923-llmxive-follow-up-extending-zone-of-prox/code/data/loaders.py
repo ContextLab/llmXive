@@ -1,101 +1,117 @@
-"""
-Data Loaders for MMLU and synthetic negative candidates.
-"""
 import os
 import json
-import random
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from datasets import load_dataset, Dataset
-
-from utils.logging import get_logger
-from utils.seeds import get_seed
+from utils.logging import get_logger, error, info, warning
+from utils.validation import validate_rollout_log, ensure_directory
+from pathlib import Path
 
 logger = get_logger(__name__)
 
 def load_mmlu_schema() -> Dict[str, Any]:
-    """Loads the MMLU dataset schema."""
-    # In a real scenario, this might load a schema file.
-    # For now, we assume the dataset structure is known.
+    """Load the MMLU dataset schema definition."""
+    # This is a placeholder for schema metadata if needed
     return {
-        "question": str,
-        "answer": str,
-        "subject": str,
-        "choices": list
+        "name": "cais/mmlu",
+        "description": "Massive Multitask Language Understanding",
+        "features": ["subject", "question", "choices", "answer"]
     }
 
-def load_real_mmlu_subset(subject: str = "abstract_algebra", split: str = "validation") -> Dataset:
+def load_real_mmlu_subset(subjects: Optional[List[str]] = None, split: str = "test") -> Dataset:
     """
-    Loads a subset of the real MMLU dataset.
-    FAILS LOUDLY if the dataset cannot be loaded.
+    Load a subset of the real MMLU dataset from HuggingFace.
+    
+    Args:
+        subjects: List of subject names to load. If None, loads all.
+        split: Dataset split to load (e.g., "test", "validation")
+    
+    Returns:
+        HuggingFace Dataset object
+    
+    Raises:
+        RuntimeError: If the real dataset cannot be fetched.
     """
     try:
-        dataset = load_dataset("cais/mmlu", subject, split=split)
-        return dataset
+        logger.info(f"Loading real MMLU dataset (split={split})...")
+        ds = load_dataset("cais/mmlu", split=split)
+        if subjects:
+            ds = ds.filter(lambda x: x["subject"] in subjects)
+        logger.info(f"Loaded {len(ds)} rows from MMLU.")
+        return ds
     except Exception as e:
-        logger.error(f"Failed to load MMLU dataset: {e}")
-        raise RuntimeError(f"Real MMLU data source unavailable: {e}")
+        error(f"Failed to load real MMLU data: {e}")
+        raise RuntimeError("Real MMLU data is required and unavailable. Cannot proceed with synthetic fallback.")
 
-def generate_synthetic_negative_candidates(real_data: Dataset, num_candidates: int = 4) -> List[str]:
-    """
-    Generates synthetic negative candidates based on the schema.
-    Uses the real data's answer choices to create plausible negatives.
-    """
-    # Extract all choices from the dataset
-    all_choices = []
-    for item in real_data:
-        if 'choices' in item:
-            all_choices.extend(item['choices'])
-    
-    # Remove duplicates
-    unique_choices = list(set(all_choices))
-    
-    # Select random negatives
-    if len(unique_choices) < num_candidates:
-        return unique_choices
-    
-    return random.sample(unique_choices, num_candidates)
-
-def save_negative_candidates(candidates: List[str], filepath: str):
-    """Saves candidates to a file."""
-    with open(filepath, 'w') as f:
-        json.dump(candidates, f)
-
-def load_mmlu_held_out_set() -> List[Dict[str, Any]]:
-    """
-    Loads the held-out set for evaluation.
-    Combines real MMLU data with synthetic negative candidates.
-    """
-    logger.info("Loading MMLU held-out set...")
-    
-    # Load real data
-    try:
-        dataset = load_real_mmlu_subset()
-    except Exception as e:
-        logger.error("Cannot proceed without real MMLU data.")
-        raise e
-    
-    held_out = []
-    for i, item in enumerate(dataset):
-        question = item['question']
-        answer = item['answer']
-        choices = item['choices']
-        
-        # Generate synthetic negatives (if not already in choices)
-        # For simulation, we use the other choices as negatives
-        negatives = [c for c in choices if c != answer]
-        
-        if not negatives:
-            # Fallback if only one choice
-            negatives = ["synthetic_negative_1", "synthetic_negative_2"]
-        
-        held_out.append({
-            "id": f"mmlu_{i}",
-            "question": question,
-            "ground_truth": answer,
-            "candidates": negatives,
-            "subject": item.get('subject', 'unknown')
+def generate_synthetic_negative_candidates(base_seed: int, count: int = 100) -> List[Dict[str, Any]]:
+    """Generate synthetic negative candidates for NCQ prompts."""
+    rng = np.random.default_rng(base_seed)
+    candidates = []
+    for i in range(count):
+        candidates.append({
+            "candidate_id": f"neg_{i}",
+            "confidence": rng.uniform(0.0, 1.0),
+            "status": "rejected" if rng.random() < 0.5 else "accepted"
         })
+    return candidates
+
+def save_negative_candidates(candidates: List[Dict[str, Any]], output_path: str) -> None:
+    """Save negative candidates to a JSON file."""
+    ensure_directory(output_path)
+    with open(output_path, 'w') as f:
+        json.dump(candidates, f, indent=2)
+    logger.info(f"Saved {len(candidates)} negative candidates to {output_path}")
+
+def load_mmlu_held_out_set(subjects: Optional[List[str]] = None) -> Dataset:
+    """
+    Load the held-out test set from MMLU for catastrophic forgetting checks.
     
-    logger.info(f"Loaded {len(held_out)} items for held-out set.")
-    return held_out
+    Args:
+        subjects: List of subject names to filter.
+    
+    Returns:
+        HuggingFace Dataset object
+    
+    Raises:
+        RuntimeError: If the real dataset is unavailable.
+    """
+    return load_real_mmlu_subset(subjects=subjects, split="test")
+
+def load_synthetic_rollout_log(file_path: str) -> List[Dict[str, Any]]:
+    """
+    Load the synthetic rollout log generated by T012.
+    
+    This function:
+    1. Reads the JSON file from disk.
+    2. Validates the structure against `contracts/rollout_log.schema.yaml`.
+    3. Returns the list of rollout entries.
+    
+    Args:
+        file_path: Path to the synthetic rollout log JSON file.
+    
+    Returns:
+        List of rollout entry dictionaries.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+        ValueError: If the data fails schema validation.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Synthetic rollout log not found at: {file_path}. "
+                                "Ensure T012 has generated the file before running this loader.")
+    
+    logger.info(f"Loading synthetic rollout log from {file_path}...")
+    
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    
+    # Validate against the schema
+    is_valid, validation_errors = validate_rollout_log(data)
+    
+    if not is_valid:
+        error(f"Synthetic rollout log failed schema validation: {validation_errors}")
+        raise ValueError(f"Invalid rollout log format: {validation_errors}")
+    
+    logger.info(f"Successfully loaded and validated {len(data.get('rollout_entries', []))} entries.")
+    return data.get('rollout_entries', [])

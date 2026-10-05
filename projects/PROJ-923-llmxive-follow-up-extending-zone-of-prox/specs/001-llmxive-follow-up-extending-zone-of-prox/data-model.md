@@ -1,78 +1,38 @@
-# Data Model: llmXive Follow-up: Extending "Zone of Proximal Policy Optimization"
-
-## Overview
-
-This document defines the data structures used in the simulation, analysis, and reporting phases. All data is stored in `data/` and validated against YAML schemas in `contracts/`.
+# Data Model
 
 ## Entities
 
-### 1. Rollout Log (Synthetic)
+### RolloutLog
+- `task_id`: str
+- `cycle`: int
+- `student_confidence`: float
+- `expert_confidence`: float
+- `prompt_length`: int
+- `correct`: bool
 
-The core input for the simulation. Contains the history of student model responses and confidence scores.
+### RunMetadata
+- `seed`: int
+- `timestamp`: datetime
+- `config_hash`: str
+- `mode`: str (baseline | cap)
 
-*   **Format**: JSONL (one JSON object per line)
-*   **Location**: `data/synthetic/rollout_log_<seed>.jsonl`
-*   **Fields**:
-    *   `task_id`: String (Identifier for the task, e.g., "MMLU-History-01")
-    *   `cycle`: Integer (1 to 50)
-    *   `candidate_id`: String (Identifier for the negative candidate/error mode)
-    *   `student_confidence`: Float (0.0 to 1.0)
-    *   `expert_confidence`: Float (0.0 to 1.0, ground truth)
-    *   `ground_truth`: Boolean (True if student response matches expert)
-    *   `noise_applied`: Float (The Gaussian noise value applied to confidence)
+### AggregatedMetrics
+- `task_id`: str
+- `seed`: int
+- `aucc`: float
+- `final_accuracy`: float
+- `prompt_length_avg`: float
+- `run_mode`: str
 
-### 2. Simulation Run Metadata
+### ConvergenceResult
+- `cycle`: int
+- `accuracy`: float
+- `prompt_content`: str (hash)
 
-Describes the parameters and outcomes of a single simulation run.
-
-*   **Format**: JSON
-*   **Location**: `data/synthetic/run_metadata_<seed>.json`
-*   **Fields**:
-    *   `seed`: Integer
-    *   `variant`: String ("static" or "cap")
-    *   `task_id`: String
-    *   `epsilon`: Float (Pruning threshold, default 0.1)
-    *   `num_candidates`: Integer
-    *   `num_cycles`: Integer
-    *   `aucc`: Float (Area Under Convergence Curve)
-    *   `final_accuracy`: Float (Accuracy on held-out test data)
-    *   `avg_prompt_length_mid`: Float (Average number of candidates in prompt during cycles 20-40)
-    *   `prompt_length_variance`: Float
-    *   `edge_cases_triggered`: Integer (Count of times fallback was used)
-
-### 3. Aggregated Metrics
-
-The final output for statistical analysis.
-
-*   **Format**: CSV
-*   **Location**: `data/metrics/aggregated_results.csv`
-*   **Fields**:
-    *   `task_id`: String
-    *   `seed`: Integer
-    *   `variant`: String
-    *   `aucc`: Float
-    *   `final_accuracy`: Float
-    *   `avg_prompt_length_mid`: Float
-
-### 4. Held-Out Test Data
-
-Subset of MMLU used for final accuracy evaluation.
-
-*   **Format**: Parquet
-*   **Location**: `data/raw/mmlu_heldout.parquet`
-*   **Fields**:
-    *   `question`: String
-    *   `answer`: String
-    *   `subject`: String
-    *   `options`: List[String]
-
-## Data Flow
-
-1.  **Generation**: `code/data/generators.py` creates `rollout_log_<seed>.jsonl` and `run_metadata_<seed>.json`.
-2.  **Processing**: `code/loops/base_zppo.py` and `code/loops/cap_zppo.py` read the log, simulate training, and write metrics to `run_metadata`.
-3.  **Aggregation**: `code/analysis/metrics.py` reads all `run_metadata` files and writes `aggregated_results.csv`.
-4.  **Analysis**: `code/analysis/stats.py` reads `aggregated_results.csv` to perform t-tests.
-
-## Validation
-
-All data files must pass schema validation before analysis. See `contracts/` for schema definitions.
+### StateStore
+- `project_id`: str
+- `history`: List[CycleRecord]
+ - `cycle`: int
+ - `confidence_mean`: float
+ - `confidence_var`: float
+ - `classification`: str (rejected | fluctuating | accepted)

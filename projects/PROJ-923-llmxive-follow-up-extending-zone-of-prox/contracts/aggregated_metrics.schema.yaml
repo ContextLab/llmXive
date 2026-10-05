@@ -1,79 +1,100 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: aggregated_metrics
-title: Aggregated Metrics Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Metrics Schema"
 description: >
-  Schema for storing aggregated metrics resulting from ZPPO and CAP-ZPPO simulation runs.
-  Includes Area Under the Convergence Curve (AUCC), final accuracy, and prompt length statistics.
-  Used by T031 (batch runner) and T033 (validation).
+  Defines the structure for aggregated metrics produced by the ZPPO simulation
+  and CAP-ZPPO variants. This includes Area Under the Convergence Curve (AUCC),
+  final accuracy on held-out sets, and statistics regarding prompt length evolution.
+  This schema is the Single Source of Truth for T033 validation.
 type: object
 required:
   - task_id
   - seed
   - aucc
   - final_accuracy
-  - prompt_length_avg
-  - run_timestamp
-  - version
+  - prompt_length_stats
+  - run_metadata
 properties:
   task_id:
     type: string
-    description: Identifier of the MMLU task or simulation subject (e., "mmlu:formal_logic").
+    description: "Unique identifier for the task run (e.g., 'task_001')"
     minLength: 1
   seed:
     type: integer
-    description: Random seed used for this simulation run to ensure reproducibility.
+    description: "Random seed used for this specific simulation run"
     minimum: 0
   aucc:
     type: number
-    format: float
-    description: Area Under the Convergence Curve (AUCC).
+    description: "Area Under the Convergence Curve (AUCC) metric. 
+                 Calculated as the integral of accuracy over training cycles.
+                 Higher values indicate faster convergence."
     minimum: 0.0
     maximum: 1.0
-    multipleOf: 0.0001
   final_accuracy:
     type: number
-    format: float
-    description: Final accuracy achieved at the last cycle of the simulation.
+    description: "Accuracy on the held-out test set after the final training cycle."
     minimum: 0.0
     maximum: 1.0
-    multipleOf: 0.0001
-  prompt_length_avg:
-    type: number
-    format: float
-    description: Average prompt length (number of negative candidates included) across all cycles.
-    minimum: 0.0
-  prompt_length_std:
-    type: number
-    format: float
-    description: Standard deviation of prompt lengths across cycles (optional, for deeper analysis).
-    minimum: 0.0
-  num_cycles:
-    type: integer
-    description: Total number of training cycles in this simulation.
-    minimum: 1
-  model_variant:
-    type: string
-    description: The variant of the simulation run (e., "static_baseline", "cap_zppo").
-    enum:
-      - static_baseline
-      - cap_zppo
-  run_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when this run was executed.
-  version:
-    type: string
-    description: Version of the schema used to validate this record.
-    enum:
-      - "1.0.0"
-  metadata:
+  prompt_length_stats:
     type: object
-    description: Optional additional metadata for the run.
+    description: "Statistical summary of prompt lengths (number of negative candidates) 
+                 throughout the training process."
+    required:
+      - initial_length
+      - final_length
+      - average_length
+      - min_length
+      - max_length
     properties:
-      config_hash:
+      initial_length:
+        type: integer
+        description: "Number of negative candidates in the prompt at cycle 0."
+        minimum: 0
+      final_length:
+        type: integer
+        description: "Number of negative candidates in the prompt at the final cycle."
+        minimum: 0
+      average_length:
+        type: number
+        description: "Mean number of negative candidates across all cycles."
+        minimum: 0.0
+      min_length:
+        type: integer
+        description: "Minimum number of negative candidates observed in any cycle."
+        minimum: 0
+      max_length:
+        type: integer
+        description: "Maximum number of negative candidates observed in any cycle."
+        minimum: 0
+  run_metadata:
+    type: object
+    description: "Reference to the run metadata file containing hyperparameters and timestamps."
+    required:
+      - config_path
+      - timestamp
+    properties:
+      config_path:
         type: string
-        description: SHA-256 hash of the configuration used.
-      notes:
+        description: "Relative path to the configuration file used for this run."
+      timestamp:
         type: string
-        description: Free-form notes about the run.
+        format: date-time
+        description: "ISO 8601 timestamp of when the run completed."
+  metrics_breakdown:
+    type: object
+    description: "Optional detailed breakdown per cycle or per task subset."
+    properties:
+      cycles:
+        type: array
+        items:
+          type: object
+          properties:
+            cycle_id:
+              type: integer
+            accuracy:
+              type: number
+            prompt_length:
+              type: integer
+      task_group:
+        type: string
+        description: "Group identifier (e.g., 'LLM', 'VLM') if metrics are grouped."
 additionalProperties: false

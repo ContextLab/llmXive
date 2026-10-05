@@ -1,37 +1,16 @@
-# This file exists primarily for IDE integration where pyproject.toml
-# might not be picked up by some editors in nested project structures.
-# It mirrors the configuration in pyproject.toml.
+# Ruff configuration for llmXive project
+# Extends settings from pyproject.toml but allows for project-specific overrides if needed
+# Currently mirrors pyproject.toml for consistency
 
-target-version = "py39"
 line-length = 88
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "data/",
-    "state/",
-]
+target-version = "py39"
 
 [lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901",
-]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"] # Line length handled by formatter
 
-[lint.isort]
-known-first-party = ["code", "tests"]
-force-sort-within-sections = true
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

@@ -1,208 +1,330 @@
 """
 Unit tests for Confidence-Adaptive Pruning (CAP) logic edge cases.
 
-This module specifically tests:
-1. Fallback behavior when ALL candidates are pruned (empty set result).
-2. Fallback behavior when the prompt is effectively empty.
-3. Verification that the system defaults to the full set (or minimal set) to avoid empty prompts.
+This file extends the existing test suite to specifically verify:
+1. Fallback to full set when ALL candidates are pruned (high confidence).
+2. Fallback to full set when pruning results in an empty set.
+3. Handling of the first cycle (no history).
+4. Handling of consistently rejected vs accepted candidates.
 """
 
 import pytest
 import numpy as np
-from typing import List, Dict, Any, Optional
-from unittest.mock import patch, MagicMock
+from typing import List, Dict, Any, Set, Optional
+from dataclasses import dataclass
 
-# We mock the CAP classifier logic here to simulate the specific edge case conditions
-# rather than importing the full implementation which might not exist yet or be in a different state.
-# The actual implementation logic is assumed to be in code/models/cap_classifier.py (T021)
-# and code/loops/cap_zppo.py (T022). This test verifies the *contract* of that logic.
+# Import from the project's models module
+from models.cap_classifier import ConfidenceStats, classify_confidence, CAPClassifier
+from utils.state_store import CycleRecord
+from utils.noise import inject_noise
+from utils.seeds import get_rng
 
-# Mock data structures
-class MockCandidate:
-    def __init__(self, text: str, confidence_history: List[float]):
-        self.text = text
-        self.confidence_history = confidence_history
 
-    def get_mean_confidence(self) -> float:
-        return np.mean(self.confidence_history) if self.confidence_history else 0.0
+class TestCAPClassifierEdgeCases:
+    """Test suite for CAPClassifier edge cases and fallback mechanisms."""
 
-class MockCAPClassifier:
-    """
-    Mock implementation of the CAP classifier to simulate edge cases for testing.
-    In the real implementation (T021), this class would calculate mean/variance
-    and classify candidates as 'rejected', 'fluctuating', or 'accepted'.
-    """
-    def __init__(self, threshold_low: float = 0.1, threshold_high: float = 0.9):
-        self.threshold_low = threshold_low
-        self.threshold_high = threshold_high
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.seed = 42
+        self.rng = get_rng(self.seed)
+        
+        # Thresholds defined in FR-003
+        self.threshold_low = 0.1
+        self.threshold_high = 0.9
 
-    def classify(self, candidate: MockCandidate) -> str:
-        mean_conf = candidate.get_mean_confidence()
-        if mean_conf < self.threshold_low:
-            return "rejected"
-        elif mean_conf > self.threshold_high:
-            return "accepted"
-        else:
-            return "fluctuating"
-
-    def filter_candidates(self, candidates: List[MockCandidate]) -> List[MockCandidate]:
+    def test_all_candidates_pruned_high_confidence(self):
         """
-        Returns candidates classified as 'fluctuating'.
-        This simulates the core pruning logic.
+        Verify that if ALL candidates are pruned due to high confidence (>0.9),
+        the system defaults to the full set to avoid empty prompts (FR-007).
         """
-        return [c for c in candidates if self.classify(c) == "fluctuating"]
+        # Create a CAPClassifier instance
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-def create_mock_candidates(all_fluctuating: bool = False, all_accepted: bool = False, all_rejected: bool = False) -> List[MockCandidate]:
-    """Helper to create mock candidates for specific test scenarios."""
-    candidates = []
-    if all_accepted:
-        # All candidates have high confidence (> 0.9) -> will be pruned
-        for i in range(5):
-            candidates.append(MockCandidate(f"candidate_{i}", [0.95, 0.96, 0.98]))
-    elif all_rejected:
-        # All candidates have low confidence (< 0.1) -> will be pruned
-        for i in range(5):
-            candidates.append(MockCandidate(f"candidate_{i}", [0.02, 0.05, 0.01]))
-    elif all_fluctuating:
-        # All candidates are in the middle -> none pruned
-        for i in range(5):
-            candidates.append(MockCandidate(f"candidate_{i}", [0.5, 0.6, 0.55]))
-    else:
-        # Mixed scenario
-        candidates.append(MockCandidate("fluctuating_1", [0.5, 0.6]))
-        candidates.append(MockCandidate("rejected_1", [0.05, 0.02]))
-        candidates.append(MockCandidate("accepted_1", [0.95, 0.98]))
-    return candidates
+        # Simulate a scenario where all candidates have consistently high confidence
+        # This would normally result in ALL being classified as 'accepted' and pruned
+        candidates = [f"candidate_{i}" for i in range(5)]
+        
+        # Create historical data where every candidate has mean > 0.9
+        # We'll simulate this by manually setting the history
+        history = {}
+        for candidate in candidates:
+            # Create a list of high confidence scores
+            scores = [0.95, 0.96, 0.98, 0.97, 0.99]
+            history[candidate] = scores
+        
+        # Update the classifier's internal state
+        classifier.history = history
 
-class MockNCQGenerator:
-    """
-    Mock NCQ generator that uses the CAP classifier.
-    This simulates the logic in code/loops/cap_zppo.py (T022).
-    """
-    def __init__(self, full_candidate_set: List[MockCandidate], classifier: MockCAPClassifier):
-        self.full_candidate_set = full_candidate_set
-        self.classifier = classifier
+        # Get the pruned set
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Assert that the fallback mechanism triggered and returned the full set
+        assert len(pruned_set) == len(candidates), (
+            f"Expected full set fallback when all candidates are pruned, "
+            f"but got {len(pruned_set)} candidates. Pruned set: {pruned_set}"
+        )
+        assert pruned_set == set(candidates), (
+            f"Expected full set {set(candidates)}, but got {pruned_set}"
+        )
 
-    def generate_ncq(self, candidates: List[MockCandidate]) -> str:
+    def test_all_candidates_pruned_low_confidence(self):
         """
-        Generates the NCQ prompt.
-        Implements the fallback logic: if pruned set is empty, use full set.
+        Verify that if ALL candidates are pruned due to low confidence (<0.1),
+        the system defaults to the full set to avoid empty prompts (FR-007).
         """
-        pruned_set = self.classifier.filter_candidates(candidates)
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-        # Edge Case Logic: Fallback to full set if pruned set is empty
-        if not pruned_set:
-            # Log warning (mocked)
-            # logger.warning("All candidates pruned. Falling back to full candidate set.")
-            pruned_set = self.full_candidate_set
+        candidates = [f"candidate_{i}" for i in range(5)]
+        
+        # Create historical data where every candidate has consistently low confidence
+        history = {}
+        for candidate in candidates:
+            scores = [0.05, 0.03, 0.08, 0.02, 0.04]
+            history[candidate] = scores
+        
+        classifier.history = history
 
-        if not pruned_set:
-            # Should not happen if full_candidate_set is non-empty, but safety check
-            raise ValueError("Fatal: Candidate set is empty after fallback.")
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Assert fallback to full set
+        assert len(pruned_set) == len(candidates), (
+            f"Expected full set fallback when all candidates are pruned (low conf), "
+            f"but got {len(pruned_set)} candidates"
+        )
+        assert pruned_set == set(candidates)
 
-        return f"NCQ Prompt with {len(pruned_set)} candidates: {[c.text for c in pruned_set]}"
+    def test_mixed_confidence_normal_pruning(self):
+        """
+        Verify normal pruning behavior:
+        - Consistently rejected (<0.1) -> pruned
+        - Consistently accepted (>0.9) -> pruned
+        - Fluctuating ([0.1, 0.9]) -> kept
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-def test_cap_all_pruned_fallback_to_full_set():
-    """
-    Test Case: ALL candidates are pruned (due to high or low confidence).
-    Expected Behavior: System defaults to the full set to avoid empty prompts.
-    """
-    # Arrange
-    full_set = create_mock_candidates(all_accepted=True) # All will be pruned
-    classifier = MockCAPClassifier()
-    generator = MockNCQGenerator(full_set, classifier)
+        candidates = [
+            "rejected_candidate",    # Should be pruned (low conf)
+            "accepted_candidate",    # Should be pruned (high conf)
+            "fluctuating_candidate"  # Should be kept
+        ]
 
-    # Act
-    result_prompt = generator.generate_ncq(full_set)
+        history = {
+            "rejected_candidate": [0.05, 0.03, 0.08, 0.02, 0.04],
+            "accepted_candidate": [0.95, 0.96, 0.98, 0.97, 0.99],
+            "fluctuating_candidate": [0.5, 0.6, 0.4, 0.7, 0.55]
+        }
 
-    # Assert
-    assert "All candidates pruned" not in result_prompt # Just a sanity check on string content
-    assert "candidate_0" in result_prompt
-    assert "candidate_4" in result_prompt
-    assert "fluctuating" not in result_prompt # The mock string for the class doesn't include the word, but the count should match full set
-    # Verify that the prompt contains the full set of candidates
-    assert result_prompt.count("candidate_") == 5 # Should contain all 5
+        classifier.history = history
 
-def test_cap_all_rejected_fallback_to_full_set():
-    """
-    Test Case: ALL candidates are pruned because they are consistently rejected.
-    Expected Behavior: System defaults to the full set to avoid empty prompts.
-    """
-    # Arrange
-    full_set = create_mock_candidates(all_rejected=True) # All will be pruned
-    classifier = MockCAPClassifier()
-    generator = MockNCQGenerator(full_set, classifier)
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Only the fluctuating candidate should remain
+        expected = {"fluctuating_candidate"}
+        assert pruned_set == expected, (
+            f"Expected {expected}, but got {pruned_set}"
+        )
 
-    # Act
-    result_prompt = generator.generate_ncq(full_set)
+    def test_empty_history_first_cycle(self):
+        """
+        Verify handling of the first cycle where no history exists.
+        The system should return the full set of candidates.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
+        
+        # Ensure history is empty (first cycle)
+        classifier.history = {}
+        
+        candidates = [f"candidate_{i}" for i in range(5)]
+        
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # First cycle should return full set
+        assert pruned_set == set(candidates), (
+            f"Expected full set on first cycle, but got {pruned_set}"
+        )
 
-    # Assert
-    # Verify that the prompt contains the full set of candidates
-    assert "candidate_0" in result_prompt
-    assert "candidate_4" in result_prompt
-    # Ensure we didn't get an empty prompt or an error
-    assert len(result_prompt) > 0
+    def test_partial_pruning_results_in_empty_set(self):
+        """
+        Verify edge case where pruning logic results in an empty set
+        (e.g., all candidates are either consistently rejected or accepted).
+        The system must fallback to the full set.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-def test_cap_mixed_candidates_prunes_correctly():
-    """
-    Test Case: Mixed candidates (some accepted, some rejected, some fluctuating).
-    Expected Behavior: Only fluctuating candidates remain.
-    """
-    # Arrange
-    full_set = create_mock_candidates(all_fluctuating=False) # Mixed
-    classifier = MockCAPClassifier()
-    generator = MockNCQGenerator(full_set, classifier)
+        candidates = [
+            "rejected_1", "rejected_2",
+            "accepted_1", "accepted_2"
+        ]
 
-    # Act
-    result_prompt = generator.generate_ncq(full_set)
+        history = {
+            "rejected_1": [0.05, 0.03],
+            "rejected_2": [0.08, 0.02],
+            "accepted_1": [0.95, 0.96],
+            "accepted_2": [0.98, 0.97]
+        }
 
-    # Assert
-    # Should only contain the fluctuating one
-    assert "fluctuating_1" in result_prompt
-    assert "rejected_1" not in result_prompt
-    assert "accepted_1" not in result_prompt
+        classifier.history = history
 
-def test_cap_empty_prompt_fallback_general():
-    """
-    Test Case: General empty prompt fallback.
-    Simulates a scenario where the input list itself might be empty or the logic
-    results in an empty list before the fallback check.
-    """
-    # Arrange
-    full_set = create_mock_candidates(all_accepted=True)
-    classifier = MockCAPClassifier()
-    generator = MockNCQGenerator(full_set, classifier)
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Should fallback to full set because no fluctuating candidates exist
+        assert len(pruned_set) == len(candidates), (
+            f"Expected full set fallback when no fluctuating candidates, "
+            f"but got {len(pruned_set)} candidates"
+        )
+        assert pruned_set == set(candidates)
 
-    # Simulate the internal logic where pruned set becomes empty
-    # We are testing the specific branch: if not pruned_set: pruned_set = self.full_candidate_set
-    pruned_set = classifier.filter_candidates(full_set)
-    assert len(pruned_set) == 0 # Confirm pruning worked
+    def test_single_candidate_fluctuating(self):
+        """
+        Verify behavior with a single fluctuating candidate.
+        Should be kept without triggering fallback.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-    # Apply the fallback logic explicitly as it would appear in the real code
-    if not pruned_set:
-        pruned_set = generator.full_candidate_set
+        candidates = ["only_candidate"]
+        history = {
+            "only_candidate": [0.5, 0.6, 0.4, 0.7, 0.55]
+        }
 
-    # Assert
-    assert len(pruned_set) == len(full_set)
-    assert len(pruned_set) > 0
+        classifier.history = history
 
-def test_cap_minimal_set_preservation():
-    """
-    Test Case: Ensure that if the full set is the fallback, it is preserved exactly.
-    """
-    full_set = create_mock_candidates(all_accepted=True)
-    classifier = MockCAPClassifier()
-    generator = MockNCQGenerator(full_set, classifier)
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        assert pruned_set == {"only_candidate"}
 
-    # Force the fallback path
-    pruned = classifier.filter_candidates(full_set)
-    if not pruned:
-        pruned = generator.full_candidate_set
+    def test_single_candidate_consistently_accepted(self):
+        """
+        Verify behavior with a single consistently accepted candidate.
+        Should trigger fallback to full set (which is just itself).
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
 
-    # Verify identity or content equality
-    assert len(pruned) == len(full_set)
-    for i in range(len(full_set)):
-        assert pruned[i].text == full_set[i].text
+        candidates = ["only_candidate"]
+        history = {
+            "only_candidate": [0.95, 0.96, 0.98]
+        }
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        classifier.history = history
+
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Fallback to full set (which is the single candidate)
+        assert pruned_set == {"only_candidate"}
+
+    def test_confidence_classification_thresholds(self):
+        """
+        Unit test for the classify_confidence helper function
+        to ensure thresholds are applied correctly.
+        """
+        # Test rejected (< 0.1)
+        assert classify_confidence(0.05) == "rejected"
+        assert classify_confidence(0.09) == "rejected"
+        assert classify_confidence(0.099) == "rejected"
+
+        # Test accepted (> 0.9)
+        assert classify_confidence(0.91) == "accepted"
+        assert classify_confidence(0.99) == "accepted"
+        assert classify_confidence(0.999) == "accepted"
+
+        # Test fluctuating (0.1 to 0.9 inclusive)
+        assert classify_confidence(0.1) == "fluctuating"
+        assert classify_confidence(0.5) == "fluctuating"
+        assert classify_confidence(0.9) == "fluctuating"
+
+        # Edge case: exactly 0.1 and 0.9
+        assert classify_confidence(0.1) == "fluctuating"
+        assert classify_confidence(0.9) == "fluctuating"
+
+    def test_noise_injection_does_not_break_fallback(self):
+        """
+        Verify that noise injection (FR-008) does not cause the fallback
+        mechanism to fail unexpectedly.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
+
+        candidates = [f"candidate_{i}" for i in range(5)]
+        
+        # Create history with borderline values that might cross thresholds with noise
+        history = {}
+        for candidate in candidates:
+            # Start with values near the threshold
+            base_scores = [0.09, 0.11, 0.08, 0.12, 0.10]
+            noisy_scores = []
+            for score in base_scores:
+                noisy = inject_noise(score, sigma=0.05, rng=self.rng)
+                noisy_scores.append(noisy)
+            history[candidate] = noisy_scores
+
+        classifier.history = history
+
+        # This should not raise an exception and should return a valid set
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # The set should be non-empty (either pruned set or fallback)
+        assert len(pruned_set) > 0, (
+            "Pruned set should never be empty due to fallback mechanism"
+        )
+        assert pruned_set.issubset(set(candidates))
+
+    def test_large_candidate_pool_fallback(self):
+        """
+        Verify fallback works correctly with a large pool of candidates.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
+
+        # Create 100 candidates, all consistently accepted
+        candidates = [f"candidate_{i}" for i in range(100)]
+        history = {
+            cand: [0.95] * 5 for cand in candidates
+        }
+
+        classifier.history = history
+
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        # Should fallback to full set of 100
+        assert len(pruned_set) == 100
+        assert pruned_set == set(candidates)
+
+    def test_empty_candidate_list(self):
+        """
+        Verify behavior when the input candidate list is empty.
+        Should return an empty set.
+        """
+        classifier = CAPClassifier(
+            threshold_low=self.threshold_low,
+            threshold_high=self.threshold_high
+        )
+        
+        candidates = []
+        pruned_set = classifier.get_candidates_for_prompt(candidates)
+        
+        assert pruned_set == set()
+        assert len(pruned_set) == 0

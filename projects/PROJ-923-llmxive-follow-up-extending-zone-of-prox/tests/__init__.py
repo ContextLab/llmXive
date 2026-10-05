@@ -1,1 +1,3 @@
-# Tests Package
+"""
+Test suite root.
+"""

@@ -1,26 +1,36 @@
-.PHONY: lint format check all clean
+.PHONY: install lint format test clean
 
-# Linting and Formatting
-LINT_CMD := ruff check code/
-FORMAT_CMD := black --check code/
-FORMAT_WRITE_CMD := black code/
+install:
+    pip install -r requirements.txt
+    pip install -e .
 
 lint:
-    $(LINT_CMD)
+    @echo "Running linter..."
+    ./scripts/lint.sh
 
 format:
-    $(FORMAT_CMD)
+    @echo "Running formatter..."
+    ./scripts/format.sh
 
-format-write:
-    $(FORMAT_WRITE_CMD)
-
-check: lint format
+test:
+    @echo "Running tests..."
+    pytest tests/ -v
 
 clean:
-    find . -type d -name "__pycache__" -exec rm -rf {} + || true
-    find . -type d -name "*.egg-info" -exec rm -rf {} + || true
-    find . -type f -name "*.pyc" -delete || true
-    find . -type f -name ".DS_Store" -delete || true
-    rm -rf .pytest_cache .ruff_cache data/metrics/*.csv state/projects/*.yaml 2>/dev/null || true
+    find . -type d -name "__pycache__" -exec rm -r {} +
+    find . -type f -name "*.pyc" -delete
+    find . -type f -name "*.pyo" -delete
+    rm -rf .pytest_cache
+    rm -rf .ruff_cache
+    rm -rf htmlcov
+    rm -rf .coverage
+    rm -rf coverage.xml
+    rm -rf *.egg-info
+    rm -rf build
+    rm -rf dist
+    rm -rf *.egg
 
-all: check
+# Check formatting without modifying
+check-format:
+    black --check code/ tests/
+    ruff check code/ tests/

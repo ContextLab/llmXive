@@ -1,1 +1,3 @@
-# Data Package
+"""
+Data subpackage for loaders and generators.
+"""

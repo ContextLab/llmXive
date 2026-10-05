@@ -8,6 +8,10 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
 def load_schema(schema_name: str):
+    """
+    Load a JSON schema from the contracts directory.
+    Raises FileNotFoundError if the schema file does not exist.
+    """
     schema_path = CONTRACTS_DIR / f"{schema_name}.schema.yaml"
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")

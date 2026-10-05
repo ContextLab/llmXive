@@ -1,1 +1,3 @@
-# Contracts package (Schema definitions)
+"""
+Schema contracts for data validation.
+"""
