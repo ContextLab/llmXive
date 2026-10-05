@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or verification output was provided, so we cannot confirm that
+    the required folders (`code`, `data/raw`, `data/processed`, `data/models`, `tests`,
+    `code/utils`, `docs/reports`, `contracts`) actually exist or match the plan. The
+    implementer must supply evidence (e.g., `tree` output) showing the created project
+    structure.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence were provided to show that the required
+    folders (`data/raw/`, `data/processed/`, `data/models/`, `code/`, `tests/`) actually
+    exist in the repository. Without concrete proof of these directories, the task
+    cannot be considered completed.
 T010:
   c: false
   h: 4124003d48e49d627499c0893203b20f2aae092ced6d468e5c5455c92572c978
@@ -11,14 +26,6 @@ T018:
   r: "The required file `tests/perf/test_descriptor_perf.py` does not exist, so there\
     \ is no performance test to verify the <15\u2011minute runtime constraint. The\
     \ task\u2019s primary artifact is missing."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided that demonstrate the implementation\
-    \ of logic to detect disconnected molecular graphs, flag them as \u201Cinvalid\
-    \ topology\u201D, and exclude those records from downstream analysis. The required\
-    \ artifact (e.g., a function/module with unit tests) is missing, so the task is\
-    \ not satisfied."
 T030:
   c: false
   h: f1266e299ef0f6df8f22d744cb68e3f42bc145072a2a4c3f33ec68342a980214

@@ -1,303 +1,181 @@
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Set
 from pathlib import Path
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
+import networkx as nx
+import csv
+import hashlib
 
-# Import existing utilities if needed, though we use RDKit directly here
-# from code.utils.logger import setup_logger
+from code.utils.logger import setup_logger
+from code.config import get_config
 
-logger = logging.getLogger(__name__)
+# Initialize logger
+logger = setup_logger(__name__)
 
 def is_connected(mol: Chem.Mol) -> bool:
     """
-    Checks if the molecule graph is connected (single component).
-    
-    Args:
-        mol: RDKit Mol object.
-        
-    Returns:
-        True if the molecule is a single connected component, False otherwise.
+    Check if the molecular graph is connected.
+    Returns True if the graph has exactly one connected component.
     """
     if mol is None:
         return False
-    
-    # RDKit's GetNumAtoms returns 0 for empty molecules
-    if mol.GetNumAtoms() == 0:
-        return False
+    # Get the number of connected components using RDKit
+    # GetSubstructMatches with a dummy pattern or use GetMolFrags
+    frags = Chem.GetMolFrags(mol, asMols=False)
+    return len(frags) == 1
 
-    # Get the number of connected components (fragments)
-    # rdMolDescriptors.CalcNumFragments is not standard for connectivity check in older RDKit
-    # Using the standard method: GetMolFrags
-    frags = Chem.GetMolFrags(mol, asMols=False, sanitizeFrags=False)
+def calculate_wiener_index(mol: Chem.Mol) -> float:
+    """
+    Calculate the Wiener index (sum of all shortest path distances in the graph).
+    """
+    if not is_connected(mol):
+        raise ValueError("Molecule is not connected; Wiener index undefined.")
     
-    # GetMolFrags returns a tuple of tuples, each inner tuple is atom indices for a fragment
-    num_fragments = len(frags)
-    return num_fragments == 1
+    # Convert RDKit mol to NetworkX graph
+    G = nx.Graph()
+    for atom in mol.GetAtoms():
+        G.add_node(atom.GetIdx())
+    for bond in mol.GetBonds():
+        G.add_edge(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx())
+    
+    # Calculate all pairs shortest paths
+    lengths = dict(nx.all_pairs_shortest_path_length(G))
+    total_distance = 0
+    for source in lengths:
+        for target, dist in lengths[source].items():
+            if source < target: # Sum each pair once
+                total_distance += dist
+    
+    return float(total_distance)
+
+def calculate_balaban_index(mol: Chem.Mol) -> float:
+    """
+    Calculate the Balaban J index.
+    J = (M / (M - N + 1)) * sum(1 / sqrt(d_i * d_j)) for all edges (i, j)
+    where M is number of edges, N is number of vertices, d_i is degree of vertex i.
+    """
+    if not is_connected(mol):
+        raise ValueError("Molecule is not connected; Balaban index undefined.")
+
+    G = nx.Graph()
+    for atom in mol.GetAtoms():
+        G.add_node(atom.GetIdx())
+    for bond in mol.GetBonds():
+        G.add_edge(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx())
+    
+    N = G.number_of_nodes()
+    M = G.number_of_edges()
+    
+    if M - N + 1 == 0:
+        return 0.0 # Avoid division by zero for trees/cycles where M = N-1
+
+    sum_term = 0.0
+    for u, v in G.edges():
+        deg_u = G.degree[u]
+        deg_v = G.degree[v]
+        if deg_u == 0 or deg_v == 0:
+            continue
+        sum_term += 1.0 / np.sqrt(deg_u * deg_v)
+    
+    return float((M / (M - N + 1)) * sum_term)
+
+def calculate_zagreb_index(mol: Chem.Mol) -> float:
+    """
+    Calculate the first Zagreb index (sum of squared degrees).
+    M1 = sum(deg(v)^2) for all vertices v.
+    """
+    if not is_connected(mol):
+        raise ValueError("Molecule is not connected; Zagreb index undefined.")
+
+    G = nx.Graph()
+    for atom in mol.GetAtoms():
+        G.add_node(atom.GetIdx())
+    for bond in mol.GetBonds():
+        G.add_edge(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx())
+    
+    total = 0
+    for node in G.nodes():
+        deg = G.degree[node]
+        total += deg * deg
+    
+    return float(total)
 
 class TopologicalDescriptorCalculator:
     """
-    Calculator for topological descriptors (Wiener, Balaban, Zagreb).
-    Handles disconnected graphs by flagging them as invalid.
+    Class to calculate topological descriptors for a given RDKit molecule.
+    Handles connectivity checks and delegates to specific calculators.
     """
-    
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-    
-    def calculate_wiener(self, mol: Chem.Mol) -> Optional[float]:
+
+    def calculate(self, mol: Chem.Mol) -> Dict[str, float]:
         """
-        Calculates the Wiener index for a molecule.
-        Returns None if the molecule is disconnected (invalid topology).
+        Calculate Wiener, Balaban, and Zagreb indices.
+        Raises ValueError if molecule is disconnected.
         """
         if not is_connected(mol):
-            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Wiener index.")
-            return None
+            raise ValueError("Disconnected graph detected.")
         
-        try:
-            # RDKit has a built-in Wiener index calculator
-            # If not available, we would implement BFS/Dijkstra manually
-            # rdMolDescriptors.CalcWienerIndex is not standard in all RDKit versions
-            # Fallback to manual implementation if needed, but let's try standard first
-            # Actually, RDKit's standard library doesn't always expose a direct CalcWienerIndex
-            # We will implement a robust BFS-based calculation to ensure accuracy
-            return self._calc_wiener_bfs(mol)
-        except Exception as e:
-            self.logger.error(f"Error calculating Wiener index: {e}")
-            return None
-
-    def _calc_wiener_bfs(self, mol: Chem.Mol) -> float:
-        """
-        Calculates Wiener index using BFS for shortest paths.
-        Wiener Index = 0.5 * sum(all-pairs shortest path lengths)
-        """
-        n = mol.GetNumAtoms()
-        if n == 0:
-            return 0.0
-        
-        total_distance = 0
-        
-        # Build adjacency list
-        adj = [[] for _ in range(n)]
-        for bond in mol.GetBonds():
-            i = bond.GetBeginAtomIdx()
-            j = bond.GetEndAtomIdx()
-            adj[i].append(j)
-            adj[j].append(i)
-        
-        # BFS from each node
-        for start in range(n):
-            visited = [-1] * n
-            visited[start] = 0
-            queue = [start]
-            head = 0
-            
-            while head < len(queue):
-                u = queue[head]
-                head += 1
-                current_dist = visited[u]
-                
-                for v in adj[u]:
-                    if visited[v] == -1:
-                        visited[v] = current_dist + 1
-                        queue.append(v)
-                        total_distance += visited[v]
-        
-        return float(total_distance)
-
-    def calculate_balaban(self, mol: Chem.Mol) -> Optional[float]:
-        """
-        Calculates the Balaban index (J).
-        Returns None if the molecule is disconnected.
-        """
-        if not is_connected(mol):
-            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Balaban index.")
-            return None
-        
-        try:
-            # Balaban J = (M - N + 1) / (N + 2) * sum(1 / sqrt(d_i * d_j))
-            # where M = number of bonds, N = number of atoms
-            # d_i = distance sum for atom i (sum of shortest path distances to all other atoms)
-            
-            n = mol.GetNumAtoms()
-            m = mol.GetNumBonds()
-            
-            if n == 0:
-                return 0.0
-            
-            # Calculate distance sums (d_i)
-            dist_sums = []
-            
-            # Re-use adjacency list logic from Wiener
-            adj = [[] for _ in range(n)]
-            for bond in mol.GetBonds():
-                i = bond.GetBeginAtomIdx()
-                j = bond.GetEndAtomIdx()
-                adj[i].append(j)
-                adj[j].append(i)
-            
-            for start in range(n):
-                visited = [-1] * n
-                visited[start] = 0
-                queue = [start]
-                head = 0
-                current_sum = 0
-                
-                while head < len(queue):
-                    u = queue[head]
-                    head += 1
-                    
-                    for v in adj[u]:
-                        if visited[v] == -1:
-                            visited[v] = visited[u] + 1
-                            current_sum += visited[v]
-                            queue.append(v)
-                
-                dist_sums.append(current_sum)
-            
-            # Calculate J
-            # J = (M - N + 1) / (N + 2) * sum_{i<j} (1 / sqrt(d_i * d_j))
-            # Note: Standard Balaban definition often sums over edges (i,j) in the graph
-            # J = (M - N + 1) / (N + 2) * sum_{(i,j) in E} (1 / sqrt(d_i * d_j))
-            
-            sum_inv_sqrt = 0.0
-            for bond in mol.GetBonds():
-                i = bond.GetBeginAtomIdx()
-                j = bond.GetEndAtomIdx()
-                d_i = dist_sums[i]
-                d_j = dist_sums[j]
-                
-                if d_i == 0 or d_j == 0:
-                    # Avoid division by zero, though in connected graph with N>1, d>0
-                    continue
-                
-                sum_inv_sqrt += 1.0 / np.sqrt(d_i * d_j)
-            
-            numerator = m - n + 1
-            denominator = n + 2
-            
-            if denominator == 0:
-                return 0.0
-                
-            return (numerator / denominator) * sum_inv_sqrt
-            
-        except Exception as e:
-            self.logger.error(f"Error calculating Balaban index: {e}")
-            return None
-
-    def calculate_zagreb(self, mol: Chem.Mol) -> Optional[Tuple[float, float]]:
-        """
-        Calculates the First (M1) and Second (M2) Zagreb indices.
-        Returns None if the molecule is disconnected.
-        M1 = sum(deg(v)^2)
-        M2 = sum(deg(u)*deg(v)) for all edges (u,v)
-        """
-        if not is_connected(mol):
-            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Zagreb index.")
-            return None
-        
-        try:
-            n = mol.GetNumAtoms()
-            if n == 0:
-                return (0.0, 0.0)
-            
-            # Calculate degrees
-            degrees = [atom.GetTotalDegree() for atom in mol.GetAtoms()]
-            
-            # M1
-            m1 = sum(d * d for d in degrees)
-            
-            # M2
-            m2 = 0.0
-            for bond in mol.GetBonds():
-                u = bond.GetBeginAtomIdx()
-                v = bond.GetEndAtomIdx()
-                m2 += degrees[u] * degrees[v]
-            
-            return (float(m1), float(m2))
-            
-        except Exception as e:
-            self.logger.error(f"Error calculating Zagreb indices: {e}")
-            return None
-
-    def calculate_descriptors(self, mol: Chem.Mol, name: str = "unknown") -> Dict[str, Any]:
-        """
-        Calculates all descriptors for a molecule.
-        If the molecule is disconnected, returns a dict with 'valid_topology' = False.
-        """
-        result = {
-            "name": name,
-            "valid_topology": True,
-            "wiener": None,
-            "balaban": None,
-            "zagreb_m1": None,
-            "zagreb_m2": None,
-            "error": None
+        return {
+            "wiener": calculate_wiener_index(mol),
+            "balaban": calculate_balaban_index(mol),
+            "zagreb": calculate_zagreb_index(mol)
         }
-        
-        if not is_connected(mol):
-            result["valid_topology"] = False
-            result["error"] = "Disconnected graph (Invalid Topology)"
-            return result
-        
-        try:
-            result["wiener"] = self.calculate_wiener(mol)
-            result["balaban"] = self.calculate_balaban(mol)
-            zagreb = self.calculate_zagreb(mol)
-            if zagreb:
-                result["zagreb_m1"] = zagreb[0]
-                result["zagreb_m2"] = zagreb[1]
-        except Exception as e:
-            result["error"] = str(e)
-            result["valid_topology"] = False
-        
-        return result
 
-def calculate_descriptors_for_smiles(smiles: str, name: str = "unknown") -> Dict[str, Any]:
+def calculate_descriptors_for_smiles(smiles: str, reaction_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
-    Convenience function to calculate descriptors from a SMILES string.
-    Handles invalid SMILES and disconnected graphs.
+    Parse SMILES, check connectivity, and calculate descriptors.
+    Returns a dict with descriptors if valid, or None if disconnected (to be handled by caller).
+    Raises ValueError if SMILES is invalid.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        return {
-            "name": name,
-            "valid_topology": False,
-            "error": "Invalid SMILES"
-        }
+        raise ValueError(f"Invalid SMILES: {smiles}")
     
-    calculator = TopologicalDescriptorCalculator()
-    return calculator.calculate_descriptors(mol, name)
+    if not is_connected(mol):
+        return None
+    
+    try:
+        descriptors = TopologicalDescriptorCalculator().calculate(mol)
+        return {
+            "smiles": smiles,
+            "reaction_id": reaction_id,
+            **descriptors
+        }
+    except Exception as e:
+        logger.error(f"Error calculating descriptors for {smiles}: {e}")
+        return None
+
+def log_disconnected_graphs(disconnected_records: List[Dict[str, str]], output_path: str):
+    """
+    Log disconnected graphs to a CSV file with a checksum.
+    Output Schema: smiles, reaction_id, error_type
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = ["smiles", "reaction_id", "error_type"]
+    
+    with open(output_file, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in disconnected_records:
+            writer.writerow(record)
+    
+    # Calculate checksum
+    checksum = hashlib.md5(output_file.read_bytes()).hexdigest()
+    logger.info(f"Disconnected graphs logged to {output_path} (Checksum: {checksum})")
+    return checksum
 
 def main():
     """
-    Main entry point for testing the descriptor calculator with disconnected graph handling.
+    Entry point for testing or running descriptor calculations.
     """
-    logging.basicConfig(level=logging.INFO)
-    
-    # Test cases
-    test_cases = [
-        ("benzene", "c1ccccc1"),
-        ("toluene", "Cc1ccccc1"),
-        ("disconnected_biphenyl", "c1ccccc1.c2ccccc2"), # Two separate rings, no bond
-        ("invalid", "invalid_smiles"),
-        ("ethane", "CC")
-    ]
-    
-    print("Testing Topological Descriptor Calculator with Disconnected Graph Handling:")
-    print("-" * 60)
-    
-    for name, smiles in test_cases:
-        result = calculate_descriptors_for_smiles(smiles, name)
-        print(f"Molecule: {name} ({smiles})")
-        print(f"  Valid Topology: {result['valid_topology']}")
-        if result['valid_topology']:
-            print(f"  Wiener: {result['wiener']}")
-            print(f"  Balaban: {result['balaban']}")
-            print(f"  Zagreb M1: {result['zagreb_m1']}, M2: {result['zagreb_m2']}")
-        else:
-            print(f"  Error/Reason: {result.get('error', 'Unknown')}")
-        print("-" * 60)
+    logger.info("Running descriptor calculations main entry point.")
+    # Example usage logic can be added here if needed for CLI
+    pass
 
 if __name__ == "__main__":
     main()

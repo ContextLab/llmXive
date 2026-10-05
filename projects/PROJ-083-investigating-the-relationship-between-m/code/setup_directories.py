@@ -1,53 +1,50 @@
 """
-Setup script to create the required project directory structure.
-This script ensures that data/raw, data/processed, data/models, code, and tests
-directories exist under the project root.
+Directory structure setup for the Molecular Topology Selectivity Project.
+This script verifies and creates the required directory structure as per T001 and T004.
 """
 import os
 import sys
 from pathlib import Path
 
-# Define the project root (assumed to be the parent of the 'code' directory)
-# If running as __main__, determine root relative to this file
-if __name__ == "__main__":
-    # Script is located in code/, so root is parent of code/
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-else:
-    # When imported, assume current working directory or explicit root
-    PROJECT_ROOT = Path.cwd()
-
-# Define relative paths to be created
-DIRECTORIES = [
-    "data/raw",
-    "data/processed",
-    "data/models",
-    "code",
-    "tests",
-    "tests/unit",
-    "tests/integration",
-    "tests/perf",
-    "contracts",
-    "docs",
-    "docs/reports",
-    "specs",
-]
-
 def setup_directories():
-    """Create the required directory structure."""
-    created_count = 0
-    existing_count = 0
+    """
+    Creates the project directory structure and verifies existence.
+    Returns a list of created/verified paths.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    required_dirs = [
+        "code",
+        "code/utils",
+        "data/raw",
+        "data/processed",
+        "data/models",
+        "tests",
+        "docs/reports",
+        "contracts"
+    ]
+    
+    created_or_verified = []
+    
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_or_verified.append(str(full_path))
+        print(f"Verified/Created: {full_path}")
+    
+    return created_or_verified
 
-    for rel_path in DIRECTORIES:
-        full_path = PROJECT_ROOT / rel_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            existing_count += 1
-
-    print(f"Setup complete. Created {created_count} new directories. {existing_count} already existed.")
-    return created_count
+def main():
+    """Entry point for directory setup."""
+    print("Setting up project directory structure...")
+    try:
+        paths = setup_directories()
+        print(f"\nSuccessfully verified/created {len(paths)} directories.")
+        print("Structure verification complete.")
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to setup directories: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    setup_directories()
+    sys.exit(main())

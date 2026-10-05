@@ -52,22 +52,6 @@
   updated_at: '2026-07-07T13:11:14Z'
 - artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
   attempts: 1
-  canonical: Wiener index values for benzene, toluene, and nitrobenzene
-  claim_id: c_32f27fb9
-  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
-    \ (Wiener=45); verify values within \xB10.1 tolerance."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T09:53:42Z'
-- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
-  attempts: 1
   canonical: tolerance for Wiener index verification
   claim_id: c_c2b564da
   context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
@@ -286,3 +270,415 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T15:52:01Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 2
+  canonical: Wiener index values for benzene, toluene, and nitrobenzene
+  claim_id: c_32f27fb9
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:33Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Wiener index value for toluene
+  claim_id: c_1976829b
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45);\
+    \ verify values within \xB10.1 tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Wiener index value for nitrobenzene
+  claim_id: c_3e760706
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45);\
+    \ verify values within \xB10.1 tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Descriptor calculation time for full filtered EAS set on 2-core runner
+  claim_id: c_23cf64a4
+  context: T018 [P] [US2] Performance test ensuring full filtered EAS set calculation
+    < 15 mins on 2-core runner in tests/perf/test_descriptor_perf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full filtered EAS set calculation < 15 mins on 2-core runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Leave-One-Out cross-validation threshold
+  claim_id: c_c68113e3
+  context: T035 [US3] Implement 5-fold CV logic with automatic switch to LOO if N
+    < 20 in code/modeling.py (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to LOO if N < 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for collinearity
+  claim_id: c_5ec0de25
+  context: T036 [US3] Implement VIF calculation for collinearity diagnostics and sequential
+    analysis logic if VIF > 5 in code/modeling.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to Descriptive Statistics if VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:48:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: SymmetryValidator failure rate threshold
+  claim_id: c_4930be14
+  context: 'T047 [US3] Implement the ''Symmetry Check'' step in code/modeling.py (FR-008)
+    - Logic: If SymmetryValidator (from T044) fails for >1% of the dataset, log a
+    warning and switch to Descriptive Statistics'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a warning and switch to Descriptive Statistics if SymmetryValidator
+    fails for >1% of the dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:49:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Maximum deviation threshold for coordinate independence
+  claim_id: c_36ececd2
+  context: 'T045 [US2] Generate a ''Coordinate Independence'' report... Deliverable:
+    File must contain sections... and report ''Max deviation < 1e-9''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report 'Max deviation < 1e-9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:49:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Descriptor calculation performance verification
+  claim_id: c_3ebee6ed
+  context: T053 [P] Verify descriptor calculation time < 15 mins on full filtered
+    EAS set (SC-003) in tests/perf/test_descriptor_perf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify descriptor calculation time < 15 mins on full filtered EAS set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:49:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: 50 distinct EAS reactant molecules sampled
+  claim_id: c_b23ee6e9
+  context: 'To demonstrate Coordinate Independence, we perform the following steps:
+    1. Sample Selection: A random sample of 50 distinct EAS reactant molecules is
+    drawn from data/processed/eas_reactions.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random sample of 50 distinct EAS reactant molecules is drawn from data/processed/eas_reactions.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:52:40Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: 50 molecules validated with symmetry group permutations
+  claim_id: c_ef235cfc
+  context: The validation logic iterated through N=50 molecules and applied |G| permutations
+    for each.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic iterated through N=50 molecules and applied |G| permutations
+    for each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:53:04Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: 245 total permutations applied
+  claim_id: c_3aefa0d0
+  context: 'The validation logic iterated through N=50 molecules and applied |G| permutations
+    for each. Total Permutations Applied: 245'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Permutations Applied: 245'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:53:26Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: 735 total index calculations performed
+  claim_id: c_4d63b572
+  context: 'Total Permutations Applied: 245 Total Index Calculations: 735 (3 indices
+    per permutation)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Index Calculations: 735'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:53:49Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: Benzene Wiener Index is 27
+  claim_id: c_dd07f4b2
+  context: 'For Benzene (c1ccccc1), the symmetry group G is D6h. Original: W=27, J=0.900,
+    M1=24'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Benzene, the original Wiener Index is 27
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:54:06Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: Benzene Balaban Index is 0.900
+  claim_id: c_1615015c
+  context: 'For Benzene (c1ccccc1), the symmetry group G is D6h. Original: W=27, J=0.900,
+    M1=24'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Benzene, the original Balaban Index is 0.900
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:54:28Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/docs/reports/coordinate_independence_report.md
+  attempts: 1
+  canonical: Benzene Zagreb Index is 24
+  claim_id: c_a75f1d6e
+  context: 'For Benzene (c1ccccc1), the symmetry group G is D6h. Original: W=27, J=0.900,
+    M1=24'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Benzene, the original Zagreb Index is 24
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:54:49Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Maximum deviation for coordinate independence report is less than 1e-9
+  claim_id: c_c5b96d55
+  context: 'Deliverable: File must contain sections: ''Methodology'', ''Sample Molecules'',
+    ''Variance Results'', and report ''Max deviation < 1e-9''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_deviation_for_coordinate_independence_report_is_less
+  kind: magnitude
+  raw_text: Max deviation < 1e-9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:56:18Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Full filtered EAS set calculation takes less than 15 minutes on a 2-core
+    runner
+  claim_id: c_10d7c0c5
+  context: Performance test ensuring full filtered EAS set calculation < 15 mins on
+    2-core runner in tests/perf/test_descriptor_perf.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_filtered_EAS_set_calculation_takes_less_than_15_minutes
+  kind: magnitude
+  raw_text: full filtered EAS set calculation < 15 mins on 2-core runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:56:42Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Maximum deviation threshold for coordinate independence report
+  claim_id: c_46bea20e
+  context: 'Deliverable: File must contain sections: ''Methodology'', ''Sample Molecules'',
+    ''Variance Results'', and report ''Max deviation < 1e-9 ''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max deviation < 1e-9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:57:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Performance time for full filtered EAS set calculation
+  claim_id: c_161a5f2a
+  context: Performance test ensuring full filtered EAS set calculation < 15 mins on
+    2-core runner in tests/perf/test_descriptor_perf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate full filtered EAS set calculation < 15 mins on 2-core runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:57:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Symmetry check failure threshold for switching to descriptive statistics
+  claim_id: c_59775565
+  context: 'Logic: If SymmetryValidator (from T044) fails for >1% of the dataset,
+    log a warning and switch to Descriptive Statistics (do NOT halt execution).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to Descriptive Statistics if SymmetryValidator fails for >1% of
+    the dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:57:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Sample size threshold for switching to leave-one-out cross-validation
+  claim_id: c_cf193ff6
+  context: Implement 5-fold CV logic with automatic switch to LOO if N < 20 in code/modeling.py
+    (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to Leave-One-Out cross-validation if N < 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:57:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for sequential analysis
+  claim_id: c_bec49fac
+  context: Implement VIF calculation for collinearity diagnostics and sequential analysis
+    logic if VIF > 5 in code/modeling.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to Descriptive Statistics if VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T00:57:00Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 4
+  canonical: Wiener index values for benzene, toluene, and nitrobenzene
+  claim_id: c_54408fef
+  context: 'Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene
+    (Wiener=45)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:00:05Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Wiener index for benzene is 27, toluene is 33, nitrobenzene is 45
+  claim_id: c_a07606d7
+  context: 'Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene
+    (Wiener=45)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T01:03:09Z'

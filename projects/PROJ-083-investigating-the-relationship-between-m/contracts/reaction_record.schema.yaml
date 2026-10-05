@@ -1,0 +1,61 @@
+# Schema for ReactionRecord
+# Defines the structure of a single reaction entry in the dataset.
+# Used for validation and data integrity checks during ingestion and processing.
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - reaction_id
+  - reactant_smiles
+  - product_smiles
+  - reagent_smiles
+  - reaction_type
+  - source
+  - timestamp
+properties:
+  reaction_id:
+    type: string
+    description: "Unique identifier for the reaction record (e.g., from USPTO)."
+    pattern: "^[A-Za-z0-9_-]+$"
+  
+  reactant_smiles:
+    type: string
+    description: "SMILES string of the primary reactant (aromatic substrate)."
+    minLength: 1
+  
+  product_smiles:
+    type: string
+    description: "SMILES string of the resulting product."
+    minLength: 1
+  
+  reagent_smiles:
+    type: string
+    description: "SMILES string of the reagents/electrophiles involved."
+    minLength: 0
+    default: ""
+  
+  reaction_type:
+    type: string
+    description: "Classification of the reaction (e.g., 'EAS', 'Nucleophilic Substitution')."
+    enum:
+      - EAS
+      - Nucleophilic Substitution
+      - Addition
+      - Elimination
+      - Other
+  
+  source:
+    type: string
+    description: "Source dataset identifier (e.g., 'USPTO-50k')."
+  
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the record creation or ingestion."
+  
+  metadata:
+    type: object
+    description: "Optional additional metadata."
+    additionalProperties: true
+
+additionalProperties: false
