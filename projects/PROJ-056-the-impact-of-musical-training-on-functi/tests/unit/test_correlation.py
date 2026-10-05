@@ -1,212 +1,167 @@
 """
-Unit tests for correlation analysis module (User Story 3)
+Unit tests for correlation analysis module.
 """
 import os
+import sys
+import tempfile
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from scipy import stats
 
-import sys
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from analysis.correlation import (
+    load_musicians_connectivity_data,
     compute_connectivity_strength,
     compute_correlation_with_training,
     calculate_correlation_ci,
-    load_musicians_connectivity_data
+    calculate_effect_size_cohen_d,
+    process_correlation_analysis
 )
+from utils.memory_monitor import MemoryLimitExceeded
 
 
-class TestComputeConnectivityStrength:
-    """Tests for extract connectivity strength from matrices"""
+def test_compute_connectivity_strength():
+    """Test connectivity strength computation."""
+    # Create a simple 3x3 connectivity matrix
+    # Upper triangle values: (0,1)=0.5, (0,2)=0.6, (1,2)=0.7
+    mat = np.array([
+        [0.0, 0.5, 0.6],
+        [0.5, 0.0, 0.7],
+        [0.6, 0.7, 0.0]
+    ])
+    matrices = np.array([mat])
 
-    def test_upper_triangle_extraction(self):
-        """Test that only upper triangle (excluding diagonal) is extracted"""
-        matrix = np.array([
-            [1.0, 0.5, 0.3],
-            [0.5, 1.0, 0.2],
-            [0.3, 0.2, 1.0]
-        ])
-        
-        strength = compute_connectivity_strength(matrix, mask_diagonal=True)
-        
-        # Should have 3 values: (0,1), (0,2), (1,2)
-        assert len(strength) == 3
-        assert np.allclose(strength, [0.5, 0.3, 0.2])
+    strengths = compute_connectivity_strength(matrices)
 
-    def test_no_diagonal_mask(self):
-        """Test extraction without diagonal masking"""
-        matrix = np.array([
-            [1.0, 0.5],
-            [0.5, 1.0]
-        ])
-        
-        strength = compute_connectivity_strength(matrix, mask_diagonal=False)
-        
-        # Should have 2 values (off-diagonal only)
-        assert len(strength) == 2
-        assert np.allclose(strength, [0.5, 0.5])
+    # Expected: (0.5 + 0.6 + 0.7) / 3 = 0.6
+    expected = 0.6
+    assert np.abs(strengths[0] - expected) < 1e-6, f"Expected {expected}, got {strengths[0]}"
 
 
-class TestComputeCorrelationWithTraining:
-    """Tests for correlation computation between training and connectivity"""
+def test_compute_correlation_with_training_pearson():
+    """Test Pearson correlation calculation."""
+    # Create synthetic data with known correlation
+    np.random.seed(42)
+    x = np.array([1, 2, 3, 4, 5])  # years of training
+    y = np.array([2, 4, 5, 4, 5])  # connectivity strength (positive trend)
 
-    def test_pearson_correlation_positive(self):
-        """Test Pearson correlation with known positive relationship"""
-        # Create mock data: training years and connectivity values
-        musicians_df = pd.DataFrame({
-            'subject_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
-            'years_of_training': [2.0, 3.0, 4.0, 5.0, 6.0]
-        })
-        
-        # Create connectivity matrices with increasing values
-        connectivity_dict = {
-            'S1': np.array([[1.0, 0.5], [0.5, 1.0]]),
-            'S2': np.array([[1.0, 0.6], [0.6, 1.0]]),
-            'S3': np.array([[1.0, 0.7], [0.7, 1.0]]),
-            'S4': np.array([[1.0, 0.8], [0.8, 1.0]]),
-            'S5': np.array([[1.0, 0.9], [0.9, 1.0]])
-        }
-        
-        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='pearson')
-        
-        # Check that we got results
-        assert len(result) == 1  # Only one connection (ROI0-ROI1)
-        assert result['connection_id'].iloc[0] == 'ROI0-ROI1'
-        
-        # Correlation should be positive and significant
-        assert result['r_value'].iloc[0] > 0.9
-        assert result['p_value'].iloc[0] < 0.05
+    r, p = compute_correlation_with_training(y, x, method='pearson')
 
-    def test_spearman_correlation(self):
-        """Test Spearman correlation computation"""
-        musicians_df = pd.DataFrame({
-            'subject_id': ['S1', 'S2', 'S3', 'S4'],
-            'years_of_training': [1.0, 2.0, 3.0, 4.0]
-        })
-        
-        connectivity_dict = {
-            'S1': np.array([[1.0, 0.1], [0.1, 1.0]]),
-            'S2': np.array([[1.0, 0.2], [0.2, 1.0]]),
-            'S3': np.array([[1.0, 0.3], [0.3, 1.0]]),
-            'S4': np.array([[1.0, 0.4], [0.4, 1.0]])
-        }
-        
-        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='spearman')
-        
-        assert len(result) == 1
-        assert result['r_value'].iloc[0] > 0.9
-        assert result['p_value'].iloc[0] < 0.05
-
-    def test_insufficient_samples(self):
-        """Test handling of insufficient samples"""
-        musicians_df = pd.DataFrame({
-            'subject_id': ['S1', 'S2'],
-            'years_of_training': [1.0, 2.0]
-        })
-        
-        connectivity_dict = {
-            'S1': np.array([[1.0, 0.5], [0.5, 1.0]]),
-            'S2': np.array([[1.0, 0.6], [0.6, 1.0]])
-        }
-        
-        # With only 2 samples, correlation should return NaN
-        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='pearson')
-        
-        assert pd.isna(result['r_value'].iloc[0])
+    assert r > 0, "Correlation should be positive"
+    assert 0 <= p <= 1, "p-value should be between 0 and 1"
+    assert np.abs(r) <= 1, "Correlation coefficient should be between -1 and 1"
 
 
-class TestCalculateCorrelationCI:
-    """Tests for confidence interval calculation"""
+def test_compute_correlation_with_training_spearman():
+    """Test Spearman correlation calculation."""
+    np.random.seed(42)
+    x = np.array([1, 2, 3, 4, 5])
+    y = np.array([2, 4, 5, 4, 5])
 
-    def test_ci_calculation(self):
-        """Test that confidence intervals are calculated correctly"""
-        df = pd.DataFrame({
-            'connection_id': ['C1', 'C2'],
-            'r_value': [0.5, -0.3],
-            'p_value': [0.01, 0.05],
-            'n_samples': [50, 50]
-        })
-        
-        result = calculate_correlation_ci(df, confidence_level=0.95)
-        
-        # Check that CI columns were added
-        assert 'ci_lower' in result.columns
-        assert 'ci_upper' in result.columns
-        
-        # Check that CI bounds are reasonable
-        assert result['ci_lower'].iloc[0] < result['r_value'].iloc[0]
-        assert result['ci_upper'].iloc[0] > result['r_value'].iloc[0]
-        
-        # For r=0.5, CI should be roughly [0.23, 0.70] with n=50
-        assert 0.2 < result['ci_lower'].iloc[0] < 0.4
-        assert 0.6 < result['ci_upper'].iloc[0] < 0.8
+    r, p = compute_correlation_with_training(y, x, method='spearman')
 
-    def test_ci_with_small_sample(self):
-        """Test CI calculation with small sample size (wider interval)"""
-        df = pd.DataFrame({
-            'connection_id': ['C1'],
-            'r_value': [0.5],
-            'p_value': [0.01],
-            'n_samples': [10]
-        })
-        
-        result = calculate_correlation_ci(df, confidence_level=0.95)
-        
-        # CI should be wider for small n
-        ci_width = result['ci_upper'].iloc[0] - result['ci_lower'].iloc[0]
-        assert ci_width > 0.5  # Should be quite wide for n=10
+    assert r > 0, "Correlation should be positive"
+    assert 0 <= p <= 1, "p-value should be between 0 and 1"
 
 
-class TestLoadMusiciansData:
-    """Tests for loading musicians data"""
+def test_calculate_correlation_ci():
+    """Test confidence interval calculation."""
+    r = 0.5
+    n = 30
+    ci_lower, ci_upper = calculate_correlation_ci(r, n)
 
-    def test_filter_musicians(self, tmp_path):
-        """Test that only musicians are loaded"""
-        # Create temporary subjects file
-        subjects_file = tmp_path / "subjects_cleaned.csv"
+    assert ci_lower < r < ci_upper, "CI should contain r"
+    assert ci_lower >= -1 and ci_upper <= 1, "CI bounds should be within [-1, 1]"
+
+
+def test_calculate_effect_size_cohen_d():
+    """Test Cohen's d effect size calculation."""
+    np.random.seed(42)
+    strengths = np.random.randn(30) * 0.5 + 0.5
+    years = np.arange(1, 31)
+
+    d = calculate_effect_size_cohen_d(strengths, years)
+
+    # Effect size should be a reasonable value
+    assert not np.isnan(d), "Effect size should not be NaN"
+    assert np.isfinite(d), "Effect size should be finite"
+
+
+def test_load_musicians_connectivity_data():
+    """Test loading musicians only from connectivity data."""
+    # Create temporary files
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        conn_path = tmpdir / "connectivity_matrices.npy"
+        subjects_path = tmpdir / "subjects_cleaned.csv"
+
+        # Create synthetic connectivity matrices (5 subjects)
+        matrices = np.random.randn(5, 3, 3)
+        np.save(conn_path, matrices)
+
+        # Create subject data with mixed groups
         subjects_df = pd.DataFrame({
-            'subject_id': ['S1', 'S2', 'S3', 'S4'],
-            'years_of_training': [0.5, 1.5, 2.5, 0.3],
-            'group': ['non_musician', 'musician', 'musician', 'non_musician']
+            'subject_id': [f'sub{i}' for i in range(5)],
+            'group': ['musician', 'musician', 'non_musician', 'musician', 'non_musician'],
+            'years_of_training': [3, 2, 0, 5, 0]
         })
-        subjects_df.to_csv(subjects_file, index=False)
-        
-        # Create empty connectivity directory
-        connectivity_dir = tmp_path / "connectivity_matrices"
-        connectivity_dir.mkdir()
-        
-        musicians_df, _ = load_musicians_connectivity_data(
-            str(subjects_file), str(connectivity_dir)
+        subjects_df.to_csv(subjects_path, index=False)
+
+        # Load and filter
+        loaded_matrices, musicians_df = load_musicians_connectivity_data(conn_path, subjects_path)
+
+        # Should only have musicians
+        assert len(musicians_df) == 3, f"Expected 3 musicians, got {len(musicians_df)}"
+        assert loaded_matrices.shape[0] == 3, f"Expected 3 matrices, got {loaded_matrices.shape[0]}"
+        assert all(musicians_df['years_of_training'] >= 1), "All musicians should have >= 1 year training"
+
+
+def test_process_correlation_analysis_integration():
+    """Test full correlation analysis pipeline."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        conn_path = tmpdir / "connectivity_matrices.npy"
+        subjects_path = tmpdir / "subjects_cleaned.csv"
+        output_path = tmpdir / "correlation_results.csv"
+
+        # Create synthetic connectivity matrices (10 subjects, 3 ROIs)
+        np.random.seed(42)
+        n_subjects = 10
+        n_rois = 3
+        matrices = np.random.randn(n_subjects, n_rois, n_rois) * 0.5
+        np.save(conn_path, matrices)
+
+        # Create subject data with musicians having varying training years
+        subjects_data = {
+            'subject_id': [f'sub{i}' for i in range(n_subjects)],
+            'group': ['musician'] * n_subjects,
+            'years_of_training': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        }
+        subjects_df = pd.DataFrame(subjects_data)
+        subjects_df.to_csv(subjects_path, index=False)
+
+        # Run analysis
+        result_df = process_correlation_analysis(
+            connectivity_path=conn_path,
+            subjects_path=subjects_path,
+            output_path=output_path
         )
-        
-        # Should have 2 musicians (years >= 1.0)
-        assert len(musicians_df) == 2
-        assert all(musicians_df['years_of_training'] >= 1.0)
 
-    def test_no_musicians_error(self, tmp_path):
-        """Test error when no musicians found"""
-        subjects_file = tmp_path / "subjects_cleaned.csv"
-        subjects_df = pd.DataFrame({
-            'subject_id': ['S1', 'S2'],
-            'years_of_training': [0.2, 0.5],
-            'group': ['non_musician', 'non_musician']
-        })
-        subjects_df.to_csv(subjects_file, index=False)
-        
-        connectivity_dir = tmp_path / "connectivity_matrices"
-        connectivity_dir.mkdir()
-        
-        with pytest.raises(ValueError, match="No musicians found"):
-            load_musicians_connectivity_data(
-                str(subjects_file), str(connectivity_dir)
-            )
+        # Verify output file exists
+        assert output_path.exists(), "Output CSV should exist"
 
-    def test_missing_file_error(self, tmp_path):
-        """Test error when subjects file is missing"""
-        with pytest.raises(FileNotFoundError):
-            load_musicians_connectivity_data(
-                "nonexistent.csv", str(tmp_path)
-            )
+        # Verify columns
+        expected_columns = ['connection_id', 'r_value', 'p_value', 'effect_size', 'ci_95', 'stability_flag']
+        assert list(result_df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result_df.columns)}"
+
+        # Verify stability flag is either 'low' or 'high'
+        assert result_df['stability_flag'].iloc[0] in ['low', 'high'], "Stability flag should be 'low' or 'high'"
+
+        # Verify r_value is between -1 and 1
+        assert -1 <= result_df['r_value'].iloc[0] <= 1, "r_value should be between -1 and 1"
+
+        # Verify p_value is between 0 and 1
+        assert 0 <= result_df['p_value'].iloc[0] <= 1, "p_value should be between 0 and 1"

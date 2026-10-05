@@ -1,9 +1,3 @@
-"""
-Output module for Network-Based Statistic (NBS) results.
-
-This module handles the loading of NBS analysis results and writing them
-to the specified CSV output file as per Task T031.
-"""
 import os
 import sys
 import logging
@@ -11,106 +5,160 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.logging import get_logger
-from utils.memory_monitor import check_memory_limit
 
 logger = get_logger(__name__)
 
-# Output path definition as per task requirements
-OUTPUT_PATH = Path("data/processed/nbs_results.csv")
-
 def load_nbs_results(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load NBS results from a temporary or specified input file.
-
-    The run_nbs.py script is expected to write intermediate results to a
-    temporary location or standard output that can be captured here.
-    For this implementation, we assume the run_nbs module has already
-    executed and produced a standard CSV structure, or we load from
-    a known intermediate file if the pipeline is sequential.
-
-    In a strict pipeline, this might read from a temporary file generated
-    by `run_nbs_analysis` before finalizing.
+    Load NBS results from a CSV file.
+    
+    Args:
+        input_path: Path to the NBS results CSV. If None, uses default path.
+        
+    Returns:
+        DataFrame containing NBS results.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the file is empty or has invalid format.
     """
-    if input_path:
-        path = Path(input_path)
-    else:
-        # Default intermediate path if not specified
-        # In a real pipeline, this might be passed via a queue or temp file
-        path = Path("data/processed/nbs_intermediate.csv")
-
+    if input_path is None:
+        input_path = "data/processed/nbs_raw_results.csv"
+        
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"NBS intermediate results not found at {path}. "
-                                "Ensure run_nbs.py has been executed successfully.")
-
-    logger.info(f"Loading NBS results from {path}")
+        raise FileNotFoundError(f"NBS results file not found: {input_path}")
+        
     df = pd.read_csv(path)
-
-    # Validate expected columns
-    required_cols = ['component_id', 'size_edges', 'p_value_fwer']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"NBS results missing required columns: {missing}")
-
-    check_memory_limit()
+    
+    if df.empty:
+        raise ValueError(f"NBS results file is empty: {input_path}")
+        
+    required_columns = ['component_id', 'size_edges', 'p_value_fwer']
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"NBS results missing required columns: {missing_cols}")
+        
+    logger.info(f"Loaded {len(df)} NBS components from {input_path}")
     return df
 
-def write_nbs_results(df: pd.DataFrame, output_path: Optional[str] = None) -> None:
+def write_nbs_results(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
     """
-    Write the NBS results to the final output CSV.
-
+    Write NBS results to a CSV file.
+    
     Args:
         df: DataFrame containing NBS results with columns:
-            component_id, size_edges, p_value_fwer
-        output_path: Optional path to write to. Defaults to task requirement.
+            - component_id
+            - size_edges
+            - p_value_fwer
+        output_path: Path to write the CSV. If None, uses default path.
+        
+    Returns:
+        Path to the written file.
+        
+    Raises:
+        ValueError: If DataFrame is missing required columns.
+        IOError: If writing fails.
     """
-    target = Path(output_path) if output_path else OUTPUT_PATH
-    target.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        output_path = "data/processed/nbs_results.csv"
+        
+    required_columns = ['component_id', 'size_edges', 'p_value_fwer']
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"DataFrame missing required columns: {missing_cols}")
+        
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write to CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} NBS components to {output_path}")
+    return output_path
 
-    logger.info(f"Writing NBS results to {target}")
-    df.to_csv(target, index=False)
-    logger.info(f"Successfully wrote {len(df)} components to {target}")
+def process_nbs_output(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    sort_by: str = 'p_value_fwer'
+) -> pd.DataFrame:
+    """
+    Process NBS results: load, sort, and write to output file.
+    
+    Args:
+        input_path: Path to input NBS results CSV.
+        output_path: Path to write processed results.
+        sort_by: Column to sort by (default: 'p_value_fwer').
+        
+    Returns:
+        Processed DataFrame.
+    """
+    logger.info("Processing NBS output...")
+    
+    # Load results
+    df = load_nbs_results(input_path)
+    
+    # Sort by p-value (ascending)
+    if sort_by in df.columns:
+        df = df.sort_values(by=sort_by, ascending=True).reset_index(drop=True)
+        logger.info(f"Sorted results by {sort_by}")
+    
+    # Write to output
+    write_nbs_results(df, output_path)
+    
+    return df
 
 def main():
-    """
-    Entry point for the NBS output module.
-
-    This script is designed to be run after the NBS analysis (T029a)
-    has completed and generated intermediate results. It loads those
-    results, performs a final validation, and writes the final
-    `data/processed/nbs_results.csv`.
-    """
+    """Main entry point for NBS results processing."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Process NBS results")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/processed/nbs_raw_results.csv",
+        help="Input NBS results CSV file"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/nbs_results.csv",
+        help="Output processed NBS results CSV file"
+    )
+    parser.add_argument(
+        "--sort-by",
+        type=str,
+        default="p_value_fwer",
+        help="Column to sort results by"
+    )
+    
+    args = parser.parse_args()
+    
     try:
-        # Check memory before processing
-        check_memory_limit()
-
-        # Load results (assumes run_nbs.py wrote to intermediate or we read from a temp file)
-        # Since run_nbs.py is a separate module, we assume it leaves a file or we
-        # can import its result if called programmatically.
-        # For this standalone script, we expect the intermediate file to exist.
-        df = load_nbs_results()
-
-        # Ensure data types are correct
-        df['component_id'] = df['component_id'].astype(int)
-        df['size_edges'] = df['size_edges'].astype(int)
-        df['p_value_fwer'] = df['p_value_fwer'].astype(float)
-
-        # Write final output
-        write_nbs_results(df)
-
-        logger.info("NBS results output task completed successfully.")
-
+        df = process_nbs_output(
+            input_path=args.input,
+            output_path=args.output,
+            sort_by=args.sort_by
+        )
+        logger.info(f"Successfully processed NBS results. Output: {args.output}")
+        print(f"NBS Results Summary:")
+        print(f"  Total components: {len(df)}")
+        if 'p_value_fwer' in df.columns:
+            significant = df[df['p_value_fwer'] < 0.05]
+            print(f"  Significant components (p<0.05): {len(significant)}")
+            if not significant.empty:
+                print(f"  Largest component size: {significant['size_edges'].max()} edges")
+        
     except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
-        logger.error("Did you run code/analysis/run_nbs.py first?")
-        raise
+        logger.error(f"Input file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Invalid data: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error processing NBS results: {e}")
-        raise
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

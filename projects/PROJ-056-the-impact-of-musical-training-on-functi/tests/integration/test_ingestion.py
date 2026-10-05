@@ -13,8 +13,7 @@ project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from data.output_cleaned_subjects import write_cleaned_subjects
-from data.download import DataAccessError
+from data.preprocess import preprocess_subjects
 
 class TestFullIngestion:
     """Test the full ingestion pipeline end-to-end."""
@@ -26,18 +25,26 @@ class TestFullIngestion:
         - Assert output file exists at 'data/processed/subjects_cleaned.csv'.
         - Assert the file contains exactly 10 rows (as per task description example).
         """
-        # Set output path to a temporary directory to avoid side effects
-        output_file = tmp_path / "subjects_cleaned.csv"
+        # Ensure the target directory exists
+        processed_dir = project_root / "data" / "processed"
+        processed_dir.mkdir(parents=True, exist_ok=True)
         
+        output_file = processed_dir / "subjects_cleaned.csv"
+        
+        # Remove existing file if present to ensure fresh run
+        if output_file.exists():
+            output_file.unlink()
+
         # Run the pipeline
-        # We pass the tmp_path as output to keep the test isolated
-        result_path = write_cleaned_subjects(
+        # We call the main preprocessing function which handles generation and cleaning
+        # The function signature expects mode and potentially a count for synthetic
+        preprocess_subjects(
             mode='verification',
             synthetic_count=10,
             output_path=str(output_file)
         )
 
-        # Assert 1: File exists
+        # Assert 1: File exists at the EXACT required path
         assert os.path.exists(str(output_file)), "Output file 'data/processed/subjects_cleaned.csv' does not exist."
 
         # Assert 2: Correct number of rows
@@ -49,11 +56,8 @@ class TestFullIngestion:
         for col in required_cols:
             assert col in df.columns, f"Missing required column: {col}"
 
-        # Verify filtering logic (T015): All subjects should have years_of_training >= 1
-        # Note: The synthetic generator might produce some < 1, but the filter should remove them.
-        # If the synthetic generator is configured to only produce >= 1, then all should pass.
-        # The task T015 says "filter subjects by years_of_training (>=1)".
-        # If the synthetic data has < 1, they should be gone.
+        # Verify filtering logic: All subjects should have years_of_training >= 1
+        # The preprocessing step should have filtered out any < 1
         if 'years_of_training' in df.columns:
             assert (df['years_of_training'] >= 1).all(), "Filtering logic failed: found subjects with < 1 year training."
 
@@ -63,8 +67,10 @@ class TestFullIngestion:
         """
         output_file = tmp_path / "subjects_cleaned.csv"
         
+        from data.download import DataAccessError
+        
         with pytest.raises(DataAccessError) as excinfo:
-            write_cleaned_subjects(
+            preprocess_subjects(
                 mode='analysis',
                 output_path=str(output_file)
             )

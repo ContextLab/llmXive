@@ -1,80 +1,158 @@
-"""
-Unit tests for preprocessing logic.
-Implements T011: Unit test for filtering logic (>=1 year threshold).
-"""
-import pandas as pd
+import os
 import pytest
-import sys
+import pandas as pd
+import numpy as np
 from pathlib import Path
+import sys
+import tempfile
+import shutil
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from data.preprocess import filter_by_training_years
+from data.preprocess import (
+    filter_by_training_years,
+    remove_missing_data,
+    calculate_dataset_validity,
+    write_validity_report,
+    preprocess_subjects
+)
 
-class TestFilterByTrainingYears:
-    """Test the filtering logic for years of training."""
+class TestDatasetValidity:
+    """Tests for dataset validity calculation and reporting."""
 
-    def test_filter_by_training_years(self):
-        """
-        Implements T011 requirements:
-        - Assert that filtering by years_of_training >= 1 works correctly.
-        - Assert that 'years_of_training' column exists.
-        """
-        # Create test data
+    @pytest.fixture
+    def sample_dataframe(self):
+        """Create a sample dataframe with mixed valid/invalid data."""
         data = {
-            'subject_id': ['S1', 'S2', 'S3', 'S4'],
-            'group': ['musician', 'non_musician', 'musician', 'musician'],
-            'years_of_training': [0.5, 2.0, 0.0, 5.0],
-            'age': [15, 16, 14, 17],
-            'sex': ['M', 'F', 'M', 'F'],
-            'motion_score': [0.1, 0.2, 0.1, 0.3],
-            'ses_score': [5, 6, 4, 7]
+            'subject_id': [f'sub_{i}' for i in range(100)],
+            'group': ['musician'] * 50 + ['non_musician'] * 50,
+            'years_of_training': [5.0] * 45 + [None] * 5 + [0.0] * 50,
+            'age': [20.0] * 100,
+            'sex': ['M'] * 50 + ['F'] * 50,
+            'motion_score': [0.1] * 100,
+            'ses_score': [5.0] * 100
         }
-        df = pd.DataFrame(data)
+        return pd.DataFrame(data)
 
-        # Apply filter
-        filtered_df = filter_by_training_years(df, min_years=1.0)
+    @pytest.fixture
+    def empty_dataframe(self):
+        """Create an empty dataframe."""
+        return pd.DataFrame(columns=['subject_id', 'group', 'years_of_training'])
 
-        # Assert column exists
-        assert 'years_of_training' in filtered_df.columns
-
-        # Assert expected count
-        # Expected: S2 (2.0) and S4 (5.0) -> 2 subjects
-        expected_count = 2
-        assert len(filtered_df[filtered_df['years_of_training'] >= 1]) == expected_count
+    def test_calculate_validity_perfect_data(self, sample_dataframe):
+        """Test validity calculation with all valid data."""
+        # Modify to have all valid data
+        df = sample_dataframe.copy()
+        df['years_of_training'] = 5.0  # All valid
         
-        # Assert all remaining rows satisfy condition
-        assert (filtered_df['years_of_training'] >= 1.0).all()
+        metrics = calculate_dataset_validity(df)
+        
+        assert 'metric' in metrics.columns
+        assert 'value' in metrics.columns
+        
+        total = metrics[metrics['metric'] == 'total_subjects']['value'].values[0]
+        valid = metrics[metrics['metric'] == 'valid_subjects']['value'].values[0]
+        percentage = metrics[metrics['metric'] == 'valid_subjects_percentage']['value'].values[0]
+        
+        assert total == 100
+        assert valid == 100
+        assert percentage == 100.0
 
-    def test_filter_all_exclude(self):
-        """Test case where all subjects are excluded."""
+    def test_calculate_validity_with_missing(self, sample_dataframe):
+        """Test validity calculation with missing data."""
+        metrics = calculate_dataset_validity(sample_dataframe)
+        
+        total = metrics[metrics['metric'] == 'total_subjects']['value'].values[0]
+        valid = metrics[metrics['metric'] == 'valid_subjects']['value'].values[0]
+        percentage = metrics[metrics['metric'] == 'valid_subjects_percentage']['value'].values[0]
+        
+        assert total == 100
+        # 5 subjects have None for years_of_training, so 95 should be valid
+        assert valid == 95
+        assert abs(percentage - 95.0) < 0.01
+
+    def test_calculate_validity_empty_dataframe(self, empty_dataframe):
+        """Test validity calculation with empty dataframe."""
+        metrics = calculate_dataset_validity(empty_dataframe)
+        
+        total = metrics[metrics['metric'] == 'total_subjects']['value'].values[0]
+        percentage = metrics[metrics['metric'] == 'valid_subjects_percentage']['value'].values[0]
+        
+        assert total == 0
+        assert percentage == 0.0
+
+    def test_write_validity_report_creates_file(self, sample_dataframe, tmp_path):
+        """Test that write_validity_report creates the expected file."""
+        metrics = calculate_dataset_validity(sample_dataframe)
+        output_path = str(tmp_path / 'dataset_validity_report.csv')
+        
+        write_validity_report(metrics, output_path)
+        
+        assert os.path.exists(output_path)
+        
+        # Verify file contents
+        result_df = pd.read_csv(output_path)
+        assert 'metric' in result_df.columns
+        assert 'value' in result_df.columns
+        assert len(result_df) > 0
+
+    def test_preprocess_subjects_outputs_validity_report(self, sample_dataframe, tmp_path):
+        """Test that preprocess_subjects writes the validity report to the correct location."""
+        output_dir = str(tmp_path / 'processed')
+        
+        cleaned_df, metrics = preprocess_subjects(
+            sample_dataframe, 
+            output_dir=output_dir,
+            threshold_years=1.0
+        )
+        
+        expected_path = os.path.join(output_dir, 'dataset_validity_report.csv')
+        assert os.path.exists(expected_path), f"File {expected_path} was not created"
+        
+        # Verify the file contains the correct percentage
+        result_df = pd.read_csv(expected_path)
+        percentage_value = result_df[result_df['metric'] == 'valid_subjects_percentage']['value'].values[0]
+        
+        # With 5 missing values out of 100, percentage should be 95.0
+        assert abs(percentage_value - 95.0) < 0.1, f"Expected 95.0, got {percentage_value}"
+
+    def test_validity_report_columns(self, sample_dataframe, tmp_path):
+        """Test that validity report has the correct columns."""
+        output_dir = str(tmp_path / 'processed')
+        preprocess_subjects(sample_dataframe, output_dir=output_dir)
+        
+        report_path = os.path.join(output_dir, 'dataset_validity_report.csv')
+        df = pd.read_csv(report_path)
+        
+        assert 'metric' in df.columns
+        assert 'value' in df.columns
+        
+        # Check for expected metrics
+        metrics_list = df['metric'].tolist()
+        assert 'valid_subjects_percentage' in metrics_list
+        assert 'total_subjects' in metrics_list
+        assert 'valid_subjects' in metrics_list
+
+    def test_validity_percentage_calculation_accuracy(self, tmp_path):
+        """Test accuracy of percentage calculation with known values."""
+        # Create dataframe with exactly 80 valid out of 100
         data = {
-            'subject_id': ['S1', 'S2'],
-            'group': ['musician', 'musician'],
-            'years_of_training': [0.1, 0.5],
-            'age': [15, 16],
-            'sex': ['M', 'F'],
-            'motion_score': [0.1, 0.2],
-            'ses_score': [5, 6]
+            'subject_id': [f'sub_{i}' for i in range(100)],
+            'group': ['musician'] * 100,
+            'years_of_training': [5.0] * 80 + [None] * 20,
+            'age': [20.0] * 100,
+            'sex': ['M'] * 100,
+            'motion_score': [0.1] * 100,
+            'ses_score': [5.0] * 100
         }
         df = pd.DataFrame(data)
-        filtered_df = filter_by_training_years(df, min_years=1.0)
-        assert len(filtered_df) == 0
-
-    def test_filter_none_exclude(self):
-        """Test case where no subjects are excluded."""
-        data = {
-            'subject_id': ['S1', 'S2'],
-            'group': ['musician', 'musician'],
-            'years_of_training': [2.0, 5.0],
-            'age': [15, 16],
-            'sex': ['M', 'F'],
-            'motion_score': [0.1, 0.2],
-            'ses_score': [5, 6]
-        }
-        df = pd.DataFrame(data)
-        filtered_df = filter_by_training_years(df, min_years=1.0)
-        assert len(filtered_df) == 2
+        
+        output_dir = str(tmp_path / 'processed')
+        preprocess_subjects(df, output_dir=output_dir)
+        
+        report_path = os.path.join(output_dir, 'dataset_validity_report.csv')
+        result_df = pd.read_csv(report_path)
+        
+        percentage = result_df[result_df['metric'] == 'valid_subjects_percentage']['value'].values[0]
+        assert abs(percentage - 80.0) < 0.01, f"Expected 80.0, got {percentage}"

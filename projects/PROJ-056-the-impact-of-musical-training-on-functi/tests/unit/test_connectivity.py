@@ -1,96 +1,117 @@
-"""
-Unit tests for connectivity analysis functions.
-Specifically tests Fisher Z-transform logic as per Task T020.
-"""
+import os
+import sys
 import pytest
 import numpy as np
-import math
+import pandas as pd
+from pathlib import Path
 
-# Import the function to test.
-# Note: We implement the function inline here to ensure the test is self-contained
-# and runnable without relying on the full implementation of code/analysis/connectivity.py
-# which might have other dependencies. However, in a real scenario, we would import:
-# from code.analysis.connectivity import fisher_z_transform
-# To satisfy the "implement real code" constraint and ensure the test runs,
-# we define the expected logic here as the reference implementation for the test.
-# In the final pipeline, this test would import from the actual module.
+# Add code to path if running standalone
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def fisher_z_transform(r: float) -> float:
-    """
-    Apply Fisher's z-transformation to a Pearson correlation coefficient.
-    
-    Parameters
-    ----------
-    r : float
-        Pearson correlation coefficient (must be between -1 and 1).
-        
-    Returns
-    -------
-    float
-        Fisher z-transformed value.
-        
-    Raises
-    ------
-    ValueError
-        If r is outside the range [-1, 1].
-    """
-    if not -1.0 < r < 1.0:
-        raise ValueError("Correlation coefficient r must be strictly between -1 and 1.")
-    return 0.5 * math.log((1.0 + r) / (1.0 - r))
-
+from analysis.connectivity import fisher_z_transform, compute_pearson_correlation_chunked, process_subject_connectivity
+from utils.memory_monitor import MemoryLimitExceeded
 
 class TestFisherZTransform:
-    """Tests for the Fisher Z-transform logic."""
-
-    def test_fisher_z(self):
-        """
-        Unit test for Fisher z-transform logic.
+    def test_fisher_z_basic(self):
+        """Test Fisher Z-transform logic with known values."""
+        # r = 0.5 -> z = 0.5 * ln((1.5)/(0.5)) = 0.5 * ln(3) ≈ 0.5493
+        r_val = 0.5
+        expected_z = 0.5 * np.log(3)
         
-        Task T020 Requirement:
-        Implement `test_fisher_z` with assertion `assert abs(z_transformed - expected) < 1e-6`
-        for input r=0.5.
-        """
-        input_r = 0.5
-        # Calculate expected value manually or using known formula
-        # z = 0.5 * ln((1 + 0.5) / (1 - 0.5)) = 0.5 * ln(1.5 / 0.5) = 0.5 * ln(3)
-        expected_z = 0.5 * math.log(3.0)
+        # Create a small matrix
+        r_matrix = np.array([[1.0, r_val], [r_val, 1.0]])
+        z_matrix = fisher_z_transform(r_matrix)
         
-        # Execute the function
-        z_transformed = fisher_z_transform(input_r)
+        assert np.abs(z_matrix[0, 1] - expected_z) < 1e-6, f"Expected {expected_z}, got {z_matrix[0, 1]}"
+        # Diagonal should remain 0 (since z(1) is infinite, but we clip)
+        # Our implementation clips 1.0 to 0.9999, so z(0.9999) is large but finite.
+        # We just check it's not NaN.
+        assert not np.isnan(z_matrix[0, 0])
         
-        # Assert the result matches expected value within tolerance
-        assert abs(z_transformed - expected_z) < 1e-6, f"Expected {expected_z}, got {z_transformed}"
-
     def test_fisher_z_negative(self):
         """Test Fisher Z-transform with negative correlation."""
-        input_r = -0.5
-        expected_z = -0.5 * math.log(3.0) # Symmetric to positive case
+        r_val = -0.5
+        expected_z = -0.5 * np.log(3)
         
-        z_transformed = fisher_z_transform(input_r)
+        r_matrix = np.array([[1.0, r_val], [r_val, 1.0]])
+        z_matrix = fisher_z_transform(r_matrix)
         
-        assert abs(z_transformed - expected_z) < 1e-6
+        assert np.abs(z_matrix[0, 1] - expected_z) < 1e-6
 
-    def test_fisher_z_zero(self):
-        """Test Fisher Z-transform with zero correlation."""
-        input_r = 0.0
-        expected_z = 0.0
+    def test_fisher_z_clipping(self):
+        """Test that values of 1.0 and -1.0 are handled without inf."""
+        r_matrix = np.array([[1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [-1.0, -1.0, 1.0]])
+        z_matrix = fisher_z_transform(r_matrix)
         
-        z_transformed = fisher_z_transform(input_r)
-        
-        assert abs(z_transformed - expected_z) < 1e-6
+        # Should not contain inf or nan
+        assert not np.any(np.isinf(z_matrix))
+        assert not np.any(np.isnan(z_matrix))
 
-    def test_fisher_z_boundary_values(self):
-        """Test that boundary values (-1, 1) raise ValueError."""
-        with pytest.raises(ValueError):
-            fisher_z_transform(1.0)
+class TestPearsonCorrelationChunked:
+    def test_compute_pearson_correlation_chunked_identity(self):
+        """Test correlation of a signal with itself is 1."""
+        # Create data where columns are identical
+        n_timepoints = 100
+        n_rois = 10
+        data = np.random.randn(n_timepoints, n_rois)
+        # Make column 0 and 1 identical
+        data[:, 1] = data[:, 0]
         
-        with pytest.raises(ValueError):
-            fisher_z_transform(-1.0)
+        corr_matrix = compute_pearson_correlation_chunked(data, chunk_size=5)
+        
+        assert np.abs(corr_matrix[0, 1] - 1.0) < 1e-5
+        assert np.abs(corr_matrix[1, 0] - 1.0) < 1e-5
+        assert np.abs(corr_matrix[0, 0] - 1.0) < 1e-5
 
-    def test_fisher_z_out_of_bounds(self):
-        """Test that values outside [-1, 1] raise ValueError."""
-        with pytest.raises(ValueError):
-            fisher_z_transform(1.1)
+    def test_compute_pearson_correlation_chunked_symmetry(self):
+        """Test that the resulting matrix is symmetric."""
+        n_timepoints = 200
+        n_rois = 20
+        data = np.random.randn(n_timepoints, n_rois)
         
-        with pytest.raises(ValueError):
-            fisher_z_transform(-1.1)
+        corr_matrix = compute_pearson_correlation_chunked(data, chunk_size=7)
+        
+        # Check symmetry
+        diff = np.max(np.abs(corr_matrix - corr_matrix.T))
+        assert diff < 1e-6, f"Matrix not symmetric: max diff {diff}"
+
+class TestProcessSubjectConnectivity:
+    def test_process_subject_connectivity_integration(self, tmp_path):
+        """Integration test: create mock fMRI data and process it."""
+        # Setup
+        subject_id = "sub_test_001"
+        fmri_dir = tmp_path / "fmri"
+        fmri_dir.mkdir()
+        
+        # Create mock fMRI data (100 timepoints, 400 ROIs)
+        n_timepoints = 100
+        n_rois = 400
+        mock_data = np.random.randn(n_timepoints, n_rois)
+        fmri_file = fmri_dir / f"{subject_id}_timeseries.npy"
+        np.save(str(fmri_file), mock_data)
+        
+        atlas_path = str(tmp_path / "dummy_atlas.parquet")
+        Path(atlas_path).touch()
+        
+        # Run
+        result = process_subject_connectivity(subject_id, str(fmri_file), atlas_path)
+        
+        # Assert
+        assert result is not None
+        assert result.shape == (n_rois, n_rois)
+        assert not np.any(np.isnan(result))
+        assert not np.any(np.isinf(result))
+        # Diagonal should be approx 0 (z-transform of 1 is large, but we clipped)
+        # Actually, z-transform of 1 is infinity, but we clip to 0.9999.
+        # The diagonal of correlation matrix is 1.0, so z-transform of 1.0 (clipped) is large.
+        # We just check it's not NaN.
+        assert not np.any(np.isnan(np.diag(result)))
+    
+    def test_process_subject_connectivity_missing_file(self, tmp_path):
+        """Test handling of missing fMRI file."""
+        subject_id = "sub_missing"
+        fmri_path = str(tmp_path / "missing.npy")
+        atlas_path = str(tmp_path / "dummy.parquet")
+        
+        result = process_subject_connectivity(subject_id, fmri_path, atlas_path)
+        assert result is None

@@ -1,195 +1,303 @@
-"""
-Script to run Network-Based Statistic (NBS) on connectivity data.
-
-This script loads preprocessed connectivity matrices and runs NBS
-to identify significant connected components between musicians and non-musicians.
-"""
 import os
 import sys
 import numpy as np
 import pandas as pd
 import logging
 from pathlib import Path
-from typing import List, Optional
-
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging import get_logger
-from analysis.stats import network_based_statistic
-from data.download import load_data
+from utils.memory_monitor import check_memory_limit, MemoryLimitExceeded
 
 logger = get_logger(__name__)
 
 def load_connectivity_matrices(
-    data_dir: str,
-    subject_csv: str,
-    group_col: str = 'group'
-) -> tuple[List[np.ndarray], List[np.ndarray]]:
+    input_path: str = "data/processed/connectivity_matrices.npy",
+    subject_labels_path: str = "data/processed/subjects_cleaned.csv"
+) -> tuple:
     """
-    Load connectivity matrices for each subject and split by group.
+    Load connectivity matrices and subject labels.
     
     Args:
-        data_dir: Directory containing connectivity matrix files
-        subject_csv: Path to CSV with subject metadata and group labels
-        group_col: Column name for group labels
+        input_path: Path to connectivity matrices numpy file.
+        subject_labels_path: Path to subject labels CSV.
         
     Returns:
-        Tuple of (group1_matrices, group2_matrices)
+        Tuple of (matrices, subject_df, musician_indices, non_musician_indices)
     """
-    logger.info(f"Loading connectivity matrices from {data_dir}")
-    logger.info(f"Using subject metadata from {subject_csv}")
+    logger.info(f"Loading connectivity matrices from {input_path}")
     
-    # Load subject metadata
-    if not os.path.exists(subject_csv):
-        raise FileNotFoundError(f"Subject CSV not found: {subject_csv}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Connectivity matrices not found: {input_path}")
         
-    subjects_df = pd.read_csv(subject_csv)
+    matrices = np.load(input_path, mmap_mode='r')
+    logger.info(f"Loaded matrices with shape: {matrices.shape}")
     
-    # Check if we have group information
-    if group_col not in subjects_df.columns:
-        raise ValueError(f"Group column '{group_col}' not found in {subject_csv}")
+    if not os.path.exists(subject_labels_path):
+        raise FileNotFoundError(f"Subject labels not found: {subject_labels_path}")
+        
+    subject_df = pd.read_csv(subject_labels_path)
     
-    # Identify musicians and non-musicians
-    musician_ids = subjects_df[subjects_df[group_col] == 'musician']['subject_id'].tolist()
-    non_musician_ids = subjects_df[subjects_df[group_col] == 'non_musician']['subject_id'].tolist()
+    # Separate groups
+    musician_indices = subject_df[subject_df['group'] == 'musician'].index.tolist()
+    non_musician_indices = subject_df[subject_df['group'] == 'non_musician'].index.tolist()
     
-    logger.info(f"Found {len(musician_ids)} musicians and {len(non_musician_ids)} non-musicians")
+    logger.info(f"Found {len(musician_indices)} musicians and {len(non_musician_indices)} non-musicians")
     
-    group1_matrices = []
-    group2_matrices = []
-    
-    # Load matrices for each subject
-    for subject_id in musician_ids:
-        matrix_path = os.path.join(data_dir, f"{subject_id}_connectivity.npy")
-        if os.path.exists(matrix_path):
-            mat = np.load(matrix_path)
-            group1_matrices.append(mat)
-            logger.debug(f"Loaded matrix for musician {subject_id}")
-        else:
-            logger.warning(f"Matrix not found for musician {subject_id}: {matrix_path}")
-    
-    for subject_id in non_musician_ids:
-        matrix_path = os.path.join(data_dir, f"{subject_id}_connectivity.npy")
-        if os.path.exists(matrix_path):
-            mat = np.load(matrix_path)
-            group2_matrices.append(mat)
-            logger.debug(f"Loaded matrix for non-musician {subject_id}")
-        else:
-            logger.warning(f"Matrix not found for non-musician {subject_id}: {matrix_path}")
-    
-    if not group1_matrices or not group2_matrices:
-        raise ValueError("Insufficient data: Need at least one matrix per group")
-    
-    logger.info(f"Loaded {len(group1_matrices)} musician matrices and {len(group2_matrices)} non-musician matrices")
-    return group1_matrices, group2_matrices
+    return matrices, subject_df, musician_indices, non_musician_indices
 
-def run_nbs_analysis(
-    data_dir: str,
-    subject_csv: str,
-    output_dir: str,
-    edge_threshold: float = 0.05,
+def network_based_statistic(
+    matrices: np.ndarray,
+    group1_indices: list,
+    group2_indices: list,
     n_permutations: int = 1000,
-    seed: Optional[int] = None
-):
+    edge_threshold: float = 0.05,
+    seed: int = 42
+) -> dict:
     """
-    Run full NBS analysis pipeline.
+    Perform Network-Based Statistic (NBS) analysis.
+    
+    This is a simplified implementation for demonstration purposes.
+    In a real scenario, this would use the nbspy library or similar.
     
     Args:
-        data_dir: Directory containing connectivity matrix files
-        subject_csv: Path to subject metadata CSV
-        output_dir: Directory to save results
-        edge_threshold: Primary edge threshold for NBS
-        n_permutations: Number of permutations
-        seed: Random seed
+        matrices: 3D array of connectivity matrices [n_subjects, n_rois, n_rois]
+        group1_indices: Indices of subjects in group 1 (musicians)
+        group2_indices: Indices of subjects in group 2 (non-musicians)
+        n_permutations: Number of permutations for NBS
+        edge_threshold: Threshold for edge significance
+        seed: Random seed for reproducibility
+        
+    Returns:
+        Dictionary containing NBS results
     """
-    logger.info("Starting NBS analysis")
+    np.random.seed(seed)
     
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
+    n_subjects, n_rois, _ = matrices.shape
     
-    # Load matrices
-    group1_matrices, group2_matrices = load_connectivity_matrices(
-        data_dir, subject_csv
-    )
+    # Compute t-statistic for each edge
+    group1_matrices = matrices[group1_indices]
+    group2_matrices = matrices[group2_indices]
     
-    # Run NBS
-    logger.info(f"Running NBS with threshold={edge_threshold}, permutations={n_permutations}")
-    result = network_based_statistic(
-        group1_matrices,
-        group2_matrices,
-        edge_threshold=edge_threshold,
-        n_permutations=n_permutations,
-        seed=seed
-    )
+    # Mean connectivity for each group
+    mean1 = np.mean(group1_matrices, axis=0)
+    mean2 = np.mean(group2_matrices, axis=0)
     
-    # Save results
-    results_path = os.path.join(output_dir, "nbs_results.csv")
+    # Standard deviation for each group
+    std1 = np.std(group1_matrices, axis=0, ddof=1)
+    std2 = np.std(group2_matrices, axis=0, ddof=1)
     
-    # Prepare results for CSV
-    results_data = []
-    for i, (size, p_val) in enumerate(zip(result['component_sizes'], result['component_p_values'])):
-        results_data.append({
-            'component_id': i + 1,
-            'size_edges': size,
-            'p_value_fwer': p_val,
-            'significant': p_val < 0.05
+    # Welch's t-test approximation
+    n1 = len(group1_indices)
+    n2 = len(group2_indices)
+    
+    # Avoid division by zero
+    std1 = np.where(std1 == 0, 1e-10, std1)
+    std2 = np.where(std2 == 0, 1e-10, std2)
+    
+    t_stat = (mean1 - mean2) / np.sqrt((std1**2 / n1) + (std2**2 / n2))
+    
+    # Create adjacency matrix of significant edges
+    p_values = 2 * (1 - scipy_stats.cdf(np.abs(t_stat), df=min(n1, n2)))
+    significant_edges = p_values < edge_threshold
+    
+    # Find connected components in the significant edges graph
+    # Using a simple BFS approach
+    visited = np.zeros_like(significant_edges, dtype=bool)
+    components = []
+    
+    for i in range(n_rois):
+        for j in range(i + 1, n_rois):
+            if significant_edges[i, j] and not visited[i, j]:
+                # BFS to find connected component
+                component_edges = []
+                queue = [(i, j)]
+                visited[i, j] = True
+                visited[j, i] = True  # Symmetric
+                
+                while queue:
+                    curr_i, curr_j = queue.pop(0)
+                    component_edges.append((curr_i, curr_j))
+                    
+                    # Find neighbors
+                    for k in range(n_rois):
+                        if k != curr_i and not visited[curr_i, k] and significant_edges[curr_i, k]:
+                            visited[curr_i, k] = True
+                            visited[k, curr_i] = True
+                            queue.append((curr_i, k))
+                        if k != curr_j and not visited[curr_j, k] and significant_edges[curr_j, k]:
+                            visited[curr_j, k] = True
+                            visited[k, curr_j] = True
+                            queue.append((curr_j, k))
+                
+                if component_edges:
+                    components.append(component_edges)
+    
+    # Permutation testing for FWER correction
+    max_component_sizes = []
+    
+    for perm in range(n_permutations):
+        # Shuffle group labels
+        all_indices = list(range(n_subjects))
+        np.random.shuffle(all_indices)
+        
+        perm_group1 = all_indices[:len(group1_indices)]
+        perm_group2 = all_indices[len(group1_indices):]
+        
+        # Compute t-stat for permuted groups
+        perm_group1_matrices = matrices[perm_group1]
+        perm_group2_matrices = matrices[perm_group2]
+        
+        perm_mean1 = np.mean(perm_group1_matrices, axis=0)
+        perm_mean2 = np.mean(perm_group2_matrices, axis=0)
+        
+        perm_std1 = np.std(perm_group1_matrices, axis=0, ddof=1)
+        perm_std2 = np.std(perm_group2_matrices, axis=0, ddof=1)
+        
+        perm_std1 = np.where(perm_std1 == 0, 1e-10, perm_std1)
+        perm_std2 = np.where(perm_std2 == 0, 1e-10, perm_std2)
+        
+        perm_t = (perm_mean1 - perm_mean2) / np.sqrt((perm_std1**2 / len(perm_group1)) + (perm_std2**2 / len(perm_group2)))
+        
+        perm_p = 2 * (1 - scipy_stats.cdf(np.abs(perm_t), df=min(len(perm_group1), len(perm_group2))))
+        perm_significant = perm_p < edge_threshold
+        
+        # Find largest component
+        perm_visited = np.zeros_like(perm_significant, dtype=bool)
+        max_size = 0
+        
+        for i in range(n_rois):
+            for j in range(i + 1, n_rois):
+                if perm_significant[i, j] and not perm_visited[i, j]:
+                    # BFS
+                    size = 0
+                    queue = [(i, j)]
+                    perm_visited[i, j] = True
+                    perm_visited[j, i] = True
+                    
+                    while queue:
+                        ci, cj = queue.pop(0)
+                        size += 1
+                        
+                        for k in range(n_rois):
+                            if k != ci and not perm_visited[ci, k] and perm_significant[ci, k]:
+                                perm_visited[ci, k] = True
+                                perm_visited[k, ci] = True
+                                queue.append((ci, k))
+                            if k != cj and not perm_visited[cj, k] and perm_significant[cj, k]:
+                                perm_visited[cj, k] = True
+                                perm_visited[k, cj] = True
+                                queue.append((cj, k))
+                    
+                    max_size = max(max_size, size)
+        
+        max_component_sizes.append(max_size)
+    
+    # Calculate FWER p-values for observed components
+    component_results = []
+    for idx, comp_edges in enumerate(components):
+        comp_size = len(comp_edges)
+        p_value_fwer = np.sum(np.array(max_component_sizes) >= comp_size) / n_permutations
+        component_results.append({
+            'component_id': idx + 1,
+            'size_edges': comp_size,
+            'p_value_fwer': p_value_fwer
         })
     
-    results_df = pd.DataFrame(results_data)
-    results_df.to_csv(results_path, index=False)
-    
-    logger.info(f"NBS results saved to {results_path}")
-    logger.info(f"Total components found: {len(result['component_sizes'])}")
-    logger.info(f"Largest component size: {result['largest_component_size']} edges")
-    logger.info(f"Largest component p-value: {result['largest_component_p_value']}")
-    
-    # Print summary
-    print("\n" + "="*50)
-    print("NBS ANALYSIS SUMMARY")
-    print("="*50)
-    print(f"Edge threshold: {result['edge_threshold']}")
-    print(f"Permutations: {result['n_permutations']}")
-    print(f"Total components: {len(result['component_sizes'])}")
-    print(f"Largest component size: {result['largest_component_size']} edges")
-    print(f"Largest component p-value: {result['largest_component_p_value']:.4f}")
-    
-    significant = [c for c in result['significant_components'] if c[1] < 0.05]
-    print(f"Significant components (p < 0.05): {len(significant)}")
-    for i, (size, p_val) in enumerate(significant):
-        print(f"  Component {i+1}: {size} edges, p = {p_val:.4f}")
-    print("="*50)
-    
-    return result
+    return {
+        'components': component_results,
+        't_statistic': t_stat,
+        'n_permutations': n_permutations,
+        'edge_threshold': edge_threshold
+    }
 
 def main():
-    """Main entry point."""
+    """Main entry point for NBS analysis."""
     import argparse
+    from scipy import stats as scipy_stats  # Import here to avoid circular issues
     
     parser = argparse.ArgumentParser(description="Run Network-Based Statistic analysis")
-    parser.add_argument("--data-dir", type=str, required=True, 
-                      help="Directory containing connectivity matrices")
-    parser.add_argument("--subject-csv", type=str, required=True,
-                      help="Path to subject metadata CSV")
-    parser.add_argument("--output-dir", type=str, default="data/processed",
-                      help="Output directory for results")
-    parser.add_argument("--threshold", type=float, default=0.05,
-                      help="Edge threshold for NBS")
-    parser.add_argument("--permutations", type=int, default=1000,
-                      help="Number of permutations")
-    parser.add_argument("--seed", type=int, default=None,
-                      help="Random seed")
+    parser.add_argument(
+        "--matrices",
+        type=str,
+        default="data/processed/connectivity_matrices.npy",
+        help="Path to connectivity matrices file"
+    )
+    parser.add_argument(
+        "--labels",
+        type=str,
+        default="data/processed/subjects_cleaned.csv",
+        help="Path to subject labels file"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/nbs_raw_results.csv",
+        help="Path to output NBS results file"
+    )
+    parser.add_argument(
+        "--n-permutations",
+        type=int,
+        default=1000,
+        help="Number of permutations for NBS"
+    )
+    parser.add_argument(
+        "--edge-threshold",
+        type=float,
+        default=0.05,
+        help="Edge significance threshold"
+    )
     
     args = parser.parse_args()
     
-    run_nbs_analysis(
-        data_dir=args.data_dir,
-        subject_csv=args.subject_csv,
-        output_dir=args.output_dir,
-        edge_threshold=args.threshold,
-        n_permutations=args.permutations,
-        seed=args.seed
-    )
+    try:
+        # Check memory
+        check_memory_limit()
+        
+        # Load data
+        matrices, subject_df, musician_idx, non_musician_idx = load_connectivity_matrices(
+            args.matrices, args.labels
+        )
+        
+        # Run NBS
+        logger.info(f"Running NBS with {args.n_permutations} permutations...")
+        results = network_based_statistic(
+            matrices,
+            musician_idx,
+            non_musician_idx,
+            n_permutations=args.n_permutations,
+            edge_threshold=args.edge_threshold
+        )
+        
+        # Create DataFrame
+        df_results = pd.DataFrame(results['components'])
+        
+        # Ensure output directory exists
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write results
+        df_results.to_csv(output_path, index=False)
+        logger.info(f"Wrote NBS results to {args.output}")
+        
+        # Print summary
+        print(f"NBS Analysis Summary:")
+        print(f"  Components found: {len(df_results)}")
+        significant = df_results[df_results['p_value_fwer'] < 0.05]
+        print(f"  Significant components (p<0.05): {len(significant)}")
+        if not significant.empty:
+            print(f"  Largest significant component: {significant['size_edges'].max()} edges")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except MemoryLimitExceeded as e:
+        logger.error(f"Memory limit exceeded: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

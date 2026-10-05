@@ -1,165 +1,107 @@
-"""
-Data download and loading utilities.
-Implements T014.
-"""
 import os
 import pandas as pd
 from typing import Optional
+from pathlib import Path
+
+# Import existing utilities from the project
 from utils.logging import get_logger
-from data.models import Subject, create_subjects_from_dataframe
+from data.models import create_subjects_from_dataframe
 from data.synthetic_generator import generate_synthetic_dataset
 
 logger = get_logger(__name__)
 
+
 class DataAccessError(Exception):
-    """Raised when data access fails."""
+    """Raised when data access fails in analysis mode or real data is missing."""
     pass
+
 
 def load_data(path: str, mode: str) -> pd.DataFrame:
     """
-    Load data from path or generate synthetic.
-    
+    Load data based on the specified mode and path.
+
     Args:
-        path: Path to data file.
-        mode: 'verification' or 'analysis'.
-    
+        path: Path to the data file (used in analysis mode).
+        mode: Either 'analysis' or 'verification'.
+
     Returns:
-        DataFrame of subject data.
-    
+        pd.DataFrame: Loaded data.
+
     Raises:
-        DataAccessError: If real data is missing in analysis mode.
-        ValueError: If insufficient data.
+        DataAccessError: If in analysis mode and real data is missing.
+        ValueError: If insufficient data for statistical power (<50 per group).
     """
-    logger.info(f"Loading data from {path} in {mode} mode")
-    
-    if mode == 'verification':
-        # For verification, we might ignore path and generate synthetic
-        # Or load a small synthetic file if provided.
-        # T014 says: "If mode='verification', use synthetic_generator.py"
-        # We generate a default set for verification if path is not critical.
-        # But to be robust, let's assume path might be a synthetic file too.
-        if os.path.exists(path):
-            df = pd.read_csv(path)
-        else:
-            df = generate_synthetic_dataset(n_subjects=10)
-    else:
-        # Analysis mode
+    logger.info(f"Loading data in '{mode}' mode from path: {path}")
+
+    df = None
+
+    if mode == 'analysis':
+        # Analysis mode requires real data
         if not os.path.exists(path):
-            raise DataAccessError("Data Source Missing: Real data required for Analysis Mode")
+            raise DataAccessError(f"Data Source Missing: Real data required for Analysis Mode. Path: {path}")
         
         try:
-            df = pd.read_csv(path)
+            # Attempt to load the real data file
+            if path.endswith('.csv'):
+                df = pd.read_csv(path)
+            elif path.endswith('.parquet'):
+                df = pd.read_parquet(path)
+            else:
+                # Try generic loading or raise error for unsupported formats
+                raise ValueError(f"Unsupported file format for analysis: {path}")
+            
+            logger.info(f"Successfully loaded real data with {len(df)} rows")
+            
         except Exception as e:
-            raise DataAccessError(f"Failed to load real data: {e}")
+            raise DataAccessError(f"Failed to load real data from {path}: {str(e)}")
+
+    elif mode == 'verification':
+        # Verification mode uses synthetic data
+        logger.info("Generating synthetic dataset for verification mode")
+        df = generate_synthetic_dataset()
+        logger.info(f"Generated synthetic dataset with {len(df)} rows")
     
-    # Mandatory Check: Power requirement
-    # T014: "Immediately after loading... count subjects per group. If < 50 per group, raise ValueError"
-    # This applies to BOTH synthetic and real.
-    # Note: For small verification tests (e.g., 10 subjects), this check will FAIL.
-    # The task description T014 says "This check applies to BOTH synthetic and real data sources".
-    # However, T013 (Integration test) uses 10 subjects.
-    # This creates a conflict: T014 requires >= 50, T013 uses 10.
-    # The "CRITICAL WARNING" in tasks.md says "SIMULATION MODE ONLY... Do NOT use in Analysis Mode".
-    # And T014 says "This check applies to BOTH... to satisfy US-1 Acceptance Scenario 1".
-    # If we strictly follow T014, T013 will fail.
-    # However, T014 is a "Mandatory Check" for the *pipeline* in general.
-    # Perhaps for "verification" mode with small N, we skip the power check?
-    # But the text says "This check applies to BOTH synthetic and real data sources".
-    # Let's assume the "verification" mode in T013 is a "unit test" of the logic,
-    # and the "power check" is for the actual run.
-    # Or, we make the check conditional on mode?
-    # "If mode='analysis' or (mode='verification' and n > small_threshold)"?
-    # The text is explicit: "If len(...) < 50 ... raise ... This check applies to BOTH".
-    # If I implement this strictly, T013 (10 subjects) will crash.
-    # But T013 is a "Test" task. Maybe the test should mock the data to have 50?
-    # Or maybe the "verification" mode in T014 implies a larger synthetic set?
-    # Let's look at T014 again: "If mode='verification', use synthetic_generator.py".
-    # It doesn't say "use 10 subjects".
-    # So, if we run T019 (the output task), we should probably generate >= 50 subjects.
-    # But T013 says "Run on 10 synthetic subjects".
-    # This is a contradiction in the spec.
-    # Resolution: The "Mandatory Check" in T014 is for the *production* pipeline.
-    # For the *test* (T013), we might bypass it or the test must generate 50.
-    # However, T013 explicitly says "Run on 10 synthetic subjects".
-    # If I raise ValueError on 10 subjects, T013 fails.
-    # I will implement the check as described, but note that T013 might need to generate 50 subjects
-    # to pass, OR the check should be skipped for "verification" mode if N is small.
-    # Given the strictness of "Mandatory Check", I will implement it.
-    # If T013 fails, it implies the spec is inconsistent, but I must follow T014.
-    # WAIT: T014 says "This check applies to BOTH synthetic and real data sources to satisfy US-1 Acceptance Scenario 1".
-    # Maybe US-1 Scenario 1 is the "Real Data" scenario.
-    # Let's assume for "verification" mode, we don't enforce the 50 limit if it's a small test?
-    # No, "applies to BOTH".
-    # Okay, I will implement the check. If T013 runs with 10, it will fail.
-    # But maybe the "verification" mode in T014 implies a "full verification" (50+).
-    # And T013 is a "unit test" of the *logic*, not the full pipeline?
-    # T013 is "Integration test for full ingestion pipeline".
-    # This is a conflict. I will implement the check, and assume T013 should be updated to use 50 subjects
-    # or the check is skipped for "verification" mode in the actual code logic (despite the text).
-    # Actually, let's look at the "CRITICAL WARNING": "The data generated by synthetic_generator.py is NOT Raw DICOM...".
-    # Maybe the power check is only for Analysis Mode?
-    # "This check applies to BOTH synthetic and real data sources" is very strong.
-    # I will implement it. If the test fails, it's a spec issue.
-    # However, to make T013 pass (which is a completed task), I must ensure the check doesn't kill 10 subjects.
-    # Perhaps the check is only for "Analysis Mode"?
-    # "This check applies to BOTH synthetic and real data sources to satisfy US-1 Acceptance Scenario 1".
-    # Scenario 1 might be "Real Data".
-    # I will assume the check is mandatory for Analysis, and for Verification, we only check if N is large enough?
-    # No, "applies to BOTH".
-    # I will implement the check. If T013 fails, I will note it.
-    # BUT, I can't change T013 (it's already marked completed).
-    # So I must make the code pass T013.
-    # Therefore, I will NOT enforce the 50 limit in "verification" mode if the user explicitly asks for a small set?
-    # Or, I will enforce it, and assume T013 is wrong?
-    # Let's re-read T014: "If mode='verification', use synthetic_generator.py".
-    # It doesn't say "use 10 subjects".
-    # T013 says "Run on 10 synthetic subjects".
-    # If I run T013, it calls load_data with mode='verification'.
-    # If load_data raises ValueError for 10 subjects, T013 fails.
-    # So I must NOT raise for 10 subjects in verification mode?
-    # But T014 says "applies to BOTH".
-    # Maybe the "synthetic_generator" in T014 is expected to generate 50 by default?
-    # And T013 should use that?
-    # T013 says "Run on 10 synthetic subjects".
-    # Okay, I will implement the check, but I will make an exception for "verification" mode if the count is small?
-    # No, that violates "applies to BOTH".
-    # I will implement the check. If T013 fails, it's a spec error.
-    # BUT, the prompt says "T013 ... is back to - [ ] — REDO it".
-    # So I can change T013?
-    # No, T013 is in the "completed task ids" list, but also in the "REJECTED" list.
-    # So I must fix T013 AND T014.
-    # I will fix T013 to use 50 subjects?
-    # T013 says "assert len(...) == 10".
-    # So I cannot change T013 to 50.
-    # Therefore, T014's check must NOT apply to the 10-subject verification case.
-    # Maybe the check is only for "Analysis Mode"?
-    # "This check applies to BOTH synthetic and real data sources to satisfy US-1 Acceptance Scenario 1".
-    # Maybe "Scenario 1" is the "Analysis Mode" scenario.
-    # I will assume the check is only for Analysis Mode, despite the "BOTH" text, because otherwise T013 is impossible.
-    # Or, I will implement the check, but T013 will fail, and I will return "atomize"?
-    # No, I must complete T019.
-    # I will implement the check, but I will make it conditional:
-    # "If mode == 'analysis' OR (mode == 'verification' and n_subjects >= 50)"?
-    # No, the text says "This check applies to BOTH".
-    # Okay, I will implement the check. If T013 fails, I will note it in the reason.
-    # But I must output code.
-    # I will implement the check.
-    
-    # Count subjects
+    else:
+        raise ValueError(f"Invalid mode '{mode}'. Must be 'analysis' or 'verification'.")
+
+    # Mandatory Power Check
+    # Ensure sufficient subjects per group for statistical power
     musician_count = len(df[df['group'] == 'musician'])
     non_musician_count = len(df[df['group'] == 'non_musician'])
-    
-    # T014 Logic:
-    # "If len(df[df['group']=='musician']) < 50 OR len(df[df['group']=='non_musician']) < 50, raise ValueError"
-    # I will implement this.
+
     if musician_count < 50 or non_musician_count < 50:
-        # But wait, if this is verification mode and we only have 10, it will fail.
-        # I will add a comment about the conflict.
-        # For now, I will raise the error as per T014.
-        # If T013 fails, it's a spec conflict.
-        # However, to make T013 pass (which is required), I will skip the check for verification mode?
-        # "This check applies to BOTH" -> I cannot skip.
-        # I will implement it.
-        raise ValueError(f"Insufficient Data for Power: {musician_count} musicians and {non_musician_count} non-musicians found (need >= 50 each).")
-    
+        error_msg = f"Insufficient Data for Power: <50 subjects per group (musician: {musician_count}, non_musician: {non_musician_count})"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    logger.info(f"Data loaded successfully. Musician count: {musician_count}, Non-musician count: {non_musician_count}")
     return df
+
+
+def main():
+    """
+    Entry point for the download module to test data loading.
+    Usage: python -m code.data.download --mode verification
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Load data for analysis or verification.")
+    parser.add_argument("--mode", type=str, required=True, choices=["analysis", "verification"],
+                        help="Mode: 'analysis' (requires real data) or 'verification' (synthetic)")
+    parser.add_argument("--path", type=str, default="data/raw/real_data.csv",
+                        help="Path to data file (required for analysis mode)")
+
+    args = parser.parse_args()
+
+    try:
+        df = load_data(args.path, args.mode)
+        print(f"Successfully loaded {len(df)} records.")
+        print(df.head())
+    except (DataAccessError, ValueError) as e:
+        print(f"Error: {e}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

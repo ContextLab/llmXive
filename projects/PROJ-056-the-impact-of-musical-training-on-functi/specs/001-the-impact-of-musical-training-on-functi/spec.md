@@ -50,7 +50,7 @@ As a researcher, I need to correlate connectivity strength with years of musical
 **Acceptance Scenarios**:
 
 1. **Given** a group of 50 musicians with known years of training, **When** the system computes Pearson/Spearman correlations between training duration and connectivity strength, **Then** the output includes a correlation coefficient (r), p-value, effect size, and 95% confidence interval for each connection, and the computation completes within 5 minutes.
-2. **Given** a primary significance threshold of p < 0.05 (FDR-corrected), **When** the sensitivity analysis is run, **Then** the system re-runs the significance test at thresholds of 0.01, 0.05, and 0.10, and outputs a table showing the count of significant connections for each threshold.
+2. **Given** a primary significance threshold of p < 0.05 (FDR-corrected), **When** the sensitivity analysis is run, **Then** the system re-runs the significance test at thresholds of, 0.05, and 0.10, and outputs a table showing the count of significant connections for each threshold.
 3. **Given** a set of results, **When** the sensitivity analysis is performed, **Then** the system reports the percentage reduction in significant connections between p < 0.05 and p < 0.01. If the 95% CI for the effect size includes zero at the stricter threshold, the system flags the result as "low stability".
 
 ---

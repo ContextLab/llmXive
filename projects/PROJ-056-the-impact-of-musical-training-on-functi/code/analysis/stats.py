@@ -3,20 +3,17 @@ import pandas as pd
 from scipy import stats
 from typing import List, Tuple, Optional, Dict, Any
 import logging
-from utils.logging import get_logger
+from pathlib import Path
+import networkx as nx
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def welch_t_test(group1: np.ndarray, group2: np.ndarray) -> Tuple[float, float]:
     """
     Perform Welch's t-test between two independent groups.
-    
-    Args:
-        group1: Array of values for group 1 (e.g., musicians)
-        group2: Array of values for group 2 (e.g., non-musicians)
-        
-    Returns:
-        Tuple of (t_statistic, p_value)
+    Returns (t_statistic, p_value).
     """
     t_stat, p_val = stats.ttest_ind(group1, group2, equal_var=False)
     return float(t_stat), float(p_val)
@@ -24,397 +21,305 @@ def welch_t_test(group1: np.ndarray, group2: np.ndarray) -> Tuple[float, float]:
 def fdr_correction_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[float]:
     """
     Apply Benjamini-Hochberg FDR correction to a list of p-values.
-    
-    Args:
-        p_values: List of raw p-values
-        alpha: Significance level (default 0.05)
-        
-    Returns:
-        List of adjusted q-values
+    Returns list of q-values (adjusted p-values).
     """
     p_values = np.array(p_values)
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
     sorted_p_values = p_values[sorted_indices]
     
-    # Calculate BH critical values
-    rank = np.arange(1, n + 1)
-    bh_thresholds = (rank / n) * alpha
+    ranks = np.arange(1, n + 1)
+    q_values = np.zeros(n)
     
-    # Find the largest k where p_(k) <= threshold_(k)
-    # and set all p-values with rank <= k to their adjusted values
-    adjusted_p_values = np.zeros(n)
-    for i in range(n - 1, -1, -1):
-        adjusted_p_values[sorted_indices[i]] = min(
-            (n / (i + 1)) * sorted_p_values[i],
-            1.0
-        )
+    # Calculate BH q-values
+    for i in range(n):
+        q_values[sorted_indices[i]] = sorted_p_values[i] * n / ranks[i]
     
-    # Ensure monotonicity (adjusted p-values should be non-decreasing with rank)
-    for i in range(1, n):
-        adjusted_p_values[sorted_indices[i]] = min(
-            adjusted_p_values[sorted_indices[i]],
-            adjusted_p_values[sorted_indices[i-1]]
-        )
-        
-    return adjusted_p_values.tolist()
+    # Ensure monotonicity (cumulative min from right to left)
+    for i in range(n - 2, -1, -1):
+        q_values[sorted_indices[i]] = min(q_values[sorted_indices[i]], q_values[sorted_indices[i + 1]])
+    
+    # Cap at 1.0
+    q_values = np.minimum(q_values, 1.0)
+    
+    return q_values.tolist()
 
 def calculate_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """
-    Calculate Cohen's d effect size between two groups.
-    
-    Args:
-        group1: Array of values for group 1
-        group2: Array of values for group 2
-        
-    Returns:
-        Cohen's d value
+    Calculate Cohen's d effect size.
     """
-    n1, n2 = len(group1), len(group2)
     mean1, mean2 = np.mean(group1), np.mean(group2)
-    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+    n1, n2 = len(group1), len(group2)
     
-    # Pooled standard deviation
-    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     
     if pooled_std == 0:
         return 0.0
-        
+    
     return float((mean1 - mean2) / pooled_std)
 
 def calculate_confidence_interval(effect_size: float, group1: np.ndarray, group2: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
     """
-    Calculate 95% confidence interval for Cohen's d.
-    
-    Args:
-        effect_size: Cohen's d value
-        group1: Array of values for group 1
-        group2: Array of values for group 2
-        confidence: Confidence level (default 0.95)
-        
-    Returns:
-        Tuple of (lower_bound, upper_bound)
+    Calculate 95% confidence interval for Cohen's d using bootstrapping.
     """
+    n_boot = 1000
     n1, n2 = len(group1), len(group2)
-    h = (n1 + n2) / (n1 * n2)
-    d = effect_size
+    boot_dists = []
     
-    # Approximate standard error of Cohen's d
-    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (d**2) / (2 * (n1 + n2 - 2)))
+    for _ in range(n_boot):
+        sample1 = np.random.choice(group1, n1, replace=True)
+        sample2 = np.random.choice(group2, n2, replace=True)
+        d = calculate_cohens_d(sample1, sample2)
+        boot_dists.append(d)
     
-    # Critical t-value
-    df = n1 + n2 - 2
-    t_crit = stats.t.ppf((1 + confidence) / 2, df)
-    
-    lower = d - t_crit * se_d
-    upper = d + t_crit * se_d
+    lower = np.percentile(boot_dists, (1 - confidence) / 2 * 100)
+    upper = np.percentile(boot_dists, (1 + confidence) / 2 * 100)
     
     return float(lower), float(upper)
 
 def network_based_statistic(
-    group1_matrices: List[np.ndarray],
-    group2_matrices: List[np.ndarray],
+    connectivity_data: np.ndarray,
+    group_labels: np.ndarray,
     edge_threshold: float = 0.05,
     n_permutations: int = 1000,
     seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Perform Network-Based Statistic (NBS) to identify connected components
-    of edges showing significant group differences.
+    Perform Network-Based Statistic (NBS) analysis.
     
-    This is a permutation-based method that controls the family-wise error
-    rate at the component level rather than the edge level.
+    Parameters:
+    - connectivity_data: np.ndarray of shape (n_subjects, n_rois, n_rois)
+    - group_labels: np.ndarray of shape (n_subjects,) with 0/1 labels
+    - edge_threshold: p-value threshold for edge selection (default 0.05)
+    - n_permutations: number of permutations (default 1000)
+    - seed: random seed for reproducibility
     
-    Args:
-        group1_matrices: List of connectivity matrices for group 1 (musicians)
-        group2_matrices: List of connectivity matrices for group 2 (non-musicians)
-        edge_threshold: Primary edge threshold for forming components (default 0.05)
-        n_permutations: Number of permutations to run (default 1000)
-        seed: Random seed for reproducibility
-        
     Returns:
-        Dictionary containing:
-            - 'component_sizes': List of sizes (number of edges) for each component
-            - 'component_p_values': List of p-values for each component
-            - 'largest_component_size': Size of the largest connected component
-            - 'largest_component_p_value': P-value for the largest component
-            - 'edge_threshold': The threshold used
-            - 'n_permutations': Number of permutations run
+    - Dictionary containing:
+      - 'component_size': size (number of edges) of the largest connected component
+      - 'p_value': family-wise error rate corrected p-value
+      - 'component_edges': list of (i, j) tuples representing edges in the component
     """
     if seed is not None:
         np.random.seed(seed)
-        
-    n1 = len(group1_matrices)
-    n2 = len(group2_matrices)
     
-    if n1 == 0 or n2 == 0:
-        raise ValueError("Both groups must have at least one subject")
-        
-    if not group1_matrices or not group2_matrices:
-        raise ValueError("Connectivity matrices cannot be empty")
-        
-    # Verify matrices are square and of same size
-    n_rois = group1_matrices[0].shape[0]
-    for mat in group1_matrices + group2_matrices:
-        if mat.shape != (n_rois, n_rois):
-            raise ValueError(f"All matrices must be {n_rois}x{n_rois}")
+    n_subjects, n_rois, _ = connectivity_data.shape
+    group_labels = np.array(group_labels)
     
-    logger.info(f"Running NBS with {n1} subjects in group 1, {n2} in group 2")
-    logger.info(f"Edge threshold: {edge_threshold}, Permutations: {n_permutations}")
+    # Flatten connectivity matrices to edge list (upper triangle only)
+    triu_indices = np.triu_indices(n_rois, k=1)
+    n_edges = len(triu_indices[0])
     
-    # Stack all matrices
-    all_matrices = group1_matrices + group2_matrices
-    n_subjects = len(all_matrices)
+    # Reshape to (n_subjects, n_edges)
+    edges_data = connectivity_data[:, triu_indices[0], triu_indices[1]]
     
-    # Compute the test statistic for each edge (t-statistic)
-    # We use the absolute difference of means divided by pooled std (similar to t-stat)
-    # For NBS, we typically use the t-statistic directly
+    # Calculate t-statistic for each edge
+    group0 = edges_data[group_labels == 0]
+    group1 = edges_data[group_labels == 1]
     
-    # Reshape to (n_subjects, n_edges) where n_edges = n_rois * (n_rois - 1) / 2
-    n_edges = n_rois * (n_rois - 1) // 2
-    edge_indices = np.triu_indices(n_rois, k=1)
-    
-    # Flatten matrices to edge vectors
-    subject_edge_vectors = []
-    for mat in all_matrices:
-        # Extract upper triangle (excluding diagonal)
-        edge_vec = mat[edge_indices]
-        subject_edge_vectors.append(edge_vec)
-        
-    subject_edge_vectors = np.array(subject_edge_vectors)  # Shape: (n_subjects, n_edges)
-    
-    # Split into groups
-    group1_edges = subject_edge_vectors[:n1]
-    group2_edges = subject_edge_vectors[n1:]
-    
-    # Compute observed t-statistics for each edge
-    observed_t_stats = np.zeros(n_edges)
+    t_stats = np.zeros(n_edges)
     for i in range(n_edges):
-        t_stat, _ = welch_t_test(group1_edges[:, i], group2_edges[:, i])
-        observed_t_stats[i] = t_stat
-        
-    # Threshold the observed statistics
-    # We use the absolute value for thresholding
-    thresholded_obs = np.abs(observed_t_stats) > np.abs(stats.t.ppf(edge_threshold / 2, n1 + n2 - 2))
+        t_stat, _ = welch_t_test(group1[:, i], group0[:, i])
+        t_stats[i] = t_stat
     
-    # Find connected components in the thresholded graph
-    # We'll use a simple BFS to find components
-    def find_components(thresholded_adj, n_nodes):
-        """Find connected components in a thresholded adjacency matrix."""
-        # thresholded_adj is a boolean mask of significant edges
-        visited = np.zeros(n_nodes, dtype=bool)
-        components = []
-        
-        for start_node in range(n_nodes):
-            if visited[start_node]:
-                continue
-                
-            # BFS to find all nodes in this component
-            component_nodes = []
-            queue = [start_node]
-            visited[start_node] = True
-            
-            while queue:
-                node = queue.pop(0)
-                component_nodes.append(node)
-                
-                # Find all connected nodes
-                for neighbor in range(n_nodes):
-                    if neighbor != node and not visited[neighbor]:
-                        # Check if edge exists (in either direction)
-                        edge_idx = np.where((edge_indices[0] == min(node, neighbor)) & 
-                                            (edge_indices[1] == max(node, neighbor)))[0]
-                        if len(edge_idx) > 0 and thresholded_adj[edge_idx[0]]:
-                            visited[neighbor] = True
-                            queue.append(neighbor)
-            
-            if len(component_nodes) > 0:
-                # Count edges in this component
-                edge_count = 0
-                for i, node1 in enumerate(component_nodes):
-                    for node2 in component_nodes[i+1:]:
-                        edge_idx = np.where((edge_indices[0] == min(node1, node2)) & 
-                                            (edge_indices[1] == max(node1, node2)))[0]
-                        if len(edge_idx) > 0 and thresholded_adj[edge_idx[0]]:
-                            edge_count += 1
-                
-                if edge_count > 0:
-                    components.append(edge_count)
-                    
-        return components
+    # Select edges above threshold (absolute t-statistic)
+    # We need to determine the critical t-value for the threshold
+    # For simplicity, we use the p-value threshold directly on the t-stats
+    # Convert p-value threshold to t-stat threshold using degrees of freedom
+    df = n_subjects - 2
+    t_threshold = stats.t.ppf(1 - edge_threshold / 2, df)
     
-    # Find components in observed data
-    observed_components = find_components(thresholded_obs, n_rois)
-    observed_max_component_size = max(observed_components) if observed_components else 0
+    # Select suprathreshold edges
+    suprathreshold_mask = np.abs(t_stats) > t_threshold
+    suprathreshold_indices = np.where(suprathreshold_mask)[0]
     
-    logger.info(f"Observed largest component size: {observed_max_component_size}")
+    # Build adjacency matrix of suprathreshold edges
+    adj_matrix = np.zeros((n_rois, n_rois), dtype=bool)
+    for idx in suprathreshold_indices:
+        i, j = triu_indices[0][idx], triu_indices[1][idx]
+        adj_matrix[i, j] = True
+        adj_matrix[j, i] = True
     
-    # Permutation testing
-    perm_max_component_sizes = np.zeros(n_permutations)
+    # Find connected components
+    num_components, labels, component_sizes = connected_components(
+        csr_matrix(adj_matrix.astype(int)), directed=False, return_labels=True
+    )
     
+    if num_components == 0:
+        return {
+            'component_size': 0,
+            'p_value': 1.0,
+            'component_edges': []
+        }
+    
+    # Find largest component
+    largest_component_label = np.argmax(np.bincount(labels))
+    largest_component_mask = labels == largest_component_label
+    
+    # Get edges in largest component
+    component_edges = []
+    for idx in suprathreshold_indices:
+        i, j = triu_indices[0][idx], triu_indices[1][idx]
+        # Check if both nodes are in the largest component
+        if labels[i] == largest_component_label and labels[j] == largest_component_label:
+            component_edges.append((int(i), int(j)))
+    
+    observed_component_size = len(component_edges)
+    
+    # Permutation test
+    max_component_sizes = []
     for perm in range(n_permutations):
-        if (perm + 1) % 100 == 0:
-            logger.info(f"Permutation {perm + 1}/{n_permutations}")
-            
-        # Randomly shuffle group labels
-        shuffled_indices = np.random.permutation(n_subjects)
-        shuffled_group1_edges = subject_edge_vectors[shuffled_indices[:n1]]
-        shuffled_group2_edges = subject_edge_vectors[shuffled_indices[n1:]]
+        # Shuffle group labels
+        shuffled_labels = np.random.permutation(group_labels)
+        shuffled_group0 = edges_data[shuffled_labels == 0]
+        shuffled_group1 = edges_data[shuffled_labels == 1]
         
-        # Compute t-statistics for permuted data
+        # Calculate t-stats for permuted data
         perm_t_stats = np.zeros(n_edges)
         for i in range(n_edges):
-            t_stat, _ = welch_t_test(shuffled_group1_edges[:, i], shuffled_group2_edges[:, i])
+            t_stat, _ = welch_t_test(shuffled_group1[:, i], shuffled_group0[:, i])
             perm_t_stats[i] = t_stat
-            
-        # Threshold
-        perm_thresholded = np.abs(perm_t_stats) > np.abs(stats.t.ppf(edge_threshold / 2, n1 + n2 - 2))
         
-        # Find components
-        perm_components = find_components(perm_thresholded, n_rois)
-        perm_max_component_sizes[perm] = max(perm_components) if perm_components else 0
+        # Select suprathreshold edges
+        perm_suprathreshold_mask = np.abs(perm_t_stats) > t_threshold
+        perm_suprathreshold_indices = np.where(perm_suprathreshold_mask)[0]
         
-    # Calculate p-values for observed components
-    # For each observed component size, calculate the proportion of permuted
-    # max component sizes that are >= the observed size
-    component_p_values = []
-    for comp_size in observed_components:
-        p_val = (np.sum(perm_max_component_sizes >= comp_size) + 1) / (n_permutations + 1)
-        component_p_values.append(float(p_val))
+        if len(perm_suprathreshold_indices) == 0:
+            max_component_sizes.append(0)
+            continue
         
-    # Identify significant components (p < 0.05)
-    significant_components = [
-        (size, p_val) for size, p_val in zip(observed_components, component_p_values)
-        if p_val < 0.05
-    ]
+        # Build adjacency matrix
+        perm_adj_matrix = np.zeros((n_rois, n_rois), dtype=bool)
+        for idx in perm_suprathreshold_indices:
+            i, j = triu_indices[0][idx], triu_indices[1][idx]
+            perm_adj_matrix[i, j] = True
+            perm_adj_matrix[j, i] = True
+        
+        # Find connected components
+        perm_num_components, perm_labels, _ = connected_components(
+            csr_matrix(perm_adj_matrix.astype(int)), directed=False, return_labels=True
+        )
+        
+        if perm_num_components == 0:
+            max_component_sizes.append(0)
+            continue
+        
+        # Find largest component size
+        perm_largest_label = np.argmax(np.bincount(perm_labels))
+        perm_largest_size = np.sum(perm_labels == perm_largest_label)
+        max_component_sizes.append(perm_largest_size)
     
-    largest_component_size = observed_max_component_size
-    largest_component_p_value = component_p_values[0] if component_p_values else 1.0
-    
-    # If there are multiple components, find the largest significant one
-    if significant_components:
-        largest_sig_component = max(significant_components, key=lambda x: x[0])
-        largest_component_size = largest_sig_component[0]
-        largest_component_p_value = largest_sig_component[1]
-    
-    logger.info(f"NBS completed. Largest component size: {largest_component_size}, p-value: {largest_component_p_value}")
+    # Calculate p-value
+    max_component_sizes = np.array(max_component_sizes)
+    p_value = np.mean(max_component_sizes >= observed_component_size)
     
     return {
-        'component_sizes': observed_components,
-        'component_p_values': component_p_values,
-        'largest_component_size': largest_component_size,
-        'largest_component_p_value': largest_component_p_value,
-        'edge_threshold': edge_threshold,
-        'n_permutations': n_permutations,
-        'significant_components': significant_components
+        'component_size': observed_component_size,
+        'p_value': float(p_value),
+        'component_edges': component_edges
     }
 
 def process_connectivity_statistics(
-    connectivity_df: pd.DataFrame,
-    group_col: str = 'group',
-    subject_col: str = 'subject_id',
-    output_path: Optional[str] = None
-) -> pd.DataFrame:
+    metrics_path: Path,
+    output_path: Path,
+    nbs_path: Optional[Path] = None,
+    nbs_output_path: Optional[Path] = None
+) -> None:
     """
-    Process connectivity statistics for group comparison.
+    Process connectivity statistics: t-tests, FDR, effect sizes, and NBS.
     
-    This function computes t-tests, FDR correction, and effect sizes
-    for each connection in the dataset.
-    
-    Args:
-        connectivity_df: DataFrame with connectivity data
-        group_col: Name of the column containing group labels
-        subject_col: Name of the column containing subject IDs
-        output_path: Optional path to save results
-        
-    Returns:
-        DataFrame with statistical results
+    Parameters:
+    - metrics_path: Path to network_metrics.csv
+    - output_path: Path to write connectivity_results.csv
+    - nbs_path: Path to connectivity_matrices.npy (for NBS)
+    - nbs_output_path: Path to write nbs_results.csv
     """
-    logger.info("Processing connectivity statistics")
+    logger.info(f"Loading network metrics from {metrics_path}")
+    df = pd.read_csv(metrics_path)
     
-    # Identify musician and non-musician groups
-    musicians = connectivity_df[connectivity_df[group_col] == 'musician']
-    non_musicians = connectivity_df[connectivity_df[group_col] == 'non_musician']
+    # Load group labels from the data
+    # Assuming the data has a 'group' column with 'musician' and 'non_musician'
+    # We need to map these to 0/1
+    group_map = {'non_musician': 0, 'musician': 1}
+    df['group_numeric'] = df['group'].map(group_map)
     
-    logger.info(f"Found {len(musicians)} musicians and {len(non_musicians)} non-musicians")
-    
-    # Initialize results dataframe
     results = []
+    p_values = []
     
-    # Iterate through each connection (assuming columns are connection_1, connection_2, etc.)
-    connection_cols = [col for col in connectivity_df.columns if col.startswith('connection_')]
-    
-    if not connection_cols:
-        logger.warning("No connection columns found in the dataframe")
-        return pd.DataFrame()
-    
-    for conn_col in connection_cols:
-        group1_vals = musicians[conn_col].values
-        group2_vals = non_musicians[conn_col].values
+    # Perform Welch's t-test for each connection
+    for _, row in df.iterrows():
+        connection_id = row['connection_id']
+        group0_values = df[(df['group'] == 'non_musician') & (df['connection_id'] == connection_id)]['value'].values
+        group1_values = df[(df['group'] == 'musician') & (df['connection_id'] == connection_id)]['value'].values
         
-        if len(group1_vals) == 0 or len(group2_vals) == 0:
+        if len(group0_values) == 0 or len(group1_values) == 0:
             continue
-            
-        # Welch's t-test
-        t_stat, p_val = welch_t_test(group1_vals, group2_vals)
         
-        # Cohen's d
-        cohens_d = calculate_cohens_d(group1_vals, group2_vals)
-        
-        # Confidence interval
-        ci_lower, ci_upper = calculate_confidence_interval(cohens_d, group1_vals, group2_vals)
+        t_stat, p_val = welch_t_test(group1_values, group0_values)
+        cohens_d = calculate_cohens_d(group1_values, group0_values)
+        ci_lower, ci_upper = calculate_confidence_interval(cohens_d, group1_values, group0_values)
         
         results.append({
-            'connection_id': conn_col,
+            'connection_id': connection_id,
             't_stat': t_stat,
             'p_value': p_val,
             'effect_size': cohens_d,
             'ci_lower': ci_lower,
             'ci_upper': ci_upper
         })
+        p_values.append(p_val)
     
+    # Apply FDR correction
+    q_values = fdr_correction_benjamini_hochberg(p_values)
+    for i, q_val in enumerate(q_values):
+        results[i]['q_value'] = q_val
+    
+    # Write results
     results_df = pd.DataFrame(results)
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Wrote connectivity results to {output_path}")
     
-    if not results_df.empty:
-        # FDR correction
-        results_df['q_value'] = fdr_correction_benjamini_hochberg(results_df['p_value'].tolist())
-    
-    if output_path:
-        results_df.to_csv(output_path, index=False)
-        logger.info(f"Results saved to {output_path}")
+    # Run NBS if matrices are provided
+    if nbs_path and nbs_output_path:
+        logger.info(f"Running NBS on {nbs_path}")
+        # Load connectivity matrices
+        conn_matrices = np.load(nbs_path)
         
-    return results_df
-
-def main():
-    """
-    Main entry point for running statistical analysis on connectivity data.
-    This function can be extended to run NBS or other advanced analyses.
-    """
-    logger.info("Starting connectivity statistics analysis")
-    
-    # Example usage of NBS (requires connectivity matrices, not just summary stats)
-    # This would typically be called with actual matrix data from the preprocessing pipeline
-    logger.info("NBS implementation ready. Call network_based_statistic() with matrix data.")
-    
-    if __name__ == "__main__":
-        # Example test with synthetic data
-        np.random.seed(42)
-        n1, n2 = 20, 20
-        n_rois = 10
-        
-        # Generate synthetic connectivity matrices
-        group1_mats = [np.random.randn(n_rois, n_rois) * 0.1 for _ in range(n1)]
-        group2_mats = [np.random.randn(n_rois, n_rois) * 0.1 for _ in range(n2)]
+        # Get group labels
+        group_labels = df['group_numeric'].values
         
         # Run NBS
-        result = network_based_statistic(
-            group1_mats, 
-            group2_mats, 
-            edge_threshold=0.05, 
-            n_permutations=100
+        nbs_results = network_based_statistic(
+            conn_matrices,
+            group_labels,
+            edge_threshold=0.05,
+            n_permutations=1000
         )
         
-        logger.info(f"NBS Result: Largest component size = {result['largest_component_size']}, p-value = {result['largest_component_p_value']}")
+        # Write NBS results
+        nbs_df = pd.DataFrame([nbs_results])
+        nbs_df.to_csv(nbs_output_path, index=False)
+        logger.info(f"Wrote NBS results to {nbs_output_path}")
+
+def main():
+    """Main entry point for stats analysis."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Perform connectivity statistics and NBS")
+    parser.add_argument("--metrics", type=str, required=True, help="Path to network_metrics.csv")
+    parser.add_argument("--output", type=str, required=True, help="Path to output connectivity_results.csv")
+    parser.add_argument("--matrices", type=str, default=None, help="Path to connectivity_matrices.npy")
+    parser.add_argument("--nbs-output", type=str, default=None, help="Path to output nbs_results.csv")
+    
+    args = parser.parse_args()
+    
+    metrics_path = Path(args.metrics)
+    output_path = Path(args.output)
+    nbs_path = Path(args.matrices) if args.matrices else None
+    nbs_output_path = Path(args.nbs_output) if args.nbs_output else None
+    
+    process_connectivity_statistics(metrics_path, output_path, nbs_path, nbs_output_path)
 
 if __name__ == "__main__":
     main()

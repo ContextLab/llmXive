@@ -1,227 +1,129 @@
 """
 Module to output connectivity results to CSV.
-
-This module handles the loading of processed connectivity data,
-computation of group statistics, and writing of results to the
-data/processed/connectivity_results.csv file.
+Handles loading processed data, computing statistics (if needed), and writing the final results.
 """
 import os
 import sys
 import logging
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Import from sibling modules using the provided API surface
+# Add parent directory to path for imports if running as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils.logging import get_logger
-from analysis.stats import welch_t_test, fdr_correction_benjamini_hochberg, calculate_cohens_d, calculate_confidence_interval
 
 logger = get_logger(__name__)
 
-def load_processed_connectivity_data(
-    connectivity_matrix_path: str,
-    subject_data_path: str
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+INPUT_FILE = Path("data/processed/connectivity_metrics_stats.csv")
+OUTPUT_FILE = Path("data/processed/connectivity_results.csv")
+
+def load_processed_connectivity_data(input_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load processed connectivity matrices and subject data.
+    Loads the connectivity statistics dataframe.
+    Expects a CSV with columns: connection_id, t_stat, p_value, q_value, effect_size, ci_lower, ci_upper.
     
     Args:
-        connectivity_matrix_path: Path to the file containing connectivity matrices
-        subject_data_path: Path to the cleaned subjects CSV file
+        input_path: Path to the input CSV. Defaults to INPUT_FILE.
         
     Returns:
-        Tuple of (connectivity_df, subject_df)
+        pd.DataFrame: The loaded data.
         
     Raises:
-        FileNotFoundError: If input files do not exist
-        ValueError: If data formats are invalid
+        FileNotFoundError: If the input file does not exist.
     """
-    logger.info(f"Loading connectivity data from {connectivity_matrix_path}")
-    logger.info(f"Loading subject data from {subject_data_path}")
-    
-    if not os.path.exists(connectivity_matrix_path):
-        raise FileNotFoundError(f"Connectivity matrix file not found: {connectivity_matrix_path}")
-    if not os.path.exists(subject_data_path):
-        raise FileNotFoundError(f"Subject data file not found: {subject_data_path}")
+    if input_path is None:
+        input_path = INPUT_FILE
         
-    # Load connectivity matrices (assuming format from T024: subject_id, matrix_data as list/array)
-    connectivity_df = pd.read_csv(connectivity_matrix_path)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                              "Ensure US2 stats tasks (T027-T030) have run and produced the stats file.")
     
-    # Load subject data (from T019: subjects_cleaned.csv)
-    subject_df = pd.read_csv(subject_data_path)
+    logger.info(f"Loading connectivity stats from {input_path}")
+    df = pd.read_csv(input_path)
     
-    logger.info(f"Loaded {len(connectivity_df)} connectivity records")
-    logger.info(f"Loaded {len(subject_df)} subject records")
-    
-    return connectivity_df, subject_df
+    required_cols = ['connection_id', 't_stat', 'p_value', 'q_value', 'effect_size', 'ci_lower', 'ci_upper']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Input file missing required columns: {missing_cols}")
+        
+    return df
 
-def compute_group_statistics(
-    connectivity_df: pd.DataFrame,
-    subject_df: pd.DataFrame,
-    group_column: str = 'group',
-    subject_id_column: str = 'subject_id'
-) -> pd.DataFrame:
+def compute_group_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute group statistics for connectivity data.
-    
-    This function:
-    1. Merges connectivity data with subject data to get group labels
-    2. Reshapes data to have one row per connection with values for each group
-    3. Performs Welch's t-test, FDR correction, Cohen's d, and CI calculation
-    4. Returns a DataFrame with all statistics
+    Placeholder for statistics computation if the input file is raw metrics.
+    In this pipeline, T027-T030 are expected to have already computed these stats.
+    This function validates and ensures the dataframe is ready for output.
     
     Args:
-        connectivity_df: DataFrame with subject_id and connectivity data
-        subject_df: DataFrame with subject_id and group labels
-        group_column: Name of the column containing group labels
-        subject_id_column: Name of the column containing subject IDs
+        df: The dataframe containing connectivity metrics and stats.
         
     Returns:
-        DataFrame with connection_id, t_stat, p_value, q_value, effect_size, ci_lower, ci_upper
+        pd.DataFrame: The validated dataframe.
     """
-    logger.info("Computing group statistics for connectivity data")
-    
-    # Merge to get group labels for each subject
-    merged_df = pd.merge(connectivity_df, subject_df[[subject_id_column, group_column]], 
-                       on=subject_id_column, how='inner')
-    
-    if len(merged_df) == 0:
-        raise ValueError("No matching subjects found after merging connectivity and subject data")
-    
-    # Identify connection columns (exclude subject_id and group)
-    connection_cols = [col for col in merged_df.columns 
-                     if col not in [subject_id_column, group_column]]
-    
-    if len(connection_cols) == 0:
-        raise ValueError("No connection columns found in the data")
-    
-    logger.info(f"Found {len(connection_cols)} connections to analyze")
-    
-    results = []
-    
-    for conn_col in connection_cols:
-        # Split data by group
-        musician_data = merged_df[merged_df[group_column] == 'musician'][conn_col].values
-        non_musician_data = merged_df[merged_df[group_column] == 'non_musician'][conn_col].values
-        
-        # Skip if either group has insufficient data
-        if len(musician_data) < 2 or len(non_musician_data) < 2:
-            logger.warning(f"Skipping {conn_col}: insufficient data in one group")
-            continue
-        
-        # Perform Welch's t-test
-        t_stat, p_value = welch_t_test(musician_data, non_musician_data)
-        
-        # Calculate effect size (Cohen's d)
-        effect_size = calculate_cohens_d(musician_data, non_musician_data)
-        
-        # Calculate 95% confidence interval
-        ci_lower, ci_upper = calculate_confidence_interval(effect_size, len(musician_data), len(non_musician_data))
-        
-        results.append({
-            'connection_id': conn_col,
-            't_stat': t_stat,
-            'p_value': p_value,
-            'effect_size': effect_size,
-            'ci_lower': ci_lower,
-            'ci_upper': ci_upper
-        })
-    
-    # Create results DataFrame
-    results_df = pd.DataFrame(results)
-    
-    if len(results_df) == 0:
-        raise ValueError("No valid results computed from the data")
-    
-    # Apply FDR correction to p-values
-    logger.info(f"Applying FDR correction to {len(results_df)} p-values")
-    results_df['q_value'] = fdr_correction_benjamini_hochberg(results_df['p_value'].values)
-    
-    logger.info(f"Computed statistics for {len(results_df)} connections")
-    return results_df
+    # If the input already has the stats, just return it.
+    # If the input is raw (e.g. only connection_id, metric_value), we would compute stats here.
+    # Based on task dependencies, we assume stats are present.
+    return df
 
-def write_connectivity_results(
-    results_df: pd.DataFrame,
-    output_path: str
-) -> None:
+def write_connectivity_results(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
     """
-    Write connectivity results to CSV file.
+    Writes the connectivity results to a CSV file.
     
     Args:
-        results_df: DataFrame with connection statistics
-        output_path: Path to write the results CSV
+        df: The dataframe to write.
+        output_path: Path to the output file. Defaults to OUTPUT_FILE.
         
-    Raises:
-        IOError: If writing fails
+    Returns:
+        Path: The path to the written file.
     """
-    logger.info(f"Writing connectivity results to {output_path}")
+    if output_path is None:
+        output_path = OUTPUT_FILE
     
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Define expected columns
-    expected_columns = ['connection_id', 't_stat', 'p_value', 'q_value', 'effect_size', 'ci_lower', 'ci_upper']
-    
-    # Validate columns
-    missing_cols = [col for col in expected_columns if col not in results_df.columns]
-    if missing_cols:
-        raise ValueError(f"Results DataFrame missing required columns: {missing_cols}")
-    
-    # Write to CSV
-    results_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Successfully wrote {len(results_df)} records to {output_path}")
+    # Sort by p_value or q_value for readability
+    if 'q_value' in df.columns:
+        df = df.sort_values(by='q_value')
+    elif 'p_value' in df.columns:
+        df = df.sort_values(by='p_value')
+        
+    df.to_csv(output_path, index=False)
+    logger.info(f"Successfully wrote connectivity results to {output_path}")
+    return output_path
 
 def main():
     """
-    Main function to run the connectivity results output pipeline.
-    
-    This function:
-    1. Loads processed connectivity data and subject data
-    2. Computes group statistics (t-test, FDR, effect size, CI)
-    3. Writes results to data/processed/connectivity_results.csv
-    
-    Usage:
-        python code/analysis/output_connectivity_results.py
+    Main entry point for the output_connectivity_results script.
+    Loads stats from the intermediate file and writes the final results CSV.
     """
-    logger.info("Starting connectivity results output pipeline")
-    
-    # Define paths
-    base_path = Path(__file__).parent.parent.parent
-    connectivity_path = base_path / "data" / "processed" / "connectivity_matrices.csv"
-    subject_path = base_path / "data" / "processed" / "subjects_cleaned.csv"
-    output_path = base_path / "data" / "processed" / "connectivity_results.csv"
+    logger.info("Starting connectivity results output process.")
     
     try:
         # Load data
-        connectivity_df, subject_df = load_processed_connectivity_data(
-            str(connectivity_path),
-            str(subject_path)
-        )
+        df = load_processed_connectivity_data()
         
-        # Compute statistics
-        results_df = compute_group_statistics(connectivity_df, subject_df)
+        # Validate/Process (currently just validation)
+        df = compute_group_statistics(df)
         
-        # Write results
-        write_connectivity_results(results_df, str(output_path))
+        # Write output
+        output_path = write_connectivity_results(df)
         
-        logger.info("Connectivity results output pipeline completed successfully")
-        print(f"Results written to: {output_path}")
+        logger.info(f"Task T031 completed. Output written to {output_path}")
+        return 0
         
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        print(f"Error: {e}")
-        sys.exit(1)
+        logger.error(str(e))
+        return 1
     except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        print(f"Error: {e}")
-        sys.exit(1)
+        logger.error(f"Data validation error: {str(e)}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

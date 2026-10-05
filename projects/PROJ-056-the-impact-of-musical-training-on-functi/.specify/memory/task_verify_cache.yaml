@@ -1,3 +1,18 @@
+T013:
+  c: true
+  h: aae3446302fe7f91e77bf9e3f0f88ae0eb3e258f16f1833b032cd5aa31e68c0c
+  r: "The `tests/integration/test_ingestion.py` file exists, is non\u2011empty, and\
+    \ its `test_full_ingestion` function contains the exact required assertions checking\
+    \ that `data/processed/subjects_cleaned.csv` exists and has 10 rows (plus additional\
+    \ sanity checks). No further artifacts are needed for this task."
+T036:
+  c: false
+  h: 1d0c045347069668a612c20eab055ef3342e3b17b727ca2684e4539615c6ca97
+  r: The required output file `data/processed/correlation_results.csv` does not exist,
+    and the provided `connectivity_matrices.npy` is only a placeholder description,
+    not a real NumPy array. Moreover, the `correlation.py` script is truncated and
+    does not show the full implementation needed to compute the correlations and write
+    the CSV. These missing/placeholder artifacts mean the task is not genuinely completed.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
