@@ -1,29 +1,38 @@
 # Data artifacts (large files, generated outputs)
 data/
-data/raw/
-data/derived/
-data/logs/
-data/results/
-data/figures/
 
 # Python cache and bytecode
 *.pyc
+__pycache__/
 *.pyo
 *.pyd
-__pycache__/
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual environments
 venv/
-.venv/
+ENV/
 env/
-.env/
 
-# Logs
+# Logs and temporary files
 *.log
-
-# JSONL data files (often large or intermediate)
 *.jsonl
+.DS_Store
+Thumbs.db
 
 # IDE and editor files
 .idea/
@@ -32,23 +41,12 @@ env/
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Build artifacts
-dist/
-build/
-*.egg
-
-# Coverage reports
+# Testing and coverage
 .coverage
 htmlcov/
+.pytest_cache/
+.mypy_cache/
 
-# Jupyter notebooks cache
-.ipynb_checkpoints/
+# OS specific
+.Spotlight-V100
+.Trashes

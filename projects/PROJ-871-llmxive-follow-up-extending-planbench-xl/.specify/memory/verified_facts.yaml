@@ -1,5 +1,5 @@
-'|complete experiment hour limit must within':
-  quote: "Duration: 6 hours (8 pm \u2013 2 am)."
-  source_id: Rhythm 0
-  url: https://en.wikipedia.org/wiki/Rhythm_0
-  value: 6 hours
+'|agent baseline include model parameter temperature':
+  quote: ent temperatures (0.2, 0.5, and 0.7). This allows
+  source_id: '2402.11651'
+  url: https://arxiv.org/abs/2402.11651
+  value: '0.7'

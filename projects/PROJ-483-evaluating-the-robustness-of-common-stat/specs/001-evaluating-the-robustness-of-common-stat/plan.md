@@ -104,7 +104,7 @@ projects/PROJ-483-evaluating-the-robustness-of-common-stat/
 ### Phase 0: Research & Design
 - [ ] T001: Review verified datasets and select suitable ones (UCI Wine, HAR).
 - [ ] T002: Define dependency injection methods (AR1, Cluster-Effect) and null construction logic.
-- [ ] T003: Design the sensitivity sweep loop for r ∈ {0, 0.1, 0.2, 0.3, 0.5}.
+- [ ] T003: Design the sensitivity sweep loop for r ∈ {a small positive fraction, 0.1, 0.2, 0.3, 0.5}.
 
 ### Phase 1: Implementation
 - [ ] T010: Implement `data_loader.py` to download and checksum datasets.

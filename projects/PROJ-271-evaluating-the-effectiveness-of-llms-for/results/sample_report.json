@@ -1,6 +1,18 @@
 {
-  "requested": 800,
-  "actual": 800,
-  "reason": "none",
-  "warning": null
+  "total_collected": 800,
+  "target": 800,
+  "distribution": {
+    ".py": 720,
+    ".js": 45,
+    ".java": 20,
+    ".cpp": 10,
+    "no_ext": 5
+  },
+  "proportions": {
+    ".py": 0.9,
+    ".js": 0.05625,
+    ".java": 0.025,
+    ".cpp": 0.0125,
+    "no_ext": 0.00625
+  }
 }

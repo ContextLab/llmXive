@@ -18,7 +18,7 @@ A researcher needs to know exactly how much the false-positive rate of a standar
 **Acceptance Scenarios**:
 
 1. **Given** a public dataset with continuous variables and a configured null-hypothesis scenario, **When** the system injects AR(1) dependency with correlation $r=0.3$ and runs 10,000 Monte Carlo replications of a t-test, **Then** the output must report the observed Type I error rate with a [deferred] Clopper-Pearson exact confidence interval.
-2. **Given** the same dataset and null scenario, **When** the system varies $r$ across $\{0, 0.1, 0.2, 0.3, 0.5\}$, **Then** the output must show a monotonic increase in error rates (verified by a trend test with p < 0.05) as $r$ increases.
+2. **Given** the same dataset and null scenario, **When** the system varies $r$ across a range of non-negative values, **Then** the output must show a monotonic increase in error rates (verified by a trend test with p < 0.05) as $r$ increases.
 
 ---
 
@@ -47,7 +47,7 @@ A researcher needs to understand how statistical power is affected when non-inde
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with injected true effect (mean shift $\delta=1.0\sigma$) and AR(1) dependency ($r=0.3$), **When** the system runs 10,000 replications of a t-test, **Then** it must report the observed statistical power.
+1. **Given** a dataset with injected true effect (mean shift $\delta=1.0\sigma$) and AR(1) dependency ($r=0.3$), **When** the system runs a large number of replications of a t-test, **Then** it must report the observed statistical power.
 2. **Given** power results for $r=0$ and $r=0.3$, **When** the system compares them, **Then** it must quantify the percentage reduction in power due to the dependency.
 
 ---
@@ -68,7 +68,7 @@ A researcher needs to understand how statistical power is affected when non-inde
 - **FR-004**: System MUST execute Monte Carlo simulations with at least 10,000 replications per test-configuration combination to ensure error rate precision within a high degree of accuracy (See US-1, US-2).
 - **FR-005**: System MUST calculate and report observed Type I error rates and statistical power for t-tests, one-way ANOVA, and chi-squared tests across all dependency configurations (See US-1, US-2, US-3).
 - **FR-006**: System MUST generate comparative visualizations (e.g., error rate curves with 95% Clopper-Pearson CIs) plotting error rate/power against dependency strength for each test type (See US-2).
-- **FR-007**: System MUST implement a sensitivity analysis that sweeps the dependency strength threshold over the concrete set $r \in \{0, 0.1, 0.2, 0.3, 0.5\}$ to report how error rates vary, ensuring threshold robustness (See US-1, US-2).
+- **FR-007**: System MUST implement a sensitivity analysis that sweeps the dependency strength threshold over a concrete set of values to report how error rates vary, ensuring threshold robustness (See US-1, US-2).
 - **FR-008**: System MUST run the entire analysis pipeline on a CPU-only environment (specifically GitHub Actions ubuntu-latest, 2-core, 7GB RAM) ensuring execution of 10,000+ replications per configuration completes within 6 hours (See Assumptions).
 
 ### Key Entities

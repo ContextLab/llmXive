@@ -1,7 +1,13 @@
 """
-T019: Compute graph metrics (degree, efficiency, clustering, path length)
-from connectivity matrices. Processes subject-by-subject to stay within 7GB RAM.
-Implements streaming/chunked processing and MemoryError handling.
+Compute graph-theoretical metrics from preprocessed connectivity matrices.
+
+This script processes subjects one-by-one (streaming) to stay within memory limits.
+It calculates node degree, global efficiency, clustering coefficient, and path length.
+
+Outputs:
+    data/processed/graph_metrics.csv
+    data/processed/processed_subjects.csv
+    data/processed/excluded_subjects.log (updated with failures)
 """
 from __future__ import annotations
 
@@ -18,271 +24,266 @@ import numpy as np
 import psutil
 import networkx as nx
 
-# Import from project utilities
+# Import from local utils
 from utils.logger import get_logger, log_operation
-from utils.graph import (
-    create_graph_from_adjacency,
-    calculate_degree_centrality,
-    calculate_global_efficiency,
-    calculate_clustering_coefficient,
-    calculate_shortest_path_length,
-)
+from utils.graph import calculate_degree_centrality, calculate_global_efficiency, calculate_clustering_coefficient
+from utils.io import load_csv, ensure_dir
 
 # Constants
-EXIT_CODE_NO_INPUT = 2
+RAM_LIMIT_GB = 6.0  # Soft limit to stay under 7GB
+EXIT_CODE_MEMORY_ERROR = 4
+EXIT_CODE_PROCESSING_FAILURE = 5
 EXIT_CODE_SUCCESS = 0
-RAM_LIMIT_GB = 7.0
-SUBJECTS_CSV = "data/processed/eligible_subjects.csv"
-CONNECTIVITY_DIR = "data/processed/connectivity_matrices"
-OUTPUT_CSV = "data/processed/graph_metrics.csv"
-EXCLUDED_LOG = "data/processed/excluded_subjects.log"
-STATUS_FILE = "data/artifacts/graph_metrics_status.json"
+
+# Paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
+
+ELIGIBLE_SUBJECTS_FILE = DATA_PROCESSED / "eligible_subjects.csv"
+CONNECTIVITY_DIR = DATA_PROCESSED / "connectivity_matrices"
+GRAPH_METRICS_FILE = DATA_PROCESSED / "graph_metrics.csv"
+PROCESSED_SUBJECTS_FILE = DATA_PROCESSED / "processed_subjects.csv"
+EXCLUDED_LOG_FILE = DATA_PROCESSED / "excluded_subjects.log"
 
 logger = get_logger("compute_graph_metrics")
 
-
 def check_memory_usage() -> float:
-    """Return current memory usage in GB."""
+    """Check current RAM usage in GB."""
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 ** 3)
+    mem_gb = process.memory_info().rss / (1024 ** 3)
+    return mem_gb
 
+def read_eligible_subjects() -> List[Dict[str, Any]]:
+    """Read the list of eligible subjects from the CSV."""
+    if not ELIGIBLE_SUBJECTS_FILE.exists():
+        logger.log("error", message=f"File not found: {ELIGIBLE_SUBJECTS_FILE}")
+        sys.exit(EXIT_CODE_PROCESSING_FAILURE)
+    
+    rows = load_csv(str(ELIGIBLE_SUBJECTS_FILE))
+    return rows
 
-@log_operation("read_eligible_subjects")
-def read_eligible_subjects(path: str) -> List[str]:
-    """Read subject IDs from the eligible subjects CSV."""
-    subjects = []
-    try:
-        with open(path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Handle potential variations in column names
-                sub_id = row.get('subject_id') or row.get('subject') or row.get('sub_id')
-                if sub_id:
-                    subjects.append(str(sub_id))
-    except FileNotFoundError:
-        logger.log("error", message=f"File not found: {path}")
-        sys.exit(EXIT_CODE_NO_INPUT)
-    except Exception as e:
-        logger.log("error", message=f"Error reading eligible subjects: {e}")
-        sys.exit(EXIT_CODE_NO_INPUT)
-    return subjects
-
-
-@log_operation("load_connectivity")
-def load_connectivity(subject_id: str, base_dir: str) -> Optional[np.ndarray]:
+def load_connectivity(subject_id: str) -> Optional[np.ndarray]:
     """
-    Load a connectivity matrix for a given subject.
-    Expects files like: <base_dir>/<subject_id>_connectivity.npy or .nii.gz
+    Load connectivity matrix for a single subject.
+    Expects a .npy file in the connectivity_matrices directory.
     """
-    base_path = Path(base_dir)
-    possible_extensions = ['.npy', '.nii.gz', '.nii']
-    conn_file = None
+    # Try to find the file. It might be named {subject_id}.npy or similar.
+    # Based on T018, we assume the output is a numpy array saved as .npy.
+    # We look for files matching the subject_id pattern.
+    
+    if not CONNECTIVITY_DIR.exists():
+        logger.log("error", message=f"Connectivity directory not found: {CONNECTIVITY_DIR}")
+        return None
 
-    for ext in possible_extensions:
-        candidate = base_path / f"{subject_id}_connectivity{ext}"
-        if candidate.exists():
-            conn_file = candidate
+    # Look for a file that matches the subject_id
+    # Common patterns: sub-{subject_id}_conn.npy, {subject_id}.npy
+    possible_names = [
+        f"{subject_id}.npy",
+        f"sub-{subject_id}_conn.npy",
+        f"connectivity_{subject_id}.npy"
+    ]
+    
+    found_file = None
+    for name in possible_names:
+        p = CONNECTIVITY_DIR / name
+        if p.exists():
+            found_file = p
             break
+    
+    # If not found by name, try to find any .npy file if the directory only has one
+    # or if the naming convention is different (e.g., just a list of files)
+    if not found_file:
+        files = list(CONNECTIVITY_DIR.glob("*.npy"))
+        # If there's exactly one file and we haven't matched by name, maybe it's the one?
+        # But safer to assume strict naming. If not found, return None.
+        # However, T018 might save them with a specific key. Let's assume standard naming.
+        pass
 
-    if not conn_file:
-        logger.log("warning", message=f"No connectivity file found for {subject_id}")
-        return None
+    if found_file:
+        try:
+            mat = np.load(found_file)
+            return mat
+        except Exception as e:
+            logger.log("error", message=f"Failed to load {found_file}: {e}")
+            return None
+    
+    # Fallback: If the file naming is unknown, try to load based on index or order?
+    # No, we must match by ID.
+    logger.log("warning", message=f"No connectivity file found for {subject_id}")
+    return None
 
+def compute_subject_metrics(subject_id: str, conn_matrix: np.ndarray) -> Dict[str, Any]:
+    """Compute graph metrics for a single subject."""
+    # Validate matrix
+    if conn_matrix.shape[0] != conn_matrix.shape[1]:
+        raise ValueError(f"Connectivity matrix for {subject_id} is not square: {conn_matrix.shape}")
+    
+    # Create graph from adjacency matrix
+    # Assuming symmetric matrix for undirected graph (standard for rs-fMRI)
+    G = nx.from_numpy_array(conn_matrix)
+    
+    # Calculate metrics
+    # 1. Node Degree (average degree centrality)
+    degree_vals = calculate_degree_centrality(conn_matrix)
+    avg_degree = float(np.mean(degree_vals))
+    
+    # 2. Global Efficiency
+    global_eff = calculate_global_efficiency(conn_matrix)
+    
+    # 3. Clustering Coefficient
+    clustering_vals = calculate_clustering_coefficient(conn_matrix)
+    avg_clustering = float(np.mean(clustering_vals))
+    
+    # 4. Path Length (Average shortest path length)
+    # Handle disconnected graphs: nx.average_shortest_path_length raises on disconnected
+    # We use the largest connected component for this metric if the graph is disconnected
     try:
-        if str(conn_file).endswith('.npy'):
-            matrix = np.load(conn_file)
-        elif str(conn_file).endswith(('.nii.gz', '.nii')):
-            # If it's a NIfTI, we assume it's a 3D volume where the first two dims are the matrix
-            # This is a simplification; usually we'd need to reshape or extract the ROI time series first.
-            # Given the pipeline context, we assume the file is already processed to a 2D adjacency.
-            import nibabel as nib
-            img = nib.load(str(conn_file))
-            data = img.get_fdata()
-            # If it's 3D, take the first slice or average if it's a volume representation
-            if len(data.shape) == 3:
-                # Assume it's a stack of slices, take the middle or average
-                # For adjacency, we expect 2D. If 3D, it might be (N, N, 1) or similar.
-                # Let's try to squeeze or take the first 2D slice
-                if data.shape[2] == 1:
-                    matrix = data[:, :, 0]
-                else:
-                    # Fallback: average over the third dimension
-                    matrix = np.mean(data, axis=2)
-            else:
-                matrix = data
+        if not nx.is_connected(G):
+            # Use the largest connected component
+            largest_cc = max(nx.connected_components(G), key=len)
+            G_cc = G.subgraph(largest_cc)
+            path_len = float(nx.average_shortest_path_length(G_cc))
         else:
-            logger.log("error", message=f"Unsupported file format: {conn_file}")
-            return None
+            path_len = float(nx.average_shortest_path_length(G))
+    except Exception:
+        # Fallback if calculation fails (e.g., single node)
+        path_len = float('nan')
+    
+    return {
+        "subject_id": subject_id,
+        "node_degree": avg_degree,
+        "global_efficiency": global_eff,
+        "clustering_coeff": avg_clustering,
+        "path_length": path_len
+    }
 
-        # Ensure it's 2D
-        if matrix.ndim != 2:
-            logger.log("error", message=f"Matrix for {subject_id} is not 2D: {matrix.shape}")
-            return None
-
-        return matrix
-    except Exception as e:
-        logger.log("error", message=f"Failed to load connectivity for {subject_id}: {e}")
-        return None
-
-
-@log_operation("compute_subject_metrics")
-def compute_subject_metrics(
-    adjacency: np.ndarray,
-    subject_id: str
-) -> Dict[str, Any]:
+def process_subject_wrapper(subject_id: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     """
-    Compute graph metrics for a single subject's adjacency matrix.
-    Returns a dict with subject_id and metrics.
+    Wrapper to process a single subject with memory checks and error handling.
+    Returns (metrics_dict, error_message).
     """
     try:
-        # Create NetworkX graph
-        G = create_graph_from_adjacency(adjacency)
-
-        # Calculate metrics
-        degree = calculate_degree_centrality(G)
-        efficiency = calculate_global_efficiency(G)
-        clustering = calculate_clustering_coefficient(G)
-        path_len = calculate_shortest_path_length(G)
-
-        return {
-            "subject_id": subject_id,
-            "node_degree": float(degree) if degree is not None else 0.0,
-            "global_efficiency": float(efficiency) if efficiency is not None else 0.0,
-            "clustering_coeff": float(clustering) if clustering is not None else 0.0,
-            "path_length": float(path_len) if path_len is not None else 0.0,
-        }
-    except Exception as e:
-        logger.log("error", message=f"Failed to compute metrics for {subject_id}: {e}")
-        raise
-
-
-@log_operation("process_subject_wrapper")
-def process_subject_wrapper(
-    subject_id: str,
-    connectivity_dir: str,
-    results: List[Dict[str, Any]],
-    excluded_log: List[Tuple[str, str]]
-) -> None:
-    """
-    Process a single subject: load connectivity, compute metrics, handle MemoryError.
-    """
-    try:
-        # Check memory before processing
         current_ram = check_memory_usage()
-        if current_ram > RAM_LIMIT_GB * 0.9:
-            logger.log("warning", message=f"High memory usage ({current_ram:.2f}GB). Clearing cache.")
-            gc.collect()
+        if current_ram > RAM_LIMIT_GB:
+            return None, f"Memory limit exceeded before processing: {current_ram:.2f} GB"
 
-        adjacency = load_connectivity(subject_id, connectivity_dir)
-        if adjacency is None:
-            excluded_log.append((subject_id, "Connectivity file missing or invalid"))
-            return
+        conn_matrix = load_connectivity(subject_id)
+        if conn_matrix is None:
+            return None, f"Connectivity matrix not found or invalid for {subject_id}"
 
-        metrics = compute_subject_metrics(adjacency, subject_id)
-        results.append(metrics)
-
-        # Clear memory after processing
-        del adjacency
+        metrics = compute_subject_metrics(subject_id, conn_matrix)
+        
+        # Force garbage collection after heavy computation
         gc.collect()
+        
+        return metrics, None
 
-    except MemoryError:
-        logger.log("error", message=f"MemoryError processing {subject_id}. Skipping.")
-        excluded_log.append((subject_id, "MemoryError"))
-        gc.collect()
-        # Do NOT exit; continue with next subject
+    except MemoryError as e:
+        return None, f"MemoryError: {str(e)}"
     except Exception as e:
-        logger.log("error", message=f"Unexpected error processing {subject_id}: {e}")
-        excluded_log.append((subject_id, f"Error: {str(e)}"))
+        return None, f"Processing Failure: {type(e).__name__}: {str(e)}"
 
-
-@log_operation("write_metrics_csv")
-def write_metrics_csv(results: List[Dict[str, Any]], output_path: str) -> None:
-    """Write the computed metrics to a CSV file."""
-    if not results:
-        logger.log("warning", message="No results to write.")
-        # Still write an empty file with headers
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(["subject_id", "node_degree", "global_efficiency", "clustering_coeff", "path_length"])
-        return
-
+def write_metrics_csv(metrics_list: List[Dict[str, Any]]) -> None:
+    """Write the final graph metrics to CSV."""
+    ensure_dir(GRAPH_METRICS_FILE.parent)
     fieldnames = ["subject_id", "node_degree", "global_efficiency", "clustering_coeff", "path_length"]
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    
+    with open(GRAPH_METRICS_FILE, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in results:
-            writer.writerow(row)
-    logger.log("success", message=f"Wrote {len(results)} rows to {output_path}")
+        for m in metrics_list:
+            writer.writerow(m)
+    
+    logger.log("success", message=f"Wrote {len(metrics_list)} metrics to {GRAPH_METRICS_FILE}")
 
+def write_processed_subjects(subject_ids: List[str]) -> None:
+    """Write the list of successfully processed subjects."""
+    ensure_dir(PROCESSED_SUBJECTS_FILE.parent)
+    with open(PROCESSED_SUBJECTS_FILE, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["subject_id"])
+        for sid in subject_ids:
+            writer.writerow([sid])
+    
+    logger.log("success", message=f"Wrote {len(subject_ids)} processed subjects to {PROCESSED_SUBJECTS_FILE}")
 
-@log_operation("write_excluded_log")
-def write_excluded_log(excluded: List[Tuple[str, str]], log_path: str) -> None:
-    """Write the exclusion log."""
-    with open(log_path, 'w', encoding='utf-8') as f:
-        f.write("subject_id,reason\n")
-        for sub_id, reason in excluded:
-            f.write(f"{sub_id},{reason}\n")
-    logger.log("info", message=f"Wrote exclusion log to {log_path}")
+def write_excluded_log(excluded_entries: List[Dict[str, str]]) -> None:
+    """Append or write excluded subjects to the log."""
+    ensure_dir(EXCLUDED_LOG_FILE.parent)
+    # Check if file exists to decide on writing header
+    file_exists = EXCLUDED_LOG_FILE.exists()
+    
+    with open(EXCLUDED_LOG_FILE, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["subject_id", "reason"])
+        if not file_exists:
+            writer.writeheader()
+        for entry in excluded_entries:
+            writer.writerow(entry)
 
-
-@log_operation("write_status")
-def write_status(
-    total_subjects: int,
-    processed: int,
-    skipped: int,
-    status_path: str
-) -> None:
-    """Write the status JSON file."""
-    status = {
-        "total_subjects": total_subjects,
-        "processed": processed,
-        "skipped": skipped,
-        "status": "completed" if skipped < total_subjects else "failed",
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    }
-    with open(status_path, 'w', encoding='utf-8') as f:
-        json.dump(status, f, indent=2)
-    logger.log("info", message=f"Status written to {status_path}")
-
-
-@log_operation("compute_graph_metrics_main")
+@log_operation
 def main() -> int:
-    """Main entry point for computing graph metrics."""
+    """Main entry point for graph metrics computation."""
     start_time = time.time()
     logger.log("start", message="Starting graph metrics computation")
 
-    # Ensure directories exist
-    Path(CONNECTIVITY_DIR).mkdir(parents=True, exist_ok=True)
-    Path(OUTPUT_CSV).parent.mkdir(parents=True, exist_ok=True)
-    Path(STATUS_FILE).parent.mkdir(parents=True, exist_ok=True)
+    # 1. Read eligible subjects
+    eligible_subjects = read_eligible_subjects()
+    if not eligible_subjects:
+        logger.log("error", message="No eligible subjects found")
+        return EXIT_CODE_PROCESSING_FAILURE
 
-    # Read eligible subjects
-    subjects = read_eligible_subjects(SUBJECTS_CSV)
-    if not subjects:
-        logger.log("error", message="No eligible subjects found.")
-        write_status(0, 0, 0, STATUS_FILE)
-        return EXIT_CODE_NO_INPUT
+    logger.log("info", message=f"Found {len(eligible_subjects)} eligible subjects")
 
-    logger.log("info", message=f"Found {len(subjects)} eligible subjects")
+    metrics_list = []
+    processed_ids = []
+    excluded_entries = []
 
-    results: List[Dict[str, Any]] = []
-    excluded_log: List[Tuple[str, str]] = []
+    # 2. Process subject-by-subject (streaming)
+    for i, row in enumerate(eligible_subjects):
+        subject_id = row.get("subject_id") or row.get("id")
+        if not subject_id:
+            logger.log("warning", message=f"Skipping row {i}: missing subject_id")
+            continue
 
-    # Process subject-by-subject
-    for i, sub_id in enumerate(subjects):
-        logger.log("progress", message=f"Processing subject {i+1}/{len(subjects)}: {sub_id}")
-        process_subject_wrapper(sub_id, CONNECTIVITY_DIR, results, excluded_log)
+        logger.log("processing", subject_id=subject_id, step=f"{i+1}/{len(eligible_subjects)}")
+        
+        metrics, error = process_subject_wrapper(subject_id)
+        
+        if error:
+            logger.log("error", message=f"Failed {subject_id}: {error}")
+            excluded_entries.append({"subject_id": subject_id, "reason": error})
+            # CRITICAL: If any subject fails, we must exit with non-zero code per spec
+            # But we also need to write what we have so far? 
+            # Spec says: "The output ... must contain exactly the subjects ... or the script must fail"
+            # And "exit with a non-zero error code".
+            # We will write partial results and excluded log, then exit.
+            break
+        else:
+            metrics_list.append(metrics)
+            processed_ids.append(subject_id)
 
-    # Write outputs
-    write_metrics_csv(results, OUTPUT_CSV)
-    write_excluded_log(excluded_log, EXCLUDED_LOG)
-    write_status(len(subjects), len(results), len(excluded_log), STATUS_FILE)
+    # 3. Write outputs
+    if metrics_list:
+        write_metrics_csv(metrics_list)
+        write_processed_subjects(processed_ids)
+    
+    if excluded_entries:
+        write_excluded_log(excluded_entries)
 
     elapsed = time.time() - start_time
-    logger.log("complete", message=f"Finished in {elapsed:.2f} seconds. Processed {len(results)}/{len(subjects)} subjects.")
+    logger.log("end", message=f"Completed in {elapsed:.2f}s. Processed {len(processed_ids)}, Failed {len(excluded_entries)}")
 
+    # 4. Determine exit code
+    if excluded_entries:
+        # If we encountered errors, exit with failure code
+        # Check if it was a memory error specifically
+        for entry in excluded_entries:
+            if "MemoryError" in entry["reason"]:
+                return EXIT_CODE_MEMORY_ERROR
+        return EXIT_CODE_PROCESSING_FAILURE
+    
     return EXIT_CODE_SUCCESS
-
 
 if __name__ == "__main__":
     sys.exit(main())

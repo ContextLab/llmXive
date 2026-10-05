@@ -1,19 +1,30 @@
 T017a:
   c: false
-  h: 148eb848ab0c84f5fc592eef2a355f2db65e2f983e3ac62cb83f0ab976166465
-  r: "The required `data/processed/eligible_subjects.csv` file is absent, and the\
-    \ generated `data/artifacts/data_gate_status.json` records a download error rather\
-    \ than a proper \u201Cno eligible subjects\u201D status with the specified exit\
-    \ code. The script also appears truncated and does not demonstrably perform the\
-    \ filtering, sample\u2011size limiting, and CSV generation mandated by the task."
+  h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0
+  r: "The repository contains `code/01_download_and_filter.py`, but the script does\
+    \ not actually produce the required output files \u2013 `data/processed/eligible_subjects.csv`\
+    \ and `data/processed/excluded_subjects.log` are missing. Moreover, the code contains\
+    \ placeholder comments about simulating downloads and does not implement the full\
+    \ filtering, logging, or exit\u2011code logic required by the task. The missing\
+    \ artifacts must be generated for the task to be considered complete."
 T018:
   c: false
-  h: c8ede5b1f5df441aed56742fc2816aabc65d78e79a9da0dd77ef9fa5fe797e06
-  r: The required `data/processed/eligible_subjects.csv` file is absent, so the script
-    cannot load the subject list as specified. Moreover, the provided `code/02_preprocess_and_parcellate.py`
-    is truncated and does not demonstrably perform motion correction, MNI152 normalization,
-    AAL parcellation, or connectivity matrix computation. The essential output files
-    are therefore not guaranteed to be produced.
+  h: 0f7cb0f1734a91619158d10b498f6d7ebb0dfdc3f2fae4a4170d8f3cba720825
+  r: "The `code/02_preprocess_and_parcellate.py` file is present but truncated, so\
+    \ it does not demonstrably perform motion correction, MNI152 normalization, AAL\
+    \ atlas application, or connectivity matrix computation. Moreover, the required\
+    \ input file `data/processed/eligible_subjects.csv` is missing, preventing the\
+    \ script from loading subject IDs. The task\u2019s core functionality and required\
+    \ data are therefore not satisfied."
+T019:
+  c: true
+  h: a8743582937cc33e07bf9325bf09a5eff8e45436f98e897d7218fa38289e4cc9
+  r: "The repository contains a non\u2011empty `code/03_compute_graph_metrics.py`\
+    \ implementing the required streaming processing, psutil RAM monitoring, error\
+    \ logging, and defined exit codes, and it references the expected output files\
+    \ (`graph_metrics.csv`, `processed_subjects.csv`, `excluded_subjects.log`). No\
+    \ placeholder or stub code is present. The missing data files are inputs for runtime\
+    \ execution, not required artifacts for the implementation task."
 T024:
   c: false
   h: 31d53fe7a6ba24cea67ea7fd9f057136d545030d078ab9b4fbdf0fe4b6af7d19

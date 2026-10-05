@@ -1,35 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
-    directory or its `code/`, `data/`, `tests/` subfolders (and their subfolders from
-    `plan.md`) was provided. The implementer did not supply any filesystem artifact
-    confirming the project structure was created.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No .gitignore file content or confirmation of its existence at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
-    is provided; thus the required artifact is missing.
-T002a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No virtual environment directory or any files were presented at the specified\
-    \ path, so the required artifact does not exist. The task\u2019s core requirement\u2014\
-    creating a Python venv in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`\u2014\
-    is unmet."
-T002b:
-  c: false
-  h: 94937f1337c374e700449f4e3b14426d5bf5980447d23eb4dd10fce11ebca3b1
-  r: The required `requirements.txt` file at the specified path is missing, so no
-    dependencies could be installed into the virtual environment. Without this artifact
-    the task cannot be considered fulfilled.
-T002c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence (e.g., screenshots, command output, or logs) showing that a virtual
-    environment was activated and that `python --version` and `pip list` were run
-    and verified is provided. The required artifact is missing, so the task is not
-    satisfied.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

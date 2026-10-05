@@ -36,8 +36,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. This includes the synthetic injection of the "implicit failure" subset.
 
-- [ ] T002a [P] Create Python virtual environment in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`
-- [ ] T002b [P] Install dependencies from `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` into the venv
+- [ ] T002a [P] Create Python virtual environment in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/` <!-- ATOMIZE: requested -->
+- [ ] T002b [P] Install dependencies from `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` into the venv <!-- FAILED: unspecified -->
 - [ ] T002c [P] Activate venv and verify `python --version` and `pip list`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
 - [X] T004 [P] Implement deterministic configuration loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/utils/config.py` (seeds, hyperparameters, CPU-only flags)

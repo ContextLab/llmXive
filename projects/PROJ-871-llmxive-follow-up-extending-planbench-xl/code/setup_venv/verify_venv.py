@@ -1,92 +1,93 @@
-"""
-Verification script for the Python virtual environment.
-This script activates the venv (conceptually, by checking paths),
-verifies the Python version, and lists installed packages.
-It is designed to be run from the project root or the venv directory.
-"""
 import os
 import sys
 import subprocess
 from pathlib import Path
 
 def get_project_root() -> Path:
-    """Determine the project root directory."""
-    # The project root is the parent of 'code'
+    """Get the project root directory."""
+    # Assuming the script is run from the project root or code/setup_venv/
     current = Path(__file__).resolve()
-    code_dir = current.parent
-    # If this file is in code/setup_venv/, project root is code/..
-    if code_dir.name == "code":
-        return code_dir.parent
-    # Fallback: look for the specific project folder name
-    candidate = current.parent.parent.parent.parent
-    if candidate.name == "PROJ-871-llmxive-follow-up-extending-planbench-xl":
-        return candidate
-    return Path.cwd()
+    # Navigate up to the project root based on the known structure
+    # code/setup_venv/verify_venv.py -> project root is 3 levels up
+    return current.parent.parent.parent
 
 def verify_venv() -> bool:
     """
-    Verify that the virtual environment is correctly set up.
-    Checks:
-    1. The venv directory exists.
-    2. The Python executable exists and is valid.
-    3. The 'python --version' command works.
-    4. The 'pip list' command works and shows expected packages.
+    Verify that the virtual environment is activated and dependencies are installed.
+    Runs:
+      1. python --version
+      2. pip list
+    Returns True if successful, False otherwise.
     """
     project_root = get_project_root()
     venv_path = project_root / "venv"
-    python_exec = venv_path / "bin" / "python"
-    
-    # Check if venv directory exists
+
     if not venv_path.exists():
-        print(f"ERROR: Virtual environment directory not found at {venv_path}")
+        print(f"ERROR: Virtual environment not found at {venv_path}")
         return False
 
-    # Check if python executable exists
+    # Determine the python executable based on OS
+    if sys.platform == "win32":
+        python_exec = venv_path / "Scripts" / "python.exe"
+        pip_exec = venv_path / "Scripts" / "pip.exe"
+    else:
+        python_exec = venv_path / "bin" / "python"
+        pip_exec = venv_path / "bin" / "pip"
+
     if not python_exec.exists():
         print(f"ERROR: Python executable not found at {python_exec}")
         return False
 
     print(f"Verifying virtual environment at: {venv_path}")
-    print("-" * 40)
+    print("-" * 60)
 
-    # 1. Check Python Version
+    # 1. Check Python version
+    print("Running: python --version")
     try:
         result = subprocess.run(
             [str(python_exec), "--version"],
+            check=True,
             capture_output=True,
-            text=True,
-            check=True
+            text=True
         )
-        print(f"Python Version: {result.stdout.strip()}")
+        print(f"Output: {result.stdout.strip()}")
+        if result.stderr:
+            print(f"Stderr: {result.stderr.strip()}")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to get Python version: {e}")
+        print(f"ERROR: Failed to run python --version: {e}")
         return False
     except FileNotFoundError:
-        print(f"ERROR: Python executable not found at {python_exec}")
+        print(f"ERROR: Python executable '{python_exec}' not found.")
         return False
 
-    # 2. Check Pip List
+    print("-" * 60)
+
+    # 2. Check pip list
+    print("Running: pip list")
     try:
         result = subprocess.run(
-            [str(python_exec), "-m", "pip", "list"],
+            [str(pip_exec), "list"],
+            check=True,
             capture_output=True,
-            text=True,
-            check=True
+            text=True
         )
-        print("\nInstalled Packages:")
+        print("Output:")
         print(result.stdout)
         if result.stderr:
-            print("Warnings/Errors from pip:", result.stderr)
+            print(f"Stderr: {result.stderr.strip()}")
     except subprocess.CalledProcessError as e:
         print(f"ERROR: Failed to run pip list: {e}")
         return False
+    except FileNotFoundError:
+        print(f"ERROR: Pip executable '{pip_exec}' not found.")
+        return False
 
-    print("-" * 40)
+    print("-" * 60)
     print("Verification successful.")
     return True
 
 def main():
-    """Entry point for the verification script."""
+    """Entry point for verification script."""
     success = verify_venv()
     sys.exit(0 if success else 1)
 

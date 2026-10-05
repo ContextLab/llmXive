@@ -64,3 +64,36 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/UCI/adult/resolve/main/adult.csv
   verified_at: '2026-09-09T07:12:23.051465Z'
+- artifact_hash: e59a9a5bc2ff3d25d4cc6f70d8cd54438fd578c2156c7eebcc5744957d4ac4f1
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: wine.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+  verified_at: '2026-10-05T21:55:01.216031Z'
+- artifact_hash: e59a9a5bc2ff3d25d4cc6f70d8cd54438fd578c2156c7eebcc5744957d4ac4f1
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: car.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data
+  verified_at: '2026-10-05T21:55:01.216031Z'
+- artifact_hash: e59a9a5bc2ff3d25d4cc6f70d8cd54438fd578c2156c7eebcc5744957d4ac4f1
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: zoo.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/zoo/zoo.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/zoo/zoo.data
+  verified_at: '2026-10-05T21:55:01.216031Z'

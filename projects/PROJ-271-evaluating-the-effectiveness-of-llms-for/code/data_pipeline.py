@@ -3,217 +3,215 @@ import json
 import logging
 import subprocess
 import tempfile
+import time
 from typing import List, Dict, Any, Optional, Tuple
+from collections import Counter
 
-from datasets import load_dataset
 import pandas as pd
+from datasets import load_dataset
 from radon.raw import analyze as radon_analyze
 from radon.complexity import cc_visit
-from radon.visitors import ComplexityVisitor
-import ast
+import pylint.lint
+from io import StringIO
+import sys
 
 from config import get_data_path, get_results_path, setup_logging
-from monitoring import record_batch_metrics, save_metrics_to_file, get_peak_ram_for_batch
-from helpers import compute_radon_metrics_safe
+from monitoring import get_ram_usage_mb, get_cpu_utilization, record_batch_metrics, save_metrics_to_file
 
+# Configure logging
 logger = setup_logging(__name__)
 
 # Constants
+RANDOM_SEED = 42
 TARGET_SAMPLE_SIZE = 800
 MAX_RUNTIME_HOURS = 5.5
-RANDOM_SEED = 42
-BATCH_SIZE = 50
+BATCH_SIZE = 10
 
-def verify_dataset_source() -> bool:
+def verify_dataset_source(dataset_id: str, split: str) -> bool:
     """Verify the dataset is accessible before attempting to stream."""
     try:
-        ds = load_dataset("codeparrot/github-code", streaming=True, split="train")
-        # Try to get one item to verify connectivity
+        ds = load_dataset(dataset_id, split=split, streaming=True)
+        # Attempt to fetch one item to verify connectivity
         next(iter(ds))
-        logger.info("Dataset 'codeparrot/github-code' verified accessible.")
+        logger.info(f"Dataset {dataset_id} split {split} verified successfully.")
         return True
     except Exception as e:
-        logger.error(f"Dataset verification failed: {e}")
-        raise ConnectionError(f"Cannot access dataset 'codeparrot/github-code': {e}")
+        logger.error(f"Failed to verify dataset source {dataset_id}: {e}")
+        raise ConnectionError(f"Dataset {dataset_id} is unreachable: {e}")
 
-def _estimate_time_per_function(sample_size: int = 10) -> float:
-    """Estimate time to process a single function by sampling a small batch."""
-    import time
-    ds = load_dataset("codeparrot/github-code", streaming=True, split="train")
-    start = time.time()
-    count = 0
-    for item in ds:
-        if count >= sample_size:
-            break
-        # Simulate minimal processing
-        _ = item.get("code", "")
-        count += 1
-    elapsed = time.time() - start
-    return elapsed / max(count, 1)
-
-def load_sampled_functions(target_size: int = TARGET_SAMPLE_SIZE) -> List[Dict[str, Any]]:
+def load_sampled_functions(dataset_id: str = "codeparrot/github-code", split: str = "train", target_size: int = TARGET_SAMPLE_SIZE) -> List[Dict[str, Any]]:
     """
-    Load functions from codeparrot/github-code with stratified sampling.
-    
-    Implements stratified sampling based on 'repo_name' metadata to prevent
-    bias towards a single code style, as per T053 requirements.
-    Falls back to random sampling if 'repo_name' is missing or insufficient
-    for stratification.
+    Load functions from the dataset with stratified sampling based on file extension.
+    Ensures proportional distribution across file types to prevent bias.
     """
-    logger.info(f"Starting stratified sampling for {target_size} functions.")
-    verify_dataset_source()
+    logger.info(f"Loading and stratifying sample from {dataset_id}...")
     
-    # Estimate time per function to enforce runtime constraints
-    est_time = _estimate_time_per_function()
-    max_samples_by_time = int((MAX_RUNTIME_HOURS * 3600) / est_time)
+    # Load dataset with streaming
+    ds = load_dataset(dataset_id, split=split, streaming=True)
     
-    if max_samples_by_time < target_size:
-        logger.warning(f"Runtime constraint limits sample to {max_samples_by_time} functions.")
-        target_size = max_samples_by_time
+    # First pass: Collect statistics on file extensions (stratification key)
+    # We need to estimate the distribution to sample proportionally
+    # Since we can't load everything, we sample a large chunk to estimate distribution
+    # or use the dataset's metadata if available.
     
-    if target_size < 100:
-        logger.warning(f"Sample size reduced to {target_size} due to time constraints. Proceeding.")
-        # Log deviation to sample_report.json
-        report_path = get_results_path("sample_report.json")
-        os.makedirs(os.path.dirname(report_path), exist_ok=True)
-        with open(report_path, 'w') as f:
-            json.dump({
-                "requested": TARGET_SAMPLE_SIZE,
-                "actual": target_size,
-                "reason": "runtime_constraint",
-                "warning": "Sample size significantly reduced."
-            }, f, indent=2)
+    # Strategy: 
+    # 1. Stream a representative subset (e.g., 10k items) to estimate distribution
+    # 2. Calculate target counts per stratum
+    # 3. Stream the full dataset again and collect items until quotas are met
+    
+    estimate_sample_size = 10000
+    logger.info(f"Estimating distribution from {estimate_sample_size} items...")
+    
+    distribution_counter = Counter()
+    total_estimated = 0
+    
+    try:
+        for i, item in enumerate(ds):
+            if i >= estimate_sample_size:
+                break
+            path = item.get("path", "")
+            if path:
+                ext = os.path.splitext(path)[1] or "no_ext"
+                distribution_counter[ext] += 1
+                total_estimated += 1
+    except Exception as e:
+        logger.warning(f"Error during distribution estimation: {e}. Falling back to random sampling.")
+        # Fallback: simple random sample if stratification fails
+        ds_sample = ds.shuffle(seed=RANDOM_SEED).take(target_size)
+        return [item for item in ds_sample]
+    
+    if total_estimated == 0:
+        logger.warning("No files found in estimate sample. Falling back to random sampling.")
+        ds_sample = ds.shuffle(seed=RANDOM_SEED).take(target_size)
+        return [item for item in ds_sample]
 
-    ds = load_dataset("codeparrot/github-code", streaming=True, split="train")
+    # Calculate proportions
+    proportions = {k: v / total_estimated for k, v in distribution_counter.items()}
+    logger.info(f"Estimated distribution: {proportions}")
     
-    # Attempt stratified sampling by repo_name
-    # We collect counts first to determine strata proportions
-    strata_counts = {}
-    buffer = []
-    count = 0
+    # Calculate target counts per stratum
+    strata_targets = {k: int(v * target_size) for k, v in proportions.items()}
     
-    # First pass: collect strata distribution (limited to avoid infinite stream)
-    # We assume the stream is large enough to get a representative sample of strata
-    # We'll sample a larger initial set to determine proportions
-    initial_scan_limit = 5000 
-    for item in ds:
-        if count >= initial_scan_limit:
-            break
-        repo = item.get("repo_name", "unknown")
-        strata_counts[repo] = strata_counts.get(repo, 0) + 1
-        count += 1
+    # Ensure we meet the target size (adjust last bucket if needed)
+    current_sum = sum(strata_targets.values())
+    if current_sum < target_size:
+        # Add the remainder to the largest stratum
+        max_stratum = max(strata_targets, key=strata_targets.get)
+        strata_targets[max_stratum] += (target_size - current_sum)
     
-    total_scanned = sum(strata_counts.values())
-    strata_proportions = {k: v / total_scanned for k, v in strata_counts.items()}
+    logger.info(f"Stratification targets: {strata_targets}")
     
-    logger.info(f"Identified {len(strata_proportions)} strata (repos) for stratification.")
-    
-    # Calculate samples per stratum
-    samples_per_stratum = {}
-    remaining = target_size
-    strata_list = list(strata_proportions.keys())
-    
-    # Proportional allocation
-    for i, repo in enumerate(strata_list):
-        if i == len(strata_list) - 1:
-            # Last stratum gets the remainder
-            samples_per_stratum[repo] = remaining
-        else:
-            count = int(target_size * strata_proportions[repo])
-            samples_per_stratum[repo] = count
-            remaining -= count
-    
-    # Ensure we don't exceed target
-    if sum(samples_per_stratum.values()) > target_size:
-        # Adjust last one down
-        last_repo = strata_list[-1]
-        samples_per_stratum[last_repo] -= (sum(samples_per_stratum.values()) - target_size)
-    
-    logger.info(f"Stratified allocation: {samples_per_stratum}")
-
-    # Second pass: collect functions per stratum
-    # Since streaming doesn't support direct filtering by value efficiently without full scan,
-    # we implement a reservoir-like approach per stratum or a two-pass logic if we had random access.
-    # Given streaming constraints, we will iterate and fill buckets until full.
-    
-    buckets = {repo: [] for repo in samples_per_stratum.keys()}
-    collected_count = 0
-    
-    # Reset dataset iterator
-    ds = load_dataset("codeparrot/github-code", streaming=True, split="train")
+    # Second pass: Collect items meeting quotas
+    collected = {}
+    quotas = dict(strata_targets)
+    total_collected = 0
     
     for item in ds:
-        if collected_count >= target_size:
-            break
+        path = item.get("path", "")
+        if not path:
+            continue
+        ext = os.path.splitext(path)[1] or "no_ext"
         
-        repo = item.get("repo_name", "unknown")
-        
-        # If this repo is a valid stratum and not full
-        if repo in samples_per_stratum and len(buckets[repo]) < samples_per_stratum[repo]:
-            buckets[repo].append(item)
-            collected_count += 1
-        elif repo == "unknown" and "unknown" not in samples_per_stratum:
-            # If we have an 'unknown' stratum and it's not in our plan, skip or add to a catch-all if needed
-            # For now, skip to maintain strict stratification
-            pass
-
-    # Flatten buckets
-    sampled_functions = []
-    for repo, items in buckets.items():
-        sampled_functions.extend(items)
+        if ext in quotas and quotas[ext] > 0:
+            if ext not in collected:
+                collected[ext] = []
+            collected[ext].append(item)
+            quotas[ext] -= 1
+            total_collected += 1
+            
+            if total_collected >= target_size:
+                break
     
-    logger.info(f"Stratified sampling complete. Collected {len(sampled_functions)} functions.")
-    return sampled_functions
+    # Flatten the collected items
+    final_sample = []
+    for ext, items in collected.items():
+        final_sample.extend(items)
+    
+    logger.info(f"Stratified sampling complete. Collected {len(final_sample)} functions.")
+    
+    # Log sample report
+    report = {
+        "total_collected": len(final_sample),
+        "target": target_size,
+        "distribution": {k: len(v) for k, v in collected.items()},
+        "proportions": {k: len(v)/len(final_sample) for k, v in collected.items()}
+    }
+    
+    results_path = get_results_path()
+    os.makedirs(results_path, exist_ok=True)
+    report_path = os.path.join(results_path, "sample_report.json")
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Sample report written to {report_path}")
+    
+    return final_sample
 
 def compute_radon_metrics(code: str) -> Dict[str, Any]:
     """Compute LOC, Cyclomatic Complexity, and Nesting Depth."""
     try:
         raw = radon_analyze(code)
+        loc = raw.loc
         cc = cc_visit(code)
-        max_cc = max([c.complexity for c in cc], default=0)
+        max_cc = max([c.complexity for c in cc]) if cc else 0
         
-        # Nesting depth calculation
-        try:
-            tree = ast.parse(code)
-            visitor = ComplexityVisitor.from_ast(tree)
-            max_nesting = max(visitor.nests, default=0)
-        except:
-            max_nesting = 0
+        # Estimate nesting depth from raw stats or AST
+        # Radon raw doesn't give nesting depth directly, but we can estimate from max_nesting
+        # Using a heuristic or simpler metric if direct nesting is hard
+        # For this implementation, we'll use a simplified nesting depth calculation
+        # based on indentation levels or a heuristic
+        lines = code.split('\n')
+        max_indent = 0
+        for line in lines:
+            if line.strip():
+                indent = len(line) - len(line.lstrip())
+                max_indent = max(max_indent, indent)
+        
+        # Normalize indentation to depth (assuming 4 spaces per level)
+        nesting_depth = max_indent // 4
         
         return {
-            "loc": raw.loc,
+            "loc": loc,
             "cyclomatic_complexity": max_cc,
-            "nesting_depth": max_nesting
+            "nesting_depth": nesting_depth
         }
     except Exception as e:
         logger.error(f"Radon analysis failed: {e}")
         return {"loc": 0, "cyclomatic_complexity": 0, "nesting_depth": 0}
 
 def run_pylint_analysis(code: str) -> List[str]:
-    """Run Pylint and return raw codes."""
+    """Run Pylint and return list of message codes."""
     try:
+        # Create a temporary file for Pylint
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
             f.write(code)
-            f.flush()
             temp_path = f.name
+
+        # Run Pylint
+        output = StringIO()
+        sys.stdout = output
+        try:
+            pylint.lint.Run([temp_path, "--output-format=text", "--score=no"], do_exit=False)
+        except SystemExit:
+            pass
+        finally:
+            sys.stdout = sys.__stdout__
         
-        result = subprocess.run(
-            ["pylint", "--output-format=json", temp_path],
-            capture_output=True,
-            text=True
-        )
+        # Cleanup
         os.unlink(temp_path)
         
-        if result.returncode == 0 or result.returncode == 1: # 1 means issues found
-            try:
-                issues = json.loads(result.stdout)
-                codes = [issue.get("symbol", issue.get("message-id", "unknown")) for issue in issues]
-                return list(set(codes))
-            except json.JSONDecodeError:
-                return []
-        return []
+        # Parse output for codes
+        # Format: "filename:line: [code(message), ...]"
+        codes = []
+        for line in output.getvalue().split('\n'):
+            if '[' in line and ']' in line:
+                # Extract code (e.g., C0111)
+                import re
+                matches = re.findall(r'\[([A-Z]\d{4})', line)
+                codes.extend(matches)
+        
+        return list(set(codes))
     except Exception as e:
-        logger.error(f"Pylint failed: {e}")
+        logger.error(f"Pylint analysis failed: {e}")
         return []
 
 def normalize_pylint_smells(codes: List[str], mapping: Dict[str, str]) -> List[str]:
@@ -224,79 +222,96 @@ def normalize_pylint_smells(codes: List[str], mapping: Dict[str, str]) -> List[s
             normalized.append(mapping[code])
         else:
             logger.warning(f"Unmapped Pylint code: {code}")
-            normalized.append(code) # Keep raw if unmapped
+            normalized.append(code) # Keep raw code if unmapped
     return normalized
 
-def process_functions(functions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Process a list of functions, computing metrics and labels."""
-    results = []
-    
-    # Load smell mapping
-    mapping_path = "contracts/smell_mapping.json"
-    if os.path.exists(mapping_path):
-        with open(mapping_path, 'r') as f:
-            smell_mapping = json.load(f)
-    else:
-        smell_mapping = {}
-    
-    for func in functions:
-        code = func.get("code", "")
-        if not code:
-            continue
-        
-        metrics = compute_radon_metrics(code)
-        raw_codes = run_pylint_analysis(code)
-        normalized_labels = normalize_pylint_smells(raw_codes, smell_mapping)
-        
-        results.append({
-            "code": code,
-            "loc": metrics["loc"],
-            "cyclomatic_complexity": metrics["cyclomatic_complexity"],
-            "nesting_depth": metrics["nesting_depth"],
-            "static_smell_labels": json.dumps(normalized_labels)
-        })
-    return results
-
-def save_to_csv(data: List[Dict[str, Any]], output_path: str):
+def save_to_csv(data: List[Dict[str, Any]], filepath: str):
     """Save processed data to CSV."""
     df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(data)} records to {output_path}")
+    df.to_csv(filepath, index=False)
+    logger.info(f"Saved {len(data)} rows to {filepath}")
 
-def validate_output(df: pd.DataFrame) -> bool:
-    """Validate output schema and completeness."""
-    required_cols = ["code", "loc", "cyclomatic_complexity", "nesting_depth", "static_smell_labels"]
-    if not all(col in df.columns for col in required_cols):
-        logger.error("Missing required columns")
+def validate_output(filepath: str, required_columns: List[str]) -> bool:
+    """Validate CSV schema."""
+    if not os.path.exists(filepath):
         return False
-    
-    valid_rows = df.dropna().shape[0]
-    total_rows = df.shape[0]
-    if total_rows > 0 and (valid_rows / total_rows) < 0.95:
-        logger.error(f"Validity rate {valid_rows/total_rows:.2%} < 95%")
-        return False
-    return True
+    df = pd.read_csv(filepath)
+    return all(col in df.columns for col in required_columns)
 
 def run_pipeline():
     """Main pipeline execution."""
-    logger.info("Starting Data Pipeline...")
+    # 1. Verify source
+    verify_dataset_source("codeparrot/github-code", "train")
     
-    # Load sampled functions
-    functions = load_sampled_functions()
+    # 2. Load stratified sample
+    sample = load_sampled_functions()
     
-    # Process
-    processed = process_functions(functions)
+    # 3. Load smell mapping
+    mapping_path = os.path.join("contracts", "smell_mapping.json")
+    if not os.path.exists(mapping_path):
+        logger.error("Smell mapping not found. Run T009a first.")
+        return
+    with open(mapping_path, 'r') as f:
+        smell_mapping = json.load(f)
     
-    # Save
-    output_path = get_data_path("static_baseline.csv")
-    save_to_csv(processed, output_path)
+    results = []
+    batch_metrics = []
     
-    # Validate
-    df = pd.read_csv(output_path)
-    if validate_output(df):
-        logger.info("Pipeline completed successfully.")
-    else:
-        logger.error("Pipeline validation failed.")
+    for i in range(0, len(sample), BATCH_SIZE):
+        batch = sample[i:i+BATCH_SIZE]
+        batch_start = time.time()
+        batch_ram = []
+        batch_cpu = []
+        
+        for item in batch:
+            code = item.get("code", "")
+            if not code:
+                continue
+            
+            # Metrics
+            radon_metrics = compute_radon_metrics(code)
+            
+            # Pylint
+            raw_codes = run_pylint_analysis(code)
+            normalized_smells = normalize_pylint_smells(raw_codes, smell_mapping)
+            
+            results.append({
+                "code": code,
+                "loc": radon_metrics["loc"],
+                "cyclomatic_complexity": radon_metrics["cyclomatic_complexity"],
+                "nesting_depth": radon_metrics["nesting_depth"],
+                "static_smell_labels": ",".join(normalized_smells)
+            })
+            
+            # Monitoring
+            batch_ram.append(get_ram_usage_mb())
+            batch_cpu.append(get_cpu_utilization())
+        
+        batch_time = time.time() - batch_start
+        batch_metrics.append({
+            "batch_id": i // BATCH_SIZE,
+            "ram_mb": sum(batch_ram) / len(batch_ram) if batch_ram else 0,
+            "cpu_util": sum(batch_cpu) / len(batch_cpu) if batch_cpu else 0,
+            "time_sec": batch_time
+        })
+        
+        # Record batch metrics
+        record_batch_metrics(batch_metrics[-1])
+    
+    # Save metrics
+    save_metrics_to_file()
+    
+    # 4. Save results
+    output_path = os.path.join(get_data_path(), "static_baseline.csv")
+    save_to_csv(results, output_path)
+    
+    # 5. Validate
+    if not validate_output(output_path, ["code", "loc", "cyclomatic_complexity", "nesting_depth", "static_smell_labels"]):
+        logger.error("Output validation failed.")
+        return False
+    
+    logger.info("Pipeline completed successfully.")
+    return True
 
 if __name__ == "__main__":
     run_pipeline()

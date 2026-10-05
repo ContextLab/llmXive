@@ -2,46 +2,41 @@ import numpy as np
 import nibabel as nib
 from pathlib import Path
 from typing import Union, Optional
-
 from nilearn.datasets import fetch_atlas_aal
 
-def load_aal_atlas_mask() -> nib.Nifti1Image:
+def load_aal_atlas_mask(atlas_path: Optional[Union[str, Path]] = None) -> nib.Nifti1Image:
     """
-    Fetch and load the AAL atlas mask.
-    Returns the Nifti image of the atlas.
+    Load the AAL atlas mask.
+    If atlas_path is provided, load from there. Otherwise, fetch using nilearn.
     """
-    aal_data = fetch_atlas_aal()
-    # aal_data.maps is the path to the atlas file
-    atlas_img = nib.load(aal_data.maps)
-    return atlas_img
+    if atlas_path is None:
+        atlas_data = fetch_atlas_aal()
+        atlas_path = atlas_data.maps
+    
+    return nib.load(str(atlas_path))
 
 def validate_atlas_shape(atlas_img: nib.Nifti1Image, expected_shape: Optional[tuple] = None) -> bool:
     """
-    Validate that the atlas image has a valid shape.
-    If expected_shape is provided, checks against it.
+    Validate the shape of the atlas image.
     """
     shape = atlas_img.shape
-    if len(shape) != 3:
-        return False
     if expected_shape:
         return shape == expected_shape
-    return True
+    # Basic check: should be 3D
+    return len(shape) == 3
 
-def create_minimal_atlas() -> nib.Nifti1Image:
+def create_minimal_atlas(shape: tuple, n_regions: int = 90) -> nib.Nifti1Image:
     """
-    Create a minimal dummy atlas for testing if the real one fails.
-    This is a fallback ONLY if the real fetch fails, but per constraints
-    we should prefer the real fetch. This function creates a 3x3x3 grid.
+    Create a minimal dummy atlas for testing purposes if real atlas is unavailable.
+    This should only be used for unit tests, not production.
     """
-    data = np.zeros((3, 3, 3), dtype=np.int32)
-    # Assign some regions
-    data[0, 0, 0] = 1
-    data[1, 1, 1] = 2
-    data[2, 2, 2] = 3
+    data = np.zeros(shape, dtype=np.int16)
+    # Fill regions with IDs 1 to n_regions
+    # This is a simplified approach for testing
+    for i in range(1, n_regions + 1):
+        # Place region in a specific voxel (simplified)
+        # In a real scenario, we would use proper parcellation
+        if i <= shape[0] and i <= shape[1] and i <= shape[2]:
+            data[i, i, i] = i
     
-    affine = np.eye(4)
-    affine[0, 0] = 2
-    affine[1, 1] = 2
-    affine[2, 2] = 2
-    
-    return nib.Nifti1Image(data, affine)
+    return nib.Nifti1Image(data, np.eye(4))
