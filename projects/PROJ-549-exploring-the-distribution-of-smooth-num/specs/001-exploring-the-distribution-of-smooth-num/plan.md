@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to empirically measure the density of $y$-smooth numbers within short intervals $[x, x+h]$ for $x \le 10^9$. The approach involves three sequential phases: (1) generating a deterministic prime list up to $10^9$ via a segmented sieve; (2) enumerating integers in randomized short intervals to classify smoothness via trial division; and (3) performing statistical regression and goodness-of-fit tests against the Dickman function.
+This project implements a computational pipeline to empirically measure the density of $y$-smooth numbers within short intervals $[x, x+h]$ for $x \le 10^9$. The approach involves three sequential phases: () generating a deterministic prime list up to $10^9$ via a segmented sieve; (2) enumerating integers in randomized short intervals to classify smoothness via trial division; and (3) performing statistical regression and goodness-of-fit tests against the Dickman function.
 
 **Critical Methodological Revision**: The analysis no longer fits a raw power law to density vs. interval length. Instead, it computes the **deviation ratio** $R = \rho_{observed} / \rho_{Dickman}(u)$ for each interval, where $u = \ln x / \ln y$. The regression tests if this ratio scales as $R \propto h^\beta$. This isolates finite-scale deviations from the global asymptotic baseline, addressing the tautology risk and construct validity concerns. The grid uses **fixed interval lengths** $h$ (e.g., $10^3$ to $10^6$) rather than $h=x^\alpha$ to ensure balanced sampling and avoid truncation bias.
 

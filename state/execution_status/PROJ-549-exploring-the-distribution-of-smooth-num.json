@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-549-exploring-the-distribution-of-smooth-num",
+  "ok": false,
+  "reason": "every produced artifact is gitignored (data/primes_1e9.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/smoothness.py  --primes data/primes_1e9.csv  --output data/density_measurements.csv  --grid-file specs/001-exploring-the-distribution-of-smooth-numbers/grid_config.yaml (rc=2); python code/analysis.py  --input data/density_measurements.csv  --output data/model_fits.json  --plot-dir data/figures (rc=2); 3 declared deliverable(s) absent: data/density_measurements_plan.csv; data/density_measurements_spec.csv; data/model_fits.json",
+  "artifacts": [
+    "data/primes_1e9.csv"
+  ],
+  "failures": [
+    "python code/smoothness.py  --primes data/primes_1e9.csv  --output data/density_measurements.csv  --grid-file specs/001-exploring-the-distribution-of-smooth-numbers/grid_config.yaml -> rc=2\n    usage: smoothness.py [-h] [--primes PRIMES] [--x X] [--h H] [--y Y]\nsmoothness.py: error: unrecognized arguments: --output data/density_measurements.csv --grid-file specs/001-exploring-the-distribution-of-smooth-numbers/grid_config.yaml",
+    "python code/analysis.py  --input data/density_measurements.csv  --output data/model_fits.json  --plot-dir data/figures -> rc=2\n    usage: analysis.py [-h] [--task {plan,spec,chi2}]\nanalysis.py: error: unrecognized arguments: --input data/density_measurements.csv --output data/model_fits.json --plot-dir data/figures"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-04T23:31:37Z"
+}
