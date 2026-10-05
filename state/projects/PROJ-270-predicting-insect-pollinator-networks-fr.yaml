@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T19:39:55.957373Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-270-predicting-insect-pollinator-networks-fr
-last_run_id: 0e197408-1ebb-4479-9afd-276a09b89ffb
+last_run_id: 9df65b2a-57b5-4fc9-aabc-116cf2597681
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-270-predicting-insect-pollinator-networks-fr/specs/001-predicting-insect-pollinator-networks-fr
 title: Predicting Insect Pollinator Networks from Floral Trait Data
-updated_at: '2026-10-04T20:41:50.846677Z'
+updated_at: '2026-10-05T01:26:14.627244Z'

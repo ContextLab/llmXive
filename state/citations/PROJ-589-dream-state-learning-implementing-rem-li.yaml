@@ -1,22 +1,11 @@
-- artifact_hash: 45bdf242c8d466c4ae716296903966d82e21f00b2e4b9e2a790a31a3c13f20ca
-  artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/research.md
+- artifact_hash: a3a9e0928f83dd21f82f7bbc08a51d703444567c8b07326d1d90658c174346ed
+  artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/data-model.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2401.02385'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-06T11:12:45.507665Z'
-- artifact_hash: 8aa9028c297cd2f60110358795202d0537e58206010d5ae9396992c68a67a068
-  artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
+  fetched_title: schema#
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  value: http://json-schema.org/draft-07/schema#
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-06T11:13:07.813079Z'
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-05T01:03:54.480648Z'

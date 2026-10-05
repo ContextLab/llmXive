@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Random seed used for this run"
+  run_type:
+    type: string
+    enum: ["wake_dream", "baseline"]
+    description: "Type of training regime"
+  final_accuracy:
+    type: number
+    description: "Accuracy on the few-shot evaluation set"
+  total_steps:
+    type: integer
+    description: "Total number of gradient steps"
+  dream_steps:
+    type: integer
+    description: "Number of dream steps executed"
+  peak_memory_gb:
+    type: number
+    description: "Peak RSS in GB"
+  wall_clock_hours:
+    type: number
+    description: "Total execution time in hours"
+required:
+  - seed
+  - run_type
+  - final_accuracy
+  - peak_memory_gb
+additionalProperties: false

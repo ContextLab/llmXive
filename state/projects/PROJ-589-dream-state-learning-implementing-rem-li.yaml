@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:55.430883Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-589-dream-state-learning-implementing-rem-li
-last_run_id: d37a436e-324a-445e-b223-a39a167d2074
+last_run_id: 9263bea1-d652-4a2a-a149-006704aabbf1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li
 title: 'Dream-State Learning: Implementing REM-like Consolidation in Language Models'
-updated_at: '2026-10-04T01:26:12.026570Z'
+updated_at: '2026-10-05T01:03:56.982234Z'

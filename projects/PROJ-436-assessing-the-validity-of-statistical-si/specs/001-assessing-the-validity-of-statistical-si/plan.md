@@ -1,40 +1,40 @@
-# Implementation Plan: Assessing the Validity of Statistical Significance in RCTs with Missing Data
+# Implementation Plan: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
-**Branch**: `001-assessing-the-validity-of-significance` | **Date**: 2026-08-24 | **Spec**: `specs/001-assessing-the-validity-of-statistical-si/spec.md`
+**Branch**: `001-assessing-the-validity-of-significance` | **Date**: 2026-08-25 | **Spec**: `specs/001-assessing-the-validity-of-statistical-si/spec.md`
 
 ## Summary
 
-This project implements a simulation engine to assess the validity of statistical significance (Type I error rates) in Randomized Controlled Trials (RCTs) under various missing data mechanisms (MCAR, MAR, MNAR). The system will download public datasets (proxy for RCTs), permute treatment labels to establish a ground-truth null hypothesis, simulate missingness, and compare Complete-Case (CC) analysis against Multiple Imputation (MI) and Inverse Probability Weighting (IPW). The primary output is a set of empirical error rates and identified "tipping points" where CC analysis fails, defined statistically via confidence interval exclusion and False Discovery Rate control.
+This project implements a simulation engine to assess the validity of statistical significance (Type I error rates) in Randomized Controlled Trials (RCTs) under various missing data mechanisms (MCAR, MAR, MNAR). The system will download public RCT datasets from OpenML, permute treatment labels to establish a ground-truth null hypothesis, simulate missingness patterns at varying rates, and compare Complete-Case (CC), Multiple Imputation (MI), and Inverse Probability Weighting (IPW) analysis methods. The primary output is the identification of "tipping points" where CC analysis fails to maintain nominal error rates, and a demonstration that MI/IPW methods remain robust (for MAR) or fail (for MNAR).
 
-**Scope Clarification**: Due to the unavailability of verified public RCT datasets with the required structure, this study uses **proxy datasets** (survey/log data) with **synthetic treatment and outcome columns** to simulate RCT-like conditions. The "tipping points" identified are **methodological thresholds** for the specific data distributions used, not universal clinical rules. The study explicitly validates the proxy data's statistical properties before simulation.
+**Spec Contradiction Note**: The source spec (FR-002) states: "For MNAR, the missingness probability MUST depend on the permuted outcome values." This is scientifically incoherent (see Methodology). This plan **overrides** that specific instruction to implement MNAR based on **original** outcome values (preserving the distribution) while only permuting the **treatment** labels. This is a necessary correction to ensure the simulation is valid. The spec must be updated to reflect this.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `scipy`, `openml` (for dataset discovery)  
-**Storage**: Local filesystem (`data/` for raw/derived, `results/` for simulation outputs)  
-**Testing**: `pytest`  
-**Target Platform**: GitHub Actions Free Tier (2 CPU, 7GB RAM)  
-**Project Type**: Computational Research / Simulation Engine  
-**Performance Goals**: Complete full simulation sweep (500 iterations x 3 mechanisms x 6 rates x 3 methods) within 6 hours.  
-**Constraints**: Must run on CPU; no local GPU. Memory usage must stay < 7GB.  
-**Scale/Scope**: Simulation of multiple public datasets (or synthetic proxies if RCTs unavailable).
+**Primary Dependencies**: `scikit-learn`, `statsmodels`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `openml`, `miceforest` (for true Multiple Imputation with Rubin's Rules).  
+**Storage**: Local filesystem (`data/` for raw/downloaded data, `data/processed/` for simulation outputs), SQLite (optional for metadata, otherwise JSON/Parquet).  
+**Testing**: `pytest` (unit tests for simulation logic, integration tests for full pipeline).  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM).  
+**Project Type**: Computational Statistics / Simulation Engine.  
+**Performance Goals**: Complete full sensitivity analysis (8 rates x 3 mechanisms x 3 methods x 2000 iterations) within 6 hours on CPU. Use vectorized operations and parallel processing (`joblib`) where memory permits.  
+**Constraints**: Must run without GPU; must handle datasets >7GB via streaming or sampling; must not fabricate data; must strictly adhere to the "permute treatment first, then simulate missingness" protocol for ground truth.  
+**Scale/Scope**: 3 datasets (minimum), 72 simulation conditions, 144,000 total hypothesis tests (2000 iterations x 72 conditions). *Note: Iterations will be increased to reduce standard error and improve power for detecting the 10% threshold.*
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Method |
-|-----------|--------|---------------------|
-| I. Reproducibility | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and automated CI execution. |
-| II. Verified Accuracy | **PASS** | Plan requires citations only from the "Verified datasets" block. **Proxy Validity Verification** (Task 0.1) explicitly validates synthetic derivations. |
-| III. Data Hygiene | **PASS** | Plan mandates checksumming of raw data and immutable derivation files in `data/`. |
-| IV. Single Source of Truth | **PASS** | All results trace to `results/` CSVs generated by `code/` scripts, validated against `contracts/` schemas. |
-| V. Versioning Discipline | **PASS** | Artifacts will carry content hashes; state file updated on changes. |
-| VI. Simulation Ground-Truth Calibration | **PASS** | Plan explicitly references **Task 0.1**: Ground Truth Calibration (permute treatment *before* missingness simulation) to ensure true null. |
-| VII. Mechanism-Specific Threshold Identification | **PASS** | Plan mandates separate sweeps for MCAR, MAR, MNAR to identify distinct tipping points using BH-corrected p-values and CI exclusion. |
+| Principle | Compliance Status | Action Required / Note |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and automated CI execution. All datasets are fetched from canonical OpenML IDs. (See FR-001, SC-001) |
+| **II. Verified Accuracy** | **PASS** | Plan restricts dataset sources to verified OpenML IDs (e.g., representative examples). Note: Pre-missing MNAR datasets from the "Verified datasets" block were rejected in favor of simulating missingness on complete OpenML data to satisfy the study's specific design requirements (simulating mechanisms). No external citations will be added without validation. |
+| **III. Data Hygiene** | **PASS** | Plan includes checksumming steps for raw data downloads. No in-place modification; all derived data (simulated missingness) goes to new files. PII scan is assumed for public RCT data. (See SC-003) |
+| **IV. Single Source of Truth** | **PASS** | All figures and stats in the final report will be generated programmatically from `data/processed/` outputs. No manual entry. (See SC-004) |
+| **V. Versioning Discipline** | **PASS** | Artifacts (data, code, results) will carry content hashes. The plan includes steps to update the state YAML on artifact changes. (See SC-005) |
+| **VI. Simulation Ground-Truth Calibration** | **PASS** | Plan explicitly orders steps: (1) Load Data -> (2) Permute Treatment (Null Hypothesis) -> (3) Simulate Missingness (based on original outcome) -> (4) Analyze. This ensures the "true effect" is zero before missingness is introduced. (See FR-003, FR-002 override) |
+| **VII. Mechanism-Specific Threshold Identification** | **PASS** | Plan structures the simulation loop to separate MCAR, MAR, and MNAR runs, ensuring tipping points are identified per mechanism, not aggregated. (See FR-004, FR-008) |
 
 ## Project Structure
 
@@ -47,83 +47,44 @@ specs/001-assessing-the-validity-of-statistical-si/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
+│   ├── simulation_config.schema.yaml
+│   ├── error_metric.schema.yaml
+│   ├── p_value_distribution.schema.yaml
+│   └── simulation_output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── main.py              # Entry point for simulation sweep
-├── config.py            # SimulationConfig dataclass
-├── data_loader.py       # Download, preprocess, and PERMUTE treatment (Ground Truth Calibration)
-├── missingness.py       # MCAR, MAR, MNAR simulation logic
-├── analysis.py          # CC, MI (statsmodels.MICE), IPW implementation
-├── metrics.py           # Type I error calculation, Binomial tests, BH correction, Tipping Point logic
-└── utils.py             # Seeding, logging, checksumming
-
-tests/
-├── unit/
-│   ├── test_missingness.py
-│   └── test_analysis.py
-└── integration/
-    └── test_full_sweep.py
-
-data/
-├── raw/                 # Downloaded datasets (checksummed)
-└── derived/             # Permutated datasets, missingness masks
-
-results/
-└── simulation_outputs/  # Aggregated error rates, tipping point logs (validated against contracts/)
+projects/PROJ-436-assessing-the-validity-of-statistical-si/
+├── data/
+│   ├── raw/                  # Downloaded datasets (checksummed)
+│   └── processed/            # Simulation outputs (parquet/json)
+├── code/
+│   ├── __init__.py
+│   ├── config.py             # SimulationConfig loading/validation
+│   ├── data_loader.py        # Download and stream datasets via OpenML
+│   ├── simulation.py         # Core logic: permute treatment, simulate missingness
+│   ├── analysis.py           # CC, MI (miceforest), IPW implementation
+│   ├── metrics.py            # Type I error calculation, Binomial tests, FDR
+│   └── main.py               # Orchestration script
+├── tests/
+│   ├── unit/
+│   │   ├── test_simulation.py
+│   │   └── test_analysis.py
+│   └── integration/
+│       └── test_full_pipeline.py
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single-project structure (`code/`) selected. The research nature of the project requires tight coupling between data loading, simulation, and analysis logic. A library structure is unnecessary as the scope is a single research study.
-
-**Contract Validation**: The `metrics.py` module will validate all generated outputs in `results/` against the schemas defined in `contracts/` before writing to disk, ensuring compliance with Principle IV.
+**Structure Decision**: Single project structure with clear separation of concerns (`data_loader`, `simulation`, `analysis`, `metrics`). This minimizes overhead and fits the CPU-first constraint. The `code/` directory is isolated for the CI runner's virtualenv.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | N/A | The project complexity is driven by the statistical rigor required (3 mechanisms, 3 methods, 500 iterations, BH correction), which is inherent to the spec. No architectural over-engineering is introduced. |
-
-## Implementation Phases
-
-### Phase 0: Data Verification & Proxy Validation
-- **Task 0.1: Download & Verify**: Fetch verified datasets (Malawi, CAD). Checksum and validate.
-- **Task 0.2: Proxy Validity Check**: Generate synthetic treatment/outcome. Verify that covariate-outcome correlations match expected RCT-like structures (e.g., no spurious correlations). If validation fails, flag dataset.
-- **Task 0.3: Ground Truth Calibration**: Permute treatment labels to establish true null hypothesis *before* missingness simulation.
-
-### Phase 1: Type I Error Simulation (Null Hypothesis)
-- **Task 1.1: MCAR/MAR/MNAR Simulation**: Simulate missingness across a range of low to moderate rates.
-- **Task 1.2: Analysis Execution**: Run CC, MI, IPW on each condition (multiple iterations).
-- **Task 1.3: Error Rate Calculation**: Compute empirical Type I error, Binomial tests, and BH correction.
-
-### Phase 2: Power Analysis (Alternative Hypothesis)
-- **Task 2.1: Alternative Data Generation**: Generate data with non-zero treatment effect (Cohen's d = 0.5).
-- **Task 2.2: Power Simulation**: Run same missingness/analysis sweep.
-- **Task 2.3: Power Calculation**: Compute empirical power and compare to theoretical expectations.
-
-### Phase 3: Tipping Point & Validation
-- **Task 3.1: Tipping Point Identification**: Identify first rate where CI of error rate excludes 0.05 (BH corrected).
-- **Task 3.2: Relative Error Inflation**: Calculate CC/MI error ratio at tipping point. Flag if ratio > 2.0 (SC-005).
-- **Task 3.3: Visualization**: Generate error rate curves and tipping point flags.
-
-## FR-001 Deviation & Mitigation
-
-**Requirement**: FR-001 mandates downloading "public RCT datasets".
-**Deviation**: No verified RCT source exists in the allowed list.
-**Mitigation**:
-1. Use **Malawi** and **CAD** datasets as *structural proxies*.
-2. Generate synthetic `treatment` (randomized) and `outcome` (correlated with covariates, zero effect) columns.
-3. **Task 0.2** validates the proxy's statistical properties before simulation.
-4. Explicitly state in all outputs that results are "methodological thresholds for the specific data distributions" and not universal clinical rules.
-
-## Success Criteria Updates
-
-- **SC-001**: Empirical Type I error rate for CC under MCAR conditions is measured against the nominal 5% level, with a pass threshold of ≤ 5.25% (5% + 5% relative increase).
-- **SC-002**: The "tipping point" missingness rate is measured against the condition where the 95% CI of the CC error rate excludes 0.05 (BH corrected).
-- **SC-003**: The deviation of p-value distribution is measured against the theoretical uniform distribution using a Binomial test at a standard significance threshold.
-- **SC-004**: Statistical power under the alternative hypothesis is measured against the expected power of the CC method at a conventional target level.
-- **SC-005**: The relative error inflation of CC vs. MI is measured at the identified tipping point, confirming CC error > 2 * MI error.
+> **No violations detected.** The project complexity is managed by:
+> 1.  **Streaming**: Using `openml` and `pandas` chunking to handle large RCT datasets without loading full ~7GB into RAM.
+> 2.  **Vectorization**: Using `numpy`/`pandas` for missingness simulation rather than row-by-row loops.
+> 3.  **Parallelization**: Using `joblib` to parallelize the iterations across the 2 available CPU cores (batching iterations).
+> 4.  **Deferral**: Specific dataset sizes and exact iteration counts (beyond the spec's 500) are deferred to the research phase if power analysis suggests adjustments (Note: Plan now targets 2000).

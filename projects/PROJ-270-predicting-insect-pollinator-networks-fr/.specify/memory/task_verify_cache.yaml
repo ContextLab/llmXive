@@ -21,13 +21,6 @@ T022:
     logic is not present, and the missing `schema.yaml` further indicates incomplete
     work. The next implementer must add the actual validation implementation and ensure
     it is invoked where appropriate.
-T027:
-  c: false
-  h: c3cfe07128c8518818bfd3a7c2a868ec24a555c9452e6cc5197b75ef6ce48c13
-  r: The repository lacks a `log_cv_metrics()` implementation in `code/model_training.py`
-    (the file ends abruptly and the function is not present), and the required `results/metrics.json`
-    file does not exist at all. Both the code artifact and the output file required
-    by the task are missing.
 T031:
   c: false
   h: 1b53d06ea3ac3e1c6dcdc5a25d68367ccd173158682785ce43684c15d7df810b
@@ -35,3 +28,40 @@ T031:
     \ not include any code to serialize and save a trained model, and the expected\
     \ output file `data/processed/model.pkl` is absent. Without model\u2011saving\
     \ logic and the resulting pickle file, the task requirement is not met."
+T040:
+  c: false
+  h: 32a9e0e2ed59d8e3879d615d582e7ac8efa7166cd386b69af584291e8fe24fd6
+  r: "The provided `code/validation.py` does not contain an implementation of `run_permutation_test()`\
+    \ (the file is truncated before any such function appears). Additionally, the\
+    \ required `results/report.md` file is missing entirely, so the condition about\
+    \ logging \u201Capproximate\u201D cannot be verified. Both required artifacts\
+    \ are absent, so the task is not satisfied."
+T041a:
+  c: false
+  h: 1b8ca9e9180768fc6e0bd59b4a256abe998952691cf6799e2b4fa88619c150b9
+  r: The repository does not contain the required `plot_network_discrepancies()` function
+    in `code/visualization.py` (the shown excerpt ends before any such implementation)
+    and the expected plot file `results/plots/observed_vs_predicted.png` is absent.
+    Both the code artifact and the output file are missing, so the task is not satisfied.
+T042a:
+  c: false
+  h: 6737c1de234bee3c15543261ccdb2c6aa18abffe8f9d48b0b1edc466d02987d5
+  r: "The repository contains a partially\u2011shown implementation of `plot_pr_curves()`\
+    \ in `code/visualization.py`, but the file ends abruptly (truncated) and there\
+    \ is no `results/plots/pr_curve.png` on disk. Since the required output file does\
+    \ not exist, the task\u2019s acceptance criterion is not met."
+T042b:
+  c: false
+  h: 43fd0631429bb5cc0e6b6772db9bc6846ca8bc50dc4351ab72c27522307518e4
+  r: The provided `visualization.py` excerpt shows only `load_predictions` and `plot_pr_curves`;
+    there is no `plot_roc_curves()` implementation visible, and the required output
+    file `results/plots/roc_curve.png` is absent. Both the function and the expected
+    plot file are missing, so the task is not satisfied.
+T045b:
+  c: false
+  h: 4cbad799f9c0660600d7abff7e6c82721b8c9a073e2c140357c1a49d248337bf
+  r: "The `code/reporting.py` file ends abruptly (e.g., `raise V`) and does not contain\
+    \ a complete implementation of `compile_report_content()`. Moreover, the required\
+    \ output file `results/report.md` is missing entirely, so the function cannot\
+    \ have written the expected markdown or asserted the presence of \u201CTrait Gap:\
+    \ X\u201D. The task is therefore not satisfied."

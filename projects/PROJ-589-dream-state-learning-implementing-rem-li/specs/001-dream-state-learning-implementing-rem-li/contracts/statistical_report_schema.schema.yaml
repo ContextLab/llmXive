@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  test_type:
+    type: string
+    const: "paired_t_test"
+    description: "Type of statistical test"
+  alpha:
+    type: number
+    const: 0.05
+    description: "Significance level"
+  effect_size:
+    type: number
+    description: "Cohen's d"
+  p_value:
+    type: number
+    description: "Two-tailed p-value"
+  significant:
+    type: boolean
+    description: "Whether p < alpha"
+  power_estimate:
+    type: number
+    description: "Estimated statistical power"
+  note:
+    type: string
+    description: "Any caveats (e.g., 'insufficient power')"
+required:
+  - test_type
+  - alpha
+  - effect_size
+  - p_value
+  - significant
+additionalProperties: false

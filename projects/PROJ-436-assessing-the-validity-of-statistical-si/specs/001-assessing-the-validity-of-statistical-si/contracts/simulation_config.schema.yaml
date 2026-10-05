@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfig"
+description: "Configuration for a single simulation run."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Identifier for the source dataset (e.g., \"openml_42803\")."
+  missingness_mechanism:
+    type: "string"
+    enum:
+      - "MCAR"
+      - "MAR"
+      - "MNAR"
+    description: "The mechanism of missingness to simulate."
+  missingness_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of data to remove (e.g., 0.05, 0.10)."
+  outcome_type:
+    type: "string"
+    enum:
+      - "continuous"
+      - "binary"
+    description: "Type of outcome variable to determine test selection."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  n_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of Monte Carlo iterations."
+  analysis_methods:
+    type: "array"
+    items:
+      type: "string"
+      enum:
+        - "CC"
+        - "MI"
+        - "IPW"
+    description: "List of analysis methods to run."
+required:
+  - "dataset_id"
+  - "missingness_mechanism"
+  - "missingness_rate"
+  - "outcome_type"
+  - "seed"
+  - "n_iterations"
+  - "analysis_methods"

@@ -139,14 +139,14 @@
 - [X] T039 [US3] **Degree-Preserving Null**: Implement `degree_preserving_null()` in `code/validation.py`. Add verification test.
 - [ ] T040 [US3] **Permutation Test**: Implement `run_permutation_test()` in `code/validation.py`. Algorithm: Run permutation test with 1000 iterations; if runtime > 3h, reduce to 100 iterations and log "approximate". Verify `results/report.md` contains "approximate" if iterations < 1000. **Primary validation is Trait-Shuffled Null Model (T036b); Degree-Preserving (T039) is strictly secondary.**
 - [ ] T041a [US3] **Network Plotting**: Implement `plot_network_discrepancies()` in `code/visualization.py`. Assert `results/plots/observed_vs_predicted.png` exists.
-- [ ] T041b [US3] **Discrepancy Highlighting**: Implement `highlight_discrepancies()` in `code/visualization.py` to mark high-probability missing links.
+- [X] T041b [US3] **Discrepancy Highlighting**: Implement `highlight_discrepancies()` in `code/visualization.py` to mark high-probability missing links.
 - [ ] T042a [US3] **PR Curves**: Implement `plot_pr_curves()` in `code/visualization.py`. Assert `results/plots/pr_curve.png` exists.
 - [ ] T042b [US3] **ROC Curves**: Implement `plot_roc_curves()` in `code/visualization.py`. Assert `results/plots/roc_curve.png` exists.
-- [ ] T043a [US3] **Trait-Only Baseline (Null)**: Implement `train_trait_only_baseline()` in `code/validation.py`. Use same trait features as main model (morphology, color, scent, sampling_effort); exclude species IDs. This serves as the baseline for the Trait-Shuffled Null comparison (SC-004).
-- [ ] T043b [US3] **Trait Gap Calc**: Implement `calculate_trait_gap()` in `code/validation.py` (Baseline AUC - Shuffled AUC).
-- [ ] T044a [US3] **Sensitivity Re-run**: Implement `sensitivity_analysis_high_confidence()` in `code/validation.py` to re-run eval on high-confidence negatives.
-- [ ] T044b [US3] **Noise Assessment**: Implement `assess_label_noise_impact()` in `code/validation.py` and log results.
-- [ ] T045a [US3] **Report Template**: Implement `generate_report_template()` in `code/reporting.py`.
+- [X] T043a [US3] **Trait-Only Baseline (Null)**: Implement `train_trait_only_baseline()` in `code/validation.py`. Use same trait features as main model (morphology, color, scent, sampling_effort); exclude species IDs. This serves as the baseline for the Trait-Shuffled Null comparison (SC-004). <!-- FAILED: unspecified -->
+- [X] T043b [US3] **Trait Gap Calc**: Implement `calculate_trait_gap()` in `code/validation.py` (Baseline AUC - Shuffled AUC).
+- [X] T044a [US3] **Sensitivity Re-run**: Implement `sensitivity_analysis_high_confidence()` in `code/validation.py` to re-run eval on high-confidence negatives.
+- [X] T044b [US3] **Noise Assessment**: Implement `assess_label_noise_impact()` in `code/validation.py` and log results.
+- [X] T045a [US3] **Report Template**: Implement `generate_report_template()` in `code/reporting.py`.
 - [ ] T045b [US3] **Content Compilation**: Implement `compile_report_content()` in `code/reporting.py`. Use `jinja2` template to insert `auc_mean`, `trait_importance_ranking`, `trait_gap` into `results/report.md`. Assert `results/report.md` contains "Trait Gap: X".
 - [X] T046 [US3] **Citation Validation**: Run `reference-validator --file results/report.md` and assert exit code 0.
 

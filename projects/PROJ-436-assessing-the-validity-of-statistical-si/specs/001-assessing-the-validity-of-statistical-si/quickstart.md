@@ -1,68 +1,75 @@
-# Quickstart: Assessing the Validity of Statistical Significance in RCTs with Missing Data
+# Quickstart: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or local environment with 7GB+ RAM.
+- `pip` or `poetry`
+- Access to the internet (to download datasets from OpenML)
 
 ## Installation
 
-1. **Clone and Setup**:
+1. **Clone the repository** (or navigate to the project root).
    ```bash
-   git checkout 001-assessing-the-validity-of-significance
    cd projects/PROJ-436-assessing-the-validity-of-statistical-si
    ```
 
-2. **Create Virtual Environment**:
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # or
-   venv\Scripts\activate  # Windows
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install Dependencies**:
+3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: `requirements.txt` pins specific versions of `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`.*
+   *Note: `requirements.txt` includes `scikit-learn`, `statsmodels`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `openml`, and `miceforest`.*
 
 ## Running the Simulation
 
-### 1. Download Data
+### 1. Download Datasets
+The system will automatically download the required OpenML datasets on first run. To force a download or verify integrity:
 ```bash
-python code/data_loader.py --download
+python code/main.py --action download
 ```
-This fetches the verified datasets (Malawi, CAD) and checksums them.
+*This creates the `data/raw/` directory and stores checksums.*
 
-### 2. Run Full Simulation Sweep
+### 2. Run the Full Simulation
+Execute the complete pipeline (download, permute, simulate, analyze, aggregate):
 ```bash
-python code/main.py --full-sweep
+python code/main.py --action run --dataset openml_42803 --iterations 2000
 ```
-This executes an iterative loop across all mechanisms, rates, and methods.
+*Flags:*
+- `--dataset`: Choose from `openml_42803`, `openml_451`, or `openml_151`.
+- `--iterations`: Number of Monte Carlo iterations (default 2000).
+- `--mechanism`: Run a specific mechanism (`MCAR`, `MAR`, `MNAR`) or `all`.
+- `--rate`: Run a specific missingness rate (e.g., `0.15`) or `all` ([deferred] to [deferred]).
 
-### 3. Run Single Condition (Debug)
+### 3. View Results
+Results are saved in `data/processed/`.
+- **Error Metrics**: `data/processed/error_metrics.parquet` (raw p-values).
+- **Aggregated Results**: `data/processed/comparison_results.json` (Type I error rates).
+- **Tipping Points**: `data/processed/tipping_points.csv` (identified thresholds).
+
+### 4. Generate Visualizations
+To generate plots (Type I error curves, tipping point flags):
 ```bash
-python code/main.py --dataset malawi --mechanism MAR --rate 0.20 --method CC --iterations 10
+python code/main.py --action visualize --output figures/
 ```
+*Outputs:*
+- `figures/type1_error_by_mechanism.png`
+- `figures/tipping_point_analysis.png`
+- `figures/method_comparison.png`
 
-## Viewing Results
+## Testing
 
-- **Error Rates**: `results/simulation_outputs/error_rates.csv`
-- **P-Value Distributions**: `results/simulation_outputs/p_values.csv`
-- **Tipping Points**: `results/simulation_outputs/tipping_points.json`
-
-## Validation
-
-To verify the null hypothesis setup:
+Run the unit and integration tests:
 ```bash
-python code/main.py --validate-null --dataset malawi
+pytest tests/ -v
 ```
-This checks that the permuted treatment has no association with the outcome (p-value ~ 0.5).
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure you are using the `streaming=True` flag in `data_loader.py` for large datasets.
-- **Missing Source**: If a dataset is not found, check the "Verified datasets" list in `research.md`. The system will fall back to synthetic generation for MNAR.
-- **Slow Execution**: The full sweep is designed for 2 CPU cores. If running locally on a single core, it may take longer. Use `--parallel` to utilize all cores.
+- **Memory Error**: If the dataset is too large, reduce the number of iterations or use `--stream` flag (if implemented) to process in chunks.
+- **Missing Columns**: If the dataset lacks required columns (e.g., `age`), the system will generate synthetic covariates automatically (per FR-009). Check logs for "Synthetic covariate generated" messages.
+- **Dataset Not Found**: Ensure you have internet access and the OpenML IDs are reachable. The system will retry with fallback datasets.

@@ -1,89 +1,67 @@
-# Data Model: Assessing the Validity of Statistical Significance in RCTs with Missing Data
+# Data Model: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
 ## Overview
 
-This document defines the data structures, schemas, and storage formats for the simulation engine. All data is stored in `data/` (raw/derived) and `results/` (outputs).
+This document defines the data structures used for configuration, simulation execution, and result aggregation. All data is stored in Parquet (for efficiency) or JSON (for configuration) formats.
 
-## Data Entities
+## Entities
 
 ### 1. SimulationConfig
 Defines the parameters for a single simulation run.
 
 | Field | Type | Description |
-|-------|------|-------------|
-| `dataset_id` | `str` | Identifier for the source dataset (e.g., "malawi-proxy"). |
-| `mechanism` | `str` | One of `MCAR`, `MAR`, `MNAR`. |
-| `missing_rate` | `float` | Proportion of missing data (e.g., 0.10). |
-| `method` | `str` | One of `CC`, `MI`, `IPW`. |
-| `outcome_type` | `str` | `continuous` or `binary`. |
-| `seed` | `int` | Random seed for reproducibility. |
+| :--- | :--- | :--- |
+| `dataset_id` | string | Identifier for the source dataset (e.g., "openml_42803"). |
+| `missingness_mechanism` | enum | One of: `MCAR`, `MAR`, `MNAR`. |
+| `missingness_rate` | float | Proportion of data to remove (e.g., 0.05, 0.10). |
+| `outcome_type` | enum | `continuous` or `binary`. Determines test selection. |
+| `seed` | integer | Random seed for reproducibility. |
+| `n_iterations` | integer | Number of Monte Carlo iterations (default 2000). |
+| `analysis_methods` | list[enum] | List of methods to run: `CC`, `MI`, `IPW`. |
 
 ### 2. ErrorMetric
 Result of a single simulation iteration.
 
 | Field | Type | Description |
-|-------|------|-------------|
-| `run_id` | `str` | Unique identifier for the run. |
-| `p_value` | `float` | Calculated p-value. |
-| `is_significant` | `bool` | `True` if $p < 0.05$. |
-| `method` | `str` | Analysis method used. |
-| `missing_rate` | `float` | Applied missingness rate. |
-| `mechanism` | `str` | Missingness mechanism. |
+| :--- | :--- | :--- |
+| `config_id` | string | Hash of the `SimulationConfig`. |
+| `iteration_id` | integer | Index of the iteration (0 to n-1). |
+| `method` | enum | The analysis method used (CC, MI, IPW). |
+| `p_value` | float | The p-value obtained from the hypothesis test. |
+| `rejected` | boolean | True if `p_value < 0.05`. |
+| `imputation_stats` | dict | Optional: Rubin's rules stats for MI (if applicable). |
 
-### 3. PowerMetric
-Result of a single power analysis iteration (alternative hypothesis).
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `run_id` | `str` | Unique identifier for the run. |
-| `p_value` | `float` | Calculated p-value. |
-| `is_significant` | `bool` | `True` if $p < 0.05$. |
-| `method` | `str` | Analysis method used. |
-| `effect_size` | `float` | True effect size used (e.g., 0.5). |
-
-### 4. ComparisonResult
-Aggregated results for a specific condition (dataset, mechanism, rate).
+### 3. ComparisonResult
+Aggregated results for a specific condition (mechanism + rate + dataset).
 
 | Field | Type | Description |
-|-------|------|-------------|
-| `condition_id` | `str` | Composite key of dataset, mechanism, rate. |
-| `n_iterations` | `int` | Number of Monte Carlo iterations (sufficient for convergence). |
-| `error_rate_CC` | `float` | Empirical Type I error for CC. |
-| `error_rate_MI` | `float` | Empirical Type I error for MI. |
-| `error_rate_IPW` | `float` | Empirical Type I error for IPW. |
-| `binomial_p_CC` | `float` | P-value from Binomial test for CC. |
-| `adjusted_p_CC` | `float` | BH-adjusted p-value for CC. |
-| `tipping_point_flag` | `bool` | `True` if `error_rate_CC` > 0.055 AND `adjusted_p_CC` < 0.05. |
-| `cc_mi_ratio` | `float` | Ratio of CC error to MI error. |
-| `validated_tipping_point` | `bool` | `True` if `cc_mi_ratio` > 2.0. |
-| `validation_status` | `str` | Status of data validity check (e.g., "PASS", "FLAGGED"). |
-
-## File Formats
-
-### Raw Data (`data/raw/`)
-- **Format**: Parquet or CSV (original format).
-- **Naming**: `{source_name}_{checksum_sha256}.parquet`
-- **Constraint**: Immutable.
-
-### Derived Data (`data/derived/`)
-- **Format**: Parquet.
-- **Content**: Permutated treatment, synthetic outcome (if needed), and missingness masks.
-- **Naming**: `{source_name}_permuted_{checksum_sha256}.parquet`
-
-### Simulation Outputs (`results/simulation_outputs/`)
-- **Format**: CSV.
-- **Files**:
-  - `error_rates.csv`: Aggregated results (ComparisonResult).
-  - `p_values.csv`: Multiple p-values per condition (ErrorMetric).
-  - `power_rates.csv`: Power analysis results (PowerMetric).
-  - `tipping_points.json`: Identified thresholds.
+| :--- | :--- | :--- |
+| `config_hash` | string | Unique hash of the condition. |
+| `mechanism` | enum | MCAR, MAR, or MNAR. |
+| `missingness_rate` | float | The rate used. |
+| `method` | enum | CC, MI, or IPW. |
+| `empirical_type1_error` | float | Proportion of rejections (sum(rejected) / n_iterations). |
+| `binomial_p_value` | float | P-value from Binomial test against nominal 0.05. |
+| `fdr_corrected_q` | float | FDR-corrected q-value across all conditions. |
+| `tipping_point_flag` | boolean | True if this condition exceeds the threshold (10% relative increase) AND FDR-corrected p < 0.05. |
 
 ## Data Flow
 
-1. **Download**: `data_loader.py` fetches from verified URLs -> `data/raw/`.
-2. **Permute**: `main.py` permutes treatment -> `data/derived/`.
-3. **Validate**: `data_loader.py` checks covariate-outcome correlation for MAR validity.
-4. **Simulate**: `missingness.py` generates masks -> In-memory.
-5. **Analyze**: `analysis.py` computes p-values -> `results/`.
-6. **Aggregate**: `metrics.py` calculates error rates, applies BH correction, and computes ratios -> `results/`.
-7. **Validate**: `metrics.py` validates output against `contracts/` schemas before writing.
+1. **Input**: `SimulationConfig` (from `config.py`).
+2. **Process**: `data_loader` fetches data -> `simulation` permutes treatment and masks -> `analysis` computes p-values.
+3. **Output**: `ErrorMetric` records written to `data/processed/error_metrics.parquet`.
+4. **Aggregate**: `metrics.py` aggregates `ErrorMetric` into `ComparisonResult` and writes to `data/processed/comparison_results.json`.
+
+## File Structure
+
+```text
+data/
+├── raw/
+│   └── {dataset_name}.csv (or .parquet)
+├── processed/
+│   ├── error_metrics.parquet       # Granular iteration results
+│   ├── comparison_results.json     # Aggregated statistics
+│   └── tipping_points.csv          # Identified thresholds
+└── checksums/
+    └── manifest.json               # SHA256 of raw files
+```

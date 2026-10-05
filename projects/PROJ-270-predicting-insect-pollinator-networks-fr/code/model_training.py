@@ -4,36 +4,32 @@ import os
 import pickle
 import resource
 import sys
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
+from typing import Dict, Any, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import make_scorer, roc_auc_score, precision_score, recall_score
-from sklearn.utils import shuffle
+from sklearn.preprocessing import StandardScaler
 
-from config import get_data_processed, get_results_root, get_logs_root, ensure_directories_exist
-from utils.logger import get_logger, setup_logging
-
-# Ensure directories exist
-ensure_directories_exist()
+from config import get_project_root, get_results_root, get_data_processed, ensure_directories_exist
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# --- Memory Profiling (Existing Functions) ---
 
 def get_memory_usage_mb() -> float:
     """Get current memory usage in MB."""
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_maxrss / 1024.0
+    return usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux/macOS
 
-
-def check_memory_pressure(threshold_mb: float = 6000.0) -> bool:
+def check_memory_pressure(threshold_mb: float = 6000) -> bool:
     """Check if current memory usage exceeds threshold."""
     return get_memory_usage_mb() > threshold_mb
-
 
 def profile_memory_usage(func):
     """Decorator to profile memory usage of a function."""
@@ -41,284 +37,249 @@ def profile_memory_usage(func):
         start_mem = get_memory_usage_mb()
         result = func(*args, **kwargs)
         end_mem = get_memory_usage_mb()
-        logger.info(f"Memory usage for {func.__name__}: {end_mem - start_mem:.2f} MB")
+        logger.info(f"Memory usage for {func.__name__}: {start_mem:.2f}MB -> {end_mem:.2f}MB (Delta: {end_mem - start_mem:.2f}MB)")
         return result
     return wrapper
 
-
 def force_gc():
-    """Force garbage collection."""
+    """Force garbage collection to free memory."""
     gc.collect()
+    logger.debug("Garbage collection forced.")
 
+# --- Data Loading (Existing Functions) ---
 
-def load_feature_matrix(path: Optional[str] = None) -> pd.DataFrame:
-    """Load the feature matrix from disk."""
-    if path is None:
-        path = str(get_data_processed() / "feature_matrix.csv")
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Feature matrix not found at {path}")
-    logger.info(f"Loading feature matrix from {path}")
-    df = pd.read_csv(path)
-    return df
+def load_feature_matrix(filepath: Optional[str] = None) -> pd.DataFrame:
+    """Load the processed feature matrix."""
+    if filepath is None:
+        filepath = str(get_data_processed() / "feature_matrix.csv")
+    logger.info(f"Loading feature matrix from {filepath}")
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Feature matrix not found at {filepath}. Run preprocessing first.")
+    return pd.read_csv(filepath)
 
+# --- Model Configuration (Existing Functions) ---
 
 def set_class_weights(y: np.ndarray) -> Dict[int, float]:
     """Calculate balanced class weights."""
-    n_samples = len(y)
-    n_classes = len(np.unique(y))
-    class_counts = np.bincount(y)
-    weights = {i: n_samples / (n_classes * count) for i, count in enumerate(class_counts)}
-    logger.info(f"Class weights: {weights}")
-    return weights
+    from sklearn.utils.class_weight import compute_class_weight
+    classes = np.unique(y)
+    weights = compute_class_weight('balanced', classes=classes, y=y)
+    return dict(zip(classes, weights))
 
+def setup_stratified_kfold(n_splits: int = 5, shuffle: bool = True, random_state: int = 42) -> StratifiedKFold:
+    """Setup Stratified K-Fold cross-validator."""
+    return StratifiedKFold(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
 
-def setup_stratified_kfold(n_splits: int = 5, random_state: int = 42) -> StratifiedKFold:
-    """Setup stratified k-fold cross-validator."""
-    return StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+# --- Model Training (Existing Functions) ---
 
-
-def train_random_forest(
-    X: pd.DataFrame,
-    y: pd.Series,
-    class_weight: Dict[int, float],
-    random_state: int = 42,
-    n_estimators: int = 100
-) -> RandomForestClassifier:
+def train_random_forest(X: np.ndarray, y: np.ndarray, class_weight_dict: Dict[int, float], random_state: int = 42) -> RandomForestClassifier:
     """Train a Random Forest classifier."""
-    logger.info("Training Random Forest classifier...")
     model = RandomForestClassifier(
-        n_estimators=n_estimators,
-        class_weight=class_weight,
+        n_estimators=100,
+        max_depth=None,
+        class_weight=class_weight_dict,
         random_state=random_state,
         n_jobs=-1
     )
     model.fit(X, y)
-    logger.info("Random Forest training complete.")
     return model
 
+# --- Cross-Validation Logic (Existing Functions) ---
 
-def run_cross_validation(
-    X: pd.DataFrame,
-    y: pd.Series,
-    n_splits: int = 5,
-    random_state: int = 42
-) -> Dict[str, Any]:
-    """Run stratified k-fold cross-validation and return metrics."""
-    logger.info(f"Running {n_splits}-fold stratified cross-validation...")
-    cv = setup_stratified_kfold(n_splits=n_splits, random_state=random_state)
+@profile_memory_usage
+def run_cross_validation(X: np.ndarray, y: np.ndarray, model_class=RandomForestClassifier, cv: StratifiedKFold = None, random_state: int = 42) -> Tuple[List[float], List[Dict[str, Any]]]:
+    """Run cross-validation and return scores and fold details."""
+    if cv is None:
+        cv = setup_stratified_kfold()
 
-    # Define scorers
+    scores = []
+    fold_details = []
+
+    # Custom scoring for AUC
     auc_scorer = make_scorer(roc_auc_score, needs_proba=True)
-    precision_scorer = make_scorer(precision_score, average='weighted')
-    recall_scorer = make_scorer(recall_score, average='weighted')
 
-    # Calculate scores
-    auc_scores = cross_val_score(RandomForestClassifier(random_state=random_state), X, y, cv=cv, scoring=auc_scorer)
-    precision_scores = cross_val_score(RandomForestClassifier(random_state=random_state), X, y, cv=cv, scoring=precision_scorer)
-    recall_scores = cross_val_score(RandomForestClassifier(random_state=random_state), X, y, cv=cv, scoring=recall_scorer)
+    for fold_idx, (train_idx, test_idx) in enumerate(cv.split(X, y)):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
 
-    metrics = {
-        "auc_scores": auc_scores.tolist(),
-        "precision_scores": precision_scores.tolist(),
-        "recall_scores": recall_scores.tolist(),
-        "auc_mean": float(np.mean(auc_scores)),
-        "auc_std": float(np.std(auc_scores)),
-        "precision_mean": float(np.mean(precision_scores)),
-        "recall_mean": float(np.mean(recall_scores))
-    }
-    logger.info(f"Cross-validation complete. AUC: {metrics['auc_mean']:.4f} (+/- {metrics['auc_std']:.4f})")
-    return metrics
+        # Calculate class weights for this fold
+        class_weights = set_class_weights(y_train)
 
+        model = train_random_forest(X_train, y_train, class_weights, random_state)
 
-def aggregate_cv_metrics(metrics: Dict[str, Any]) -> Dict[str, float]:
-    """Aggregate cross-validation metrics into summary statistics."""
-    return {
-        "auc_mean": metrics["auc_mean"],
-        "auc_std": metrics["auc_std"],
-        "precision_mean": metrics["precision_mean"],
-        "recall_mean": metrics["recall_mean"]
-    }
+        # Predict probabilities for AUC
+        y_prob = model.predict_proba(X_test)[:, 1]
+        y_pred = model.predict(X_test)
 
+        try:
+            auc = roc_auc_score(y_test, y_prob)
+            precision = precision_score(y_test, y_pred, zero_division=0)
+            recall = recall_score(y_test, y_pred, zero_division=0)
+        except ValueError as e:
+            logger.warning(f"Fold {fold_idx} calculation error (likely single class in test): {e}")
+            auc = 0.0
+            precision = 0.0
+            recall = 0.0
 
-def log_cv_metrics(metrics: Dict[str, Any], output_path: Optional[str] = None):
-    """Log cross-validation metrics to a JSON file."""
-    if output_path is None:
-        output_path = str(get_results_root() / "metrics.json")
-    results_root = get_results_root()
-    results_root.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        import json
-        json.dump(metrics, f, indent=2)
-    logger.info(f"CV metrics saved to {output_path}")
-
-
-def calculate_permutation_importance(
-    model: RandomForestClassifier,
-    X: pd.DataFrame,
-    y: pd.Series,
-    n_repeats: int = 10,
-    random_state: int = 42
-) -> pd.DataFrame:
-    """Calculate permutation importance of features."""
-    logger.info("Calculating permutation importance...")
-    result = permutation_importance(
-        model, X, y,
-        n_repeats=n_repeats,
-        random_state=random_state,
-        n_jobs=-1
-    )
-    importance_df = pd.DataFrame({
-        "feature": X.columns,
-        "importance_mean": result.importances_mean,
-        "importance_std": result.importances_std
-    })
-    return importance_df
-
-
-def rank_traits(importance_df: pd.DataFrame, top_n: int = 3) -> List[Dict[str, Any]]:
-    """
-    Rank traits by permutation importance and return the top N traits.
-    
-    Args:
-        importance_df: DataFrame with columns 'feature', 'importance_mean', 'importance_std'.
-        top_n: Number of top traits to return.
-        
-    Returns:
-        List of dictionaries containing rank, feature name, mean importance, and std importance.
-    """
-    if importance_df.empty:
-        logger.warning("Importance DataFrame is empty. Returning empty list.")
-        return []
-    
-    # Sort by mean importance descending
-    sorted_df = importance_df.sort_values(by="importance_mean", ascending=False).reset_index(drop=True)
-    
-    # Select top N
-    top_traits_df = sorted_df.head(top_n)
-    
-    # Format as list of dicts with rank
-    ranked_traits = []
-    for idx, row in top_traits_df.iterrows():
-        ranked_traits.append({
-            "rank": int(idx + 1),
-            "trait": str(row["feature"]),
-            "importance_mean": float(row["importance_mean"]),
-            "importance_std": float(row["importance_std"])
+        scores.append(auc)
+        fold_details.append({
+            "fold": fold_idx,
+            "auc": auc,
+            "precision": precision,
+            "recall": recall,
+            "train_size": len(train_idx),
+            "test_size": len(test_idx)
         })
-    
-    logger.info(f"Top {top_n} traits identified: {[t['trait'] for t in ranked_traits]}")
-    return ranked_traits
 
+        logger.info(f"Fold {fold_idx}: AUC={auc:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
 
-def save_model(model: RandomForestClassifier, path: Optional[str] = None):
-    """Save the trained model to disk."""
-    if path is None:
-        path = str(get_data_processed() / "model.pkl")
-    processed_dir = get_data_processed()
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    with open(path, 'wb') as f:
-        pickle.dump(model, f)
-    logger.info(f"Model saved to {path}")
+    return scores, fold_details
 
+@profile_memory_usage
+def aggregate_cv_metrics(scores: List[float], fold_details: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Aggregate cross-validation metrics."""
+    if not scores:
+        raise ValueError("No scores provided to aggregate.")
 
-def load_model(path: Optional[str] = None) -> RandomForestClassifier:
-    """Load a trained model from disk."""
-    if path is None:
-        path = str(get_data_processed() / "model.pkl")
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Model not found at {path}")
-    with open(path, 'rb') as f:
-        model = pickle.load(f)
-    logger.info(f"Model loaded from {path}")
-    return model
+    auc_mean = float(np.mean(scores))
+    auc_std = float(np.std(scores))
 
+    # Aggregate precision and recall from fold details
+    precisions = [f['precision'] for f in fold_details]
+    recalls = [f['recall'] for f in fold_details]
 
-def save_importance_results(ranked_traits: List[Dict[str, Any]], output_path: Optional[str] = None):
-    """Save ranked trait importance results to a JSON file."""
+    precision_mean = float(np.mean(precisions))
+    recall_mean = float(np.mean(recalls))
+
+    return {
+        "auc_mean": auc_mean,
+        "auc_std": auc_std,
+        "precision_mean": precision_mean,
+        "recall_mean": recall_mean,
+        "n_folds": len(scores),
+        "fold_details": fold_details
+    }
+
+# --- T027: Logging Setup Implementation ---
+
+def log_cv_metrics(metrics: Dict[str, Any], output_path: Optional[str] = None) -> str:
+    """
+    Log cross-validation metrics to a JSON file and the logger.
+    Verifies required keys: auc_mean, auc_std, precision_mean, recall_mean.
+    """
+    required_keys = ["auc_mean", "auc_std", "precision_mean", "recall_mean"]
+    missing_keys = [k for k in required_keys if k not in metrics]
+    if missing_keys:
+        raise ValueError(f"Missing required metric keys in metrics dict: {missing_keys}")
+
     if output_path is None:
-        output_path = str(get_results_root() / "trait_importance.json")
-    results_root = get_results_root()
-    results_root.mkdir(parents=True, exist_ok=True)
-    import json
+        results_root = get_results_root()
+        ensure_directories_exist()
+        output_path = str(results_root / "metrics.json")
+
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Log to console/file logger
+    logger.info(f"Cross-Validation Results -> AUC: {metrics['auc_mean']:.4f} (+/- {metrics['auc_std']:.4f})")
+    logger.info(f"Precision: {metrics['precision_mean']:.4f}, Recall: {metrics['recall_mean']:.4f}")
+
+    # Write to JSON file
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+
+    logger.info(f"Metrics saved to {output_path}")
+    return output_path
+
+# --- Permutation Importance (Existing Functions) ---
+
+@profile_memory_usage
+def calculate_permutation_importance(model: RandomForestClassifier, X: np.ndarray, y: np.ndarray, n_repeats: int = 10, random_state: int = 42) -> np.ndarray:
+    """Calculate permutation importance."""
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state, n_jobs=-1)
+    return result.importances_mean
+
+def rank_traits(importance_scores: np.ndarray, feature_names: List[str], top_n: int = 3) -> List[Dict[str, Union[str, float]]]:
+    """Rank traits by importance."""
+    indices = np.argsort(importance_scores)[::-1]
+    ranked = []
+    for i in range(min(top_n, len(indices))):
+        idx = indices[i]
+        ranked.append({
+            "rank": i + 1,
+            "feature": feature_names[idx],
+            "importance": float(importance_scores[idx])
+        })
+    return ranked
+
+# --- Model Serialization (Existing Functions) ---
+
+def save_model(model: Any, filepath: str):
+    """Save model to pickle file."""
+    with open(filepath, 'wb') as f:
+        pickle.dump(model, f)
+    logger.info(f"Model saved to {filepath}")
+
+def load_model(filepath: str) -> Any:
+    """Load model from pickle file."""
+    with open(filepath, 'rb') as f:
+        return pickle.load(f)
+
+def save_importance_results(ranked_traits: List[Dict], output_path: str):
+    """Save trait importance results to JSON."""
     with open(output_path, 'w') as f:
         json.dump(ranked_traits, f, indent=2)
-    logger.info(f"Trait importance results saved to {output_path}")
+    logger.info(f"Importance results saved to {output_path}")
 
+# --- Pipeline Orchestrators (Existing Functions) ---
 
-def run_training_pipeline(
-    feature_matrix_path: Optional[str] = None,
-    n_splits: int = 5,
-    n_estimators: int = 100,
-    random_state: int = 42
-) -> Tuple[RandomForestClassifier, Dict[str, Any], List[Dict[str, Any]]]:
-    """
-    Run the full training pipeline: load data, cross-validation, train model, calculate importance, rank traits.
-    
-    Returns:
-        Tuple of (model, cv_metrics, ranked_traits)
-    """
-    # Load data
-    df = load_feature_matrix(feature_matrix_path)
-    
-    # Separate features and target
-    # Assuming 'link_label' is the target column based on T019a schema
-    if 'link_label' not in df.columns:
-        raise ValueError("Feature matrix must contain 'link_label' column.")
-    
-    X = df.drop(columns=['link_label'])
-    y = df['link_label']
-    
-    # Handle potential non-numeric columns if any (though schema says all traits + effort + label)
-    # Ensure all features are numeric
-    X = X.select_dtypes(include=[np.number])
-    
-    if X.empty:
-        raise ValueError("No numeric features found in the dataset after dropping target.")
-    
-    # Cross-validation
-    cv_metrics = run_cross_validation(X, y, n_splits=n_splits, random_state=random_state)
-    log_cv_metrics(cv_metrics)
-    
-    # Train final model on full data
-    class_weights = set_class_weights(y.values)
-    model = train_random_forest(
-        X, y,
-        class_weight=class_weights,
-        random_state=random_state,
-        n_estimators=n_estimators
-    )
-    
-    # Calculate permutation importance
-    importance_df = calculate_permutation_importance(model, X, y, random_state=random_state)
-    
-    # Rank traits
-    ranked_traits = rank_traits(importance_df, top_n=3)
-    save_importance_results(ranked_traits)
-    
+@profile_memory_usage
+def run_training_pipeline(data_path: Optional[str] = None, n_splits: int = 5, random_state: int = 42) -> Dict[str, Any]:
+    """Run the full training pipeline: load, CV, aggregate, log, importance, save."""
+    logger.info("Starting training pipeline...")
+    df = load_feature_matrix(data_path)
+
+    # Prepare data
+    X = df.drop(columns=['link_label']).values
+    y = df['link_label'].values
+    feature_names = [c for c in df.columns if c != 'link_label']
+
+    # Setup CV
+    cv = setup_stratified_kfold(n_splits=n_splits, random_state=random_state)
+
+    # Run CV
+    scores, fold_details = run_cross_validation(X, y, cv=cv, random_state=random_state)
+
+    # Aggregate
+    metrics = aggregate_cv_metrics(scores, fold_details)
+
+    # Log metrics (T027)
+    log_cv_metrics(metrics)
+
+    # Train final model on full data for importance
+    class_weights = set_class_weights(y)
+    final_model = train_random_forest(X, y, class_weights, random_state)
+
+    # Importance
+    importance_scores = calculate_permutation_importance(final_model, X, y, random_state=random_state)
+    ranked = rank_traits(importance_scores, feature_names)
+    save_importance_results(ranked, str(get_results_root() / "trait_importance.json"))
+
     # Save model
-    save_model(model)
-    
-    return model, cv_metrics, ranked_traits
+    model_path = str(get_data_processed() / "model.pkl")
+    save_model(final_model, model_path)
 
+    logger.info("Training pipeline complete.")
+    return metrics
 
 def run_full_training_and_save():
-    """Entry point to run the full training pipeline and save artifacts."""
-    logger.info("Starting full training pipeline...")
-    model, metrics, ranks = run_training_pipeline()
-    logger.info("Training pipeline completed successfully.")
-    logger.info(f"Top 3 traits: {[r['trait'] for r in ranks]}")
-    return model, metrics, ranks
-
+    """Entry point for running training."""
+    ensure_directories_exist()
+    run_training_pipeline()
 
 def main():
-    """Main entry point for the script."""
-    setup_logging()
-    try:
-        run_full_training_and_save()
-    except Exception as e:
-        logger.error(f"Training pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
-
+    """Main entry point."""
+    run_full_training_and_save()
 
 if __name__ == "__main__":
     main()
