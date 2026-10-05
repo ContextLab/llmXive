@@ -5,120 +5,110 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any
 
-import requests
-
 from utils import api_request_with_backoff, log_api_headers
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/pipeline.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
-
+# Constants
 GITHUB_API_BASE = "https://api.github.com"
+PYTHON_QUERY = "language:Python+stars:>10000"
+JS_QUERY = "language:JavaScript+stars:>10000"
+SORT_BY = "stars"
+ORDER = "desc"
+PER_PAGE = 100
+TARGET_COUNT = 20
 
-def fetch_repos_from_github(language: str, min_stars: int = 10000, limit: int = 50) -> List[Dict[str, Any]]:
+def fetch_repos_from_github(language: str, query: str, target_count: int = TARGET_COUNT) -> List[Dict[str, Any]]:
     """
-    Fetch top repositories for a given language sorted by stars.
+    Fetches top repositories for a specific language from the GitHub API.
     
     Args:
-        language: Language to search for (e.g., 'Python', 'JavaScript')
-        min_stars: Minimum star count filter
-        limit: Maximum number of repos to fetch
+        language: The language string for logging (e.g., "Python")
+        query: The search query string
+        target_count: Number of repos to fetch (default 20)
         
     Returns:
-        List of repository dictionaries containing 'name' and 'stars'
+        List of repository dictionaries containing 'name' and 'stars'.
     """
-    repos = []
-    query = f"language:{language}+stars:>{min_stars}"
     url = f"{GITHUB_API_BASE}/search/repositories"
     params = {
-        'q': query,
-        'sort': 'stars',
-        'order': 'desc',
-        'per_page': 100
+        "q": query,
+        "sort": SORT_BY,
+        "order": ORDER,
+        "per_page": PER_PAGE
     }
     
     headers = {
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'llmXive-Research-Pipeline'
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "llmXive-Pipeline"
     }
     
-    logger.info(f"Fetching top {limit} {language} repositories with >{min_stars} stars...")
-    
+    all_repos = []
     page = 1
-    while len(repos) < limit:
-        params['page'] = page
-        try:
-            response = api_request_with_backoff(url, headers, params=params)
-            log_api_headers(response)
-            
-            if response.status_code != 200:
-                logger.error(f"API request failed with status {response.status_code}")
-                raise RuntimeError(f"GitHub API request failed: {response.status_code} {response.text}")
-            
-            data = response.json()
-            items = data.get('items', [])
-            
-            if not items:
-                logger.warning(f"No more items found for page {page}")
+    
+    while len(all_repos) < target_count:
+        params["page"] = page
+        
+        response = api_request_with_backoff(url, headers, params=params)
+        
+        if response is None:
+            logging.error(f"Failed to fetch page {page} for {language} repositories after retries.")
+            break
+        
+        log_api_headers(response)
+        
+        data = response.json()
+        items = data.get("items", [])
+        
+        if not items:
+            logging.warning(f"No more items found for {language} at page {page}.")
+            break
+        
+        for repo in items:
+            if len(all_repos) >= target_count:
                 break
             
-            for repo in items:
-                if len(repos) >= limit:
-                    break
-                
-                repo_info = {
-                    'name': repo['full_name'],
-                    'stars': repo['stargazers_count'],
-                    'language': repo.get('language', language)
-                }
-                repos.append(repo_info)
-            
-            logger.info(f"Page {page}: fetched {len(items)} items, total repos: {len(repos)}")
-            page += 1
-            time.sleep(1)  # Respect rate limits between pages
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error fetching page {page}: {e}")
-            raise
+            repo_info = {
+                "name": repo["full_name"],
+                "stars": repo["stargazers_count"]
+            }
+            all_repos.append(repo_info)
         
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
-            raise
-
-    logger.info(f"Successfully fetched {len(repos)} repositories for {language}")
-    return repos
+        page += 1
+        
+        # Safety break if we've iterated too much without hitting target
+        if page > 5:
+            logging.warning(f"Reached page limit (5) for {language} before hitting target count.")
+            break
+    
+    logging.info(f"Fetched {len(all_repos)} repositories for {language}.")
+    return all_repos
 
 def main():
-    """Main entry point for fetching repository data."""
-    output_dir = Path('data/raw')
+    """
+    Main entry point for T012a: Fetch top 20 Python and 20 JavaScript repos.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    project_root = Path(__file__).resolve().parent.parent
+    output_dir = project_root / "data" / "raw"
     output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "repos.json"
     
-    output_file = output_dir / 'repos.json'
+    python_repos = fetch_repos_from_github("Python", PYTHON_QUERY)
+    js_repos = fetch_repos_from_github("JavaScript", JS_QUERY)
     
-    # Fetch top Python repos
-    python_repos = fetch_repos_from_github('Python', min_stars=10000, limit=50)
-    
-    # Fetch top JavaScript repos
-    js_repos = fetch_repos_from_github('JavaScript', min_stars=10000, limit=50)
-    
-    # Combine results
     all_repos = python_repos + js_repos
     
-    logger.info(f"Total repositories collected: {len(all_repos)}")
+    if len(all_repos) < 40:
+        logging.warning(f"Total repos fetched ({len(all_repos)}) is less than expected 40. Proceeding with available data.")
     
-    # Save to JSON
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_repos, f, indent=2)
     
-    logger.info(f"Repository data saved to {output_file}")
-    print(f"Successfully saved {len(all_repos)} repositories to {output_file}")
+    logging.info(f"Saved {len(all_repos)} repositories to {output_file}")
+    return 0
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

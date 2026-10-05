@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-molecular-topology-selectivity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**CRITICAL SPEC REVISION NOTICE**: The source `spec.md` currently mandates Poisson Regression (FR-004) which contradicts the `plan.md` (which deems it scientifically invalid). This `tasks.md` strictly follows the `plan.md` (Ordinal Logistic Regression). The `spec.md` MUST be revised in the next round to remove FR-004 and align with the Plan. Tasks T060 and T061 are added to drive this revision.
+**CRITICAL SPEC REVISION NOTICE**: The source `spec.md` currently mandates Poisson Regression (FR-004) which contradicts the `plan.md` (which deems it scientifically invalid). This `tasks.md` strictly follows the `plan.md` (Ordinal Logistic Regression). The `spec.md` MUST be revised in the next round to remove FR-004 and align with the Plan. Tasks T060 and T061 are added to drive this revision, anchored by new FR-009.
 
 **Tests**: All test tasks listed below are REQUIRED to satisfy Constitution Principle I (Reproducibility).
 
@@ -41,7 +41,12 @@
 - [ ] T004 Setup `data/raw/`, `data/processed/`, `data/models/`, `code/`, `tests/` directory structure (Verify T001)
 - [X] T005 [P] Implement base data loader and SMILES parser utility in `code/utils/smiles_parser.py`
 - [X] T006 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T007 Create base schema definitions for `ReactionRecord` and `TopologicalDescriptor` in `contracts/` by creating `contracts/reaction_record.schema.yaml` and `contracts/topological_descriptor.schema.yaml` using YAML format.
+- [ ] T007 Create base schema definitions for `ReactionRecord`, `TopologicalDescriptor`, and `DisconnectedGraph` in `contracts/` by creating `contracts/reaction_record.schema.yaml`, `contracts/topological_descriptor.schema.yaml`, and `contracts/disconnected_graph.schema.yaml`.
+ - **Schema Content**: 
+   - `reaction_record.schema.yaml`: `type: object`, `properties: {reaction_id: {type: string}, smiles: {type: string}, category: {type: string}}`.
+   - `topological_descriptor.schema.yaml`: `type: object`, `properties: {reaction_id: {type: string}, smiles: {type: string}, wiener: {type: number}, balaban: {type: number}, zagreb: {type: number}}`.
+   - `disconnected_graph.schema.yaml`: `type: object`, `properties: {smiles: {type: string}, reaction_id: {type: string}, error_type: {type: string}}`.
+ - **Verification**: Run `yamllint` on created files and validate schema using `jsonschema` or equivalent tool.
 - [X] T008 Setup environment configuration management for random seeds and file paths in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -50,26 +55,39 @@
 
 ## Phase 3: Symmetry Group Definition & Invariance Validation (Priority: P2)
 
-**Purpose**: Define the mathematical symmetry group and implement validation logic BEFORE any modeling or target extraction occurs. This resolves circular dependencies.
+**Purpose**: Define the mathematical symmetry group and implement validation logic BEFORE any modeling or target extraction occurs. This resolves circular dependencies and addresses the "coordinate-dependent artifact" concern raised by albert-einstein-simulated.
 
 **Independent Test**: Verify that topological indices remain constant when the reactant graph is permuted by any element of the defined symmetry group.
 
 ### Implementation for Symmetry Group Definition
 
-- [X] T043 [P] Define the mathematical symmetry group $G$ for Electrophilic Aromatic Substitution in `docs/reports/symmetry_group_definition.md`.
+- [ ] T043a [P] Define the mathematical symmetry group $G$ for Electrophilic Aromatic Substitution in `docs/reports/symmetry_group_definition.md`.
  - **Scope**: Must explicitly identify the group of graph automorphisms that preserve the aromatic ring structure and the electrophilic attack site.
  - **Constraint**: Must distinguish between global graph automorphisms and local site permutations.
- - **Deliverable**: File must contain: 1. Formal definition of group G, 2. List of generators, 3. Proof of invariance for Wiener index.
-- [X] T044 [US2] Implement a `SymmetryValidator` class in `code/utils/symmetry.py` that takes a `ReactionRecord` and a `SymmetryGroup` definition.
- - **Function**: Apply all permutations in $G$ to the reactant graph and re-calculate Wiener, Balaban, and Zagreb indices.
- - **Assertion**: Assert that `index(original) == index(permutated)` for all $g \in G$.
- - **Refactor**: Extend preliminary checks from Phase 4 (T054-T056).
-- [X] T045 [US2] Generate a "Coordinate Independence" report in `docs/reports/coordinate_independence_report.md`.
+ - **Deliverable**: File must contain: 1. Formal definition of group G, 2. List of generators.
+- [ ] T043b [P] List generators for group G in `docs/reports/symmetry_group_definition.md`.
+- [ ] T043c [P] Implement empirical invariance validation logic in `code/utils/symmetry.py`.
+ - **Function**: Apply all permutations in $G$ to a sample set of reactant graphs and re-calculate Wiener, Balaban, and Zagreb indices.
+ - **Assertion**: Assert that `index(original) == index(permutated)` for all $g \in G$ within a tolerance of 1e-9.
+- [ ] T043d [P] Write "Coordinate Independence" report in `docs/reports/coordinate_independence_report.md`.
  - **Content**: For a random sample of molecules, demonstrate that indices are invariant under the defined group $G$.
  - **Failure Condition**: If any index varies, the task fails and logs the specific transformation causing the variance.
  - **Deliverable**: File must contain sections: 'Methodology', 'Sample Molecules', 'Variance Results', and report 'Max deviation < 1e-9 '.
-- [X] T046 [US2] Refactor `code/descriptors.py` to cache index calculations based on the canonical graph representation (orbit representatives) to ensure efficiency during validation.
-- [X] T047 [US3] Implement the "Symmetry Check" step in `code/modeling.py` (FR-008)
+
+- [ ] T044 [US2] Implement a `SymmetryValidator` class in `code/utils/symmetry.py` that takes a `ReactionRecord` and a `SymmetryGroup` definition.
+ - **Function**: Apply all permutations in $G$ to the reactant graph and re-calculate Wiener, Balaban, and Zagreb indices.
+ - **Assertion**: Assert that `index(original) == index(permutated)` for all $g \in G$.
+ - **Refactor**: Extend preliminary checks from T024-T026.
+- [ ] T024 [P] [US2] Unit test `test_wiener_invariance_permutation` in `tests/unit/test_index_stability.py`.
+ - **Logic**: Verify Wiener index remains constant under graph permutation.
+ - **Depends on**: T043c.
+- [ ] T025 [P] [US2] Unit test `test_balaban_invariance_permutation` in `tests/unit/test_index_stability.py`.
+ - **Logic**: Verify Balaban index remains constant under graph permutation.
+ - **Depends on**: T043c.
+- [ ] T026 [P] [US2] Unit test `test_zagreb_invariance_permutation` in `tests/unit/test_index_stability.py`.
+ - **Logic**: Verify Zagreb index remains constant under graph permutation.
+ - **Depends on**: T043c.
+- [ ] T047 [US3] Implement the "Symmetry Check" step in `code/modeling.py` (FR-008).
  - **Logic**: If `SymmetryValidator` (from T044) fails for >1% of the dataset, log a warning and switch to **Descriptive Statistics** (do NOT halt execution).
  - **Dependency**: Must run after T044 is complete.
 
@@ -83,6 +101,8 @@
 
 **Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
 
+**⚠️ CRITICAL**: This phase depends on Phase 5 (Data Ingestion) to ensure descriptors are calculated on the filtered EAS dataset.
+
 ### Tests for User Story 2 (REQUIRED)
 
 - [X] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
@@ -92,22 +112,19 @@
 
 ### Implementation for User Story 2 & Symmetry (FR-002, FR-008)
 
-- [X] T020 [US2] Implement Wiener index calculator in `code/descriptors.py` (FR-002)
-- [X] T021 [US2] Implement Balaban index calculator with graph connectivity checks in `code/descriptors.py` (FR-002)
-- [X] T022 [US2] Implement Zagreb index calculator in `code/descriptors.py` (FR-002)
+- [ ] T020a [P] [US2] Implement Wiener index calculator in `code/descriptors.py` (FR-002).
+ - **Function Signature**: `def calculate_wiener(smiles: str) -> float`.
+- [ ] T020b [P] [US2] Implement Balaban index calculator with graph connectivity checks in `code/descriptors.py` (FR-002).
+ - **Function Signature**: `def calculate_balaban(smiles: str) -> float`.
+- [ ] T020c [P] [US2] Implement Zagreb index calculator in `code/descriptors.py` (FR-002).
+ - **Function Signature**: `def calculate_zagreb(smiles: str) -> float`.
 - [ ] T023 [US2] Implement logic to flag "invalid topology" for disconnected graphs, exclude from analysis, and log to `data/processed/disconnected_graphs.csv` with checksum (FR-002).
  - **Output Schema**: CSV must have columns: `smiles`, `reaction_id`, `error_type`.
-- [ ] T054 [P] [US2] Unit test `test_wiener_invariance_permutation` in `tests/unit/test_index_stability.py`
- - **Logic**: Verify Wiener index remains constant under graph permutation.
-- [ ] T055 [P] [US2] Unit test `test_balaban_invariance_permutation` in `tests/unit/test_index_stability.py`
- - **Logic**: Verify Balaban index remains constant under graph permutation.
-- [ ] T056 [P] [US2] Unit test `test_zagreb_invariance_permutation` in `tests/unit/test_index_stability.py`
- - **Logic**: Verify Zagreb index remains constant under graph permutation.
-- [ ] T024 [US2] Implement **Preliminary** graph automorphism detection using `rdkit` or `networkx` to verify molecule canonicalization in `code/utils/symmetry.py` (FR-008).
- - **Note**: This task now depends on T043 (Formal Group Definition) which is in Phase 3.
-- [ ] T025 [US2] Add explicit **Preliminary** invariance check: Calculate indices for a molecule and its canonicalized form; assert equality in `code/utils/symmetry.py` (FR-008).
-- [ ] T026 [US2] Implement **Preliminary** sensitivity analysis: Rotate/permute molecular graph representation and verify index stability in `code/utils/symmetry.py` (FR-008).
-- [ ] T027 [US2] Write descriptor table to `data/processed/descriptors.csv` with checksum generation
+ - **Validation**: Verify schema matches `contracts/disconnected_graph.schema.yaml`.
+ - **Checksum**: Generate and record checksum in `state/projects/PROJ-083-investigating-the-relationship-between-m.yaml`.
+- [ ] T027 [US2] Write descriptor table to `data/processed/descriptors.csv` with checksum generation.
+ - **Dependency**: Must run after T015 (Filtered Dataset) and T020a-T020c.
+ - **Validation**: Verify schema matches `contracts/topological_descriptor.schema.yaml`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, and preliminary symmetry invariance is verified.
 
@@ -128,6 +145,8 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement USPTO-50k downloader in `code/ingestion.py` (FR-001)
+ - **Constraint**: Must use a verified real data source (e.g., `datasets.load_dataset("HuggingFaceH4/uspto-50k")` or a specific verified URL).
+ - **Constraint**: MUST fail loudly if download fails; no synthetic fallback.
 - [ ] T012 [US1] Implement SMILES parser with error handling for malformed data in `code/ingestion.py` (FR-006)
 - [ ] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
 - [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < `MIN_EAS_COUNT` in `code/ingestion.py`.
@@ -156,15 +175,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement **selectivity target** extraction (Regioisomer Diversity Count from reactant symmetry) in `code/modeling.py` (FR-003).
- - **Algorithm**: Calculate graph automorphism orbits on reactant aromatic ring to determine non-equivalent sites.
+- [ ] T032 [US3] Implement **selectivity target** extraction (Regioisomer Diversity Count from reactant symmetry) in `code/modeling.py` (FR-008).
+ - **Algorithm**: Calculate graph automorphism orbits on reactant aromatic ring using `rdkit.Chem.rdmolops.GetSymmSSSR` to determine non-equivalent sites.
  - **Logic**: Target is **always** derived from reactant symmetry. No "default to 0" fallback.
  - **Function Signature**: `def calculate_regioisomer_count(smiles: str) -> int` in `code/modeling.py` and add column `target_count` to the processed DataFrame.
- - **Depends on**: T043 (Symmetry Group Definition) and T015 (Filtered Dataset).
+ - **Depends on**: T043c (Symmetry Group Definition) and T015 (Filtered Dataset).
 - [ ] T033 [US3] Implement **Ordinal Logistic Regression** model in `code/modeling.py` (Plan Requirement)
 - [ ] T035 [US3] Implement 5-fold CV logic with automatic switch to LOO if N < 20 in `code/modeling.py` (FR-005)
 - [ ] T036 [US3] Implement VIF calculation for collinearity diagnostics and sequential analysis logic if VIF > 5 in `code/modeling.py`
-- [ ] T037 [US3] Implement degenerate target detection (variance=0) and switch to **Descriptive Statistics** in `code/modeling.py` (FR-007)
+- [ ] T037 [US3] Implement degenerate target detection (variance=0) and switch to **Descriptive Statistics** in `code/modeling.py` (FR-008).
  - **Note**: Zero-Inflated Poisson and Binary Classification are explicitly excluded per Plan.
 - [ ] T038 [US3] Implement Bonferroni-corrected significance testing (p < 0.0167) and report generation in `code/modeling.py`
 - [ ] T039 [US3] Evaluate R² against SC-002 threshold (R² > 0.05). If MDE is unachievable, calculate the MDE value, report descriptive statistics, log the MDE value and explicit "Project Analysis Complete" state in `data/models/results.json` (SC-002).
@@ -181,9 +200,12 @@
 - [ ] T041 [US3] Update `research.md` to explicitly state that indices are invariant under the defined symmetry group, addressing the "coordinate-dependent artifact" concern
 - [ ] T042 [US3] Generate final summary report in `docs/reports/` including sensitivity analysis results (T044, T045)
 - [ ] T060 [P] Update `spec.md` and `research.md` to explicitly remove the Poisson Regression requirement (FR-004) and update the synthetic test description (User Story 3) to reflect the deterministic symmetry-based generation logic.
- - **Reason**: Resolves the contradiction between spec and plan.
+ - **Action**: Remove all mentions of "Poisson Regression", "Zero-Inflated Poisson", and "FR-004", "FR-007". Replace with "Ordinal Logistic Regression" and "Descriptive Statistics".
+ - **Action**: Update User Story 3 synthetic test description to use deterministic symmetry logic.
+ - **Reason**: Resolves the contradiction between spec and plan (FR-009).
 - [ ] T061 [P] Update `spec.md` and `data-model.md` to remove the "default to 0" fallback description for the target variable.
- - **Reason**: Resolves the contradiction between spec and plan regarding target derivation.
+ - **Action**: Remove all mentions of "default to 0" or "missing data fallback" for the target variable.
+ - **Reason**: Resolves the contradiction between spec and plan regarding target derivation (FR-009).
 
 ---
 
@@ -206,12 +228,13 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Symmetry Validation (Phase 3)**: Depends on Phase 2. **CRITICAL**: Must complete before Phase 6 (Modeling) and Phase 5 (Data Ingestion) to provide the SymmetryGroup definition.
+- **Symmetry Validation (Phase 3)**: Depends on Phase 2. **CRITICAL**: Must complete before Phase 6 (Modeling) and Phase 4 (Descriptors) to provide the SymmetryGroup definition.
 - **User Stories (Phase 5+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **User Story 3 (Phase 6)**: Depends on Phase 5 (Data), Phase 4 (Descriptors), and Phase 3 (Symmetry Check).
  - **Critical**: Phase 6 requires Phase 3 completion (Symmetry Check).
+ - **Critical**: Phase 6 requires Phase 5 completion AND N_EAS >= `MIN_EAS_COUNT` (enforced by T014).
 - **Research Revision (Phase 7)**: Depends on Phase 4 (US2 Descriptors + Symmetry) and Phase 6 (US3 Modeling)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -219,8 +242,8 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+ - **Critical**: Phase 4 depends on Phase 5 (Data Ingestion) for the filtered dataset.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 (data), US2 (descriptors + symmetry), and Phase 3 (Symmetry Check).
- - **Critical**: Phase 6 requires Phase 5 completion AND N_EAS >= `MIN_EAS_COUNT` (enforced by T014).
  - **Critical**: Phase 6 requires Phase 3 completion (Symmetry Check).
 - **Research Revision (P2)**: Depends on US2 completion to verify invariance
 - **Symmetry Validation (P2)**: Depends on US2 (T020-T022) to have working descriptor calculators
@@ -303,18 +326,19 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Revision**: Tasks T024-T026 and Phase 3 (T043-T047) address the "invariance under transformation" concern raised in the prior research review by **albert-einstein-simulated**. These must be completed to validate the scientific premise that topological indices are not coordinate-dependent artifacts.
 - **FR-008**: Added to authorize Symmetry Invariance Analysis tasks (per Plan.md Critical Scope Clarification).
+- **FR-009**: Added to anchor Spec Revision tasks (T060, T061) to a valid requirement.
 - **Phase 3**: Specifically addresses the reviewer's request to "explicitly define the symmetry group and demonstrate that the chosen indices are invariant under the transformations that the electron density undergoes during the electrophilic attack."
 - **Plan Alignment**: All Poisson Regression and Zero-Inflated Poisson tasks have been removed per the Plan's "Critical Scope Clarification" which deems them scientifically invalid for the deterministic target. Replaced with Ordinal Logistic Regression and Descriptive Statistics.
-- **Phase Ordering**: Phase 3 (Symmetry Validation) now runs BEFORE Phase 6 (Modeling) to resolve circular dependencies.
+- **Phase Ordering**: Phase 3 (Symmetry Validation) now runs BEFORE Phase 6 (Modeling) to resolve circular dependencies. Phase 4 (Descriptors) now explicitly depends on Phase 5 (Data Ingestion).
 - **T034 Removal**: Random Forest Regression (T034) was removed as it violates the Plan's rejection of regression on deterministic targets.
 - **T039 Update**: T039 no longer halts the pipeline on low R²; it outputs descriptive statistics and logs MDE as per Plan.
 - **T014 Update**: T014 now explicitly raises SystemExit(1) if N_EAS < `MIN_EAS_COUNT` (configurable).
-- **T023 Update**: T023 now logs disconnected graphs to a specific file with checksum and schema.
-- **T027 Update**: T027 now includes checksum generation.
-- **T032 Update**: T032 now explicitly describes the graph automorphism algorithm and function signature.
+- **T023 Update**: T023 now logs disconnected graphs to a specific file with checksum and schema, and includes the schema definition in the task.
+- **T027 Update**: T027 now includes checksum generation and schema validation.
+- **T032 Update**: T032 now explicitly describes the graph automorphism algorithm (`rdkit.Chem.rdmolops.GetSymmSSSR`) and function signature.
 - **T018/T053 Update**: Performance tests now specify "full filtered EAS set".
 - **T035 Update**: T035 now specifies "N < 20" threshold for LOO.
-- **T040/T047 Update**: Symmetry Check logic moved to Phase 3 (T047) to ensure it is available before Phase 6 starts.
-- **T040 Removal**: T040 was removed from Phase 5 to resolve circular dependency; logic consolidated into T047 (Phase 3).
-- **T054-T056 Update**: Renamed from T044-T046 to avoid ID collision with Phase 3 implementation tasks.
-- **T060/T061 Update**: Added to explicitly drive the necessary spec revisions.
+- **T040/T047 Update**: Symmetry Check logic moved to Phase 6 (T047) to ensure it is available after data and descriptors are ready.
+- **T040 Removal**: T040 was removed from Phase 5 to resolve circular dependency; logic consolidated into T047 (Phase 6).
+- **T054-T056 Update**: Renamed from T044-T046 to avoid ID collision with Phase 3 implementation tasks. Moved to Phase 3.
+- **T060/T061 Update**: Added to explicitly drive the necessary spec revisions, anchored by FR-009.

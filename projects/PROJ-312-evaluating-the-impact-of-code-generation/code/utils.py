@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 MIN_PR_THRESHOLD = 50
-MAX_RETRIES = 5
+MAX_RETRIES = 3
 BASE_DELAY = 1.0
 MAX_DELAY = 60.0
 MULTIPLIER = 2.0
@@ -87,6 +87,20 @@ def log_api_headers(response: requests.Response) -> None:
 def api_request_with_backoff(url: str, headers: Dict[str, str]) -> requests.Response:
     """
     Make an API request with exponential backoff.
+    
+    Parameters:
+        url: The API endpoint URL.
+        headers: Request headers dictionary.
+    
+    Returns:
+        The requests.Response object from the successful request or the last attempt.
+    
+    Strategy:
+        - Base delay: 1s
+        - Multiplier: 2
+        - Max delay: 60s
+        - Max retries: 3
+        - Jitter: Random non-negative percentage of delay (0 to 10% of current delay)
     """
     delay = BASE_DELAY
     last_response = None
@@ -118,8 +132,13 @@ def api_request_with_backoff(url: str, headers: Dict[str, str]) -> requests.Resp
         except requests.exceptions.RequestException as e:
             logger.warning(f"Request failed: {e}. Retrying in {delay}s")
         
-        time.sleep(delay)
-        delay = min(delay * MULTIPLIER + random.uniform(0, delay * 0.1), MAX_DELAY)
+        # Apply exponential backoff with jitter
+        # Jitter strategy: random non-negative percentage of delay (0 to 10%)
+        jitter = random.uniform(0, delay * 0.1)
+        sleep_time = delay + jitter
+        
+        time.sleep(sleep_time)
+        delay = min(delay * MULTIPLIER, MAX_DELAY)
     
     if last_response:
         return last_response

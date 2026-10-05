@@ -1,117 +1,130 @@
-"""
-Environment verification script for PROJ-312.
-
-This script verifies that all required dependencies are installed
-and that all critical imports from the project's codebase succeed.
-"""
 import subprocess
 import sys
 import logging
 from pathlib import Path
 
 def setup_logging():
-    """Configure logging for the verification script."""
+    """Configure logging for the environment verification script."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
-
-def verify_imports():
-    """
-    Verify that all critical imports from the project's codebase succeed.
-    
-    Returns:
-        bool: True if all imports succeed, False otherwise.
-    """
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    
-    # List of critical modules to import
-    # These are the core modules that the pipeline depends on
-    critical_modules = [
-        'code.utils',
-        'code.fetch_data',
-        'code.analyze',
-        'code.visualize',
-        'code.report',
-        'code.validate_spot_check',
-        'code.data_quality',
-        'code.logging_config',
-        'code.save_raw_data',
-        'code.save_processed_data',
-        'code.save_statistical_results',
-        'code.save_spot_check_results',
-        'code.update_state',
-        'code.verify_schemas',
-        'code.verify_boxplot',
-    ]
-    
-    failed_imports = []
-    
-    logger.info("Verifying critical module imports...")
-    
-    for module_name in critical_modules:
-        try:
-            __import__(module_name)
-            logger.info(f"  ✓ Successfully imported {module_name}")
-        except ImportError as e:
-            logger.error(f"  ✗ Failed to import {module_name}: {e}")
-            failed_imports.append((module_name, str(e)))
-        except Exception as e:
-            logger.error(f"  ✗ Error importing {module_name}: {e}")
-            failed_imports.append((module_name, str(e)))
-    
-    if failed_imports:
-        logger.error(f"\n❌ Verification FAILED: {len(failed_imports)} import(s) failed")
-        for module, error in failed_imports:
-            logger.error(f"  - {module}: {error}")
-        return False
-    
-    logger.info("\n✅ All critical imports successful!")
-    return True
 
 def verify_dependencies():
     """
-    Verify that all required dependencies from requirements.txt are installed.
-    
-    Returns:
-        bool: True if all dependencies are installed, False otherwise.
+    Verify that all dependencies listed in requirements.txt are installed.
+    Reads the requirements file and attempts to import each package.
     """
-    setup_logging()
     logger = logging.getLogger(__name__)
-    
-    # Read requirements.txt
-    requirements_path = Path("projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt")
-    
+    project_root = Path(__file__).resolve().parent.parent
+    requirements_path = project_root / "requirements.txt"
+
     if not requirements_path.exists():
-        logger.error(f"Requirements file not found: {requirements_path}")
+        logger.error(f"Requirements file not found at: {requirements_path}")
         return False
+
+    logger.info(f"Verifying dependencies from: {requirements_path}")
     
-    with open(requirements_path, 'r') as f:
-        requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    try:
+        with open(requirements_path, 'r') as f:
+            lines = f.readlines()
+    except IOError as e:
+        logger.error(f"Failed to read requirements file: {e}")
+        return False
+
+    packages = []
+    for line in lines:
+        line = line.strip()
+        if line and not line.startswith('#'):
+            # Handle package names with version specifiers
+            pkg_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].split('>')[0].split('<')[0]
+            pkg_name = pkg_name.strip()
+            if pkg_name:
+                packages.append(pkg_name)
+
+    logger.info(f"Found {len(packages)} packages to verify: {packages}")
+
+    missing = []
+    for pkg in packages:
+        try:
+            # Attempt to import the package
+            __import__(pkg)
+            logger.info(f"✓ Successfully imported: {pkg}")
+        except ImportError:
+            # Some packages might have different import names than pip names
+            # e.g., 'scikit-learn' imports as 'sklearn'
+            # For this specific project, we assume standard names or handle common cases
+            import_names = {
+                'scikit-learn': 'sklearn',
+                'pyyaml': 'yaml',
+                'pillow': 'PIL',
+                'beautifulsoup4': 'bs4',
+                'python-dateutil': 'dateutil'
+            }
+            
+            import_name = import_names.get(pkg, pkg)
+            try:
+                __import__(import_name)
+                logger.info(f"✓ Successfully imported (as {import_name}): {pkg}")
+            except ImportError:
+                logger.error(f"✗ Failed to import: {pkg} (tried {import_name})")
+                missing.append(pkg)
+
+    if missing:
+        logger.error(f"Missing dependencies: {missing}")
+        logger.error("Please run: pip install -r requirements.txt")
+        return False
+
+    logger.info("All dependencies verified successfully.")
+    return True
+
+def verify_imports():
+    """
+    Verify that all local modules in the code/ directory can be imported.
+    This ensures the project structure is correct and dependencies between modules work.
+    """
+    logger = logging.getLogger(__name__)
+    project_root = Path(__file__).resolve().parent.parent
+    code_dir = project_root / "code"
+
+    if not code_dir.exists():
+        logger.error(f"Code directory not found at: {code_dir}")
+        return False
+
+    logger.info(f"Verifying local imports from: {code_dir}")
+
+    # Add the project root to sys.path to allow relative imports
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+    failed_imports = []
     
-    logger.info(f"Checking {len(requirements)} dependencies from requirements.txt...")
+    # Get all Python files in the code directory
+    python_files = list(code_dir.glob("*.py"))
     
-    missing_deps = []
-    
-    for req in requirements:
-        # Extract package name (handle ==, >=, etc.)
-        package_name = req.split('==')[0].split('>=')[0].split('<=')[0].split('[')[0]
+    for py_file in python_files:
+        module_name = py_file.stem
+        if module_name == '__init__':
+            continue
         
         try:
-            # Try to import the package
-            __import__(package_name)
-            logger.info(f"  ✓ {package_name} is installed")
-        except ImportError:
-            logger.warning(f"  ✗ {package_name} is NOT installed")
-            missing_deps.append(package_name)
-    
-    if missing_deps:
-        logger.error(f"\n❌ Missing dependencies: {', '.join(missing_deps)}")
-        logger.info("Run: pip install -r projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt")
+            # Attempt to import the module
+            __import__(f"code.{module_name}")
+            logger.info(f"✓ Successfully imported module: code.{module_name}")
+        except Exception as e:
+            logger.error(f"✗ Failed to import module code.{module_name}: {e}")
+            failed_imports.append((module_name, str(e)))
+
+    if failed_imports:
+        logger.error(f"Failed to import {len(failed_imports)} modules:")
+        for module, error in failed_imports:
+            logger.error(f"  - {module}: {error}")
         return False
-    
-    logger.info("\n✅ All dependencies installed!")
+
+    logger.info("All local modules verified successfully.")
     return True
 
 def main():
@@ -119,25 +132,16 @@ def main():
     setup_logging()
     logger = logging.getLogger(__name__)
     
-    logger.info("=" * 60)
-    logger.info("Environment Verification for PROJ-312")
-    logger.info("=" * 60)
+    logger.info("Starting environment verification for PROJ-312...")
     
-    # Verify dependencies
     deps_ok = verify_dependencies()
-    
-    # Verify imports
     imports_ok = verify_imports()
     
-    # Final status
-    logger.info("=" * 60)
     if deps_ok and imports_ok:
-        logger.info("✅ Environment verification PASSED")
-        logger.info("=" * 60)
+        logger.info("Environment verification PASSED.")
         return 0
     else:
-        logger.error("❌ Environment verification FAILED")
-        logger.info("=" * 60)
+        logger.error("Environment verification FAILED.")
         return 1
 
 if __name__ == "__main__":

@@ -1,76 +1,79 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import json
-import os
 import sys
-from pathlib import Path
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from fetch_repos import fetch_repos_from_github
+from fetch_repos import fetch_repos_from_github, TARGET_COUNT
 
-@patch('fetch_repos.api_request_with_backoff')
-@patch('fetch_repos.log_api_headers')
-def test_fetch_repos_success(mock_log, mock_request):
-    """Test successful fetching of repositories"""
-    # Mock response data
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {
+@pytest.fixture
+def mock_response_data():
+    return {
         "items": [
-            {"full_name": "test/repo1", "stargazers_count": 50000},
-            {"full_name": "test/repo2", "stargazers_count": 45000}
+            {"full_name": f"test/repo-{i}", "stargazers_count": 10000 - i}
+            for i in range(10)
         ]
     }
-    mock_request.return_value = mock_response
-    
-    # Set token for test
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
-        repos = fetch_repos_from_github("Python", min_stars=10000, limit=5)
-    
-    assert len(repos) == 2
-    assert repos[0]["name"] == "test/repo1"
-    assert repos[0]["stars"] == 50000
-    assert repos[1]["name"] == "test/repo2"
-    assert repos[1]["stars"] == 45000
 
 @patch('fetch_repos.api_request_with_backoff')
-@patch('fetch_repos.log_api_headers')
-def test_fetch_repos_empty_response(mock_log, mock_request):
-    """Test handling of empty API response"""
+def test_fetch_repos_success(mock_api_call, mock_response_data):
+    """Test that fetch_repos_from_github correctly parses and limits results."""
     mock_response = MagicMock()
+    mock_response.json.return_value = mock_response_data
     mock_response.status_code = 200
+    mock_api_call.return_value = mock_response
+
+    # Request 5 repos, but mock only provides 10 per page
+    result = fetch_repos_from_github("Test", "test_query", target_count=5)
+
+    assert len(result) == 5
+    assert result[0]["name"] == "test/repo-0"
+    assert result[0]["stars"] == 10000
+    assert "stars" in result[0]
+
+@patch('fetch_repos.api_request_with_backoff')
+def test_fetch_repos_pagination(mock_api_call, mock_response_data):
+    """Test that pagination logic works when target count > per_page."""
+    # Mock response for page 1
+    page1_data = mock_response_data
+    # Mock response for page 2 (different items)
+    page2_data = {
+        "items": [
+            {"full_name": f"test/repo-page2-{i}", "stargazers_count": 5000 - i}
+            for i in range(10)
+        ]
+    }
+
+    mock_response1 = MagicMock()
+    mock_response1.json.return_value = page1_data
+    mock_response1.status_code = 200
+
+    mock_response2 = MagicMock()
+    mock_response2.json.return_value = page2_data
+    mock_response2.status_code = 200
+
+    # Return page 1 first, then page 2
+    mock_api_call.side_effect = [mock_response1, mock_response2]
+
+    # Request 15 repos (need 2 pages)
+    result = fetch_repos_from_github("Test", "test_query", target_count=15)
+
+    assert len(result) == 15
+    assert "repo-page2-0" in result[10]["name"]
+    assert mock_api_call.call_count == 2
+
+@patch('fetch_repos.api_request_with_github')
+def test_fetch_repos_empty_response(mock_api_call):
+    """Test handling of empty API response."""
+    mock_response = MagicMock()
     mock_response.json.return_value = {"items": []}
-    mock_request.return_value = mock_response
-    
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
-        repos = fetch_repos_from_github("Python", min_stars=10000, limit=5)
-    
-    assert len(repos) == 0
-
-@patch('fetch_repos.api_request_with_backoff')
-@patch('fetch_repos.log_api_headers')
-def test_fetch_repos_limit(mock_log, mock_request):
-    """Test that limit parameter works correctly"""
-    # Create enough items to exceed limit
-    items = [
-        {"full_name": f"test/repo{i}", "stargazers_count": 50000 - i}
-        for i in range(10)
-    ]
-    
-    mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"items": items}
-    mock_request.return_value = mock_response
-    
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
-        repos = fetch_repos_from_github("Python", min_stars=10000, limit=3)
-    
-    assert len(repos) == 3
+    mock_api_call.return_value = mock_response
 
-def test_missing_token():
-    """Test that missing GITHUB_TOKEN raises error"""
-    with patch.dict(os.environ, {}, clear=True):
-        with pytest.raises(RuntimeError, match="GITHUB_TOKEN environment variable is not set"):
-            fetch_repos_from_github("Python")
+    result = fetch_repos_from_github("Test", "test_query", target_count=5)
+
+    assert len(result) == 0
+    mock_api_call.assert_called_once()

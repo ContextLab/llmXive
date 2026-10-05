@@ -157,3 +157,279 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T17:22:09Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fetch top 20 Python and 20 JavaScript repositories by star count
+  claim_id: c_c4012ded
+  context: 'T012a Fetch a representative set of top Python and JavaScript repositories
+    by star count using GitHub API endpoints... Target: Top 20 Python and Top 20 JavaScript
+    repositories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Top 20 Python and Top 20 JavaScript repositories.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:53:31Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Stop data fetch after 50 pages or 30 minutes per repository
+  claim_id: c_74592d3d
+  context: 'T012b For each repo from T012a, fetch PRs and iterate through commits.
+    Stop Condition: Stop after fetching 50 pages per repo OR a bounded execution time
+    (a maximum duration of approximately half an hour).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stop after fetching 50 pages per repo OR a bounded execution time (a maximum
+    duration of approximately half an hour).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:53:45Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Minimum PR threshold defined as 50
+  claim_id: c_10ab9dea
+  context: T014 Implement logic in code/fetch_data.py to skip repos with fewer than
+    50 PRs after filtering... The threshold MUST be read from the MIN_PR_THRESHOLD
+    constant in code/utils.py (defined as 50 in this task).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold MUST be read from the MIN_PR_THRESHOLD constant in code/utils.py
+    (defined as 50 in this task).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:54:02Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data quality success rate threshold is 95%
+  claim_id: c_ca985628
+  context: 'T018c Calculate overall data quality success rate (processed/total PRs).
+    If < 95%, log a warning... and save a quality status artifact to data/processed/quality_status.json
+    with status: warning and rate: <value>.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If < 95%, log a warning, save a detailed error log... and save a quality
+    status artifact to data/processed/quality_status.json with status: warning and
+    rate: <value>.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:54:02Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Minimum AI group sample size is 30
+  claim_id: c_4923bb68
+  context: 'T027a Implement power check in code/analyze.py: if AI group count < 30,
+    raise SampleSizeError with message Sample size too small: AI group < 30 to abort
+    pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if AI group count < 30, raise SampleSizeError with message Sample size
+    too small: AI group < 30 to abort pipeline.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:54:02Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: False-negative rate limitation threshold is 10%
+  claim_id: c_854c1f57
+  context: 'T035 Implement conditional logic in code/report.py: If false_negative_rate
+    (from T034b) > 10%, inject limitation statement with text: Limitation: False-negative
+    rate exceeds 10% threshold, indicating potential misclassification in non-AI group.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If false_negative_rate (from T034b) > 10%, inject limitation statement
+    with text: Limitation: False-negative rate exceeds 10% threshold, indicating potential
+    misclassification in non-AI group.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T06:54:42Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Top 20 Python and 20 JavaScript repositories selected by stars
+  claim_id: c_e32f0704
+  context: 'Fetch a representative set of top Python and JavaScript repositories by
+    star count using GitHub API endpoints... Target: Top 20 Python and Top 20 JavaScript
+    repositories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Top 20 Python and Top 20 JavaScript repositories.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:02:26Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data fetch stops after 50 pages or 30 minutes
+  claim_id: c_8d1a9d99
+  context: 'Goal: Fetch ALL PRs for each repo in the representative set. Stop Condition:
+    Stop after fetching 50 pages per repo OR a bounded execution time (a maximum duration
+    of approximately half an hour).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stop after fetching 50 pages per repo OR a bounded execution time (a maximum
+    duration of approximately half an hour).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:02:26Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Minimum PR threshold set to 50
+  claim_id: c_758f4951
+  context: Implement logic in code/fetch_data.py to skip repos with fewer than 50
+    PRs after filtering... The threshold MUST be read from the MIN_PR_THRESHOLD constant
+    in code/utils.py (defined as 50 in this task), not hardcoded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold MUST be read from the MIN_PR_THRESHOLD constant in code/utils.py
+    (defined as 50 in this task)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:02:26Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Limitation statement injected if false-negative rate exceeds 10%
+  claim_id: c_f9d4bea5
+  context: 'If false_negative_rate (from T034b) > 10%, inject limitation statement
+    with text: ''Limitation: False-negative rate exceeds 10% threshold, indicating
+    potential misclassification in non-AI group.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If false-negative rate > 10%, inject limitation statement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:02:26Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if AI group sample size is less than 30
+  claim_id: c_7089ed0e
+  context: 'Implement power check in code/analyze.py: if AI group count < 30, raise
+    SampleSizeError with message ''Sample size too small: AI group < 30'' to abort
+    pipeline'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_AI_group_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: if AI group count < 30, raise SampleSizeError
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:05:18Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Boxplot resolution at least 300 DPI
+  claim_id: c_3230377e
+  context: "Save visualization to artifacts/boxplot.png with \u2265300 DPI resolution\
+    \ (FR-008, SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Boxplot_resolution_at_least_300_DPI
+  kind: magnitude
+  raw_text: "Save visualization to artifacts/boxplot.png with \u2265300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:09:05Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data quality warning logged if success rate is below 95%
+  claim_id: c_d6ef0eb3
+  context: Calculate overall data quality success rate (processed/total PRs). If <
+    95%, log a warning, save a detailed error log to data/processed/data_quality_warning.log...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If < 95%, log a warning, save a detailed error log to data/processed/data_quality_warning.log
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:09:05Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dependencies pinned using exact version constraints
+  claim_id: c_f7f27176
+  context: 'Create file projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt
+    containing pinned versions (requests, pandas, scipy, matplotlib, pyyaml, tqdm,
+    statsmodels). Pinning Strategy: Use exact == constraints (e.g., pandas==2.0.3)
+    derived from the project''s pylock or pip freeze output to ensure deterministic
+    execution.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Use exact == constraints (e.g., pandas==2.0.3) derived from the project's
+    pylock or pip freeze output
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T07:09:05Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'API backoff parameters: 1s base, 2x multiplier, 60s max, 3 retries'
+  claim_id: c_9b4b4651
+  context: 'Implement exponential backoff utility in code/utils.py: Function api_request_with_backoff(url,
+    headers) with exact parameters: base_delay=1s, multiplier=2, max_delay=60s, max_retries=3,
+    and jitter strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Function api_request_with_backoff(url, headers) with exact parameters:
+    base_delay=1s, multiplier=2, max_delay=60s, max_retries=3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T07:11:02Z'
