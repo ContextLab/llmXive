@@ -1,26 +1,18 @@
-%YAML 1.2
----
-# Schema for the complete dataset used in texture prediction
-# Defines the structure of the processed dataset combining real and synthetic data
-# Location: docs/contracts/dataset.schema.yaml
-
+# Dataset Schema for Rolled Metals Texture Prediction
+# Defines the structure of the processed dataset used for model training and evaluation.
+# Used by: code/data/processor.py, code/models/trainer.py, code/models/evaluator.py
 $schema: http://json-schema.org/draft-07/schema#
-title: RolledMetalTextureDataset
-description: >
-  Complete dataset schema for rolled metals texture prediction.
-  Contains processing conditions, material properties, and texture coefficients.
-
+title: RolledMetalsDataset
+description: |
+  Schema for the processed dataset containing processing conditions,
+  alloy properties, and texture coefficients (ODF intensities).
 type: object
 required:
   - metadata
   - samples
-  - feature_definitions
-  - target_definitions
-
 properties:
   metadata:
     type: object
-    description: Dataset-level metadata
     required:
       - version
       - created_at
@@ -30,241 +22,98 @@ properties:
     properties:
       version:
         type: string
-        pattern: '^\d+\.\d+\.\d+$'
-        description: Semantic version of the dataset schema
+        description: Schema version (e.g., "1.0.0")
       created_at:
         type: string
         format: date-time
         description: ISO 8601 timestamp of dataset creation
       source_type:
         type: string
-        enum:
-          - Real
-          - Synthetic
-          - Hybrid
+        enum: [Real, Synthetic, Combined]
         description: Origin of the data
       sample_count:
         type: integer
-        minimum: 1
+        minimum: 0
         description: Total number of samples in the dataset
       alloy_families:
         type: array
         items:
           type: string
-        minItems: 3
-        description: List of distinct alloy families represented
-      processing_conditions:
-        type: object
-        description: Summary of processing condition ranges
-        properties:
-          reduction_ratio:
-            type: object
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              mean:
-                type: number
-          temperature:
-            type: object
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              mean:
-                type: number
-          strain_rate:
-            type: object
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              mean:
-                type: number
-          zener_hollomon:
-            type: object
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              mean:
-                type: number
-
+        description: List of distinct alloy families present
+      processing_pipeline:
+        type: string
+        description: Identifier for the processing pipeline version used
   samples:
     type: array
-    description: List of individual sample records
     items:
-      $ref: '#/definitions/sample_record'
-
-  feature_definitions:
-    type: array
-    description: Definitions of all input features
-    items:
-      type: object
-      required:
-        - name
-        - unit
-        - description
-        - type
-      properties:
-        name:
-          type: string
-        unit:
-          type: string
-        description:
-          type: string
-        type:
-          type: string
-          enum:
-            - continuous
-            - categorical
-            - derived
-
-  target_definitions:
-    type: array
-    description: Definitions of all target variables (texture coefficients)
-    items:
-      type: object
-      required:
-        - name
-        - unit
-        - description
-      properties:
-        name:
-          type: string
-        unit:
-          type: string
-        description:
-          type: string
-
+      $ref: "#/definitions/sample"
+    minItems: 1
 definitions:
-  sample_record:
+  sample:
     type: object
-    description: Single sample record with processing conditions and texture data
     required:
       - sample_id
       - alloy_family
-      - alloy_composition
       - processing_conditions
       - texture_coefficients
-      - metadata
     properties:
       sample_id:
         type: string
-        pattern: '^[A-Z]{2}-\d{4}-[A-Z0-9]+$'
         description: Unique identifier for the sample
       alloy_family:
         type: string
-        enum:
-          - Aluminum
-          - Titanium
-          - Steel
-          - Copper
-          - Magnesium
-          - Zinc
-        description: Primary alloy family classification
-      alloy_composition:
-        type: object
-        description: Chemical composition of the alloy
-        required:
-          - primary_element
-        properties:
-          primary_element:
-            type: string
-          secondary_elements:
-            type: array
-            items:
-              type: object
-              required:
-                - element
-                - weight_percent
-              properties:
-                element:
-                  type: string
-                weight_percent:
-                  type: number
-                  minimum: 0
-                  maximum: 100
+        description: Alloy family classification (e.g., "Al-Mg", "Ti-6Al-4V")
       processing_conditions:
         type: object
-        description: Rolling and heat treatment conditions
         required:
+          - rolling_temperature
           - reduction_ratio
-          - temperature
           - strain_rate
+          - annealing_temp
+          - annealing_time
         properties:
+          rolling_temperature:
+            type: number
+            description: Rolling temperature in Kelvin
           reduction_ratio:
             type: number
             minimum: 0
             maximum: 1
-            description: Fractional thickness reduction
-          temperature:
-            type: number
-            minimum: 0
-            description: Rolling temperature in Kelvin
+            description: Thickness reduction ratio (0-1)
           strain_rate:
             type: number
-            minimum: 0
             description: Strain rate in s^-1
-          zener_hollomon:
+          annealing_temp:
             type: number
-            minimum: 0
-            description: Zener-Hollomon parameter (calculated)
-          annealing_temperature:
-            type: number
-            minimum: 0
-            description: Annealing temperature in Kelvin (optional)
+            description: Annealing temperature in Kelvin
           annealing_time:
             type: number
-            minimum: 0
-            description: Annealing time in seconds (optional)
+            description: Annealing time in seconds
+          zener_hollomon_param:
+            type: number
+            description: Derived Zener-Hollomon parameter
       texture_coefficients:
         type: object
-        description: Measured ODF intensities in MRD
         required:
-          - cube
-          - brass
-          - copper
-          - s
+          - ODF_100
+          - ODF_110
+          - ODF_111
         properties:
-          cube:
+          ODF_100:
             type: number
-            minimum: 0
-            description: {100}<001> texture intensity (MRD)
-          brass:
+            description: ODF intensity for {100} plane in MRD
+          ODF_110:
             type: number
-            minimum: 0
-            description: {110}<112> texture intensity (MRD)
-          copper:
+            description: ODF intensity for {110} plane in MRD
+          ODF_111:
             type: number
-            minimum: 0
-            description: {112}<111> texture intensity (MRD)
-          s:
-            type: number
-            minimum: 0
-            description: {123}<634> texture intensity (MRD)
-          goss:
-            type: number
-            minimum: 0
-            description: {110}<001> texture intensity (MRD)
-      metadata:
+            description: ODF intensity for {111} plane in MRD
+      derived_features:
         type: object
-        description: Additional sample metadata
         properties:
-          source:
-            type: string
-            description: Original data source (e.g., "NIST", "Synthetic")
-          measurement_method:
-            type: string
-            description: Texture measurement technique (e.g., "XRD", "EBSD")
-          quality_flag:
-            type: string
-            enum:
-              - valid
-              - questionable
-              - excluded
-            description: Data quality assessment
+          recrystallization_fraction:
+            type: number
+            description: Estimated recrystallized fraction
+          stored_energy:
+            type: number
+            description: Stored deformation energy

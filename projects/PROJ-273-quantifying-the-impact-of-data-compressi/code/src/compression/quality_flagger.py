@@ -1,3 +1,10 @@
+"""
+Quality flagging module for compression analysis.
+
+Implements logic to flag compression levels based on SNR degradation thresholds
+as defined in FR-002, FR-003, FR-004, and SC-002.
+"""
+
 import json
 import logging
 from pathlib import Path
@@ -6,187 +13,249 @@ from typing import Dict, Any, List, Optional, Tuple
 from src.utils.logging import get_logger
 from src.utils.config import get_project_root, ensure_dir
 
-# Constants
-SNR_DEGRADATION_THRESHOLD = 5.0  # Percentage
+logger = get_logger(__name__)
+
+# Threshold for SNR degradation (from SC-002)
+SNR_DEGRADATION_THRESHOLD_DB = 5.0
+
 
 def flag_compression_quality(
-    snr_degradation: float,
+    snr_degradation_db: float,
     method: str,
-    level: str,
+    level: Any,
     event_id: str
 ) -> Dict[str, Any]:
     """
-    Flag compression quality based on SNR degradation.
-
+    Flag a compression level as 'acceptable' or 'unacceptable' based on SNR degradation.
+    
     Args:
-        snr_degradation: The calculated SNR degradation in dB (or percentage if pre-calculated).
-        method: Compression method name (e.g., 'quantization', 'jpeg2000').
-        level: Compression level (e.g., '4-bit', '50').
-        event_id: The ID of the event.
-
+        snr_degradation_db: The calculated SNR degradation in dB.
+        method: The compression method used (e.g., 'quantization', 'jpeg2000', 'wavelet').
+        level: The compression level (e.g., 16-bit, 50, 'threshold_0.01').
+        event_id: The ID of the event being analyzed.
+    
     Returns:
-        Dictionary with flag details.
+        A dictionary containing the flag result and details.
     """
-    # The metric compute_snr_degradation returns dB.
-    # We interpret "SNR degradation > 5%" as a threshold on the degradation metric.
-    # If the metric is in dB, a 5% signal loss roughly corresponds to ~0.2 dB,
-    # but per FR-002/SC-002, we treat the threshold as a direct percentage check
-    # if the metric is normalized, or a dB check if the metric is dB.
-    # Given the function name "compute_snr_degradation" in metrics.py usually returns dB,
-    # we assume the threshold applies to the magnitude of degradation.
-    # However, the task description says "SNR degradation > 5%".
-    # If the metric is dB, we might need to convert or assume the threshold is 5 dB.
-    # Let's assume the metric is percentage for this specific flagging logic as per "5%".
-    # If the metric is dB, 5% power loss is approx 0.22 dB. 5 dB is a huge loss.
-    # We will implement a check: if degradation > 5.0 (assuming percentage input)
-    # OR if the metric is dB, we check > 5.0 dB (which is very strict).
-    # To be safe and consistent with "5%", we treat the input as a percentage.
-    # If the input is dB, we convert: % = 100 * (1 - 10^(-dB/10)).
-    # But simpler: The task likely implies a direct comparison if the metric is normalized.
-    # Let's assume the metric passed here is the raw value from compute_snr_degradation.
-    # If that function returns dB, we convert to percentage for the check.
-
-    is_unacceptable = False
-    reason = "Acceptable"
-
-    # Logic: If degradation is significant, flag it.
-    # We assume the input snr_degradation is in dB.
-    # Convert dB to percentage loss: Loss% = 100 * (1 - 10^(-dB/10))
-    # If dB is small (e.g., 0.1), Loss% is ~2%.
-    # If dB is 5, Loss% is ~68%.
-    # The requirement says "SNR degradation > 5%".
-    # So we calculate percentage loss and compare.
-
-    if snr_degradation > 0:
-        # Convert dB to percentage loss
-        percentage_loss = 100.0 * (1.0 - 10.0 ** (-snr_degradation / 10.0))
-        if percentage_loss > SNR_DEGRADATION_THRESHOLD:
-            is_unacceptable = True
-            reason = f"SNR degradation ({percentage_loss:.2f}%) exceeds threshold ({SNR_DEGRADATION_THRESHOLD}%)"
-    else:
-        # No degradation or perfect reconstruction
-        reason = "Acceptable (No significant degradation)"
-
-    return {
+    is_acceptable = snr_degradation_db <= SNR_DEGRADATION_THRESHOLD_DB
+    status = "acceptable" if is_acceptable else "unacceptable"
+    
+    flag_result = {
         "event_id": event_id,
         "method": method,
-        "level": level,
-        "snr_degradation_db": snr_degradation,
-        "snr_degradation_percent": percentage_loss if snr_degradation > 0 else 0.0,
-        "is_unacceptable": is_unacceptable,
-        "reason": reason
+        "level": str(level),
+        "snr_degradation_db": snr_degradation_db,
+        "threshold_db": SNR_DEGRADATION_THRESHOLD_DB,
+        "status": status,
+        "reason": (
+            f"SNR degradation {snr_degradation_db:.2f} dB "
+            f"{'within' if is_acceptable else 'exceeds'} threshold of {SNR_DEGRADATION_THRESHOLD_DB} dB"
+        )
     }
+    
+    logger.info(
+        f"Flagged event {event_id} [{method}/{level}]: {status} "
+        f"(SNR degradation: {snr_degradation_db:.2f} dB)"
+    )
+    
+    return flag_result
+
 
 def process_quality_flags_for_event(
-    event_metrics_path: Path,
-    event_id: str
+    compression_results_path: Path,
+    output_path: Optional[Path] = None
 ) -> List[Dict[str, Any]]:
     """
-    Process a single event's metrics file and flag quality.
-
+    Process compression results for a single event and generate quality flags.
+    
     Args:
-        event_metrics_path: Path to the JSON file containing metrics for an event.
-        event_id: The ID of the event.
-
+        compression_results_path: Path to the JSON file containing compression metrics
+            for a single event (generated by src/compression/main.py).
+        output_path: Optional path to save the flagged results. If None, results are
+            returned in memory but not saved.
+    
     Returns:
-        List of flag dictionaries.
+        A list of flag dictionaries for the event.
+    
+    Raises:
+        FileNotFoundError: If the compression results file does not exist.
+        json.JSONDecodeError: If the results file is not valid JSON.
     """
+    if not compression_results_path.exists():
+        raise FileNotFoundError(
+            f"Compression results file not found: {compression_results_path}"
+        )
+    
+    logger.info(f"Processing quality flags for event: {compression_results_path.stem}")
+    
+    with open(compression_results_path, 'r') as f:
+        event_data = json.load(f)
+    
+    event_id = event_data.get("event_id", "unknown")
     flags = []
-    logger = get_logger(__name__)
-
-    if not event_metrics_path.exists():
-        logger.warning(f"Metrics file not found: {event_metrics_path}")
+    
+    results = event_data.get("compression_results", [])
+    if not results:
+        logger.warning(f"No compression results found for event {event_id}")
         return flags
-
-    try:
-        with open(event_metrics_path, 'r') as f:
-            metrics_data = json.load(f)
-    except json.JSONDecodeError:
-        logger.error(f"Invalid JSON in {event_metrics_path}")
-        return flags
-
-    # Expected structure: { "methods": [ { "method": "...", "level": "...", "snr_degradation": ... }, ... ] }
-    # Or flattened: { "method_name_level": { "snr_degradation": ... } }
-    # We assume the structure from metrics.py main() which likely saves a list of results.
-    # Let's handle a generic list of metric entries.
-
-    entries = metrics_data.get("results", [])
-    if not entries and isinstance(metrics_data, list):
-        entries = metrics_data
-
-    for entry in entries:
-        method = entry.get("method", "unknown")
-        level = entry.get("level", "unknown")
-        snr_deg = entry.get("snr_degradation", 0.0)
-
-        flag = flag_compression_quality(snr_deg, method, level, event_id)
+    
+    for result in results:
+        method = result.get("method")
+        level = result.get("level")
+        snr_degradation = result.get("snr_degradation_db")
+        
+        if snr_degradation is None:
+            logger.warning(
+                f"Skipping {method}/{level} for event {event_id}: "
+                "SNR degradation not calculated"
+            )
+            continue
+        
+        flag = flag_compression_quality(
+            snr_degradation_db=snr_degradation,
+            method=method,
+            level=level,
+            event_id=event_id
+        )
         flags.append(flag)
-
+    
+    if output_path:
+        ensure_dir(output_path)
+        with open(output_path, 'w') as f:
+            json.dump(flags, f, indent=2)
+        logger.info(f"Quality flags saved to {output_path}")
+    
     return flags
 
+
 def aggregate_quality_report(
-    flags: List[Dict[str, Any]],
+    flag_files: List[Path],
     output_path: Path
-) -> None:
+) -> Dict[str, Any]:
     """
-    Aggregate all flags into a single report file.
-
+    Aggregate quality flags from multiple events into a summary report.
+    
     Args:
-        flags: List of flag dictionaries.
-        output_path: Path to save the report.
+        flag_files: List of paths to JSON files containing quality flags for individual events.
+        output_path: Path to save the aggregated report.
+    
+    Returns:
+        A dictionary containing the aggregated report.
     """
-    ensure_dir(output_path.parent)
-
+    all_flags = []
+    for flag_file in flag_files:
+        if flag_file.exists():
+            with open(flag_file, 'r') as f:
+                all_flags.extend(json.load(f))
+        else:
+            logger.warning(f"Flag file not found: {flag_file}")
+    
+    # Aggregate statistics
+    total_flags = len(all_flags)
+    acceptable_count = sum(1 for f in all_flags if f["status"] == "acceptable")
+    unacceptable_count = total_flags - acceptable_count
+    
+    # Group by method
+    method_stats = {}
+    for flag in all_flags:
+        method = flag["method"]
+        if method not in method_stats:
+            method_stats[method] = {
+                "total": 0,
+                "acceptable": 0,
+                "unacceptable": 0,
+                "avg_snr_degradation": 0.0,
+                "snr_values": []
+            }
+        method_stats[method]["total"] += 1
+        if flag["status"] == "acceptable":
+            method_stats[method]["acceptable"] += 1
+        else:
+            method_stats[method]["unacceptable"] += 1
+        method_stats[method]["snr_values"].append(flag["snr_degradation_db"])
+    
+    # Calculate averages
+    for method in method_stats:
+        snr_values = method_stats[method]["snr_values"]
+        if snr_values:
+            method_stats[method]["avg_snr_degradation"] = sum(snr_values) / len(snr_values)
+        del method_stats[method]["snr_values"]  # Remove raw values from report
+    
     report = {
-        "threshold_percent": SNR_DEGRADATION_THRESHOLD,
-        "total_compressions": len(flags),
-        "unacceptable_count": sum(1 for f in flags if f["is_unacceptable"]),
-        "acceptable_count": sum(1 for f in flags if not f["is_unacceptable"]),
-        "details": flags
+        "summary": {
+            "total_compressions_evaluated": total_flags,
+            "acceptable_count": acceptable_count,
+            "unacceptable_count": unacceptable_count,
+            "acceptance_rate": acceptable_count / total_flags if total_flags > 0 else 0.0,
+            "threshold_db": SNR_DEGRADATION_THRESHOLD_DB
+        },
+        "method_statistics": method_stats,
+        "threshold_exceeded_events": [
+            f for f in all_flags if f["status"] == "unacceptable"
+        ]
     }
-
+    
+    ensure_dir(output_path)
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    
+    logger.info(f"Aggregated quality report saved to {output_path}")
+    logger.info(
+        f"Summary: {acceptable_count}/{total_flags} acceptable "
+        f"({100*acceptable_count/total_flags:.1f}% if total > 0)"
+    )
+    
+    return report
+
 
 def main():
-    """Main entry point for quality flagging."""
-    logger = get_logger(__name__)
+    """
+    Main entry point for quality flagging pipeline.
+    
+    Processes all compression results in data/interim/compression_metrics/
+    and generates quality flags and an aggregated report.
+    """
     project_root = get_project_root()
-    interim_dir = project_root / "data" / "interim" / "compression_metrics"
-    output_file = project_root / "data" / "processed" / "quality_flags.json"
-
-    if not interim_dir.exists():
-        logger.error(f"Metrics directory not found: {interim_dir}")
-        logger.info("Run compression/main.py first to generate metrics.")
-        return
-
-    all_flags = []
-    event_dirs = [d for d in interim_dir.iterdir() if d.is_dir()]
-
-    for event_dir in event_dirs:
-        event_id = event_dir.name
-        # Look for metrics file in this directory
-        # Assuming metrics are saved as {event_id}_metrics.json or similar
-        metrics_files = list(event_dir.glob("*metrics*.json"))
-        
-        if not metrics_files:
-            # Try to find any json file if naming convention varies
-            metrics_files = list(event_dir.glob("*.json"))
-
-        for metrics_file in metrics_files:
-            flags = process_quality_flags_for_event(metrics_file, event_id)
-            all_flags.extend(flags)
-
-    if all_flags:
-        aggregate_quality_report(all_flags, output_file)
-        logger.info(f"Quality report saved to {output_file}")
-        unacceptable = [f for f in all_flags if f["is_unacceptable"]]
-        if unacceptable:
-            logger.warning(f"Found {len(unacceptable)} unacceptable compression levels.")
-            for u in unacceptable[:5]: # Log first 5
-                logger.warning(f"  - {u['event_id']}: {u['method']}@{u['level']} ({u['reason']})")
+    metrics_dir = project_root / "data" / "interim" / "compression_metrics"
+    flags_dir = project_root / "data" / "processed" / "quality_flags"
+    report_path = project_root / "data" / "processed" / "quality_report.json"
+    
+    ensure_dir(flags_dir)
+    
+    if not metrics_dir.exists():
+        logger.error(
+            f"Compression metrics directory not found: {metrics_dir}. "
+            "Run src/compression/main.py first."
+        )
+        return 1
+    
+    # Find all event metric files
+    metric_files = list(metrics_dir.glob("event_*.json"))
+    if not metric_files:
+        logger.warning(f"No compression metric files found in {metrics_dir}")
+        return 0
+    
+    logger.info(f"Found {len(metric_files)} compression metric files to process")
+    
+    # Process each event
+    flag_files = []
+    for metric_file in metric_files:
+        output_flag_file = flags_dir / f"flags_{metric_file.stem}.json"
+        try:
+            process_quality_flags_for_event(metric_file, output_flag_file)
+            flag_files.append(output_flag_file)
+        except Exception as e:
+            logger.error(f"Failed to process {metric_file}: {e}")
+    
+    # Generate aggregated report
+    if flag_files:
+        aggregate_quality_report(flag_files, report_path)
     else:
-        logger.warning("No metrics found to process.")
+        logger.warning("No flag files generated, skipping aggregated report")
+    
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

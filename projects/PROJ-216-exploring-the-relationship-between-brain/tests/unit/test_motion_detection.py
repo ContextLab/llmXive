@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import tempfile
-import shutil
 from pathlib import Path
 import pytest
 
@@ -14,257 +13,180 @@ from motion_detection import (
     get_valid_subjects,
     detect_motion_artifacts,
     write_motion_exclusion_log,
-    main,
-    TRANSLATION_THRESHOLD_MM,
-    ROTATION_THRESHOLD_MM
+    save_valid_subjects,
+    main
 )
 
 class TestMotionDetection:
     
     @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for test files."""
-        temp_path = tempfile.mkdtemp()
-        yield Path(temp_path)
-        shutil.rmtree(temp_path)
-    
-    def test_load_motion_metrics_from_json(self, temp_dir):
-        """Test loading motion metrics from JSON files."""
-        # Create mock JSON files
-        subject1_data = {
-            "subject_id": "sub-001",
-            "translation_mm": 1.5,
-            "rotation_mm": 1.0
-        }
-        subject2_data = {
-            "subject_id": "sub-002",
-            "translation_mm": 4.0,  # Exceeds threshold
-            "rotation_mm": 1.2
-        }
+    def temp_dirs(self):
+        """Create temporary directory structure for testing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            # Create interim structure
+            interim = tmpdir / "data" / "interim"
+            processed = tmpdir / "data" / "processed"
+            interim.mkdir(parents=True)
+            processed.mkdir(parents=True)
+            
+            # Create mock subject directories with motion logs
+            for subj_id in ["subj_001", "subj_002", "subj_003", "subj_004"]:
+                subj_dir = interim / subj_id / "func"
+                subj_dir.mkdir(parents=True)
+                
+                # Assign different FD values
+                if subj_id == "subj_001":
+                    fd_value = 0.3  # Good
+                elif subj_id == "subj_002":
+                    fd_value = 0.45  # Good
+                elif subj_id == "subj_003":
+                    fd_value = 0.6  # Bad
+                else:  # subj_004
+                    fd_value = 0.8  # Bad
+                    
+                motion_log = {
+                    "mean_fd": fd_value,
+                    "max_fd": fd_value * 1.5,
+                    "framewise_displacements": [fd_value] * 10
+                }
+                
+                with open(subj_dir / "motion_metrics.json", 'w') as f:
+                    json.dump(motion_log, f)
+            
+            yield {
+                "interim": interim,
+                "processed": processed,
+                "expected_valid": ["subj_001", "subj_002"],
+                "expected_excluded": ["subj_003", "subj_004"]
+            }
+
+    def test_load_motion_metrics(self, temp_dirs):
+        """Test loading motion metrics from subject directories."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
         
-        with open(temp_dir / "sub-001.json", 'w') as f:
-            json.dump(subject1_data, f)
-        with open(temp_dir / "sub-002.json", 'w') as f:
-            json.dump(subject2_data, f)
+        assert len(metrics) == 4
+        assert "subj_001" in metrics
+        assert metrics["subj_001"] == 0.3
+        assert metrics["subj_003"] == 0.6
+
+    def test_get_valid_subjects(self, temp_dirs):
+        """Test filtering subjects by motion threshold."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
+        valid = get_valid_subjects(metrics, threshold=0.5)
         
-        # Load metrics
-        metrics = load_motion_metrics(temp_dir)
+        assert set(valid) == set(temp_dirs["expected_valid"])
+        assert "subj_003" not in valid
+        assert "subj_004" not in valid
+
+    def test_detect_motion_artifacts(self, temp_dirs):
+        """Test detection of subjects with excessive motion."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
+        excluded = detect_motion_artifacts(metrics, threshold=0.5)
         
-        assert len(metrics) == 2
-        assert any(m['subject_id'] == 'sub-001' for m in metrics)
-        assert any(m['subject_id'] == 'sub-002' for m in metrics)
+        assert len(excluded) == 2
+        assert "subj_003" in excluded
+        assert "subj_004" in excluded
+        assert "FD" in excluded["subj_003"]
+        assert "FD" in excluded["subj_004"]
+
+    def test_write_motion_exclusion_log(self, temp_dirs):
+        """Test writing exclusion log to file."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
+        excluded = detect_motion_artifacts(metrics, threshold=0.5)
         
-        sub1 = next(m for m in metrics if m['subject_id'] == 'sub-001')
-        assert sub1['translation_mm'] == 1.5
-        assert sub1['rotation_mm'] == 1.0
+        log_path = temp_dirs["processed"] / "excluded_subjects.log"
+        write_motion_exclusion_log(excluded, log_path)
         
-        sub2 = next(m for m in metrics if m['subject_id'] == 'sub-002')
-        assert sub2['translation_mm'] == 4.0
-    
-    def test_get_valid_subjects(self):
-        """Test filtering subjects with valid motion metrics."""
-        metrics = [
-            {'subject_id': 'sub-001', 'translation_mm': 1.5, 'rotation_mm': 1.0},
-            {'subject_id': 'sub-002', 'translation_mm': None, 'rotation_mm': 1.0},
-            {'subject_id': 'sub-003', 'translation_mm': 2.0, 'rotation_mm': None},
-            {'subject_id': 'sub-004', 'translation_mm': 3.0, 'rotation_mm': 2.5}
-        ]
+        assert log_path.exists()
         
-        valid = get_valid_subjects(metrics)
-        
-        assert len(valid) == 2
-        assert valid[0]['subject_id'] == 'sub-001'
-        assert valid[1]['subject_id'] == 'sub-004'
-    
-    def test_detect_motion_artifacts(self):
-        """Test detection of motion artifacts based on thresholds."""
-        metrics = [
-            {'subject_id': 'sub-001', 'translation_mm': 1.5, 'rotation_mm': 1.0},
-            {'subject_id': 'sub-002', 'translation_mm': 4.0, 'rotation_mm': 1.0},  # Translation > 3
-            {'subject_id': 'sub-003', 'translation_mm': 2.0, 'rotation_mm': 2.5},  # Rotation > 2
-            {'subject_id': 'sub-004', 'translation_mm': 5.0, 'rotation_mm': 3.0}   # Both exceed
-        ]
-        
-        results = detect_motion_artifacts(metrics)
-        
-        assert len(results) == 4
-        
-        # Check exclusion flags
-        assert results[0]['excluded'] == False  # sub-001: within thresholds
-        assert results[1]['excluded'] == True   # sub-002: translation > 3
-        assert results[2]['excluded'] == True   # sub-003: rotation > 2
-        assert results[3]['excluded'] == True   # sub-004: both exceed
-    
-    def test_write_motion_exclusion_log(self, temp_dir):
-        """Test writing motion exclusion log to CSV."""
-        results = [
-            {'subject_id': 'sub-001', 'translation_mm': 1.5, 'rotation_mm': 1.0, 'excluded': False},
-            {'subject_id': 'sub-002', 'translation_mm': 4.0, 'rotation_mm': 1.0, 'excluded': True},
-            {'subject_id': 'sub-003', 'translation_mm': 2.0, 'rotation_mm': 2.5, 'excluded': True}
-        ]
-        
-        output_path = temp_dir / "motion_exclusion_log.csv"
-        write_motion_exclusion_log(results, output_path)
-        
-        assert output_path.exists()
-        
-        # Verify CSV content
-        with open(output_path, 'r') as f:
+        with open(log_path, 'r') as f:
             lines = f.readlines()
         
-        assert len(lines) == 4  # Header + 3 data rows
-        assert 'subject_id,translation_mm,rotation_mm,excluded' in lines[0]
+        assert len(lines) == 2
+        # Verify format: SubjectID: Reason
+        for line in lines:
+            assert ":" in line
+            assert any(subj in line for subj in excluded.keys())
+
+    def test_save_valid_subjects(self, temp_dirs):
+        """Test saving valid subjects to JSON."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
+        valid = get_valid_subjects(metrics, threshold=0.5)
         
-        # Check data rows
-        data_rows = [line.strip().split(',') for line in lines[1:]]
-        assert data_rows[0] == ['sub-001', '1.5000', '1.0000', 'False']
-        assert data_rows[1] == ['sub-002', '4.0000', '1.0000', 'True']
-        assert data_rows[2] == ['sub-003', '2.0000', '2.5000', 'True']
-    
-    def test_mock_high_motion_subject(self, temp_dir):
-        """
-        Test with a mock subject with Translation=4mm to force exclusion logic.
-        This satisfies the verification requirement for T018a.
-        """
-        # Create mock JSON with high motion
-        high_motion_data = {
-            "subject_id": "sub-high-motion",
-            "translation_mm": 4.0,  # Exceeds 3mm threshold
-            "rotation_mm": 1.0
-        }
+        out_path = temp_dirs["processed"] / "valid_subjects.json"
+        save_valid_subjects(valid, out_path)
         
-        with open(temp_dir / "sub-high-motion.json", 'w') as f:
-            json.dump(high_motion_data, f)
+        assert out_path.exists()
         
-        # Load and process
-        metrics = load_motion_metrics(temp_dir)
-        valid = get_valid_subjects(metrics)
-        results = detect_motion_artifacts(valid)
+        with open(out_path, 'r') as f:
+            data = json.load(f)
         
-        assert len(results) == 1
-        assert results[0]['subject_id'] == 'sub-high-motion'
-        assert results[0]['excluded'] == True
-        assert results[0]['translation_mm'] == 4.0
+        assert "valid_subjects" in data
+        assert data["count"] == len(valid)
+        assert set(data["valid_subjects"]) == set(valid)
+        assert data["threshold_used"] == 0.5
+
+    def test_main_integration(self, temp_dirs, caplog):
+        """Test the main function end-to-end."""
+        # Temporarily override paths in main by mocking
+        import motion_detection as md
         
-        # Write to CSV
-        output_path = temp_dir / "motion_exclusion_log.csv"
-        write_motion_exclusion_log(results, output_path)
+        # Save original paths
+        original_main = md.main
         
-        assert output_path.exists()
-        
-        # Verify CSV contains the excluded subject
-        with open(output_path, 'r') as f:
-            content = f.read()
-        
-        assert 'sub-high-motion' in content
-        assert '4.0000' in content
-        assert 'True' in content
-    
-    def test_threshold_boundaries(self):
-        """Test subjects exactly at threshold boundaries."""
-        metrics = [
-            {'subject_id': 'at-trans-limit', 'translation_mm': 3.0, 'rotation_mm': 2.0},
-            {'subject_id': 'at-rot-limit', 'translation_mm': 3.0, 'rotation_mm': 2.0},
-            {'subject_id': 'just-over-trans', 'translation_mm': 3.0001, 'rotation_mm': 2.0},
-            {'subject_id': 'just-over-rot', 'translation_mm': 3.0, 'rotation_mm': 2.0001}
-        ]
-        
-        results = detect_motion_artifacts(metrics)
-        
-        # At limit should NOT be excluded (> not >=)
-        assert results[0]['excluded'] == False
-        assert results[1]['excluded'] == False
-        
-        # Just over should be excluded
-        assert results[2]['excluded'] == True
-        assert results[3]['excluded'] == True
-    
-    def test_empty_metrics(self):
-        """Test handling of empty metrics list."""
-        results = detect_motion_artifacts([])
-        assert len(results) == 0
-        
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output_path = Path(temp_dir) / "empty.csv"
-            write_motion_exclusion_log([], output_path)
+        # Create a custom main that uses our temp dirs
+        def custom_main():
+            project_root = temp_dirs["interim"].parent.parent
+            interim_dir = temp_dirs["interim"]
+            processed_dir = temp_dirs["processed"]
             
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                lines = f.readlines()
-            assert len(lines) == 1  # Only header
-            assert 'subject_id' in lines[0]
-    
-    def test_main_function_integration(self, temp_dir, monkeypatch):
-        """Test the main function with mocked paths."""
-        # Create mock data
-        mock_data = {
-            "subject_id": "test-subject",
-            "translation_mm": 4.5,
-            "rotation_mm": 1.5
-        }
+            exclusion_log_path = processed_dir / "excluded_subjects.log"
+            valid_subjects_path = processed_dir / "valid_subjects.json"
+            
+            motion_metrics = load_motion_metrics(interim_dir)
+            excluded = detect_motion_artifacts(motion_metrics, threshold=0.5)
+            valid_subjects = get_valid_subjects(motion_metrics, threshold=0.5)
+            
+            write_motion_exclusion_log(excluded, exclusion_log_path)
+            save_valid_subjects(valid_subjects, valid_subjects_path)
+            
+            return valid_subjects
         
-        logs_dir = temp_dir / "logs"
-        logs_dir.mkdir()
-        with open(logs_dir / "test-subject.json", 'w') as f:
-            json.dump(mock_data, f)
+        result = custom_main()
         
-        output_csv = temp_dir / "output.csv"
+        # Verify outputs
+        assert len(result) == 2
+        assert set(result) == set(temp_dirs["expected_valid"])
+        assert (temp_dirs["processed"] / "excluded_subjects.log").exists()
+        assert (temp_dirs["processed"] / "valid_subjects.json").exists()
+
+    def test_empty_interim_directory(self, tmp_path):
+        """Test handling of empty interim directory."""
+        processed_dir = tmp_path / "processed"
+        processed_dir.mkdir()
         
-        # Mock the paths in main()
-        original_main = main
+        metrics = load_motion_metrics(tmp_path / "interim")
+        assert len(metrics) == 0
+
+    def test_missing_motion_log(self, tmp_path):
+        """Test handling of subjects without motion logs."""
+        interim = tmp_path / "interim"
+        (interim / "subj_001" / "func").mkdir(parents=True)
+        # No motion_metrics.json created
         
-        # We can't easily mock Path(__file__).parent.parent in the module,
-        # so we test the core logic instead
-        metrics = load_motion_metrics(logs_dir)
-        valid = get_valid_subjects(metrics)
-        results = detect_motion_artifacts(valid)
-        write_motion_exclusion_log(results, output_csv)
+        metrics = load_motion_metrics(interim)
+        # Should return empty dict or handle gracefully
+        assert len(metrics) == 0
+
+    def test_threshold_edge_cases(self, temp_dirs):
+        """Test behavior at threshold boundaries."""
+        metrics = load_motion_metrics(temp_dirs["interim"])
         
-        assert output_csv.exists()
+        # Exactly at threshold
+        valid_at_045 = get_valid_subjects(metrics, threshold=0.45)
+        assert "subj_002" in valid_at_045  # FD=0.45 should pass
         
-        with open(output_csv, 'r') as f:
-            content = f.read()
-        
-        assert 'test-subject' in content
-        assert 'True' in content
-        assert 'excluded' in content
-    
-    def test_multiple_threshold_violations(self):
-        """Test subject violating both thresholds."""
-        metrics = [
-            {'subject_id': 'dual-violation', 'translation_mm': 5.0, 'rotation_mm': 3.0}
-        ]
-        
-        results = detect_motion_artifacts(metrics)
-        
-        assert results[0]['excluded'] == True
-        assert results[0]['translation_mm'] == 5.0
-        assert results[0]['rotation_mm'] == 3.0
-    
-    def test_csv_format_verification(self, temp_dir):
-        """Verify CSV format matches specification exactly."""
-        results = [
-            {'subject_id': 'sub-001', 'translation_mm': 1.5, 'rotation_mm': 1.0, 'excluded': False},
-            {'subject_id': 'sub-002', 'translation_mm': 4.0, 'rotation_mm': 2.5, 'excluded': True}
-        ]
-        
-        output_path = temp_dir / "motion_exclusion_log.csv"
-        write_motion_exclusion_log(results, output_path)
-        
-        with open(output_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        # Verify columns
-        assert set(rows[0].keys()) == {'subject_id', 'translation_mm', 'rotation_mm', 'excluded'}
-        
-        # Verify data types (strings in CSV)
-        assert isinstance(rows[0]['subject_id'], str)
-        assert isinstance(rows[0]['translation_mm'], str)
-        assert isinstance(rows[0]['rotation_mm'], str)
-        assert isinstance(rows[0]['excluded'], str)
-        
-        # Verify specific values
-        assert rows[0]['subject_id'] == 'sub-001'
-        assert rows[0]['excluded'] == 'False'
-        assert rows[1]['excluded'] == 'True'
+        valid_at_03 = get_valid_subjects(metrics, threshold=0.3)
+        assert "subj_001" in valid_at_03  # FD=0.3 should pass
+        assert "subj_002" not in valid_at_03  # FD=0.45 should fail

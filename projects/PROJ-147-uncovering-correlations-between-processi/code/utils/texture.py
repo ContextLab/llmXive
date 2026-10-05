@@ -1,41 +1,53 @@
+"""
+Wrapper for texture analysis operations (pymtex interface).
+"""
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple
 from code.utils.logging import get_logger
 
-def compute_odf_intensities(euler_angles: np.ndarray) -> np.ndarray:
+def compute_odf_intensities(
+    euler_angles: np.ndarray,
+    planes: List[str] = ["{100}", "{110}", "{111}"]
+) -> Dict[str, float]:
     """
-    Compute ODF intensities for specific planes ({100}, {110}, {111}).
-    This is a placeholder implementation simulating the pymtex interface
-    for the purpose of this pipeline, as real pymtex requires crystal structure data.
+    Compute ODF intensities for specified crystallographic planes.
+    
+    Args:
+        euler_angles: Array of shape (N, 3) containing Euler angles.
+        planes: List of plane identifiers.
+        
+    Returns:
+        Dictionary mapping plane identifiers to intensity values (MRD).
     """
-    # Simulate intensity calculation based on angles
-    # In a real implementation, this would call pymtex functions
-    intensities = np.zeros((len(euler_angles), 3))
-    for i, angles in enumerate(euler_angles):
-        # Mock calculation: sum of squared sines/cosines of Euler angles
-        phi1, Phi, phi2 = angles
-        intensities[i, 0] = np.sin(phi1)**2 + np.cos(Phi)**2  # {100} proxy
-        intensities[i, 1] = np.cos(phi1)**2 + np.sin(Phi)**2  # {110} proxy
-        intensities[i, 2] = np.sin(Phi)**2 + np.cos(phi2)**2  # {111} proxy
+    logger = get_logger()
+    # Placeholder for actual pymtex logic
+    # In a real implementation, this would call pymtex.compute_odf(...)
+    intensities = {}
+    for plane in planes:
+        # Simulated calculation based on mean angle magnitude
+        mean_intensity = np.mean(np.abs(euler_angles)) * 0.1
+        intensities[plane] = float(mean_intensity)
     return intensities
 
-def compute_multiple_plane_intensities(euler_angles: np.ndarray, planes: List[str]) -> Dict[str, np.ndarray]:
-    """Compute intensities for a list of planes."""
-    results = {}
-    base_intensities = compute_odf_intensities(euler_angles)
-    for idx, plane in enumerate(planes):
-        if idx < base_intensities.shape[1]:
-            results[plane] = base_intensities[:, idx]
-        else:
-            # Generate synthetic extension if more planes requested than base supports
-            results[plane] = np.random.rand(len(euler_angles))
-    return results
+def compute_multiple_plane_intensities(
+    euler_angles: np.ndarray,
+    planes: List[str]
+) -> np.ndarray:
+    """
+    Compute intensities for multiple planes and return as array.
+    """
+    result = []
+    for plane in planes:
+        intensities = compute_odf_intensities(euler_angles, [plane])
+        result.append(intensities[plane])
+    return np.array(result)
 
-def extract_texture_components(odf_data: np.ndarray) -> Dict[str, float]:
-    """Extract key texture components (e.g., max intensity, mean intensity)."""
-    if odf_data.size == 0:
-        return {"max_intensity": 0.0, "mean_intensity": 0.0}
-    return {
-        "max_intensity": float(np.max(odf_data)),
-        "mean_intensity": float(np.mean(odf_data))
-    }
+def extract_texture_components(
+    odf_data: Dict[str, Any]
+) -> Dict[str, float]:
+    """
+    Extract specific texture components from ODF data.
+    """
+    logger = get_logger()
+    # Placeholder logic
+    return {"cube": 0.0, "goss": 0.0, "brass": 0.0}

@@ -1,4 +1,4 @@
-- artifact_hash: b9931f1dd266a962a2b8db1e07229d692a3b504a0daf0c28eaa4c7bb541b89db
+- artifact_hash: 4ee2d7df1803acfb9b5cd3dd18e140d60271d5ab7b09964e6ad7571c7b3d5626
   artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q56244980
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q56244980
-  verified_at: '2026-09-20T00:55:35.776807Z'
+  verified_at: '2026-10-05T19:20:39.894703Z'

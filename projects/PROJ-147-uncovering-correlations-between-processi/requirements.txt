@@ -1,12 +1,8 @@
-# Core dependencies for PROJ-147
 scikit-learn
 pandas
 numpy
 pymtex
 pyyaml
 pytest
-# Additional dependencies added for T003 (Linting/Formatting)
-ruff==0.6.9
-black==24.8.0
-flake8==7.1.1
-pre-commit==3.8.0
+matplotlib
+requests

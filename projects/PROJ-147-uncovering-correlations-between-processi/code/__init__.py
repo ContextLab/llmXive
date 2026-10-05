@@ -1,3 +1,3 @@
 """
-Core code package for the llmXive automated science pipeline.
+llmXive research-implementer pipeline code package.
 """

@@ -1,175 +1,112 @@
+"""
+Metrics computation for compression quality assessment.
+
+Implements T021: compute MSE, SNR degradation, and comprehensive compression metrics.
+"""
 import numpy as np
 from typing import Tuple, Optional, Dict, Any
 import logging
 from src.utils.logging import get_logger
 from src.utils.config import get_project_root, ensure_dir
 import json
-from pathlib import Path
 
 logger = get_logger(__name__)
 
 def compute_mse(original: np.ndarray, reconstructed: np.ndarray) -> float:
     """
-    Compute Mean Squared Error between original and reconstructed waveforms.
+    Compute Mean Squared Error between original and reconstructed signals.
     
     Args:
-        original: Original waveform data (numpy array)
-        reconstructed: Reconstructed waveform data (numpy array)
+        original: Original signal array
+        reconstructed: Reconstructed signal array
         
     Returns:
-        MSE value as float
-        
-    Raises:
-        ValueError: If arrays have different shapes or are empty
+        MSE value
     """
-    original = np.asarray(original, dtype=np.float64)
-    reconstructed = np.asarray(reconstructed, dtype=np.float64)
-    
     if original.shape != reconstructed.shape:
         raise ValueError(f"Shape mismatch: {original.shape} vs {reconstructed.shape}")
     
-    if original.size == 0:
-        raise ValueError("Input arrays cannot be empty")
-        
     mse = np.mean((original - reconstructed) ** 2)
     return float(mse)
 
-def compute_snr_degradation(
-    original: np.ndarray, 
-    reconstructed: np.ndarray, 
-    sample_rate: float = 4096.0
-) -> float:
+def compute_snr_degradation(original: np.ndarray, reconstructed: np.ndarray) -> float:
     """
-    Compute SNR degradation in dB between original and reconstructed waveforms.
+    Compute SNR degradation in dB.
     
-    SNR degradation is calculated as:
-    SNR_degradation (dB) = 10 * log10( Signal_Power / Error_Power )
-    
-    Where:
-    - Signal_Power is the power of the original signal (approximated as total power)
-    - Error_Power is the power of the reconstruction error
+    SNR degradation = 10 * log10(P_signal / P_noise)
+    where P_signal is power of original, P_noise is power of error.
     
     Args:
-        original: Original waveform data (numpy array)
-        reconstructed: Reconstructed waveform data (numpy array)
-        sample_rate: Sample rate in Hz (default 4096.0 for GW data)
+        original: Original signal array
+        reconstructed: Reconstructed signal array
         
     Returns:
         SNR degradation in dB (positive value indicates degradation)
-        
-    Raises:
-        ValueError: If arrays have different shapes, are empty, or error power is zero
     """
-    original = np.asarray(original, dtype=np.float64)
-    reconstructed = np.asarray(reconstructed, dtype=np.float64)
-    
     if original.shape != reconstructed.shape:
         raise ValueError(f"Shape mismatch: {original.shape} vs {reconstructed.shape}")
-        
-    if original.size == 0:
-        raise ValueError("Input arrays cannot be empty")
     
-    # Calculate signal power (using original as reference)
     signal_power = np.mean(original ** 2)
+    noise = original - reconstructed
+    noise_power = np.mean(noise ** 2)
     
-    # Calculate error power
-    error = original - reconstructed
-    error_power = np.mean(error ** 2)
+    if noise_power == 0:
+        return 0.0  # Perfect reconstruction
     
-    # Avoid division by zero
-    if error_power < 1e-20:
-        # Essentially perfect reconstruction
-        return 0.0
+    if signal_power == 0:
+        return float('inf')  # Undefined
     
-    if signal_power < 1e-20:
-        # Signal is essentially zero
-        return float('inf')
-    
-    # SNR degradation in dB
-    # Higher value means more degradation (worse quality)
-    snr_degradation = 10.0 * np.log10(signal_power / error_power)
-    
-    return float(snr_degradation)
+    snr_db = 10 * np.log10(signal_power / noise_power)
+    return float(snr_db)
 
-def compute_compression_metrics(
-    original: np.ndarray, 
-    reconstructed: np.ndarray, 
-    sample_rate: float = 4096.0
-) -> Dict[str, float]:
+def compute_compression_metrics(original: np.ndarray, reconstructed: np.ndarray) -> Dict[str, Any]:
     """
-    Compute a comprehensive set of compression metrics.
+    Compute comprehensive compression metrics.
     
     Args:
-        original: Original waveform data (numpy array)
-        reconstructed: Reconstructed waveform data (numpy array)
-        sample_rate: Sample rate in Hz (default 4096.0)
+        original: Original signal array
+        reconstructed: Reconstructed signal array
         
     Returns:
-        Dictionary containing:
-        - 'mse': Mean Squared Error
-        - 'snr_degradation_db': SNR degradation in dB
-        - 'rmse': Root Mean Squared Error
-        - 'max_abs_error': Maximum absolute error
+        Dictionary containing MSE, SNR degradation, and other metrics
     """
     mse = compute_mse(original, reconstructed)
-    snr_deg = compute_snr_degradation(original, reconstructed, sample_rate)
-    rmse = np.sqrt(mse)
-    max_abs_error = float(np.max(np.abs(original - reconstructed)))
+    snr_degradation = compute_snr_degradation(original, reconstructed)
+    
+    # Additional metrics
+    max_error = float(np.max(np.abs(original - reconstructed)))
+    rmse = float(np.sqrt(mse))
+    
+    # Compression ratio (approximate, based on typical compression behavior)
+    # This is a placeholder; actual compression ratio depends on the method
+    compression_ratio = 1.0  # Will be updated by specific compression methods
     
     return {
-        'mse': mse,
-        'snr_degradation_db': round(snr_deg, 1),  # Precision >= 0.1 dB
-        'rmse': rmse,
-        'max_abs_error': max_abs_error
+        "mse": mse,
+        "snr_degradation_db": snr_degradation,
+        "rmse": rmse,
+        "max_error": max_error,
+        "compression_ratio": compression_ratio,
+        "status": "unacceptable" if snr_degradation > 5.0 else "acceptable"
     }
 
 def main():
-    """
-    Main entry point for testing metrics computation.
-    This function demonstrates the metrics computation on sample data
-    and writes results to a JSON file.
-    """
-    project_root = get_project_root()
-    output_dir = ensure_dir(project_root / "data" / "processed" / "compression_metrics")
+    """Test the metrics computation functions."""
+    logger.info("Testing metrics computation...")
     
-    # Generate sample waveform data (realistic GW-like signal + noise)
-    np.random.seed(42)
-    duration = 1.0  # seconds
-    sample_rate = 4096.0
-    t = np.linspace(0, duration, int(duration * sample_rate))
+    # Create test signals
+    original = np.sin(np.linspace(0, 10 * np.pi, 1000))
+    reconstructed = original + 0.01 * np.random.randn(1000)
     
-    # Simulate a chirp-like signal
-    f0 = 30.0
-    f1 = 200.0
-    chirp = (t ** 2) * np.sin(2 * np.pi * f0 * t + (np.pi * (f1 - f0) * t**2) / duration)
-    noise = np.random.normal(0, 0.01, size=t.shape)
-    original_signal = chirp + noise
+    mse = compute_mse(original, reconstructed)
+    snr = compute_snr_degradation(original, reconstructed)
+    metrics = compute_compression_metrics(original, reconstructed)
     
-    # Simulate a compressed/reconstructed signal with some degradation
-    # Add quantization noise and slight phase shift
-    quantization_noise = np.random.normal(0, 0.001, size=t.shape)
-    phase_shift = 0.01 * np.sin(2 * np.pi * 50 * t)
-    reconstructed_signal = original_signal + quantization_noise + phase_shift
+    logger.info(f"MSE: {mse:.6f}")
+    logger.info(f"SNR degradation: {snr:.2f} dB")
+    logger.info(f"Metrics: {metrics}")
     
-    # Compute metrics
-    metrics = compute_compression_metrics(original_signal, reconstructed_signal, sample_rate)
-    
-    # Log results
-    logger.info("Compression Metrics Computation:")
-    logger.info(f"  MSE: {metrics['mse']:.2e}")
-    logger.info(f"  SNR Degradation: {metrics['snr_degradation_db']:.1f} dB")
-    logger.info(f"  RMSE: {metrics['rmse']:.2e}")
-    logger.info(f"  Max Abs Error: {metrics['max_abs_error']:.2e}")
-    
-    # Save results to file
-    output_path = output_dir / "sample_metrics.json"
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Metrics saved to {output_path}")
-    
-    # Return metrics for potential programmatic use
-    return metrics
+    logger.info("Metrics computation tests completed.")
 
 if __name__ == "__main__":
     main()

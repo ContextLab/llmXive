@@ -6,342 +6,363 @@ import math
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import matplotlib.pyplot as plt
 import numpy as np
-
-try:
-    from statsmodels.stats.power import TTestIndPower, TTestPower
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
-    logging.warning("statsmodels not installed. Power analysis will be skipped.")
+from scipy import stats as scipy_stats
+from statsmodels.stats.power import tt_solve_power, FTestPower, FTestAnovaPower
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stderr)
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-def load_graph_metrics(filepath: str) -> List[Dict[str, Any]]:
-    """Load graph metrics from CSV."""
-    metrics = []
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Graph metrics file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            metrics.append({
-                'subject_id': row['subject_id'],
-                'metric_name': row['metric_name'],
-                'value': float(row['value']),
-                'fluid_intelligence_score': float(row.get('fluid_intelligence_score', 0)),
-                'age': int(row.get('age', 0)),
-                'gender': row.get('gender', '')
-            })
-    return metrics
+# Constants
+CORRELATION_RESULTS_PATH = "data/processed/correlation_results.csv"
+LIMITATIONS_TEXT = (
+    "This study utilizes a sample size of N=10 subjects, which provides low statistical power "
+    "for detecting small effect sizes. Results should be interpreted as exploratory and require validation in larger cohorts."
+)
 
-def load_behavioral_scores(filepath: str) -> List[Dict[str, Any]]:
-    """Load behavioral scores from CSV."""
-    scores = []
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Behavioral scores file not found: {filepath}")
+def load_graph_metrics(metrics_path: str) -> List[Dict[str, Any]]:
+    """Load graph metrics from CSV."""
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(f"Graph metrics file not found: {metrics_path}")
     
-    with open(filepath, 'r') as f:
+    data = []
+    with open(metrics_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            scores.append({
-                'subject_id': row['subject_id'],
-                'score_value': float(row['score_value']),
-                'source_type': row.get('source_type', 'unknown')
-            })
-    return scores
+            # Convert numeric fields
+            for field in ['value', 'fluid_intelligence_score', 'age']:
+                if field in row and row[field] is not None and row[field] != '':
+                    try:
+                        row[field] = float(row[field])
+                    except ValueError:
+                        row[field] = None
+            data.append(row)
+    return data
+
+def load_behavioral_scores(behavioral_path: str) -> List[Dict[str, Any]]:
+    """Load behavioral scores from CSV."""
+    if not os.path.exists(behavioral_path):
+        raise FileNotFoundError(f"Behavioral scores file not found: {behavioral_path}")
+    
+    data = []
+    with open(behavioral_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            for field in ['score_value', 'fluid_intelligence_score', 'age']:
+                if field in row and row[field] is not None and row[field] != '':
+                    try:
+                        row[field] = float(row[field])
+                    except ValueError:
+                        row[field] = None
+            data.append(row)
+    return data
 
 def merge_metrics_with_scores(metrics: List[Dict], scores: List[Dict]) -> List[Dict]:
-    """Merge graph metrics with behavioral scores."""
-    score_map = {s['subject_id']: s['score_value'] for s in scores}
+    """Merge graph metrics with behavioral scores by subject_id."""
+    score_map = {s['subject_id']: s for s in scores}
     merged = []
     for m in metrics:
-        if m['subject_id'] in score_map:
-            m['behavioral_score'] = score_map[m['subject_id']]
-            merged.append(m)
+        sid = m.get('subject_id')
+        if sid in score_map:
+            s = score_map[sid]
+            merged.append({
+                'subject_id': sid,
+                'metric_name': m.get('metric_name'),
+                'value': m.get('value'),
+                'fluid_intelligence_score': m.get('fluid_intelligence_score') or s.get('fluid_intelligence_score'),
+                'age': m.get('age') or s.get('age'),
+                'gender': m.get('gender') or s.get('gender')
+            })
     return merged
 
 def bonferroni_correction(p_values: List[float], n_tests: int) -> List[float]:
-    """Apply Bonferroni correction to p-values."""
+    """Apply Bonferroni correction to a list of p-values."""
     corrected = []
     for p in p_values:
-        corrected_p = min(p * n_tests, 1.0)
-        corrected.append(corrected_p)
+        if p is None:
+            corrected.append(None)
+        else:
+            adj = p * n_tests
+            corrected.append(min(adj, 1.0))
     return corrected
 
-def compute_correlation(x: List[float], y: List[float]) -> Tuple[float, float]:
-    """Compute Pearson correlation coefficient and p-value."""
-    if len(x) != len(y) or len(x) < 3:
-        return 0.0, 1.0
+def compute_correlation(x: List[float], y: List[float], method: str = 'pearson') -> Tuple[Optional[float], Optional[float]]:
+    """Compute correlation coefficient and p-value."""
+    # Filter out None values
+    pairs = [(xi, yi) for xi, yi in zip(x, y) if xi is not None and yi is not None]
+    if len(pairs) < 3:
+        logger.warning(f"Insufficient data points ({len(pairs)}) for correlation. Returning None.")
+        return None, None
     
-    n = len(x)
-    mean_x = sum(x) / n
-    mean_y = sum(y) / n
-    
-    numerator = sum((x[i] - mean_x) * (y[i] - mean_y) for i in range(n))
-    denom_x = math.sqrt(sum((x[i] - mean_x)**2 for i in range(n)))
-    denom_y = math.sqrt(sum((y[i] - mean_y)**2 for i in range(n)))
-    
-    if denom_x == 0 or denom_y == 0:
-        return 0.0, 1.0
-    
-    r = numerator / (denom_x * denom_y)
-    
-    # Approximate p-value for Pearson correlation
-    # t = r * sqrt((n-2) / (1-r^2))
-    if abs(r) >= 1.0:
-        p_value = 0.0
-    else:
-        t_stat = r * math.sqrt((n - 2) / (1 - r**2))
-        # Two-tailed p-value approximation using t-distribution
-        # For simplicity, we use a standard normal approximation for large n
-        # A more accurate implementation would use scipy.stats.t.sf
-        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
-    
-    return r, p_value
-
-def analyze_correlations(merged_data: List[Dict], metric_name: str) -> Dict[str, Any]:
-    """Analyze correlations for a specific metric."""
-    values = [d['value'] for d in merged_data if d['metric_name'] == metric_name]
-    scores = [d['fluid_intelligence_score'] for d in merged_data if d['metric_name'] == metric_name]
-    
-    if len(values) < 3:
-        return {
-            'metric': metric_name,
-            'n': len(values),
-            'correlation': 0.0,
-            'p_value': 1.0,
-            'significant': False
-        }
-    
-    r, p = compute_correlation(values, scores)
-    return {
-        'metric': metric_name,
-        'n': len(values),
-        'correlation': r,
-        'p_value': p,
-        'significant': p < 0.05
-    }
-
-def run_multiple_linear_regression(data: List[Dict]) -> Dict[str, Any]:
-    """Run multiple linear regression (placeholder for statsmodels)."""
-    if not HAS_STATSMODELS:
-        logger.warning("statsmodels not available. Returning placeholder regression results.")
-        return {
-            'coefficients': {'intercept': 0.0, 'metric': 0.0, 'age': 0.0, 'gender': 0.0},
-            'r_squared': 0.0,
-            'p_values': {'metric': 1.0, 'age': 1.0, 'gender': 1.0}
-        }
-    
-    # Placeholder implementation
-    return {
-        'coefficients': {'intercept': 0.0, 'metric': 0.0, 'age': 0.0, 'gender': 0.0},
-        'r_squared': 0.0,
-        'p_values': {'metric': 1.0, 'age': 1.0, 'gender': 1.0}
-    }
-
-def calculate_power(n_subjects: int, effect_sizes: Optional[List[float]] = None) -> List[Dict[str, float]]:
-    """
-    Calculate statistical power for correlation tests given sample size and effect sizes.
-    
-    Args:
-        n_subjects: Number of subjects (N)
-        effect_sizes: List of effect sizes (Cohen's d or r) to evaluate. Defaults to [0.2, 0.5, 0.8]
-    
-    Returns:
-        List of dicts containing effect_size, power, and alpha
-    """
-    if not HAS_STATSMODELS:
-        logger.warning("statsmodels not installed. Cannot calculate power. Returning dummy results.")
-        if effect_sizes is None:
-            effect_sizes = [0.2, 0.5, 0.8]
-        return [
-            {'effect_size': es, 'power': 0.0, 'alpha': 0.05, 'note': 'statsmodels not installed'}
-            for es in effect_sizes
-        ]
-    
-    if effect_sizes is None:
-        effect_sizes = [0.2, 0.5, 0.8]  # Small, medium, large effects
-    
-    results = []
-    alpha = 0.05
-    
-    # For correlation, we can use TTestPower as an approximation or calculate manually
-    # A more accurate approach for Pearson correlation power uses the non-central t-distribution
-    # Here we use a standard approximation: power = 1 - beta
-    
-    power_calc = TTestIndPower()
-    
-    for es in effect_sizes:
-        # For correlation, effect size r can be converted to Cohen's d: d = 2r / sqrt(1-r^2)
-        # But TTestIndPower expects Cohen's d for two independent groups.
-        # For a correlation test with continuous variables, we approximate power using the
-        # non-centrality parameter lambda = r * sqrt(n-1)
-        
-        try:
-            # Using TTestPower for one-sample or paired test as approximation
-            # This is a simplification; ideally we'd use TTestPower with appropriate parameters
-            # or statsmodels.stats.correlation_power
-            power = power_calc.solve_power(effect_size=es, nobs1=n_subjects, alpha=alpha, ratio=1.0)
-            # Clamp power to [0, 1]
-            power = max(0.0, min(1.0, power))
-        except Exception:
-            # Fallback: manual approximation for correlation power
-            # Power ~ Phi( sqrt(n-3) * 0.5 * ln((1+r)/(1-r)) - z_alpha )
-            # where Phi is standard normal CDF, z_alpha is critical value
-            if abs(es) < 1.0:
-                z_alpha = 1.96  # for alpha=0.05 two-tailed
-                # Fisher's z transformation
-                z_r = 0.5 * math.log((1 + abs(es)) / (1 - abs(es)))
-                se = 1.0 / math.sqrt(n_subjects - 3) if n_subjects > 3 else 1.0
-                z_stat = z_r / se
-                # Approximate power using normal CDF
-                power = 0.5 * (1 + math.erf((z_stat - z_alpha) / math.sqrt(2)))
-                power = max(0.0, min(1.0, power))
-            else:
-                power = 0.0
-        
-        results.append({
-            'effect_size': es,
-            'power': float(power),
-            'alpha': alpha,
-            'n_subjects': n_subjects
-        })
-    
-    return results
-
-def generate_power_analysis_table(power_results: List[Dict[str, float]]) -> str:
-    """Generate a text table of power analysis results."""
-    lines = []
-    lines.append("Power Analysis Results (N=10):")
-    lines.append("-" * 40)
-    lines.append(f"{'Effect Size':<15} {'Power':<10} {'Alpha':<10}")
-    lines.append("-" * 40)
-    for res in power_results:
-        lines.append(f"{res['effect_size']:<15.3f} {res['power']:<10.3f} {res['alpha']:<10.3f}")
-    lines.append("-" * 40)
-    return "\n".join(lines)
-
-def create_limitations_text(n_subjects: int, power_results: List[Dict[str, float]]) -> str:
-    """
-    Create the mandatory limitations section text.
-    
-    Required text: "This study utilizes a sample size of N=10 subjects, which provides 
-    low statistical power for detecting small effect sizes. Results should be interpreted 
-    as exploratory and require validation in larger cohorts."
-    """
-    base_text = "This study utilizes a sample size of N=10 subjects, which provides low statistical power for detecting small effect sizes. Results should be interpreted as exploratory and require validation in larger cohorts."
-    
-    # Append power analysis summary
-    summary_lines = ["", "Power Analysis Summary:", ""]
-    for res in power_results:
-        summary_lines.append(f"- Effect size {res['effect_size']:.2f}: Power = {res['power']:.2f}")
-    
-    return base_text + "\n" + "\n".join(summary_lines)
-
-def generate_power_summary_table(power_results: List[Dict[str, float]]) -> str:
-    """Generate a formatted summary table for the report."""
-    lines = []
-    lines.append("Statistical Power Analysis (Sample Size N=10)")
-    lines.append("=" * 50)
-    lines.append("")
-    lines.append(generate_power_analysis_table(power_results))
-    lines.append("")
-    lines.append("Limitations:")
-    lines.append("-" * 50)
-    lines.append(create_limitations_text(10, power_results))
-    return "\n".join(lines)
-
-def append_limitations_section(report_path: str, limitations_text: str):
-    """Append limitations section to the summary report (PDF or text)."""
-    # If it's a PDF, we would need to use reportlab or similar to append
-    # For this implementation, we assume the report is text-based or we append to a text file
-    # In a real scenario, we'd modify the PDF generation in generate_summary_report.py
-    
-    # For now, we write to a separate text file that can be included in the PDF
-    limitations_file = str(report_path).replace('.pdf', '_limitations.txt')
-    with open(limitations_file, 'w') as f:
-        f.write(limitations_text)
-    
-    logger.info(f"Limitations section written to {limitations_file}")
-    
-    # If the main report is text, append directly
-    if report_path.endswith('.txt'):
-        with open(report_path, 'a') as f:
-            f.write("\n\n" + limitations_text)
-
-def main():
-    """Main entry point for stats analysis."""
-    parser = argparse.ArgumentParser(description='Statistical analysis for brain network dynamics')
-    parser.add_argument('--metrics', type=str, default='data/processed/graph_metrics.csv',
-                      help='Path to graph metrics CSV')
-    parser.add_argument('--behavioral', type=str, default='data/processed/behavioral.csv',
-                      help='Path to behavioral scores CSV')
-    parser.add_argument('--output', type=str, default='reports/',
-                      help='Output directory for results')
-    parser.add_argument('--n-subjects', type=int, default=10,
-                      help='Number of subjects for power analysis')
-    args = parser.parse_args()
-    
-    os.makedirs(args.output, exist_ok=True)
+    x_clean = [p[0] for p in pairs]
+    y_clean = [p[1] for p in pairs]
     
     try:
-        # Load data
-        metrics = load_graph_metrics(args.metrics)
-        scores = load_behavioral_scores(args.behavioral)
-        merged = merge_metrics_with_scores(metrics, scores)
-        
-        if not merged:
-            logger.error("No valid data found for analysis. Check input files.")
-            sys.exit(1)
-        
-        # Perform power analysis
-        logger.info(f"Running power analysis for N={args.n_subjects} subjects...")
-        power_results = calculate_power(args.n_subjects)
-        
-        # Generate power summary
-        power_summary = generate_power_summary_table(power_results)
-        power_file = os.path.join(args.output, 'power_analysis.txt')
-        with open(power_file, 'w') as f:
-            f.write(power_summary)
-        logger.info(f"Power analysis saved to {power_file}")
-        
-        # Create limitations text
-        limitations_text = create_limitations_text(args.n_subjects, power_results)
-        
-        # Append to summary report if it exists
-        summary_report = os.path.join(args.output, 'summary.pdf')
-        if os.path.exists(summary_report):
-            # For PDF, we write to a separate file to be included
-            limitations_pdf = os.path.join(args.output, 'summary_limitations.txt')
-            with open(limitations_pdf, 'w') as f:
-                f.write(limitations_text)
-            logger.info(f"Limitations section written to {limitations_pdf}")
+        if method == 'pearson':
+            corr, p_val = scipy_stats.pearsonr(x_clean, y_clean)
+        elif method == 'spearman':
+            corr, p_val = scipy_stats.spearmanr(x_clean, y_clean)
         else:
-            # If no summary report yet, write limitations to a text file
-            limitations_txt = os.path.join(args.output, 'limitations.txt')
-            with open(limitations_txt, 'w') as f:
-                f.write(limitations_text)
-            logger.info(f"Limitations section written to {limitations_txt}")
+            raise ValueError(f"Unknown correlation method: {method}")
         
-        logger.info("Statistical analysis and power analysis completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        sys.exit(1)
+        return float(corr), float(p_val)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(1)
+        logger.error(f"Correlation computation failed: {e}")
+        return None, None
 
-if __name__ == '__main__':
+def analyze_correlations(metrics_data: List[Dict], metric_name: str) -> Dict[str, Any]:
+    """Analyze correlation between a specific metric and Fluid Intelligence."""
+    # Filter for the specific metric
+    subset = [d for d in metrics_data if d.get('metric_name') == metric_name]
+    
+    if not subset:
+        logger.warning(f"No data found for metric: {metric_name}")
+        return {
+            'metric_name': metric_name,
+            'n': 0,
+            'correlation': None,
+            'p_value': None,
+            'method': 'pearson'
+        }
+    
+    x = [d['value'] for d in subset]
+    y = [d['fluid_intelligence_score'] for d in subset]
+    
+    corr, p_val = compute_correlation(x, y, method='pearson')
+    
+    return {
+        'metric_name': metric_name,
+        'n': len(subset),
+        'correlation': corr,
+        'p_value': p_val,
+        'method': 'pearson'
+    }
+
+def run_multiple_linear_regression(metrics_data: List[Dict], metric_name: str) -> Dict[str, Any]:
+    """Run multiple linear regression with age and gender as covariates."""
+    subset = [d for d in metrics_data if d.get('metric_name') == metric_name]
+    
+    # Filter out rows with missing covariates
+    valid_subset = [d for d in subset if d.get('age') is not None and d.get('gender') is not None]
+    
+    if len(valid_subset) < 4:
+        logger.warning(f"Insufficient data for regression (n={len(valid_subset)}). Skipping.")
+        return {
+            'metric_name': metric_name,
+            'n': len(subset),
+            'n_valid': len(valid_subset),
+            'coefficients': None,
+            'r_squared': None,
+            'p_value': None
+        }
+    
+    y = np.array([d['fluid_intelligence_score'] for d in valid_subset])
+    X_age = np.array([d['age'] for d in valid_subset])
+    
+    # Encode gender (M=0, F=1)
+    X_gender = np.array([1 if d['gender'] in ['F', 'Female', 'female'] else 0 for d in valid_subset])
+    X_const = np.ones(len(valid_subset))
+    
+    X = np.column_stack((X_const, X_age, X_gender))
+    
+    try:
+        # OLS regression manually
+        # beta = (X'X)^-1 X'y
+        XtX = X.T @ X
+        XtX_inv = np.linalg.inv(XtX)
+        beta = XtX_inv @ (X.T @ y)
+        
+        y_pred = X @ beta
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        
+        # Simple p-value approximation for the model (F-test)
+        # F = (R^2 / k) / ((1 - R^2) / (n - k - 1))
+        n = len(valid_subset)
+        k = 2 # age, gender
+        if r_squared < 1.0 and (n - k - 1) > 0:
+            f_stat = (r_squared / k) / ((1 - r_squared) / (n - k - 1))
+            # Approximate p-value using scipy
+            from scipy.stats import f
+            p_val = 1 - f.cdf(f_stat, k, n - k - 1)
+        else:
+            p_val = 1.0
+        
+        return {
+            'metric_name': metric_name,
+            'n': len(subset),
+            'n_valid': len(valid_subset),
+            'coefficients': {
+                'intercept': float(beta[0]),
+                'age': float(beta[1]),
+                'gender': float(beta[2])
+            },
+            'r_squared': float(r_squared),
+            'p_value': float(p_val)
+        }
+    except Exception as e:
+        logger.error(f"Regression failed: {e}")
+        return {
+            'metric_name': metric_name,
+            'n': len(subset),
+            'n_valid': len(valid_subset),
+            'coefficients': None,
+            'r_squared': None,
+            'p_value': None
+        }
+
+def calculate_power(n: int, effect_size: float, alpha: float = 0.05) -> float:
+    """Calculate statistical power for a correlation test."""
+    # Using t-test approximation for correlation
+    # t = r * sqrt((n-2) / (1-r^2))
+    # We use statsmodels for a more robust calculation if available, 
+    # otherwise approximate.
+    try:
+        # Solve for power given n, effect_size (r), alpha
+        # statsmodels tt_solve_power expects effect size for mean difference, 
+        # but for correlation we can approximate or use a custom function.
+        # Here we use a direct approximation:
+        # Power = 1 - Beta. 
+        # Using the non-central t-distribution is complex without full statsmodels integration.
+        # We will use a simplified approximation:
+        # Power ~ Phi( sqrt(n-3) * 0.5 * ln((1+r)/(1-r)) - 1.96 )
+        if n <= 3:
+            return 0.0
+        
+        z_r = 0.5 * math.log((1 + effect_size) / (1 - effect_size))
+        se = 1 / math.sqrt(n - 3)
+        z_beta = z_r / se - 1.96 # 1.96 for alpha=0.05 two-tailed
+        
+        from scipy.stats import norm
+        power = norm.cdf(z_beta)
+        return float(power)
+    except Exception as e:
+        logger.warning(f"Power calculation failed: {e}")
+        return 0.0
+
+def generate_power_analysis_table(results: List[Dict]) -> List[Dict]:
+    """Generate power analysis for each result."""
+    table = []
+    for res in results:
+        if res.get('correlation') is not None:
+            r = abs(res['correlation'])
+            power = calculate_power(res['n'], r)
+            table.append({
+                'metric_name': res['metric_name'],
+                'n': res['n'],
+                'observed_r': res['correlation'],
+                'power_at_observed_r': power
+            })
+    return table
+
+def create_limitations_text() -> str:
+    """Return the standard limitations text."""
+    return LIMITATIONS_TEXT
+
+def generate_power_summary_table(power_table: List[Dict]) -> str:
+    """Generate a text summary of power analysis."""
+    lines = ["## Power Analysis Summary", ""]
+    for row in power_table:
+        lines.append(f"- {row['metric_name']}: N={row['n']}, r={row['observed_r']:.3f}, Power={row['power_at_observed_r']:.2f}")
+    lines.append("")
+    lines.append(create_limitations_text())
+    return "\n".join(lines)
+
+def append_limitations_section(report_content: str) -> str:
+    """Append limitations section to report content."""
+    return report_content + "\n\n" + create_limitations_text()
+
+def main():
+    """Main entry point for correlation analysis."""
+    parser = argparse.ArgumentParser(description="Analyze correlation between graph metrics and Fluid Intelligence.")
+    parser.add_argument("--metrics", type=str, default="data/processed/graph_metrics.csv", help="Path to graph metrics CSV")
+    parser.add_argument("--behavioral", type=str, default="data/processed/behavioral.csv", help="Path to behavioral scores CSV")
+    parser.add_argument("--output", type=str, default=CORRELATION_RESULTS_PATH, help="Path to output CSV")
+    args = parser.parse_args()
+
+    logger.info(f"Loading graph metrics from {args.metrics}")
+    metrics_data = load_graph_metrics(args.metrics)
+    
+    logger.info(f"Loading behavioral scores from {args.behavioral}")
+    # Note: In this pipeline, behavioral scores are often merged into graph_metrics.csv
+    # If a separate file is provided, we merge them. Otherwise, we assume metrics_data has the scores.
+    # For robustness, we check if 'fluid_intelligence_score' exists in metrics_data.
+    has_scores = all('fluid_intelligence_score' in m and m['fluid_intelligence_score'] is not None for m in metrics_data if 'metric_name' in m)
+    
+    if not has_scores:
+        logger.warning("Fluid Intelligence scores not found in metrics file. Attempting to load from separate file.")
+        if os.path.exists(args.behavioral):
+            scores_data = load_behavioral_scores(args.behavioral)
+            metrics_data = merge_metrics_with_scores(metrics_data, scores_data)
+        else:
+            logger.error("Behavioral file not found and scores missing in metrics file. Cannot proceed.")
+            sys.exit(1)
+
+    # Validate data
+    valid_metrics = [m for m in metrics_data if m.get('fluid_intelligence_score') is not None]
+    if not valid_metrics:
+        logger.error("No valid Fluid Intelligence scores found for correlation analysis.")
+        sys.exit(1)
+    
+    # Identify unique metrics
+    unique_metrics = list(set(m['metric_name'] for m in valid_metrics))
+    logger.info(f"Found {len(unique_metrics)} unique metrics to analyze: {unique_metrics}")
+
+    results = []
+    for metric in unique_metrics:
+        logger.info(f"Analyzing {metric}...")
+        corr_res = analyze_correlations(valid_metrics, metric)
+        reg_res = run_multiple_linear_regression(valid_metrics, metric)
+        
+        results.append({
+            'metric_name': metric,
+            'n': corr_res['n'],
+            'correlation': corr_res['correlation'],
+            'p_value': corr_res['p_value'],
+            'regression_n': reg_res['n_valid'],
+            'regression_r_squared': reg_res['r_squared'],
+            'regression_p_value': reg_res['p_value']
+        })
+
+    # Apply Bonferroni correction
+    n_tests = len(results)
+    raw_p_values = [r['p_value'] for r in results if r['p_value'] is not None]
+    if raw_p_values:
+        corrected_p_values = bonferroni_correction(raw_p_values, n_tests)
+        # Map back
+        idx = 0
+        for r in results:
+            if r['p_value'] is not None:
+                r['p_value_bonferroni'] = corrected_p_values[idx]
+                idx += 1
+            else:
+                r['p_value_bonferroni'] = None
+    else:
+        for r in results:
+            r['p_value_bonferroni'] = None
+
+    # Write results
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    with open(args.output, 'w', newline='') as f:
+        fieldnames = ['metric_name', 'n', 'correlation', 'p_value', 'p_value_bonferroni', 'regression_n', 'regression_r_squared', 'regression_p_value']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in results:
+            writer.writerow(r)
+    
+    logger.info(f"Results written to {args.output}")
+    logger.info("Correlation analysis completed.")
+
+if __name__ == "__main__":
     main()

@@ -1,0 +1,123 @@
+# Validation Rules Schema
+# Defines constraints and validation rules for data integrity.
+# Used by: code/data/loader.py, code/data/processor.py, code/main.py
+$schema: http://json-schema.org/draft-07/schema#
+title: ValidationRulesSchema
+description: |
+  Schema defining validation rules that must be satisfied for data
+  to be accepted into the training pipeline.
+type: object
+properties:
+  global_constraints:
+    type: object
+    properties:
+      min_samples_total:
+        type: integer
+        default: 200
+        description: Minimum total samples required
+      min_samples_per_family:
+        type: integer
+        default: 50
+        description: Minimum samples per alloy family (FR-008, SC-001)
+      min_families:
+        type: integer
+        default: 3
+        description: Minimum distinct alloy families required (FR-009)
+  field_constraints:
+    type: object
+    properties:
+      rolling_temperature:
+        type: object
+        properties:
+          min:
+            type: number
+            default: 100
+          max:
+            type: number
+            default: 1500
+          missing_threshold:
+            type: number
+            default: 0.20
+            description: Max fraction of missing values allowed (FR-002)
+      reduction_ratio:
+        type: object
+        properties:
+          min:
+            type: number
+            default: 0.0
+          max:
+            type: number
+            default: 1.0
+      strain_rate:
+        type: object
+        properties:
+          min:
+            type: number
+            default: 0.0
+          max:
+            type: number
+            default: 10000
+      ODF_100:
+        type: object
+        properties:
+          min:
+            type: number
+            default: 0.0
+          max:
+            type: number
+            default: 100.0
+  outlier_rules:
+    type: object
+    properties:
+      method:
+        type: string
+        enum: [3sigma, iqr, isoforest]
+        default: 3sigma
+      sigma_threshold:
+        type: number
+        default: 3.0
+      remove_if:
+        type: string
+        enum: [any, all]
+        default: any
+        description: Remove if ANY or ALL features are outliers
+  validation_strategies:
+    type: object
+    properties:
+      imputation:
+        type: object
+        properties:
+          method:
+            type: string
+            enum: [median, mean, drop]
+            default: median
+          max_missing_pct:
+            type: number
+            default: 0.20
+      encoding:
+        type: object
+        properties:
+          categorical_features:
+            type: array
+            items:
+              type: string
+            default: ["alloy_family"]
+          encoding_method:
+            type: string
+            enum: [one_hot, label, target]
+            default: one_hot
+examples:
+  - name: "Standard Validation Configuration"
+    global_constraints:
+      min_samples_total: 200
+      min_samples_per_family: 50
+      min_families: 3
+    field_constraints:
+      rolling_temperature:
+        min: 100
+        max: 1500
+        missing_threshold: 0.20
+    outlier_rules:
+      method: 3sigma
+      sigma_threshold: 3.0
+      remove_if: any

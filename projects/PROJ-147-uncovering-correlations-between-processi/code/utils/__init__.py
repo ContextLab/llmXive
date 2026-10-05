@@ -1,3 +1,3 @@
 """
-Utilities package.
+Utility functions package.
 """

@@ -1,178 +1,154 @@
 import os
 import sys
+import csv
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Configure logging for the module
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stderr
 )
 logger = logging.getLogger(__name__)
 
 def ensure_directories():
-    """Create necessary data directories if they don't exist."""
-    dirs = [
-        Path("data/raw"),
-        Path("data/interim"),
-        Path("data/processed"),
-        Path("reports")
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist: {[str(d) for d in dirs]}")
+    """Ensure required output directories exist."""
+    data_processed = Path("data/processed")
+    data_processed.mkdir(parents=True, exist_ok=True)
+    return data_processed
 
-def get_subject_list_from_download_log():
+def get_subject_list_from_download_log() -> List[Dict[str, Any]]:
     """
-    Retrieve subject list from download log if available.
-    This is a placeholder for T015 logic to parse download logs.
+    Read the list of subjects from the download log.
+    Expects data/processed/download_log.json to exist with a 'subjects' key.
     """
-    # In a real scenario, this would parse data/raw/download_log.json
-    # For now, return an empty list or a mock list for testing
-    return []
+    log_path = Path("data/processed/download_log.json")
+    if not log_path.exists():
+        logger.error(f"Download log not found at {log_path}. Run download.py first.")
+        return []
+    
+    try:
+        with open(log_path, 'r') as f:
+            data = json.load(f)
+        return data.get("subjects", [])
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse download log: {e}")
+        return []
 
-def load_behavioral_scores(subject_dir: Path) -> Optional[Dict[str, Any]]:
+def load_graph_metrics() -> List[Dict[str, Any]]:
     """
-    Load behavioral scores for a subject.
-    
-    This function explicitly looks for 'fluid_intelligence' scores.
-    Any logic related to 'musical_creativity', 'TTCT', or 'AUT' is
-    removed/replaced to comply with the Pivot Logic of T015.
-    
-    Args:
-        subject_dir: Path to the subject's directory.
-        
-    Returns:
-        Dictionary containing score info, or None if not found.
+    Load the aggregated graph metrics from data/processed/graph_metrics.csv.
+    Returns a list of dictionaries.
     """
-    # Look for common behavioral data files
-    possible_files = [
-        subject_dir / "behav.json",
-        subject_dir / "behav.tsv",
-        subject_dir / "participants.tsv",
-        subject_dir / "task-rest_bold.json" # Sometimes metadata is here
-    ]
+    metrics_path = Path("data/processed/graph_metrics.csv")
+    if not metrics_path.exists():
+        logger.error(f"Graph metrics file not found at {metrics_path}. Run graph_metrics.py first.")
+        return []
     
-    for file_path in possible_files:
-        if file_path.exists():
-            try:
-                if file_path.suffix == '.json':
-                    with open(file_path, 'r') as f:
-                        data = json.load(f)
-                elif file_path.suffix == '.tsv':
-                    # Simple TSV parser for testing
-                    data = {}
-                    with open(file_path, 'r') as f:
-                        lines = f.readlines()
-                        if lines:
-                            headers = lines[0].strip().split('\t')
-                            values = lines[1].strip().split('\t')
-                            data = dict(zip(headers, values))
-                else:
-                    continue
-                
-                # Pivot Logic: Check specifically for Fluid Intelligence
-                # Remove any check for 'musical_creativity' or 'TTCT'
-                if 'fluid_intelligence' in data:
-                    return {
-                        "score": float(data['fluid_intelligence']),
-                        "source": str(file_path)
-                    }
-                elif 'Fluid_Intelligence_Score' in data:
-                    return {
-                        "score": float(data['Fluid_Intelligence_Score']),
-                        "source": str(file_path)
-                    }
-            except (json.JSONDecodeError, ValueError, KeyError) as e:
-                logger.warning(f"Could not parse {file_path}: {e}")
-                continue
-                
-    return None
+    metrics = []
+    try:
+        with open(metrics_path, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Convert numeric fields
+                row_copy = dict(row)
+                if 'value' in row_copy:
+                    row_copy['value'] = float(row_copy['value'])
+                if 'fluid_intelligence_score' in row_copy:
+                    try:
+                        row_copy['fluid_intelligence_score'] = float(row_copy['fluid_intelligence_score'])
+                    except (ValueError, TypeError):
+                        row_copy['fluid_intelligence_score'] = None
+                metrics.append(row_copy)
+    except Exception as e:
+        logger.error(f"Failed to load graph metrics: {e}")
+        return []
+    
+    return metrics
 
-def scan_subjects_for_scores(subjects: List[str], base_path: Path = None) -> List[Dict[str, Any]]:
+def validate_and_aggregate() -> bool:
     """
-    Scan a list of subjects for valid Fluid Intelligence scores.
+    Validate that subjects have valid Fluid Intelligence scores.
     
-    Args:
-        subjects: List of subject IDs (e.g., ['sub-001', 'sub-002'])
-        base_path: Base path to data/raw. Defaults to Path("data/raw")
-        
-    Returns:
-        List of dicts with 'id' and 'score'
+    Logic:
+    1. Get list of subjects from download_log.json.
+    2. Load graph_metrics.csv.
+    3. Check if 'fluid_intelligence_score' column exists and is not null for at least one subject.
+    
+    If NO valid scores are found, raise a critical error (halt).
+    If at least one valid score exists, log success and return True.
     """
-    if base_path is None:
-        base_path = Path("data/raw")
-        
-    valid_scores = []
-    
-    for subj_id in subjects:
-        subj_dir = base_path / subj_id
-        if not subj_dir.exists():
-            logger.debug(f"Subject directory not found: {subj_dir}")
-            continue
-            
-        score_data = load_behavioral_scores(subj_dir)
-        if score_data and score_data['score'] is not None:
-            valid_scores.append({
-                "id": subj_id,
-                "score": score_data['score']
-            })
-            logger.info(f"Found Fluid Intelligence score {score_data['score']} for {subj_id}")
-        else:
-            logger.debug(f"No valid Fluid Intelligence score found for {subj_id}")
-            
-    return valid_scores
-
-def validate_and_aggregate():
-    """
-    Main validation function for T015.
-    
-    1. Gets the list of subjects (mocked or from download log).
-    2. Scans for Fluid Intelligence scores.
-    3. Writes results to data/processed/valid_subjects.json.
-    4. Returns the results.
-    
-    This function replaces any previous logic that checked for Musical Creativity.
-    """
-    ensure_directories()
-    
-    # In a real run, we would get subjects from the download log or dataset
-    # For this implementation, we rely on the test mocking or existing data
-    # If no subjects are found, we return an empty list which triggers the halt
-    
-    # Mocking the subject list for the purpose of this function if not present
-    # In a real pipeline, get_subject_list_from_download_log() would provide this
     subjects = get_subject_list_from_download_log()
-    
-    # If subjects list is empty, we try to scan data/raw directly if it exists
     if not subjects:
-        raw_dir = Path("data/raw")
-        if raw_dir.exists():
-            subjects = [d.name for d in raw_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')]
-    
-    valid_scores = scan_subjects_for_scores(subjects)
-    
-    result = {
-        "subjects": valid_scores,
-        "count": len(valid_scores)
-    }
-    
-    output_path = Path("data/processed/valid_subjects.json")
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        logger.error("No subjects found in download log. Cannot validate.")
+        return False
+
+    metrics = load_graph_metrics()
+    if not metrics:
+        logger.error("No graph metrics found. Cannot validate.")
+        return False
+
+    # Check for the presence of the column in the CSV headers first
+    if not metrics:
+        # If file is empty but exists, we treat it as 0 valid scores
+        logger.error("Graph metrics file is empty or has no data rows.")
+        raise ValueError("No valid Fluid Intelligence scores found for correlation analysis")
+
+    # Check if the column exists
+    sample_row = metrics[0]
+    if 'fluid_intelligence_score' not in sample_row:
+        logger.error("Column 'fluid_intelligence_score' is missing from graph_metrics.csv")
+        raise ValueError("No valid Fluid Intelligence scores found for correlation analysis (column missing)")
+
+    # Count valid scores
+    valid_count = 0
+    invalid_count = 0
+    valid_subject_ids = []
+
+    for row in metrics:
+        score = row.get('fluid_intelligence_score')
+        sub_id = row.get('subject_id', 'Unknown')
         
-    logger.info(f"Validated {result['count']} subjects with Fluid Intelligence scores.")
-    return result
+        # Check if score is None, 'None', or empty string
+        if score is None or score == '' or str(score).lower() == 'nan':
+            invalid_count += 1
+        else:
+            try:
+                val = float(score)
+                if not (val != val): # Check for NaN explicitly
+                    valid_count += 1
+                    valid_subject_ids.append(sub_id)
+                else:
+                    invalid_count += 1
+            except (ValueError, TypeError):
+                invalid_count += 1
+
+    logger.info(f"Validation Results: {valid_count} valid scores, {invalid_count} invalid/missing.")
+    
+    if valid_count == 0:
+        error_msg = "No valid Fluid Intelligence scores found for correlation analysis. Halting execution."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info(f"Success: Found {valid_count} subjects with valid Fluid Intelligence scores.")
+    return True
 
 def main():
-    """
-    Main entry point for validation script.
-    """
-    ensure_directories()
-    result = validate_and_aggregate()
-    print(json.dumps(result, indent=2))
+    """Entry point for the validation script."""
+    try:
+        ensure_directories()
+        if validate_and_aggregate():
+            logger.info("Validation passed. Proceeding to analysis.")
+            sys.exit(0)
+    except ValueError as e:
+        logger.critical(str(e))
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Unexpected error during validation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

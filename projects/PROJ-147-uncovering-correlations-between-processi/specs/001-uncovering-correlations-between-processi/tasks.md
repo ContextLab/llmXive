@@ -66,7 +66,7 @@ found character '`' that cannot start any token
  in "<unicode string>", line 3, column 17:
  - Public names: `generate_synthetic_dataset`, `v...
  ^) -->
-- [ ] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
+- [X] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
 - [X] T011a Implement `code/data/processor.py` for unit standardization, median imputation (≤20% NaN), 3σ outlier removal, and derivation of physics-based features (strain rate, Zener-Hollomon) per spec formulas (FR-002); **depends on T008** (Texture Utils) for ODF-based feature derivation if applicable.
 - [X] T011b Create unit tests `tests/test_preprocessing.py` to validate mathematical correctness of derived features (strain rate, Zener-Hollomon) against spec definitions **explicitly listing the mathematical formulas as docstrings in test_preprocessing.py** before model ingestion (FR-002)
 
@@ -89,7 +89,7 @@ found character '`' that cannot start any token
 ### Implementation for User Story 1
 
 - [X] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
-- [ ] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
+- [X] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
 - [X] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
 - [ ] T016 [US1] Add validation logic in `main.py` to abort if <50 samples/alloy family (FR-008)
 - [ ] T017 [US1] Implement logic to save `predictions.csv` and `new_predictions.csv` (FR-005)
@@ -112,9 +112,9 @@ found character '`' that cannot start any token
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/models/evaluator.py` to compute R², MAE, RMSE per texture coefficient and per alloy family (FR-009, FR-010)
-- [~] T021 Implement permutation importance calculation and ranking logic (FR-005)
+- [ ] T021 Implement permutation importance calculation and ranking logic (FR-005)
 - [X] T021a [US2] Implement validation logic in `code/models/evaluator.py` to check SC-002 (at least one variable importance ≥0.10 for EVERY AlloyFamily); **log failure and record metrics in the evaluation report if failed, do NOT halt the pipeline**; proceed to sensitivity analysis (FR-010, SC-002)
-- [~] T022 [US2] Implement `importance_plot.png` generation (≤5 MB) with ranked feature list (FR-005)
+- [ ] T022 [US2] Implement `importance_plot.png` generation (≤5 MB) with ranked feature list (FR-005)
 - [ ] T023 [US2] Implement `sensitivity_analysis.py` to sweep R² and importance thresholds from **0.01 to 0.50 in steps of 0.01** to report stability across low to moderate magnitudes (FR-010)
 - [ ] T024 [US2] Generate `evaluation_report.json` including `data_source_type` (Real/Synthetic); **logic: Set data_source_type to "Synthetic" if the synthetic generator was invoked or if real data count < threshold, else "Real"**; include per-family metrics and missing confounds warning (SC-004, FR-012)
 - [ ] T025 [US2] Generate `sensitivity_report.json` with threshold sweep results
@@ -131,14 +131,14 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Create `tests/test_ci.py` (mock) to validate resource constraints in local environment; **MUST be conditional on `ENABLE_DOCKER` flag and skipped if false** (optional)
+- [X] T026 [P] [US3] Create `tests/test_ci.py` (mock) to validate resource constraints in local environment; **MUST be conditional on `ENABLE_DOCKER` flag and skipped if false** (optional)
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Create `Dockerfile` based on `python:3.11-slim` with all dependencies; implement conditional check for `ENABLE_DOCKER` config flag to skip build if false (FR-006)
+- [X] T027 [P] [US3] Create `Dockerfile` based on `python:3.11-slim` with all dependencies; implement conditional check for `ENABLE_DOCKER` config flag to skip build if false (FR-006)
 - [ ] T028 [US3] Create `.github/workflows/ci.yml` to build image (if `ENABLE_DOCKER=true`), run pipeline, and verify exit code 0; skip containerization step if flag is false (FR-006)
 - [ ] T029 [US3] Add error handling in CI workflow to log missing resources clearly; ensure workflow respects `ENABLE_DOCKER` flag (Edge Case)
-- [ ] T030 [US3] Document local run instructions in `docs/quickstart.md` including `ENABLE_DOCKER` configuration
+- [X] T030 [US3] Document local run instructions in `docs/quickstart.md` including `ENABLE_DOCKER` configuration
 
 **Checkpoint**: All user stories should now be independently functional
 

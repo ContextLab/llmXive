@@ -1,7 +1,14 @@
 """
-Main orchestration script for the Data Pipeline (US1).
-Orchestrates the download-inject-validate pipeline to produce the validated dataset.
-Target: >=5 valid events with complete spin metadata (tilt_angle).
+Main orchestration script for the Data Acquisition Pipeline.
+
+This script implements the download-inject-validate pipeline to produce
+a validated dataset of >=5 synthetic CBC injections with complete metadata.
+
+Per Amended FR-001 and FR-009:
+- Fetches real GW noise from GWOSC.
+- Injects synthetic signals using LALSimulation (via src.data.inject).
+- Validates metadata completeness (specifically tilt_angle).
+- Stops when >=5 valid events are found or max_attempts (50) is reached.
 """
 import os
 import sys
@@ -10,83 +17,76 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[3]
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent.parent
+if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+from src.utils.logging import get_logger, log_step_start, log_step_complete, log_step_error
+from src.utils.config import get_project_root, ensure_dir, set_seed
 from src.data.fetch_loop import run_fetch_loop
-from src.utils.logging import setup_logging, get_logger, log_step_start, log_step_complete, log_step_error
-from src.utils.config import get_project_root, ensure_dir
+
+logger = get_logger(__name__)
 
 def main():
     """
     Orchestrate the download-inject-validate pipeline.
-    Runs until >=5 valid events are found or max_attempts (50) is reached.
-    Outputs: data/interim/valid_events.json
+    
+    1. Initialize environment and logging.
+    2. Run the fetch loop (T019.1 logic) to acquire >=5 valid events.
+    3. Save the list of valid event IDs to data/interim/valid_events.json.
+    4. Exit with appropriate status code.
     """
-    # Setup logging
-    logger = setup_logging(level="INFO")
-    log_step_start("Data Pipeline Orchestration", "T020")
+    # Setup
+    set_seed(42) # Pinning random seed as per T004
+    project_root = get_project_root()
+    interim_dir = project_root / "data" / "interim"
+    ensure_dir(interim_dir)
+    
+    output_file = interim_dir / "valid_events.json"
+    
+    log_step_start("Data Pipeline Orchestration", {"target_events": 5, "max_attempts": 50})
 
     try:
-        # Configuration
-        target_valid_count = 5
-        max_attempts = 50
-
-        logger.info(f"Starting pipeline to acquire {target_valid_count} valid events.")
-        logger.info(f"Maximum attempts allowed: {max_attempts}")
-
-        # Run the fetch-inject-validate loop
-        # This calls T019.1 logic which handles:
-        # 1. Fetching noise from GWOSC
-        # 2. Injecting synthetic signal (T013)
-        # 3. Validating metadata (T014) including tilt_angle
-        valid_events, stats = run_fetch_loop(
-            target_count=target_valid_count,
-            max_attempts=max_attempts,
-            logger=logger
+        # Execute the core logic from T019.1
+        # This function handles the loop: fetch -> inject -> validate -> check count
+        valid_events = run_fetch_loop(
+            target_count=5,
+            max_attempts=50,
+            output_dir=interim_dir
         )
-
-        # Prepare output
-        output_data = {
-            "event_ids": valid_events,
+        
+        if not valid_events:
+            # This should technically raise RuntimeError inside run_fetch_loop if count < 5
+            # but we handle the empty case here for safety.
+            raise RuntimeError("Pipeline completed but no valid events were found.")
+        
+        # Save results
+        result_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "event_ids": [evt["event_id"] for evt in valid_events],
             "count": len(valid_events),
-            "stats": stats,
-            "timestamp": datetime.utcnow().isoformat()
+            "details": valid_events
         }
-
-        # Ensure output directory exists
-        project_root = get_project_root()
-        output_dir = project_root / "data" / "interim"
-        ensure_dir(output_dir)
-
-        output_path = output_dir / "valid_events.json"
-
-        # Write results
-        with open(output_path, "w") as f:
-            json.dump(output_data, f, indent=2)
-
-        logger.info(f"Pipeline complete. Found {len(valid_events)} valid events.")
-        logger.info(f"Results saved to: {output_path}")
-
-        # Check success criteria
-        if len(valid_events) < target_valid_count:
-            logger.error(f"Failed to generate {target_valid_count} valid events after {max_attempts} attempts.")
-            log_step_error("Data Pipeline Orchestration", "Failed to reach target event count")
-            sys.exit(1)
-        else:
-            log_step_complete("Data Pipeline Orchestration", f"Generated {len(valid_events)} valid events")
-            sys.exit(0)
+        
+        with open(output_file, 'w') as f:
+            json.dump(result_data, f, indent=2)
+        
+        logger.info(f"Pipeline successful. Found {len(valid_events)} valid events.")
+        logger.info(f"Results saved to {output_file}")
+        
+        log_step_complete("Data Pipeline Orchestration", {"valid_events_count": len(valid_events)})
+        
+        return 0
 
     except RuntimeError as e:
-        logger.error(f"Pipeline failed: {str(e)}")
         log_step_error("Data Pipeline Orchestration", str(e))
-        raise
+        logger.error(f"Pipeline failed: {e}")
+        return 1
     except Exception as e:
-        logger.exception(f"Unexpected error during pipeline execution: {e}")
-        log_step_error("Data Pipeline Orchestration", str(e))
-        raise
+        log_step_error("Data Pipeline Orchestration", str(e), exc_info=True)
+        logger.critical(f"Unexpected error in pipeline: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

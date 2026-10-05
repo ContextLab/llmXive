@@ -1,1 +1,2 @@
-# Placeholder for generated figures
+# This directory stores generated figures and plots.
+# Do not commit large binary files here; use .gitkeep to track the directory.

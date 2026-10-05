@@ -1,103 +1,129 @@
+import pytest
 import os
 import json
-import pytest
+import csv
 from pathlib import Path
-import pandas as pd
+import sys
+import tempfile
+import shutil
 
 # Add code directory to path
-sys_path = Path(__file__).parent.parent.parent / "code"
-if str(sys_path) not in __import__('sys').path:
-    __import__('sys').path.insert(0, str(sys_path))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from validate_fluid_intelligence import (
-    load_behavioral_scores,
-    scan_subjects_for_scores,
-    validate_and_aggregate,
-    main
-)
+from validate_fluid_intelligence import validate_and_aggregate, ensure_directories
 
-@pytest.fixture
-def mock_data_dir(tmp_path):
-    """Create a mock data structure with valid and invalid subjects."""
-    raw_dir = tmp_path / "data" / "raw"
-    raw_dir.mkdir(parents=True)
+class TestValidateFluidIntelligence:
     
-    # Create a valid subject with a TSV file
-    sub_valid = raw_dir / "sub-001"
-    sub_valid.mkdir()
-    behav_tsv = sub_valid / "behav.tsv"
-    df = pd.DataFrame({
-        'participant_id': ['sub-001'],
-        'fluid_intelligence_score': [1.25]
-    })
-    df.to_csv(behav_tsv, sep='\t', index=False)
-    
-    # Create a subject with missing score
-    sub_invalid = raw_dir / "sub-002"
-    sub_invalid.mkdir()
-    behav_tsv_invalid = sub_invalid / "behav.tsv"
-    df_invalid = pd.DataFrame({
-        'participant_id': ['sub-002'],
-        'other_score': [0.5]
-    })
-    df_invalid.to_csv(behav_tsv_invalid, sep='\t', index=False)
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Set up and tear down test environment."""
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.data_processed = self.test_dir / "data" / "processed"
+        self.data_processed.mkdir(parents=True, exist_ok=True)
+        
+        # Store original paths
+        self.original_cwd = Path.cwd()
+        os.chdir(self.test_dir)
+        
+        yield
+        
+        # Cleanup
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.test_dir)
 
-    # Create a subject with NaN score
-    sub_nan = raw_dir / "sub-003"
-    sub_nan.mkdir()
-    behav_tsv_nan = sub_nan / "behav.tsv"
-    df_nan = pd.DataFrame({
-        'participant_id': ['sub-003'],
-        'fluid_intelligence_score': [float('nan')]
-    })
-    df_nan.to_csv(behav_tsv_nan, sep='\t', index=False)
+    def test_halt_on_zero_valid_scores(self):
+        """Test that the script raises ValueError when no valid Fluid Intelligence scores are found."""
+        
+        # Create download_log.json with subjects
+        download_log = {
+            "subjects": [
+                {"id": "sub_001", "fluid_intelligence_score": None},
+                {"id": "sub_002", "fluid_intelligence_score": None}
+            ]
+        }
+        with open(self.data_processed / "download_log.json", 'w') as f:
+            json.dump(download_log, f)
+        
+        # Create graph_metrics.csv with missing/null scores
+        metrics_path = self.data_processed / "graph_metrics.csv"
+        with open(metrics_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['subject_id', 'metric_name', 'value', 'fluid_intelligence_score', 'age', 'gender'])
+            writer.writeheader()
+            writer.writerow({
+                'subject_id': 'sub_001',
+                'metric_name': 'efficiency',
+                'value': 0.5,
+                'fluid_intelligence_score': '',
+                'age': 25,
+                'gender': 'M'
+            })
+            writer.writerow({
+                'subject_id': 'sub_002',
+                'metric_name': 'efficiency',
+                'value': 0.6,
+                'fluid_intelligence_score': 'NaN',
+                'age': 30,
+                'gender': 'F'
+            })
+        
+        # Assert that validate_and_aggregate raises ValueError
+        with pytest.raises(ValueError) as excinfo:
+            validate_and_aggregate()
+        
+        assert "No valid Fluid Intelligence scores found" in str(excinfo.value)
 
-    return tmp_path
+    def test_passes_with_valid_scores(self):
+        """Test that the script returns True when valid scores are present."""
+        
+        # Create download_log.json
+        download_log = {
+            "subjects": [
+                {"id": "sub_001", "fluid_intelligence_score": 110.0}
+            ]
+        }
+        with open(self.data_processed / "download_log.json", 'w') as f:
+            json.dump(download_log, f)
+        
+        # Create graph_metrics.csv with valid score
+        metrics_path = self.data_processed / "graph_metrics.csv"
+        with open(metrics_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['subject_id', 'metric_name', 'value', 'fluid_intelligence_score', 'age', 'gender'])
+            writer.writeheader()
+            writer.writerow({
+                'subject_id': 'sub_001',
+                'metric_name': 'efficiency',
+                'value': 0.5,
+                'fluid_intelligence_score': 110.0,
+                'age': 25,
+                'gender': 'M'
+            })
+        
+        # Should not raise and return True
+        result = validate_and_aggregate()
+        assert result is True
 
-def test_load_behavioral_scores_valid(monkeypatch, mock_data_dir):
-    """Test loading a valid fluid intelligence score."""
-    monkeypatch.chdir(mock_data_dir)
-    score = load_behavioral_scores("sub-001")
-    assert score is not None
-    assert score['score'] == 1.25
-
-def test_load_behavioral_scores_missing(monkeypatch, mock_data_dir):
-    """Test loading returns None when score is missing."""
-    monkeypatch.chdir(mock_data_dir)
-    score = load_behavioral_scores("sub-002")
-    assert score is None
-
-def test_load_behavioral_scores_nan(monkeypatch, mock_data_dir):
-    """Test loading returns None when score is NaN."""
-    monkeypatch.chdir(mock_data_dir)
-    score = load_behavioral_scores("sub-003")
-    assert score is None
-
-def test_scan_subjects_for_scores(monkeypatch, mock_data_dir):
-    """Test scanning multiple subjects."""
-    monkeypatch.chdir(mock_data_dir)
-    subjects = ["sub-001", "sub-002", "sub-003"]
-    valid = scan_subjects_for_scores(subjects)
-    
-    assert len(valid) == 1
-    assert valid[0]['id'] == 'sub-001'
-    assert valid[0]['score'] == 1.25
-
-def test_validate_and_aggregate(monkeypatch, tmp_path, mock_data_dir):
-    """Test aggregation and file writing."""
-    monkeypatch.chdir(mock_data_dir)
-    processed_dir = tmp_path / "data" / "processed"
-    processed_dir.mkdir(parents=True)
-    output_file = processed_dir / "valid_subjects.json"
-    
-    valid_subjects = [{"id": "sub-001", "score": 1.25}]
-    result = validate_and_aggregate(valid_subjects, output_file)
-    
-    assert result['count'] == 1
-    assert result['subjects'][0]['id'] == 'sub-001'
-    
-    assert output_file.exists()
-    with open(output_file, 'r') as f:
-        data = json.load(f)
-    assert data['count'] == 1
-    assert 'subjects' in data
+    def test_missing_column_raises_error(self):
+        """Test that missing 'fluid_intelligence_score' column raises ValueError."""
+        
+        # Create download_log.json
+        download_log = {"subjects": [{"id": "sub_001"}]}
+        with open(self.data_processed / "download_log.json", 'w') as f:
+            json.dump(download_log, f)
+        
+        # Create graph_metrics.csv WITHOUT the fluid_intelligence_score column
+        metrics_path = self.data_processed / "graph_metrics.csv"
+        with open(metrics_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['subject_id', 'metric_name', 'value', 'age', 'gender'])
+            writer.writeheader()
+            writer.writerow({
+                'subject_id': 'sub_001',
+                'metric_name': 'efficiency',
+                'value': 0.5,
+                'age': 25,
+                'gender': 'M'
+            })
+        
+        with pytest.raises(ValueError) as excinfo:
+            validate_and_aggregate()
+        
+        assert "column missing" in str(excinfo.value).lower()

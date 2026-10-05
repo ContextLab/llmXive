@@ -1,3 +1,3 @@
 """
-Model modules for the pipeline.
+Model training and evaluation package.
 """

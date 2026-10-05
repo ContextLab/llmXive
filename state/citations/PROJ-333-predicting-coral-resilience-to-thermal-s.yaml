@@ -21,7 +21,7 @@
   verification_status: verified
   verified_against_url: https://biit.cs.ut.ee/gprofiler/gost
   verified_at: '2026-07-07T02:27:37.058191Z'
-- artifact_hash: 7d354b3773371c4ac25068b1d52fb60efb0ad5e7665311ea101a492dcf5a16a9
+- artifact_hash: df35effb154b7a0e3fe64e238a1229eed577b8d6ee0b1a62d4c210a24c890aca
   artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -32,4 +32,4 @@
   value: https://biit.cs.ut.ee/gprofiler/gost`
   verification_status: pending
   verified_against_url: https://biit.cs.ut.ee/gprofiler/gost
-  verified_at: '2026-10-03T06:56:32.084533Z'
+  verified_at: '2026-10-05T19:42:05.835904Z'

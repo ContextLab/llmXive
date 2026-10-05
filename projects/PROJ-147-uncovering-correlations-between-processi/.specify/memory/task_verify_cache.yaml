@@ -38,3 +38,44 @@ T018:
     \ the pipeline now records all warnings and hyper\u2011parameters as required\
     \ by FR\u2011007. The implementer\u2019s claim cannot be verified without an actual\
     \ artifact showing the logging implementation."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or generated files implementing permutation importance
+    calculation and ranking logic were provided; the response contains only the task
+    description and requirements, without any concrete artifact to verify. The required
+    implementation and its output are missing.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `importance_plot.png` file (\u2264\u202F5\u202FMB) or accompanying ranked\
+    \ feature list is present in the provided evidence; the implementer did not supply\
+    \ any artifact demonstrating that the feature\u2011importance plot was generated.\
+    \ Consequently the task requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `sensitivity_analysis.py` file (or any related script, output data, or report)
+    is presented in the provided evidence, and there is no indication that a threshold
+    sweep from 0.01 to 0.50 in 0.01 steps was implemented or executed. The required
+    artifact is missing, so the task is not satisfied.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `evaluation_report.json` file was provided; the claim contains only the task\
+    \ description and specifications, with no actual artifact to inspect. Consequently\
+    \ the required JSON output with `data_source_type`, per\u2011family metrics, and\
+    \ missing confounds warning is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `sensitivity_report.json` file is present in the provided evidence, nor any
+    content showing threshold sweep results. The required output artifact is missing,
+    so the task is not satisfied.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI workflow file (e.g., `.github/workflows/ci.yml`) or related script showing\
+    \ added error handling for missing resources, nor any logic that checks and respects\
+    \ the `ENABLE_DOCKER` flag is present. Without these artifacts, the task\u2019\
+    s requirement cannot be verified as fulfilled."

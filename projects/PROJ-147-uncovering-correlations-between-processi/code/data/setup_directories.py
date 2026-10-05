@@ -1,43 +1,42 @@
 """
-Directory structure setup for data management.
-
-This module ensures the required directory structure for raw and processed
-data exists before any data loading or processing operations begin.
+Module to set up the required data directory structure.
+Creates 'raw' and 'processed' subdirectories under 'code/data/'.
 """
 import os
 from pathlib import Path
 from code.config import ensure_dirs
 from code.utils.logging import get_logger
 
-
-def setup_data_directories(base_path: Path) -> None:
+def setup_data_directories() -> None:
     """
-    Create the required directory structure for data management.
-    
-    This function creates the following directory structure under the base path:
-    - data/raw/           : For storing original, unmodified data files
-    - data/processed/     : For storing cleaned, transformed, and derived data
-    
-    Args:
-        base_path: The root directory where the data folder structure will be created.
-                   Typically this is the project root.
-    
-    Raises:
-        OSError: If directories cannot be created due to permissions or other OS issues.
+    Creates the directory structure for data storage:
+    - code/data/raw/
+    - code/data/processed/
+
+    Uses the `ensure_dirs` utility from config to guarantee creation.
+    Logs the action using the project logger.
     """
     logger = get_logger(__name__)
     
-    # Define the directory structure
-    data_dirs = {
-        'raw': 'data/raw',
-        'processed': 'data/processed'
-    }
+    base_dir = Path("code/data")
+    raw_dir = base_dir / "raw"
+    processed_dir = base_dir / "processed"
     
-    logger.info("Setting up data directory structure...")
+    dirs_to_create = [
+        base_dir,
+        raw_dir,
+        processed_dir
+    ]
     
-    for name, relative_path in data_dirs.items():
-        full_path = base_path / relative_path
-        ensure_dirs(full_path)
-        logger.info(f"Created directory: {full_path}")
+    ensure_dirs(dirs_to_create)
     
-    logger.info("Data directory structure setup complete.")
+    logger.info(f"Data directory structure created at: {base_dir}")
+    logger.info(f"  - Raw data: {raw_dir}")
+    logger.info(f"  - Processed data: {processed_dir}")
+    
+    # Verify existence
+    if not raw_dir.exists() or not processed_dir.exists():
+        logger.error("Failed to create required data directories.")
+        raise RuntimeError("Data directory setup failed.")
+    
+    logger.info("Data directory structure verified successfully.")

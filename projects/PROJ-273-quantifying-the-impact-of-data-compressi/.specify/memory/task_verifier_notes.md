@@ -8,3 +8,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T021** — declared artifact(s) missing/empty/invalid: src/compression/metrics.py
 - **T022** — declared artifact(s) missing/empty/invalid: src/compression/main.py
 - **T023** — No code, data, or documentation was presented that implements the logic to flag compression levels with SNR degradation > 5 % as “unacceptable.” The required artifact (e.g., a function, script, or configuration change) is absent, so the task’s requirement is not satisfied.
+- **T026** — declared artifact(s) missing/empty/invalid: src/pe/run_bilby.py
+- **T027** — declared artifact(s) missing/empty/invalid: src/pe/failure_detection.py

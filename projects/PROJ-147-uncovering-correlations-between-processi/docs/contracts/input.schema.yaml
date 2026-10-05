@@ -1,184 +1,89 @@
-%YAML 1.2
----
-# Schema for input data files (raw and processed)
-# Defines the structure of CSV/JSON files ingested by the pipeline
-# Location: docs/contracts/input.schema.yaml
-
+# Input Data Schema for Raw Data Ingestion
+# Defines the expected structure of raw input data before processing.
+# Used by: code/data/loader.py, code/data/processor.py
 $schema: http://json-schema.org/draft-07/schema#
-title: InputDataSchema
-description: Schema for raw and processed input data files
-
+title: RawInputDataSchema
+description: |
+  Schema for raw input data ingested from external sources (Materials Project,
+  NIST) or synthetic generators before preprocessing.
 type: object
 required:
-  - schema_type
-  - version
-  - columns
-
+  - raw_data
 properties:
-  schema_type:
-    type: string
-    enum:
-      - raw_data
-      - processed_data
-      - synthetic_data
-    description: Type of input data this schema validates
-  version:
-    type: string
-    pattern: '^\d+\.\d+\.\d+$'
-    description: Schema version
-  columns:
+  raw_data:
     type: array
-    description: Column definitions for CSV/flat data
     items:
-      type: object
-      required:
-        - name
-        - dtype
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum:
-            - float64
-            - int64
-            - object
-            - bool
-        nullable:
-          type: boolean
-          default: true
-        description:
-          type: string
-        constraints:
-          type: object
-          properties:
-            min:
-              type: number
-            max:
-              type: number
-            pattern:
-              type: string
-            enum:
-              type: array
-              items:
-                type: string
-
+      $ref: "#/definitions/raw_record"
+    minItems: 1
 definitions:
-  raw_data_columns:
-    - name: sample_id
-      dtype: object
-      nullable: false
-      description: Unique sample identifier
-    - name: alloy_family
-      dtype: object
-      nullable: false
-      description: Alloy family classification
-    - name: reduction_ratio
-      dtype: float64
-      nullable: false
-      constraints:
-        min: 0
-        max: 1
-    - name: temperature
-      dtype: float64
-      nullable: false
-      constraints:
-        min: 0
-    - name: strain_rate
-      dtype: float64
-      nullable: false
-      constraints:
-        min: 0
-    - name: cube_intensity
-      dtype: float64
-      nullable: true
-      constraints:
-        min: 0
-    - name: brass_intensity
-      dtype: float64
-      nullable: true
-      constraints:
-        min: 0
-    - name: copper_intensity
-      dtype: float64
-      nullable: true
-      constraints:
-        min: 0
-    - name: s_intensity
-      dtype: float64
-      nullable: true
-      constraints:
-        min: 0
-
-  processed_data_columns:
-    - name: sample_id
-      dtype: object
-      nullable: false
-    - name: alloy_family
-      dtype: object
-      nullable: false
-    - name: reduction_ratio
-      dtype: float64
-      nullable: false
-    - name: temperature
-      dtype: float64
-      nullable: false
-    - name: strain_rate
-      dtype: float64
-      nullable: false
-    - name: zener_hollomon
-      dtype: float64
-      nullable: false
-    - name: cube_intensity
-      dtype: float64
-      nullable: false
-    - name: brass_intensity
-      dtype: float64
-      nullable: false
-    - name: copper_intensity
-      dtype: float64
-      nullable: false
-    - name: s_intensity
-      dtype: float64
-      nullable: false
-    - name: data_quality
-      dtype: object
-      nullable: false
-
-  synthetic_data_columns:
-    - name: sample_id
-      dtype: object
-      nullable: false
-    - name: alloy_family
-      dtype: object
-      nullable: false
-    - name: alloy_composition
-      dtype: object
-      nullable: false
-    - name: reduction_ratio
-      dtype: float64
-      nullable: false
-    - name: temperature
-      dtype: float64
-      nullable: false
-    - name: strain_rate
-      dtype: float64
-      nullable: false
-    - name: zener_hollomon
-      dtype: float64
-      nullable: false
-    - name: cube_intensity
-      dtype: float64
-      nullable: false
-    - name: brass_intensity
-      dtype: float64
-      nullable: false
-    - name: copper_intensity
-      dtype: float64
-      nullable: false
-    - name: s_intensity
-      dtype: float64
-      nullable: false
-    - name: ground_truth_verified
-      dtype: bool
-      nullable: false
+  raw_record:
+    type: object
+    required:
+      - record_id
+      - alloy_composition
+      - processing_params
+      - texture_measurements
+    properties:
+      record_id:
+        type: string
+        description: Unique identifier for the raw record
+      alloy_composition:
+        type: object
+        required:
+          - family
+          - elements
+        properties:
+          family:
+            type: string
+            description: Alloy family name
+          elements:
+            type: object
+            additionalProperties:
+              type: number
+            description: Composition in weight percent (e.g., {"Al": 95, "Mg": 5})
+      processing_params:
+        type: object
+        properties:
+          temperature:
+            type: number
+            description: Processing temperature (K)
+          reduction:
+            type: number
+            description: Reduction ratio
+          strain_rate:
+            type: number
+            description: Strain rate (1/s)
+          annealing:
+            type: object
+            properties:
+              temp:
+                type: number
+              time:
+                type: number
+      texture_measurements:
+        type: object
+        properties:
+          odf_values:
+            type: array
+            items:
+              type: number
+            description: Raw ODF intensity values
+          planes:
+            type: array
+            items:
+              type: string
+            description: Corresponding Miller indices (e.g., "{100}")
+      metadata:
+        type: object
+        properties:
+          source:
+            type: string
+            description: Original data source (e.g., "NIST", "Synthetic")
+          timestamp:
+            type: string
+            format: date-time
+          quality_flags:
+            type: array
+            items:
+              type: string
+            description: Quality flags or warnings

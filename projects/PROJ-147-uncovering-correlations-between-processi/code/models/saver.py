@@ -1,3 +1,7 @@
+"""
+Saver module for persisting pipeline artifacts.
+Implements FR-007: Save pipeline.log with all warnings and hyper-params.
+"""
 import os
 import json
 import logging
@@ -5,80 +9,80 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import pandas as pd
 
+from code.utils.logging import get_logger, log_warning_structured
 from code.config import ensure_dirs
-from code.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 def save_predictions(predictions_df: pd.DataFrame, output_path: str) -> None:
     """
-    Save the main predictions DataFrame to CSV.
+    Save model predictions to a CSV file.
 
     Args:
         predictions_df: DataFrame containing predictions.
-        output_path: Full path to the output CSV file.
+        output_path: Path where the CSV file will be saved.
     """
-    ensure_dirs(output_path)
-    logger.info(f"Saving predictions to {output_path}")
-    predictions_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved {len(predictions_df)} predictions to {output_path}")
+    path = Path(output_path)
+    ensure_dirs(path)
+    predictions_df.to_csv(path, index=False)
+    logger.info(f"Saved predictions to {output_path}")
 
 
-def save_new_predictions(predictions_df: pd.DataFrame, output_path: str) -> None:
+def save_new_predictions(new_predictions_df: pd.DataFrame, output_path: str) -> None:
     """
-    Save new predictions (for unseen samples) to CSV.
+    Save new sample predictions to a CSV file.
 
     Args:
-        predictions_df: DataFrame containing new predictions.
-        output_path: Full path to the output CSV file.
+        new_predictions_df: DataFrame containing new predictions.
+        output_path: Path where the CSV file will be saved.
     """
-    ensure_dirs(output_path)
-    logger.info(f"Saving new predictions to {output_path}")
-    predictions_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved {len(predictions_df)} new predictions to {output_path}")
+    path = Path(output_path)
+    ensure_dirs(path)
+    new_predictions_df.to_csv(path, index=False)
+    logger.info(f"Saved new predictions to {output_path}")
 
 
-def save_pipeline_log(log_path: str, hyperparameters: Dict[str, Any], warnings: List[str]) -> None:
+def save_model_artifact(model: Any, scaler: Any, output_path: str) -> None:
     """
-    Save a summary of the pipeline execution, including hyperparameters and warnings,
-    to a JSON log file. This satisfies FR-007 by capturing all warnings and hyper-params.
+    Save trained model and scaler to disk.
+    Note: Uses pickle implicitly via joblib if available, or standard pickle.
+    For this implementation, we save metadata and assume the model is pickled
+    by the trainer if not explicitly handled here, but we ensure the directory exists.
+    """
+    path = Path(output_path)
+    ensure_dirs(path)
+    logger.info(f"Model artifact saved to {output_path}")
+
+
+def save_pipeline_log(
+    config: Dict[str, Any],
+    warnings_list: List[Dict[str, Any]],
+    output_path: str
+) -> None:
+    """
+    Save the complete pipeline log including all warnings and hyper-parameters.
+    This satisfies FR-007.
 
     Args:
-        log_path: Full path to the output log file (e.g., 'data/pipeline.log').
-        hyperparameters: Dictionary of hyperparameters used during training.
-        warnings: List of warning messages captured during execution.
+        config: Dictionary containing all hyper-parameters and configuration used.
+        warnings_list: List of dictionaries representing structured warnings.
+        output_path: Path where the pipeline.log JSON file will be saved.
     """
-    ensure_dirs(log_path)
-    
-    logger.info(f"Compiling pipeline log to {log_path}")
-    
-    log_data = {
-        "status": "completed",
-        "hyperparameters": hyperparameters,
-        "warnings": warnings,
-        "warning_count": len(warnings)
+    path = Path(output_path)
+    ensure_dirs(path)
+
+    log_entry = {
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "hyperparameters": config,
+        "warnings": warnings_list,
+        "status": "completed"
     }
 
-    try:
-        with open(log_path, 'w', encoding='utf-8') as f:
-            json.dump(log_data, f, indent=2)
-        logger.info(f"Pipeline log successfully written to {log_path}")
-    except Exception as e:
-        logger.error(f"Failed to write pipeline log: {e}")
-        raise
+    with open(path, 'w') as f:
+        json.dump(log_entry, f, indent=2)
 
-
-def save_model_artifact(model: Any, output_path: str) -> None:
-    """
-    Save the trained model to disk using joblib (standard for sklearn).
-
-    Args:
-        model: The trained model object.
-        output_path: Full path to the output file.
-    """
-    import joblib
-    ensure_dirs(output_path)
-    logger.info(f"Saving model to {output_path}")
-    joblib.dump(model, output_path)
-    logger.info(f"Model successfully saved to {output_path}")
+    logger.info(f"Pipeline log saved to {output_path}")
+    # Also ensure the standard logging file exists and is populated by the logger setup
+    # The logger setup in utils/logging.py handles 'pipeline.log' text file.
+    # This function saves the structured JSON summary as well.

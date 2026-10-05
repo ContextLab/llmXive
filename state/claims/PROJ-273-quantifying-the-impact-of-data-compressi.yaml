@@ -5123,3 +5123,204 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T00:55:35Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: System generates 5 synthetic CBC injections using LALSimulation and GWOSC
+  claim_id: c_78401c4c
+  context: FR-001 amendment text describing the requirement to replace public injection
+    campaigns with synthetic injections.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST generate \u22655 synthetic CBC injections into real GW\
+    \ noise segments fetched from GWOSC, using LALSimulation with known ground truth\
+    \ parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:03Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: System attempts 50 times to generate 5 valid events
+  claim_id: c_98ad400d
+  context: FR-001 amendment text specifying the loop condition and maximum attempt
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u22655 valid events with complete spin metadata are found, or a maximum\
+    \ of 50 attempts is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:03Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 'System applies 3 lossy compression methods: quantization, JPEG2000,
+    wavelet thresholding'
+  claim_id: c_c5072cde
+  context: FR-003 amendment text listing the required lossy compression methods and
+    parameters.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_applies_3_lossy_compression_methods:_quantization,_JP
+  kind: magnitude
+  raw_text: 'System MUST apply at least 2 lossy compression methods: (1) Quantized
+    floating-point at 16-bit, 8-bit, 4-bit; (2) JPEG2000 at quality 50, 75, 90; (3)
+    Wavelet Thresholding.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:29Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Parameter Estimation uses Bilby/Dynesty for 5 events
+  claim_id: c_0ca952bf
+  context: FR-005 amendment text describing the replacement of LALInference with Bilby/Dynesty.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "System MUST run Parameter Estimation using Bilby with Dynesty (Fast PE)\
+    \ on both original and compressed datasets for \u22655 events, replacing LALInference\
+    \ due to CI constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:30Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fallback to t-tests if ESS < 100 or N < 5
+  claim_id: c_48217d44
+  context: FR-007 amendment text defining the conditions for the statistical test
+    fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If convergence fails (ESS < 100) or sample size N < 5, the system MUST
+    fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Analysis set contains 5 events with complete spin metadata
+  claim_id: c_a24cc4aa
+  context: FR-009 amendment text specifying the minimum number of valid events required.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final analysis set must contain \u2265 5 events with complete spin\
+    \ metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:17:58Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty generates posteriors in 2 hours per event on 2-core 7GB
+    RAM
+  claim_id: c_a2976984
+  context: US-3 Acceptance Scenario 1 specifying performance constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bilby/Dynesty (Fast PE) is run on a 2-core, 7GB RAM runner, posterior\
+    \ distributions are generated within \u2264 2 hours per event."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:35Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Synthetic signal SNR > 8
+  claim_id: c_a12d23ce
+  context: Test requirement for User Story 1 ensuring detectability of injected signals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic signal SNR must be > 8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:36Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation > 5% is unacceptable
+  claim_id: c_2678624c
+  context: T023 task description defining the threshold for unacceptable compression.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compression levels with SNR degradation > 5% are flagged as 'unacceptable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Hierarchical test fails if ESS < 100
+  claim_id: c_edf1a03f
+  context: T027.1 task description defining the convergence threshold for hierarchical
+    inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hierarchical Bayesian test failure is detected if ESS < 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty runs with maxiter 5000 and nlive 200
+  claim_id: c_55af2e5f
+  context: T026 task description specifying the parameters for the fast PE run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bilby/Dynesty runs with reduced iterations (maxiter=5000, nlive=200, dlogz_init=0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:58Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: "Pipeline execution time \u2264 6 hours"
+  claim_id: c_1ded55ff
+  context: T033 task description specifying the CI constraint for total execution
+    time.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline execution must complete in \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:18:59Z'

@@ -4,14 +4,19 @@ T006:
   r: "No `data-model.md` file was presented, nor any excerpt showing the required\
     \ definitions of `Subject`, `GraphMetric`, and `BehavioralScore` with their attributes\
     \ and types. Without the artifact, the task\u2019s core deliverable is missing."
-T015c:
+T017c:
   c: false
-  h: 9596ed07dfa132fd899c2450f223245855d03abcb294ff62649cc6ab63d8f0c8
-  r: "The required `data/processed/sample_info.json` file does not exist, and the\
-    \ provided `code/download.py` contains no logic that writes the required JSON\
-    \ with `total_available`, `subjects_used`, `sampling_method`, and optional `seed`.\
-    \ Consequently the task\u2019s explicit sample size declaration requirement is\
-    \ not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No NIfTI file, code, or notebook was provided; there is no evidence that a `float32`\
+    \ 4\u2011D array with a valid header (including `pixdim` and `sform`) was actually\
+    \ created using nibabel. The required mock NIfTI artifact is missing."
+T018a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or documentation was provided that implements motion\u2011\
+    artifact detection (e.g., computing framewise displacement and flagging subjects\
+    \ with FD\u202F>\u202F0.5\u202Fmm). Without any artifact to inspect, the requirement\
+    \ cannot be verified as met."
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
@@ -24,6 +29,19 @@ T026:
   r: The required file `data/processed/graph_metrics.csv` does not exist, so the aggregation
     of graph metrics into the specified CSV with the required columns cannot be verified.
     The task remains unfinished.
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No mock data, correlation script, or output results were provided; there is no
+    evidence that the correlation logic was actually run on mock data to verify the
+    pipeline flow. The required artifact (e.g., a script execution log, result CSV,
+    or summary report) is missing.
+T031d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or unit test evidence was provided showing that the pipeline\
+    \ now halts when zero valid Fluid Intelligence scores are present, nor any error\u2011\
+    message verification. The required implementation and its test are missing."
 T032:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

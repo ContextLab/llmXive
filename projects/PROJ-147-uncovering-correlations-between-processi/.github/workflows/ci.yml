@@ -1,0 +1,132 @@
+name: CI Pipeline - Texture Prediction
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  # Configuration flag to control Docker execution
+  ENABLE_DOCKER: ${{ secrets.ENABLE_DOCKER || 'false' }}
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: python:3.11-slim
+      options: --memory 6g --cpus 2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python dependencies
+        run: |
+          pip install --no-cache-dir -r requirements.txt
+
+      - name: Validate Environment Resources
+        id: check_resources
+        run: |
+          echo "Checking available resources..."
+          FREE_MEM=$(free -m | awk 'NR==2{print $7}')
+          FREE_DISK=$(df -m / | awk 'NR==2{print $4}')
+          echo "Available Memory (MB): $FREE_MEM"
+          echo "Available Disk (MB): $FREE_DISK"
+          
+          # Log warnings if resources are critically low (but don't fail yet)
+          if [ "$FREE_MEM" -lt 1500 ]; then
+            echo "::warning::Low memory detected: ${FREE_MEM}MB available. Pipeline may fail due to OOM."
+          fi
+          if [ "$FREE_DISK" -lt 2000 ]; then
+            echo "::warning::Low disk space detected: ${FREE_DISK}MB available."
+          fi
+
+      - name: Run Pipeline (Native or Docker)
+        id: pipeline_run
+        if: env.ENABLE_DOCKER == 'false'
+        run: |
+          echo "Running pipeline natively (ENABLE_DOCKER=false)..."
+          cd code
+          python main.py
+          echo "Pipeline completed successfully."
+
+      - name: Build and Run Docker Image
+        id: docker_run
+        if: env.ENABLE_DOCKER == 'true'
+        run: |
+          echo "ENABLE_DOCKER is true. Building and running containerized pipeline..."
+          
+          # Check if Docker is available
+          if ! command -v docker &> /dev/null; then
+            echo "::error::Docker is not available in this environment but ENABLE_DOCKER=true was set."
+            exit 1
+          fi
+
+          # Build the image
+          echo "Building Docker image..."
+          docker build -t llmxive-pipeline:latest .
+
+          # Run the container with resource limits
+          echo "Running container with resource limits..."
+          docker run --rm \
+            --memory=6g \
+            --cpus=2 \
+            -v $(pwd):/workspace \
+            -w /workspace/code \
+            llmxive-pipeline:latest \
+            python main.py
+
+          echo "Containerized pipeline completed successfully."
+
+      - name: Verify Artifacts
+        id: verify_artifacts
+        run: |
+          echo "Verifying required output artifacts..."
+          
+          REQUIRED_FILES=(
+            "data/processed/processed_dataset.csv"
+            "models/pipeline_model.pkl"
+            "data/predictions.csv"
+            "data/evaluation_report.json"
+            "pipeline.log"
+          )
+
+          MISSING_FILES=()
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              MISSING_FILES+=("$file")
+            fi
+          done
+
+          if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+            echo "::error::Missing required artifacts: ${MISSING_FILES[*]}"
+            echo "The following files were not generated:"
+            for f in "${MISSING_FILES[@]}"; do
+              echo "  - $f"
+            done
+            exit 1
+          else
+            echo "All required artifacts found."
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-results
+          path: |
+            data/
+            models/
+            pipeline.log
+            figures/
+            data/evaluation_report.json
+
+      - name: Handle Failure
+        if: failure()
+        run: |
+          echo "::error::Pipeline execution failed."
+          echo "Please check the logs above for specific error details."
+          echo "If the failure is due to missing resources, check the 'Validate Environment Resources' step."
+          echo "If ENABLE_DOCKER=true, ensure Docker is available in the runner environment."
+          exit 1

@@ -5922,3 +5922,1122 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T01:33:23Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Primary dataset ds000224, fallback dataset ds000230
+  claim_id: c_537477d8
+  context: T010a task description for creating the config file.
+  evidence:
+    entailment_evidence: Primary dataset ds000224 and fallback dataset ds000230
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_ds000224_and_fallback_dataset_ds000230
+  kind: entity_fact
+  raw_text: The primary dataset is ds000224 and the fallback dataset is ds000230.
+  resolved_value: primary dataset ds000224 and fallback dataset ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T18:36:03Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied instead of Benjamini-Hochberg
+  claim_id: c_7de0d46a
+  context: T004g-AMEND task description regarding the replacement of FDR with Bonferroni
+    in FR-005.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_instead_of_Benjamini-Hochberg
+  kind: entity_fact
+  raw_text: The system MUST apply Bonferroni correction (Benjamini-Hochberg is NOT
+    used).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:37:25Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction used for multiple comparisons
+  claim_id: c_a91b616d
+  context: T032 task description implementing Bonferroni correction as mandated by
+    Constitution Principle VII.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_used_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: The system MUST apply Bonferroni correction for multiple comparisons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:38:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Study sample size is N=10 with low statistical power
+  claim_id: c_a4a22b2b
+  context: T045 task description requiring a Limitations section in the summary report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study utilizes a sample size of N=10 subjects, which provides low
+    statistical power for detecting small effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:38:30Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System validates presence of at least one valid Fluid Intelligence score
+  claim_id: c_c0b56d97
+  context: Amended Requirement (FR-001) for Phase 3 User Story 1.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_validates_presence_of_at_least_one_valid_Fluid_Intell
+  kind: magnitude
+  raw_text: The system MUST validate the presence of at least one valid Fluid Intelligence
+    score.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:39:15Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System proceeds with N >= 1 subjects if valid subjects < 10
+  claim_id: c_542bae84
+  context: T015b task description regarding OpenNeuro download and validation constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If real data fetch succeeds but valid subjects < N=10, the system must
+    proceed with available subjects (N >= 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:39:43Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Exponential backoff retry: 1s initial, 30s max, 2x multiplier, 5 retries'
+  claim_id: c_9a4c6bce
+  context: T015b task description regarding network retry logic constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system implements Exponential backoff retry logic with initial_delay=1s,
+    max_delay=30s, multiplier=2, max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:40:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Excessive motion defined as FD > 0.5mm
+  claim_id: c_d4cf94a0
+  context: T018a task description for motion artifact detection.
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: The system must detect excessive motion on preprocessed data (e.g., FD
+    > 0.5mm) and flag subjects.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T18:40:07Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Sequential processing required to stay within 7 GB RAM limit
+  claim_id: c_be831b1a
+  context: T017b task description regarding preprocessing wrapper constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must process subjects sequentially to stay within RAM limits
+    of <= 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:40:34Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Total runtime constraint is 6 hours for N=10
+  claim_id: c_87fcd209
+  context: T004i-AMEND task description regarding resource constraints in SC-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must run within a total runtime of <= 6 hours on a GitHub Actions
+    runner for the N=10 CI run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:40:56Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: resource_profile.json schema includes peak_ram_gb, total_runtime_hours,
+    subjects_processed
+  claim_id: c_f8da35ad
+  context: T008 task description for ResourceMonitor class implementation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_profile.json_schema_includes_peak_ram_gb,_total_run
+  kind: entity_fact
+  raw_text: The resource_profile.json must contain peak_ram_gb, total_runtime_hours,
+    and subjects_processed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:41:03Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: sample_info.json schema includes total_available, subjects_used, sampling_method,
+    seed
+  claim_id: c_f04155e9
+  context: T015c task description for explicit sample size declaration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_info.json_schema_includes_total_available,_subjects_u
+  kind: entity_fact
+  raw_text: The sample_info.json must contain total_available, subjects_used, sampling_method,
+    and seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:41:47Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'graph_metrics.csv columns: subject_id, metric_name, value, fluid_intelligence_score,
+    age, gender'
+  claim_id: c_2f9d411f
+  context: T026 task description for aggregating graph metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics.csv_columns:_subject_id,_metric_name,_value,_f
+  kind: entity_fact
+  raw_text: 'The graph_metrics.csv must contain columns: subject_id, metric_name,
+    value, fluid_intelligence_score, age, gender.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:42:23Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'analysis_resource_profile.json keys: peak_ram_gb, total_runtime_hours'
+  claim_id: c_0681de48
+  context: T036 task description for generating resource profile.
+  evidence:
+    entailment_evidence: json_keys:_peak_ram_gb,_total_runt
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Analysis_resource_profile.json_keys:_peak_ram_gb,_total_runt
+  kind: entity_fact
+  raw_text: 'The analysis resource profile must contain keys: peak_ram_gb and total_runtime_hours.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-05T18:42:51Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Effect sizes calculated using Cohen's d and 95% CI
+  claim_id: c_e18afa5c
+  context: T033 task description for calculating effect sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation results must be calculated using Cohen's d and 95% confidence
+    intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:42:52Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas downloaded via versioned URL or nilearn fetcher
+  claim_id: c_6b885d99
+  context: T022a task description for acquiring the Schaefer Atlas.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_downloaded_via_versioned_URL_or_nilearn_fetch
+  kind: entity_fact
+  raw_text: The Schaefer atlas must be downloaded using a direct, versioned URL or
+    nilearn's built-in fetcher.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:43:57Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: No imputation of missing age or gender values
+  claim_id: c_97cea811
+  context: T050 task description for handling missing data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_imputation_of_missing_age_or_gender_values
+  kind: entity_fact
+  raw_text: The system must not impute missing values for age or gender covariates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:44:23Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Random operations use fixed seed 42
+  claim_id: c_f3580b86
+  context: T052 task description for ensuring reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random operations must use a fixed seed (e.g., np.random.seed(42)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:44:57Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System verifies presence of fsl, afni, and fslmaths commands
+  claim_id: c_9c18f2b7
+  context: T014a task description for environment verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_verifies_presence_of_fsl,_afni,_and_fslmaths_commands
+  kind: entity_fact
+  raw_text: The system must verify the presence of fsl, afni, and fslmaths commands
+    in the system PATH.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:45:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: download_contract.yaml validation_fields include fluid_intelligence,
+    age, gender
+  claim_id: c_14dfbbd4
+  context: T005 task description for generating interface contracts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_contract.yaml_validation_fields_include_fluid_intel
+  kind: entity_fact
+  raw_text: The download_contract.yaml validation_fields must include fluid_intelligence,
+    age, and gender.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:45:40Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Data model defines Subject, GraphMetric, and BehavioralScore entities
+  claim_id: c_7158f876
+  context: T006 task description for generating data model documentation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_model_defines_Subject,_GraphMetric,_and_BehavioralScore
+  kind: entity_fact
+  raw_text: The data model must define Subject, GraphMetric, and BehavioralScore entities.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:46:27Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Preprocessing order: 3dTshift, fsl_motion_outliers, 3dAllineate, 3dBandpass'
+  claim_id: c_69fdd83b
+  context: T017a task description for implementing the preprocessing pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The preprocessing pipeline order is 1. 3dTshift, 2. fsl_motion_outliers,
+    3. 3dAllineate, 4. 3dBandpass.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:47:09Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bandpass filter high threshold is 0.1
+  claim_id: c_f0c2c69c
+  context: T017a task description for the preprocessing pipeline implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bandpass filter low threshold is unspecified in the text, but the
+    high threshold is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:47:29Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Subjects with FD > 0.5mm excluded from adjusted regression
+  claim_id: c_65cb7a10
+  context: T018b and T050 task descriptions regarding motion exclusion and missing
+    data handling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must exclude subjects with FD > 0.5mm from the adjusted regression
+    model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:47:30Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Power analysis calculated for N=10 and range of effect sizes
+  claim_id: c_755386a3
+  context: T045 task description for implementing power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must calculate statistical power given N=10 and a range of
+    effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:47:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas pinned with SHA256 hash
+  claim_id: c_a7a4e673
+  context: T047 task description for implementing atlas version pinning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_pinned_with_SHA256_hash
+  kind: entity_fact
+  raw_text: The Schaefer atlas version must be pinned with an exact SHA256 hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:49:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction formula: p * N_tests'
+  claim_id: c_280f03e0
+  context: T032 and T048 task descriptions for implementing and verifying Bonferroni
+    correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_formula:_p_*_N_tests
+  kind: entity_fact
+  raw_text: The Bonferroni correction calculation is p * N_tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:49:43Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: statsmodels.stats.power used for power calculation
+  claim_id: c_6623de34
+  context: T045 task description for implementing power analysis method.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statsmodels.stats.power_used_for_power_calculation
+  kind: entity_fact
+  raw_text: The system must use statsmodels.stats.power to calculate power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:50:15Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RAM constraint is 7 GB for N=10
+  claim_id: c_409bc6fc
+  context: T004i-AMEND task description for updating SC-005 resource constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resource constraint is <= 7 GB RAM for the N=10 CI run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:50:56Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Target sample size N=10 for feasibility study
+  claim_id: c_971c0137
+  context: T004h-AMEND task description for updating SC-001 sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target sample size for the feasibility study is N=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:51:55Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System proceeds if subjects >= 1 and < 10
+  claim_id: c_f202e423
+  context: T004f-AMEND task description for amending FR-001 halt conditions.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_proceeds_if_subjects_%3E=_1_and_%3C_10
+  kind: magnitude
+  raw_text: The system must validate that the number of subjects is >= 1 if fewer
+    than 10 are found.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:52:39Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Random seed defined in config.yaml for reproducibility
+  claim_id: c_2bdfd263
+  context: T052 task description for adding random seed fixing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_seed_defined_in_config.yaml_for_reproducibility
+  kind: entity_fact
+  raw_text: The system must use a random seed defined in config.yaml for reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:53:13Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Excluded subjects logged to data/processed/excluded_subjects.log
+  claim_id: c_6ae6b64c
+  context: T018b task description for handling subjects after motion exclusion.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Excluded_subjects_logged_to_data/processed/excluded_subjects
+  kind: entity_fact
+  raw_text: The system must log excluded subjects to data/processed/excluded_subjects.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:53:50Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Excluded covariates logged to data/processed/excluded_covariates.log
+  claim_id: c_c94d309a
+  context: T050 task description for handling missing data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Excluded_covariates_logged_to_data/processed/excluded_covari
+  kind: entity_fact
+  raw_text: The system must log excluded covariates to data/processed/excluded_covariates.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:54:12Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Summary report includes scatter plots, regression lines, coefficients,
+    p-values, effect sizes, CIs
+  claim_id: c_7334f14e
+  context: T035 task description for generating the summary report.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Summary_report_includes_scatter_plots,_regression_lines,_coe
+  kind: entity_fact
+  raw_text: The system must generate a summary report containing scatter plots, regression
+    lines, correlation coefficients, p-values, effect sizes, and confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:54:52Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Scatter plot of Metric vs Fluid Intelligence generated
+  claim_id: c_639126e2
+  context: T034 task description for generating and saving the scatter plot.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scatter_plot_of_Metric_vs_Fluid_Intelligence_generated
+  kind: entity_fact
+  raw_text: The system must generate a scatter plot of Metric vs Fluid Intelligence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:55:37Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Report generation uses reportlab or matplotlib savefig to PDF
+  claim_id: c_7b03fe97
+  context: T035 task description for implementation detail of report generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_generation_uses_reportlab_or_matplotlib_savefig_to_PD
+  kind: entity_fact
+  raw_text: The system must use reportlab or matplotlib with savefig to PDF for layout
+    consistency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:56:10Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock NIfTI created using nibabel 4D array of zeros
+  claim_id: c_c977f2be
+  context: T017c task description for generating mock NIfTI files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mock_NIfTI_created_using_nibabel_4D_array_of_zeros
+  kind: entity_fact
+  raw_text: The system must use nibabel to create a 4D array of zeros for mock NIfTI
+    generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:56:40Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Data validation uses openneuro-py or bids-validator
+  claim_id: c_1dbc0534
+  context: T015b task description for OpenNeuro download and validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_validation_uses_openneuro-py_or_bids-validator
+  kind: entity_fact
+  raw_text: The system must use openneuro-py or bids-validator for data validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:57:08Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Preprocessing pipeline uses FSL/AFNI
+  claim_id: c_97c172f7
+  context: T017a task description for implementing the preprocessing pipeline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_pipeline_uses_FSL/AFNI
+  kind: entity_fact
+  raw_text: The system must use FSL/AFNI for the preprocessing pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:57:36Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Connectivity matrix generation uses nilearn
+  claim_id: c_3d5c9d18
+  context: T023 task description for implementing connectivity matrix generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_matrix_generation_uses_nilearn
+  kind: entity_fact
+  raw_text: The system must use nilearn for connectivity matrix generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:57:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Graph metrics calculation uses networkx
+  claim_id: c_70f5943f
+  context: T024 task description for implementing graph metrics calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics_calculation_uses_networkx
+  kind: entity_fact
+  raw_text: The system must use networkx for graph metrics calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:58:22Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Modularity calculation uses Louvain algorithm with resolution sweep
+  claim_id: c_712d6b88
+  context: T025 task description for implementing modularity calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Modularity_calculation_uses_Louvain_algorithm_with_resolutio
+  kind: entity_fact
+  raw_text: The system must use the Louvain algorithm for modularity calculation with
+    a resolution parameter sweep fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:58:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: graph_metrics.csv validation uses pandas
+  claim_id: c_3650ce63
+  context: T026 task description for aggregating graph metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics.csv_validation_uses_pandas
+  kind: entity_fact
+  raw_text: The system must use pandas to read and validate the graph_metrics.csv
+    file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T18:59:25Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Multiple linear regression uses statsmodels
+  claim_id: c_3d4dd831
+  context: T031e task description for implementing multiple linear regression.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple_linear_regression_uses_statsmodels
+  kind: entity_fact
+  raw_text: The system must use statsmodels for multiple linear regression analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:00:04Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Scatter plot generated using matplotlib/seaborn
+  claim_id: c_8afcbff1
+  context: T034 task description for generating and saving the scatter plot.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scatter_plot_generated_using_matplotlib/seaborn
+  kind: entity_fact
+  raw_text: The system must use matplotlib/seaborn to generate the scatter plot.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:00:27Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Summary report verification uses pypdf
+  claim_id: c_80809e9b
+  context: T045 task description for implementing power analysis and limitation statement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pypdf to verify the presence of N=10 and 'exploratory'
+    in the summary report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:00:44Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock NIfTI uses float32 data type and nibabel
+  claim_id: c_c6366f38
+  context: T017c task description for generating mock NIfTI files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mock_NIfTI_uses_float32_data_type_and_nibabel
+  kind: entity_fact
+  raw_text: The system must use nibabel for creating mock NIfTI files with float32
+    data type.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:01:22Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Dependencies include nibabel, nilearn, networkx, scikit-learn, pandas,
+    numpy, openneuro-py, bids-validator, dipy, matplotlib, seaborn, statsmodels, pypdf,
+    pyyaml, pytest, ruff, black, mypy
+  claim_id: c_82c84843
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies_include_nibabel,_nilearn,_networkx,_scikit-lear
+  kind: entity_fact
+  raw_text: The system must use nibabel, nilearn, networkx, scikit-learn, pandas,
+    numpy, openneuro-py, bids-validator, dipy, matplotlib, seaborn, statsmodels, pypdf,
+    pyyaml, pytest, ruff, black, and mypy as dependencies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:01:46Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: nibabel version 5.2.1
+  claim_id: c_29a5d0af
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use nibabel version 5.2.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:02:09Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: nilearn version 0.10.4
+  claim_id: c_0867134e
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use nilearn version 0.10.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:02:28Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2.1
+  claim_id: c_d91eec06
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use networkx version 3.2.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:02:57Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_9c50c4a0
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use scikit-learn version 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:03:19Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_88a94aa7
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pandas version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:03:41Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_450e2bf9
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use numpy version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:04:15Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: openneuro-py version 1.1.0
+  claim_id: c_8a40ecfe
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use openneuro-py version 1.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:04:39Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: bids-validator version 1.14.0
+  claim_id: c_16e56c58
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use bids-validator version 1.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:05:00Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: dipy version 1.9.0
+  claim_id: c_38f6bf8b
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use dipy version 1.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:05:17Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.9.0
+  claim_id: c_db845e93
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use matplotlib version 3.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:05:41Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_54144711
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use seaborn version 0.13.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:06:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.2
+  claim_id: c_97b69d30
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use statsmodels version 0.14.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:06:27Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: pypdf version 4.2.0
+  claim_id: c_d04857f5
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pypdf version 4.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:06:47Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_2d53f364
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:07:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: pytest version 8.2.2
+  claim_id: c_8c92ecf5
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pytest version 8.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:07:24Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: ruff version 0.4.8
+  claim_id: c_9229af9c
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use ruff version 0.4.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:07:49Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: black version 24.4.2
+  claim_id: c_04fbdd30
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use black version 24.4.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:08:30Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: mypy version 1.10.0
+  claim_id: c_89bc52c4
+  context: T002 task description for initializing Python project with dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use mypy version 1.10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T19:08:44Z'
