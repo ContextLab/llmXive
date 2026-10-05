@@ -1,14 +1,16 @@
+"""
+Unit tests for code/labeling/separate_null_samples.py (Task T024).
+"""
 import os
+import sys
 import csv
 import json
 import tempfile
-import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Import the module to test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from labeling.separate_null_samples import (
     load_raw_labels,
@@ -19,122 +21,145 @@ from labeling.separate_null_samples import (
     main
 )
 
+# Fixture for temporary directory
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-@pytest.fixture
-def sample_raw_csv(temp_dir):
-    """Create a sample raw_labels.csv file."""
-    filepath = temp_dir / "raw_labels.csv"
-    data = [
-        {"clip_id": "clip_001", "label": "valid", "confidence_score": "0.95", "reason": ""},
-        {"clip_id": "clip_002", "label": "invalid", "confidence_score": "0.85", "reason": ""},
-        {"clip_id": "clip_003", "label": "valid", "confidence_score": "0.45", "reason": ""},
-        {"clip_id": "clip_004", "label": "valid", "confidence_score": "0.92", "reason": "Simulation failure"},
-        {"clip_id": "clip_005", "label": "invalid", "confidence_score": "0.98", "reason": ""},
-    ]
+# Mock the global paths for testing
+@pytest.fixture(autouse=True)
+def patch_paths(temp_dir, monkeypatch):
+    # We need to patch the module-level constants in the target module
+    # Since we can't easily patch module-level constants in the imported module,
+    # we will test the functions directly with mocked file operations or
+    # by creating temporary files in the temp_dir and passing them as arguments.
+    # However, the functions use global paths. To test properly, we will
+    # create a wrapper or test the logic by creating the expected files in temp_dir
+    # and then mocking the path constants if possible, or re-implementing the logic.
     
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["clip_id", "label", "confidence_score", "reason"])
-        writer.writeheader()
-        writer.writerows(data)
+    # Alternative: Test the logic by creating temporary files and using the functions
+    # but we need to override the global paths.
+    # Since the functions use global paths defined at module level, we will
+    # create a test that creates the necessary files in the temp_dir and then
+    # monkeypatches the module's global variables.
     
-    return filepath
+    import labeling.separate_null_samples as module_to_patch
+    original_raw_path = module_to_patch.RAW_LABELS_PATH
+    original_null_path = module_to_patch.NULL_SAMPLES_PATH
+    original_final_path = module_to_patch.FINAL_LABELS_PATH
+    original_excluded_path = module_to_patch.EXCLUDED_LOG_PATH
 
-def test_load_raw_labels(temp_dir, sample_raw_csv):
-    """Test loading raw labels from CSV."""
-    records = load_raw_labels(sample_raw_csv)
-    
-    assert len(records) == 5
-    assert records[0]['clip_id'] == 'clip_001'
-    assert records[0]['label'] == 'valid'
-    assert isinstance(records[0]['confidence_score'], float)
-    assert abs(records[0]['confidence_score'] - 0.95) < 1e-5
+    module_to_patch.RAW_LABELS_PATH = temp_dir / "raw_labels.csv"
+    module_to_patch.NULL_SAMPLES_PATH = temp_dir / "null_samples.csv"
+    module_to_patch.FINAL_LABELS_PATH = temp_dir / "labels.csv"
+    module_to_patch.EXCLUDED_LOG_PATH = temp_dir / "excluded_samples.log"
 
-def test_process_labels_and_exclusions(sample_raw_csv):
-    """Test separation of valid and null samples."""
-    records = load_raw_labels(sample_raw_csv)
-    valid, nulls = process_labels_and_exclusions(records, threshold=0.9)
-    
-    # clip_001 (0.95), clip_005 (0.98) should be valid
-    # clip_002 (0.85), clip_003 (0.45), clip_004 (simulation failure) should be null
-    assert len(valid) == 2
-    assert len(nulls) == 3
-    
-    valid_ids = [r['clip_id'] for r in valid]
-    assert 'clip_001' in valid_ids
-    assert 'clip_005' in valid_ids
-    
-    null_ids = [r['clip_id'] for r in nulls]
-    assert 'clip_002' in null_ids
-    assert 'clip_003' in null_ids
-    assert 'clip_004' in null_ids
+    yield temp_dir
 
-def test_save_null_labels(temp_dir, sample_raw_csv):
-    """Test saving null labels to CSV."""
-    records = load_raw_labels(sample_raw_csv)
-    _, nulls = process_labels_and_exclusions(records)
-    
-    output_path = temp_dir / "null_labels.csv"
-    save_null_labels(nulls, output_path)
-    
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 3
-    assert 'clip_id' in rows[0]
-    assert 'reason' in rows[0]
-    assert 'confidence_score' in rows[0]
+    # Restore original paths
+    module_to_patch.RAW_LABELS_PATH = original_raw_path
+    module_to_patch.NULL_SAMPLES_PATH = original_null_path
+    module_to_patch.FINAL_LABELS_PATH = original_final_path
+    module_to_patch.EXCLUDED_LOG_PATH = original_excluded_path
 
-def test_save_final_labels(temp_dir, sample_raw_csv):
-    """Test saving final labels to CSV."""
-    records = load_raw_labels(sample_raw_csv)
-    valid, _ = process_labels_and_exclusions(records)
-    
-    output_path = temp_dir / "labels.csv"
-    save_final_labels(valid, output_path)
-    
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 2
-    assert 'clip_id' in rows[0]
-    assert 'label' in rows[0]
-    assert 'confidence_score' in rows[0]
-
-def test_save_excluded_log_empty(temp_dir):
-    """Test creating empty excluded log when no samples are excluded."""
-    output_path = temp_dir / "excluded_samples.log"
-    save_excluded_log([], output_path)
-    
-    assert output_path.exists()
-    assert output_path.stat().st_size == 0
-
-def test_save_excluded_log_with_data(temp_dir, sample_raw_csv):
-    """Test creating excluded log with data."""
-    records = load_raw_labels(sample_raw_csv)
-    _, nulls = process_labels_and_exclusions(records)
-    
-    output_path = temp_dir / "excluded_samples.log"
-    save_excluded_log(nulls, output_path)
-    
-    assert output_path.exists()
-    assert output_path.stat().st_size > 0
-    
-    with open(output_path, 'r') as f:
-        lines = f.readlines()
-    
-    assert len(lines) == 3
-
-def test_missing_raw_file(temp_dir):
-    """Test error handling when raw labels file is missing."""
-    missing_path = temp_dir / "nonexistent.csv"
+def test_load_raw_labels_file_not_found(patch_paths):
+    """Test that FileNotFoundError is raised when raw_labels.csv is missing."""
     with pytest.raises(FileNotFoundError):
-        load_raw_labels(missing_path)
+        load_raw_labels()
+
+def test_load_raw_labels_missing_columns(patch_paths, temp_dir):
+    """Test that ValueError is raised when required columns are missing."""
+    raw_file = temp_dir / "raw_labels.csv"
+    with open(raw_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['clip_id', 'label'])
+        writer.writeheader()
+        writer.writerow({'clip_id': '1', 'label': 'valid'})
+    
+    with pytest.raises(ValueError):
+        load_raw_labels()
+
+def test_process_labels_and_exclusions(patch_paths, temp_dir):
+    """Test the separation logic."""
+    raw_file = temp_dir / "raw_labels.csv"
+    with open(raw_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['clip_id', 'label', 'confidence_score', 'reason'])
+        writer.writeheader()
+        writer.writerow({'clip_id': '1', 'label': 'valid', 'confidence_score': '0.95', 'reason': 'ok'})
+        writer.writerow({'clip_id': '2', 'label': 'null', 'confidence_score': '0.4', 'reason': 'low_conf'})
+        writer.writerow({'clip_id': '3', 'label': 'invalid', 'confidence_score': '0.9', 'reason': 'phys_fail'})
+        writer.writerow({'clip_id': '4', 'label': 'NULL', 'confidence_score': '0.3', 'reason': 'low_conf'})  # Test case insensitivity
+
+    rows = load_raw_labels()
+    valid, nulls = process_labels_and_exclusions(rows)
+
+    assert len(valid) == 2
+    assert len(nulls) == 2
+    
+    # Check valid
+    assert valid[0]['clip_id'] == '1'
+    assert valid[1]['clip_id'] == '3'
+    
+    # Check nulls
+    null_ids = [n['clip_id'] for n in nulls]
+    assert '2' in null_ids
+    assert '4' in null_ids
+
+def test_save_null_labels(patch_paths, temp_dir):
+    """Test saving null samples."""
+    null_samples = [
+        {'clip_id': '1', 'reason': 'low_conf', 'confidence_score': '0.4'},
+        {'clip_id': '2', 'reason': 'fail', 'confidence_score': '0.1'}
+    ]
+    save_null_labels(null_samples)
+    
+    assert (temp_dir / "null_samples.csv").exists()
+    with open(temp_dir / "null_samples.csv", 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 2
+        assert rows[0]['clip_id'] == '1'
+        assert rows[1]['clip_id'] == '2'
+
+def test_save_null_labels_empty(patch_paths, temp_dir):
+    """Test saving empty null samples list."""
+    save_null_labels([])
+    assert (temp_dir / "null_samples.csv").exists()
+    with open(temp_dir / "null_samples.csv", 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 0
+
+def test_save_final_labels(patch_paths, temp_dir):
+    """Test saving valid labels."""
+    valid_labels = [
+        {'clip_id': '1', 'label': 'valid', 'confidence_score': '0.9', 'reason': 'ok'},
+        {'clip_id': '2', 'label': 'invalid', 'confidence_score': '0.9', 'reason': 'fail'}
+    ]
+    save_final_labels(valid_labels)
+    
+    assert (temp_dir / "labels.csv").exists()
+    with open(temp_dir / "labels.csv", 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 2
+
+def test_save_excluded_log(patch_paths, temp_dir):
+    """Test saving excluded log."""
+    null_samples = [
+        {'clip_id': '1', 'reason': 'low_conf', 'confidence_score': '0.4'}
+    ]
+    save_excluded_log(null_samples)
+    
+    assert (temp_dir / "excluded_samples.log").exists()
+    with open(temp_dir / "excluded_samples.log", 'r') as f:
+        content = f.read()
+        assert "1|low_conf|0.4" in content
+
+def test_save_excluded_log_empty(patch_paths, temp_dir):
+    """Test saving empty excluded log."""
+    save_excluded_log([])
+    assert (temp_dir / "excluded_samples.log").exists()
+    with open(temp_dir / "excluded_samples.log", 'r') as f:
+        content = f.read()
+        assert content == ""

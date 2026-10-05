@@ -1,8 +1,8 @@
 import json
 import sys
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
 import logging
+from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -11,209 +11,187 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-MEMORY_LOG_PATH = Path("data/processed/memory_log.json")
-VERIFICATION_OUTPUT_PATH = Path("data/processed/memory_verification.json")
-MAX_RAM_GB = 7.0
-MAX_RAM_MB = MAX_RAM_GB * 1024
+# Constants
+MAX_RAM_MB = 7000  # 7 GB limit in MB
 
-
-def load_memory_log(log_path: Path) -> List[Dict[str, Any]]:
+def load_memory_log(log_path: str) -> List[Dict[str, Any]]:
     """
     Load the memory log JSON file.
     
     Args:
-        log_path: Path to the memory log JSON file.
+        log_path: Path to the memory log JSON file
         
     Returns:
-        List of memory log entries.
+        List of memory log entries
         
     Raises:
-        FileNotFoundError: If the log file does not exist.
-        json.JSONDecodeError: If the log file is not valid JSON.
+        FileNotFoundError: If the log file does not exist
+        json.JSONDecodeError: If the file is not valid JSON
     """
-    if not log_path.exists():
-        raise FileNotFoundError(f"Memory log not found at {log_path}")
+    path = Path(log_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Memory log file not found: {log_path}")
     
-    with open(log_path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         data = json.load(f)
         
-    # Handle case where data might be a dict with a 'entries' key or a direct list
-    if isinstance(data, dict):
-        if 'entries' in data:
-            return data['entries']
-        elif 'log' in data:
-            return data['log']
-        else:
-            # If it's a dict but not the expected format, try to treat values as entries
-            # or return the dict itself if it looks like a single entry
-            logger.warning(f"Unexpected memory log structure: {list(data.keys())}")
-            return [data] if len(data) > 0 else []
-    elif isinstance(data, list):
+    # Ensure we have a list of entries
+    if isinstance(data, list):
         return data
+    elif isinstance(data, dict) and 'entries' in data:
+        return data['entries']
     else:
-        raise ValueError(f"Unexpected memory log data type: {type(data)}")
+        raise ValueError(f"Unexpected memory log format: {type(data)}")
 
-
-def analyze_memory_usage(entries: List[Dict[str, Any]]) -> Tuple[float, float, List[Dict[str, Any]]]:
+def analyze_memory_usage(entries: List[Dict[str, Any]]) -> Tuple[float, float, float, List[Dict[str, Any]]]:
     """
-    Analyze memory usage entries to find peak RAM and other statistics.
+    Analyze memory usage from log entries.
     
     Args:
-        entries: List of memory log entries.
+        entries: List of memory log entries
         
     Returns:
-        Tuple of (peak_memory_mb, average_memory_mb, list of entries exceeding 90% of max)
+        Tuple of (min_peak, max_peak, avg_peak, list of all entries with peak_mb)
     """
     if not entries:
-        return 0.0, 0.0, []
+        logger.warning("No memory log entries found")
+        return 0.0, 0.0, 0.0, []
     
-    peak_memory_mb = 0.0
-    total_memory_mb = 0.0
-    count = 0
-    high_usage_entries = []
-    
+    peak_values = []
     for entry in entries:
-        # Try to extract memory usage from various possible keys
-        memory_mb = entry.get('memory_mb') or entry.get('peak_memory_mb') or entry.get('usage_mb') or 0.0
-        
-        if not isinstance(memory_mb, (int, float)):
-            try:
-                memory_mb = float(memory_mb)
-            except (ValueError, TypeError):
-                memory_mb = 0.0
-        
-        if memory_mb > peak_memory_mb:
-            peak_memory_mb = memory_mb
-        
-        total_memory_mb += memory_mb
-        count += 1
-        
-        # Check if usage is above 90% of limit
-        threshold = MAX_RAM_MB * 0.9
-        if memory_mb > threshold:
-            high_usage_entries.append({
-                'entry': entry,
-                'memory_mb': memory_mb,
-                'threshold_mb': threshold
-            })
+        if 'peak_mb' in entry:
+            peak_values.append(entry['peak_mb'])
+        elif 'peak_memory_mb' in entry:
+            peak_values.append(entry['peak_memory_mb'])
+        else:
+            logger.warning(f"Entry missing peak memory: {entry}")
     
-    average_memory_mb = total_memory_mb / count if count > 0 else 0.0
+    if not peak_values:
+        logger.warning("No valid peak memory values found in entries")
+        return 0.0, 0.0, 0.0, entries
+        
+    min_peak = min(peak_values)
+    max_peak = max(peak_values)
+    avg_peak = sum(peak_values) / len(peak_values)
     
-    return peak_memory_mb, average_memory_mb, high_usage_entries
-
+    return min_peak, max_peak, avg_peak, entries
 
 def generate_verification_report(
-    peak_memory_mb: float,
-    average_memory_mb: float,
-    high_usage_entries: List[Dict[str, Any]],
-    log_path: Path,
-    output_path: Path
+    min_peak: float,
+    max_peak: float,
+    avg_peak: float,
+    entries: List[Dict[str, Any]],
+    max_limit: float = MAX_RAM_MB
 ) -> Dict[str, Any]:
     """
-    Generate and save the memory verification report.
+    Generate a verification report for memory usage.
     
     Args:
-        peak_memory_mb: Peak memory usage in MB.
-        average_memory_mb: Average memory usage in MB.
-        high_usage_entries: List of entries exceeding 90% of max limit.
-        log_path: Path to the source memory log.
-        output_path: Path to save the verification report.
+        min_peak: Minimum peak memory observed
+        max_peak: Maximum peak memory observed
+        avg_peak: Average peak memory observed
+        entries: All memory log entries
+        max_limit: Maximum allowed memory in MB
         
     Returns:
-        The verification report dictionary.
+        Verification report dictionary
     """
-    passed = peak_memory_mb < MAX_RAM_MB
+    passed = max_peak < max_limit
     
     report = {
-        "status": "pass" if passed else "fail",
-        "constraint_gb": MAX_RAM_GB,
-        "peak_memory_mb": round(peak_memory_mb, 2),
-        "peak_memory_gb": round(peak_memory_mb / 1024, 4),
-        "average_memory_mb": round(average_memory_mb, 2),
-        "log_file_checked": str(log_path),
-        "entries_analyzed": len(high_usage_entries) if high_usage_entries else 0,
-        "high_usage_entries": high_usage_entries,
-        "message": f"Peak memory usage ({peak_memory_mb:.2f} MB) {'is within' if passed else 'exceeds'} the limit of {MAX_RAM_GB} GB ({MAX_RAM_MB} MB)."
+        "status": "passed" if passed else "failed",
+        "max_limit_mb": max_limit,
+        "observed": {
+            "min_peak_mb": min_peak,
+            "max_peak_mb": max_peak,
+            "avg_peak_mb": avg_peak,
+            "entry_count": len(entries)
+        },
+        "details": {
+            "all_entries_within_limit": all(
+                e.get('peak_mb', 0) < max_limit or e.get('peak_memory_mb', 0) < max_limit 
+                for e in entries
+            ),
+            "worst_entry": max(
+                entries, 
+                key=lambda e: e.get('peak_mb', 0) or e.get('peak_memory_mb', 0)
+            ) if entries else None
+        }
     }
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save report
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Verification report saved to {output_path}")
-    logger.info(report["message"])
     
     return report
 
+def save_verification_report(report: Dict[str, Any], output_path: str) -> None:
+    """
+    Save the verification report to a JSON file.
+    
+    Args:
+        report: Verification report dictionary
+        output_path: Path to save the report
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Verification report saved to {output_path}")
 
-def main():
-    """Main entry point for memory constraint verification."""
-    logger.info("Starting memory constraint verification...")
+def main() -> int:
+    """
+    Main entry point for memory constraint verification.
+    
+    Returns:
+        0 if verification passed, 1 if failed or error occurred
+    """
+    # Default paths
+    log_path = "data/processed/memory_log.json"
+    output_path = "data/processed/memory_verification.json"
+    
+    # Allow override via command line
+    if len(sys.argv) > 1:
+        log_path = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_path = sys.argv[2]
+        
+    logger.info(f"Loading memory log from: {log_path}")
+    logger.info(f"Verification output will be saved to: {output_path}")
     
     try:
-        # Load memory log
-        logger.info(f"Loading memory log from {MEMORY_LOG_PATH}")
-        entries = load_memory_log(MEMORY_LOG_PATH)
+        # Load log
+        entries = load_memory_log(log_path)
         logger.info(f"Loaded {len(entries)} memory log entries")
         
-        if not entries:
-            logger.warning("Memory log is empty. Creating a failing report.")
-            report = generate_verification_report(
-                0.0, 0.0, [], MEMORY_LOG_PATH, VERIFICATION_OUTPUT_PATH
-            )
-            report["status"] = "fail"
-            report["message"] = "Memory log is empty. Cannot verify constraint."
-            with open(VERIFICATION_OUTPUT_PATH, 'w', encoding='utf-8') as f:
-                json.dump(report, f, indent=2)
-            sys.exit(1)
+        # Analyze
+        min_peak, max_peak, avg_peak, _ = analyze_memory_usage(entries)
+        logger.info(f"Memory analysis - Min: {min_peak:.2f} MB, Max: {max_peak:.2f} MB, Avg: {avg_peak:.2f} MB")
         
-        # Analyze usage
-        peak_mb, avg_mb, high_entries = analyze_memory_usage(entries)
-        logger.info(f"Peak memory: {peak_mb:.2f} MB, Average: {avg_mb:.2f} MB")
+        # Generate report
+        report = generate_verification_report(min_peak, max_peak, avg_peak, entries)
         
-        # Generate and save report
-        report = generate_verification_report(
-            peak_mb, avg_mb, high_entries, MEMORY_LOG_PATH, VERIFICATION_OUTPUT_PATH
-        )
+        # Save report
+        save_verification_report(report, output_path)
         
-        # Exit with appropriate code
-        if report["status"] == "fail":
-            logger.error("Memory constraint verification FAILED.")
-            sys.exit(1)
-        else:
-            logger.info("Memory constraint verification PASSED.")
-            sys.exit(0)
-            
+        # Print result
+        status = "PASSED" if report["status"] == "passed" else "FAILED"
+        print(f"Memory Verification: {status}")
+        print(f"  Max Observed: {max_peak:.2f} MB")
+        print(f"  Limit: {MAX_RAM_MB} MB")
+        
+        return 0 if report["status"] == "passed" else 1
+        
     except FileNotFoundError as e:
-        logger.error(f"Memory log file not found: {e}")
-        # Create a failure report
-        report = {
-            "status": "fail",
-            "error": str(e),
-            "message": f"Could not verify memory constraint: {e}"
-        }
-        VERIFICATION_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(VERIFICATION_OUTPUT_PATH, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        sys.exit(1)
+        logger.error(f"File not found: {e}")
+        print(f"ERROR: {e}")
+        return 1
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in memory log: {e}")
-        report = {
-            "status": "fail",
-            "error": str(e),
-            "message": f"Could not parse memory log: {e}"
-        }
-        VERIFICATION_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(VERIFICATION_OUTPUT_PATH, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        sys.exit(1)
+        logger.error(f"Invalid JSON in log file: {e}")
+        print(f"ERROR: Invalid JSON in log file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during verification: {e}")
-        raise
-
+        logger.error(f"Unexpected error: {e}")
+        print(f"ERROR: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

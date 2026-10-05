@@ -13,14 +13,6 @@ T017:
     \ function is incomplete) and never writes to the required `data/processed/memory_log.json`.\
     \ Moreover, the JSON log file itself is missing, so the task\u2019s requirement\
     \ to record peak RAM usage to that path is not fulfilled."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or output artifacts were supplied; the claim provides only\
-    \ a textual description of the required extraction and labeling steps. Consequently,\
-    \ there is no script to download the model, extract latent vectors and masks,\
-    \ nor any generated NumPy arrays, CSV/JSON labels, or evidence that the process\
-    \ runs on a CPU\u2011only environment. The required artifacts are missing."
 T032:
   c: false
   h: 8cfb46c7baaf8b3f5baf1b2d2294086fb9eaac1db22fc8b24883bb2c0b25e22d
@@ -44,3 +36,10 @@ T033:
     \ were provided, nor any comparison against the baseline distribution from T032.1.\
     \ The claim lacks any artifact (script, notebook, data files, or report) that\
     \ demonstrates the required analysis, so the task is not satisfied."
+T040:
+  c: false
+  h: 68d93afc30f084acec20740ca343ec409c2c0898acc23d16aabae9cea4cbec59
+  r: "The required artifacts `data/processed/memory_log.json` and `data/processed/memory_verification.json`\
+    \ are absent, so the verification script cannot run and no pass/fail result is\
+    \ recorded. The task\u2019s core requirement\u2014checking peak RAM usage and\
+    \ producing a verification report\u2014is therefore unmet."

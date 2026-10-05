@@ -13,7 +13,7 @@ This feature implements a rigorous validation pipeline to test the hypothesis th
 **Primary Dependencies**: `torch` (CPU-only build), `transformers`, `datasets`, `pybullet`, `opencv-python`, `monodepth2` (or similar CPU-compatible depth estimator), `scikit-learn`, `pandas`, `numpy`, `ruff`, `black`, `memory_profiler`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/external`), NumPy arrays (`.npy`), CSV/JSON for metadata.  
 **Testing**: `pytest` (unit/integration), contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, ~7 GB RAM, ~14 GB disk).  
+**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, ~7 GB RAM, Significant disk storage capacity is required to accommodate the research data.).  
 **Project Type**: Research pipeline / Data processing library.  
 **Performance Goals**: Feature extraction < 2 hours; Classifier training < 30 minutes; Total pipeline < 6 hours.  
 **Constraints**: CPU-only execution; Limited RAM (requires chunking/streaming); No GPU offload for extraction/labeling (GPU escape hatch only if depth estimation fails on CPU, but plan assumes CPU-first); Strict separation of model inference and physics simulation.  
