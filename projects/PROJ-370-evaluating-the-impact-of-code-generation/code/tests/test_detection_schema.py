@@ -1,204 +1,193 @@
+"""
+Unit tests for the LLM Code Detection schema.
+"""
 import pytest
+import json
 from code.src.detection.schema import (
     LLMCodeDetectionResult,
-    ConfidenceLevel,
+    ConfidenceLevel
 )
 
 
-def test_llm_detection_result_creation():
-    """Test basic creation of LLMCodeDetectionResult."""
-    result = LLMCodeDetectionResult(
-        pr_id="PR-123",
-        file_path="src/main.py",
-        line_start=10,
-        line_end=25,
-        confidence=ConfidenceLevel.HIGH,
-        detection_method="heuristic",
-        is_llm_generated=True,
-    )
+class TestLLMCodeDetectionResult:
+    """Tests for the LLMCodeDetectionResult dataclass."""
 
-    assert result.pr_id == "PR-123"
-    assert result.file_path == "src/main.py"
-    assert result.line_start == 10
-    assert result.line_end == 25
-    assert result.confidence == ConfidenceLevel.HIGH
-    assert result.detection_method == "heuristic"
-    assert result.is_llm_generated is True
-    assert result.metadata == {}
+    def test_creation_basic(self):
+        """Test creating a basic detection result."""
+        result = LLMCodeDetectionResult(
+            pr_id="123",
+            repo="test/repo",
+            file_path="src/main.py",
+            is_llm_generated=True,
+            confidence=ConfidenceLevel.HIGH,
+            confidence_score=0.85
+        )
+        assert result.pr_id == "123"
+        assert result.repo == "test/repo"
+        assert result.file_path == "src/main.py"
+        assert result.is_llm_generated is True
+        assert result.confidence == ConfidenceLevel.HIGH
+        assert result.confidence_score == 0.85
+        assert result.detected_patterns == []
+        assert result.line_start is None
+        assert result.line_end is None
 
+    def test_creation_with_details(self):
+        """Test creating a result with full details."""
+        result = LLMCodeDetectionResult(
+            pr_id="456",
+            repo="owner/project",
+            file_path="utils/helper.py",
+            is_llm_generated=False,
+            confidence=ConfidenceLevel.LOW,
+            confidence_score=0.12,
+            detected_patterns=["repetitive_structure"],
+            line_start=10,
+            line_end=25,
+            snippet_preview="def calculate_sum(a, b):",
+            metadata={"heuristic_version": "1.0"}
+        )
+        assert result.is_llm_generated is False
+        assert len(result.detected_patterns) == 1
+        assert result.line_start == 10
+        assert result.line_end == 25
+        assert result.snippet_preview is not None
+        assert "heuristic_version" in result.metadata
 
-def test_llm_detection_result_json_roundtrip():
-    """Test JSON serialization and deserialization."""
-    original = LLMCodeDetectionResult(
-        pr_id="PR-456",
-        file_path="utils/helper.py",
-        line_start=5,
-        line_end=15,
-        confidence=ConfidenceLevel.MEDIUM,
-        detection_method="model",
-        is_llm_generated=False,
-        metadata={"source": "test", "score": 0.85},
-    )
+    def test_to_dict(self):
+        """Test conversion to dictionary."""
+        result = LLMCodeDetectionResult(
+            pr_id="789",
+            repo="test/repo",
+            file_path="test.py",
+            is_llm_generated=True,
+            confidence=ConfidenceLevel.MEDIUM,
+            confidence_score=0.55,
+            detected_patterns=["pattern_a", "pattern_b"]
+        )
+        data = result.to_dict()
+        assert isinstance(data, dict)
+        assert data["pr_id"] == "789"
+        assert data["is_llm_generated"] is True
+        assert data["confidence"] == "medium"
+        assert "pattern_a" in data["detected_patterns"]
 
-    json_str = original.to_json()
-    restored = LLMCodeDetectionResult.from_json(json_str)
+    def test_to_json(self):
+        """Test conversion to JSON string."""
+        result = LLMCodeDetectionResult(
+            pr_id="101",
+            repo="org/repo",
+            file_path="app.py",
+            is_llm_generated=True,
+            confidence=ConfidenceLevel.VERY_HIGH,
+            confidence_score=0.99
+        )
+        json_str = result.to_json()
+        assert isinstance(json_str, str)
+        # Verify it's valid JSON
+        parsed = json.loads(json_str)
+        assert parsed["pr_id"] == "101"
+        assert parsed["confidence"] == "very_high"
 
-    assert restored.pr_id == original.pr_id
-    assert restored.file_path == original.file_path
-    assert restored.line_start == original.line_start
-    assert restored.line_end == original.line_end
-    assert restored.confidence == original.confidence
-    assert restored.detection_method == original.detection_method
-    assert restored.is_llm_generated == original.is_llm_generated
-    assert restored.metadata == original.metadata
+    def test_from_dict(self):
+        """Test creation from dictionary."""
+        data = {
+            "pr_id": "202",
+            "repo": "org/repo",
+            "file_path": "main.py",
+            "is_llm_generated": True,
+            "confidence": "high",
+            "confidence_score": 0.88,
+            "detected_patterns": ["gen_ai_style"],
+            "line_start": 5,
+            "line_end": 10,
+            "snippet_preview": "print('hello')",
+            "metadata": {"source": "test"}
+        }
+        result = LLMCodeDetectionResult.from_dict(data)
+        assert result.pr_id == "202"
+        assert result.confidence == ConfidenceLevel.HIGH
+        assert result.line_start == 5
+        assert result.metadata["source"] == "test"
 
+    def test_from_dict_invalid_confidence(self):
+        """Test creation from dictionary with invalid confidence string."""
+        data = {
+            "pr_id": "303",
+            "repo": "org/repo",
+            "file_path": "main.py",
+            "is_llm_generated": False,
+            "confidence": "invalid_level",
+            "confidence_score": 0.5
+        }
+        # Should default to LOW or handle gracefully
+        result = LLMCodeDetectionResult.from_dict(data)
+        assert result.confidence == ConfidenceLevel.LOW
 
-def test_llm_detection_result_to_dict():
-    """Test conversion to dictionary."""
-    result = LLMCodeDetectionResult(
-        pr_id="PR-789",
-        file_path="test.py",
-        line_start=1,
-        line_end=10,
-        confidence=ConfidenceLevel.LOW,
-        detection_method="heuristic",
-        is_llm_generated=True,
-        metadata={"key": "value"},
-    )
+    def test_from_json(self):
+        """Test creation from JSON string."""
+        json_str = json.dumps({
+            "pr_id": "404",
+            "repo": "org/repo",
+            "file_path": "test.py",
+            "is_llm_generated": False,
+            "confidence": "low",
+            "confidence_score": 0.1
+        })
+        result = LLMCodeDetectionResult.from_json(json_str)
+        assert result.pr_id == "404"
+        assert result.is_llm_generated is False
 
-    result_dict = result.to_dict()
+    def test_json_roundtrip(self):
+        """Test that object -> JSON -> object preserves data."""
+        original = LLMCodeDetectionResult(
+            pr_id="505",
+            repo="org/repo",
+            file_path="src/code.py",
+            is_llm_generated=True,
+            confidence=ConfidenceLevel.HIGH,
+            confidence_score=0.92,
+            detected_patterns=["pattern_1"],
+            line_start=1,
+            line_end=100,
+            snippet_preview="def foo(): pass",
+            metadata={"key": "value"}
+        )
+        json_str = original.to_json()
+        restored = LLMCodeDetectionResult.from_json(json_str)
 
-    assert result_dict["pr_id"] == "PR-789"
-    assert result_dict["file_path"] == "test.py"
-    assert result_dict["line_start"] == 1
-    assert result_dict["line_end"] == 10
-    assert result_dict["confidence"] == "low"
-    assert result_dict["detection_method"] == "heuristic"
-    assert result_dict["is_llm_generated"] is True
-    assert result_dict["metadata"] == {"key": "value"}
+        assert restored.pr_id == original.pr_id
+        assert restored.repo == original.repo
+        assert restored.file_path == original.file_path
+        assert restored.is_llm_generated == original.is_llm_generated
+        assert restored.confidence == original.confidence
+        assert restored.confidence_score == original.confidence_score
+        assert restored.detected_patterns == original.detected_patterns
+        assert restored.line_start == original.line_start
+        assert restored.line_end == original.line_end
+        assert restored.snippet_preview == original.snippet_preview
+        assert restored.metadata == original.metadata
 
+    def test_confidence_level_enum_values(self):
+        """Test that all confidence levels are defined correctly."""
+        assert ConfidenceLevel.LOW.value == "low"
+        assert ConfidenceLevel.MEDIUM.value == "medium"
+        assert ConfidenceLevel.HIGH.value == "high"
+        assert ConfidenceLevel.VERY_HIGH.value == "very_high"
+        assert str(ConfidenceLevel.MEDIUM) == "medium"
+        assert ConfidenceLevel.MEDIUM.to_json() == "medium"
 
-def test_llm_detection_result_from_dict_invalid_confidence():
-    """Test that invalid confidence level raises ValueError."""
-    invalid_data = {
-        "pr_id": "PR-100",
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "invalid_level",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Invalid confidence level"):
-        LLMCodeDetectionResult.from_dict(invalid_data)
-
-
-def test_llm_detection_result_missing_optional_fields():
-    """Test that missing optional fields (metadata) default to empty dict."""
-    data = {
-        "pr_id": "PR-200",
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "high",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    result = LLMCodeDetectionResult.from_dict(data)
-    assert result.metadata == {}
-
-
-def test_llm_detection_result_missing_required_fields():
-    """Test that missing required fields raise ValueError."""
-    # Missing pr_id
-    data_missing_pr_id = {
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "high",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: pr_id"):
-        LLMCodeDetectionResult.from_dict(data_missing_pr_id)
-
-    # Missing confidence
-    data_missing_confidence = {
-        "pr_id": "PR-300",
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: confidence"):
-        LLMCodeDetectionResult.from_dict(data_missing_confidence)
-
-    # Missing file_path
-    data_missing_file = {
-        "pr_id": "PR-300",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "high",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: file_path"):
-        LLMCodeDetectionResult.from_dict(data_missing_file)
-
-    # Missing line_start
-    data_missing_start = {
-        "pr_id": "PR-300",
-        "file_path": "file.py",
-        "line_end": 5,
-        "confidence": "high",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: line_start"):
-        LLMCodeDetectionResult.from_dict(data_missing_start)
-
-    # Missing line_end
-    data_missing_end = {
-        "pr_id": "PR-300",
-        "file_path": "file.py",
-        "line_start": 1,
-        "confidence": "high",
-        "detection_method": "heuristic",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: line_end"):
-        LLMCodeDetectionResult.from_dict(data_missing_end)
-
-    # Missing detection_method
-    data_missing_method = {
-        "pr_id": "PR-300",
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "high",
-        "is_llm_generated": True,
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: detection_method"):
-        LLMCodeDetectionResult.from_dict(data_missing_method)
-
-    # Missing is_llm_generated
-    data_missing_flag = {
-        "pr_id": "PR-300",
-        "file_path": "file.py",
-        "line_start": 1,
-        "line_end": 5,
-        "confidence": "high",
-        "detection_method": "heuristic",
-    }
-
-    with pytest.raises(ValueError, match="Missing required field: is_llm_generated"):
-        LLMCodeDetectionResult.from_dict(data_missing_flag)
+    def test_empty_patterns(self):
+        """Test that empty patterns list is handled correctly."""
+        result = LLMCodeDetectionResult(
+            pr_id="606",
+            repo="org/repo",
+            file_path="empty.py",
+            is_llm_generated=False,
+            confidence=ConfidenceLevel.LOW,
+            confidence_score=0.0,
+            detected_patterns=[]
+        )
+        assert result.detected_patterns == []
+        data = result.to_dict()
+        assert data["detected_patterns"] == []

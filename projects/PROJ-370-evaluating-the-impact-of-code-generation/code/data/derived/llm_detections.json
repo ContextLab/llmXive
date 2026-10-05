@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "pr_id": "PR-001",
+    "repo": "microsoft/vscode",
+    "llm_code_flag": true,
+    "confidence": "high",
+    "matched_patterns": [
+      "# Here is a function to...",
+      "# This function handles..."
+    ],
+    "file_paths": [],
+    "error_message": null
+  },
+  {
+    "pr_id": "PR-002",
+    "repo": "psf/requests",
+    "llm_code_flag": false,
+    "confidence": "none",
+    "matched_patterns": [],
+    "file_paths": [
+      "requests/api.py"
+    ],
+    "error_message": null
+  },
+  {
+    "pr_id": "PR-003",
+    "repo": "pallets/flask",
+    "llm_code_flag": true,
+    "confidence": "high",
+    "matched_patterns": [
+      "```python"
+    ],
+    "file_paths": [],
+    "error_message": null
+  },
+  {
+    "pr_id": "PR-004",
+    "repo": "numpy/numpy",
+    "llm_code_flag": false,
+    "confidence": "none",
+    "matched_patterns": [],
+    "file_paths": [],
+    "error_message": null
+  },
+  {
+    "pr_id": "PR-005",
+    "repo": "scikit-learn/scikit-learn",
+    "llm_code_flag": true,
+    "confidence": "high",
+    "matched_patterns": [
+      "# Here is the implementation of..."
+    ],
+    "file_paths": [],
+    "error_message": null
+  }
+]

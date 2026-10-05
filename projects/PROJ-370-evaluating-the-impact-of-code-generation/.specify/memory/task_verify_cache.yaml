@@ -1,24 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is shown or listed in the provided evidence; the implementer
+    did not supply any proof that the required folders (`src/`, `data/raw/`, `data/derived/`,
+    `data/annotations/`, `results/`, `tests/`, `specs/`) actually exist. The task
+    remains undone.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or ruff section in `pyproject.toml`, or corresponding CI
+    scripts) were presented. Without these artifacts, the requirement to configure
+    ruff and black cannot be confirmed as satisfied. The implementer must add the
+    actual configuration files and, optionally, demonstrate they are active (e.g.,
+    via a lint/format run).
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `src/utils/` directory exists in the repository;
+    the claim is unsupported and the required artifact is missing.
+T009b:
+  c: false
+  h: b2cefd6bc4b513ae270b9e3bd5d758bf8b3ff69bc3bb24776898ab94fa1864aa
+  r: "The required source files `src/utils/timeout_wrapper.py` and `src/cli/main.py`\
+    \ are absent, so no integration, runtime tracking, or graceful skipping logic\
+    \ exists. The task\u2019s core deliverable cannot be verified."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or YAML schema files for PR data, BugDetection, or
+    AlignmentResult are present in the provided evidence; thus the required artifacts
+    are missing. The implementer must add the `contracts/` folder containing the three
+    YAML schema definitions.
 T012:
   c: false
   h: 4218944a7ff9a428d7871d360f8a12aaaa1ebe2aedd2ed461372d7dc0fe36ac2
   r: The required script `src/extraction/fetch_prs.py` does not exist, so none of
     the specified functionality (loading repos, fetching PRs, handling missing issues,
     logging, and writing raw JSON) is present. The task cannot be considered completed.
-T014:
-  c: false
-  h: 570723d650da49e5dee27805ba8657f8f665db53a5cbd1a5e9f7f4340b6fc8dc
-  r: "The repository contains `src/extraction/preprocess.py`, but the required output\
-    \ file `data/annotations/raw_comments.json` is absent, and the shown portion of\
-    \ the script does not demonstrate that it writes extracted comments to that path.\
-    \ Without the generated JSON file, the task\u2019s core requirement is unmet."
-T015:
-  c: false
-  h: 8219a28749a0531f0c62501551fed38a1929ac864f1dc8ba8aba903cc0b15c4c
-  r: "The repository contains a `src/extraction/preprocess.py` file, but the shown\
-    \ code does not include any logic that writes raw JSON files to `data/raw/` nor\
-    \ generates a `data/raw/checksums.json`. Moreover, the required `data/raw/checksums.json`\
-    \ file is absent from the project. The task\u2019s core requirement\u2014saving\
-    \ raw JSON with SHA\u2011256 checksums\u2014is therefore not fulfilled."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

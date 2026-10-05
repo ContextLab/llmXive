@@ -1,0 +1,27 @@
+[
+  {
+    "pr_id": "PR-001",
+    "repo": "microsoft/vscode",
+    "diff": "# Here is a function to fix the bug\n\ndef calculate_sum(a, b):\n    return a + b\n\n# This function handles edge cases\n\ndef handle_error(message):\n    print(f\"Error: {message}\")"
+  },
+  {
+    "pr_id": "PR-002",
+    "repo": "psf/requests",
+    "diff": "diff --git a/requests/api.py b/requests/api.py\nindex 1234567..abcdefg 100644\n--- a/requests/api.py\n+++ b/requests/api.py\n@@ -1,5 +1,5 @@\n def get(url):\n-    return 'old'\n+    return 'new'\n \n def post(url, data):\n     pass"
+  },
+  {
+    "pr_id": "PR-003",
+    "repo": "pallets/flask",
+    "diff": "```python\n# Implementation of the Flask route handler\n@app.route('/api/data')\ndef get_data():\n    return {'status': 'ok'}\n```"
+  },
+  {
+    "pr_id": "PR-004",
+    "repo": "numpy/numpy",
+    "diff": "def array_sum(arr):\n    total = 0\n    for item in arr:\n        total += item\n    return total"
+  },
+  {
+    "pr_id": "PR-005",
+    "repo": "scikit-learn/scikit-learn",
+    "diff": "# Here is the implementation of the classifier\n\nclass SimpleClassifier:\n    def __init__(self):\n        self.weights = []\n    \n    def fit(self, X, y):\n        pass\n    \n    def predict(self, X):\n        pass"
+  }
+]

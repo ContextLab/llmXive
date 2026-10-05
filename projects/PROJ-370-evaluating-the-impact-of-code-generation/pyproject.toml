@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "evaluating-the-impact-of-code-generation"
+name = "llmxive-evaluation"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
 requires-python = ">=3.9"
@@ -16,76 +16,63 @@ dependencies = [
     "pyyaml",
     "pytest",
     "numpy",
+    "requests",
     "torch",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
     | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    | venv
+    | __pycache__
+    | data
+    | results
+    | logs
 )/
 '''
 
 [tool.ruff]
-# Same as Black.
-line-length = 100
+line-length = 88
 target-version = "py39"
-
-# Assume Python 3.9
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
+src = ["code", "src"]
+extend-exclude = [
+    "data",
+    "results",
+    "logs",
+    "__pycache__",
     ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
     "venv",
 ]
 
-# Per-file ignores
-per-file-ignores = {}
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
 
-# Ignore specific rules
-# E501: line too long (handled by black usually, but ruff checks too)
-# W503: line break before binary operator (conflicts with black)
-ignore = ["E501", "W503"]
+[tool.ruff.lint.per-file-ignores]
+"code/tests/*" = ["S101"] # assert allowed in tests
 
 [tool.ruff.lint.isort]
-known-first-party = ["code", "src", "tests"]
-force-single-line = false
-lines-after-imports = 2
+known-first-party = ["code", "src"]
+force-sort-within-sections = true
+combine-as-imports = true

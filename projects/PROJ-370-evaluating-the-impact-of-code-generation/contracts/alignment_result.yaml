@@ -1,51 +1,138 @@
-# Schema for Alignment Results matching LLM detections to Human Baseline
-# Used for alignment results in analysis
+%YAML 1.1
+---
+# Schema for Alignment Results between LLM and Human Ground Truth
+# Used for output from src/analysis/align.py
+# Corresponds to src/extraction/schema.py AlignmentResult
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AlignmentResult
+description: "Results of aligning LLM-detected bugs with human-verified ground truth"
+
 type: object
 required:
   - pr_id
-  - human_bug_index
-  - llm_bug_index
-  - match_type
-  - jaccard_index
-  - cosine_similarity
-  - file_path_match
-  - line_overlap
+  - repo_name
+  - alignment_timestamp
+  - matches
 properties:
   pr_id:
     type: integer
-    description: PR identifier
-  human_bug_index:
-    type: integer
-    description: Index of the bug in the human_baseline list
-  llm_bug_index:
-    type: integer
-    description: Index of the bug in the llm_detections list
-  match_type:
+    description: "GitHub Pull Request number"
+
+  repo_name:
     type: string
-    enum: [exact, partial, false_positive, false_negative]
-    description: Type of alignment match
-  jaccard_index:
+    description: "Full repository name (owner/repo)"
+
+  alignment_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when alignment was performed"
+
+  similarity_threshold:
     type: number
+    description: "Cosine similarity threshold used for matching"
     minimum: 0.0
     maximum: 1.0
-    description: Jaccard similarity of line sets (>= 0.5 required for valid match)
-  cosine_similarity:
+    example: 0.85
+
+  jaccard_threshold:
     type: number
+    description: "Jaccard index threshold required for valid match"
     minimum: 0.0
     maximum: 1.0
-    description: Cosine similarity of line content embeddings
-  file_path_match:
-    type: boolean
-    description: Whether file paths match exactly
-  line_overlap:
-    type: boolean
-    description: Whether line ranges overlap significantly
-  severity_match:
-    type: boolean
-    description: Whether severity labels match
-  alignment_threshold_met:
-    type: boolean
-    description: Whether both Jaccard (>=0.5) and Cosine (>=0.85) thresholds are met
-  notes:
-    type: string
-    description: Additional notes on the alignment decision
+    example: 0.5
+
+  line_shift_tolerance:
+    type: integer
+    description: "Number of lines to shift for tolerance check"
+    minimum: 0
+    example: 5
+
+  matches:
+    type: array
+    description: "List of aligned bug pairs (LLM vs Human)"
+    items:
+      type: object
+      required:
+        - llm_bug_id
+        - human_bug_id
+        - jaccard_index
+        - similarity_score
+        - is_valid_match
+      properties:
+        llm_bug_id:
+          type: integer
+          description: "Index of the bug in the LLM detection list"
+
+        human_bug_id:
+          type: integer
+          description: "Index of the bug in the human baseline list"
+
+        file_path:
+          type: string
+          description: "Common file path for the bug"
+
+        llm_line_start:
+          type: integer
+          description: "LLM detected start line"
+
+        llm_line_end:
+          type: integer
+          description: "LLM detected end line"
+
+        human_line_start:
+          type: integer
+          description: "Human verified start line"
+
+        human_line_end:
+          type: integer
+          description: "Human verified end line"
+
+        jaccard_index:
+          type: number
+          description: "Jaccard index of line overlap"
+          minimum: 0.0
+          maximum: 1.0
+
+        similarity_score:
+          type: number
+          description: "Cosine similarity of bug descriptions"
+          minimum: 0.0
+          maximum: 1.0
+
+        is_valid_match:
+          type: boolean
+          description: "True if both Jaccard >= threshold and similarity >= threshold"
+
+        match_type:
+          type: string
+          enum: [strict, shifted, partial]
+          description: "Type of match based on alignment method"
+
+  metrics_summary:
+    type: object
+    description: "Aggregated metrics for this PR"
+    properties:
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      total_llm_bugs:
+        type: integer
+        minimum: 0
+      total_human_bugs:
+        type: integer
+        minimum: 0
+      matched_count:
+        type: integer
+        minimum: 0
+
+additionalProperties: false

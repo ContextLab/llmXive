@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-370-evaluating-the-impact-of-code-generation
-last_run_id: b208056e-e90a-4398-b832-244c3b854a58
+last_run_id: 2b7dd8ff-e389-4833-aab4-dc7ab7dec333
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-370-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance
-updated_at: '2026-10-01T16:10:05.690922Z'
+updated_at: '2026-10-05T23:07:21.840346Z'

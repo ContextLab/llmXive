@@ -1,103 +1,110 @@
-# Schema for Pull Request data extracted from GitHub
-# Used for raw PR data and derived datasets
+%YAML 1.1
+---
+# Schema for Pull Request Data extracted from GitHub
+# Used for raw PR data, diffs, and linked issues
+# Corresponds to src/extraction/schema.py PullRequest and BugDetection classes
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PullRequestData
+description: "Extracted Pull Request data including diffs and linked issues"
+
 type: object
 required:
   - pr_id
   - repo_name
-  - url
   - title
   - body
-  - created_at
   - state
+  - created_at
+  - updated_at
   - author
-  - files_changed
-  - additions
-  - deletions
+  - diff
   - linked_issue_ids
-  - review_comments
-  - diff_content
+  - llm_code_flag
 properties:
   pr_id:
     type: integer
-    description: GitHub PR number
+    description: "GitHub Pull Request number"
+    example: 12345
+
   repo_name:
     type: string
-    description: Repository identifier (owner/repo)
-  url:
-    type: string
-    format: uri
-    description: Full URL to the PR
+    description: "Full repository name (owner/repo)"
+    example: "microsoft/vscode"
+
   title:
     type: string
-    description: PR title
+    description: "PR title"
+    example: "Fix memory leak in renderer"
+
   body:
     type: string
-    description: PR description body
-  created_at:
-    type: string
-    format: date-time
-    description: ISO 8601 creation timestamp
+    description: "PR description body (markdown)"
+    example: "This PR addresses the memory leak reported in #5432"
+
   state:
     type: string
     enum: [open, closed, merged]
-    description: Current state of the PR
-  author:
+    description: "Current state of the PR"
+
+  created_at:
     type: string
-    description: GitHub username of the PR author
-  files_changed:
-    type: integer
-    description: Number of files modified
-  additions:
-    type: integer
-    description: Total lines added
-  deletions:
-    type: integer
-    description: Total lines removed
+    format: date-time
+    description: "ISO 8601 timestamp of PR creation"
+    example: "2023-10-15T14:30:00Z"
+
+  updated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of last update"
+    example: "2023-10-16T09:15:00Z"
+
+  author:
+    type: object
+    required:
+      - username
+      - id
+    properties:
+      username:
+        type: string
+        description: "GitHub username"
+        example: "developer-alex"
+      id:
+        type: integer
+        description: "GitHub user ID"
+        example: 987654
+
+  diff:
+    type: string
+    description: "Unified diff of the PR changes"
+    example: "@@ -10,7 +10,7 @@\n- old_code()\n+ new_code()"
+
   linked_issue_ids:
     type: array
     items:
       type: integer
-    description: List of issue numbers linked to this PR (reported, not ground truth)
-  review_comments:
-    type: array
-    items:
-      type: object
-      required:
-        - comment_id
-        - author
-        - body
-        - created_at
-        - path
-        - line
-        - position
-      properties:
-        comment_id:
-          type: integer
-        author:
-          type: string
-        body:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        path:
-          type: string
-        line:
-          type: integer
-          nullable: true
-        position:
-          type: integer
-          nullable: true
-  diff_content:
-    type: string
-    description: Unified diff string for the PR
+    description: "List of issue numbers linked to this PR (e.g., via 'Fixes #123')"
+    example: [5432, 5433]
+    default: []
+
+  truncation_flag:
+    type: boolean
+    description: "True if the diff was truncated due to context window limits"
+    default: false
+
+  original_diff_length:
+    type: integer
+    description: "Character length of the original diff before truncation"
+    minimum: 0
+
   llm_code_flag:
     type: boolean
-    description: Flag indicating if LLM-generated code was detected
-  llm_code_confidence:
+    description: "True if heuristic detection suggests LLM-generated code is present"
+    default: false
+
+  checksum_sha256:
     type: string
-    enum: [low, medium, high]
-    description: Confidence level of LLM detection
-  checksum:
-    type: string
-    description: SHA-256 checksum of the raw JSON payload
+    description: "SHA-256 hash of the raw JSON content for integrity verification"
+    pattern: "^[a-f0-9]{64}$"
+
+additionalProperties: false

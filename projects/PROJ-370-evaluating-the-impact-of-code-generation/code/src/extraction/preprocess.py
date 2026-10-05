@@ -1,12 +1,13 @@
 """
 Preprocessing module for PR data extraction.
 
-Handles:
-- Diff truncation for context window limits
+This module handles:
+- Token estimation and diff truncation
 - Raw comment extraction
-- Checksum generation for data integrity
-- Human baseline triangulation
+- Generating SHA-256 checksums for raw data files
+- Saving processed data with checksums
 """
+
 import os
 import json
 import hashlib
@@ -14,288 +15,262 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
+# Import from local project structure
 from code.config.settings import get_paths, ensure_directories
-from code.src.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
+
+# Token estimation constants (approximate)
+# Based on average 4 characters per token in code
+CHAR_PER_TOKEN = 4
+# Default truncation limit (tokens)
+DEFAULT_TOKEN_LIMIT = 8000
 
 
 def estimate_tokens(text: str) -> int:
     """
-    Rough token estimation: 1 token ≈ 4 characters for English text.
-    This is a heuristic used to decide if truncation is needed.
+    Estimate the number of tokens in a text string.
+    
+    Uses a simple heuristic: characters / 4.
+    For code, this is a reasonable approximation.
+    
+    Args:
+        text: The text to estimate tokens for
+        
+    Returns:
+        Estimated token count
     """
     if not text:
         return 0
-    return len(text) // 4
+    return len(text) // CHAR_PER_TOKEN
 
 
-def truncate_diff(diff_text: str, max_tokens: int = 8000) -> str:
+def truncate_diff(diff_text: str, token_limit: int = DEFAULT_TOKEN_LIMIT) -> Tuple[str, bool]:
     """
-    Truncate diff text to fit within max_tokens limit.
+    Truncate a diff if it exceeds the token limit.
     
     Args:
-        diff_text: The raw diff content.
-        max_tokens: Maximum allowed tokens (default 8000).
+        diff_text: The full diff text
+        token_limit: Maximum tokens to allow
         
     Returns:
-        Truncated diff text.
+        Tuple of (truncated_diff, was_truncated)
     """
-    current_tokens = estimate_tokens(diff_text)
+    if not diff_text:
+        return diff_text, False
     
-    if current_tokens <= max_tokens:
-        return diff_text
+    estimated_tokens = estimate_tokens(diff_text)
     
-    # Calculate approximate cut-off point
-    # We truncate by character count based on token ratio
-    ratio = max_tokens / current_tokens
-    max_chars = int(len(diff_text) * ratio)
+    if estimated_tokens <= token_limit:
+        return diff_text, False
     
+    # Truncate by cutting off at approximately the token limit
+    # We cut at character level, trying to preserve some structure
+    max_chars = token_limit * CHAR_PER_TOKEN
+    
+    # Find a good cut point (preferably at a line boundary)
     truncated = diff_text[:max_chars]
+    last_newline = truncated.rfind('\n')
+    if last_newline > max_chars * 0.9:  # Only adjust if close
+        truncated = truncated[:last_newline]
+    
+    truncated += "\n\n[TRUNCATED: Diff exceeded token limit. Analysis is partial.]"
     
     logger.warning(
-        f"Diff truncated from {current_tokens} to {max_tokens} tokens "
-        f"({len(truncated)} chars)."
+        f"Diff truncated from {estimated_tokens} to {token_limit} tokens. "
+        f"Analysis is partial."
     )
     
-    return truncated
+    return truncated, True
 
 
-def preprocess_pr_data(pr_data: Dict[str, Any], max_tokens: int = 8000) -> Dict[str, Any]:
+def preprocess_pr_data(pr_data: Dict[str, Any], token_limit: int = DEFAULT_TOKEN_LIMIT) -> Dict[str, Any]:
     """
-    Preprocess a single PR data entry.
-    
-    - Truncates diffs exceeding context window
-    - Validates structure
+    Preprocess a single PR's data.
     
     Args:
-        pr_data: Dictionary containing PR information.
-        max_tokens: Maximum tokens for diff content.
+        pr_data: Raw PR data dictionary
+        token_limit: Maximum tokens for diff truncation
         
     Returns:
-        Processed PR data dictionary.
+        Preprocessed PR data with truncated diffs if needed
     """
     processed = pr_data.copy()
     
-    if "diffs" in processed and isinstance(processed["diffs"], list):
-        for i, diff_entry in enumerate(processed["diffs"]):
-            if "diff_content" in diff_entry:
-                original_len = len(diff_entry["diff_content"])
-                diff_entry["diff_content"] = truncate_diff(
-                    diff_entry["diff_content"], max_tokens
-                )
-                if len(diff_entry["diff_content"]) != original_len:
-                    diff_entry["truncated"] = True
-                else:
-                    diff_entry["truncated"] = False
+    # Handle diff truncation
+    if 'diff' in processed and processed['diff']:
+        original_diff = processed['diff']
+        processed['diff'], was_truncated = truncate_diff(original_diff, token_limit)
+        processed['truncation_flag'] = was_truncated
+        
+        if was_truncated:
+            processed['original_diff_length'] = len(original_diff)
+            processed['truncated_diff_length'] = len(processed['diff'])
+    else:
+        processed['truncation_flag'] = False
     
     return processed
 
 
-def extract_raw_comments(pr_data_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def extract_raw_comments(pr_data: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Extract raw review comments from PR data.
     
     Args:
-        pr_data_list: List of PR data dictionaries.
+        pr_data: PR data containing review comments
         
     Returns:
-        List of extracted comment dictionaries.
+        List of comment dictionaries with standardized fields
     """
     comments = []
     
-    for pr in pr_data_list:
-        pr_id = pr.get("pr_id", "unknown")
-        
-        if "comments" in pr:
-            for comment in pr["comments"]:
-                comments.append({
-                    "pr_id": pr_id,
-                    "comment_id": comment.get("id", "unknown"),
-                    "author": comment.get("user", {}).get("login", "unknown"),
-                    "body": comment.get("body", ""),
-                    "created_at": comment.get("created_at", ""),
-                    "path": comment.get("path", ""),
-                    "line": comment.get("line", None),
-                    "original_line": comment.get("original_line", None),
-                })
-        
-        # Also check for review comments (threaded)
-        if "review_comments" in pr:
-            for comment in pr["review_comments"]:
-                comments.append({
-                    "pr_id": pr_id,
-                    "comment_id": comment.get("id", "unknown"),
-                    "author": comment.get("user", {}).get("login", "unknown"),
-                    "body": comment.get("body", ""),
-                    "created_at": comment.get("created_at", ""),
-                    "path": comment.get("path", ""),
-                    "line": comment.get("line", None),
-                    "original_line": comment.get("original_line", None),
-                })
+    # Extract from 'review_comments' if present
+    if 'review_comments' in pr_data:
+        for comment in pr_data['review_comments']:
+            comments.append({
+                'reviewer_id': comment.get('user', {}).get('login', 'unknown'),
+                'comment_body': comment.get('body', ''),
+                'timestamp': comment.get('created_at', ''),
+                'is_confirmed': False,  # Will be updated by filter_human_confirmations
+                'linked_pr_id': pr_data.get('number'),
+                'comment_type': 'review'
+            })
+    
+    # Extract from 'comments' (general PR comments) if present
+    if 'comments' in pr_data:
+        for comment in pr_data['comments']:
+            comments.append({
+                'reviewer_id': comment.get('user', {}).get('login', 'unknown'),
+                'comment_body': comment.get('body', ''),
+                'timestamp': comment.get('created_at', ''),
+                'is_confirmed': False,
+                'linked_pr_id': pr_data.get('number'),
+                'comment_type': 'comment'
+            })
     
     return comments
 
 
-def generate_checksums(file_paths: List[Path]) -> Dict[str, str]:
+def generate_checksums(file_path: Path) -> str:
     """
-    Generate SHA-256 checksums for a list of files.
+    Generate SHA-256 checksum for a file.
     
     Args:
-        file_paths: List of Path objects pointing to files.
+        file_path: Path to the file
         
     Returns:
-        Dictionary mapping file basename to SHA-256 hex digest.
+        Hexadecimal SHA-256 checksum string
     """
-    checksums = {}
+    sha256_hash = hashlib.sha256()
     
-    for file_path in file_paths:
-        if not file_path.exists():
-            logger.warning(f"File not found, skipping checksum: {file_path}")
-            continue
-        
-        sha256_hash = hashlib.sha256()
-        try:
-            with open(file_path, "rb") as f:
-                for chunk in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(chunk)
-            
-            checksums[file_path.name] = sha256_hash.hexdigest()
-            logger.info(f"Generated checksum for {file_path.name}: {checksums[file_path.name][:16]}...")
-            
-        except Exception as e:
-            logger.error(f"Failed to compute checksum for {file_path}: {e}")
+    with open(file_path, "rb") as f:
+        # Read in chunks for large files
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     
-    return checksums
+    return sha256_hash.hexdigest()
 
-
-def save_raw_with_checksums(pr_data_list: List[Dict[str, Any]], output_dir: Path) -> None:
+def save_raw_with_checksums(raw_data: List[Dict[str, Any]], output_dir: Path) -> Path:
     """
-    Save raw PR data to JSON and generate SHA-256 checksums.
-    
-    This function implements T015:
-    - Saves raw JSON to data/raw/
-    - Generates data/raw/checksums.json
+    Save raw PR data to JSON and generate checksums.
     
     Args:
-        pr_data_list: List of PR data dictionaries.
-        output_dir: Directory to save files (should be data/raw/).
+        raw_data: List of PR data dictionaries
+        output_dir: Directory to save files
+        
+    Returns:
+        Path to the saved checksums file
     """
+    # Ensure output directory exists
     ensure_directories([output_dir])
     
-    # Save raw JSON
-    timestamp = None
-    if pr_data_list and "timestamp" in pr_data_list[0]:
-        timestamp = pr_data_list[0]["timestamp"]
+    # Save raw data
+    raw_file = output_dir / "pr_data_raw.json"
+    with open(raw_file, 'w', encoding='utf-8') as f:
+        json.dump(raw_data, f, indent=2, ensure_ascii=False)
     
-    if timestamp:
-        output_file = output_dir / f"pr_data_{timestamp.replace(':', '-')}.json"
-    else:
-        import datetime
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = output_dir / f"pr_data_{timestamp}.json"
+    # Generate checksum for the raw file
+    checksum = generate_checksums(raw_file)
     
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(pr_data_list, f, indent=2, default=str)
+    # Create checksums dictionary
+    checksums_data = {
+        'files': [
+            {
+                'filename': 'pr_data_raw.json',
+                'checksum': checksum,
+                'algorithm': 'sha256',
+                'record_count': len(raw_data)
+            }
+        ],
+        'generated_at': str(Path(output_dir).parent / 'logs' / 'checksums.log'),
+        'checksum_file': str(raw_file)
+    }
     
-    logger.info(f"Saved raw PR data to {output_file}")
-    
-    # Generate checksums for all JSON files in the directory
-    json_files = list(output_dir.glob("*.json"))
-    checksums = generate_checksums(json_files)
-    
-    # Save checksums file
+    # Save checksums
     checksums_file = output_dir / "checksums.json"
-    with open(checksums_file, "w", encoding="utf-8") as f:
-        json.dump(checksums, f, indent=2)
+    with open(checksums_file, 'w', encoding='utf-8') as f:
+        json.dump(checksums_data, f, indent=2)
     
+    logger.info(f"Saved raw data to {raw_file} with checksum: {checksum}")
     logger.info(f"Saved checksums to {checksums_file}")
-
-
-def generate_human_baseline(pr_data_list: List[Dict[str, Any]], 
-                             llm_detections: List[Dict[str, Any]],
-                             output_path: Path) -> None:
-    """
-    Generate triangulated ground truth baseline.
     
-    Requirements (FR-011):
-    - Requires linked issue AND ≥2 independent reviewers
-    - Excludes bugs not meeting strict criteria
-    - Flags excluded bugs
-    
-    Args:
-        pr_data_list: List of PR data dictionaries.
-        llm_detections: List of LLM detection results.
-        output_path: Path to save human_baseline.json.
-    """
-    ensure_directories([output_path.parent])
-    
-    baseline = []
-    
-    # This is a placeholder for the actual triangulation logic
-    # which would merge PR data with review annotations
-    # For T015, this function is defined but the main focus is checksums
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(baseline, f, indent=2)
-    
-    logger.info(f"Generated human baseline (empty) at {output_path}")
+    return checksums_file
 
 
 def main():
     """
-    Main entry point for preprocessing.
+    Main entry point for preprocessing with checksum generation.
     
-    Usage:
-        python -m code.src.extraction.preprocess
-    
-    This script:
-    1. Loads raw PR data from data/raw/ (if exists)
-    2. Preprocesses diffs (truncation)
-    3. Extracts raw comments to data/annotations/raw_comments.json
-    4. Saves raw JSON with checksums to data/raw/checksums.json
+    This function:
+    1. Loads raw PR data from data/raw/pr_data_raw.json (output of T012)
+    2. Preprocesses each PR (truncates diffs if needed)
+    3. Saves processed data back to data/raw/ with SHA-256 checksums
+    4. Logs truncation warnings to logs/truncation.log
     """
-    paths = get_paths()
-    raw_dir = paths["raw"]
-    annotations_dir = paths["annotations"]
+    # Setup logging
+    from code.src.utils.logger import get_logger, setup_pipeline_logging
+    setup_pipeline_logging()
+    logger = get_logger(__name__)
     
-    ensure_directories([raw_dir, annotations_dir])
+    logger.info("Starting preprocessing with checksum generation (T015)")
+    
+    # Get paths
+    paths = get_paths()
+    raw_data_dir = paths['data_raw']
     
     # Check if raw data exists
-    raw_files = list(raw_dir.glob("pr_data_*.json"))
-    
-    if not raw_files:
-        logger.warning("No raw PR data found. Run fetch_prs.py first.")
+    raw_file = raw_data_dir / "pr_data_raw.json"
+    if not raw_file.exists():
+        logger.error(f"Raw data file not found: {raw_file}")
+        logger.error("Please run T012 (fetch_prs) first to generate raw data.")
         return
     
-    # Process the most recent raw file
-    latest_file = max(raw_files, key=lambda p: p.stat().st_mtime)
+    # Load raw data
+    logger.info(f"Loading raw data from {raw_file}")
+    with open(raw_file, 'r', encoding='utf-8') as f:
+        raw_data = json.load(f)
     
-    logger.info(f"Processing {latest_file}")
+    logger.info(f"Loaded {len(raw_data)} PR records")
     
-    with open(latest_file, "r", encoding="utf-8") as f:
-        pr_data_list = json.load(f)
-    
-    # Preprocess diffs
+    # Preprocess each PR
     processed_data = []
-    for pr in pr_data_list:
-        processed = preprocess_pr_data(pr)
-        processed_data.append(processed)
+    for pr in raw_data:
+        processed_pr = preprocess_pr_data(pr)
+        processed_data.append(processed_pr)
+        
+        # Log truncation info
+        if processed_pr.get('truncation_flag'):
+            logger.warning(
+                f"PR #{pr.get('number', 'unknown')} truncated: "
+                f"original={processed_pr.get('original_diff_length', 0)} chars, "
+                f"truncated={processed_pr.get('truncated_diff_length', 0)} chars"
+            )
     
-    # Save processed raw data (overwriting with checksums)
-    save_raw_with_checksums(processed_data, raw_dir)
+    # Save processed data with checksums
+    checksums_path = save_raw_with_checksums(processed_data, raw_data_dir)
     
-    # Extract and save raw comments
-    comments = extract_raw_comments(processed_data)
-    comments_file = annotations_dir / "raw_comments.json"
-    
-    with open(comments_file, "w", encoding="utf-8") as f:
-        json.dump(comments, f, indent=2, default=str)
-    
-    logger.info(f"Saved {len(comments)} raw comments to {comments_file}")
-    
-    logger.info("Preprocessing complete.")
-
+    logger.info("Preprocessing with checksum generation complete")
+    logger.info(f"Checksums saved to: {checksums_path}")
 
 if __name__ == "__main__":
     main()

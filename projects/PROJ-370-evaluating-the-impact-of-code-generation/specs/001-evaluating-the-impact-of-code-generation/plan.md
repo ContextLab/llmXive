@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational research pipeline to evaluate the performance of CPU-tractable LLMs (specifically StarCoder-3B) in detecting bugs within GitHub Pull Requests (PRs) compared to human review baselines. The system extracts PR diffs and review metadata from verified datasets, simulates LLM-assisted bug detection with severity classification, aligns findings with human annotations using a strict location-similarity hybrid metric (with line-shift tolerance), and performs statistical testing (McNemar's, Chi-square) to report Precision, Recall, F1, and distributional differences. The implementation strictly adheres to CPU-only constraints (≤7GB RAM, ≤6h runtime) and frames all findings as associational.
+This feature implements a computational research pipeline to evaluate the performance of CPU-tractable LLMs (specifically StarCoder) in detecting bugs within GitHub Pull Requests (PRs) compared to human review baselines. The system extracts PR diffs and review metadata from verified datasets, simulates LLM-assisted bug detection with severity classification, aligns findings with human annotations using a strict location-similarity hybrid metric (with line-shift tolerance), and performs statistical testing (McNemar's, Chi-square) to report Precision, Recall, F1, and distributional differences. The implementation strictly adheres to CPU-only constraints (≤7GB RAM, ≤6h runtime) and frames all findings as associational.
 
 ## Technical Context
 
@@ -61,7 +61,7 @@ src/
 │   ├── detect_llm_code.py   # Heuristic detection of LLM-generated code (FR-016)
 │   └── schema.py            # Detection result schema
 ├── inference/
-│   ├── load_model.py        # CPU-only StarCoder2-3B loader
+│   ├── load_model.py        # CPU-only StarCoder-3B loader
 │   ├── prompt_templates.py  # Standardized bug detection prompts
 │   └── run_inference.py     # Batch processing with retry logic
 ├── analysis/

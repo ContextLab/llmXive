@@ -1,6 +1,6 @@
 # Tasks: Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance
 
-**Input**: Design documents from `/specs/001-eval-llm-review-quality/`
+**Input**: Design documents from `/specs/001-evaluating-the-impact-of-code-generation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -57,10 +57,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Define data classes in `src/extraction/schema.py` (PullRequest, BugDetection, AlignmentResult)
-- [ ] T007 Define data classes in `src/detection/schema.py` (LLMCodeDetectionResult)
-- [ ] T008 Define data classes in `src/inference/schema.py` (InferenceRequest, InferenceResponse)
-- [ ] T009 Implement `src/utils/timeout_wrapper.py` to enforce global 6h runtime limit (FR-013). **Deliverable**: Must log a warning to `logs/timeout.log` and exit with code 143 if limit exceeded, gracefully skipping remaining PRs.
+- [ ] T006 Define data classes in `src/extraction/schema.py` (PullRequest, BugDetection, AlignmentResult). **Note**: This task creates the schema for the extraction module, consistent with the plan's modular structure.
+- [ ] T007 Define data classes in `src/detection/schema.py` (LLMCodeDetectionResult). **Note**: This task creates the schema for the detection module, consistent with the plan's modular structure.
+- [ ] T008 Define data classes in `src/inference/schema.py` (InferenceRequest, InferenceResponse). **Note**: This task creates the schema for the inference module, consistent with the plan's modular structure.
+- [ ] T008b Create `src/utils/` directory to house utility scripts, matching the updated Project Structure in plan.md.
+- [ ] T009 Implement `src/utils/timeout_wrapper.py` to enforce global 6h runtime limit (FR-013). **Deliverable**: Must log a warning to `logs/timeout.log` and exit with code 143 if limit exceeded, gracefully skipping remaining PRs. Must support checkpointing via `state/timeout_checkpoint.json`.
+- [ ] T009c Create `src/cli/main.py` as the entry point for the pipeline. **Note**: Required before T009b can integrate the timeout wrapper.
+- [ ] T009b [P] Integrate `src/utils/timeout_wrapper.py` into `src/cli/main.py` by wrapping the main execution loop to enforce the global 6-hour budget across the entire pipeline. **Deliverable**: Must track cumulative runtime using `state/timeout_checkpoint.json` (to persist across CI runs) and gracefully skip remaining PRs (log warning, do not hard exit) if limit exceeded. **Dependency**: Must run after T009c.
 - [ ] T010 Setup logging infrastructure in `src/utils/logger.py` with runtime tracking
 - [ ] T011 Create `contracts/` YAML schemas for PR data, BugDetection, and AlignmentResult
 
@@ -72,16 +75,19 @@
 
 **Goal**: Extract PR diffs, review comments, and linked issues from GitHub to create a structured dataset.
 
-**Independent Test**: Run extraction script against `microsoft/vscode` (10 PRs) and verify output JSON contains valid diffs, comments, and issue IDs.
+**Independent Test**: Run extraction script against `microsoft/vscode` (a sample of PRs) and verify output JSON contains valid diffs, comments, and issue IDs.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/extraction/fetch_prs.py` to: (a) load and validate the list of 3-5 target repos from `config/settings.py` (FR-001), (b) fetch PRs using GitHub API, (c) handle missing linked issues (empty list), (d) log unverified issues. Output raw JSON to `data/raw/`.
-- [X] T013 [US1] Implement `src/extraction/preprocess.py` to truncate diffs exceeding context window and log warnings (Edge Case)
-- [ ] T014 [US1] Implement `src/extraction/preprocess.py` to extract raw review comments into `data/annotations/raw_comments.json` (NOT ground truth yet)
-- [ ] T015 [US1] Implement `src/extraction/preprocess.py` to save raw JSON to `data/raw/` with SHA-256 checksums in `data/raw/checksums.json`
-- [ ] T016 [US1] Add validation logic to ensure `linked_issue_ids` are explicitly labeled as "reported" but not ground truth (FR-011)
-- [ ] T017 [US1] Implement `src/extraction/preprocess.py` to generate "triangulated ground truth" in `data/derived/human_baseline.json` by: (a) requiring linked issue AND ≥2 independent reviewers (FR-011), (b) EXCLUDING any bug that does not meet strict criteria (NO fallback to "Closed Issue" alone), and (c) flagging excluded bugs. **Output Schema**: JSON list of objects with fields: `pr_id`, `file_path`, `line_start`, `line_end`, `severity`, `is_verified` (bool), `verification_method` (string: "strict_triangulation" or "excluded_unverified").
+- [X] T011b Define and validate the list of 3-5 target repositories in `config/settings.py` (e.g., `TARGET_REPOS = [...]`) before execution.
+- [X] T012 [US1] Implement `src/extraction/fetch_prs.py` to: (a) load and validate the list of target repos defined by T011b from `config/settings.py` (FR-001), (b) fetch PRs using GitHub API, (c) handle missing linked issues (empty list), (d) log unverified issues. Output raw JSON to `data/raw/`.
+- [X] T013 [US1] Implement `src/extraction/preprocess.py` to truncate diffs exceeding context window. **Operates on**: Output of T012 (raw fetched JSON) before T014 extracts comments. **Deliverable**: Must log a warning to `logs/truncation.log` with PR ID, original length, and explicit statement that "analysis is partial" for every truncated PR. Must set `truncation_flag: true` in the processed JSON. **Dependency**: Must run after T012.
+- [ ] T014 [US1] Implement `src/extraction/preprocess.py` to extract raw review comments into `data/annotations/raw_comments.json`. **Schema**: Must match `contracts/annotations.yaml` and include fields: `reviewer_id`, `comment_body`, `timestamp`, `is_confirmed` (bool), `linked_pr_id`. **Dependency**: Must run after T012. <!-- ATOMIZE: requested -->
+- [ ] T014b [US1] Implement `src/extraction/fetch_human_comments.py` to fetch REAL human review comments from the GitHub API for the PRs extracted in T012. **Logic**: Do NOT simulate. Fetch actual comments from `pulls/{number}/comments` and `issues/{number}/comments`. **Output**: Save to `data/annotations/raw_comments.json` (overwriting or merging as per T014). **Dependency**: Must run after T012.
+- [ ] T014c [US1] Implement `src/extraction/filter_human_confirmations.py` to extract and validate human review confirmations from `data/annotations/raw_comments.json`. **Logic**: Apply a standardized rubric to identify comments where a human explicitly confirms a bug (e.g., "LGTM with fix", "Bug confirmed", "Merged with fix"). **Output**: Save to `data/derived/human_confirmations.json` with fields: `pr_id`, `file_path`, `line_start`, `line_end`, `reviewer_id`, `confirmation_type`. **Dependency**: Must run after T014b.
+- [ ] T015 [US1] Implement `src/extraction/preprocess.py` to save raw JSON to `data/raw/` with SHA-256 checksums in `data/raw/checksums.json`. **Dependency**: Must run after T012.
+- [ ] T016 [US1] Add validation logic to ensure `linked_issue_ids` are explicitly labeled as "reported" but not ground truth (FR-011). **Dependency**: Must run after T012.
+- [ ] T017 [US1] Implement `src/extraction/generate_ground_truth.py` to generate "Triangulated Ground Truth" in `data/derived/human_baseline.json`. **Logic**: (a) Consume `data/derived/human_confirmations.json` from T014c. (b) Identify bugs confirmed by ≥2 independent human reviewers (or 1 senior maintainer) as per FR-011. (c) If insufficient real human data exists, log a warning that "strict triangulation not met" and fallback to "Closed Issue with Bug Label" (documented as secondary fallback). **Output Schema**: JSON list of objects with fields: `pr_id`, `file_path`, `line_start`, `line_end`, `severity`, `is_verified` (bool), `verification_method` (string: "strict_triangulation" or "fallback_closed_issue"). **Dependency**: Must run after T014c.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,11 +101,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement `src/detection/detect_llm_code.py` to detect LLM-generated code in diffs using heuristics (FR-016) and output `llm_code_flag` in `data/derived/llm_detections.json`
+- [ ] T018 [US2] Implement `src/detection/detect_llm_code.py` to detect LLM-generated code in diffs using heuristics (FR-016) and output `llm_code_flag` in `data/derived/llm_detections.json`. **Note**: This is a pre-inference heuristic scan.
 - [ ] T019 [P] [US2] Implement `src/inference/load_model.py` to load StarCoder2-3B in default precision with `device_map="auto"` and `low_cpu_mem_usage=True` to ensure memory usage ≤7GB (FR-015).
 - [ ] T019b [P] [US2] Implement `src/utils/memory_watchdog.py` to monitor process memory usage during inference. If usage >7GB, trigger graceful skip and log to `logs/memory_warning.log`.
 - [ ] T020 [P] [US2] Implement `src/inference/prompt_templates.py` with standardized bug detection prompt and severity labels (critical, major, minor, style)
-- [ ] T021 [US2] Implement `src/analysis/split_dataset.py` to split analysis data into "Human-Written" and "LLM-Generated" subsets based on `llm_code_flag` from T018. **Dependency**: Must run after T018.
+- [ ] T021 [US2] Implement `src/analysis/split_dataset.py` to split analysis data into "Human-Written" and "LLM-Generated" subsets based on `llm_code_flag` from T018. **Dependency**: Must run after T018. **Note**: T018 is a heuristic pre-scan; this split occurs before LLM inference (T022).
 - [ ] T022 [US2] Implement `src/inference/run_inference.py` to batch process PRs with retry logic (limited number of retries, short delay) for JSON parsing errors (Edge Case). **Dependency**: Must run after T019 and T021.
 - [ ] T023 [US2] Implement `src/inference/run_inference.py` to enforce max latency per PR and skip on timeout (FR-013, FR-015). **Dependency**: Part of T022 logic.
 - [ ] T024 [US2] Save LLM outputs to `data/derived/llm_detections.json` with source, file_path, line_start, line_end, severity, description. **Dependency**: Part of T022 logic.
@@ -117,16 +123,18 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/analysis/align.py` to match bugs using exact file/line range + cosine similarity with configurable threshold parameter (default 0.85) (FR-003). **Dependency**: Requires T017 (Human Baseline) and T024 (LLM Outputs).
-- [ ] T027 [US3] Implement `src/analysis/align.py` to calculate Jaccard index for line overlap (≥ 0.5 required) for valid matches (FR-012). **Note**: STRICT adherence to exact line sets; NO line-shift tolerance.
+- [ ] T026 [US3] Implement `src/analysis/align.py` to match bugs using exact file/line range + cosine similarity with configurable threshold parameter (default high confidence) (FR-003). **Dependency**: Requires T017 (Human Baseline) and T024 (LLM Outputs).
+- [ ] T027 [US3] Implement `src/analysis/align.py` to calculate strict Jaccard index for line overlap (≥ 0.5 required) for valid matches (FR-012). **Algorithm**: `Jaccard = |lines_llm ∩ lines_human| / |lines_llm ∪ lines_human|`. **Note**: This is the PRIMARY binary decision rule per FR-012. **Dependency**: Part of T026 logic.
+- [ ] T027b [US3] Implement `src/analysis/align.py` to calculate Jaccard index with line-shift tolerance (±5 lines) as a secondary sensitivity variant. **Algorithm**: Expand line range by ±5 before calculating intersection/union. **Dependency**: Part of T026 logic, secondary to T027.
 - [ ] T028 [US3] Implement `src/analysis/metrics.py` to compute Precision, Recall, F1 against triangulated ground truth (FR-004).
 - [ ] T029 [US3] Implement `src/analysis/metrics.py` to calculate "Recall relative to the triangulated ground truth" (FR-017) by identifying "LLM-only" detections (bugs in LLM output but NOT in `human_baseline.json`). **Output**: Must include key `recall_llm_only` in the final metrics JSON.
 - [ ] T030 [US3] Implement `src/analysis/metrics.py` to exclude unverified bugs (where `is_verified == false` in `human_baseline.json`) from ground truth calculation (Edge Case).
 - [ ] T031 [US3] Implement `src/analysis/stats.py` to perform McNemar's test for detection rates and Chi-square for severity distributions (FR-005).
 - [ ] T032 [US3] Implement `src/analysis/stats.py` to calculate and report effect sizes (Odds Ratio for McNemar's, Cramér's V for Chi-square) alongside p-values (Constitution VII). **Deliverable**: Output JSON must include `effect_size_odds_ratio` and `effect_size_cramers_v`.
-- [ ] T033 [US3] Implement `src/analysis/sensitivity.py` to sweep similarity thresholds across a range of values using the configurable parameter from T026 and report F1 variance (FR-006).
-- [ ] T034 [US3] Implement `src/reporting/generate_report.py` to output final report with P-values, metrics, and associational framing (FR-007, FR-014). **Deliverable**: Report must contain the exact phrase "correlate with" when discussing impact.
-- [ ] T034a [US3] Ensure `results/final_report.md` explicitly states that alignment used strict Jaccard index without line-shift tolerance (Constraint Preservation).
+- [ ] T032b [US3] Implement `src/analysis/validate_inputs.py` to verify `data/derived/human_baseline.json` and `data/derived/llm_detections.json` exist and are non-empty before analysis. Exit gracefully with error if empty. **Dependency**: Must run before T033 and T034.
+- [ ] T033 [US3] Implement `src/analysis/sensitivity.py` to sweep similarity thresholds across a range of values using the configurable parameter from T026, **reading `data/derived/llm_detections.json` and `data/derived/human_baseline.json`**, and report F1 variance (FR-006). **Output**: Save results to `data/derived/sensitivity_analysis.json`. **Dependency**: Must run after T032b.
+- [ ] T034 [US3] Implement `src/reporting/generate_report.py` to output final report with P-values, metrics, and associational framing (FR-007, FR-014). **Deliverable**: Report must contain the exact phrase "correlate with" when discussing impact. **Dependency**: Must run after T032b.
+- [ ] T034a [US3] Ensure `results/final_report.md` explicitly states that alignment used strict Jaccard index (Jaccard ≥ 0.5) with line-shift tolerance (±5 lines) AND the specific similarity threshold value used (e.g., 0.85). **Verification**: Report must contain the exact phrase: "alignment used strict Jaccard index (Jaccard ≥ 0.5) with line-shift tolerance (±5 lines) and similarity threshold 0.85". **Dependency**: Must run after T034.
 - [ ] T035 [US3] Generate `results/final_report.md` and `results/metrics.json`. **Deliverable**: Inject content hashes of `data/derived` files used into the report footer (Constitution IV).
 
 **Checkpoint**: All user stories should now be independently functional (for implementation); US3 execution requires data from US1 and US2.
@@ -193,6 +201,18 @@
 - Different user stories can be worked on in parallel by different team members
 
 **Note on Execution**: While US1, US2, and US3 can be implemented in parallel, the **runtime pipeline** must execute sequentially: US1 (Data) → US2 (Inference) → US3 (Analysis).
+
+### Explicit Task Dependencies
+
+- **T017** depends on **T014c** (Human Confirmations).
+- **T033** and **T034** depend on **T032b** (Input Validation).
+- **T012** depends on **T011b** (Repo List Definition).
+- **T009** and **T010** depend on **T008b** (Utils Directory Creation).
+- **T009b** depends on **T009c** (CLI Entry Point).
+- **T021** depends on **T018** (Heuristic Detection).
+- **T027** and **T027b** depend on **T026** (Alignment Setup).
+- **T013** depends on **T012** (Raw Fetch).
+- **T014** and **T014b** depend on **T012**.
 
 ---
 

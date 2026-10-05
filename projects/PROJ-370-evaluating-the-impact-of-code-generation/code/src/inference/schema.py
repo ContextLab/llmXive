@@ -1,3 +1,9 @@
+"""
+Schema definitions for the Inference module.
+
+Defines data structures for LLM inference requests and responses,
+including status tracking and integration with extraction/detection schemas.
+"""
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from enum import Enum
@@ -8,163 +14,145 @@ from code.src.detection.schema import LLMCodeDetectionResult
 
 
 class InferenceStatus(Enum):
-    """Enumeration of possible inference states."""
+    """Status of an inference request."""
     PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
+    SUCCESS = "success"
     FAILED = "failed"
     TIMEOUT = "timeout"
-    MEMORY_LIMIT_EXCEEDED = "memory_limit_exceeded"
+    SKIPPED = "skipped"
+    ERROR = "error"
 
 
 @dataclass
 class InferenceRequest:
     """
-    Data class representing a request for LLM inference on a specific PR.
-
+    Request structure for LLM inference.
+    
     Attributes:
         pr_id: Unique identifier for the pull request.
-        repo_name: Full repository name (e.g., 'microsoft/vscode').
-        diff_text: The raw diff text to be analyzed.
-        file_path: Path to the file containing the changes.
-        line_start: Start line number of the change context.
-        line_end: End line number of the change context.
-        severity_hint: Optional severity hint from extraction phase.
-        llm_detection_result: Optional result from LLM code detection step.
-        context_window_size: Maximum number of tokens to include in the prompt.
-        metadata: Additional arbitrary metadata for the request.
+        repo: Repository name (e.g., 'owner/repo').
+        diff_text: The diff content to be analyzed.
+        file_path: Path to the file within the PR.
+        line_start: Start line number for the context.
+        line_end: End line number for the context.
+        llm_detection_result: Optional pre-detection result indicating if code is LLM-generated.
+        context_window: Optional maximum token limit for the context.
+        metadata: Additional metadata for the request.
     """
     pr_id: str
-    repo_name: str
+    repo: str
     diff_text: str
     file_path: str
     line_start: int
     line_end: int
-    severity_hint: Optional[Severity] = None
     llm_detection_result: Optional[LLMCodeDetectionResult] = None
-    context_window_size: int = 4096
+    context_window: Optional[int] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the request to a dictionary for serialization."""
-        data = {
+        """Convert the request to a dictionary."""
+        return {
             "pr_id": self.pr_id,
-            "repo_name": self.repo_name,
+            "repo": self.repo,
             "diff_text": self.diff_text,
             "file_path": self.file_path,
             "line_start": self.line_start,
             "line_end": self.line_end,
-            "context_window_size": self.context_window_size,
-            "metadata": self.metadata,
+            "llm_detection_result": self.llm_detection_result.to_dict() if self.llm_detection_result else None,
+            "context_window": self.context_window,
+            "metadata": self.metadata
         }
-        if self.severity_hint is not None:
-            data["severity_hint"] = self.severity_hint.value
-        if self.llm_detection_result is not None:
-            data["llm_detection_result"] = self.llm_detection_result.to_dict()
-        return data
-
-    def to_json(self) -> str:
-        """Serialize the request to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2, default=str)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "InferenceRequest":
-        """Deserialize a dictionary into an InferenceRequest instance."""
-        severity = None
-        if "severity_hint" in data and data["severity_hint"]:
-            try:
-                severity = Severity(data["severity_hint"])
-            except ValueError:
-                # Fallback if string doesn't match enum, though validation should prevent this
-                severity = Severity.UNKNOWN
-
-        llm_res = None
-        if "llm_detection_result" in data and data["llm_detection_result"]:
-            llm_res = LLMCodeDetectionResult.from_dict(data["llm_detection_result"])
-
+    def from_dict(cls, data: Dict[str, Any]) -> 'InferenceRequest':
+        """Create an InferenceRequest from a dictionary."""
+        llm_det = data.get("llm_detection_result")
+        if llm_det and isinstance(llm_det, dict):
+            llm_det = LLMCodeDetectionResult.from_dict(llm_det)
+        
         return cls(
             pr_id=data["pr_id"],
-            repo_name=data["repo_name"],
+            repo=data["repo"],
             diff_text=data["diff_text"],
             file_path=data["file_path"],
             line_start=data["line_start"],
             line_end=data["line_end"],
-            severity_hint=severity,
-            llm_detection_result=llm_res,
-            context_window_size=data.get("context_window_size", 4096),
-            metadata=data.get("metadata", {}),
+            llm_detection_result=llm_det,
+            context_window=data.get("context_window"),
+            metadata=data.get("metadata", {})
         )
 
 
 @dataclass
 class InferenceResponse:
     """
-    Data class representing the response from an LLM inference run.
-
+    Response structure from LLM inference.
+    
     Attributes:
-        request_id: Reference to the original InferenceRequest ID (or pr_id).
-        status: Current status of the inference (e.g., COMPLETED, FAILED).
+        pr_id: Unique identifier for the pull request.
+        status: Status of the inference request.
         detected_bugs: List of bugs detected by the LLM.
-        raw_output: The raw text output generated by the model.
-        parsing_error: Error message if parsing the LLM output failed.
-        latency_seconds: Time taken for the inference step.
-        model_id: Identifier of the model used for inference.
-        tokens_used: Estimated number of tokens processed.
-        metadata: Additional metadata about the response.
+        error_message: Error message if status is FAILED or ERROR.
+        latency_seconds: Time taken for inference in seconds.
+        tokens_used: Number of tokens used in the request/response.
+        model_id: ID of the model used for inference.
+        metadata: Additional metadata for the response.
     """
-    request_id: str
+    pr_id: str
     status: InferenceStatus
     detected_bugs: List[Dict[str, Any]] = field(default_factory=list)
-    raw_output: Optional[str] = None
-    parsing_error: Optional[str] = None
+    error_message: Optional[str] = None
     latency_seconds: float = 0.0
-    model_id: Optional[str] = None
     tokens_used: int = 0
+    model_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the response to a dictionary for serialization."""
+        """Convert the response to a dictionary."""
         return {
-            "request_id": self.request_id,
+            "pr_id": self.pr_id,
             "status": self.status.value,
             "detected_bugs": self.detected_bugs,
-            "raw_output": self.raw_output,
-            "parsing_error": self.parsing_error,
+            "error_message": self.error_message,
             "latency_seconds": self.latency_seconds,
-            "model_id": self.model_id,
             "tokens_used": self.tokens_used,
-            "metadata": self.metadata,
+            "model_id": self.model_id,
+            "metadata": self.metadata
         }
 
-    def to_json(self) -> str:
-        """Serialize the response to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2, default=str)
-
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "InferenceResponse":
-        """Deserialize a dictionary into an InferenceResponse instance."""
-        status_str = data.get("status", "pending")
+    def from_dict(cls, data: Dict[str, Any]) -> 'InferenceResponse':
+        """Create an InferenceResponse from a dictionary."""
+        status_str = data.get("status", "error")
         try:
             status = InferenceStatus(status_str)
         except ValueError:
-            status = InferenceStatus.FAILED
-
+            status = InferenceStatus.ERROR
+        
         return cls(
-            request_id=data["request_id"],
+            pr_id=data["pr_id"],
             status=status,
             detected_bugs=data.get("detected_bugs", []),
-            raw_output=data.get("raw_output"),
-            parsing_error=data.get("parsing_error"),
+            error_message=data.get("error_message"),
             latency_seconds=data.get("latency_seconds", 0.0),
-            model_id=data.get("model_id"),
             tokens_used=data.get("tokens_used", 0),
-            metadata=data.get("metadata", {}),
+            model_id=data.get("model_id"),
+            metadata=data.get("metadata", {})
         )
 
-    def is_successful(self) -> bool:
-        """Check if the inference completed successfully without errors."""
-        return self.status == InferenceStatus.COMPLETED and self.parsing_error is None
-
-    def has_detected_bugs(self) -> bool:
-        """Check if any bugs were detected."""
-        return len(self.detected_bugs) > 0
+    def add_bug_detection(
+        self,
+        file_path: str,
+        line_start: int,
+        line_end: int,
+        severity: Severity,
+        description: str
+    ) -> None:
+        """Add a detected bug to the response."""
+        self.detected_bugs.append({
+            "file_path": file_path,
+            "line_start": line_start,
+            "line_end": line_end,
+            "severity": severity.value,
+            "description": description
+        })
