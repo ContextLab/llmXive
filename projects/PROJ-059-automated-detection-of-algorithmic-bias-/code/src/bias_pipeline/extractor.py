@@ -1,3 +1,13 @@
+"""
+Extractor module for Automated Detection of Algorithmic Bias.
+
+This module handles the static analysis of Python repositories to extract
+code artifacts (AST nodes, tokens) and compute "Textual Bias Scores" based on
+demographic lexicon matching and sentiment analysis of comments.
+
+Implements User Story 1 (US1) and integrates with error_handler (T009, T043a).
+"""
+
 import ast
 import logging
 import re
@@ -5,245 +15,257 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Tuple, Set
 
 from .error_handler import safe_execute, ExecutionError, handle_pipeline_error
-from .lexicon import load_lexicon, match_lexicon
-from .utils import setup_logging, PipelineError, streaming_repo_iterator
+from .utils import is_valid_python_syntax, streaming_repo_iterator
+from .lexicon import load_lexicon, match_lexicon as lexicon_matcher
 
-# Configure logging
-logger = setup_logging(__name__)
+logger = logging.getLogger(__name__)
 
+# --- Core Extraction Functions ---
 
-def normalize_tokens(token_string: str) -> List[str]:
+@handle_pipeline_error(task_name="parse_ast_tree")
+def parse_ast_tree(file_path: Path) -> Optional[ast.AST]:
     """
-    Normalize a token string by splitting camelCase/snake_case and lowercasing.
-    Example: 'userName' -> ['user', 'name']
-    """
-    if not token_string:
-        return []
-    
-    # Replace underscores and hyphens with spaces for splitting
-    normalized = re.sub(r'[_-]', ' ', token_string)
-    
-    # Split camelCase: insert space before uppercase letters
-    normalized = re.sub(r'([a-z])([A-Z])', r'\1 \2', normalized)
-    
-    # Split on any whitespace
-    tokens = normalized.lower().split()
-    
-    return [t for t in tokens if t.isalnum()]
+    Parse a Python file into an AST.
 
+    Args:
+        file_path: Path to the Python source file.
 
-def extract_tokens_from_node(node: ast.AST) -> List[str]:
-    """
-    Extract raw token strings from an AST node.
-    Handles Name, Attribute, Constant (strings), and Call nodes.
-    """
-    tokens = []
-    
-    if isinstance(node, ast.Name):
-        tokens.append(node.id)
-    elif isinstance(node, ast.Attribute):
-        tokens.append(node.attr)
-    elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-        # Extract words from string literals (comments, docstrings, etc.)
-        words = re.findall(r'\b\w+\b', node.value)
-        tokens.extend(words)
-    elif isinstance(node, ast.Call):
-        if isinstance(node.func, ast.Name):
-            tokens.append(node.func.id)
-        elif isinstance(node.func, ast.Attribute):
-            tokens.append(node.func.attr)
-    
-    return tokens
-
-
-def parse_ast_tree(source_code: str) -> Optional[ast.AST]:
-    """
-    Parse source code into an AST. Returns None if syntax error.
-    """
-    try:
-        return ast.parse(source_code)
-    except SyntaxError as e:
-        logger.warning(f"Syntax error in code: {e}")
-        return None
-
-
-def extract_code_elements(tree: ast.AST) -> Generator[Tuple[str, str, str], None, None]:
-    """
-    Walk the AST and yield (element_type, name, context) tuples.
-    element_type: 'variable', 'function', 'class', 'string'
-    context: surrounding code snippet or parent name
-    """
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-            yield ('function', node.name, 'def')
-        elif isinstance(node, ast.ClassDef):
-            yield ('class', node.name, 'class')
-        elif isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    yield ('variable', target.id, 'assignment')
-                elif isinstance(target, ast.Attribute):
-                    yield ('variable', target.attr, 'attribute_assignment')
-        elif isinstance(node, ast.Name) and not isinstance(node, ast.Store):
-            # Skip store contexts (definitions) handled above
-            if isinstance(node.ctx, ast.Load):
-                yield ('variable', node.id, 'usage')
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            # String literals (comments, docstrings, literals)
-            yield ('string', node.value, 'literal')
-
-
-def match_lexicon(tokens: List[str], lexicon: Set[str]) -> int:
-    """
-    Count how many tokens match the demographic lexicon.
-    Returns the count of matches.
-    """
-    if not tokens or not lexicon:
-        return 0
-    
-    count = 0
-    for token in tokens:
-        if token in lexicon:
-            count += 1
-    return count
-
-
-def analyze_sentiment(text: str) -> float:
-    """
-    Analyze sentiment of text using VADER.
-    Returns the compound score (-1 to 1).
-    """
-    try:
-        from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-        analyzer = SentimentIntensityAnalyzer()
-        scores = analyzer.polarity_scores(text)
-        return scores['compound']
-    except ImportError:
-        logger.warning("vaderSentiment not installed. Returning 0.0 sentiment.")
-        return 0.0
-    except Exception as e:
-        logger.error(f"Sentiment analysis failed: {e}")
-        return 0.0
-
-
-def analyze_file(file_path: Path, lexicon: Set[str]) -> Dict[str, Any]:
-    """
-    Analyze a single Python file.
-    Returns a dict with:
-      - 'file_path': str
-      - 'token_count': int
-      - 'bias_score': float (weighted count of lexicon matches)
-      - 'sentiment_score': float (average compound sentiment)
-      - 'lexicon_matches': int
+    Returns:
+        The parsed AST object, or None if parsing fails (handled by decorator).
     """
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             source_code = f.read()
+        return ast.parse(source_code, filename=str(file_path))
+    except SyntaxError:
+        # Re-raise specific syntax error for the error handler to catch
+        raise ExecutionError(f"SyntaxError in {file_path}") from None
     except Exception as e:
-        logger.error(f"Failed to read file {file_path}: {e}")
-        return {
-            'file_path': str(file_path),
-            'token_count': 0,
-            'bias_score': 0.0,
-            'sentiment_score': 0.0,
-            'lexicon_matches': 0
-        }
+        raise ExecutionError(f"Failed to parse {file_path}: {e}") from e
 
-    tree = parse_ast_tree(source_code)
-    if tree is None:
-        return {
-            'file_path': str(file_path),
-            'token_count': 0,
-            'bias_score': 0.0,
-            'sentiment_score': 0.0,
-            'lexicon_matches': 0
-        }
-
-    all_tokens = []
-    sentiment_scores = []
-    
-    for elem_type, name, context in extract_code_elements(tree):
-        if elem_type == 'string':
-            # Sentiment analysis on string literals (comments, docstrings)
-            sent = analyze_sentiment(name)
-            sentiment_scores.append(sent)
-            # Also tokenize string content for lexicon matching
-            all_tokens.extend(normalize_tokens(name))
-        else:
-            # Variable, function, class names
-            normalized = normalize_tokens(name)
-            all_tokens.extend(normalized)
-
-    lexicon_matches = match_lexicon(all_tokens, lexicon)
-    
-    # Bias score: normalized count of lexicon matches
-    # If no tokens, bias score is 0
-    if len(all_tokens) == 0:
-        bias_score = 0.0
-    else:
-        bias_score = lexicon_matches / len(all_tokens)
-
-    # Average sentiment
-    avg_sentiment = sum(sentiment_scores) / len(sentiment_scores) if sentiment_scores else 0.0
-
-    return {
-        'file_path': str(file_path),
-        'token_count': len(all_tokens),
-        'bias_score': bias_score,
-        'sentiment_score': avg_sentiment,
-        'lexicon_matches': lexicon_matches
-    }
-
-
-@handle_pipeline_error
-def process_single_repo(repo_path: Path, lexicon: Set[str]) -> Dict[str, Any]:
+@handle_pipeline_error(task_name="extract_code_elements")
+def extract_code_elements(tree: ast.AST) -> Dict[str, List[str]]:
     """
-    Process a single repository: analyze all Python files and return aggregated stats.
-    """
-    file_results = []
-    
-    for py_file in repo_path.rglob('*.py'):
-        # Skip hidden directories and common non-source dirs
-        if any(part.startswith('.') for part in py_file.parts):
-            continue
-        if any(part in {'__pycache__', 'venv', '.git', 'node_modules'} for part in py_file.parts):
-            continue
-        
-        result = analyze_file(py_file, lexicon)
-        if result['token_count'] > 0:
-            file_results.append(result)
+    Traverse AST and extract variable names, function names, and string literals.
 
-    return {
-        'repo_path': str(repo_path),
-        'files_analyzed': len(file_results),
-        'file_results': file_results
-    }
-
-
-def aggregate_repo_score(repo_analysis: Dict[str, Any]) -> float:
-    """
-    Compute the repository-level bias score.
-    
-    Logic:
-      - Extract file-level 'bias_score' for each file that has tokens (token_count > 0).
-      - Compute the mean of these non-zero token file scores.
-      - If no files have tokens, return 0.0.
-    
     Args:
-        repo_analysis: Dict returned by process_single_repo containing 'file_results'.
-    
+        tree: The AST object.
+
     Returns:
-        float: The aggregated repository bias score.
+        Dictionary with keys 'variables', 'functions', 'strings'.
     """
-    file_results = repo_analysis.get('file_results', [])
-    
-    # Filter for files with tokens (exclude 0-token files as per FR-009)
-    valid_scores = [
-        f['bias_score'] for f in file_results 
-        if f.get('token_count', 0) > 0
-    ]
-    
+    elements = {
+        'variables': [],
+        'functions': [],
+        'strings': [],
+        'comments': [] # Comments are not in AST directly, handled in analyze_file via source
+    }
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    elements['variables'].append(target.id)
+                elif isinstance(target, ast.Attribute):
+                    elements['variables'].append(target.attr)
+        elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+            elements['functions'].append(node.name)
+        elif isinstance(node, ast.Str) or isinstance(node, ast.Constant) and isinstance(node.value, str):
+            elements['strings'].append(node.value)
+        elif isinstance(node, ast.arguments):
+            for arg in node.args:
+                elements['variables'].append(arg.arg)
+
+    return elements
+
+@handle_pipeline_error(task_name="normalize_tokens")
+def normalize_tokens(tokens: List[str]) -> List[str]:
+    """
+    Normalize tokens from camelCase to snake_case and lowercasing.
+
+    Args:
+        tokens: List of raw token strings.
+
+    Returns:
+        List of normalized tokens.
+    """
+    normalized = []
+    for token in tokens:
+        # Handle camelCase to snake_case
+        # Insert underscore before uppercase letters that are followed by lowercase
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', token)
+        s2 = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1)
+        # Lowercase
+        normalized.append(s2.lower())
+    return normalized
+
+@handle_pipeline_error(task_name="match_lexicon")
+def match_lexicon(tokens: List[str], lexicon: Dict[str, float]) -> Dict[str, Any]:
+    """
+    Match normalized tokens against the demographic lexicon.
+
+    Args:
+        tokens: List of normalized tokens.
+        lexicon: The loaded lexicon dictionary {term: bias_score}.
+
+    Returns:
+        Dictionary containing matches and aggregated score.
+    """
+    matches = []
+    total_score = 0.0
+    count = 0
+
+    for token in tokens:
+        if token in lexicon:
+            score = lexicon[token]
+            matches.append({'token': token, 'score': score})
+            total_score += score
+            count += 1
+
+    return {
+        'matches': matches,
+        'total_score': total_score,
+        'count': count,
+        'avg_score': total_score / count if count > 0 else 0.0
+    }
+
+@handle_pipeline_error(task_name="analyze_sentiment")
+def analyze_sentiment(text: str) -> Dict[str, float]:
+    """
+    Analyze sentiment of a text string using VADER.
+
+    Args:
+        text: The text to analyze.
+
+    Returns:
+        Dictionary with compound, pos, neu, neg scores.
+    """
+    try:
+        from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+    except ImportError:
+        raise ExecutionError("vaderSentiment not installed") from None
+
+    analyzer = SentimentIntensityAnalyzer()
+    scores = analyzer.polarity_scores(text)
+    return scores
+
+# --- File and Repository Level Processing ---
+
+@handle_pipeline_error(task_name="analyze_file")
+def analyze_file(file_path: Path, lexicon: Dict[str, float]) -> Dict[str, Any]:
+    """
+    Perform full analysis on a single Python file.
+
+    1. Parse AST.
+    2. Extract elements.
+    3. Normalize tokens.
+    4. Match lexicon.
+    5. Analyze sentiment of comments (extracted via regex from source).
+
+    Args:
+        file_path: Path to the file.
+        lexicon: Loaded lexicon.
+
+    Returns:
+        Aggregated analysis result for the file.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    # Extract comments using regex from source
+    source = file_path.read_text(encoding='utf-8', errors='ignore')
+    comment_pattern = re.compile(r'#.*$|\"\"\"[\s\S]*?\"\"\"|\'\'\'[\s\S]*?\'\'\'', re.MULTILINE)
+    comments = comment_pattern.findall(source)
+    comment_text = " ".join(comments)
+
+    tree = parse_ast_tree(file_path)
+    if tree is None:
+        return {'status': 'error', 'message': 'Failed to parse AST'}
+
+    elements = extract_code_elements(tree)
+    all_tokens = (
+        elements.get('variables', []) +
+        elements.get('functions', []) +
+        elements.get('strings', [])
+    )
+
+    normalized = normalize_tokens(all_tokens)
+    lexicon_result = match_lexicon(normalized, lexicon)
+
+    sentiment_result = analyze_sentiment(comment_text)
+
+    return {
+        'file': str(file_path),
+        'lexicon': lexicon_result,
+        'sentiment': sentiment_result,
+        'token_count': len(normalized),
+        'comment_count': len(comments)
+    }
+
+@handle_pipeline_error(task_name="process_single_repo")
+def process_single_repo(repo_path: Path, lexicon: Dict[str, float]) -> Generator[Dict[str, Any], None, None]:
+    """
+    Iterate over Python files in a repository and yield analysis results.
+
+    Args:
+        repo_path: Path to the repository root.
+        lexicon: Loaded lexicon.
+
+    Yields:
+        Analysis result for each valid Python file.
+    """
+    if not repo_path.is_dir():
+        raise ExecutionError(f"Path is not a directory: {repo_path}")
+
+    # Use streaming iterator if available, else fallback to walk
+    try:
+        files = streaming_repo_iterator(repo_path, language="python")
+    except Exception:
+        files = (p for p in repo_path.rglob("*.py") if ".git" not in str(p))
+
+    for file_path in files:
+        try:
+            result = analyze_file(file_path, lexicon)
+            yield result
+        except Exception as e:
+            logger.warning(f"Skipping {file_path} due to error: {e}")
+            continue
+
+@handle_pipeline_error(task_name="aggregate_repo_score")
+def aggregate_repo_score(file_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Aggregate file-level results into a single repository-level score.
+
+    Logic: Mean of file scores, excluding files with 0 tokens.
+
+    Args:
+        file_results: List of dictionaries returned by analyze_file.
+
+    Returns:
+        Aggregated repository score dictionary.
+    """
+    valid_scores = []
+    valid_sentiments = []
+
+    for res in file_results:
+        if res.get('token_count', 0) > 0:
+            valid_scores.append(res['lexicon']['avg_score'])
+            valid_sentiments.append(res['sentiment']['compound'])
+
     if not valid_scores:
-        return 0.0
-    
-    return sum(valid_scores) / len(valid_scores)
+        return {
+            'repo_bias_score': 0.0,
+            'repo_sentiment_score': 0.0,
+            'files_analyzed': 0,
+            'files_with_tokens': 0
+        }
+
+    avg_bias = sum(valid_scores) / len(valid_scores)
+    avg_sentiment = sum(valid_sentiments) / len(valid_sentiments) if valid_sentiments else 0.0
+
+    return {
+        'repo_bias_score': avg_bias,
+        'repo_sentiment_score': avg_sentiment,
+        'files_analyzed': len(file_results),
+        'files_with_tokens': len(valid_scores)
+    }

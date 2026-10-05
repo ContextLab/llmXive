@@ -60,7 +60,7 @@ The system MUST halt pipeline execution if Cohen's Kappa score for VADER validat
 The system MUST support an `injected_skew_magnitude` parameter to control the degree of bias injection in synthetic data.
 
 ### FR-013: Validation Dataset Usage
-The system MUST use a manually labeled validation dataset (200 comments) to validate sentiment thresholds.
+The system MUST use a manually labeled validation dataset (a representative set of comments) to validate sentiment thresholds.
 
 ### FR-014: Error Injection Testing
 The system MUST generate an 'Error Injection Dataset' of repositories with syntax errors to test robustness.

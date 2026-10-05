@@ -21,7 +21,7 @@ The pipeline is strictly observational and non-execution-based for source code (
 **Project Type**: Research CLI / Data Pipeline
 **Performance Goals**: Process 500 repos in ≤6h; RAM ≤7 GB; Disk ≤14 GB
 **Constraints**: No code execution of target repos; no GPU required (CPU-first); strict independence of synthetic data from code text.
-**Scale/Scope**: 500 Python repositories; 200 manually labeled comments for validation.
+**Scale/Scope**: 500 Python repositories; A set of manually labeled comments for validation.
 
 ## Constitution Check
 

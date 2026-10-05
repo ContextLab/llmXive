@@ -96,25 +96,6 @@
   updated_at: '2026-09-21T05:44:05Z'
 - artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
   attempts: 1
-  canonical: Cohen's Kappa greater than or equal to 0.6 on validation dataset
-  claim_id: c_e43aeaa5
-  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
-    \ Kappa \u2265 0.6."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_greater_than_or_equal_to_0.6_on_validation_dat
-  kind: magnitude
-  raw_text: "Run validation on 'Validation Dataset' and verify Cohen's Kappa \u2265\
-    \ 0.6"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T05:44:36Z'
-- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
-  attempts: 1
   canonical: pipeline success rate greater than or equal to 95 percent on error injection
     dataset
   claim_id: c_dfd8546d
@@ -879,3 +860,1425 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T12:56:14Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 500 Python repositories cloned from codeparrot/github-code
+  claim_id: c_4b823c96
+  context: 'T006a [P] **Data Acquisition**: Clone 500 Python repositories from `https://huggingface.co/datasets/codeparrot/github-code`
+    into `data/raw`...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset('codeparrot/github-code', split='train',
+    streaming=True) with a filter for Python files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:38:27Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments generated from nab dataset
+  claim_id: c_1c322a5a
+  context: 'T0410 [P] **US1, US4 Integration**: Generate `data/validation/labels.csv`
+    containing 200 manually labeled comments...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+    by fetching a real subset from datasets.load_dataset('nab', streaming=True) and
+    applying a deterministic heuristic labeling script with fixed seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:38:50Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Statistical noise threshold derived from 1000 samples
+  claim_id: c_53504fec
+  context: T028 [US2] Implement `src/bias_pipeline/pilot.py` to run a simulation with
+    N=1000 samples to derive the statistical noise threshold...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:39:14Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Insufficient data warning triggered if group size less than 10
+  claim_id: c_9909c886
+  context: T027 [US2] Add logic to handle 'Insufficient Data' warnings if N < 10 per
+    group (Edge Case).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Insufficient_data_warning_triggered_if_group_size_less_than
+  kind: magnitude
+  raw_text: Handle 'Insufficient Data' warnings if N < 10 per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:40:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa score greater than or equal to 0.6 required
+  claim_id: c_aec89722
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_score_greater_than_or_equal_to_0.6_required
+  kind: magnitude
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 on the Validation Dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:41:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 95 percent success rate on error injection set
+  claim_id: c_3504c2e9
+  context: "T041c [P] **Validation Run**: Execute the full pipeline against the `data/raw/error_injection_set.zip`...\
+    \ and verify \u226595% success rate..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:41:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Demographic lexicon loaded from some-org/demographic-lexicon
+  claim_id: c_74720488
+  context: 'T007 Implement `src/bias_pipeline/lexicon.py`: Load curated demographic
+    lexicon from `https://huggingface.co/datasets/some-org/demographic-lexicon/resolve/main/lexicon.csv`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Demographic_lexicon_loaded_from_some-org/demographic-lexicon
+  kind: entity_fact
+  raw_text: Load curated demographic lexicon from https://huggingface.co/datasets/some-org/demographic-lexicon/resolve/main/lexicon.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:41:53Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Clone 500 Python repositories from Hugging Face codeparrot/github-code
+    dataset
+  claim_id: c_5f80212a
+  context: 'T006a [P] **Data Acquisition**: Clone 500 Python repositories from `https://huggingface.co/datasets/codeparrot/github-code`
+    into `data/raw` using `datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True)` with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:42:54Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Generate 200 manually labeled comments for validation dataset
+  claim_id: c_ff930ff4
+  context: 'T0410 [P] **US1, US4 Integration**: Generate `data/validation/labels.csv`
+    containing 200 manually labeled comments by fetching a real subset from `datasets.load_dataset(''nab'',
+    streaming=True)` and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:43:32Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Run simulation with 1000 samples to derive statistical noise threshold
+  claim_id: c_49663b97
+  context: T028 [US2] Implement `src/bias_pipeline/pilot.py` to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to `data/processed/noise_threshold.yaml` (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:43:33Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify 95 percent success rate on error injection set
+  claim_id: c_b6f5fe9d
+  context: "T041c [P] **Validation Run**: Execute the full pipeline against the `data/raw/error_injection_set.zip`\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to `data/processed/error_handling_report.json`\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:43:33Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify fairness disparity less than or equal to 0.01 with zero skew
+  claim_id: c_80c32751
+  context: "Independent Test: Run simulation with `injected_skew_magnitude=0` and\
+    \ verify fairness disparity \u2264 0.01; verify synthetic data contains no code\
+    \ tokens."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_fairness_disparity_less_than_or_equal_to_0.01_with_ze
+  kind: magnitude
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:44:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify Cohen's Kappa greater than or equal to 0.6 for VADER validation
+  claim_id: c_794562ec
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Cohen%27s_Kappa_greater_than_or_equal_to_0.6_for_VADER
+  kind: magnitude
+  raw_text: "Run validation on 'Validation Dataset' and verify Cohen's Kappa \u2265\
+    \ 0.6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:44:59Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Generate labels.csv containing 200 manually labeled comments
+  claim_id: c_246ea3ee
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:46:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Run simulation with 1000 samples to derive statistical noise threshold
+  claim_id: c_399f5eb7
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:46:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify 95 percent success rate on error injection set
+  claim_id: c_d434bbee
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip...\
+    \ and verify \u226595% success rate..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate when executing the full pipeline against\
+    \ the data/raw/error_injection_set.zip"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:46:05Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify Cohen's Kappa is at least 0.6
+  claim_id: c_912632dc
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Cohen's_Kappa_is_at_least_0.6
+  kind: magnitude
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 when running validation on 'Validation\
+    \ Dataset'"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:46:32Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify fairness disparity is at most 0.01 with zero injected skew
+  claim_id: c_ff691122
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_fairness_disparity_is_at_most_0.01_with_zero_injected
+  kind: magnitude
+  raw_text: "Verify fairness disparity \u2264 0.01 when running simulation with injected_skew_magnitude=0"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:47:02Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: Process 500 repositories in 6 hours on 2-core CPU
+  claim_id: c_859b5296
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:47:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: Clone 500 Python repositories from codeparrot/github-code dataset
+  claim_id: c_881cf1f2
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:02Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Generate 200 manually labeled comments for validation dataset
+  claim_id: c_4c52be02
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Run simulation with 1000 samples to derive statistical noise threshold
+  claim_id: c_c14b00b1
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify 95% success rate on error injection set
+  claim_id: c_936de76b
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip...\
+    \ and verify \u226595% success rate..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate when executing the full pipeline against\
+    \ the data/raw/error_injection_set.zip"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Process 500 repos in 6 hours on 2-core CPU
+  claim_id: c_afa6ae69
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 500 Python repositories cloned from Hugging Face codeparrot/github-code
+  claim_id: c_62af77da
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:36Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments in data/validation/labels.csv
+  claim_id: c_0dde3dee
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:48:36Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 1000 samples used to derive statistical noise threshold
+  claim_id: c_17e41e3a
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:49:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 95% success rate on error injection set execution
+  claim_id: c_c1e28ec7
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate executing full pipeline against data/raw/error_injection_set.zip"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:49:06Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: 500 repos processed in 6 hours on 2-core CPU
+  claim_id: c_0d2c4cb8
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:49:06Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verify 95% success rate on error injection set
+  claim_id: c_2927ffbe
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate when executing the full pipeline against\
+    \ the data/raw/error_injection_set.zip."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:50:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Load demographic lexicon from specified HuggingFace URL
+  claim_id: c_83ff8d6c
+  context: 'T007 Implement src/bias_pipeline/lexicon.py: Load curated demographic
+    lexicon from https://huggingface.co/datasets/some-org/demographic-lexicon/resolve/main/lexicon.csv.
+    FAIL LOUDLY if URL fails; NO hardcoded fallback allowed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_demographic_lexicon_from_specified_HuggingFace_URL
+  kind: entity_fact
+  raw_text: Load curated demographic lexicon from https://huggingface.co/datasets/some-org/demographic-lexicon/resolve/main/lexicon.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:50:28Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments in labels.csv
+  claim_id: c_010024ef
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:51:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 1000 samples used in pilot simulation for noise threshold
+  claim_id: c_0bba8381
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:51:04Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa threshold of 0.6 for VADER validation
+  claim_id: c_ad0e14ba
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cohen's Kappa \u2265 0.6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:51:05Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 95% success rate for error handling pipeline
+  claim_id: c_558100fd
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip...\
+    \ and verify \u226595% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:51:05Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: Clone 500 Python repositories from codeparrot/github-code dataset
+  claim_id: c_23e6ba66
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset('codeparrot/github-code', split='train',
+    streaming=True) with a filter for Python files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:01Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify fairness disparity \u2264 0.01 when injected_skew_magnitude=0"
+  claim_id: c_dabbb0e3
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:02Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Run simulation with N=1000 samples to derive noise threshold
+  claim_id: c_e8b776f5
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:02Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify Cohen's Kappa \u2265 0.6 on Validation Dataset"
+  claim_id: c_6836a22e
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run validation on 'Validation Dataset' and verify Cohen's Kappa \u2265\
+    \ 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:02Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify \u226595% success rate on error_injection_set.zip"
+  claim_id: c_4e8da552
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  claim_id: c_df5887d9
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:52:03Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Clone 500 Python repositories from codeparrot/github-code
+  claim_id: c_ef65471a
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset('codeparrot/github-code', split='train',
+    streaming=True) with a filter for Python files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:06Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 3
+  canonical: Generate 200 manually labeled comments from nab dataset with seed 42
+  claim_id: c_fa235116
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+    by fetching a real subset from datasets.load_dataset('nab', streaming=True) and
+    applying a deterministic heuristic labeling script with fixed seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:06Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify fairness disparity \u2264 0.01 when injected skew magnitude is\
+    \ 0"
+  claim_id: c_edb4ee5f
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run simulation with injected_skew_magnitude=0 and verify fairness disparity\
+    \ \u2264 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:07Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Run pilot simulation with 1000 samples to derive noise threshold
+  claim_id: c_0a8fdd74
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/bias_pipeline/pilot.py to run a simulation with N=1000 samples
+    to derive the statistical noise threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:34Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify Cohen's Kappa \u2265 0.6 on validation dataset"
+  claim_id: c_7cb4370d
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 on the Validation Dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:34Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Verify \u226595% success rate on error injection set"
+  claim_id: c_2e3b48cd
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:35Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Process 500 repos in \u22646h on 2-core CPU"
+  claim_id: c_b3d0e4c6
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:53:35Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 500 Python repositories cloned from codeparrot/github-code dataset
+  claim_id: c_5e41e83b
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files. FAIL LOUDLY if fetch fails; do
+    not use synthetic fallback.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset('codeparrot/github-code', split='train',
+    streaming=True) with a filter for Python files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:23Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments generated from nab dataset with seed 42
+  claim_id: c_39392cf0
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+    by fetching a real subset from datasets.load_dataset('nab', streaming=True) and
+    applying a deterministic heuristic labeling script with fixed seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:23Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: fairness disparity less than or equal to 0.01 at injected skew magnitude
+    0
+  claim_id: c_25ab5e7e
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fairness_disparity_less_than_or_equal_to_0.01_at_injected_sk
+  kind: magnitude
+  raw_text: "Verify fairness disparity \u2264 0.01 when injected_skew_magnitude=0"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 1000 samples used in pilot simulation to derive statistical noise threshold
+  claim_id: c_9d007b55
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/bias_pipeline/pilot.py to run a simulation with N=1000 samples
+    to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 3
+  canonical: Cohen's Kappa greater than or equal to 0.6 on validation dataset
+  claim_id: c_e43aeaa5
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_greater_than_or_equal_to_0.6_on_validation_dat
+  kind: magnitude
+  raw_text: "Run validation on 'Validation Dataset' and verify Cohen's Kappa \u2265\
+    \ 0.6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:28Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 95 percent success rate on error injection set
+  claim_id: c_89c9fe5e
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:55:28Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Clone 500 Python repositories from HuggingFace codeparrot/github-code
+    dataset
+  claim_id: c_94021c38
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset('codeparrot/github-code', split='train',
+    streaming=True) with a filter for Python files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:15Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Generate 200 manually labeled comments from NAB dataset with seed 42
+  claim_id: c_ea36b29c
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+    by fetching a real subset from datasets.load_dataset('nab', streaming=True) and
+    applying a deterministic heuristic labeling script with fixed seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:16Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: Run pilot simulation with 1000 samples to derive statistical noise threshold
+  claim_id: c_2a584342
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/bias_pipeline/pilot.py to run a simulation with N=1000 samples
+    to derive the statistical noise threshold (a predetermined value) and write the
+    result to data/processed/noise_threshold.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:16Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: Process 500 repos in 6 hours on 2-core CPU
+  claim_id: c_e4bb4166
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:16Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 500 Python repositories cloned from codeparrot/github-code
+  claim_id: c_cd32d5b0
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:42Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments generated for validation
+  claim_id: c_0f00ef0f
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:42Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 1000 samples used in pilot simulation for noise threshold
+  claim_id: c_e53f99d9
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:42Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 3
+  canonical: 500 repos processed in 6 hours on 2-core CPU
+  claim_id: c_360bd41e
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:43Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 95% success rate on error injection set
+  claim_id: c_c382791e
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip...\
+    \ and verify \u226595% success rate..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226595% success rate on error injection set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:56:43Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Cloned 500 Python repositories from Hugging Face codeparrot/github-code
+    dataset
+  claim_id: c_89d7e1ea
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:24Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Generated 200 manually labeled comments for validation
+  claim_id: c_00c68a12
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:24Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Derived statistical noise threshold from simulation with 1000 samples
+  claim_id: c_afa7f742
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Processing 500 repositories in 6 hours or less on 2-core CPU
+  claim_id: c_a352bd7d
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:25Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Verified 95% success rate on error injection set
+  claim_id: c_4c7ca8aa
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip...\
+    \ and verify \u226595% success rate..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:26Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa score of 0.6 or higher on validation dataset
+  claim_id: c_10d2fc3a
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 on Validation Dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:26Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Fairness disparity less than or equal to 0.01 with zero injected skew
+  claim_id: c_03628eac
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fairness_disparity_less_than_or_equal_to_0.01_with_zero_inje
+  kind: magnitude
+  raw_text: "Verify fairness disparity \u2264 0.01 when injected_skew_magnitude=0"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:28Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: Handle insufficient data warnings for groups with fewer than 10 samples
+  claim_id: c_55178f5a
+  context: T027 [US2] Add logic to handle 'Insufficient Data' warnings if N < 10 per
+    group (Edge Case).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_insufficient_data_warnings_for_groups_with_fewer_than
+  kind: magnitude
+  raw_text: Handle 'Insufficient Data' warnings if N < 10 per group
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:57:31Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 2
+  canonical: 500 Python repositories cloned from codeparrot/github-code
+  claim_id: c_61204ff3
+  context: 'T006a [P] Data Acquisition: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw using datasets.load_dataset(''codeparrot/github-code'', split=''train'',
+    streaming=True) with a filter for Python files.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Clone 500 Python repositories from https://huggingface.co/datasets/codeparrot/github-code
+    into data/raw
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:30Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: 200 manually labeled comments generated in labels.csv
+  claim_id: c_386eea2a
+  context: 'T0410 [P] US1, US4 Integration: Generate data/validation/labels.csv containing
+    200 manually labeled comments by fetching a real subset from datasets.load_dataset(''nab'',
+    streaming=True) and applying a deterministic heuristic labeling script with fixed
+    seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/validation/labels.csv containing 200 manually labeled comments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:30Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "fairness disparity \u2264 0.01 at injected_skew_magnitude=0"
+  claim_id: c_ffbe4b84
+  context: "Independent Test: Run simulation with injected_skew_magnitude=0 and verify\
+    \ fairness disparity \u2264 0.01; verify synthetic data contains no code tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify fairness disparity \u2264 0.01 when injected_skew_magnitude=0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:30Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: statistical noise threshold derived from 1000 samples
+  claim_id: c_d9ca5855
+  context: T028 [US2] Implement src/bias_pipeline/pilot.py to run a simulation with
+    N=1000 samples to derive the statistical noise threshold (a predetermined value)
+    and write the result to data/processed/noise_threshold.yaml (FR-016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a simulation with N=1000 samples to derive the statistical noise threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:31Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "500 repositories processed in \u22646 hours on 2-core CPU"
+  claim_id: c_a9506f8f
+  context: "T048 Performance optimization: Ensure 500 repos process in \u22646h on\
+    \ 2-core CPU. (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure 500 repos process in \u22646h on 2-core CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:31Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "\u226595% success rate on error injection set"
+  claim_id: c_b3863385
+  context: "T041c [P] Validation Run: Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ (generated by injecting syntax errors into a subset of repos) and verify \u2265\
+    95% success rate, writing results to data/processed/error_handling_report.json\
+    \ (SC-005, SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline against the data/raw/error_injection_set.zip\
+    \ and verify \u226595% success rate"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:32Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: "Cohen's Kappa \u2265 0.6 on Validation Dataset"
+  claim_id: c_3d1e3bca
+  context: "Independent Test: Run validation on 'Validation Dataset' and verify Cohen's\
+    \ Kappa \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cohen's Kappa \u2265 0.6 on the Validation Dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:32Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: halt pipeline if Cohen's Kappa < 0.6
+  claim_id: c_38197f32
+  context: 'T040 [US4] Implement validate_threshold function in src/bias_pipeline/validator.py:
+    Threshold validation logic (halt if Kappa < 0.6) (FR-010, FR-013).'
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: halt if Kappa < 0.6
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T15:58:33Z'
+- artifact_path: projects/PROJ-059-automated-detection-of-algorithmic-bias-/specs/001-automated-detection-of-algorithmic-bias/tasks.md
+  attempts: 1
+  canonical: non-zero exit code if token overlap count > 0
+  claim_id: c_dcde8522
+  context: 'T026 [US2] Implement perform_diff_check function in src/bias_pipeline/simulation.py:
+    ... Gate: Exit with non-zero code if overlap_count > 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with non-zero code if overlap_count > 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T15:58:33Z'

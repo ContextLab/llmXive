@@ -3,53 +3,49 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-bias-pipeline"
+name = "automated-detection-of-algorithmic-bias"
 version = "0.1.0"
-description = "Automated detection of algorithmic bias in public code repositories"
-readme = "README.md"
+description = "Automated Detection of Algorithmic Bias in Public Code Repositories"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy>=1.26.0",
-    "pandas>=2.1.0",
-    "scipy>=1.12.0",
-    "vaderSentiment>=3.3.2",
-    "fairlearn>=0.9.0",
-    "datasets>=2.16.0",
-    "pyyaml>=6.0.1",
-    "pytest>=7.4.0",
-    "black>=24.2.0",
-    "ruff>=0.3.0",
-    "pre-commit>=3.6.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest-cov>=4.1.0",
-    "mypy>=1.8.0",
+    "numpy",
+    "pandas",
+    "scipy",
+    "vaderSentiment",
+    "fairlearn",
+    "datasets",
+    "pyyaml",
+    "pytest",
+    "ruff",
+    "black",
+    "scikit-learn",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-select = [
-    "E", "W", "F", "I", "C", "B", "UP", "RUF"
-]
-ignore = ["E501", "B008"]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"]
-
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = ["bias_pipeline", "cli"]
+extend-exclude = '''
+(
+  ^/data/.*
+)
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4"]
+ignore = ["E501"]

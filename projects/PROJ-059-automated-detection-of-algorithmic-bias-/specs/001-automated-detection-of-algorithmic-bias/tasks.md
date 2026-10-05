@@ -66,21 +66,22 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
-**Dependency Note**: T009 must complete before T043a/b/c. T043a/b/c can run in parallel with each *other*. T005 must complete before T007.
+**Dependency Note**: T009 must complete before T043a/b/c. T043a/b/c can run in parallel with each *other*. T005 must complete before T007. T007 must complete before T013-T017.
 
-- [X] T004 [P] Implement `src/bias_pipeline/utils.py`: Logging, error handling, and `streaming_repo_iterator` for memory-efficient repo processing (respecting GB RAM limit)
+- [X] T004 [P] Implement `src/bias_pipeline/utils.py`: Logging, error handling, and `streaming_repo_iterator` for memory-efficient repo processing (respecting GB RAM limit) using `datasets.load_dataset(..., streaming=True)`
 - [X] T005 [P] Implement `src/bias_pipeline/config.py`: Load `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml` and define `CITATION_TITLE_OVERLAP_THRESHOLD`
 - [ ] T006 [P] Create `data/` directory structure: `mkdir -p data/raw data/processed data/validation`
-- [ ] T007 [P] Implement `src/bias_pipeline/lexicon.py`: Load curated demographic lexicon from `data/raw/lexicon.csv` OR fetch from `https://raw.githubusercontent.com/...` (if URL fails, use hardcoded fallback list: `['bias', 'stereotype', 'discrimination', 'minority', 'privileged', 'marginalized']`). **Depends on: T005**
+- [ ] T006a [P] **Data Acquisition**: Clone 500 Python repositories from `https://huggingface.co/datasets/codeparrot/github-code` into `data/raw` using `datasets.load_dataset('codeparrot/github-code', split='train', streaming=True)` with a filter for Python files. **FAIL LOUDLY** if fetch fails; do not use synthetic fallback.
+- [X] T007 Implement `src/bias_pipeline/lexicon.py`: Load curated demographic lexicon from `https://huggingface.co/datasets/some-org/demographic-lexicon/resolve/main/lexicon.csv`. **FAIL LOUDLY** if URL fails; NO hardcoded fallback allowed. **Depends on: T005**
 - [X] T008 [P] Implement `src/bias_pipeline/independence_checker.py`: String-hash comparison logic for synthetic data vs code tokens (FR-015)
-- [ ] T009 Implement `src/bias_pipeline/error_handler.py`: Generic error handling wrapper for pipeline execution (Edge Cases). **Note: This task is NOT [P] and must complete before T043a/b/c.**
+- [X] T009 Implement `src/bias_pipeline/error_handler.py`: Generic error handling wrapper for pipeline execution (Edge Cases). **Note: This task is NOT [P] and must complete before T043a.**
 - [ ] T043a [P] **US1 Integration**: Implement `import error_handler` in `src/bias_pipeline/extractor.py` and wrap `parse_ast_tree`, `match_lexicon`, `analyze_sentiment` with `error_handler.handle_error` (Edge Cases). **Depends on: T009**
-- [ ] T043b [P] **US2 Integration**: Implement `import error_handler` in `src/bias_pipeline/simulation.py` and wrap `generate_synthetic_data`, `inject_bias_model`, `calculate_fairness_metrics` with `error_handler.handle_error` (Edge Cases). **Depends on: T009**
 - [ ] T043c [P] **US3 Integration**: Implement `import error_handler` in `src/bias_pipeline/analyzer.py` and wrap `compute_spearman_correlation`, `apply_bonferroni_correction` with `error_handler.handle_error` (Edge Cases). **Depends on: T009**
-- [ ] T051 [P] **Spec Update**: Update `spec.md` to reflect the "Fairness Degradation Slopes" methodology correction (Methodology-a39d8d77) and ensure FR-006/SC-001 alignment. **Depends on: T001**
 
 **Pre-US Sub-Phase (Blocking)**:
-- [ ] T041a [P] **Data Acquisition**: Generate `data/validation/labels.csv` with 200 manually labeled comments using a deterministic script with a fixed seed (42) and a curated list of 100 bias-related terms and 100 neutral terms. **Do NOT fetch external data. If external fetch fails, generate locally.** **Depends on: T006**
+- [ ] T0410 [P] **US1, US4 Integration**: Generate `data/validation/labels.csv` containing 200 manually labeled comments by fetching a real subset from `datasets.load_dataset('nab', streaming=True)` and applying a deterministic heuristic labeling script with fixed seed (42).
+- [ ] T0411 [P] **US4 Integration**: Run script to generate labeled comments in `data/validation/labels.csv` (if T0410 is split).
+- [ ] T0412 [P] **Pre-condition Check**: Verify `data/raw` contains the required number of repositories before proceeding.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,22 +95,20 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
 - [X] T010 [P] [US1] Unit test for AST normalization (camelCase/snake_case) in `tests/unit/test_extractor.py`
 - [X] T011 [P] [US1] Unit test for VADER sentiment thresholds in `tests/unit/test_extractor.py`
-- [ ] T012 [P] [US1] Integration test for empty/binary-only repos in `tests/integration/test_extractor.py`
+- [X] T012 [P] [US1] Integration test for empty/binary-only repos in `tests/integration/test_extractor.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012a [P] [US1] Create `src/bias_pipeline/extractor.py` skeleton file with imports and empty function stubs. **Depends on: T043a**
-- [ ] T013 [P] [US1] Implement `parse_ast_tree` function in `src/bias_pipeline/extractor.py`: AST parsing for variables, functions, and string literals (FR-001) **Depends on: T043a**
-- [ ] T014 [P] [US1] Implement `normalize_tokens` function in `src/bias_pipeline/extractor.py`: Token normalization (camelCase/snake_case) **Depends on: T043a**
-- [ ] T015 [P] [US1] Implement `match_lexicon` function in `src/bias_pipeline/extractor.py`: Demographic lexicon matching for "Textual Bias Score" (FR-002) **Depends on: T043a**
-- [ ] T016 [P] [US1] Implement `analyze_sentiment` function in `src/bias_pipeline/extractor.py`: VADER sentiment analysis for code comments (FR-003) **Depends on: T043a**
-- [ ] T017 [US1] Implement `aggregate_repo_score` function in `src/bias_pipeline/extractor.py`: Aggregation logic to compute repository-level score (mean of file scores, excluding 0-token files) (FR-009) **Depends on: T043a**
-- [ ] T018 [US1] Implement `handle_syntax_error` function in `src/bias_pipeline/extractor.py`: Error handling for syntax errors (log and skip, do not crash) using `src/bias_pipeline/error_handler.py` (Edge Case) **Depends on: T043a**
-- [ ] T019 [US1] Implement CLI entry point logic in `src/cli/main.py` to trigger extraction on a list of repo paths **Depends on: T043a**
+- [ ] T012a [P] [US1] Create `src/bias_pipeline/extractor.py` skeleton file with imports and empty function stubs.
+- [ ] T013 [P] [US1] Implement `parse_ast_tree` function in `src/bias_pipeline/extractor.py`: AST parsing for variables, functions, and string literals (FR-001). **Depends on: T012a**. **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T014 [P] [US1] Implement `normalize_tokens` function in `src/bias_pipeline/extractor.py`: Token normalization (camelCase/snake_case). **Depends on: T012a**. **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T015 [P] [US1] Implement `match_lexicon` function in `src/bias_pipeline/extractor.py`: Demographic lexicon matching for "Textual Bias Score" (FR-002). **Depends on: T012a**. **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T016 [P] [US1] Implement `analyze_sentiment` function in `src/bias_pipeline/extractor.py`: VADER sentiment analysis for code comments (FR-003). **Depends on: T012a**. **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T017 [US1] Implement `aggregate_repo_score` function in `src/bias_pipeline/extractor.py`: Aggregation logic to compute repository-level score (mean of file scores, excluding 0-token files) (FR-009). **Depends on: T012a**.
+- [ ] T018 [US1] Implement `handle_syntax_error` function in `src/bias_pipeline/extractor.py`: Error handling for syntax errors (log and skip, do not crash) using `src/bias_pipeline/error_handler.py` (Edge Case). **Depends on: T012a**.
+- [ ] T019 [US1] Implement CLI entry point logic in `src/cli/main.py` to trigger extraction on a list of repo paths. **Depends on: T017**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -128,15 +127,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `generate_synthetic_data` function in `src/bias_pipeline/simulation.py`: Synthetic data generator using `numpy` with domain-neutral distributions and realistic class imbalance (FR-004) **Depends on: T043b, T051**
-- [ ] T023 [US2] Implement `inject_bias_model` function in `src/bias_pipeline/simulation.py`: Bias injection model with `injected_skew_magnitude` parameter (FR-005, FR-012) **Depends on: T043b, T051**
-- [ ] T024 [US2] Implement `calculate_fairness_metrics` function in `src/bias_pipeline/simulation.py`: Fairness metric calculation (Demographic Parity, Equalized Odds) using `fairlearn` (FR-005) **Depends on: T043b, T051**
-- [ ] T025 [US2] Implement `compute_degradation_slope` function in `src/bias_pipeline/simulation.py`: Logic to compute the **slope** of the fairness degradation curve (d(Fairness)/d(Skew)) by sweeping `injected_skew_magnitude` (Plan Methodology Correction) **Depends on: T043b, T051**
-- [ ] T026 [US2] Implement `perform_diff_check` function in `src/bias_pipeline/simulation.py`: Integration with `src/bias_pipeline/independence_checker.py` to verify zero token overlap via set-difference (FR-015, SC-004). **Output**: `data/processed/independence_report.json` with schema `{"overlap_count": int, "status": "PASS" | "FAIL", "pass_fail": bool}`. **Gate**: Exit with non-zero code if `overlap_count > 0`. **Depends on: T043b, T051**
-- [ ] T027 [US2] Add logic to handle "Insufficient Data" warnings if N < 10 per group (Edge Case) **Depends on: T043b, T051**
-- [ ] T028 [P] [US2] **Pilot Run**: Implement `src/bias_pipeline/pilot.py` to run a simulation with N=1000 samples to derive the statistical noise threshold (a predetermined value) and write the result to `data/processed/noise_threshold.yaml` (FR-016). **Depends on: T043b, T051**
-- [ ] T028b [P] [US2] **Fallback Model Citation**: **Conditional: Run only if T028 pilot run is inconclusive.** Derive the noise threshold using the formula `threshold = 1.96 * sqrt(2/N)` from Cohen (1988) for N=1000 samples. **Do NOT hardcode.** **Depends on: T028**
-- [ ] T029 [US2] Implement `aggregate_slopes` function in `src/bias_pipeline/simulation.py`: Aggregation function to combine per-repo slopes into `data/processed/slopes_dataset.csv` for correlation (Ordering Fix) **Depends on: T043b, T051**
+- [ ] T022 [P] [US2] Implement `generate_synthetic_data` function in `src/bias_pipeline/simulation.py`: Synthetic data generator using `numpy` with domain-neutral distributions and realistic class imbalance (FR-004). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T023 [US2] Implement `inject_bias_model` function in `src/bias_pipeline/simulation.py`: Bias injection model with `injected_skew_magnitude` parameter (FR-005, FR-012). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T024 [US2] Implement `calculate_fairness_metrics` function in `src/bias_pipeline/simulation.py`: Fairness metric calculation (Demographic Parity, Equalized Odds) using `fairlearn` (FR-005). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T025 [US2] Implement `compute_degradation_slope` function in `src/bias_pipeline/simulation.py`: Logic to compute the **slope** of the fairness degradation curve (d(Fairness)/d(Skew)) by sweeping `injected_skew_magnitude` (Plan Methodology Correction). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T026 [US2] Implement `perform_diff_check` function in `src/bias_pipeline/simulation.py`: Integration with `src/bias_pipeline/independence_checker.py` to verify zero token overlap via set-difference (FR-015, SC-004). **Output**: `data/processed/independence_report.json` with schema `{"overlap_count": int, "status": "PASS" | "FAIL", "pass_fail": bool}`. **Gate**: Exit with non-zero code if `overlap_count > 0`. **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T027 [US2] Add logic to handle "Insufficient Data" warnings if N < 10 per group (Edge Case). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T028 [US2] Implement `src/bias_pipeline/pilot.py` to run a simulation with N=1000 samples to derive the statistical noise threshold (a predetermined value) and write the result to `data/processed/noise_threshold.yaml` (FR-016). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T029 [US2] Implement `aggregate_slopes` function in `src/bias_pipeline/simulation.py`: Aggregation function to combine per-repo slopes into `data/processed/slopes_dataset.csv` for correlation (Ordering Fix). **Wrap with `error_handler.handle_error` (Edge Cases).**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -155,11 +153,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `compute_spearman_correlation` function in `src/bias_pipeline/analyzer.py`: Spearman rank correlation between aggregated Textual Bias Scores and Fairness Degradation Slopes (FR-006 Amended). **Depends on: T043c, T029, T051**
-- [ ] T033 [US3] Implement `apply_bonferroni_correction` function in `src/bias_pipeline/analyzer.py`: Bonferroni correction function for multiple comparisons (FR-007) **Depends on: T043c, T051**
-- [ ] T034 [US3] Implement `run_sensitivity_analysis` function in `src/bias_pipeline/analyzer.py`: Sensitivity analysis function sweeping alpha across a range of significance levels and reporting "High Risk" counts (FR-008, SC-002) **Depends on: T043c, T051**
-- [ ] T035 [US3] Implement `flag_high_risk` function in `src/bias_pipeline/analyzer.py`: "High Risk" flagging logic based on p < 0.05 threshold (FR-006) **Depends on: T043c, T051**
-- [ ] T036 [US3] Generate final report output in `data/processed/correlation_results.json` **Depends on: T043c, T051**
+- [ ] T032 [P] [US3] Implement `compute_spearman_correlation` function in `src/bias_pipeline/analyzer.py`: Spearman rank correlation between aggregated Textual Bias Scores and Fairness Degradation Slopes (FR-006 Amended). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T033 [US3] Implement `apply_bonferroni_correction` function in `src/bias_pipeline/analyzer.py`: Bonferroni correction function for multiple comparisons (FR-007). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T034 [US3] Implement `run_sensitivity_analysis` function in `src/bias_pipeline/analyzer.py`: Sensitivity analysis function sweeping alpha across a range of significance levels and reporting "High Risk" counts (FR-008, SC-002). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T035 [US3] Implement `flag_high_risk` function in `src/bias_pipeline/analyzer.py`: "High Risk" flagging logic based on p < 0.05 threshold (FR-006). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T036 [US3] Generate final report output in `data/processed/correlation_results.json`. **Wrap with `error_handler.handle_error` (Edge Cases).**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -177,9 +175,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] Implement `load_validation_dataset` function in `src/bias_pipeline/validator.py`: Load 'Validation Dataset' (200 manually labeled comments) from `data/validation/labels.csv` (generated by T041a) **Depends on: T041a**
-- [ ] T039 [US4] Implement `run_vader_validation` function in `src/bias_pipeline/validator.py`: Run VADER on labeled comments and compute Cohen's Kappa score (FR-013) **Depends on: T041a**
-- [ ] T040 [US4] Implement `validate_threshold` function in `src/bias_pipeline/validator.py`: Threshold validation logic (halt if Kappa < 0.6) (FR-010, FR-013) **Depends on: T041a**
+- [ ] T038 [US4] Implement `load_validation_dataset` function in `src/bias_pipeline/validator.py`: Load 'Validation Dataset' (200 manually labeled comments) from `data/validation/labels.csv`.
+- [ ] T039 [US4] Implement `run_vader_validation` function in `src/bias_pipeline/validator.py`: Run VADER on labeled comments and compute Cohen's Kappa score (FR-013). **Wrap with `error_handler.handle_error` (Edge Cases).**
+- [ ] T040 [US4] Implement `validate_threshold` function in `src/bias_pipeline/validator.py`: Threshold validation logic ({{claim:c_38197f32}}) (FR-010, FR-013). **Wrap with `error_handler.handle_error` (Edge Cases).**
 
 **Checkpoint**: Validation logic complete; pipeline can proceed only if Kappa ≥ 0.6
 
@@ -191,9 +189,7 @@
 
 ### Implementation for Error Handling
 
-- [ ] T041b [P] **Pre-condition Check**: Verify `data/validation/labels.csv` exists (from T041a) AND `data/raw` contains at least 100 repositories before proceeding. **If fewer than 100 exist, log a warning and proceed with available data (graceful degradation) OR fail with a clear error if the minimum viable dataset is not met. Do NOT fetch external sample repos.** (Prerequisite for T042) **Depends on: T001, T006, T041a**
-- [ ] T042 [P] Implement `generate_error_injection_dataset` function in `src/bias_pipeline/utils.py`: Logic to generate 'Error Injection Dataset' (A set of repositories with syntax errors) by injecting errors into a random sample of repositories from `data/raw` and store as `data/raw/error_injection_set.zip` (FR-014)
-- [ ] T045 [US1/US2/US3] **Validation Run**: Execute the full pipeline against the `data/raw/error_injection_set.zip` and verify ≥95% success rate, writing results to `data/processed/error_handling_report.json` (SC-005, SC-006)
+- [ ] T041c [P] **Validation Run**: Execute the full pipeline against the `data/raw/error_injection_set.zip` (generated by injecting syntax errors into a subset of repos) and verify ≥95% success rate, writing results to `data/processed/error_handling_report.json` (SC-005, SC-006). **Note**: This task generates the error injection set if it doesn't exist, by cloning a subset of repos and programmatically injecting syntax errors (e.g., unclosed brackets) using `ast` module.
 
 ---
 
@@ -203,115 +199,6 @@
 
 - [ ] T046 [P] Documentation updates in `docs/` and `quickstart.md`
 - [ ] T047 Code cleanup and refactoring
-- [ ] T048 Performance optimization: Ensure 500 repos process in ≤6h on 2-core CPU (SC-003)
+- [ ] T048 Performance optimization: Ensure 500 repos process in ≤6h on 2-core CPU [UNRESOLVED-CLAIM: c_a9506f8f — status=not_enough_info]. (SC-003)
 - [ ] T049 [P] Run full integration test suite
 - [ ] T050 Update `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml` with final artifacts and hashes
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Internal Dependency**: T005 (Config) MUST precede T007 (Lexicon)
- - **Internal Dependency**: T009 (Error Handler) MUST precede T043a/b/c (Integration). **T009 is NOT parallel [P] to enforce this.**
- - **Internal Dependency**: T041a (Data Acquisition) MUST precede T038/T039 (Validation)
- - **Internal Dependency**: T043a/b/c (Error Handling Integration) MUST be completed before US1/US2/US3 implementation.
- - **Internal Dependency**: T051 (Spec Update) MUST precede US2/US3 implementation.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - US1 (P1) and US2 (P2) can run in parallel after Phase 2
- - US3 (P3) depends on outputs from US1 and US2 (specifically `slopes_dataset.csv` from T029)
- - US4 (P2) is independent but recommended before full pipeline run
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Independent of US1 (uses synthetic data)
- - **Output**: Produces `data/processed/slopes_dataset.csv` (T029)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on** US1 (Textual Scores) and US2 (Fairness Metrics/Slopes)
-- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Independent, but validates US1 input quality
- - **Input**: Requires `data/validation/labels.csv` acquired by T041a
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before Services
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), respecting T005->T007, T009->T043, T051, and T041a availability
-- Once Foundational phase completes:
- - **Parallel**: Implement US1 and US2 simultaneously
- - **Parallel**: Implement US4 simultaneously
-- US3 must wait for US1 and US2 data generation
-
-### Within Each User Story (Parallel Examples)
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for AST normalization"
-Task: "Unit test for VADER sentiment thresholds"
-
-# Launch all models for User Story 2 together:
-Task: "Implement synthetic data generator"
-Task: "Implement independence checker integration"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Extraction)
-4. **STOP and VALIDATE**: Test extraction on a small sample of repos
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 (Extraction) → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 (Simulation) → Test independently → Deploy/Demo
-4. Add User Story 4 (Validation) → Test independently → Deploy/Demo
-5. Add User Story 3 (Correlation) → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Extraction)
- - Developer B: User Story 2 (Simulation)
- - Developer C: User Story 4 (Validation)
-3. Once US1 and US2 are done:
- - All developers: User Story 3 (Correlation & Analysis)
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **Critical**: Do not execute target repo code; use `ast` module only.
-- **Critical**: Synthetic data must be generated from noise distributions, not code tokens.
-- **Critical**: Correlation target is the **slope** of fairness degradation, not a static metric (per Methodology Correction).
-- **Critical**: T043a/b/c (Error Handling Integration) must be implemented in Phase 2 to be available for US1/US2/US3.
-- **Critical**: T041a (Data Acquisition) must load human-verified data, not synthetic labels.
-- **Critical**: T028b (Fallback) must derive values programmatically using Cohen (1988) formula, not hardcode.
-- **Critical**: T041b (Data Check) must not fetch external sample repos.
-- **Critical**: T009 is NOT [P] to ensure it completes before T043a/b/c.
-- **Critical**: T051 (Spec Update) must be completed before US2/US3.

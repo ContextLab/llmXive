@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-bias-pipeline"
+version = "0.1.0"
+description = "Automated Detection of Algorithmic Bias in Public Code Repositories"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "vaderSentiment",
+    "fairlearn",
+    "datasets",
+    "pyyaml",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*", "scripts*", "setup_*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+python_classes = [
+    "Test*",
+]
+python_functions = [
+    "test_*",
+]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Marks tests as slow",
+]
+
+[tool.ruff]
+# This section mirrors .ruff.toml but can be overridden per project needs
+line-length = 88
+target-version = "py311"

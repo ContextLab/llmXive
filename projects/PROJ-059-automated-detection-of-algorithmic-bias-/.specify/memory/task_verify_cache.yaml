@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or other evidence were provided showing that the required\
+    \ folders (`src/bias_pipeline`, `src/cli`, `data/raw`, `data/processed`, `data/validation`,\
+    \ `tests/unit`, `tests/integration`, `state`) actually exist; the claim is unsubstantiated.\
+    \ The implementer must supply a file\u2011system snapshot, `tree` output, or similar\
+    \ proof that the structure was created."
+T003:
+  c: false
+  h: 15b62a072b88cb62b131831b76d755d160eda9a3e0fb71c7e9da9f40b66c5b4d
+  r: "The repository contains a `pyproject.toml` with the required Black and pytest\
+    \ sections, but the required `.ruff.toml` file is missing; the ruff configuration\
+    \ is only present inside `pyproject.toml`, which does not satisfy the task\u2019\
+    s explicit requirement for a separate `.ruff.toml`."
 T005:
   c: false
   h: fe0f846c1f9aff7c5acc2a485c1e4cbd80d667c89ba131794b86e4a3d503b8d8
@@ -5,31 +20,31 @@ T005:
     but the required configuration file `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml`
     is absent, so the loader cannot actually load the project settings as the task
     demands. The missing YAML file must be added for the implementation to be complete.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that a `data/` directory with the subfolders
+    `raw`, `processed`, and `validation` actually exists; the claim is unsubstantiated.
+    The implementer must provide proof (e.g., a directory listing or screenshot) that
+    the required directories were created.
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a script or notebook that loads the `codeparrot/github-code` dataset,
+    filters for Python files, and clones 500 repositories into a `data/raw` directory
+    is present. The required `data/raw` folder with the cloned repositories is missing,
+    and there is no indication that the implementation fails loudly on fetch errors
+    or avoids synthetic fallbacks.
 T012:
   c: false
   h: b91966259a05e5eb4bb67e653be9eb6017c29e7ef14d51bc813b52798b9664d5
   r: "The required integration test file `tests/integration/test_extractor.py` is\
     \ missing entirely, so no test code exists to verify handling of empty or binary\u2011\
     only repositories. The task is therefore not satisfied."
-T041:
+T0412:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation dataset file, download script, or reference to a specific HuggingFace
-    dataset ID is present in the provided artifacts. The claim lacks any concrete
-    CSV, dataset link, or code that acquires or validates manually labeled comments,
-    which is required by task T041. The implementer must supply the actual dataset
-    (e.g., a CSV with 200 manually labeled comments) or a reproducible script that
-    fetches a verified external dataset.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `error_handler.py` file or any code showing it being imported and used in
-    the implementations of US1, US2, or US3 is present. The required artifact (error
-    handling integration) is missing, so the task is not satisfied.
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or its contents are provided, so we cannot confirm that it\
-    \ was updated to include the \u201CFairness Degradation Slopes\u201D methodology\
-    \ or that any contradiction with `tasks.md` was removed. The required artifact\
-    \ is missing."
+  r: "No artifact (e.g., script, log output, test result) was provided that actually\
+    \ checks the contents of `data/raw` for the required repository count, nor any\
+    \ evidence that such a pre\u2011condition verification was performed. The implementer\u2019\
+    s claim lacks concrete proof."
