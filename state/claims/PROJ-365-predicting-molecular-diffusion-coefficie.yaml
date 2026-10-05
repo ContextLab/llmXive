@@ -336,3 +336,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T01:12:02Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: resource_summary.json includes total_seconds and peak_memory_mb fields
+  claim_id: c_bdbf29ca
+  context: T035_aggregate_resource_summary [P] After monitor.py writes runtime_memory.json,
+    copy its "total_seconds" and "peak_memory_mb" fields into artifacts/reports/resource_summary.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_summary.json_includes_total_seconds_and_peak_memory
+  kind: entity_fact
+  raw_text: '`resource_summary.json` contains both `total_seconds` and `peak_memory_mb`
+    fields with numeric values.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T08:48:44Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: sensitivity_summary.md reports stability if all r values > 0.7
+  claim_id: c_06662bb1
+  context: T027 [US3] Generate final report artifacts/reports/sensitivity_summary.md
+    summarizing stability of Pearson r > 0.7 across variations and explicitly include
+    a stability field ('stable'/'unstable') based on whether all r values meet the
+    threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '`sensitivity_summary.md` includes a stability statement and asserts that
+    all reported `r` values are > 0.7.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T08:48:44Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: verified_datasets.json includes url, checksum_sha256, download_date_iso,
+    source_type fields
+  claim_id: c_1900fe8c
+  context: T047 [P] Implement a 'Verified Dataset Registry' task code/ingestion/register_dataset.py
+    that, upon successful real data download, writes a permanent record to data/verified_datasets.json
+    containing url, checksum_sha256, download_date_iso, and source_type.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets.json_includes_url,_checksum_sha256,_downlo
+  kind: entity_fact
+  raw_text: '`data/verified_datasets.json` contains fields `url`, `checksum_sha256`,
+    `download_date_iso`, and `source_type`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T08:49:29Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: monitor.py records total_seconds in runtime_memory.json
+  claim_id: c_ae6a0498
+  context: T006c [P] Extend monitor.py to record total pipeline runtime to artifacts/reports/runtime_memory.json
+    under key "total_seconds".
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Monitor.py_records_total_seconds_in_runtime_memory.json
+  kind: entity_fact
+  raw_text: '`monitor.py` writes runtime_memory.json with a key ''total_seconds''
+    storing the total pipeline runtime.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T08:49:36Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: monitor.py records peak_memory_mb in runtime_memory.json
+  claim_id: c_ac589079
+  context: "T006e Implement peak\u2011memory capture in monitor.py and store under\
+    \ \"peak_memory_mb\" in runtime_memory.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Monitor.py_records_peak_memory_mb_in_runtime_memory.json
+  kind: entity_fact
+  raw_text: '`monitor.py` writes runtime_memory.json with a key ''peak_memory_mb''
+    storing the peak memory usage.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T08:49:58Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: default RAM limit 4096 MB
+  claim_id: c_a0d4cdb1
+  context: Implement code/utils/monitor.py to enforce a runtime limit (dynamic, default
+    21600s) and a RAM limit of 4096 MB (configurable via config.py); raise ResourceLimitExceeded
+    if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default RAM limit is 4096 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:05:48Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation for datasets >= 50 molecules
+  claim_id: c_bd33b596
+  context: Enforce strict 5-fold cross-validation stratified by solvent type as required
+    by FR-004. If dataset >= 50 molecules, use this strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use strict 5-fold cross-validation stratified by solvent type if dataset
+    size is 50 or more molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:06:31Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: Leave-One-Out cross-validation for datasets < 50 molecules
+  claim_id: c_85b8a362
+  context: If dataset < 50 molecules, raise ConfigurationError directing to T019b.
+    Implement Leave-One-Out (LOO) cross-validation strategy for datasets with < 50
+    molecules.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Leave-One-Out_cross-validation_for_datasets_%3C_50_molecules
+  kind: magnitude
+  raw_text: Use Leave-One-Out (LOO) cross-validation strategy if dataset size is less
+    than 50 molecules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:07:06Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: hypothesis status null if Pearson r < 0.3
+  claim_id: c_49d4dd46
+  context: perform paired t-test on absolute errors, and write artifacts/reports/evaluation.json
+    containing pearson_r, rmse, p_value, and a hypothesis_status field (positive if
+    r > 0.7, null if r < 0.3, inconclusive otherwise).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hypothesis status is null if Pearson r < 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:07:07Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: Message Passing Steps grid 1 2 3
+  claim_id: c_a4e5b95a
+  context: 'Define hyperparameter grid (Message Passing Steps {1, 2, 3}, Learning
+    Rates: [0.001, 0.01, 0.1]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hyperparameter grid includes Message Passing Steps {1, 2, 3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:07:43Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: Learning Rates grid 0.001 0.01 0.1
+  claim_id: c_aa90ff3c
+  context: 'Define hyperparameter grid (Message Passing Steps {1, 2, 3}, Learning
+    Rates: [0.001, 0.01, 0.1]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hyperparameter grid includes Learning Rates [0.001, 0.01, 0.1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:08:14Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: test peak memory limit < 7000 MB
+  claim_id: c_73263eb4
+  context: Additional test ensuring numeric fields are within reasonable bounds (e.g.,
+    total_seconds < 21600, peak_memory_mb < 7000).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/test_peak_memory_limit_%3C_7000_MB
+  kind: magnitude
+  raw_text: Peak memory limit in tests is checked to be less than 7000 MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:08:43Z'

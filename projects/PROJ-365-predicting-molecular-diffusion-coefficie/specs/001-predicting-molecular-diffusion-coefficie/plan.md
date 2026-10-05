@@ -15,13 +15,13 @@ This project implements a CPU-optimized pipeline to predict molecular diffusion 
 **Primary Dependencies**: `rdkit`, `torch` (CPU-only), `torch-geometric` (CPU-only), `scikit-learn`, `pandas`, `pyyaml`, `pytest`
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `artifacts`)
 **Testing**: `pytest` with contract validation against YAML schemas
-**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPUs, 7 GB RAM)
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPUs, several GB of RAM)
 **Project Type**: Computational Research / Data Science Pipeline
 **Performance Goals**: Complete training/evaluation on ≤5,000 samples (if real data exists) within 6 hours; memory usage < 7GB.
 **Constraints**: NO GPU/CUDA; NO dynamic molecular dynamics; NO imputation of missing data (exclusion only).
 **Scale/Scope**: 
 - **Real Data**: Capped at ~5,000 molecule-solvent pairs for CI feasibility.
-- **Synthetic Data (Current State)**: Used ONLY for pipeline validation; sample size arbitrary (e.g., 100-500) to ensure CI speed. **No scientific metrics reported.**
+- **Synthetic Data (Current State)**: Used ONLY for pipeline validation; sample size arbitrary (e.g., -500) to ensure CI speed. **No scientific metrics reported.**
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value. **NO FABRICATED METRICS.**
 
@@ -29,7 +29,7 @@ This project implements a CPU-optimized pipeline to predict molecular diffusion 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **I. Reproducibility**: **COMPLIANT**. The plan mandates pinned seeds (42), deterministic data loading, and a `requirements.txt` with exact versions. All artifacts are derived from raw data without in-place modification.
+1.  **I. Reproducibility**: **COMPLIANT**. The plan mandates pinned seeds., deterministic data loading, and a `requirements.txt` with exact versions. All artifacts are derived from raw data without in-place modification.
 2.  **II. Verified Accuracy**: **COMPLIANT (Conditional)**. The plan requires citing only verified dataset URLs from the project's `# Verified datasets` block. **Current Status**: No verified dataset exists. The plan proceeds with synthetic data *only* for structural validation. **Scientific claims are blocked** until a real dataset is sourced. No fabricated metrics are permitted.
 3.  **III. Data Hygiene**: **COMPLIANT**. Raw data is preserved. Derivations (featurized graphs) are written to new files. Checksums will be recorded in `state/`. No PII is expected in chemical datasets.
 4.  **IV. Single Source of Truth**: **COMPLIANT**. All statistics (r, RMSE) will be computed by code and stored in JSON reports, referenced directly by the paper. No hand-typed numbers. **Note**: If synthetic data is used, no statistics are reported.
@@ -102,7 +102,7 @@ projects/PROJ-365-predicting-molecular-diffusion-coefficie/
 
 ### Phase 2: Model Training (MPNN & Baseline)
 - **Goal**: Train GNN and Linear Baseline.
-- **Action**: 5-fold CV (stratified by solvent or diffusion bin).
+- **Action**: k‑fold CV (stratified by solvent or diffusion bin).
 - **Constraint**: CPU-only, seed=42.
 - **Output**: `artifacts/models/mpnn_fold_*.pt`, `artifacts/models/baseline_fold_*.pt`.
 

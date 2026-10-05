@@ -1,92 +1,52 @@
-"""
-Flag source script for the diffusion dataset pipeline.
-
-This script inspects the `data/raw` directory to determine whether the
-dataset was obtained from a real external source or generated synthetically.
-It then writes a JSON artifact `data/data_source_flag.json` with the
-structure:
-
-    {"source": "real"}        # when a real dataset is present
-    {"source": "synthetic"}   # when only a synthetic dataset is present
-
-The presence of a real dataset is inferred from the existence and non‑zero
-size of `data/raw/dataset.csv`.  If that file is missing or empty, the
-script looks for `data/raw/synthetic_dataset.csv`.  If neither file is
-found, a `FileNotFoundError` is raised so that downstream tasks can fail
-fast and surface the problem.
-
-The script is intended to be run as a standalone module:
-
-    python code/ingestion/flag_source.py
-
-It writes the flag file under the project root's `data/` directory.
-"""
-
 import json
 from pathlib import Path
-
 from utils.config import get_project_root
+from utils.logging import get_logger, log_info
 
+logger = get_logger(__name__)
 
-def _determine_source() -> str:
+def main():
     """
-    Determine the origin of the dataset.
-
-    Returns
-    -------
-    str
-        Either ``"real"`` or ``"synthetic"``.
+    This script is a placeholder. The source flag is written by trigger_synthetic.py
+    or fetch_real.py (via update_plan_md and then flag_source logic).
+    However, to satisfy the task T007c, we ensure the flag is set correctly.
+    In a real flow, this might be called after fetch_real.py or trigger_synthetic.py.
+    For now, we assume the flag is already written by those scripts.
+    But T000b says: "Upon success, immediately update plan.md...".
+    And T007c says: "generate data_source_flag.json recording source".
+    So we need a script that sets the flag based on what happened.
+    Let's assume this script is called after fetch_real.py or trigger_synthetic.py.
+    It checks which file exists and sets the flag.
     """
-    raw_dir: Path = get_project_root() / "data" / "raw"
+    root = get_project_root()
+    raw_dir = root / "data" / "raw"
+    plan_path = root / "plan.md"
+    flag_path = root / "data" / "data_source_flag.json"
 
-    real_path = raw_dir / "dataset.csv"
-    synthetic_path = raw_dir / "synthetic_dataset.csv"
+    dataset_path = raw_dir / "dataset.csv"
 
-    # Prefer the explicit real dataset file.
-    if real_path.is_file() and real_path.stat().st_size > 0:
-        return "real"
+    # Determine source
+    source = "unknown"
+    if dataset_path.exists():
+        # Check if plan has URL and we fetched it
+        # For simplicity, if dataset exists and plan has URL, assume real.
+        # Otherwise, synthetic.
+        if plan_path.exists():
+            content = plan_path.read_text()
+            if "Dataset URL:" in content:
+                source = "real"
+            else:
+                source = "synthetic"
+        else:
+            source = "synthetic"
+    else:
+        log_info(logger, "No dataset found. Cannot set source flag.")
+        return
 
-    # Fall back to the synthetic dataset file.
-    if synthetic_path.is_file() and synthetic_path.stat().st_size > 0:
-        return "synthetic"
-
-    # As a last‑resort heuristic, inspect any CSV present.
-    csv_files = list(raw_dir.glob("*.csv"))
-    if len(csv_files) == 1:
-        # If the only CSV is not the recognised real name, treat as synthetic.
-        return "synthetic"
-
-    raise FileNotFoundError(
-        f"Unable to determine dataset source in '{raw_dir}'. "
-        "Expected 'dataset.csv' (real) or 'synthetic_dataset.csv' (synthetic)."
-    )
-
-
-def _write_flag(source: str) -> None:
-    """
-    Write the source flag JSON artifact.
-
-    Parameters
-    ----------
-    source : str
-        The source identifier, ``"real"`` or ``"synthetic"``.
-    """
-    flag_path: Path = get_project_root() / "data" / "data_source_flag.json"
     flag_path.parent.mkdir(parents=True, exist_ok=True)
-    with flag_path.open("w", encoding="utf-8") as f:
+    with open(flag_path, 'w') as f:
         json.dump({"source": source}, f, indent=2)
-    # Ensure the file is flushed to disk.
-    f.flush()
-
-
-def main() -> None:
-    """
-    Entry point for the script.
-    """
-    source = _determine_source()
-    _write_flag(source)
-    print(f"Data source flag written to 'data/data_source_flag.json': {source}")
-
+    log_info(logger, f"Source flag set to: {source}")
 
 if __name__ == "__main__":
     main()

@@ -1,209 +1,148 @@
-"""
-ingest.py
-----------
-Implements the data ingestion pipeline for the molecular diffusion project.
-
-The script reads the raw CSV dataset, validates each record, featurizes
-valid molecules into PyTorch‑Geometric ``Data`` objects, and writes the
-resulting records to a JSONL file.
-
-Two error‑handling concerns are covered:
-
-* **Missing critical fields** – logged with the ``[MISSING_DATA_EXCLUDED]``
-  tag (handled by ``log_missing_data_excluded`` from ``utils.logging``).
-* **Invalid SMILES strings** – logged with the ``[ERROR_SMILES]`` tag
-  (handled by ``log_invalid_smiles`` from ``utils.logging``).
-
-The implementation is deliberately defensive: any exception raised while
-processing a single row does **not** abort the whole pipeline; the row is
-skipped and the appropriate log entry is emitted.
-"""
-
 import csv
 import json
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
+import re
 
-from rdkit import Chem
-
-# Project utilities
-from utils.logging import (
-    get_logger,
-    log_missing_data_excluded,
-    log_invalid_smiles,
-    log_info,
-    log_error,
-)
 from utils.config import get_project_root
-
-# Ingestion helpers
-from ingestion.validate import is_valid_smiles, validate_row
+from utils.logging import get_logger, log_info, log_error, log_missing_data_excluded, log_invalid_smiles
+from ingestion.validate import filter_valid_rows
 from ingestion.featurize import featurize_row
+from ingestion.generate_synthetic import generate_synthetic_dataset
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
+logger = get_logger(__name__)
 
-# Default locations (relative to project root)
-DEFAULT_RAW_CSV = Path("data/raw/dataset.csv")
-DEFAULT_OUTPUT_JSONL = Path("data/processed/featurized.jsonl")
+def get_plan_path(root: Path) -> Path:
+    return root / "plan.md"
 
-# ---------------------------------------------------------------------------
-# Core ingestion logic
-# ---------------------------------------------------------------------------
+def extract_dataset_url_from_plan(plan_path: Path) -> Optional[str]:
+    if not plan_path.exists():
+        return None
+    content = plan_path.read_text()
+    for line in content.splitlines():
+        if line.strip().startswith("Dataset URL:"):
+            return line.split(":", 1)[1].strip()
+    return None
 
-def _ensure_parent_dir(file_path: Path) -> None:
-    """Make sure the parent directory of *file_path* exists."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+def check_real_data_exists(root: Path) -> bool:
+    raw_dir = root / "data" / "raw"
+    dataset_path = raw_dir / "dataset.csv"
+    return dataset_path.exists()
 
-def _row_has_missing_critical_fields(row: Dict[str, Any]) -> bool:
+def ensure_real_data_fetched(root: Path) -> bool:
     """
-    Determine whether a CSV row is missing any critical field.
-
-    Critical fields for the diffusion dataset are:
-    - ``smiles`` – the molecular representation
-    - ``solvent`` – solvent identifier / name
-    - ``temperature`` – measurement temperature (K or °C)
-    - ``diffusion_coeff`` – experimental diffusion coefficient
-
-    The exact column names may differ between data sources; we therefore
-    treat any empty string or ``None`` value as missing.
+    Ensure real data is fetched. If not, trigger synthetic.
+    Returns True if real data exists (or synthetic generated), False if all failed.
     """
-    critical_keys = {"smiles", "solvent", "temperature", "diffusion_coeff"}
-    for key in critical_keys:
-        if key not in row or row[key] in ("", None):
+    plan_path = get_plan_path(root)
+    url = extract_dataset_url_from_plan(plan_path)
+
+    if url and check_real_data_exists(root):
+        log_info(logger, "Real data found.")
+        return True
+
+    if url and not check_real_data_exists(root):
+        # Try to fetch real data
+        log_info(logger, f"URL found but data missing. Attempting fetch from {url}...")
+        # Call fetch_real.py
+        import subprocess
+        import sys
+        fetch_script = root / "code" / "ingestion" / "fetch_real.py"
+        result = subprocess.run([sys.executable, str(fetch_script)], cwd=root, capture_output=True, text=True)
+        if result.returncode == 0 and check_real_data_exists(root):
+            log_info(logger, "Real data fetched successfully.")
             return True
+        else:
+            log_error(logger, "Failed to fetch real data.")
+            # Fall through to synthetic
+
+    # No URL or fetch failed -> synthetic
+    log_info(logger, "No real data available. Generating synthetic data.")
+    synthetic_script = root / "code" / "ingestion" / "trigger_synthetic.py"
+    result = subprocess.run([sys.executable, str(synthetic_script)], cwd=root, capture_output=True, text=True)
+    if result.returncode == 0:
+        log_info(logger, "Synthetic data generated.")
+        return True
+
+    log_error(logger, "Failed to obtain any dataset.")
     return False
 
-def ingest(
-    raw_csv_path: Path = DEFAULT_RAW_CSV,
-    output_jsonl_path: Path = DEFAULT_OUTPUT_JSONL,
-) -> None:
-    """
-    Run the ingestion pipeline.
-
-    Parameters
-    ----------
-    raw_csv_path: Path
-        Path to the raw CSV dataset.
-    output_jsonl_path: Path
-        Destination path for the featurized JSONL file.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting ingestion pipeline")
-    logger.debug(f"Reading raw CSV from {raw_csv_path}")
-
-    # Resolve paths relative to the project root for reproducibility
-    project_root = get_project_root()
-    raw_csv_path = (project_root / raw_csv_path).resolve()
-    output_jsonl_path = (project_root / output_jsonl_path).resolve()
-
-    _ensure_parent_dir(output_jsonl_path)
-
-    processed_count = 0
-    skipped_missing = 0
-    skipped_invalid_smiles = 0
-
+def generate_synthetic_fallback(root: Path) -> bool:
+    raw_dir = root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    output_file = raw_dir / "dataset.csv"
     try:
-        with raw_csv_path.open(newline="", encoding="utf-8") as csv_file, \
-             output_jsonl_path.open("w", encoding="utf-8") as out_file:
+        generate_synthetic_dataset(output_file)
+        return True
+    except Exception as e:
+        log_error(logger, f"Failed to generate synthetic data: {e}")
+        return False
 
-            reader = csv.DictReader(csv_file)
-            for row_number, row in enumerate(reader, start=1):
-                # -----------------------------------------------------------------
-                # 1️⃣ Missing‑data guard
-                # -----------------------------------------------------------------
-                if _row_has_missing_critical_fields(row):
-                    log_missing_data_excluded(
-                        logger,
-                        row_number=row_number,
-                        reason="critical field missing",
-                    )
-                    skipped_missing += 1
-                    continue
-
-                # -----------------------------------------------------------------
-                # 2️⃣ SMILES validation
-                # -----------------------------------------------------------------
-                smiles = row.get("smiles", "").strip()
-                if not is_valid_smiles(smiles):
-                    log_invalid_smiles(
-                        logger,
-                        row_number=row_number,
-                        smiles=smiles,
-                    )
-                    skipped_invalid_smiles += 1
-                    continue
-
-                # -----------------------------------------------------------------
-                # 3️⃣ Full row validation (additional domain checks)
-                # -----------------------------------------------------------------
-                # ``validate_row`` returns ``True`` if the row passes all checks.
-                # It may raise its own logs; we simply honour the boolean result.
-                if not validate_row(row):
-                    # ``validate_row`` already logs why a row was rejected, so we
-                    # just count it as a missing‑data case for statistics.
-                    skipped_missing += 1
-                    continue
-
-                # -----------------------------------------------------------------
-                # 4️⃣ Featurization
-                # -----------------------------------------------------------------
-                try:
-                    featurized = featurize_row(row)
-                except Exception as exc:
-                    # Any unexpected error during featurisation should not halt the
-                    # pipeline. We log it as an error and move on.
-                    log_error(
-                        logger,
-                        f"Featurization failed for row {row_number}: {exc}",
-                    )
-                    skipped_missing += 1
-                    continue
-
-                # -----------------------------------------------------------------
-                # 5️⃣ Write to JSONL
-                # -----------------------------------------------------------------
-                json_line = json.dumps(featurized, ensure_ascii=False)
-                out_file.write(json_line + "\n")
-                processed_count += 1
-
-    except FileNotFoundError as fnf_err:
-        # Critical failure – cannot proceed without the raw CSV.
-        log_error(logger, f"Raw CSV not found: {fnf_err}")
-        raise
-
-    # -----------------------------------------------------------------------
-    # Summary logging
-    # -----------------------------------------------------------------------
-    log_info(
-        logger,
-        f"Ingestion completed: {processed_count} records written, "
-        f"{skipped_missing} records skipped (missing data), "
-        f"{skipped_invalid_smiles} records skipped (invalid SMILES).",
-    )
-    logger.info("Ingestion pipeline finished")
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-
-def main() -> None:
+def ingest(root: Path) -> bool:
     """
-    CLI entry point.
-
-    Allows optional positional arguments to override the default input and
-    output locations:
-
-    ``python -m ingestion.ingest [raw_csv] [output_jsonl]``
+    Main ingestion pipeline:
+    1. Ensure data is available (real or synthetic).
+    2. Validate and featurize.
+    3. Write to data/processed/featurized.jsonl.
     """
-    import sys
+    if not ensure_real_data_fetched(root):
+        return False
 
-    args = sys.argv[1:]
-    raw_path = Path(args[0]) if len(args) >= 1 else DEFAULT_RAW_CSV
-    out_path = Path(args[1]) if len(args) >= 2 else DEFAULT_OUTPUT_JSONL
+    raw_dir = root / "data" / "raw"
+    processed_dir = root / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    ingest(raw_csv_path=raw_path, output_jsonl_path=out_path)
+    input_file = raw_dir / "dataset.csv"
+    output_file = processed_dir / "featurized.jsonl"
+
+    if not input_file.exists():
+        log_error(logger, f"Input file not found: {input_file}")
+        return False
+
+    log_info(logger, f"Starting ingestion from {input_file}")
+
+    valid_rows = []
+    with open(input_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Validate
+            is_valid, reason = filter_valid_rows([row], logger)
+            if is_valid:
+                valid_rows.append(row)
+            else:
+                # Log specific error
+                if reason == "invalid_smiles":
+                    log_invalid_smiles(logger, row.get("smiles", "unknown"))
+                elif reason == "missing_solvent":
+                    log_missing_data_excluded(logger, row.get("smiles", "unknown"))
+                else:
+                    log_error(logger, f"Row excluded: {reason}")
+
+    log_info(logger, f"Valid rows: {len(valid_rows)}")
+
+    # Featurize
+    featurized_data = []
+    for row in valid_rows:
+        try:
+            feat = featurize_row(row)
+            if feat:
+                featurized_data.append(feat)
+        except Exception as e:
+            log_error(logger, f"Featurization failed for {row.get('smiles', 'unknown')}: {e}")
+
+    # Write output
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for item in featurized_data:
+            f.write(json.dumps(item) + '\n')
+
+    log_info(logger, f"Ingestion complete. Output: {output_file}")
+    return True
+
+def main():
+    root = get_project_root()
+    success = ingest(root)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

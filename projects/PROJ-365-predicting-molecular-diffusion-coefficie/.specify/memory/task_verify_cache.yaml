@@ -1,3 +1,11 @@
+T000a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `data/raw` directory exists in the repository;\
+    \ the artifacts shown relate only to feature specifications and user stories,\
+    \ with no file\u2011system listing or commit showing the required directory creation.\
+    \ The task\u2019s core requirement\u2014a non\u2011empty `data/raw` folder for\
+    \ source CSVs\u2014is missing."
 T005:
   c: false
   h: 9a88c005301ef63148236490a1aefa07e78eb6d5a451b247e296521156d39f13
@@ -19,6 +27,13 @@ T006c:
   r: The required output file `artifacts/reports/runtime_memory.json` does not exist,
     so the total runtime is not being recorded as specified. The implementer must
     create the JSON file with the `"total_seconds"` key containing the measured runtime.
+T007b:
+  c: false
+  h: 7c129b20ccd42e764eaa7cd199f82383b68d96b20e170482e064115dd3cabdbe
+  r: "The provided `generate_synthetic.py` is truncated (ends with an unfinished `def`\
+    \ line) and contains no code that actually writes `data/raw/dataset.csv`. Moreover,\
+    \ the required `data/raw/dataset.csv` file does not exist. Consequently, the task\u2019\
+    s requirement of generating a deterministic synthetic CSV is not met."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
