@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Climate Raster Metadata Schema"
+description: "Schema for metadata of climate raster files."
+type: "object"
+properties:
+  raster_id:
+    type: "string"
+    description: "Unique identifier for the raster file"
+  variable_name:
+    type: "string"
+    description: "Name of the climate variable (e.g., 'bio1', 'bio12')"
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "URL where the raster was downloaded from"
+  version:
+    type: "string"
+    description: "Version of the dataset (e.g., 'WorldClim v2.1')"
+  time_period:
+    type: "string"
+    description: "Time period covered (e.g., '1970-2000', '2050-SSP2-4.5')"
+  resolution_arc_seconds:
+    type: "integer"
+    description: "Spatial resolution in arc-seconds"
+  projection:
+    type: "string"
+    description: "Coordinate Reference System (e.g., 'EPSG:4326')"
+  file_path:
+    type: "string"
+    description: "Relative path to the file in the repository"
+  checksum_sha256:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the file"
+required:
+  - raster_id
+  - variable_name
+  - source_url
+  - version
+  - time_period
+  - file_path
+  - checksum_sha256
+additionalProperties: false

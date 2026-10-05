@@ -1,52 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Metrics Schema"
-description: "Schema for aggregated model performance metrics."
+description: "Schema for model performance metrics and statistical tests."
 type: "object"
 properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model artifact"
   species:
     type: "string"
-    description: "Scientific name of the species."
+    description: "Target species name"
   algorithm:
     type: "string"
-    enum:
-      - "RandomForest"
-      - "Bioclim"
-      - "TargetGroupLogisticRegression"
-    description: "Algorithm used."
-  train_period:
+    enum: ["RF", "Bioclim", "MaxEnt"]
+    description: "Algorithm used for training"
+  test_set_period:
     type: "string"
-    enum:
-      - "1970-2000"
-      - "2005-2020"
-    description: "Training period of the model."
-  data_sufficiency:
-    type: "boolean"
-    description: "True if records >= min_required_count, False otherwise."
-  metrics:
-    type: "object"
-    properties:
-      AUC:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Area Under Curve."
-      TSS:
-        type: "number"
-        minimum: -1
-        maximum: 1
-        description: "True Skill Statistic."
-    required:
-      - AUC
-      - TSS
-  cv_folds:
+    description: "Time period of the test set (e.g., '2005-2020')"
+  auc:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Area Under the ROC Curve"
+  tss:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "True Skill Statistic"
+  threshold:
+    type: "number"
+    description: "Probability threshold used for TSS calculation"
+  sample_size:
     type: "integer"
-    minimum: 1
-    description: "Number of spatial blocks used."
+    minimum: 0
+    description: "Number of records in the test set"
+  status:
+    type: "string"
+    enum: ["PASS", "INSUFFICIENT_DATA"]
+    description: "Status flag based on sample size sufficiency"
+  delta_auc:
+    type: "number"
+    description: "Difference in AUC between historical and future projection"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from statistical test (e.g., Wilcoxon)"
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's h) for the comparison"
+  corrected_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value after multiple-comparison correction"
 required:
+  - model_id
   - species
   - algorithm
-  - train_period
-  - data_sufficiency
-  - metrics
-  - cv_folds
+  - test_set_period
+  - auc
+  - tss
+  - threshold
+  - sample_size
+  - status
 additionalProperties: false

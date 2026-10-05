@@ -5,31 +5,25 @@ type: "object"
 properties:
   species:
     type: "string"
-    description: "Scientific name."
+    description: "Species name"
   period:
     type: "string"
-    enum:
-      - "1970-2000"
-      - "2005-2020"
-    description: "Time period of the dataset."
-  record_count:
+    description: "Time period (e.g., '1970-2000', '2005-2020')"
+  recordCount:
     type: "integer"
-    minimum: 0
-    description: "Number of records after thinning."
-  min_required_count:
-    type: "integer"
-    minimum: 1
-    description: "Calculated minimum required count based on Cohen's h (0.50)."
+    description: "Number of records after thinning (logged for ALL species)"
   status:
     type: "string"
+    description: "Status ('SUFFICIENT' or 'INSUFFICIENT_DATA')"
     enum:
       - "SUFFICIENT"
       - "INSUFFICIENT_DATA"
-    description: "Status based on threshold (>= min_required_count)."
+  power_value:
+    type: "number"
+    description: "Calculated power for Cohen's h=0.50 (source: Wikipedia)"
 required:
   - species
   - period
-  - record_count
-  - min_required_count
+  - recordCount
   - status
 additionalProperties: false

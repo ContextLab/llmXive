@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Occurrence Record Schema"
+description: "Schema for validated occurrence records after preprocessing."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier (UUID)"
+  species_name:
+    type: "string"
+    description: "Latin name of the species"
+  latitude:
+    type: "number"
+    minimum: -90
+    maximum: 90
+    description: "Latitude coordinate (WGS84)"
+  longitude:
+    type: "number"
+    minimum: -180
+    maximum: 180
+    description: "Longitude coordinate (WGS84)"
+  event_date:
+    type: "string"
+    format: "date"
+    description: "Date of occurrence (YYYY-MM-DD)"
+  source_id:
+    type: "string"
+    description: "Original ID from GBIF or eBird"
+  download_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of data download"
+  breeding_season:
+    type: "boolean"
+    description: "Whether the record was filtered for breeding season"
+  thinned:
+    type: "boolean"
+    description: "Whether the record passed spatial thinning"
+required:
+  - id
+  - species_name
+  - latitude
+  - longitude
+  - event_date
+  - source_id
+  - download_timestamp
+  - breeding_season
+  - thinned
+additionalProperties: false
