@@ -1,14 +1,17 @@
-# Existing dependencies
-numpy
-pandas
-scipy
-scikit-learn
-nibabel
-nilearn
-pymc
-numpyro
-openneuro-py
-pytest
-pyyaml
-arviz
-# New dependencies added for this task if any (none strictly new, using existing)
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+nibabel>=3.2.0
+nilearn>=0.8.0
+pymc>=5.0.0
+numpyro>=0.10.0
+openneuro-py>=1.0.0
+pytest>=7.0.0
+pyyaml>=6.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+arviz>=0.13.0
+jax>=0.3.0
+jaxlib>=0.3.0
+tqdm>=4.62.0

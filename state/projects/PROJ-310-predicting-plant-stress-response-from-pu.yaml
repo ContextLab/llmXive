@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T12:38:35.977611Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-310-predicting-plant-stress-response-from-pu
-last_run_id: a906001f-f74c-437c-9950-1bfa09204be7
+last_run_id: 61a987b7-a3b0-4a98-83d6-e0b086846d61
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-310-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu
 title: Predicting Plant Stress Response from Publicly Available Metabolomic Data and
   Environmental Factors
-updated_at: '2026-10-02T22:39:24.250153Z'
+updated_at: '2026-10-05T09:44:37.900650Z'

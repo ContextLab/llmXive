@@ -1,0 +1,16 @@
+T020:
+  c: false
+  h: 01292f74bbe027f31fee22235d5b1234e07bbbc856c2aab04766d90aeebec70e
+  r: "The provided `stats.py` does not contain any function that loops over the cutoffs\u202F\
+    [2,\u202F3,\u202F4], computes `spike_point`/`slope_change`, and writes them to\
+    \ `data/results/sensitivity_analysis.json`. Moreover, the required JSON output\
+    \ file is absent from the repository. Consequently the task\u2019s core requirements\
+    \ are not met."
+T021:
+  c: false
+  h: 320a4a252215a754630bf289194731e83f2f13057d9af7dafdb2a82c662f329c
+  r: "The repository lacks the required output files (`data/processed/execution_logs.csv`\
+    \ and `data/results/anova_results.json`), and the provided `code/main.py` excerpt\
+    \ does not show any logic that writes raw metrics to the CSV or aggregated stats\
+    \ to the JSON. Consequently, the claimed data\u2011persistence feature is not\
+    \ actually implemented."

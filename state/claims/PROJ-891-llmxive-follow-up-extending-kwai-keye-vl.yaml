@@ -1508,22 +1508,6 @@
   updated_at: '2026-09-20T09:52:18Z'
 - artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   attempts: 1
-  canonical: Kwai Keye-VL-2.0 Technical Report arXiv 2606.10651
-  claim_id: c_71e7fc0a
-  context: 'Tasks: llmXive follow-up: extending ''Kwai Keye-VL-2.0 Technical Report
-    (2606.10651, https://arxiv.org/abs/2606.10651)'''
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Kwai Keye-VL-2.0 Technical Report is identified by arXiv ID 2606.10651.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T22:39:28Z'
-- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
-  attempts: 1
   canonical: opencv-python version 4.9.0.80
   claim_id: c_da005c89
   context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
@@ -1983,3 +1967,457 @@
   source_type: external
   status: verified
   updated_at: '2026-09-23T22:50:23Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Control group consists of square-cropped clips
+  claim_id: c_66c76d06
+  context: 'Modify the ''Technical Context'' and ''Summary'' sections to explicitly
+    state that: (1) the control group consists of ''square-cropped control clips''
+    generated from the source videos'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_group_consists_of_square-cropped_clips
+  kind: entity_fact
+  raw_text: The control group consists of square-cropped control clips generated from
+    the source videos, not original unmodified source videos.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:50:20Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Analysis uses Paired tests on source_id pairs
+  claim_id: c_cbd5033f
+  context: and (2) the analysis uses 'Paired tests' (t-test/Wilcoxon) on `source_id`
+    pairs (not 'Independent Samples tests').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_Paired_tests_on_source_id_pairs
+  kind: entity_fact
+  raw_text: The analysis uses Paired tests (t-test/Wilcoxon) on source_id pairs, not
+    Independent Samples tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:50:53Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Primary subject is object with largest bounding box area
+  claim_id: c_e9d6262a
+  context: For each frame, detect the 'primary subject' as the object with the largest
+    **bounding box area**.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_subject_is_object_with_largest_bounding_box_area
+  kind: magnitude
+  raw_text: The primary subject is defined as the object with the largest bounding
+    box area.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:51:17Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Clips skipped if bounding box area reduction > 95%
+  claim_id: c_aaf74493
+  context: Calculate the ratio of the **primary subject's bounding box area** (from
+    T012c) after distortion to the original. If area reduction >95%, skip clip and
+    log to `data/outputs/exclusions.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clips are skipped if the primary subject's bounding box area reduction
+    after distortion exceeds 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:51:17Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Distortion ratios 1:10, 10:1, 1:20, 20:1
+  claim_id: c_f17b3f9f
+  context: Programmatically generate a synthetic video benchmark dataset by applying
+    extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aspect ratio distortion configurations include 1:10, 10:1, 1:20, and
+    20:1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:51:35Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Kwai Keye-VL model quantized to INT4
+  claim_id: c_ad4b1c4a
+  context: Execute the Kwai Keye-VL model (quantized to INT4) on the generated extreme-aspect
+    and square-cropped datasets using a CPU-only environment
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kwai_Keye-VL_model_quantized_to_INT4
+  kind: entity_fact
+  raw_text: The Kwai Keye-VL model is quantized to INT4 for CPU-only execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:52:08Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Peak VmRSS < 7GB
+  claim_id: c_a8fcfb83
+  context: Peak VmRSS must be < 7GB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_VmRSS_%3C_7GB
+  kind: magnitude
+  raw_text: Peak VmRSS must be less than 7GB during inference.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:52:34Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Fallback to FP16 Vision Encoder and INT4 LLM
+  claim_id: c_efab894b
+  context: If INT4 load fails, load the **Vision Encoder in FP16** and the **LLM in
+    INT4**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_FP16_Vision_Encoder_and_INT4_LLM
+  kind: entity_fact
+  raw_text: If INT4 load fails, the system falls back to loading the Vision Encoder
+    in FP16 and the LLM in INT4.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:52:55Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Independent Samples tests rejected
+  claim_id: c_a9a7215d
+  context: '**Constraint**: **Reject Independent Samples tests (Welch''s t-test /
+    Mann-Whitney U)** as per FR-005 and Spec US-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independent_Samples_tests_rejected
+  kind: entity_fact
+  raw_text: Independent Samples tests (Welch's t-test / Mann-Whitney U) are rejected
+    for the primary hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:53:29Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 2
+  canonical: Kwai Keye-VL-2.0 Technical Report arXiv 2606.10651
+  claim_id: c_71e7fc0a
+  context: 'Tasks: llmXive follow-up: extending ''Kwai Keye-VL-2.0 Technical Report
+    (2606.10651, https://arxiv.org/abs/2606.10651)'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Kwai Keye-VL-2.0 Technical Report is identified by arXiv ID 2606.10651.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:55:47Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: opencv-python version 4.9.0.80 required
+  claim_id: c_a38bb1ed
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    opencv-python==4.9.0.80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires opencv-python version 4.9.0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:56:11Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: transformers version 4.42.0 required
+  claim_id: c_5139b9d9
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    transformers==4.42.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires transformers version 4.42.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:56:41Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4 required
+  claim_id: c_8c01b929
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    numpy==1.26.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:56:58Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2 required
+  claim_id: c_04703863
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    pandas==2.2.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:57:18Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: scipy version 1.13.1 required
+  claim_id: c_c5d9ccb8
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    scipy==1.13.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scipy version 1.13.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:57:52Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: psutil version 6.0.0 required
+  claim_id: c_43bb63c9
+  context: 'Create/Update requirements.txt with pinned versions to ensure reproducibility:
+    psutil==6.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires psutil version 6.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:58:08Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: ultralytics version 8.2.0 required for YOLOv8
+  claim_id: c_86e49107
+  context: ultralytics==8.2.0 (Added for YOLOv8 bounding box detection).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires ultralytics version 8.2.0 for YOLOv8 bounding box
+    detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:58:23Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Synthetic benchmark aspect ratios 1:10, 10:1, 1:20, 20:1
+  claim_id: c_9fc43e0c
+  context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
+    applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet
+    Captions dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic benchmark applies aspect ratio distortions of 1:10, 10:1,
+    1:20, and 20:1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:58:54Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Kwai Keye-VL model quantized to INT4
+  claim_id: c_ce12085a
+  context: 'Goal: Execute the Kwai Keye-VL model (quantized to INT4) on the generated
+    extreme-aspect and square-cropped datasets using a CPU-only environment'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kwai_Keye-VL_model_quantized_to_INT4
+  kind: entity_fact
+  raw_text: The Kwai Keye-VL model is quantized to INT4 for CPU inference.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:59:23Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Time limit 21600 seconds
+  claim_id: c_5203b68b
+  context: Create config.yaml with time_limit_seconds=21600 (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time limit for the batch processing is 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:59:52Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Primary subject defined as largest bounding box area
+  claim_id: c_f2b51d59
+  context: 'Logic: For each frame, detect the ''primary subject'' as the object with
+    the largest bounding box area.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_subject_defined_as_largest_bounding_box_area
+  kind: magnitude
+  raw_text: The primary subject is identified as the object with the largest bounding
+    box area.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:00:21Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Skip clips if bounding box area reduction > 95%
+  claim_id: c_fd7f7753
+  context: Calculate the ratio of the primary subject's bounding box area (from T012c)
+    after distortion to the original. If area reduction >95%, skip clip and log to
+    data/outputs/exclusions.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clips are skipped if the primary subject's bounding box area reduction
+    exceeds 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:00:22Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Skip or upsample videos with FPS < 10
+  claim_id: c_a1d30249
+  context: 'Implement low FPS check: If FPS < 10, skip/upsample with warning.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_or_upsample_videos_with_FPS_%3C_10
+  kind: magnitude
+  raw_text: Videos with FPS less than 10 are skipped or upsampled with a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:01:18Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Exclude distortions reducing content to 1-pixel line
+  claim_id: c_4af3638f
+  context: 'Implement 1-pixel line check: If distortion reduces content to 1-pixel
+    line, flag as ''unresolvable'', exclude, log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Distortions reducing content to a 1-pixel line are flagged as unresolvable
+    and excluded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:01:32Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Fallback configuration Vision Encoder FP16 LLM INT4
+  claim_id: c_287eb8fa
+  context: 'Logic: If INT4 load fails, load the Vision Encoder in FP16 and the LLM
+    in INT4.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_configuration_Vision_Encoder_FP16_LLM_INT4
+  kind: entity_fact
+  raw_text: The fallback configuration uses a Vision Encoder in FP16 and an LLM in
+    INT4.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:01:54Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Reject Independent Samples tests Welch's t-test Mann-Whitney U
+  claim_id: c_1104bf0a
+  context: 'Constraint: Reject Independent Samples tests (Welch''s t-test / Mann-Whitney
+    U) as per FR-005 and Spec US-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reject_Independent_Samples_tests_Welch's_t-test_Mann-Whitney
+  kind: entity_fact
+  raw_text: The statistical analysis rejects Independent Samples tests such as Welch's
+    t-test and Mann-Whitney U.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T10:02:25Z'

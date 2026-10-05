@@ -1,8 +1,8 @@
 """
-Robust File I/O utilities for the llmXive pipeline.
+code/utils/io.py
 
-Provides functions for loading/saving CSV, JSON, YAML, and JSONL files,
-as well as directory and checksum operations.
+Robust file loading, saving, and checksum verification utilities.
+Supports CSV, JSON, JSONL, and YAML formats.
 """
 
 import csv
@@ -11,34 +11,47 @@ import os
 import sys
 import hashlib
 import logging
+import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, TextIO
+from typing import Any, Dict, List, Optional, Union
 
+# Try to import yaml, but allow failure if not installed (lazy load in functions)
 try:
     import yaml
+    YAML_AVAILABLE = True
 except ImportError:
-    yaml = None
-
-# Configure logging for this module
-logger = logging.getLogger(__name__)
+    YAML_AVAILABLE = False
 
 
 class IOLoadError(Exception):
-    """Raised when a file load operation fails."""
+    """Raised when a file fails to load."""
     pass
 
 
 class IOSaveError(Exception):
-    """Raised when a file save operation fails."""
+    """Raised when a file fails to save."""
     pass
 
 
-def ensure_dir(path: Union[str, Path]) -> Path:
+def get_logger(name: str = "io_utils") -> logging.Logger:
+    """Get a logger instance for this module."""
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
+
+
+def ensure_dir(directory: Union[str, Path]) -> Path:
     """
-    Ensure a directory exists. Creates it if it doesn't.
+    Ensure a directory exists, creating it if necessary.
 
     Args:
-        path: Path to the directory.
+        directory: Path to the directory.
 
     Returns:
         The Path object for the directory.
@@ -46,13 +59,12 @@ def ensure_dir(path: Union[str, Path]) -> Path:
     Raises:
         IOSaveError: If the directory cannot be created.
     """
-    dir_path = Path(path)
+    path = Path(directory)
     try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {dir_path}")
-        return dir_path
+        path.mkdir(parents=True, exist_ok=True)
     except OSError as e:
-        raise IOSaveError(f"Failed to create directory {dir_path}: {e}")
+        raise IOSaveError(f"Failed to create directory {path}: {e}")
+    return path
 
 
 def file_exists(path: Union[str, Path]) -> bool:
@@ -68,65 +80,66 @@ def file_exists(path: Union[str, Path]) -> bool:
     return Path(path).is_file()
 
 
-def load_csv(path: Union[str, Path], **kwargs) -> List[Dict[str, Any]]:
+def load_csv(path: Union[str, Path], delimiter: str = ',') -> List[Dict[str, Any]]:
     """
     Load a CSV file into a list of dictionaries.
 
     Args:
         path: Path to the CSV file.
-        **kwargs: Additional arguments passed to csv.DictReader.
+        delimiter: Delimiter used in the CSV.
 
     Returns:
-        A list of dictionaries, one per row.
+        List of dictionaries representing rows.
 
     Raises:
         IOLoadError: If the file cannot be read or parsed.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise IOLoadError(f"CSV file not found: {file_path}")
+    path = Path(path)
+    if not path.is_file():
+        raise IOLoadError(f"CSV file not found: {path}")
 
     try:
-        with open(file_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f, **kwargs)
+        with open(path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter=delimiter)
             data = list(reader)
-        logger.info(f"Loaded {len(data)} rows from {file_path}")
         return data
     except Exception as e:
-        raise IOLoadError(f"Failed to load CSV {file_path}: {e}")
+        raise IOLoadError(f"Failed to load CSV {path}: {e}")
 
 
-def save_csv(data: List[Dict[str, Any]], path: Union[str, Path], **kwargs) -> None:
+def save_csv(data: List[Dict[str, Any]], path: Union[str, Path], delimiter: str = ',') -> None:
     """
     Save a list of dictionaries to a CSV file.
 
     Args:
         data: List of dictionaries to save.
         path: Path to the output CSV file.
-        **kwargs: Additional arguments passed to csv.DictWriter.
+        delimiter: Delimiter to use in the CSV.
 
     Raises:
         IOSaveError: If the file cannot be written.
     """
-    file_path = Path(path)
-    ensure_dir(file_path.parent)
+    path = Path(path)
+    ensure_dir(path.parent)
 
     if not data:
-        logger.warning(f"Attempting to save empty data to {file_path}")
-        # Create an empty file or handle as needed
-        with open(file_path, 'w', newline='', encoding='utf-8') as f:
-            pass
-        return
+        # Write empty file if no data
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                pass
+            return
+        except Exception as e:
+            raise IOSaveError(f"Failed to save empty CSV {path}: {e}")
+
+    fieldnames = list(data[0].keys())
 
     try:
-        fieldnames = data[0].keys()
-        with open(file_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, **kwargs)
+        with open(path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=delimiter)
             writer.writeheader()
             writer.writerows(data)
-        logger.info(f"Saved {len(data)} rows to {file_path}")
     except Exception as e:
-        raise IOSaveError(f"Failed to save CSV {file_path}: {e}")
+        raise IOSaveError(f"Failed to save CSV {path}: {e}")
 
 
 def load_json(path: Union[str, Path]) -> Any:
@@ -137,125 +150,66 @@ def load_json(path: Union[str, Path]) -> Any:
         path: Path to the JSON file.
 
     Returns:
-        The parsed JSON object (dict, list, etc.).
+        Parsed JSON content (dict, list, etc.).
 
     Raises:
         IOLoadError: If the file cannot be read or parsed.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise IOLoadError(f"JSON file not found: {file_path}")
+    path = Path(path)
+    if not path.is_file():
+        raise IOLoadError(f"JSON file not found: {path}")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        logger.debug(f"Loaded JSON from {file_path}")
-        return data
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
     except json.JSONDecodeError as e:
-        raise IOLoadError(f"Invalid JSON in {file_path}: {e}")
+        raise IOLoadError(f"Invalid JSON in {path}: {e}")
     except Exception as e:
-        raise IOLoadError(f"Failed to load JSON {file_path}: {e}")
+        raise IOLoadError(f"Failed to load JSON {path}: {e}")
 
 
 def save_json(data: Any, path: Union[str, Path], indent: int = 2) -> None:
     """
-    Save an object to a JSON file.
+    Save data to a JSON file.
 
     Args:
-        data: Object to save (must be JSON serializable).
+        data: Data to save (must be JSON serializable).
         path: Path to the output JSON file.
         indent: Indentation level for pretty printing.
 
     Raises:
         IOSaveError: If the file cannot be written.
     """
-    file_path = Path(path)
-    ensure_dir(file_path.parent)
+    path = Path(path)
+    ensure_dir(path.parent)
 
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=indent, default=str)
-        logger.debug(f"Saved JSON to {file_path}")
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=indent)
     except Exception as e:
-        raise IOSaveError(f"Failed to save JSON {file_path}: {e}")
-
-
-def load_yaml(path: Union[str, Path]) -> Any:
-    """
-    Load a YAML file.
-
-    Args:
-        path: Path to the YAML file.
-
-    Returns:
-        The parsed YAML object.
-
-    Raises:
-        IOLoadError: If yaml module is missing, file not found, or parse error.
-    """
-    if yaml is None:
-        raise IOLoadError("PyYAML is not installed. Install via 'pip install pyyaml'")
-
-    file_path = Path(path)
-    if not file_path.exists():
-        raise IOLoadError(f"YAML file not found: {file_path}")
-
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f)
-        logger.debug(f"Loaded YAML from {file_path}")
-        return data
-    except yaml.YAMLError as e:
-        raise IOLoadError(f"Invalid YAML in {file_path}: {e}")
-    except Exception as e:
-        raise IOLoadError(f"Failed to load YAML {file_path}: {e}")
-
-
-def save_yaml(data: Any, path: Union[str, Path]) -> None:
-    """
-    Save an object to a YAML file.
-
-    Args:
-        data: Object to save.
-        path: Path to the output YAML file.
-
-    Raises:
-        IOSaveError: If yaml module is missing or file cannot be written.
-    """
-    if yaml is None:
-        raise IOSaveError("PyYAML is not installed. Install via 'pip install pyyaml'")
-
-    file_path = Path(path)
-    ensure_dir(file_path.parent)
-
-    try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
-        logger.debug(f"Saved YAML to {file_path}")
-    except Exception as e:
-        raise IOSaveError(f"Failed to save YAML {file_path}: {e}")
+        raise IOSaveError(f"Failed to save JSON {path}: {e}")
 
 
 def load_jsonl(path: Union[str, Path]) -> List[Dict[str, Any]]:
     """
-    Load a JSON Lines file.
+    Load a JSON Lines file (one JSON object per line).
 
     Args:
         path: Path to the JSONL file.
 
     Returns:
-        A list of dictionaries.
+        List of dictionaries.
 
     Raises:
         IOLoadError: If the file cannot be read or parsed.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise IOLoadError(f"JSONL file not found: {file_path}")
+    path = Path(path)
+    if not path.is_file():
+        raise IOLoadError(f"JSONL file not found: {path}")
 
     data = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -263,13 +217,10 @@ def load_jsonl(path: Union[str, Path]) -> List[Dict[str, Any]]:
                 try:
                     data.append(json.loads(line))
                 except json.JSONDecodeError as e:
-                    raise IOLoadError(f"Invalid JSON on line {line_num} in {file_path}: {e}")
-        logger.info(f"Loaded {len(data)} lines from {file_path}")
+                    raise IOLoadError(f"Invalid JSON on line {line_num} in {path}: {e}")
         return data
     except Exception as e:
-        if isinstance(e, IOLoadError):
-            raise
-        raise IOLoadError(f"Failed to load JSONL {file_path}: {e}")
+        raise IOLoadError(f"Failed to load JSONL {path}: {e}")
 
 
 def save_jsonl(data: List[Dict[str, Any]], path: Union[str, Path]) -> None:
@@ -283,16 +234,68 @@ def save_jsonl(data: List[Dict[str, Any]], path: Union[str, Path]) -> None:
     Raises:
         IOSaveError: If the file cannot be written.
     """
-    file_path = Path(path)
-    ensure_dir(file_path.parent)
+    path = Path(path)
+    ensure_dir(path.parent)
 
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             for item in data:
                 f.write(json.dumps(item) + '\n')
-        logger.debug(f"Saved {len(data)} lines to {file_path}")
     except Exception as e:
-        raise IOSaveError(f"Failed to save JSONL {file_path}: {e}")
+        raise IOSaveError(f"Failed to save JSONL {path}: {e}")
+
+
+def load_yaml(path: Union[str, Path]) -> Any:
+    """
+    Load a YAML file.
+
+    Args:
+        path: Path to the YAML file.
+
+    Returns:
+        Parsed YAML content.
+
+    Raises:
+        IOLoadError: If PyYAML is not installed, or if the file cannot be read.
+    """
+    if not YAML_AVAILABLE:
+        raise IOLoadError("PyYAML is not installed. Cannot load YAML files.")
+
+    path = Path(path)
+    if not path.is_file():
+        raise IOLoadError(f"YAML file not found: {path}")
+
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise IOLoadError(f"Invalid YAML in {path}: {e}")
+    except Exception as e:
+        raise IOLoadError(f"Failed to load YAML {path}: {e}")
+
+
+def save_yaml(data: Any, path: Union[str, Path]) -> None:
+    """
+    Save data to a YAML file.
+
+    Args:
+        data: Data to save.
+        path: Path to the output YAML file.
+
+    Raises:
+        IOSaveError: If PyYAML is not installed, or if the file cannot be written.
+    """
+    if not YAML_AVAILABLE:
+        raise IOSaveError("PyYAML is not installed. Cannot save YAML files.")
+
+    path = Path(path)
+    ensure_dir(path.parent)
+
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    except Exception as e:
+        raise IOSaveError(f"Failed to save YAML {path}: {e}")
 
 
 def compute_sha256(path: Union[str, Path], chunk_size: int = 8192) -> str:
@@ -304,131 +307,139 @@ def compute_sha256(path: Union[str, Path], chunk_size: int = 8192) -> str:
         chunk_size: Size of chunks to read at a time.
 
     Returns:
-        The hexadecimal SHA256 hash string.
+        Hexadecimal string of the SHA256 hash.
 
     Raises:
         IOLoadError: If the file cannot be read.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise IOLoadError(f"File not found for hashing: {file_path}")
+    path = Path(path)
+    if not path.is_file():
+        raise IOLoadError(f"File not found for hashing: {path}")
 
     sha256_hash = hashlib.sha256()
     try:
-        with open(file_path, "rb") as f:
+        with open(path, "rb") as f:
             for chunk in iter(lambda: f.read(chunk_size), b""):
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except Exception as e:
-        raise IOLoadError(f"Failed to compute hash for {file_path}: {e}")
+        raise IOLoadError(f"Failed to hash file {path}: {e}")
 
 
-def verify_checksums(checksum_file: Union[str, Path]) -> Dict[str, bool]:
+def verify_checksums(manifest_path: Union[str, Path], base_dir: Optional[Union[str, Path]] = None) -> Dict[str, bool]:
     """
-    Verify file checksums against a stored checksum file.
+    Verify file checksums against a manifest.
 
-    The checksum file is expected to be a JSON file with a structure like:
-    {
-        "relative/path/file.txt": "sha256_hash_string",
-        ...
-    }
+    The manifest is expected to be a JSON or YAML file containing a dictionary
+    where keys are relative file paths and values are expected SHA256 hashes.
 
     Args:
-        checksum_file: Path to the JSON file containing checksums.
+        manifest_path: Path to the manifest file (JSON or YAML).
+        base_dir: Base directory for resolving relative paths in the manifest.
+                  If None, uses the directory of the manifest file.
 
     Returns:
-        A dictionary mapping file paths to verification status (True/False).
+        Dictionary mapping file paths to verification status (True/False).
 
     Raises:
-        IOLoadError: If the checksum file is missing or invalid.
+        IOLoadError: If the manifest cannot be loaded or if a file cannot be hashed.
     """
-    file_path = Path(checksum_file)
-    if not file_path.exists():
-        raise IOLoadError(f"Checksum file not found: {file_path}")
+    manifest_path = Path(manifest_path)
+    if not manifest_path.is_file():
+        raise IOLoadError(f"Manifest file not found: {manifest_path}")
 
+    # Determine base directory
+    if base_dir is None:
+        base_dir = manifest_path.parent
+    else:
+        base_dir = Path(base_dir)
+
+    # Load manifest
     try:
-        checksums = load_json(file_path)
+        if manifest_path.suffix in ['.yaml', '.yml']:
+            checksums = load_yaml(manifest_path)
+        else:
+            checksums = load_json(manifest_path)
     except IOLoadError:
+        # Re-raise load errors
         raise
 
-    results = {}
-    base_dir = file_path.parent
+    if not isinstance(checksums, dict):
+        raise IOLoadError("Manifest must be a dictionary of {path: hash}")
 
+    results = {}
     for rel_path, expected_hash in checksums.items():
         full_path = base_dir / rel_path
-        if not full_path.exists():
-            results[rel_path] = False
-            logger.warning(f"File missing for checksum verification: {full_path}")
-            continue
-
         try:
             actual_hash = compute_sha256(full_path)
-            is_valid = actual_hash == expected_hash
-            results[rel_path] = is_valid
-            if not is_valid:
-                logger.error(f"Checksum mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
-            else:
-                logger.debug(f"Checksum verified for {rel_path}")
+            results[rel_path] = (actual_hash == expected_hash)
         except IOLoadError as e:
+            # Log but don't fail the whole process if a file is missing
+            # The caller can check the boolean result
             results[rel_path] = False
-            logger.error(f"Error verifying {rel_path}: {e}")
 
     return results
 
 
 def main() -> None:
     """
-    Command-line interface for the io module.
+    CLI entry point for io utilities.
 
     Usage:
-        python -m code.utils.io verify-checksums --path <checksum_file>
-
-    Currently supports:
-        - verify-checksums: Verify files against a JSON checksum manifest.
+        python code/utils/io.py verify-checksums --manifest <path> [--base-dir <path>]
     """
-    import argparse
-
     parser = argparse.ArgumentParser(
-        description="Utilities for file I/O and checksum verification."
+        description="IO Utilities for file loading, saving, and verification.",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
     # verify-checksums command
     verify_parser = subparsers.add_parser(
-        "verify-checksums",
-        help="Verify file checksums against a JSON manifest."
+        'verify-checksums',
+        help='Verify file checksums against a manifest.'
     )
     verify_parser.add_argument(
-        "--path",
+        '--manifest', '-m',
         type=str,
         required=True,
-        help="Path to the JSON file containing checksums."
+        help='Path to the manifest file (JSON or YAML).'
+    )
+    verify_parser.add_argument(
+        '--base-dir', '-b',
+        type=str,
+        default=None,
+        help='Base directory for resolving relative paths. Defaults to manifest directory.'
     )
 
     args = parser.parse_args()
 
-    if args.command == "verify-checksums":
+    if args.command == 'verify-checksums':
+        logger = get_logger()
+        logger.info(f"Verifying checksums from manifest: {args.manifest}")
         try:
-            results = verify_checksums(args.path)
-            all_valid = all(results.values())
-            
-            # Output results
-            if all_valid:
-                print("All checksums verified successfully.")
+            results = verify_checksums(args.manifest, args.base_dir)
+            all_pass = all(results.values())
+
+            logger.info(f"Verification Results:")
+            for path, passed in results.items():
+                status = "PASS" if passed else "FAIL"
+                logger.info(f"  {path}: {status}")
+
+            if all_pass:
+                logger.info("All checksums verified successfully.")
                 sys.exit(0)
             else:
-                failed = [k for k, v in results.items() if not v]
-                print(f"Verification failed for {len(failed)} files:")
-                for f in failed:
-                    print(f"  - {f}")
+                failed_count = sum(1 for v in results.values() if not v)
+                logger.error(f"Verification failed for {failed_count} file(s).")
                 sys.exit(1)
         except IOLoadError as e:
-            print(f"Error: {e}", file=sys.stderr)
+            logger.error(f"Error during verification: {e}")
             sys.exit(1)
     else:
         parser.print_help()
-        sys.exit(1)
+        sys.exit(0)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

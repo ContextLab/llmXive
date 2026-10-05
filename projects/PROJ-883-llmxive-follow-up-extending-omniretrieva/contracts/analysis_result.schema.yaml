@@ -1,118 +1,156 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: AnalysisResult
 description: >
-  Schema for the aggregated statistical analysis results (ANOVA, sensitivity,
-  error rates) produced by the research pipeline.
+  Aggregated statistical analysis results from the experiment pipeline.
+  Includes ANOVA results, sensitivity analysis, and visualization metadata.
 type: object
 required:
   - analysis_id
   - generated_at
-  - method
+  - experiment_config
   - results
 properties:
   analysis_id:
     type: string
     description: Unique identifier for this analysis run.
+    pattern: "^a-\\d{5}$"
   generated_at:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of generation.
-  method:
-    type: string
-    enum:
-      - anova_two_way
-      - sensitivity_analysis
-      - error_rate_comparison
-      - post_hoc_tukey
-    description: The statistical method used.
-  input_data_source:
-    type: string
-    description: Path to the input data file (e.g., data/processed/execution_logs.csv).
-  results:
+    description: ISO 8601 timestamp of analysis completion.
+  experiment_config:
     type: object
-    description: Method-specific result object.
+    description: Configuration snapshot used for this analysis.
     properties:
-      # For ANOVA
-      f_statistic:
-        type: number
-      p_value:
-        type: number
-      interaction_term:
-        type: string
-        description: Name of the interaction term tested (e.g., "complexity_level:source_type").
-      confidence_interval:
+      seed:
+        type: integer
+      sample_size:
+        type: integer
+      source_types:
         type: array
         items:
-          type: number
-        minItems: 2
-        maxItems: 2
-      slope_ratio:
-        type: number
-        description: Ratio of slopes (graph vs text) as per SC-001.
-      hypothesis_supported:
-        type: boolean
-        description: True if p < 0.05.
-      diagnostics:
-        type: object
-        description: Normality/Homogeneity check results (Levene, Shapiro-Wilk).
-        properties:
-          levene_statistic:
-            type: number
-          levene_p_value:
-            type: number
-          shapiro_statistic:
-            type: number
-          shapiro_p_value:
-            type: number
-          assumption_met:
-            type: boolean
-            description: Whether ANOVA assumptions were met.
-      
-      # For Sensitivity Analysis
-      sensitivity_points:
+          type: string
+      complexity_levels:
         type: array
+        items:
+          type: integer
+    additionalProperties: true
+  results:
+    type: object
+    description: Container for all statistical findings.
+    properties:
+      anova:
+        type: object
+        description: Two-Way ANOVA results (Latency ~ Complexity * Source).
+        properties:
+          interaction_f_statistic:
+            type: number
+          interaction_p_value:
+            type: number
+          interaction_ci_lower:
+            type: number
+          interaction_ci_upper:
+            type: number
+          slope_ratio_graph_text:
+            type: number
+            description: Ratio of slopes (graph vs text) as per SC-001.
+          post_hoc_tukey:
+            type: array
+            description: Pairwise comparison results.
+            items:
+              type: object
+              properties:
+                group1:
+                  type: string
+                group2:
+                  type: string
+                p_value:
+                  type: number
+                significant:
+                  type: boolean
+          assumption_checks:
+            type: object
+            properties:
+              levene_test:
+                type: object
+                properties:
+                  statistic:
+                    type: number
+                  p_value:
+                    type: number
+              shapiro_test:
+                type: object
+                properties:
+                  statistic:
+                    type: number
+                  p_value:
+                    type: number
+            description: Diagnostic checks (Levene, Shapiro-Wilk).
+        required:
+          - interaction_f_statistic
+          - interaction_p_value
+          - slope_ratio_graph_text
+      translation_errors:
+        type: object
+        description: Aggregated translation error rates.
+        properties:
+          overall_rate:
+            type: number
+          by_complexity:
+            type: object
+            description: Error rates keyed by complexity level (string keys for JSON).
+            additionalProperties:
+              type: number
+          by_source:
+            type: object
+            description: Error rates keyed by source type.
+            additionalProperties:
+              type: number
+          low_vs_high_diff:
+            type: number
+            description: Absolute difference in error rates between low and high complexity (SC-002).
+        required:
+          - overall_rate
+      sensitivity_analysis:
+        type: array
+        description: Results from sensitivity analysis over cutoffs [2, 3, 4].
         items:
           type: object
           properties:
             cutoff:
               type: integer
-              description: The complexity cutoff tested (2, 3, or 4).
             spike_point:
               type: number
-              description: x-value where max absolute difference in mean latency occurs.
+              description: X-value where max absolute difference in mean latency occurs.
             slope_change:
               type: number
-              description: Calculated change in slope at the spike.
-      
-      # For Error Rate Comparison
-      error_rates:
-        type: object
-        properties:
-          low_complexity:
-            type: number
-            description: Error rate for low complexity group.
-          high_complexity:
-            type: number
-            description: Error rate for high complexity group.
-          absolute_difference:
-            type: number
-            description: Absolute difference between groups (SC-002).
-      
-      # For Post-Hoc
-      pairwise_comparisons:
-        type: array
-        items:
-          type: object
-          properties:
-            group1:
+            description:
               type: string
-            group2:
-              type: string
-            p_value:
-              type: number
-            significant:
-              type: boolean
-  metadata:
+        required:
+          - cutoff
+          - spike_point
+          - slope_change
+      hypothesis_status:
+        type: string
+        description: Final hypothesis conclusion.
+        enum:
+          - supported
+          - rejected
+          - inconclusive
+    required:
+      - anova
+      - translation_errors
+      - hypothesis_status
+  artifacts:
     type: object
-    description: Additional context (software versions, random seeds).
+    description: Paths to generated artifacts.
+    properties:
+      interaction_plot_png:
+        type: string
+      interaction_plot_pdf:
+        type: string
+      sensitivity_json:
+        type: string
+      research_summary_md:
+        type: string
     additionalProperties: true

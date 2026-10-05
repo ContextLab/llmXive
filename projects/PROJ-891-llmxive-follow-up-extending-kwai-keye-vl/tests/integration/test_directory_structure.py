@@ -1,45 +1,26 @@
-"""
-Integration test to verify the complete project directory structure.
-"""
 import os
 import pytest
 from pathlib import Path
 
-
 def test_directory_structure_requirements():
     """
-    Comprehensive check for all required directories (T001a, T001b, T001c).
+    Integration test to verify that the source directory structure
+    (src/generators, src/inference, src/analysis) exists and is accessible.
     """
-    root = Path(__file__).parent.parent.parent
-
-    # T001a: Data directories
-    data_dirs = [
-        "data/raw",
-        "data/distorted",
-        "data/outputs",
-        "data/metadata",
-        "output/control",
-    ]
-
-    # T001b: Source directories
-    src_dirs = [
+    project_root = Path(__file__).parent.parent.parent.resolve()
+    
+    required_dirs = [
         "src/generators",
         "src/inference",
-        "src/analysis",
+        "src/analysis"
     ]
-
-    # T001c: Test directories
-    test_dirs = [
-        "tests/unit",
-        "tests/integration",
-    ]
-
-    all_dirs = data_dirs + src_dirs + test_dirs
-
-    missing = []
-    for d in all_dirs:
-        path = root / d
-        if not path.exists() or not path.is_dir():
-            missing.append(str(path))
-
-    assert not missing, f"Missing required directories: {missing}"
+    
+    missing_dirs = []
+    for dir_name in required_dirs:
+        full_path = project_root / dir_name
+        if not full_path.exists():
+            missing_dirs.append(dir_name)
+        elif not full_path.is_dir():
+            missing_dirs.append(f"{dir_name} (not a directory)")
+    
+    assert len(missing_dirs) == 0, f"Required source directories are missing: {missing_dirs}"

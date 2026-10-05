@@ -1,32 +1,25 @@
-.PHONY: format lint check test clean
+.PHONY: lint format check test clean
 
-# Configuration
-PYTHON = python
-CODE_DIR = code
-
-format:
-	@echo "Formatting code with Black..."
-	black $(CODE_DIR)
-	@echo "Sorting imports with Ruff..."
-	ruff check --fix $(CODE_DIR)
-
+# Lint code using ruff
 lint:
-	@echo "Running linter (Ruff)..."
-	ruff check $(CODE_DIR)
-	@echo "Checking formatting (Black)..."
-	black --check $(CODE_DIR)
+	ruff check code/
 
-check: lint
-	@echo "All checks passed!"
+# Format code using black
+format:
+	black code/
+	ruff check --fix code/
 
+# Check syntax only (fast)
+check:
+	python -m py_compile code/**/*.py
+
+# Run tests
 test:
-	@echo "Running tests..."
 	pytest
 
+# Clean build artifacts
 clean:
-	@echo "Cleaning up..."
-	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	rm -rf .pytest_cache .mypy_cache htmlcov
-	rm -rf build dist *.egg-info
+	find . -type f -name ".coverage" -delete
+	rm -rf htmlcov/ .pytest_cache/

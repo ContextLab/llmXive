@@ -2227,3 +2227,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T16:33:46Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: Voxel mask reduced by at least 50% compared to original
+  claim_id: c_0973ed34
+  context: 'Verification: Verify that the mask covers the full brain volume (within
+    resolution constraints) and that the number of voxels is reduced by at least 50%
+    compared to the original.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Voxel_mask_reduced_by_at_least_50%25_compared_to_original
+  kind: magnitude
+  raw_text: Task must verify that the mask covers the full brain volume and that the
+    number of voxels is reduced by at least 50% compared to the original.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T09:49:12Z'

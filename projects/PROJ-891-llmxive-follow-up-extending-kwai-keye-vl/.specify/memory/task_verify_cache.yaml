@@ -1,26 +1,3 @@
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, screenshots, or code snippets were provided to demonstrate
-    that the required `src/generators`, `src/inference`, and `src/analysis` folders
-    actually exist in the repository. Without concrete evidence of these paths, the
-    claim cannot be verified. The implementer must supply proof (e.g., a tree view,
-    `ls` output, or a commit diff) showing the three directories are present.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the `tests/unit` and `tests/integration`
-    directories actually exist in the project repository; without such artifacts the
-    requirement to create the test directory structure is not satisfied. The implementer
-    must add the directories (and optionally placeholder test files) and confirm their
-    presence.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `models/` directory is provided; the artifact list is empty,
-    so we cannot confirm that the required cache directory was created. The implementer
-    must add the actual `models/` folder (or a listing showing its creation) to satisfy
-    the task.
 T007a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e

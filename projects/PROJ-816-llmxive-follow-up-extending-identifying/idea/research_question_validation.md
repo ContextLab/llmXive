@@ -4,31 +4,31 @@
 
 **Verdict**: fail
 
-The question is framed as a comparative benchmark of two specific algorithmic approaches (temporal DTW vs. geometric warping) under specific resource constraints (CPU vs. GPU), rather than asking a substantive question about neural coding or stimulus processing. The core inquiry is whether a specific lightweight method can match a complex one, which is a method-evaluation question whose answer is uninteresting outside the immediate engineering trade-off. The underlying phenomenon question ("Does temporal stability of broadband power contain sufficient cross-subject stimulus information to bypass anatomical warping?") is buried beneath the implementation details.
+The research question is heavily fixated on the performance of a specific implementation strategy (temporal stability of broadband power envelopes) as a substitute for another method (geometric warping), rather than asking a fundamental question about the nature of neural coding or stimulus representation. While the motivation mentions democratizing analysis, the core question "Does... contain sufficient... to enable accurate decoding" frames the scientific inquiry as a benchmarking exercise for a lightweight pipeline, making the answer dependent on the specific choice of DTW or cross-correlation rather than a generalizable biological insight.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (temporal alignment of broadband power envelopes) and the predicted variable (stimulus features derived from audio/video metadata) are sourced from completely independent modalities. The alignment metric is computed solely from the neural signal's temporal dynamics, while the target is the external stimulus, ensuring no mechanical guarantee of correlation exists by construction.
+The predictor (temporal stability of broadband power envelopes) is derived from the raw iEEG signal's high-frequency amplitude fluctuations, while the predicted variable (stimulus information/decoding accuracy) is derived from the external naturalistic stimulus metadata (video/audio features). These are independent data sources; the power envelope does not mechanically contain the specific semantic or acoustic features of the stimulus by construction, so a predictive relationship would be empirically informative.
 
 ### Triviality check
 
 **Verdict**: concern
 
-While a null result (that anatomical warping is essential) would be a meaningful negative finding regarding the sufficiency of temporal features, the positive result is heavily contingent on the specific "5-10%" tolerance defined in the question, which feels arbitrary. If the lightweight method fails by 15%, it is a clear "no," but if it succeeds by 1%, the scientific insight is marginal; the question is slightly skewed toward a specific engineering benchmark rather than a binary scientific truth about neural representation.
+While a null result (geometric warping is essential) would be scientifically valuable, a positive result is somewhat predictable given that broadband power is a robust correlate of local firing rates and stimulus-evoked responses; the primary novelty seems to be the *degree* of accuracy loss (5-10%) rather than the existence of the relationship itself. If the field already broadly accepts that temporal alignment can work for simple stimuli, the question risks being a "how much" engineering trade-off rather than a "whether" biological discovery, potentially limiting the impact of a positive finding to a methodological footnote.
 
 ### Question-narrowing check
 
 **Verdict**: fail
 
-The question explicitly names implementation constraints ("lightweight," "CPU-tractable," "comparable to complex hierarchical geometric models") as the primary variables of interest. A valid domain question would ask "To what extent does temporal stability of broadband power suffice for cross-subject stimulus decoding?" without pre-specifying the computational budget or the specific competing architecture as the central thesis.
+The question explicitly names an implementation constraint (avoiding anatomical geometric warping in favor of temporal stability metrics) and a specific computational goal (enabling decoding without GPU acceleration). A robust domain question would ask, "To what extent is cross-subject stimulus information encoded in the temporal dynamics of broadband power independent of spatial electrode alignment?" rather than framing the inquiry around the sufficiency of a specific lightweight method to replace a complex one.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
 [REVISED]
-Does the temporal stability of broadband power envelopes contain sufficient cross-subject stimulus information to enable accurate decoding without requiring anatomical geometric warping?
+To what extent is cross-subject stimulus information encoded in the temporal dynamics of broadband power envelopes, and is precise anatomical alignment strictly necessary to recover these shared neural representations across heterogeneous iEEG datasets?
 [/REVISED]
-The reframing removes the specific resource constraints (CPU/GPU) and the comparative benchmarking language, focusing instead on the fundamental scientific question of whether temporal dynamics alone can substitute for spatial alignment in cross-subject neural decoding. This allows the project to still investigate the lightweight method as the means to answer the question, rather than making the method's performance the question itself.
+The reframing shifts the focus from a binary "can we replace method A with method B" benchmark to a fundamental question about the sufficiency of temporal dynamics for cross-subject generalization, allowing the methodology to remain a tool for discovery rather than the subject of the inquiry itself.

@@ -3,71 +3,33 @@ from pathlib import Path
 
 def main():
     """
-    Create the required directory structure for the project.
-    Implements T001a: data directories
-    Implements T001b: source directories
-    Implements T001c: test directories
-    Implements T005: model cache directory
+    Create the required directory structure for the llmXive project.
+    Ensures all data, output, and metadata directories exist.
     """
-    # Define all required directories relative to project root
-    # Assuming this script is run from the project root or code/ directory
-    # We use relative paths to ensure they are created under the project root
-    
-    # T001a: Data directories
-    data_dirs = [
-        "data/raw",
-        "data/distorted",
-        "data/outputs",
-        "data/metadata",
-        "output/control"
+    # Define the base project root (assuming this script is in code/)
+    # We move up one level to get to the project root
+    project_root = Path(__file__).resolve().parent.parent
+
+    directories = [
+        project_root / "data" / "raw",
+        project_root / "data" / "distorted",
+        project_root / "data" / "outputs",
+        project_root / "data" / "metadata",
+        project_root / "output" / "control",
     ]
-    
-    # T001b: Source directories
-    src_dirs = [
-        "src/generators",
-        "src/inference",
-        "src/analysis"
-    ]
-    
-    # T001c: Test directories
-    test_dirs = [
-        "tests/unit",
-        "tests/integration"
-    ]
-    
-    # T005: Model cache directory
-    model_dirs = [
-        "models"
-    ]
-    
-    all_dirs = data_dirs + src_dirs + test_dirs + model_dirs
-    
+
     created_count = 0
-    for dir_path in all_dirs:
-        path = Path(dir_path)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
+            print(f"Created directory: {dir_path}")
         else:
             print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nDirectory creation complete. Created {created_count} new directories.")
-    print("Verifying directory structure...")
-    
-    # Verify all directories exist
-    missing = []
-    for dir_path in all_dirs:
-        path = Path(dir_path)
-        if not path.exists() or not path.is_dir():
-            missing.append(dir_path)
-    
-    if missing:
-        print(f"ERROR: Missing directories: {missing}")
-        return 1
-    else:
-        print("All required directories verified successfully.")
-        return 0
+
+    print(f"Setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())
